@@ -1,0 +1,6 @@
+interface:
+  display_name: "Evaluar readiness LKS-SDD"
+  short_description: "Evalúa preparación sin autorizar implementación"
+  default_prompt: "Usa $lks-sdd-assess-readiness para evaluar el siguiente incremento."
+policy:
+  allow_implicit_invocation: true

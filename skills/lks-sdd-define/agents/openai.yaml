@@ -1,0 +1,6 @@
+interface:
+  display_name: "Definir con LKS-SDD"
+  short_description: "Define aplicaciones con especificaciones trazables"
+  default_prompt: "Usa $lks-sdd-define para definir esta aplicación sin generar código."
+policy:
+  allow_implicit_invocation: true

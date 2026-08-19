@@ -1,0 +1,12 @@
+{
+  "id": "FX-M1-INSUFFICIENT",
+  "description": "Proyecto inicial sin incremento, decisiones ni trazabilidad suficientes.",
+  "project_id": "fixture-insufficient",
+  "increment": "INC-001",
+  "assertions": [
+    "readiness_is_blocked",
+    "blockers_are_explained",
+    "assessment_is_read_only",
+    "implementation_is_not_authorized"
+  ]
+}

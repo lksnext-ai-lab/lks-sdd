@@ -1,0 +1,6 @@
+interface:
+  display_name: "Ayuda LKS-SDD"
+  short_description: "Ayuda y orientación contextual LKS-SDD"
+  default_prompt: "Usa $lks-sdd-help para explicar el método y orientar sin modificar archivos."
+policy:
+  allow_implicit_invocation: true

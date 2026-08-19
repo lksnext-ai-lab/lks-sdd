@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "document_states": ["draft", "proposed", "confirmed", "superseded", "retired"],
+  "element_states": [
+    "fact",
+    "requirement",
+    "proposal",
+    "decision",
+    "assumption",
+    "open",
+    "blocked",
+    "not-applicable",
+    "planned",
+    "confirmed",
+    "rejected",
+    "retired"
+  ],
+  "identifier_prefixes": [
+    "OBJ",
+    "STK",
+    "USR",
+    "FR",
+    "NFR",
+    "TR",
+    "BR",
+    "AC",
+    "ADR",
+    "INT",
+    "DATA",
+    "SEC",
+    "PRIV",
+    "UX",
+    "INC",
+    "RISK",
+    "DEP",
+    "DEV",
+    "TEST",
+    "EVID",
+    "OPEN"
+  ]
+}

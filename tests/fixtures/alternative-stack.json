@@ -1,0 +1,19 @@
+{
+  "id": "FX-M1-ALTERNATIVE-STACK",
+  "description": "Alternativa tecnológica documentable todavía no confirmada.",
+  "project_id": "fixture-alternative",
+  "increment": "INC-001",
+  "proposal": {
+    "id": "ADR-002",
+    "title": "Pila web alternativa",
+    "status": "proposal",
+    "support_level": "documentable",
+    "rationale": "Restricción aportada por el fixture; requiere decisión explícita."
+  },
+  "assertions": [
+    "alternative_is_preserved_as_proposal",
+    "preferred_stack_is_not_auto_selected",
+    "missing_technology_decision_blocks_only_the_increment",
+    "implementation_is_not_authorized"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/technology-profile-1.0.json",
+  "title": "LKS-SDD technology profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "status",
+    "support_level",
+    "default_rigor",
+    "dimensions",
+    "capabilities",
+    "compatibility_rules"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,63}$"},
+    "version": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"},
+    "status": {"enum": ["candidate", "active", "withdrawn", "retired"]},
+    "support_level": {"enum": ["H0", "H1", "H2", "H3"]},
+    "default_rigor": {"enum": ["P0", "P1", "P2"]},
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frontend", "backend", "data", "identity", "integration", "delivery", "testing", "observability"],
+      "properties": {
+        "frontend": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "backend": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "data": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "identity": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "integration": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "delivery": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "testing": {"type": "array", "items": {"$ref": "#/$defs/component"}},
+        "observability": {"type": "array", "items": {"$ref": "#/$defs/component"}}
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["documentable", "analyzable", "implementable", "verifiable"],
+      "properties": {
+        "documentable": {"type": "boolean"},
+        "analyzable": {"type": "boolean"},
+        "implementable": {"type": "boolean"},
+        "verifiable": {"type": "boolean"}
+      }
+    },
+    "compatibility_rules": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "validated_at": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "review_due": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version_range"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version_range": {"type": "string", "minLength": 1},
+        "required": {"type": "boolean"}
+      }
+    }
+  }
+}
