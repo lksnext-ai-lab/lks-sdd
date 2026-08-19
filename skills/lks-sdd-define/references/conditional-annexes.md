@@ -18,4 +18,4 @@ Materialice un anexo únicamente cuando su aplicabilidad esté confirmada. Antes
 
 Para una decisión arquitectónica individual, use `assets/templates/03-solution/decisions/decision-record.md`, asigne un `ADR-###` estable y guarde el documento bajo `03-solution/decisions/`. Registre cada `ADR-###` en una sola tabla estructural para evitar duplicados y enlace el resto por referencia. No convierta la propuesta de la plantilla en una decisión confirmada.
 
-Costes, licencias y cumplimiento pueden registrarse en `ART-CONSTRAINTS` mientras el volumen sea manejable. Cree un anexo específico solo si mejora la decisión o la auditabilidad. Los entregables de cliente son vistas derivadas y permanecen fuera de M1.
+Costes, licencias y cumplimiento pueden registrarse en `ART-CONSTRAINTS` mientras el volumen sea manejable. Cree un anexo específico solo si mejora la decisión o la auditabilidad. Los borradores para cliente son vistas derivadas fuera de la fuente canónica: solo incluyen fuentes confirmadas y clasificadas para cliente/público y requieren revisión y aprobación humana.

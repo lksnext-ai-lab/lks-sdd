@@ -1,5 +1,7 @@
 # Cobertura auditable de M2
 
+Este documento conserva la fotografía histórica cerrada por la versión `0.2.0`. La adopción, migración y entrega incorporadas después se describen en `M3-COVERAGE.md`.
+
 ## Hechos verificados
 
 - Existe un único perfil H0: `WEB-FASTAPI-REACT-KEYCLOAK-PG`, estado `candidate`, versión `1.0.0-candidate.1`.

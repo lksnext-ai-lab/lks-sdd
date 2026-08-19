@@ -10,15 +10,15 @@ No. Puede comparar y proponer. La persona confirma las decisiones y su autoridad
 
 ## ¿FastAPI, React, PostgreSQL y Keycloak son obligatorios?
 
-No. Son candidatos preferentes todavía no materializados como perfil ejecutable en `0.1.0`. Una alternativa puede documentarse con su justificación.
+No. Integran el perfil H0 implementable y verificable `WEB-FASTAPI-REACT-KEYCLOAK-PG`, pero el perfil sigue siendo candidato y debe seleccionarse mediante una decisión confirmada. Una alternativa puede documentarse con su justificación.
 
 ## ¿`ready` significa que Codex puede empezar?
 
-No. Significa que no se conocen bloqueos para el alcance evaluado. La autorización humana para implementar es independiente y la implementación no existe en M1.
+No. Significa que no se conocen bloqueos para el alcance evaluado. La autorización humana para implementar es independiente; `lks-sdd-implement` exige además un preview y un hash coincidente antes de escribir.
 
 ## ¿Puedo usar LKS-SDD con un repositorio existente?
 
-M1 explica la ruta y evita escrituras prematuras. La inspección y materialización automatizadas están previstas para M3 y no deben simularse con una skill vacía.
+Sí. `lks-sdd-adopt-existing` realiza primero un inventario estático de solo lectura y externo al repositorio. La materialización solo continúa tras reconciliación, confirmación, baseline vigente, preview y autorización, y únicamente añade documentación LKS-SDD.
 
 ## ¿Funciona igual en GitHub Copilot o Claude?
 

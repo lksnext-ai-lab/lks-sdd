@@ -19,7 +19,7 @@ Lea [Codex, Work y repositorios](work-codex-guide.md) para entender esta separac
 ## 4. Dos rutas
 
 - **Aplicación nueva:** definir, decidir, planificar un incremento y evaluar su readiness.
-- **Repositorio existente:** empezar con preflight e inspección de solo lectura. La automatización de esta ruta sigue en backlog en `0.1.0`.
+- **Repositorio existente:** empezar con preflight e inspección estática de solo lectura; reconciliar lo observado con la intención confirmada antes de materializar documentación.
 
 ## 5. Cómo se decide
 
@@ -27,13 +27,13 @@ Hechos, requisitos, propuestas, decisiones, supuestos y pendientes conservan eti
 
 ## 6. Cuándo aparece el código
 
-M1 no genera código. Readiness evalúa un incremento y explica bloqueos, pero un resultado `ready` tampoco autoriza implementación.
+La definición y readiness no generan código. Un resultado `ready` tampoco autoriza implementación: el perfil H0 solo se prepara mediante un preview revisado y autorización explícita. La verificación se planifica antes de ejecutarse y distingue checks superados, fallidos y no ejecutados.
 
 ## 7. Primer paso a elegir
 
 - pedir una explicación breve;
 - definir una aplicación nueva sin código;
-- comprender la futura adopción de un repositorio existente;
+- iniciar o comprender la adopción segura de un repositorio existente;
 - consultar el estado de un proyecto ya inicializado;
 - evaluar un incremento documentado.
 

@@ -8,7 +8,7 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.2.0` implementa M0–M2: `lks-sdd-help`, `lks-sdd-define`, `lks-sdd-assess-readiness`, `lks-sdd-implement` y `lks-sdd-verify`. Incorpora el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, con scaffold y dependencias bloqueadas, validado de extremo a extremo en contenedores. La adopción automatizada de repositorios existentes continúa en M3. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables; los `agents/openai.yaml` son metadatos de interfaz e invocación.
+La versión `0.3.0` implementa M0–M3 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Incorpora el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, validado de extremo a extremo en contenedores, además de migración documental y vistas derivadas para cliente. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables; los `agents/openai.yaml` son metadatos de interfaz e invocación.
 
 ## Principios operativos
 
@@ -23,16 +23,18 @@ La versión `0.2.0` implementa M0–M2: `lks-sdd-help`, `lks-sdd-define`, `lks-s
 ## Estructura
 
 - `.codex-plugin/plugin.json`: manifiesto del plugin.
-- `skills/`: cinco workflows M1–M2 descubribles.
+- `skills/`: seis workflows M1–M3 descubribles.
 - `profiles/`: perfil H0 probado, lock exacto, guía y scaffold reproducible.
 - `schemas/`: contratos del índice, front matter, catálogos, perfil y lock.
-- `scripts/`: validación local del plugin y de proyectos consumidores.
+- `scripts/`: validación, trazabilidad, gates técnicos, migración y vistas derivadas.
+- `templates/client/`: plantilla profesional para borradores derivados, nunca fuente canónica.
 - `specs/canonical/`: copias exactas de las tres fuentes canónicas del incremento.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
-- `docs/ARCHITECTURE.md`: arquitectura M0–M2 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura M0–M3 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.
+- `docs/M3-COVERAGE.md`: correspondencia auditable entre adopción, migración y vistas cliente.
 
 ## Validación local
 

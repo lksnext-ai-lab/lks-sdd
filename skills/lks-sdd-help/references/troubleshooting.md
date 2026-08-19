@@ -2,7 +2,7 @@
 
 ## La skill no se activa
 
-Describa el objetivo o invoque de forma explícita `$lks-sdd-help`, `$lks-sdd-define` o `$lks-sdd-assess-readiness`. Compruebe que el plugin está disponible en la superficie actual. La activación implícita ayuda, pero no es una garantía contractual.
+Describa el objetivo o invoque de forma explícita la skill correspondiente: `$lks-sdd-help`, `$lks-sdd-define`, `$lks-sdd-adopt-existing`, `$lks-sdd-assess-readiness`, `$lks-sdd-implement` o `$lks-sdd-verify`. Compruebe que el plugin está disponible en Codex. La activación implícita ayuda, pero no es una garantía contractual.
 
 ## No se encuentra el proyecto
 
@@ -18,7 +18,7 @@ Lea el alcance del bloqueo y el cambio mínimo indicado. Confirme que requisito,
 
 ## Se detecta una aplicación existente
 
-Detenga la ruta `new`. Mantenga el repositorio sin cambios y explique el preflight de adopción. La automatización `lks-sdd-adopt-existing` no está implementada en `0.1.0`.
+Detenga la ruta `new` y continúe con `lks-sdd-adopt-existing`. El primer inventario debe ser estático y de solo lectura; no materialice hasta confirmar alcance, cobertura, reconciliación, baseline vigente y preview.
 
 ## Falta una capacidad de Work o Codex
 

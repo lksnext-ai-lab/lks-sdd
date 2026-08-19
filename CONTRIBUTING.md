@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.1.0` es un incremento local M0–M1 para revisión. Una contribución puede mejorar ayuda, definición, readiness, contratos documentales, validadores o evals dentro de ese alcance. No debe aparentar que una capacidad de M2 o M3 ya está implementada.
+La versión `0.3.0` es un incremento local M0–M3 para revisión. Una contribución puede mejorar las seis skills, contratos documentales, perfil H0, validadores, migración, vistas cliente o evals dentro de ese alcance. No debe presentar capacidades de M4–M6, publicación o soporte corporativo como ya aprobadas.
 
 ## Contrato de cambio
 

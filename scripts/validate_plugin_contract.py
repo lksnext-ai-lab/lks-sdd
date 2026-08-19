@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M2 invariants beyond the official plugin validator."""
+"""Validate LKS-SDD M0-M3 invariants beyond the official plugin validator."""
 
 from __future__ import annotations
 
@@ -11,15 +11,12 @@ import re
 import sys
 from pathlib import Path
 
-
 EXPECTED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
     "lks-sdd-assess-readiness",
     "lks-sdd-implement",
     "lks-sdd-verify",
-}
-BACKLOG_SKILLS = {
     "lks-sdd-adopt-existing",
 }
 CANONICAL_HASHES = {
@@ -38,10 +35,16 @@ REQUIRED_ROOT_FILES = {
     "docs/COMPATIBILITY.md",
     "docs/M1-COVERAGE.md",
     "docs/M2-COVERAGE.md",
+    "docs/M3-COVERAGE.md",
     "docs/VALIDATION.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
+    "scripts/validate_spec.py",
+    "scripts/check_traceability.py",
+    "scripts/migrate_project.py",
+    "scripts/render_client_view.py",
+    "templates/client/client-deliverable.md",
 }
 REQUIRED_SKILL_RESOURCES = {
     "lks-sdd-help": {
@@ -82,6 +85,14 @@ REQUIRED_SKILL_RESOURCES = {
         "scripts/run_verification.py",
         "agents/openai.yaml",
     },
+    "lks-sdd-adopt-existing": {
+        "references/adoption-contract.md",
+        "scripts/adoption_common.py",
+        "scripts/inspect_repository.py",
+        "scripts/validate_adoption.py",
+        "scripts/materialize_adoption.py",
+        "agents/openai.yaml",
+    },
 }
 REQUIRED_CONDITIONAL_TEMPLATES = {
     "01-context/stakeholders-and-users.md",
@@ -97,10 +108,29 @@ REQUIRED_CONDITIONAL_TEMPLATES = {
     "06-operation/observability.md",
     "06-operation/operations.md",
 }
-FORBIDDEN_RUNTIME_IMPORTS = {"ftplib", "httpx", "requests", "smtplib", "socket", "subprocess", "urllib"}
+REQUIRED_ADOPTION_TEMPLATES = {
+    "inspection-scope.md",
+    "repository-inventory.md",
+    "observed-architecture.md",
+    "observed-behavior.md",
+    "gaps-and-unknowns.md",
+    "reconciliation.md",
+    "adoption-strategy.md",
+    "baseline-record.md",
+}
+FORBIDDEN_RUNTIME_IMPORTS = {
+    "ftplib",
+    "httpx",
+    "requests",
+    "smtplib",
+    "socket",
+    "subprocess",
+    "urllib",
+}
 RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
-    "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess"},
+    "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess", "urllib"},
+    "skills/lks-sdd-adopt-existing/scripts/adoption_common.py": {"subprocess"},
 }
 
 
@@ -124,32 +154,40 @@ def validate(root: Path) -> list[str]:
         return [f"Manifest ilegible: {exc}"]
     if manifest.get("name") != "lks-sdd":
         errors.append("El nombre del manifest debe ser lks-sdd.")
-    if manifest.get("version") != "0.2.0":
-        errors.append("El incremento M0-M2 debe declarar la versión 0.2.0.")
+    if manifest.get("version") != "0.3.0":
+        errors.append("El incremento M0-M3 debe declarar la versión 0.3.0.")
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
-        "interface.displayName": interface.get("displayName") if isinstance(interface, dict) else None,
-        "interface.shortDescription": interface.get("shortDescription") if isinstance(interface, dict) else None,
-        "interface.longDescription": interface.get("longDescription") if isinstance(interface, dict) else None,
+        "interface.displayName": interface.get("displayName")
+        if isinstance(interface, dict)
+        else None,
+        "interface.shortDescription": interface.get("shortDescription")
+        if isinstance(interface, dict)
+        else None,
+        "interface.longDescription": interface.get("longDescription")
+        if isinstance(interface, dict)
+        else None,
     }
     for field, value in codex_manifest_fields.items():
         if not isinstance(value, str) or "codex" not in value.casefold():
-            errors.append(f"El campo {field} debe identificar Codex como entorno del plugin.")
+            errors.append(
+                f"El campo {field} debe identificar Codex como entorno del plugin."
+            )
     if "codex" not in manifest.get("keywords", []):
         errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
-            errors.append(f"El manifest no puede declarar {unsupported} en M0-M2.")
+            errors.append(f"El manifest no puede declarar {unsupported} en M0-M3.")
 
     skills_root = root / "skills"
-    discovered = {path.name for path in skills_root.iterdir() if path.is_dir()} if skills_root.is_dir() else set()
+    discovered = (
+        {path.name for path in skills_root.iterdir() if path.is_dir()}
+        if skills_root.is_dir()
+        else set()
+    )
     if discovered != EXPECTED_SKILLS:
         errors.append(f"Skills descubribles inesperadas: {sorted(discovered)}")
-    for name in BACKLOG_SKILLS:
-        if (skills_root / name).exists():
-            errors.append(f"La skill de backlog no debe aparentar implementación: {name}")
-
     for skill, resources in REQUIRED_SKILL_RESOURCES.items():
         skill_root = skills_root / skill
         for relative in sorted(resources):
@@ -161,13 +199,19 @@ def validate(root: Path) -> list[str]:
             if "allow_implicit_invocation: true" not in agent_text:
                 errors.append(f"La invocación implícita debe seguir activa en {skill}.")
             if "codex" not in agent_text.casefold():
-                errors.append(f"Los metadatos de interfaz deben identificar Codex en {skill}.")
+                errors.append(
+                    f"Los metadatos de interfaz deben identificar Codex en {skill}."
+                )
         skill_entrypoint = skill_root / "SKILL.md"
         if skill_entrypoint.is_file():
             skill_text = skill_entrypoint.read_text(encoding="utf-8")
-            frontmatter = skill_text.split("---", 2)[1] if skill_text.startswith("---") else ""
+            frontmatter = (
+                skill_text.split("---", 2)[1] if skill_text.startswith("---") else ""
+            )
             if "codex" not in frontmatter.casefold():
-                errors.append(f"La descripción de la skill debe identificar Codex en {skill}.")
+                errors.append(
+                    f"La descripción de la skill debe identificar Codex en {skill}."
+                )
 
     positioning_markers = {
         "README.md": ("Codex", "GitHub Copilot", "Claude"),
@@ -187,6 +231,12 @@ def validate(root: Path) -> list[str]:
     for relative in sorted(REQUIRED_CONDITIONAL_TEMPLATES):
         if not (template_root / relative).is_file():
             errors.append(f"Falta plantilla condicional: {relative}")
+    adoption_template_root = (
+        skills_root / "lks-sdd-adopt-existing" / "assets" / "current-state-templates"
+    )
+    for name in sorted(REQUIRED_ADOPTION_TEMPLATES):
+        if not (adoption_template_root / name).is_file():
+            errors.append(f"Falta plantilla de adopción: {name}")
 
     for forbidden in (".mcp.json", ".app.json", "hooks", "agents"):
         if (root / forbidden).exists():
@@ -212,13 +262,19 @@ def validate(root: Path) -> list[str]:
             errors.append(f"Schema inválido {schema_name}: {exc}")
 
     try:
-        project_schema = json.loads((root / "schemas" / "project.schema.json").read_text(encoding="utf-8"))
+        project_schema = json.loads(
+            (root / "schemas" / "project.schema.json").read_text(encoding="utf-8")
+        )
         technology_properties = project_schema["properties"]["technology"]["properties"]
         if "proposals" in technology_properties:
-            errors.append("project.json no debe almacenar propuestas tecnológicas sustantivas.")
+            errors.append(
+                "project.json no debe almacenar propuestas tecnológicas sustantivas."
+            )
         blocker_items = project_schema["properties"]["open_blockers"]["items"]
         if blocker_items.get("type") != "string":
-            errors.append("open_blockers debe indexar IDs, no duplicar el texto de los bloqueos.")
+            errors.append(
+                "open_blockers debe indexar IDs, no duplicar el texto de los bloqueos."
+            )
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         errors.append("project.schema.json no expone el contrato operativo esperado.")
 
@@ -237,7 +293,10 @@ def validate(root: Path) -> list[str]:
     link_re = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
-        for markdown in [skill_root / "SKILL.md", *sorted((skill_root / "references").glob("*.md"))]:
+        for markdown in [
+            skill_root / "SKILL.md",
+            *sorted((skill_root / "references").glob("*.md")),
+        ]:
             if not markdown.is_file():
                 continue
             text = markdown.read_text(encoding="utf-8")
@@ -268,7 +327,9 @@ def validate(root: Path) -> list[str]:
         imported_roots: set[str] = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
-                imported_roots.update(alias.name.split(".", 1)[0] for alias in node.names)
+                imported_roots.update(
+                    alias.name.split(".", 1)[0] for alias in node.names
+                )
             elif isinstance(node, ast.ImportFrom) and node.module:
                 imported_roots.add(node.module.split(".", 1)[0])
         relative = script.relative_to(root).as_posix()
@@ -293,7 +354,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 2
-    print("VALID: LKS-SDD M0-M2 contract")
+    print("VALID: LKS-SDD M0-M3 contract")
     return 0
 
 

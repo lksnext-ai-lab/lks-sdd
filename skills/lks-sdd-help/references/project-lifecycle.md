@@ -8,11 +8,11 @@
 4. Diseño técnico y decisiones.
 5. Planificación por incrementos.
 6. Readiness del incremento.
-7. Implementación y verificación, pendientes en M2.
+7. Implementación autorizada del perfil seleccionado y verificación con evidencia.
 
 ## Repositorio existente
 
-Empieza con preflight y descubrimiento estático de solo lectura. Después se validan intención y reglas de negocio, se reconcilian realidad y deseo, se elige entre documentación, normalización progresiva o modernización planificada y, solo con autorización, se materializa una baseline documental aditiva. La skill que automatiza esta ruta está en backlog para M3; M1 solo la explica y evita escrituras prematuras.
+Empieza con preflight e inventario estático de solo lectura. Después se validan intención y reglas de negocio, se reconcilian realidad y deseo, se elige entre documentación, normalización progresiva o modernización planificada y, solo con autorización, se materializa una baseline documental aditiva. La estrategia elegida no autoriza cambios funcionales durante la adopción.
 
 ## Estados de una puerta
 

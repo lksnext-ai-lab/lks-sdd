@@ -7,22 +7,28 @@ import argparse
 import hashlib
 import json
 import os
-import shutil
 import sys
 from pathlib import Path
 from typing import Any
-
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 sys.path.insert(0, str(PLUGIN_ROOT / "skills" / "lks-sdd-assess-readiness" / "scripts"))
 
-from assess_readiness import assess  # noqa: E402
-from validate_reference_profile import PROFILE_ID, PROFILE_ROOT, validate_profile  # noqa: E402
+from assess_readiness import assess
+from validate_reference_profile import (
+    PROFILE_ID,
+    PROFILE_ROOT,
+    validate_profile,
+)
 
 
 class PreparationError(Exception):
     """Expected, actionable preparation failure."""
+
+
+def _is_link_like(path: Path) -> bool:
+    return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
 
 
 def _safe_root(path: Path) -> Path:
@@ -32,27 +38,39 @@ def _safe_root(path: Path) -> Path:
     return root
 
 
-def _load_manifest(root: Path) -> dict[str, Any]:
+def _load_manifest(root: Path) -> tuple[dict[str, Any], bytes]:
     path = root / ".lks-sdd" / "project.json"
+    current = root
+    for part in path.relative_to(root).parts:
+        current = current / part
+        if _is_link_like(current):
+            raise PreparationError(
+                "No se lee project.json a través de enlaces simbólicos o junctions."
+            )
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        original = path.read_bytes()
+        value = json.loads(original.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise PreparationError(f"No se puede leer project.json: {exc}") from exc
     if not isinstance(value, dict):
         raise PreparationError("project.json debe ser un objeto.")
-    return value
+    return value, original
 
 
 def _assert_safe_destination(root: Path, destination: Path) -> None:
     try:
         destination.resolve(strict=False).relative_to(root)
     except ValueError as exc:
-        raise PreparationError(f"Destino fuera de la raíz autorizada: {destination}") from exc
-    parent = destination.parent
-    while parent != root:
-        if parent.exists() and parent.is_symlink():
-            raise PreparationError(f"No se escribe a través de enlaces simbólicos: {parent}")
-        parent = parent.parent
+        raise PreparationError(
+            f"Destino fuera de la raíz autorizada: {destination}"
+        ) from exc
+    current = destination
+    while current != root:
+        if _is_link_like(current):
+            raise PreparationError(
+                f"No se escribe a través de enlaces simbólicos o junctions: {current}"
+            )
+        current = current.parent
 
 
 def _planned_files(root: Path) -> tuple[list[tuple[Path, bytes]], list[str], list[str]]:
@@ -60,7 +78,15 @@ def _planned_files(root: Path) -> tuple[list[tuple[Path, bytes]], list[str], lis
     planned: list[tuple[Path, bytes]] = []
     preserved: list[str] = []
     manual_integrations: list[str] = []
-    ignored_parts = {".venv", "node_modules", "dist", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+    ignored_parts = {
+        ".venv",
+        "node_modules",
+        "dist",
+        "__pycache__",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".ruff_cache",
+    }
     sources = [
         (path, path.relative_to(scaffold))
         for path in sorted(scaffold.rglob("*"))
@@ -71,7 +97,10 @@ def _planned_files(root: Path) -> tuple[list[tuple[Path, bytes]], list[str], lis
     sources.extend(
         [
             (PROFILE_ROOT / "technology-profile.yaml", Path(".lks-sdd/profile.yaml")),
-            (PROFILE_ROOT / "technology-profile.lock.json", Path(".lks-sdd/profile.lock.json")),
+            (
+                PROFILE_ROOT / "technology-profile.lock.json",
+                Path(".lks-sdd/profile.lock.json"),
+            ),
         ]
     )
     for source, relative in sources:
@@ -80,20 +109,28 @@ def _planned_files(root: Path) -> tuple[list[tuple[Path, bytes]], list[str], lis
         content = source.read_bytes()
         if destination.exists():
             if not destination.is_file():
-                raise PreparationError(f"Colisión con una ruta que no es archivo: {relative.as_posix()}")
+                raise PreparationError(
+                    f"Colisión con una ruta que no es archivo: {relative.as_posix()}"
+                )
             if destination.read_bytes() == content:
                 preserved.append(relative.as_posix())
                 continue
             if relative.as_posix() == ".gitignore":
                 manual_integrations.append(relative.as_posix())
                 continue
-            raise PreparationError(f"Colisión; no se sobrescribirá {relative.as_posix()}")
+            raise PreparationError(
+                f"Colisión; no se sobrescribirá {relative.as_posix()}"
+            )
         planned.append((destination, content))
     return planned, preserved, manual_integrations
 
 
-def _preview_hash(root: Path, planned: list[tuple[Path, bytes]]) -> str:
+def _preview_hash(
+    root: Path, planned: list[tuple[Path, bytes]], manifest_before: bytes
+) -> str:
     digest = hashlib.sha256()
+    digest.update(b".lks-sdd/project.json\0")
+    digest.update(hashlib.sha256(manifest_before).digest())
     for destination, content in planned:
         digest.update(destination.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
@@ -103,18 +140,23 @@ def _preview_hash(root: Path, planned: list[tuple[Path, bytes]]) -> str:
 
 def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     root = _safe_root(args.project_root)
-    manifest = _load_manifest(root)
+    manifest, original_manifest = _load_manifest(root)
     readiness_code, readiness = assess(root, args.increment)
     blockers = list(readiness.get("blockers", []))
     technology = manifest.get("technology", {})
     if technology.get("selected_profile") != PROFILE_ID:
-        blockers.append(f"El perfil seleccionado no es el H0 implementable: {technology.get('selected_profile')!r}.")
+        blockers.append(
+            f"El perfil seleccionado no es el H0 implementable: {technology.get('selected_profile')!r}."
+        )
     if not technology.get("selection_decision"):
         blockers.append("Falta la ADR confirmada de selección del perfil.")
     blockers.extend(validate_profile(require_validated=True))
     if manifest.get("route") == "adopt-existing":
         adoption = manifest.get("adoption", {})
-        if adoption.get("status") != "materialized" or adoption.get("baseline_freshness") != "current":
+        if (
+            adoption.get("status") != "materialized"
+            or adoption.get("baseline_freshness") != "current"
+        ):
             blockers.append("La baseline adoptada debe estar materializada y vigente.")
     if readiness_code != 0 or blockers:
         return 3, {
@@ -125,7 +167,7 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         }
 
     planned, preserved, manual_integrations = _planned_files(root)
-    preview_hash = _preview_hash(root, planned)
+    preview_hash = _preview_hash(root, planned, original_manifest)
     result = {
         "status": "dry-run" if args.dry_run else "prepared",
         "increment": args.increment,
@@ -140,16 +182,26 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     if args.dry_run:
         return 0, result
     if not args.apply or not args.authorize:
-        raise PreparationError("Aplicar el scaffold requiere --apply y --authorize tras revisar el dry-run.")
+        raise PreparationError(
+            "Aplicar el scaffold requiere --apply y --authorize tras revisar el dry-run."
+        )
     if args.preview_hash != preview_hash:
-        raise PreparationError("El preview hash no coincide; repita el dry-run antes de escribir.")
+        raise PreparationError(
+            "El preview hash no coincide; repita el dry-run antes de escribir."
+        )
 
     manifest_path = root / ".lks-sdd" / "project.json"
-    original_manifest = manifest_path.read_bytes()
+    if manifest_path.read_bytes() != original_manifest:
+        raise PreparationError(
+            "project.json cambió después del preview; repita el dry-run."
+        )
     created_files: list[Path] = []
     created_dirs: set[Path] = set()
+    temporary: Path | None = None
+    manifest_replaced = False
     try:
         for destination, content in planned:
+            _assert_safe_destination(root, destination)
             missing: list[Path] = []
             parent = destination.parent
             while parent != root and not parent.exists():
@@ -169,20 +221,38 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             "increment": args.increment,
             "profile_id": PROFILE_ID,
             "profile_version": "1.0.0-candidate.1",
-            "changed_paths": [path.relative_to(root).as_posix() for path in created_files],
+            "changed_paths": [
+                path.relative_to(root).as_posix() for path in created_files
+            ],
             "evidence_ids": [],
         }
+        if manifest_path.read_bytes() != original_manifest:
+            raise PreparationError(
+                "project.json cambió durante la materialización; se revirtieron los archivos creados."
+            )
         temporary = manifest_path.with_suffix(".json.tmp")
-        temporary.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+        _assert_safe_destination(root, temporary)
+        with temporary.open("x", encoding="utf-8", newline="\n") as stream:
+            stream.write(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
         os.replace(temporary, manifest_path)
-    except (OSError, FileExistsError) as exc:
-        manifest_path.write_bytes(original_manifest)
+        temporary = None
+        manifest_replaced = True
+    except (OSError, PreparationError) as exc:
+        if temporary is not None:
+            try:
+                temporary.unlink()
+            except OSError:
+                pass
+        if manifest_replaced:
+            manifest_path.write_bytes(original_manifest)
         for path in reversed(created_files):
             try:
                 path.unlink()
             except OSError:
                 pass
-        for directory in sorted(created_dirs, key=lambda item: len(item.parts), reverse=True):
+        for directory in sorted(
+            created_dirs, key=lambda item: len(item.parts), reverse=True
+        ):
             try:
                 directory.rmdir()
             except OSError:

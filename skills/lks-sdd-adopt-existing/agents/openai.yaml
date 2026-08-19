@@ -1,0 +1,6 @@
+interface:
+  display_name: "LKS-SDD · Adoptar existente"
+  short_description: "Adopción documental segura con Codex"
+  default_prompt: "Inspecciona este repositorio existente en solo lectura y prepara su adopción LKS-SDD sin modificarlo."
+policy:
+  allow_implicit_invocation: true

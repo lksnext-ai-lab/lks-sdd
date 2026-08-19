@@ -8,24 +8,51 @@ import json
 import os
 import re
 import sys
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
-
-PLUGIN_VERSION = "0.2.0"
+PLUGIN_VERSION = "0.3.0"
 METHOD_VERSION = "1.0.0"
 SCHEMA_VERSION = "1.0"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 CODE_EXTENSIONS = {
-    ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".cs", ".go",
-    ".rb", ".php", ".vue", ".svelte", ".kt", ".rs"
+    ".py",
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+    ".java",
+    ".cs",
+    ".go",
+    ".rb",
+    ".php",
+    ".vue",
+    ".svelte",
+    ".kt",
+    ".rs",
 }
 CODE_MANIFESTS = {
-    "package.json", "pyproject.toml", "requirements.txt", "pom.xml",
-    "build.gradle", "Cargo.toml", "go.mod", "composer.json", "Dockerfile"
+    "package.json",
+    "pyproject.toml",
+    "requirements.txt",
+    "pom.xml",
+    "build.gradle",
+    "Cargo.toml",
+    "go.mod",
+    "composer.json",
+    "Dockerfile",
 }
-IGNORED_DIRS = {".git", ".lks-sdd", "docs", "node_modules", ".venv", "venv", "dist", "build"}
+IGNORED_DIRS = {
+    ".git",
+    ".lks-sdd",
+    "docs",
+    "node_modules",
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+}
 
 
 ARTIFACTS = [
@@ -50,17 +77,22 @@ class InitializationError(Exception):
     """Expected, user-actionable initialization failure."""
 
 
+def _is_link_like(path: Path) -> bool:
+    return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
+
+
 def contains_existing_application(root: Path) -> list[str]:
     indicators: list[str] = []
     for current, dirs, files in os.walk(root, followlinks=False):
         current_path = Path(current)
         dirs[:] = [
-            name for name in dirs
-            if name not in IGNORED_DIRS and not (current_path / name).is_symlink()
+            name
+            for name in dirs
+            if name not in IGNORED_DIRS and not _is_link_like(current_path / name)
         ]
         for name in files:
             path = current_path / name
-            if path.is_symlink():
+            if _is_link_like(path):
                 continue
             relative = path.relative_to(root).as_posix()
             if name in CODE_MANIFESTS or path.suffix.lower() in CODE_EXTENSIONS:
@@ -70,19 +102,32 @@ def contains_existing_application(root: Path) -> list[str]:
     return indicators
 
 
-def load_existing_manifest(path: Path) -> dict | None:
+def load_existing_manifest(root: Path, path: Path) -> dict | None:
     if not path.exists():
         return None
+    current = root
+    for part in path.relative_to(root).parts:
+        current = current / part
+        if _is_link_like(current):
+            raise InitializationError(
+                "No se lee project.json a través de enlaces simbólicos o junctions."
+            )
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise InitializationError(f"No se puede reanudar: project.json no es válido: {exc}") from exc
+        raise InitializationError(
+            f"No se puede reanudar: project.json no es válido: {exc}"
+        ) from exc
     if not isinstance(data, dict):
-        raise InitializationError("No se puede reanudar: project.json debe ser un objeto JSON.")
+        raise InitializationError(
+            "No se puede reanudar: project.json debe ser un objeto JSON."
+        )
     return data
 
 
-def render_template(template: Path, project_id: str, baseline_id: str, today: str) -> str:
+def render_template(
+    template: Path, project_id: str, baseline_id: str, today: str
+) -> str:
     content = template.read_text(encoding="utf-8")
     content = content.replace(
         'created_with_plugin_version: "0.1.0"',
@@ -97,11 +142,15 @@ def render_template(template: Path, project_id: str, baseline_id: str, today: st
         content = content.replace(token, value)
     remaining = re.findall(r"\{\{[A-Z0-9_]+\}\}", content)
     if remaining:
-        raise InitializationError(f"Tokens de plantilla sin resolver en {template.name}: {remaining}")
+        raise InitializationError(
+            f"Tokens de plantilla sin resolver en {template.name}: {remaining}"
+        )
     return content
 
 
-def build_manifest(project_id: str, documentation_level: str, risk_profile: str, root: Path) -> dict:
+def build_manifest(
+    project_id: str, documentation_level: str, risk_profile: str, root: Path
+) -> dict:
     return {
         "project_id": project_id,
         "route": "new",
@@ -141,16 +190,20 @@ def build_manifest(project_id: str, documentation_level: str, risk_profile: str,
 def initialize(args: argparse.Namespace) -> tuple[int, dict]:
     root = args.project_root.expanduser().resolve()
     if not root.is_dir():
-        raise InitializationError(f"La raíz del proyecto debe existir y ser una carpeta: {root}")
+        raise InitializationError(
+            f"La raíz del proyecto debe existir y ser una carpeta: {root}"
+        )
     if len(args.project_id) < 3 or not PROJECT_ID_RE.fullmatch(args.project_id):
-        raise InitializationError("project_id debe usar minúsculas, números y guiones, con al menos tres caracteres.")
+        raise InitializationError(
+            "project_id debe usar minúsculas, números y guiones, con al menos tres caracteres."
+        )
     try:
         date.fromisoformat(args.date)
     except ValueError as exc:
         raise InitializationError("--date debe usar el formato AAAA-MM-DD.") from exc
 
     manifest_path = root / ".lks-sdd" / "project.json"
-    existing = load_existing_manifest(manifest_path)
+    existing = load_existing_manifest(root, manifest_path)
     if existing is None:
         application_indicators = contains_existing_application(root)
         if application_indicators:
@@ -160,13 +213,15 @@ def initialize(args: argparse.Namespace) -> tuple[int, dict]:
                 "reason": "Se detectaron indicadores de una aplicación existente; la ruta new no puede escribir.",
                 "indicators": application_indicators,
                 "next_skill": "lks-sdd-adopt-existing",
-                "next_skill_available": False,
+                "next_skill_available": True,
             }
     else:
         if existing.get("route") != "new":
             raise InitializationError("El índice existente no pertenece a la ruta new.")
         if existing.get("project_id") != args.project_id:
-            raise InitializationError("El project_id solicitado no coincide con el índice existente.")
+            raise InitializationError(
+                "El project_id solicitado no coincide con el índice existente."
+            )
 
     template_root = Path(__file__).resolve().parents[1] / "assets" / "templates"
     planned: list[tuple[Path, str]] = []
@@ -175,7 +230,9 @@ def initialize(args: argparse.Namespace) -> tuple[int, dict]:
         destination = root / "docs" / "lks-sdd" / relative
         if destination.exists():
             if not destination.is_file():
-                raise InitializationError(f"Colisión: la ruta esperada no es un archivo: {destination}")
+                raise InitializationError(
+                    f"Colisión: la ruta esperada no es un archivo: {destination}"
+                )
             if existing is None:
                 raise InitializationError(
                     "Colisión documental sin un índice LKS-SDD que permita reanudar; "
@@ -186,17 +243,28 @@ def initialize(args: argparse.Namespace) -> tuple[int, dict]:
         template = template_root / relative
         if not template.is_file():
             raise InitializationError(f"Falta la plantilla empaquetada: {template}")
-        planned.append((destination, render_template(template, args.project_id, BASELINE_ID, args.date)))
+        planned.append(
+            (
+                destination,
+                render_template(template, args.project_id, BASELINE_ID, args.date),
+            )
+        )
 
     if existing is None:
         planned.append(
             (
                 manifest_path,
                 json.dumps(
-                    build_manifest(args.project_id, args.documentation_level, args.risk_profile, root),
+                    build_manifest(
+                        args.project_id,
+                        args.documentation_level,
+                        args.risk_profile,
+                        root,
+                    ),
                     indent=2,
                     ensure_ascii=False,
-                ) + "\n",
+                )
+                + "\n",
             )
         )
 
@@ -233,7 +301,9 @@ def initialize(args: argparse.Namespace) -> tuple[int, dict]:
                 created_file.unlink()
             except OSError:
                 pass
-        for created_directory in sorted(created_directories, key=lambda item: len(item.parts), reverse=True):
+        for created_directory in sorted(
+            created_directories, key=lambda item: len(item.parts), reverse=True
+        ):
             try:
                 created_directory.rmdir()
             except OSError:
@@ -248,9 +318,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--project-id", required=True)
-    parser.add_argument("--documentation-level", choices=("compact", "standard", "extended"), default="standard")
-    parser.add_argument("--risk-profile", choices=("P0", "P1", "P2", "undetermined"), default="undetermined")
-    parser.add_argument("--date", default=date.today().isoformat())
+    parser.add_argument(
+        "--documentation-level",
+        choices=("compact", "standard", "extended"),
+        default="standard",
+    )
+    parser.add_argument(
+        "--risk-profile",
+        choices=("P0", "P1", "P2", "undetermined"),
+        default="undetermined",
+    )
+    parser.add_argument("--date", default=datetime.now(UTC).date().isoformat())
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
@@ -271,7 +349,9 @@ def main() -> int:
             prefix = "would create" if args.dry_run else "created"
             print(f"{prefix}: {path}")
         if exit_code == 3:
-            print("La materialización de lks-sdd-adopt-existing continúa fuera de M2.")
+            print(
+                "Use lks-sdd-adopt-existing para iniciar el preflight de solo lectura."
+            )
     return exit_code
 
 

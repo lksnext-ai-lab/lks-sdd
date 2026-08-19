@@ -2,7 +2,7 @@
 
 Revise cada dimensión con uno de cuatro estados: `unknown`, `partial`, `sufficient` o `not-applicable: motivo`. El estado se evalúa para el siguiente incremento, no como porcentaje global del proyecto.
 
-| Dimensión | Suficiencia observable para M1 |
+| Dimensión | Suficiencia observable para el siguiente incremento |
 |---|---|
 | Problema, objetivo y valor | Problema y resultado esperado comprensibles, con medida de éxito o pendiente explícito. |
 | Stakeholders y usuarios | Perfiles afectados, necesidades y autoridad de decisión diferenciadas. |

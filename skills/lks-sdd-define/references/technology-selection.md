@@ -10,4 +10,4 @@ Comparar opciones después de comprender objetivo, alcance, restricciones y requ
 - nivel de soporte LKS-SDD;
 - alternativa razonable.
 
-FastAPI, React, PostgreSQL y Keycloak forman la pila preferente inicial, pero en `0.1.0` no existe un perfil ejecutable ni homologado. Presentarla como propuesta cuando encaje, conservar al menos una alternativa y esperar decisión explícita. Una tecnología distinta puede documentarse; no prometer generación, normalización o modernización soportadas.
+FastAPI, React, PostgreSQL y Keycloak forman el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, con scaffold y lock técnico validados. Sigue siendo un perfil candidato, no una selección automática ni una homologación corporativa. Presentarlo como propuesta cuando encaje, conservar al menos una alternativa y esperar una decisión explícita. Una tecnología distinta puede documentarse, pero no se debe prometer implementación o verificación automatizada H0 para ella.

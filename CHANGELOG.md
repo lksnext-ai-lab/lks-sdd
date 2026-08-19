@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-08-19 — desarrollo local, no publicado
+
+- Implementa la sexta skill, `lks-sdd-adopt-existing`, con inspección estática, informe externo, reconciliación, detección de deriva y materialización aditiva autorizada.
+- Añade ocho artefactos canónicos `as-is` y conserva separados hechos, observaciones, inferencias, intención, contradicciones y desconocidos.
+- Añade validación integral, comprobación de trazabilidad y migración `0.9` → `1.0` con preview, backup externo y rollback protegido.
+- Añade borradores derivados para cliente con selección por estado/clasificación, procedencia, bloqueo sensible, colisiones y aprobación pendiente.
+- Completa la integración opcional de PostgreSQL y Keycloak desde la skill de verificación.
+- Endurece previews y escrituras transaccionales frente a deriva, colisiones, symlinks, junctions, backups corruptos y evidencias inconsistentes.
+
 ## 0.2.0 — 2026-08-19 — desarrollo local, no publicado
 
 - Añade el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, locks exactos y scaffold reproducible.

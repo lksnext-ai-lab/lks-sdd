@@ -14,7 +14,7 @@ Resultado esperado: valor práctico, diferencia entre especificación y código,
 
 > Explícame cómo sería la adopción segura de este repositorio. Por ahora, no lo inspecciones ni crees archivos.
 
-Resultado esperado en `0.1.0`: explicación del preflight y advertencia de que la automatización de adopción sigue en backlog.
+Resultado esperado: explicación del preflight, alcance, exclusiones, separación entre `as-is` e intención y pasos de confirmación. Como el prompt prohíbe inspeccionar, no se ejecuta inventario ni se crean archivos.
 
 ## Readiness
 

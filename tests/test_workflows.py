@@ -6,8 +6,8 @@ import unittest
 from pathlib import Path
 
 from eval_support import (
-    INIT_SCRIPT,
     IMPLEMENT_SCRIPT,
+    INIT_SCRIPT,
     READINESS_SCRIPT,
     VALIDATE_SCRIPT,
     VERIFY_SCRIPT,
@@ -44,7 +44,9 @@ class WorkflowTests(unittest.TestCase):
     def test_existing_application_routes_without_writing(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            (root / "package.json").write_text('{"name":"existing-fixture"}\n', encoding="utf-8")
+            (root / "package.json").write_text(
+                '{"name":"existing-fixture"}\n', encoding="utf-8"
+            )
             before = tree_digest(root)
             code, result = run_json(
                 INIT_SCRIPT,
@@ -55,7 +57,7 @@ class WorkflowTests(unittest.TestCase):
             )
             self.assertEqual(code, 3)
             self.assertEqual(result["status"], "adopt-existing-required")
-            self.assertFalse(result["next_skill_available"])
+            self.assertTrue(result["next_skill_available"])
             self.assertEqual(before, tree_digest(root))
 
     def test_implementation_requires_readiness(self):
@@ -75,6 +77,42 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(result["status"], "blocked")
             self.assertFalse(result["changed"])
             self.assertEqual(before, tree_digest(root))
+
+    def test_implementation_preview_blocks_a_changed_manifest(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
+            root = Path(directory)
+            initialize(root, "stale-implementation-preview")
+            materialize_ready_increment(root)
+            _, preview = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--dry-run",
+            )
+            manifest_path = root / ".lks-sdd" / "project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["last_verified_revision"] = "changed-after-preview"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            before = tree_digest(root)
+            code, result = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--apply",
+                "--authorize",
+                "--preview-hash",
+                preview["preview_hash"],
+                expected_codes={2},
+            )
+            self.assertEqual(code, 2)
+            self.assertEqual(result["status"], "error")
+            self.assertEqual(before, tree_digest(root))
+            self.assertFalse((root / "apps").exists())
 
     def test_implementation_preview_apply_and_verification_plan(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
@@ -103,7 +141,9 @@ class WorkflowTests(unittest.TestCase):
             )
             self.assertTrue(applied["changed"])
             self.assertTrue((root / "apps" / "backend" / "pyproject.toml").is_file())
-            manifest = json.loads((root / ".lks-sdd" / "project.json").read_text(encoding="utf-8"))
+            manifest = json.loads(
+                (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
+            )
             self.assertEqual(manifest["implementation"]["status"], "in-progress")
             after_apply = tree_digest(root)
             _, plan = run_json(
@@ -114,7 +154,9 @@ class WorkflowTests(unittest.TestCase):
                 "--plan",
             )
             self.assertEqual(plan["classification"], "not-run")
-            self.assertTrue(all(check["status"] == "not-run" for check in plan["checks"]))
+            self.assertTrue(
+                all(check["status"] == "not-run" for check in plan["checks"])
+            )
             self.assertEqual(after_apply, tree_digest(root))
 
     def test_document_collision_is_not_overwritten(self):
@@ -155,7 +197,10 @@ class WorkflowTests(unittest.TestCase):
             root = Path(directory)
             initialize(root, "human-edits")
             brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
-            brief.write_text(brief.read_text(encoding="utf-8") + "\nEdición humana conservada.\n", encoding="utf-8")
+            brief.write_text(
+                brief.read_text(encoding="utf-8") + "\nEdición humana conservada.\n",
+                encoding="utf-8",
+            )
             before = brief.read_bytes()
             result = initialize(root, "human-edits")
             self.assertFalse(result["would_change"])
@@ -165,14 +210,21 @@ class WorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
             initialize(root, "index-only")
-            manifest = json.loads((root / ".lks-sdd" / "project.json").read_text(encoding="utf-8"))
+            manifest = json.loads(
+                (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
+            )
             self.assertEqual(
                 set(manifest["technology"]),
                 {"preferred_stack_assessed", "selected_profile", "selection_decision"},
             )
             self.assertEqual(manifest["open_blockers"], ["OPEN-001"])
-            self.assertTrue(all(isinstance(item, str) for item in manifest["open_blockers"]))
-            self.assertEqual(set(manifest["readiness"]), {"status", "assessed_increment", "assessed_at"})
+            self.assertTrue(
+                all(isinstance(item, str) for item in manifest["open_blockers"])
+            )
+            self.assertEqual(
+                set(manifest["readiness"]),
+                {"status", "assessed_increment", "assessed_at"},
+            )
 
     def test_validator_enforces_exact_core_mapping_and_table_contract(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
@@ -180,9 +232,14 @@ class WorkflowTests(unittest.TestCase):
             initialize(root, "strict-core")
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            status = next(item for item in manifest["artifacts"] if item["id"] == "ART-STATUS")
+            status = next(
+                item for item in manifest["artifacts"] if item["id"] == "ART-STATUS"
+            )
             status["path"] = "docs/lks-sdd/00-control/scope-register.md"
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
             code, result = run_json(VALIDATE_SCRIPT, str(root), expected_codes={2})
             self.assertEqual(code, 2)
             self.assertTrue(any("ruta canónica" in error for error in result["errors"]))
@@ -191,11 +248,15 @@ class WorkflowTests(unittest.TestCase):
             root = Path(directory)
             initialize(root, "strict-table")
             increments = root / "docs" / "lks-sdd" / "04-delivery" / "increments.md"
-            text = increments.read_text(encoding="utf-8").replace("| ID | State | In scope |", "| ID | Status | In scope |")
+            text = increments.read_text(encoding="utf-8").replace(
+                "| ID | State | In scope |", "| ID | Status | In scope |"
+            )
             increments.write_text(text, encoding="utf-8")
             code, result = run_json(VALIDATE_SCRIPT, str(root), expected_codes={2})
             self.assertEqual(code, 2)
-            self.assertTrue(any("tabla contractual" in error for error in result["errors"]))
+            self.assertTrue(
+                any("tabla contractual" in error for error in result["errors"])
+            )
 
     def test_unrelated_blocker_does_not_block_active_increment(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
@@ -216,9 +277,14 @@ class WorkflowTests(unittest.TestCase):
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["open_blockers"] = ["OPEN-002"]
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
             before = tree_digest(root)
-            code, result = run_json(READINESS_SCRIPT, str(root), "--increment", "INC-001")
+            code, result = run_json(
+                READINESS_SCRIPT, str(root), "--increment", "INC-001"
+            )
             self.assertEqual(code, 0)
             self.assertEqual(result["status"], "ready-with-non-blocking-pending")
             self.assertFalse(result["implementation_authorized"])
@@ -231,10 +297,15 @@ class WorkflowTests(unittest.TestCase):
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["technology"]["selected_profile"] = "WEB-FASTAPI-REACT-KEYCLOAK-PG"
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
             code, result = run_json(VALIDATE_SCRIPT, str(root), expected_codes={2})
             self.assertEqual(code, 2)
-            self.assertTrue(any("selection_decision" in error for error in result["errors"]))
+            self.assertTrue(
+                any("selection_decision" in error for error in result["errors"])
+            )
 
     def test_readiness_requires_reason_for_domain_non_applicability(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
@@ -255,7 +326,12 @@ class WorkflowTests(unittest.TestCase):
                 expected_codes={3},
             )
             self.assertEqual(code, 3)
-            self.assertTrue(any("no aplicabilidad de datos requiere un motivo" in item for item in result["blockers"]))
+            self.assertTrue(
+                any(
+                    "no aplicabilidad de datos requiere un motivo" in item
+                    for item in result["blockers"]
+                )
+            )
             self.assertEqual(before, tree_digest(root))
 
     def test_projects_are_isolated(self):
@@ -269,13 +345,19 @@ class WorkflowTests(unittest.TestCase):
             initialize(second, "client-two")
             second_before = tree_digest(second)
             brief = first / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
-            brief.write_text(brief.read_text(encoding="utf-8") + "\nDato sintético exclusivo de client-one.\n", encoding="utf-8")
+            brief.write_text(
+                brief.read_text(encoding="utf-8")
+                + "\nDato sintético exclusivo de client-one.\n",
+                encoding="utf-8",
+            )
             _, validation = run_json(VALIDATE_SCRIPT, str(second))
             self.assertTrue(validation["valid"])
             self.assertEqual(second_before, tree_digest(second))
             self.assertNotIn(
                 "client-one",
-                (second / "docs" / "lks-sdd" / "01-context" / "product-brief.md").read_text(encoding="utf-8"),
+                (
+                    second / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
+                ).read_text(encoding="utf-8"),
             )
 
     def test_incompatible_schema_version_is_blocked_without_migration(self):
@@ -285,11 +367,16 @@ class WorkflowTests(unittest.TestCase):
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["schema_version"] = "0.9"
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
             before = tree_digest(root)
             code, result = run_json(VALIDATE_SCRIPT, str(root), expected_codes={2})
             self.assertEqual(code, 2)
-            self.assertTrue(any("schema_version" in error for error in result["errors"]))
+            self.assertTrue(
+                any("schema_version" in error for error in result["errors"])
+            )
             self.assertEqual(before, tree_digest(root))
 
     def test_conditional_annex_template_can_be_materialized_and_validated(self):
@@ -314,9 +401,16 @@ class WorkflowTests(unittest.TestCase):
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["artifacts"].append(
-                {"id": "ART-DATA", "path": "docs/lks-sdd/03-solution/data.md", "required": True}
+                {
+                    "id": "ART-DATA",
+                    "path": "docs/lks-sdd/03-solution/data.md",
+                    "required": True,
+                }
             )
-            manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
             _, result = run_json(VALIDATE_SCRIPT, str(root))
             self.assertTrue(result["valid"])
             self.assertIn("docs/lks-sdd/03-solution/data.md", result["checked_files"])

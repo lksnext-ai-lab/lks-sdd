@@ -18,4 +18,4 @@ Cada dimensión se marca `unknown`, `partial`, `sufficient` o `not-applicable` c
 
 ## Ruta
 
-La ruta `new` puede inicializar documentación de forma aditiva. Si existen indicadores de aplicación previa, no escribir y derivar a adopción. El descubrimiento y materialización de repositorios existentes no están implementados en `0.1.0`.
+La ruta `new` puede inicializar documentación de forma aditiva. Si existen indicadores de aplicación previa, no escribir desde definición y derivar a `lks-sdd-adopt-existing`. Esa ruta separa inspección estática, reconciliación, confirmación y materialización documental; ningún paso de adopción modifica código o comportamiento.

@@ -9,14 +9,47 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_ROOT = PLUGIN_ROOT / "tests" / "fixtures"
 INIT_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-define" / "scripts" / "init_project.py"
-READINESS_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-assess-readiness" / "scripts" / "assess_readiness.py"
+READINESS_SCRIPT = (
+    PLUGIN_ROOT
+    / "skills"
+    / "lks-sdd-assess-readiness"
+    / "scripts"
+    / "assess_readiness.py"
+)
 HELP_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-help" / "scripts" / "context_help.py"
-IMPLEMENT_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-implement" / "scripts" / "prepare_increment.py"
-VERIFY_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-verify" / "scripts" / "run_verification.py"
+IMPLEMENT_SCRIPT = (
+    PLUGIN_ROOT / "skills" / "lks-sdd-implement" / "scripts" / "prepare_increment.py"
+)
+VERIFY_SCRIPT = (
+    PLUGIN_ROOT / "skills" / "lks-sdd-verify" / "scripts" / "run_verification.py"
+)
+INSPECT_SCRIPT = (
+    PLUGIN_ROOT
+    / "skills"
+    / "lks-sdd-adopt-existing"
+    / "scripts"
+    / "inspect_repository.py"
+)
+VALIDATE_ADOPTION_SCRIPT = (
+    PLUGIN_ROOT
+    / "skills"
+    / "lks-sdd-adopt-existing"
+    / "scripts"
+    / "validate_adoption.py"
+)
+MATERIALIZE_ADOPTION_SCRIPT = (
+    PLUGIN_ROOT
+    / "skills"
+    / "lks-sdd-adopt-existing"
+    / "scripts"
+    / "materialize_adoption.py"
+)
+MIGRATE_SCRIPT = PLUGIN_ROOT / "scripts" / "migrate_project.py"
+CLIENT_VIEW_SCRIPT = PLUGIN_ROOT / "scripts" / "render_client_view.py"
+VALIDATE_SPEC_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_spec.py"
 VALIDATE_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_project.py"
 
 
@@ -24,7 +57,9 @@ def load_fixture(name: str) -> dict[str, Any]:
     return json.loads((FIXTURES_ROOT / name).read_text(encoding="utf-8"))
 
 
-def run_json(script: Path, *args: str, expected_codes: set[int] | None = None) -> tuple[int, dict[str, Any]]:
+def run_json(
+    script: Path, *args: str, expected_codes: set[int] | None = None
+) -> tuple[int, dict[str, Any]]:
     process = subprocess.run(
         [sys.executable, "-X", "utf8", str(script), *map(str, args), "--json"],
         cwd=PLUGIN_ROOT,
@@ -42,7 +77,9 @@ def run_json(script: Path, *args: str, expected_codes: set[int] | None = None) -
     try:
         payload = json.loads(process.stdout)
     except json.JSONDecodeError as exc:
-        raise AssertionError(f"Non-JSON output from {script.name}: {process.stdout}") from exc
+        raise AssertionError(
+            f"Non-JSON output from {script.name}: {process.stdout}"
+        ) from exc
     return process.returncode, payload
 
 
@@ -89,16 +126,31 @@ def materialize_ready_increment(root: Path) -> None:
     docs = root / "docs" / "lks-sdd"
     manifest_path = root / ".lks-sdd" / "project.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest.update({"phase": "readiness", "gate": "G2", "active_increment": "INC-001", "open_blockers": []})
+    manifest.update(
+        {
+            "phase": "readiness",
+            "gate": "G2",
+            "active_increment": "INC-001",
+            "open_blockers": [],
+        }
+    )
     manifest["technology"] = {
         "preferred_stack_assessed": True,
         "selected_profile": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
         "selection_decision": "ADR-001",
     }
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
     open_points = docs / "00-control" / "open-points.md"
-    lines = [line for line in open_points.read_text(encoding="utf-8").splitlines() if "OPEN-001" not in line]
+    lines = [
+        line
+        for line in open_points.read_text(encoding="utf-8").splitlines()
+        if "OPEN-001" not in line
+    ]
     open_points.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
     _append_row(
@@ -154,7 +206,11 @@ def run_new_project(root: Path) -> dict[str, Any]:
             ready["implementation_authorized"] is False,
         ]
     )
-    return {"id": fixture["id"], "passed": passed, "details": {"ready": ready["status"]}}
+    return {
+        "id": fixture["id"],
+        "passed": passed,
+        "details": {"ready": ready["status"]},
+    }
 
 
 def run_insufficient_information(root: Path) -> dict[str, Any]:
@@ -178,7 +234,11 @@ def run_insufficient_information(root: Path) -> dict[str, Any]:
             result["implementation_authorized"] is False,
         ]
     )
-    return {"id": fixture["id"], "passed": passed, "details": {"blockers": result["blockers"]}}
+    return {
+        "id": fixture["id"],
+        "passed": passed,
+        "details": {"blockers": result["blockers"]},
+    }
 
 
 def run_alternative_stack(root: Path) -> dict[str, Any]:
@@ -212,7 +272,11 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
         "selected_profile": None,
         "selection_decision": None,
     }
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     before = tree_digest(root)
     code, result = run_json(
         READINESS_SCRIPT,
@@ -222,8 +286,12 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
         expected_codes={3},
     )
     after_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    blocker = any(proposal["id"] in item and "proposal" in item for item in result["blockers"])
-    solution_text = (docs / "03-solution" / "solution-overview.md").read_text(encoding="utf-8")
+    blocker = any(
+        proposal["id"] in item and "proposal" in item for item in result["blockers"]
+    )
+    solution_text = (docs / "03-solution" / "solution-overview.md").read_text(
+        encoding="utf-8"
+    )
     passed = all(
         [
             code == 3,
@@ -236,7 +304,11 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
             result["implementation_authorized"] is False,
         ]
     )
-    return {"id": fixture["id"], "passed": passed, "details": {"blockers": result["blockers"]}}
+    return {
+        "id": fixture["id"],
+        "passed": passed,
+        "details": {"blockers": result["blockers"]},
+    }
 
 
 def run_help(root: Path) -> dict[str, Any]:
@@ -258,7 +330,11 @@ def run_help(root: Path) -> dict[str, Any]:
             before == after,
         ]
     )
-    return {"id": fixture["id"], "passed": passed, "details": {"options": result["options"]}}
+    return {
+        "id": fixture["id"],
+        "passed": passed,
+        "details": {"options": result["options"]},
+    }
 
 
 def run_scoped_blocker(root: Path) -> dict[str, Any]:
@@ -281,9 +357,15 @@ def run_scoped_blocker(root: Path) -> dict[str, Any]:
     manifest_path = root / ".lks-sdd" / "project.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["open_blockers"] = ["OPEN-002"]
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     before = tree_digest(root)
-    _, result = run_json(READINESS_SCRIPT, str(root), "--increment", fixture["increment"])
+    _, result = run_json(
+        READINESS_SCRIPT, str(root), "--increment", fixture["increment"]
+    )
     passed = all(
         [
             result["status"] == "ready-with-non-blocking-pending",
@@ -296,5 +378,8 @@ def run_scoped_blocker(root: Path) -> dict[str, Any]:
     return {
         "id": fixture["id"],
         "passed": passed,
-        "details": {"status": result["status"], "pending": result["non_blocking_pending"]},
+        "details": {
+            "status": result["status"],
+            "pending": result["non_blocking_pending"],
+        },
     }

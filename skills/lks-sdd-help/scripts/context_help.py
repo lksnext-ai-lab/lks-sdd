@@ -55,7 +55,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
             ),
             _option(
                 "Preparar una adopción segura",
-                "Mantiene el repositorio sin cambios; la automatización de adopción no está disponible en 0.1.0.",
+                "Permite iniciar el preflight estático de solo lectura con la skill de adopción; no materializa sin una autorización posterior.",
             ),
         ]
         return response
@@ -140,7 +140,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
             _option("Mantener el repositorio sin cambios", "Conserva el estado actual y no inicia adopción."),
             _option(
                 "Preparar el preflight de adopción",
-                "Solo explica el proceso; la skill de adopción no está implementada en 0.1.0.",
+                "Permite iniciar la inspección estática de solo lectura; la materialización requiere reconciliación, preview y autorización posterior.",
             ),
         ]
     options.append(_option("Seguir aprendiendo", "Amplía la explicación sin cambiar estado ni archivos."))
