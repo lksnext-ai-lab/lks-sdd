@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.3.0` es un incremento local M0–M3 para revisión. No está publicada, instalada globalmente ni aprobada como política corporativa. La baseline normativa empaquetada conserva expresamente el estado `candidate` y el perfil H0 conserva estado `candidate`, aunque su lock técnico esté validado.
+La versión `0.3.0` es la release técnica M0–M3 del repositorio para revisión y piloto con Codex. Su publicación en GitHub no implica instalación global, distribución corporativa, soporte oficial ni aprobación como política corporativa. La baseline normativa empaquetada conserva expresamente el estado `candidate` y el perfil H0 conserva estado `candidate`, aunque su lock técnico esté validado.
 
 ## Autoridad y decisiones
 
@@ -13,6 +13,8 @@ La decisión de producto vigente define LKS-SDD como plugin de desarrollo SDD pa
 ## Evolución
 
 Todo cambio del método debe documentar motivación, alcance, compatibilidad, impacto, decisión explícita, validaciones y migración o incompatibilidad. Las versiones del plugin, método, esquema y perfiles evolucionan por separado. Las migraciones nunca reescriben silenciosamente contenido adaptado por los equipos.
+
+Las releases técnicas siguen `docs/RELEASING.md`: cada versión cerrada recibe una etiqueta inmutable y sus notas; los commits intermedios no reescriben una release publicada.
 
 ## Responsabilidades pendientes
 

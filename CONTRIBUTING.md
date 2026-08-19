@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.3.0` es un incremento local M0–M3 para revisión. Una contribución puede mejorar las seis skills, contratos documentales, perfil H0, validadores, migración, vistas cliente o evals dentro de ese alcance. No debe presentar capacidades de M4–M6, publicación o soporte corporativo como ya aprobadas.
+La versión `0.3.0` es la release técnica M0–M3 para revisión y piloto con Codex. Una contribución puede mejorar las seis skills, contratos documentales, perfil H0, validadores, migración, vistas cliente o evals dentro de ese alcance. No debe presentar capacidades de M4–M6, distribución o soporte corporativo como ya aprobadas.
 
 ## Contrato de cambio
 
@@ -13,6 +13,7 @@ La versión `0.3.0` es un incremento local M0–M3 para revisión. Una contribuc
 5. Añadir o ajustar una prueba que observe el comportamiento relevante.
 6. Ejecutar `docs/VALIDATION.md` y revisar el diff completo.
 7. Documentar compatibilidad, migración o incompatibilidad cuando cambie un contrato.
+8. Seguir `docs/RELEASING.md` cuando el cambio cierre una versión publicable.
 
 ## Revisión
 

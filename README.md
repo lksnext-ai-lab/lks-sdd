@@ -35,9 +35,10 @@ La versión `0.3.0` implementa M0–M3 y las seis skills previstas: ayuda, defin
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.
 - `docs/M3-COVERAGE.md`: correspondencia auditable entre adopción, migración y vistas cliente.
+- `docs/RELEASING.md`: política de versiones, etiquetas y releases técnicas de GitHub.
 
 ## Validación local
 
 Los comandos reproducibles y sus códigos de salida están documentados en `docs/VALIDATION.md`. La validación contractual es local; el gate técnico completo descarga las imágenes y dependencias bloqueadas y requiere Docker.
 
-Este repositorio no publica ni instala el plugin. La distribución corporativa, la licencia definitiva, los responsables nominales y el marketplace quedan fuera de este incremento y requieren decisiones separadas. `LICENSE.md` registra esta restricción sin inventar una licencia y `CONTRIBUTING.md` define el contrato de cambio.
+Este repositorio publica releases técnicas versionadas del código fuente, pero no instala globalmente el plugin ni representa por sí solo una distribución corporativa aprobada. La licencia definitiva, los responsables nominales, el soporte y el marketplace quedan fuera de este incremento y requieren decisiones separadas. `LICENSE.md` registra esta restricción sin inventar una licencia y `CONTRIBUTING.md` define el contrato de cambio.
