@@ -1,0 +1,21 @@
+{
+  "realm": "lks-sdd",
+  "enabled": true,
+  "displayName": "LKS-SDD development realm",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "clients": [
+    {
+      "clientId": "lks-sdd-spa",
+      "name": "LKS-SDD reference SPA",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "attributes": {"pkce.code.challenge.method": "S256"}
+    }
+  ]
+}

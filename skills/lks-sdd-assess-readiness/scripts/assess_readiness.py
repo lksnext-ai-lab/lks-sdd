@@ -15,6 +15,7 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import ID_RE, parse_frontmatter, parse_markdown_tables, validate_project  # noqa: E402
+from validate_reference_profile import PROFILE_ID, validate_profile  # noqa: E402
 
 
 def _ids(value: str, prefixes: set[str] | None = None) -> list[str]:
@@ -94,6 +95,18 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
     if not report.valid or manifest is None:
         result["blockers"].extend(f"Contrato inválido: {error}" for error in report.errors)
         return 2, result
+
+    selected_profile = manifest.get("technology", {}).get("selected_profile")
+    if selected_profile is None:
+        result["blockers"].append("No hay un perfil tecnológico seleccionado mediante una decisión confirmada.")
+    elif selected_profile != PROFILE_ID:
+        result["blockers"].append(
+            f"El perfil {selected_profile} no dispone de soporte H0 implementado; perfil disponible: {PROFILE_ID}."
+        )
+    else:
+        result["blockers"].extend(
+            f"Perfil tecnológico no apto: {error}" for error in validate_profile(require_validated=True)
+        )
 
     increment = definitions.get(increment_id)
     if increment is None or increment.get("path", "").endswith("increments.md") is False:

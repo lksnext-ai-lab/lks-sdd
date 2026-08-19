@@ -12,7 +12,7 @@ from datetime import date
 from pathlib import Path
 
 
-PLUGIN_VERSION = "0.1.0"
+PLUGIN_VERSION = "0.2.0"
 METHOD_VERSION = "1.0.0"
 SCHEMA_VERSION = "1.0"
 BASELINE_ID = "BL-0001"
@@ -84,6 +84,10 @@ def load_existing_manifest(path: Path) -> dict | None:
 
 def render_template(template: Path, project_id: str, baseline_id: str, today: str) -> str:
     content = template.read_text(encoding="utf-8")
+    content = content.replace(
+        'created_with_plugin_version: "0.1.0"',
+        f'created_with_plugin_version: "{PLUGIN_VERSION}"',
+    )
     replacements = {
         "{{PROJECT_ID}}": project_id,
         "{{BASELINE_ID}}": baseline_id,
@@ -267,7 +271,7 @@ def main() -> int:
             prefix = "would create" if args.dry_run else "created"
             print(f"{prefix}: {path}")
         if exit_code == 3:
-            print("La automatización de lks-sdd-adopt-existing no está implementada en 0.1.0.")
+            print("La materialización de lks-sdd-adopt-existing continúa fuera de M2.")
     return exit_code
 
 

@@ -1,0 +1,58 @@
+{
+  "id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+  "version": "1.0.0-candidate.1",
+  "status": "candidate",
+  "support_level": "H0",
+  "default_rigor": "P1",
+  "dimensions": {
+    "frontend": [
+      {"name": "Node.js", "version_range": "24.x LTS", "required": true},
+      {"name": "React", "version_range": "19.2.x", "required": true},
+      {"name": "TypeScript", "version_range": "6.0.x", "required": true},
+      {"name": "Vite", "version_range": "8.1.x", "required": true}
+    ],
+    "backend": [
+      {"name": "Python", "version_range": "3.14.x", "required": true},
+      {"name": "FastAPI", "version_range": "0.141.x", "required": true},
+      {"name": "SQLAlchemy", "version_range": "2.0.x", "required": true},
+      {"name": "Alembic", "version_range": "1.19.x", "required": true}
+    ],
+    "data": [
+      {"name": "PostgreSQL", "version_range": "18.x", "required": true}
+    ],
+    "identity": [
+      {"name": "Keycloak", "version_range": "26.7.x", "required": true},
+      {"name": "OpenID Connect", "version_range": "1.0", "required": true}
+    ],
+    "integration": [
+      {"name": "OpenAPI", "version_range": "3.1.x", "required": true}
+    ],
+    "delivery": [
+      {"name": "OCI containers", "version_range": "digest-pinned", "required": true},
+      {"name": "Docker Compose", "version_range": "2.x or compatible", "required": true}
+    ],
+    "testing": [
+      {"name": "pytest", "version_range": "9.1.x", "required": true},
+      {"name": "Vitest", "version_range": "4.1.x", "required": true}
+    ],
+    "observability": [
+      {"name": "structured logging", "version_range": "profile contract 1.0", "required": true}
+    ]
+  },
+  "capabilities": {
+    "documentable": true,
+    "analyzable": true,
+    "implementable": true,
+    "verifiable": true
+  },
+  "compatibility_rules": [
+    "The profile is proposed only after requirements and constraints have been assessed.",
+    "Selection requires a confirmed ADR and never happens automatically.",
+    "The exact lock and scaffold gate must remain valid for guaranteed implementation.",
+    "Keycloak uses OIDC Authorization Code with PKCE for the SPA and audience validation in the API.",
+    "PostgreSQL schema changes require Alembic migrations and rollback analysis.",
+    "Alternative stacks remain documentable but are not H0 unless separately profiled and tested."
+  ],
+  "validated_at": "2026-08-19",
+  "review_due": "2026-11-19"
+}

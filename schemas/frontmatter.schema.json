@@ -48,7 +48,15 @@
         "deployment",
         "observability",
         "operations",
-        "architecture-decision"
+        "architecture-decision",
+        "inspection-scope",
+        "repository-inventory",
+        "observed-architecture",
+        "observed-behavior",
+        "gaps-and-unknowns",
+        "reconciliation",
+        "adoption-strategy",
+        "baseline-record"
       ]
     },
     "schema_version": {"const": "1.0"},

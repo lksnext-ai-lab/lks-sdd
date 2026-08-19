@@ -8,7 +8,7 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-Esta entrega implementa el incremento M0–M1 de la versión `0.1.0`: `lks-sdd-help`, `lks-sdd-define` y `lks-sdd-assess-readiness`. No implementa todavía `lks-sdd-adopt-existing`, `lks-sdd-implement` ni `lks-sdd-verify`; tampoco contiene MCP, conectores, hooks, apps, agentes especializados ejecutables ni scaffolds de aplicación. Los `agents/openai.yaml` de cada skill son únicamente metadatos de interfaz e invocación.
+La versión `0.2.0` implementa M0–M2: `lks-sdd-help`, `lks-sdd-define`, `lks-sdd-assess-readiness`, `lks-sdd-implement` y `lks-sdd-verify`. Incorpora el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, con scaffold y dependencias bloqueadas, validado de extremo a extremo en contenedores. La adopción automatizada de repositorios existentes continúa en M3. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables; los `agents/openai.yaml` son metadatos de interfaz e invocación.
 
 ## Principios operativos
 
@@ -23,17 +23,19 @@ Esta entrega implementa el incremento M0–M1 de la versión `0.1.0`: `lks-sdd-h
 ## Estructura
 
 - `.codex-plugin/plugin.json`: manifiesto del plugin.
-- `skills/`: tres workflows M1 descubribles.
-- `schemas/`: contratos del índice, front matter, catálogos y futuros perfil/lock sin perfil ejecutable.
+- `skills/`: cinco workflows M1–M2 descubribles.
+- `profiles/`: perfil H0 probado, lock exacto, guía y scaffold reproducible.
+- `schemas/`: contratos del índice, front matter, catálogos, perfil y lock.
 - `scripts/`: validación local del plugin y de proyectos consumidores.
 - `specs/canonical/`: copias exactas de las tres fuentes canónicas del incremento.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
-- `docs/ARCHITECTURE.md`: límites de M1 y backlog de las tres skills posteriores.
+- `docs/ARCHITECTURE.md`: arquitectura M0–M2 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
+- `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.
 
 ## Validación local
 
-Los comandos reproducibles y sus códigos de salida están documentados en `docs/VALIDATION.md`. La suite no requiere red ni dependencias Python externas.
+Los comandos reproducibles y sus códigos de salida están documentados en `docs/VALIDATION.md`. La validación contractual es local; el gate técnico completo descarga las imágenes y dependencias bloqueadas y requiere Docker.
 
 Este repositorio no publica ni instala el plugin. La distribución corporativa, la licencia definitiva, los responsables nominales y el marketplace quedan fuera de este incremento y requieren decisiones separadas. `LICENSE.md` registra esta restricción sin inventar una licencia y `CONTRIBUTING.md` define el contrato de cambio.

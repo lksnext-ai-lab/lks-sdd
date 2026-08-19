@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M1 invariants beyond the official plugin validator."""
+"""Validate LKS-SDD M0-M2 invariants beyond the official plugin validator."""
 
 from __future__ import annotations
 
@@ -16,11 +16,11 @@ EXPECTED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
     "lks-sdd-assess-readiness",
+    "lks-sdd-implement",
+    "lks-sdd-verify",
 }
 BACKLOG_SKILLS = {
     "lks-sdd-adopt-existing",
-    "lks-sdd-implement",
-    "lks-sdd-verify",
 }
 CANONICAL_HASHES = {
     "LKS-SDD_definicion_plugin_v1.md": "4DE2D0AE75B2FF75BBC0C38D05C38AC2D90B57EA4472D46A85BF33C597D79700",
@@ -37,7 +37,11 @@ REQUIRED_ROOT_FILES = {
     "docs/ARCHITECTURE.md",
     "docs/COMPATIBILITY.md",
     "docs/M1-COVERAGE.md",
+    "docs/M2-COVERAGE.md",
     "docs/VALIDATION.md",
+    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
+    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
+    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
 }
 REQUIRED_SKILL_RESOURCES = {
     "lks-sdd-help": {
@@ -67,6 +71,17 @@ REQUIRED_SKILL_RESOURCES = {
         "scripts/assess_readiness.py",
         "agents/openai.yaml",
     },
+    "lks-sdd-implement": {
+        "references/implementation-contract.md",
+        "scripts/prepare_increment.py",
+        "agents/openai.yaml",
+    },
+    "lks-sdd-verify": {
+        "references/verification-contract.md",
+        "references/client-view-rules.md",
+        "scripts/run_verification.py",
+        "agents/openai.yaml",
+    },
 }
 REQUIRED_CONDITIONAL_TEMPLATES = {
     "01-context/stakeholders-and-users.md",
@@ -83,6 +98,10 @@ REQUIRED_CONDITIONAL_TEMPLATES = {
     "06-operation/operations.md",
 }
 FORBIDDEN_RUNTIME_IMPORTS = {"ftplib", "httpx", "requests", "smtplib", "socket", "subprocess", "urllib"}
+RUNTIME_IMPORT_ALLOWLIST = {
+    "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
+    "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess"},
+}
 
 
 def sha256(path: Path) -> str:
@@ -105,8 +124,8 @@ def validate(root: Path) -> list[str]:
         return [f"Manifest ilegible: {exc}"]
     if manifest.get("name") != "lks-sdd":
         errors.append("El nombre del manifest debe ser lks-sdd.")
-    if manifest.get("version") != "0.1.0":
-        errors.append("El incremento M0-M1 debe declarar la versión 0.1.0.")
+    if manifest.get("version") != "0.2.0":
+        errors.append("El incremento M0-M2 debe declarar la versión 0.2.0.")
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
@@ -121,7 +140,7 @@ def validate(root: Path) -> list[str]:
         errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
-            errors.append(f"El manifest no puede declarar {unsupported} en M0-M1.")
+            errors.append(f"El manifest no puede declarar {unsupported} en M0-M2.")
 
     skills_root = root / "skills"
     discovered = {path.name for path in skills_root.iterdir() if path.is_dir()} if skills_root.is_dir() else set()
@@ -252,10 +271,13 @@ def validate(root: Path) -> list[str]:
                 imported_roots.update(alias.name.split(".", 1)[0] for alias in node.names)
             elif isinstance(node, ast.ImportFrom) and node.module:
                 imported_roots.add(node.module.split(".", 1)[0])
-        forbidden = imported_roots.intersection(FORBIDDEN_RUNTIME_IMPORTS)
+        relative = script.relative_to(root).as_posix()
+        forbidden = imported_roots.intersection(FORBIDDEN_RUNTIME_IMPORTS).difference(
+            RUNTIME_IMPORT_ALLOWLIST.get(relative, set())
+        )
         if forbidden:
             errors.append(
-                f"Script M1 con import de red o ejecución externa {script.relative_to(root)}: {sorted(forbidden)}"
+                f"Script con import de red o ejecución externa no autorizado {relative}: {sorted(forbidden)}"
             )
     return errors
 
@@ -271,7 +293,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 2
-    print("VALID: LKS-SDD M0-M1 contract")
+    print("VALID: LKS-SDD M0-M2 contract")
     return 0
 
 

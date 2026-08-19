@@ -1,0 +1,6 @@
+interface:
+  display_name: "Implementar LKS-SDD con Codex"
+  short_description: "Implementa un incremento SDD acotado con Codex"
+  default_prompt: "Usa $lks-sdd-implement para implementar con Codex el incremento confirmado y mantener su trazabilidad."
+policy:
+  allow_implicit_invocation: true

@@ -1,5 +1,7 @@
 # Cobertura auditable de M0–M1
 
+Este documento conserva la fotografía histórica cerrada por la versión `0.1.0`. Las capacidades incorporadas después se describen en `M2-COVERAGE.md` y no alteran la evidencia de aquel hito.
+
 ## Hechos verificados
 
 - El plugin es skills-only y declara únicamente ayuda, definición y readiness.

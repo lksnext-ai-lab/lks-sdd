@@ -15,6 +15,8 @@ FIXTURES_ROOT = PLUGIN_ROOT / "tests" / "fixtures"
 INIT_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-define" / "scripts" / "init_project.py"
 READINESS_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-assess-readiness" / "scripts" / "assess_readiness.py"
 HELP_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-help" / "scripts" / "context_help.py"
+IMPLEMENT_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-implement" / "scripts" / "prepare_increment.py"
+VERIFY_SCRIPT = PLUGIN_ROOT / "skills" / "lks-sdd-verify" / "scripts" / "run_verification.py"
 VALIDATE_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_project.py"
 
 
@@ -90,7 +92,7 @@ def materialize_ready_increment(root: Path) -> None:
     manifest.update({"phase": "readiness", "gate": "G2", "active_increment": "INC-001", "open_blockers": []})
     manifest["technology"] = {
         "preferred_stack_assessed": True,
-        "selected_profile": "STACK-REFERENCE",
+        "selected_profile": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
         "selection_decision": "ADR-001",
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
@@ -112,7 +114,7 @@ def materialize_ready_increment(root: Path) -> None:
     _append_row(
         docs / "03-solution" / "solution-overview.md",
         "| ID | State | Decision",
-        "| ADR-001 | decision | Select STACK-REFERENCE with a reversible web boundary derived from requirements. | FR-001 | Limited to INC-001 |",
+        "| ADR-001 | decision | Select WEB-FASTAPI-REACT-KEYCLOAK-PG with a reversible web boundary derived from requirements. | FR-001 | Limited to INC-001 |",
     )
     _append_row(
         docs / "04-delivery" / "increments.md",

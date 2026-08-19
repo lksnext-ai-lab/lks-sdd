@@ -7,8 +7,10 @@ from pathlib import Path
 
 from eval_support import (
     INIT_SCRIPT,
+    IMPLEMENT_SCRIPT,
     READINESS_SCRIPT,
     VALIDATE_SCRIPT,
+    VERIFY_SCRIPT,
     _append_row,
     _replace_row,
     initialize,
@@ -55,6 +57,65 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(result["status"], "adopt-existing-required")
             self.assertFalse(result["next_skill_available"])
             self.assertEqual(before, tree_digest(root))
+
+    def test_implementation_requires_readiness(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
+            root = Path(directory)
+            initialize(root, "implementation-blocked")
+            before = tree_digest(root)
+            code, result = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--dry-run",
+                expected_codes={3},
+            )
+            self.assertEqual(code, 3)
+            self.assertEqual(result["status"], "blocked")
+            self.assertFalse(result["changed"])
+            self.assertEqual(before, tree_digest(root))
+
+    def test_implementation_preview_apply_and_verification_plan(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
+            root = Path(directory)
+            initialize(root, "implementation-ready")
+            materialize_ready_increment(root)
+            before = tree_digest(root)
+            _, preview = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--dry-run",
+            )
+            self.assertEqual(preview["status"], "dry-run")
+            self.assertEqual(before, tree_digest(root))
+            _, applied = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--apply",
+                "--authorize",
+                "--preview-hash",
+                preview["preview_hash"],
+            )
+            self.assertTrue(applied["changed"])
+            self.assertTrue((root / "apps" / "backend" / "pyproject.toml").is_file())
+            manifest = json.loads((root / ".lks-sdd" / "project.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["implementation"]["status"], "in-progress")
+            after_apply = tree_digest(root)
+            _, plan = run_json(
+                VERIFY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--plan",
+            )
+            self.assertEqual(plan["classification"], "not-run")
+            self.assertTrue(all(check["status"] == "not-run" for check in plan["checks"]))
+            self.assertEqual(after_apply, tree_digest(root))
 
     def test_document_collision_is_not_overwritten(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
@@ -169,7 +230,7 @@ class WorkflowTests(unittest.TestCase):
             initialize(root, "profile-index")
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest["technology"]["selected_profile"] = "STACK-REFERENCE"
+            manifest["technology"]["selected_profile"] = "WEB-FASTAPI-REACT-KEYCLOAK-PG"
             manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             code, result = run_json(VALIDATE_SCRIPT, str(root), expected_codes={2})
             self.assertEqual(code, 2)

@@ -1,0 +1,28 @@
+{
+  "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+  "profile_version": "1.0.0-candidate.1",
+  "generated_at": "2026-08-19",
+  "validated": true,
+  "components": [
+    {"name": "Python", "version": "3.14.7", "source": "docker.io/library/python:3.14.7-slim", "digest": "sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4"},
+    {"name": "uv", "version": "0.12.3", "source": "PyPI", "digest": null},
+    {"name": "FastAPI", "version": "0.141.1", "source": "PyPI", "digest": null},
+    {"name": "SQLAlchemy", "version": "2.0.52", "source": "PyPI", "digest": null},
+    {"name": "Alembic", "version": "1.19.1", "source": "PyPI", "digest": null},
+    {"name": "psycopg", "version": "3.3.4", "source": "PyPI", "digest": null},
+    {"name": "Node.js", "version": "24.19.0", "source": "docker.io/library/node:24.19.0-alpine", "digest": "sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43"},
+    {"name": "pnpm", "version": "10.34.5", "source": "npm", "digest": null},
+    {"name": "React", "version": "19.2.7", "source": "npm", "digest": null},
+    {"name": "React DOM", "version": "19.2.7", "source": "npm", "digest": null},
+    {"name": "TypeScript", "version": "6.0.3", "source": "npm", "digest": null},
+    {"name": "Vite", "version": "8.1.5", "source": "npm", "digest": null},
+    {"name": "PostgreSQL", "version": "18.4", "source": "docker.io/library/postgres:18.4", "digest": "sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636"},
+    {"name": "Keycloak", "version": "26.7.0", "source": "quay.io/keycloak/keycloak:26.7.0", "digest": "sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13"},
+    {"name": "nginx", "version": "1.29.1-alpine", "source": "docker.io/library/nginx:1.29.1-alpine", "digest": "sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8"}
+  ],
+  "evidence": [
+    "python scripts/validate_reference_profile.py",
+    "python scripts/run_reference_profile_gate.py --runtime docker --containers",
+    "python -m unittest discover -s tests -p test_*.py -v"
+  ]
+}

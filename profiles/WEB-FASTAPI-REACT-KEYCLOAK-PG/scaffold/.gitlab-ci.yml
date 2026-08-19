@@ -1,0 +1,24 @@
+stages: [test]
+
+backend:
+  stage: test
+  image: python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
+  script:
+    - python -m pip install --no-cache-dir uv==0.12.3
+    - cd apps/backend
+    - uv sync --frozen
+    - uv run ruff check .
+    - uv run mypy
+    - uv run pytest
+
+frontend:
+  stage: test
+  image: node:24.19.0-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43
+  script:
+    - npm install --global pnpm@10.34.5
+    - cd apps/frontend
+    - pnpm install --frozen-lockfile
+    - pnpm lint
+    - pnpm typecheck
+    - pnpm test
+    - pnpm build

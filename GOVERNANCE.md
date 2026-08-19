@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.1.0` es un incremento local M0–M1 para revisión. No está publicada, instalada globalmente ni aprobada como política corporativa. La baseline normativa empaquetada conserva expresamente el estado `candidate`.
+La versión `0.2.0` es un incremento local M0–M2 para revisión. No está publicada, instalada globalmente ni aprobada como política corporativa. La baseline normativa empaquetada conserva expresamente el estado `candidate` y el perfil H0 conserva estado `candidate`, aunque su lock técnico esté validado.
 
 ## Autoridad y decisiones
 

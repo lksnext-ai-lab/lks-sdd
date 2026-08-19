@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 2026-08-19 — desarrollo local, no publicado
+
+- Añade el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, locks exactos y scaffold reproducible.
+- Valida backend, frontend, PostgreSQL y Keycloak dentro de sus runtimes bloqueados y mediante comprobaciones HTTP integradas.
+- Implementa preparación segura, dry-run, hash de autorización, protección de colisiones y rollback para incrementos listos.
+- Implementa planificación y ejecución de verificaciones sin confundir resultados no ejecutados con éxitos.
+- Integra la aptitud del perfil H0 en la puerta de readiness y mantiene la selección tecnológica como decisión humana confirmada.
+
 ## 0.1.0 — 2026-08-19 — desarrollo local, no publicado
 
 - Crea el manifiesto skills-only y el gobierno inicial.
