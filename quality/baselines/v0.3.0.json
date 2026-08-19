@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "plugin_version": "0.3.0",
+  "source_commit": "33962c5e4d74340e3a02509352beff951680ebe5",
+  "recorded_on": "2026-08-19",
+  "channel": "candidate",
+  "metrics": {
+    "automated_eval_cases": 5,
+    "automated_eval_pass_rate": 1.0,
+    "unit_tests_passed": 30,
+    "critical_failures": 0,
+    "profile_structure_gate": 1,
+    "profile_complete_gate": 1
+  },
+  "limitations": [
+    "La versión 0.3.0 no incluía corpus de activación ejecutado ni revisión documental agregada.",
+    "La comparación solo usa métricas deterministas verificadas durante su release."
+  ]
+}

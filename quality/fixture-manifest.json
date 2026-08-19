@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "root": "tests/fixtures",
+  "classification": "synthetic-only",
+  "fixtures": [
+    {"path": "alternative-stack.json", "id": "FX-M1-ALTERNATIVE-STACK", "sha256": "3beb48c0480a897091bf795359e21f8282a7446c3c7f16a93e9dea7ad7b6dc1f"},
+    {"path": "help.json", "id": "FX-M1-HELP", "sha256": "5e2f58bccaaf0a941ce43e4484d361b75082ddad2c5c9c62cc71c6c5c834062e"},
+    {"path": "insufficient-information.json", "id": "FX-M1-INSUFFICIENT", "sha256": "69eb188a2898bd42bbd43ea7e22aad64a6cab0b8f7d0bcc5b27a661b259d5b2d"},
+    {"path": "new-project.json", "id": "FX-M1-NEW-PROJECT", "sha256": "6ebb7f7c0978dc09ae4bbc77f36221fea0601f1b0024284a172474fc942ab09b"},
+    {"path": "scoped-blocker.json", "id": "FX-M1-SCOPED-BLOCKER", "sha256": "b8091ee0b65b90951541057f7534aeb7ce9790cef2c7a3962f7f037a8d2746dc"}
+  ]
+}

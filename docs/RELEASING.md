@@ -10,6 +10,7 @@ Las releases de GitHub fijan hitos reproducibles del plugin LKS-SDD para Codex. 
 - Un hito funcional compatible incrementa la versión menor; una corrección compatible incrementa el parche; una ruptura de contrato incrementa la versión mayor.
 - Los commits intermedios en `main` no generan ni modifican releases. La release se actualiza creando una versión nueva cuando el cambio está cerrado y validado.
 - Las etiquetas `vX.Y.Z` son inmutables. Una versión publicada nunca se mueve ni se reutiliza.
+- Las versiones `candidate` se publican como prerelease y pueden tener canales semánticos, humanos o de piloto pendientes si las notas lo declaran. Una versión `stable` exige todos los canales definidos en `quality/catalog.json`.
 
 ## Puerta de publicación
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-08-19 — calidad de producto M4
+
+- Integra el catálogo completo FX-01–FX-19 y un corpus etiquetado de activación específico para Codex.
+- Añade inventario cerrado y hashes SHA-256 para fixtures exclusivamente sintéticos.
+- Añade un runner reproducible con canales `candidate` y `stable`, umbrales calculables y fallos críticos destacados.
+- Compara métricas comunes con la baseline versionada `v0.3.0` sin ocultar datos no comparables.
+- Incorpora contratos para observaciones saneadas y revisiones documentales humanas, manteniendo `not-run` cuando no existe evidencia.
+
 ## 0.3.0 — 2026-08-19 — release M0–M3
 
 - Implementa la sexta skill, `lks-sdd-adopt-existing`, con inspección estática, informe externo, reconciliación, detección de deriva y materialización aditiva autorizada.

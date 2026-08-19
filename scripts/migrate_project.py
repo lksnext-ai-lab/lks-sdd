@@ -17,7 +17,7 @@ from validate_project import validate_project
 
 TARGET_SCHEMA = "1.0"
 SOURCE_SCHEMA = "0.9"
-PLUGIN_VERSION = "0.3.0"
+PLUGIN_VERSION = "0.4.0"
 RECORD_NAME = "migration-record.json"
 
 

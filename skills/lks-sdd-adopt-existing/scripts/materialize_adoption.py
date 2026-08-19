@@ -26,7 +26,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import validate_project
 
-PLUGIN_VERSION = "0.3.0"
+PLUGIN_VERSION = "0.4.0"
 METHOD_VERSION = "1.0.0"
 SCHEMA_VERSION = "1.0"
 BASELINE_ID = "BL-0001"

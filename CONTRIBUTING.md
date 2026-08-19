@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.3.0` es la release técnica M0–M3 para revisión y piloto con Codex. Una contribución puede mejorar las seis skills, contratos documentales, perfil H0, validadores, migración, vistas cliente o evals dentro de ese alcance. No debe presentar capacidades de M4–M6, distribución o soporte corporativo como ya aprobadas.
+La versión `0.4.0` incorpora M0–M4 como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos documentales, perfil H0, validadores, migración, vistas cliente, fixtures o harness de evals dentro de ese alcance. M5–M6, la distribución interna y el soporte corporativo no deben presentarse como completados o aprobados.
 
 ## Contrato de cambio
 
@@ -14,6 +14,7 @@ La versión `0.3.0` es la release técnica M0–M3 para revisión y piloto con C
 6. Ejecutar `docs/VALIDATION.md` y revisar el diff completo.
 7. Documentar compatibilidad, migración o incompatibilidad cuando cambie un contrato.
 8. Seguir `docs/RELEASING.md` cuando el cambio cierre una versión publicable.
+9. Actualizar el catálogo, el manifiesto de fixtures o la baseline de comparación cuando el cambio altere la evidencia M4 correspondiente.
 
 ## Revisión
 

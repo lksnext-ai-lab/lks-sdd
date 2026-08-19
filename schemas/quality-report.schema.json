@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/quality-report-1.0.json",
+  "title": "LKS-SDD quality harness report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "suite", "plugin_version", "evaluated_on", "channel", "inputs", "checks", "channels", "metrics", "critical_failures", "comparison", "gate"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "suite": {"type": "string"},
+    "plugin_version": {"type": "string"},
+    "evaluated_on": {"type": "string", "format": "date"},
+    "channel": {"enum": ["candidate", "stable"]},
+    "inputs": {"type": "object"},
+    "checks": {"type": "array"},
+    "channels": {"type": "object"},
+    "metrics": {"type": "object"},
+    "critical_failures": {"type": "array", "items": {"type": "string"}},
+    "comparison": {"type": "object"},
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "eligible", "blockers", "missing_evidence"],
+      "properties": {
+        "status": {"enum": ["passed", "failed", "incomplete"]},
+        "eligible": {"type": "boolean"},
+        "blockers": {"type": "array", "items": {"type": "string"}},
+        "missing_evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

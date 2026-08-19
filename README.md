@@ -8,7 +8,7 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.3.0` implementa M0–M3 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Incorpora el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, validado de extremo a extremo en contenedores, además de migración documental y vistas derivadas para cliente. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables; los `agents/openai.yaml` son metadatos de interfaz e invocación.
+La versión `0.4.0` implementa M0–M4 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Incorpora el perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, migración documental, vistas derivadas para cliente y un harness de calidad con fixtures bloqueados, corpus etiquetado, umbrales y regresión entre releases. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables; los `agents/openai.yaml` son metadatos de interfaz e invocación.
 
 ## Principios operativos
 
@@ -30,11 +30,14 @@ La versión `0.3.0` implementa M0–M3 y las seis skills previstas: ayuda, defin
 - `templates/client/`: plantilla profesional para borradores derivados, nunca fuente canónica.
 - `specs/canonical/`: copias exactas de las tres fuentes canónicas del incremento.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
-- `docs/ARCHITECTURE.md`: arquitectura M0–M3 y límites aún vigentes.
+- `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
+- `docs/ARCHITECTURE.md`: arquitectura M0–M4 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.
 - `docs/M3-COVERAGE.md`: correspondencia auditable entre adopción, migración y vistas cliente.
+- `docs/M4-COVERAGE.md`: correspondencia auditable entre EP-10 y el harness integrado.
+- `docs/QUALITY-HARNESS.md`: ejecución, evidencia y semántica de las puertas candidate/stable.
 - `docs/RELEASING.md`: política de versiones, etiquetas y releases técnicas de GitHub.
 
 ## Validación local

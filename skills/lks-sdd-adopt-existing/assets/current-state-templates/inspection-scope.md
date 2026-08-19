@@ -3,7 +3,7 @@ artifact_id: ART-ADOPT-SCOPE
 artifact_type: inspection-scope
 schema_version: "1.0"
 method_version: "1.0.0"
-created_with_plugin_version: "0.3.0"
+created_with_plugin_version: "0.4.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: confirmed

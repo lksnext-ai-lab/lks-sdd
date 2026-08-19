@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M3 invariants beyond the official plugin validator."""
+"""Validate LKS-SDD M0-M4 invariants beyond the official plugin validator."""
 
 from __future__ import annotations
 
@@ -36,6 +36,8 @@ REQUIRED_ROOT_FILES = {
     "docs/M1-COVERAGE.md",
     "docs/M2-COVERAGE.md",
     "docs/M3-COVERAGE.md",
+    "docs/M4-COVERAGE.md",
+    "docs/QUALITY-HARNESS.md",
     "docs/VALIDATION.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
@@ -44,6 +46,14 @@ REQUIRED_ROOT_FILES = {
     "scripts/check_traceability.py",
     "scripts/migrate_project.py",
     "scripts/render_client_view.py",
+    "scripts/run_quality_harness.py",
+    "scripts/validate_fixture_manifest.py",
+    "quality/catalog.json",
+    "quality/corpora/activation.json",
+    "quality/fixture-manifest.json",
+    "quality/baselines/v0.3.0.json",
+    "schemas/quality-observations.schema.json",
+    "schemas/quality-report.schema.json",
     "templates/client/client-deliverable.md",
 }
 REQUIRED_SKILL_RESOURCES = {
@@ -129,6 +139,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
 }
 RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
+    "scripts/run_quality_harness.py": {"subprocess"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess", "urllib"},
     "skills/lks-sdd-adopt-existing/scripts/adoption_common.py": {"subprocess"},
 }
@@ -154,8 +165,8 @@ def validate(root: Path) -> list[str]:
         return [f"Manifest ilegible: {exc}"]
     if manifest.get("name") != "lks-sdd":
         errors.append("El nombre del manifest debe ser lks-sdd.")
-    if manifest.get("version") != "0.3.0":
-        errors.append("El incremento M0-M3 debe declarar la versión 0.3.0.")
+    if manifest.get("version") != "0.4.0":
+        errors.append("El incremento M0-M4 debe declarar la versión 0.4.0.")
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
@@ -178,7 +189,7 @@ def validate(root: Path) -> list[str]:
         errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
-            errors.append(f"El manifest no puede declarar {unsupported} en M0-M3.")
+            errors.append(f"El manifest no puede declarar {unsupported} en M0-M4.")
 
     skills_root = root / "skills"
     discovered = (
@@ -254,6 +265,8 @@ def validate(root: Path) -> list[str]:
         "frontmatter.schema.json",
         "technology-profile.schema.json",
         "technology-profile-lock.schema.json",
+        "quality-observations.schema.json",
+        "quality-report.schema.json",
         "catalogs.json",
     ):
         try:
@@ -354,7 +367,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 2
-    print("VALID: LKS-SDD M0-M3 contract")
+    print("VALID: LKS-SDD M0-M4 contract")
     return 0
 
 
