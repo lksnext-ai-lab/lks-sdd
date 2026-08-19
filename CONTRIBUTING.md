@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.4.0` incorpora M0–M4 como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos documentales, perfil H0, validadores, migración, vistas cliente, fixtures o harness de evals dentro de ese alcance. M5–M6, la distribución interna y el soporte corporativo no deben presentarse como completados o aprobados.
+La versión `0.5.0` incorpora M0–M5 como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos, perfil H0, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; M6, la publicación estable y el soporte corporativo no deben presentarse como completados o aprobados.
 
 ## Contrato de cambio
 
@@ -15,6 +15,7 @@ La versión `0.4.0` incorpora M0–M4 como release candidate técnica para Codex
 7. Documentar compatibilidad, migración o incompatibilidad cuando cambie un contrato.
 8. Seguir `docs/RELEASING.md` cuando el cambio cierre una versión publicable.
 9. Actualizar el catálogo, el manifiesto de fixtures o la baseline de comparación cuando el cambio altere la evidencia M4 correspondiente.
+10. Mantener cualquier configuración y evidencia real del piloto fuera del repositorio; solo se versionan contratos, ejemplos vacíos y resultados agregados expresamente saneados.
 
 ## Revisión
 

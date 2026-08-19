@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/pilot-observation-1.0.json",
+  "title": "LKS-SDD privacy-safe pilot observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "observation_id", "pilot_id", "project_code", "participant_code", "week", "route", "metrics", "outcomes"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "observation_id": {"type": "string", "pattern": "^OBS-[0-9]{4}$"},
+    "pilot_id": {"type": "string", "pattern": "^pilot-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "project_code": {"type": "string", "pattern": "^PRJ-[0-9]{3}$"},
+    "participant_code": {"type": "string", "pattern": "^USR-[0-9]{3}$"},
+    "week": {"type": "integer", "minimum": 0, "maximum": 8},
+    "route": {"enum": ["greenfield-h0", "adopt-existing", "alternative-stack", "reinforced-risk"]},
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["activation_correct", "baseline_minutes", "repeated_questions", "open_points", "incidents", "documentation_load", "manual_changes", "defects_before_codex", "defects_after_codex", "onboarding_completed", "sdd_comprehension", "utility", "clarity", "confidence", "reuse_intent", "document_quality"],
+      "properties": {
+        "activation_correct": {"type": "boolean"},
+        "baseline_minutes": {"type": "integer", "minimum": 0, "maximum": 10080},
+        "repeated_questions": {"type": "integer", "minimum": 0},
+        "open_points": {"type": "integer", "minimum": 0},
+        "incidents": {"type": "integer", "minimum": 0},
+        "documentation_load": {"enum": ["low", "acceptable", "high"]},
+        "manual_changes": {"type": "integer", "minimum": 0},
+        "defects_before_codex": {"type": "integer", "minimum": 0},
+        "defects_after_codex": {"type": "integer", "minimum": 0},
+        "onboarding_completed": {"type": "boolean"},
+        "sdd_comprehension": {"type": "integer", "minimum": 1, "maximum": 5},
+        "utility": {"type": "integer", "minimum": 1, "maximum": 5},
+        "clarity": {"type": "integer", "minimum": 1, "maximum": 5},
+        "confidence": {"type": "integer", "minimum": 1, "maximum": 5},
+        "reuse_intent": {"type": "boolean"},
+        "document_quality": {"type": "integer", "minimum": 1, "maximum": 5}
+      }
+    },
+    "outcomes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route_completed", "resume_correct", "edits_preserved", "permission_failures", "build_passed", "tests_passed", "traceability_complete", "security_incidents"],
+      "properties": {
+        "route_completed": {"type": "boolean"},
+        "resume_correct": {"type": "boolean"},
+        "edits_preserved": {"type": "boolean"},
+        "permission_failures": {"type": "integer", "minimum": 0},
+        "build_passed": {"type": ["boolean", "null"]},
+        "tests_passed": {"type": ["boolean", "null"]},
+        "traceability_complete": {"type": "boolean"},
+        "security_incidents": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

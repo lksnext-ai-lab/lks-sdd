@@ -22,12 +22,14 @@ La puerta reproducible de candidate se ejecuta desde la raíz:
 
 ```powershell
 python scripts\validate_fixture_manifest.py .
-python scripts\run_quality_harness.py --channel candidate --date 2026-08-19 --baseline quality\baselines\v0.3.0.json --include-complete-profile --output C:\ruta\externa\quality-report.json
+python scripts\run_quality_harness.py --channel candidate --date 2026-08-20 --baseline quality\baselines\v0.4.0.json --include-complete-profile --output C:\ruta\externa\quality-report.json
 ```
 
 Sin `--include-complete-profile`, la puerta candidate queda `incomplete`. El reporte no sobrescribe una salida existente salvo con `--force`; el reemplazo es atómico.
 
 Para aportar evidencia semántica o humana, copie `quality/observations.example.json` fuera del repositorio, sustituya los valores de ejemplo, use el hash canónico indicado por un reporte reciente y pase `--observations`. El archivo no debe contener nombres, prompts de cliente, repositorios, secretos ni contenido sustantivo.
+
+Un resumen M5 con decisión puede incorporarse mediante `--pilot-summary`. `go` satisface el canal, `go-conditioned` queda `incomplete` y `no-go` o `withdrawal` lo dejan `failed`.
 
 ## Interpretación
 

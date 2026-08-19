@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M4",
+  "suite": "LKS-SDD M0-M5",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],

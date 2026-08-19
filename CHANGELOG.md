@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 — 2026-08-20 — infraestructura de piloto M5
+
+- Añade un marketplace de desarrollo empaquetado con la estructura local estándar de Codex.
+- Genera bundles reproducibles del plugin y marketplace, manifiesto por archivo y `SHA256SUMS`, bloqueando enlaces y patrones de secretos.
+- Añade configuración, observaciones cerradas, almacenamiento externo, agregación anónima y decisión go/no-go para un piloto de 3–5 proyectos y 5–8 participantes.
+- Establece GitHub Issues como soporte no sensible y separa el canal confidencial de seguridad.
+- Documenta onboarding, privacidad, retención, distribución y rollback sin modificar automáticamente proyectos consumidores.
+- Mantiene el piloto real como pendiente: la plantilla preparada no permite arrancar hasta asignar muestra, aliases, responsables, seguridad y checksum.
+
 ## 0.4.0 — 2026-08-19 — calidad de producto M4
 
 - Integra el catálogo completo FX-01–FX-19 y un corpus etiquetado de activación específico para Codex.

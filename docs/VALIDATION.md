@@ -16,12 +16,21 @@ python scripts\validate_plugin_contract.py .
 python scripts\validate_fixture_manifest.py .
 python -m unittest discover -s tests -p "test_*.py" -v
 python tests\run_evals.py
-python scripts\run_quality_harness.py --channel candidate --date 2026-08-19 --baseline quality\baselines\v0.3.0.json --include-complete-profile
+python scripts\run_quality_harness.py --channel candidate --date 2026-08-20 --baseline quality\baselines\v0.4.0.json --include-complete-profile
 ```
 
 `validate_plugin_contract.py` comprueba manifiesto, skills implementadas, ausencia de componentes fuera de alcance, hashes de las fuentes canónicas y recursos declarados. `validate_reference_profile.py` comprueba el contrato y el lock H0. `validate_fixture_manifest.py` bloquea altas no declaradas y deriva de los fixtures sintéticos. El harness M4 vuelve a ejecutar las comprobaciones automatizables, calcula umbrales y compara contra la baseline; use `--include-complete-profile` para incorporar también Docker en su reporte. El gate completo requiere Docker y red, levanta servicios temporales y siempre ejecuta `compose down --volumes`.
 
 El canal `stable` requiere además `--observations` con resultados reales de activación y revisión documental, más la evidencia agregada de M5. Si faltan, el harness devuelve `incomplete` con código `3`; nunca los presenta como superados.
+
+La infraestructura M5 se comprueba con la suite y con:
+
+```powershell
+python scripts\manage_pilot.py validate-config pilot\pilot-config.example.json
+python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.5.0
+```
+
+La configuración de ejemplo debe devolver `blocked` con código `3`: demuestra que no puede arrancar sin muestra, aliases, responsables, canal confidencial, checksum y rollback. El builder exige una carpeta externa inexistente.
 
 Para validar un proyecto consumidor ya inicializado:
 

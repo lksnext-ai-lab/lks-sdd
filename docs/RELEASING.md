@@ -20,7 +20,8 @@ Antes de publicar una versión:
 2. Ejecutar las validaciones de `docs/VALIDATION.md` y revisar el diff completo.
 3. Integrar el commit exacto en `main` y comprobar que el árbol de trabajo está limpio.
 4. Crear y subir la etiqueta anotada `vX.Y.Z` sobre ese commit.
-5. Crear la release de GitHub desde la etiqueta, con las notas versionadas, y verificar URL, commit, estado y artefactos fuente.
+5. Para M5 o posteriores, generar los bundles desde ese commit, verificar reproducibilidad, manifiesto y checksums, y mantenerlos fuera del árbol Git.
+6. Crear la release de GitHub desde la etiqueta, con las notas versionadas y los assets candidate aplicables; verificar URL, commit, estado, hashes y descargas.
 
 Si una validación o la publicación falla, se corrige en una versión nueva o antes de crear la etiqueta; una etiqueta ya publicada no se reescribe.
 

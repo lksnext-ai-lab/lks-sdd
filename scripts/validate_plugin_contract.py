@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M4 invariants beyond the official plugin validator."""
+"""Validate LKS-SDD M0-M5 invariants beyond the official plugin validator."""
 
 from __future__ import annotations
 
@@ -29,6 +29,7 @@ REQUIRED_ROOT_FILES = {
     "CHANGELOG.md",
     "GOVERNANCE.md",
     "SECURITY.md",
+    "SUPPORT.md",
     "CONTRIBUTING.md",
     "LICENSE.md",
     "docs/ARCHITECTURE.md",
@@ -37,7 +38,9 @@ REQUIRED_ROOT_FILES = {
     "docs/M2-COVERAGE.md",
     "docs/M3-COVERAGE.md",
     "docs/M4-COVERAGE.md",
+    "docs/M5-COVERAGE.md",
     "docs/QUALITY-HARNESS.md",
+    "docs/DISTRIBUTION.md",
     "docs/VALIDATION.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
@@ -48,12 +51,26 @@ REQUIRED_ROOT_FILES = {
     "scripts/render_client_view.py",
     "scripts/run_quality_harness.py",
     "scripts/validate_fixture_manifest.py",
+    "scripts/manage_pilot.py",
+    "scripts/build_candidate_package.py",
     "quality/catalog.json",
     "quality/corpora/activation.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
+    "quality/baselines/v0.4.0.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
+    "schemas/pilot-config.schema.json",
+    "schemas/pilot-observation.schema.json",
+    "schemas/pilot-summary.schema.json",
+    "distribution/marketplace.template.json",
+    "pilot/pilot-config.example.json",
+    "pilot/PLAN.md",
+    "pilot/ONBOARDING.md",
+    "pilot/ROLLBACK.md",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/ISSUE_TEMPLATE/bug-report.yml",
+    ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
     "templates/client/client-deliverable.md",
 }
 REQUIRED_SKILL_RESOURCES = {
@@ -165,8 +182,8 @@ def validate(root: Path) -> list[str]:
         return [f"Manifest ilegible: {exc}"]
     if manifest.get("name") != "lks-sdd":
         errors.append("El nombre del manifest debe ser lks-sdd.")
-    if manifest.get("version") != "0.4.0":
-        errors.append("El incremento M0-M4 debe declarar la versión 0.4.0.")
+    if manifest.get("version") != "0.5.0":
+        errors.append("El incremento M0-M5 debe declarar la versión 0.5.0.")
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
@@ -189,7 +206,7 @@ def validate(root: Path) -> list[str]:
         errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
-            errors.append(f"El manifest no puede declarar {unsupported} en M0-M4.")
+            errors.append(f"El manifest no puede declarar {unsupported} en M0-M5.")
 
     skills_root = root / "skills"
     discovered = (
@@ -249,7 +266,7 @@ def validate(root: Path) -> list[str]:
         if not (adoption_template_root / name).is_file():
             errors.append(f"Falta plantilla de adopción: {name}")
 
-    for forbidden in (".mcp.json", ".app.json", "hooks", "agents"):
+    for forbidden in (".mcp.json", ".app.json", "hooks", "agents", ".agents"):
         if (root / forbidden).exists():
             errors.append(f"Componente raíz fuera de alcance: {forbidden}")
 
@@ -267,12 +284,61 @@ def validate(root: Path) -> list[str]:
         "technology-profile-lock.schema.json",
         "quality-observations.schema.json",
         "quality-report.schema.json",
+        "pilot-config.schema.json",
+        "pilot-observation.schema.json",
+        "pilot-summary.schema.json",
         "catalogs.json",
     ):
         try:
             json.loads((root / "schemas" / schema_name).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             errors.append(f"Schema inválido {schema_name}: {exc}")
+
+    try:
+        marketplace = json.loads(
+            (root / "distribution" / "marketplace.template.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        expected_entry = {
+            "name": "lks-sdd",
+            "source": {"source": "local", "path": "./plugins/lks-sdd"},
+            "policy": {
+                "installation": "AVAILABLE",
+                "authentication": "ON_INSTALL",
+            },
+            "category": "Productivity",
+        }
+        if marketplace.get("name") != "lks-sdd-development":
+            errors.append("El marketplace M5 debe llamarse lks-sdd-development.")
+        if marketplace.get("plugins") != [expected_entry]:
+            errors.append("La entrada del marketplace M5 no respeta el contrato Codex.")
+    except (OSError, json.JSONDecodeError, AttributeError):
+        errors.append("El marketplace M5 no es legible o válido.")
+
+    try:
+        pilot_example = json.loads(
+            (root / "pilot" / "pilot-config.example.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        if pilot_example.get("status") != "prepared":
+            errors.append("El ejemplo de piloto debe permanecer prepared.")
+        if pilot_example.get("projects") or pilot_example.get("participants"):
+            errors.append("El ejemplo de piloto no debe contener proyectos o participantes.")
+        roles = pilot_example.get("roles", {})
+        if not isinstance(roles, dict) or any(value is not None for value in roles.values()):
+            errors.append("El ejemplo de piloto no debe inventar responsables.")
+        privacy = pilot_example.get("privacy", {})
+        for field in (
+            "allow_client_content",
+            "allow_secrets",
+            "allow_personal_names",
+        ):
+            if privacy.get(field) is not False:
+                errors.append(f"El ejemplo de piloto debe mantener {field}=false.")
+    except (OSError, json.JSONDecodeError, AttributeError):
+        errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
     try:
         project_schema = json.loads(
@@ -367,7 +433,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 2
-    print("VALID: LKS-SDD M0-M4 contract")
+    print("VALID: LKS-SDD M0-M5 contract")
     return 0
 
 

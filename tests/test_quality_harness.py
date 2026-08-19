@@ -20,6 +20,7 @@ from run_quality_harness import (  # noqa: E402
     compare_metrics,
     evaluate_activation,
     evaluate_document_reviews,
+    evaluate_pilot,
     validate_catalog,
     validate_corpus,
     validate_fixture_manifest,
@@ -132,6 +133,40 @@ class QualityHarnessTests(unittest.TestCase):
         )
         self.assertEqual(comparison["status"], "failed")
         self.assertEqual(len(comparison["regressions"]), 2)
+
+    def test_pilot_decision_maps_to_explicit_channel_state(self):
+        base = {
+            "schema_version": "1.0",
+            "project_count": 3,
+            "participant_count": 5,
+            "sample_sufficient": True,
+        }
+        passed = evaluate_pilot(
+            {**base, "decision": {"status": "go", "blockers": [], "conditions": []}}
+        )
+        incomplete = evaluate_pilot(
+            {
+                **base,
+                "decision": {
+                    "status": "go-conditioned",
+                    "blockers": [],
+                    "conditions": ["activation pending"],
+                },
+            }
+        )
+        failed = evaluate_pilot(
+            {
+                **base,
+                "decision": {
+                    "status": "no-go",
+                    "blockers": ["security incident"],
+                    "conditions": [],
+                },
+            }
+        )
+        self.assertEqual(passed["status"], "passed")
+        self.assertEqual(incomplete["status"], "incomplete")
+        self.assertEqual(failed["status"], "failed")
 
     def test_report_inputs_have_stable_canonical_hashes(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-quality-") as directory:

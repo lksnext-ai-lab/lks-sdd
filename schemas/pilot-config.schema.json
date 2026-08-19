@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/pilot-config-1.0.json",
+  "title": "LKS-SDD controlled pilot configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "pilot_id", "status", "duration_weeks", "projects", "participants", "roles", "support", "rollback", "privacy"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "pilot_id": {"type": "string", "pattern": "^pilot-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "status": {"enum": ["prepared", "running", "closed", "withdrawn"]},
+    "duration_weeks": {"type": "integer", "minimum": 6, "maximum": 8},
+    "projects": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "route", "environment", "data_classification", "authorization_confirmed"],
+        "properties": {
+          "code": {"type": "string", "pattern": "^PRJ-[0-9]{3}$"},
+          "route": {"enum": ["greenfield-h0", "adopt-existing", "alternative-stack", "reinforced-risk"]},
+          "environment": {"enum": ["synthetic", "sanitized-copy", "non-production"]},
+          "data_classification": {"enum": ["synthetic", "sanitized-internal"]},
+          "authorization_confirmed": {"const": true}
+        }
+      }
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 8,
+      "items": {"type": "string", "pattern": "^USR-[0-9]{3}$"}
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method_owner", "product_owner", "maintainer", "security_reviewer", "quality_reviewer", "workspace_admin", "support_owner"],
+      "properties": {
+        "method_owner": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"},
+        "product_owner": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"},
+        "maintainer": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"},
+        "security_reviewer": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"},
+        "quality_reviewer": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"},
+        "workspace_admin": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"},
+        "support_owner": {"type": ["string", "null"], "pattern": "^USR-[0-9]{3}$"}
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["non_sensitive_url", "security_url"],
+      "properties": {
+        "non_sensitive_url": {"type": "string", "format": "uri", "pattern": "^https://"},
+        "security_url": {"type": ["string", "null"], "format": "uri", "pattern": "^https://"}
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["previous_version", "candidate_version", "package_sha256", "procedure_confirmed"],
+      "properties": {
+        "previous_version": {"const": "0.4.0"},
+        "candidate_version": {"const": "0.5.0"},
+        "package_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "procedure_confirmed": {"type": "boolean"}
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allow_client_content", "allow_secrets", "allow_personal_names", "retention_days"],
+      "properties": {
+        "allow_client_content": {"const": false},
+        "allow_secrets": {"const": false},
+        "allow_personal_names": {"const": false},
+        "retention_days": {"type": "integer", "minimum": 1, "maximum": 365}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "running"}}},
+      "then": {
+        "properties": {
+          "projects": {"minItems": 3},
+          "participants": {"minItems": 5},
+          "roles": {
+            "properties": {
+              "method_owner": {"type": "string"},
+              "product_owner": {"type": "string"},
+              "maintainer": {"type": "string"},
+              "security_reviewer": {"type": "string"},
+              "quality_reviewer": {"type": "string"},
+              "workspace_admin": {"type": "string"},
+              "support_owner": {"type": "string"}
+            }
+          },
+          "support": {"properties": {"security_url": {"type": "string"}}},
+          "rollback": {
+            "properties": {
+              "package_sha256": {"type": "string"},
+              "procedure_confirmed": {"const": true}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.4.0` es la release candidate técnica M0–M4 para Codex. Integra la puerta automatizada de calidad, pero no acredita observaciones semánticas, revisión humana ni piloto cuando esos canales figuran `not-run`. Su publicación en GitHub no implica instalación global, distribución corporativa, soporte oficial ni aprobación como política corporativa. La baseline normativa empaquetada y el perfil H0 conservan estado `candidate`, aunque sus contratos técnicos estén validados.
+La versión `0.5.0` es la release candidate técnica M0–M5 para Codex. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. Su publicación en GitHub no implica instalación global, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
 
 ## Autoridad y decisiones
 
@@ -17,6 +17,8 @@ Todo cambio del método debe documentar motivación, alcance, compatibilidad, im
 Las releases técnicas siguen `docs/RELEASING.md`: cada versión cerrada recibe una etiqueta inmutable y sus notas; los commits intermedios no reescriben una release publicada.
 
 Un resultado `candidate` solo puede promocionarse con los canales exigidos por `quality/catalog.json`. `stable` queda bloqueado si falta evidencia semántica, documental o de piloto.
+
+GitHub Issues es el canal candidate para soporte no sensible. La configuración externa debe aportar un canal confidencial de seguridad antes de iniciar el piloto. Los aliases no acreditan autoridad; las asignaciones reales y la decisión go/no-go siguen siendo externas.
 
 ## Responsabilidades pendientes
 

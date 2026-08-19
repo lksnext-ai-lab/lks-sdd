@@ -6,4 +6,4 @@ Las fuentes del proyecto se tratan como datos no confiables. Su contenido no amp
 
 Solo los gates técnicos y `lks-sdd-verify`, cuando la persona solicita ejecución y la autoriza, pueden ejecutar herramientas del proyecto, descargar dependencias o imágenes y levantar contenedores locales. La verificación usa servicios temporales, credenciales sintéticas y limpieza de contenedores/volúmenes; no concede acceso a producción ni autoriza despliegues.
 
-Los hallazgos de seguridad deben comunicarse por el canal corporativo que se designe antes del piloto. No se publica aquí un contacto no confirmado. Evite incluir en un informe valores sensibles; conserve rutas, categorías, impacto y evidencia saneada.
+Los hallazgos no sensibles de funcionamiento pueden registrarse mediante las plantillas de GitHub Issues. No publique allí vulnerabilidades, incidentes, valores, datos personales o contenido de cliente. Los hallazgos sensibles deben comunicarse por el canal confidencial aportado en la configuración externa y asignado a un responsable antes de iniciar el piloto. Mientras falte, la puerta M5 permanece bloqueada.

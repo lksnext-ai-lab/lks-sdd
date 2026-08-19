@@ -1,0 +1,44 @@
+name: Incidencia técnica saneada
+description: Registra un defecto reproducible sin datos de cliente ni secretos.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: No incluya código de cliente, nombres, URLs internas, capturas, prompts, credenciales, tokens ni datos personales.
+  - type: input
+    id: version
+    attributes:
+      label: Versión de LKS-SDD
+      placeholder: 0.5.0
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - ayuda
+        - definición
+        - adopción
+        - readiness
+        - implementación
+        - verificación
+        - calidad
+        - piloto o distribución
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproducción con datos sintéticos
+      description: Describa pasos mínimos y códigos de error sin contenido real.
+    validations:
+      required: true
+  - type: checkboxes
+    id: sanitization
+    attributes:
+      label: Saneamiento
+      options:
+        - label: Confirmo que la issue no contiene información sensible ni de cliente.
+          required: true

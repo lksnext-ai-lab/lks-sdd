@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Seguridad y privacidad
+    url: https://github.com/lksnext-ai-lab/lks-sdd/security
+    about: No publique información sensible; consulte SECURITY.md y use el canal confidencial autorizado.

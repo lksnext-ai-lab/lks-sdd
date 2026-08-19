@@ -20,7 +20,7 @@ QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
-DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.3.0.json"
+DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.4.0.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 ALLOWED_SKILLS = {
     "lks-sdd-help",
@@ -395,6 +395,32 @@ def evaluate_document_reviews(
     }, metrics
 
 
+def evaluate_pilot(summary: dict[str, Any] | None) -> dict[str, Any]:
+    if summary is None:
+        return {"status": "not-run", "decision": "not-evaluated"}
+    if summary.get("schema_version") != "1.0":
+        raise HarnessError("El resumen de piloto debe usar schema_version 1.0.")
+    decision = summary.get("decision")
+    if not isinstance(decision, dict):
+        raise HarnessError("El resumen de piloto no contiene una decisión válida.")
+    status = decision.get("status")
+    if status == "go":
+        channel_status = "passed"
+    elif status in {"not-evaluated", "go-conditioned"}:
+        channel_status = "incomplete"
+    elif status in {"no-go", "withdrawal"}:
+        channel_status = "failed"
+    else:
+        raise HarnessError(f"Decisión de piloto no soportada: {status!r}")
+    return {
+        "status": channel_status,
+        "decision": status,
+        "project_count": summary.get("project_count"),
+        "participant_count": summary.get("participant_count"),
+        "sample_sufficient": summary.get("sample_sufficient"),
+    }
+
+
 def _run_command(check_id: str, command: list[str], json_output: bool = False, timeout: int = 600) -> tuple[dict[str, Any], Any | None, str]:
     process = subprocess.run(
         command,
@@ -535,6 +561,7 @@ def build_report(
     evaluated_on: str,
     channel: str,
     observations_path: Path | None,
+    pilot_summary_path: Path | None,
     baseline_path: Path,
     include_complete_profile: bool,
 ) -> dict[str, Any]:
@@ -543,6 +570,11 @@ def build_report(
     observations = None
     if observations_path is not None:
         observations = validate_observations(_load_json(observations_path), corpus)
+    pilot_summary = None
+    if pilot_summary_path is not None:
+        pilot_summary = _require_object(
+            _load_json(pilot_summary_path), "El resumen de piloto"
+        )
     checks, metrics, critical_failures = run_automated(include_complete_profile)
     activation, activation_metrics, activation_critical = evaluate_activation(
         corpus, observations, catalog["thresholds"]
@@ -574,7 +606,7 @@ def build_report(
         "regression": {"status": comparison["status"]},
         "activation": activation,
         "document-review": document_review,
-        "pilot": {"status": "not-run"},
+        "pilot": evaluate_pilot(pilot_summary),
     }
     required = catalog["channels"][channel]["required"]
     blockers = list(critical_failures)
@@ -607,6 +639,7 @@ def build_report(
             "corpus_sha256": _sha256_bytes(_canonical_bytes(corpus)),
             "fixture_manifest_sha256": _sha256_file(FIXTURE_MANIFEST_PATH),
             "observations_sha256": _sha256_file(observations_path) if observations_path else None,
+            "pilot_summary_sha256": _sha256_file(pilot_summary_path) if pilot_summary_path else None,
             "baseline_sha256": _sha256_file(baseline_path),
         },
         "checks": checks,
@@ -646,6 +679,7 @@ def main() -> int:
     parser.add_argument("--channel", choices=("candidate", "stable"), default="candidate")
     parser.add_argument("--date", default=date.today().isoformat(), dest="evaluated_on")
     parser.add_argument("--observations", type=Path)
+    parser.add_argument("--pilot-summary", type=Path)
     parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE_PATH)
     parser.add_argument("--include-complete-profile", action="store_true")
     parser.add_argument("--output", type=Path)
@@ -659,6 +693,7 @@ def main() -> int:
             args.evaluated_on,
             args.channel,
             args.observations,
+            args.pilot_summary,
             args.baseline.expanduser().resolve(),
             args.include_complete_profile,
         )

@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.4.0
+# Capacidades y límites de LKS-SDD 0.5.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -12,13 +12,16 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Preparar el scaffold del perfil H0 para un incremento listo mediante preview y autorización.
 - Ejecutar y registrar verificaciones locales del perfil H0, incluida la integración opcional con PostgreSQL y Keycloak.
 - Validar especificación y trazabilidad, migrar el contrato soportado y generar borradores cliente controlados.
+- Ejecutar el harness candidate M4, comparar releases y conservar como `not-run` la evidencia aún no aportada.
+- Generar un bundle candidate de marketplace y preparar un piloto saneado que permanece bloqueado hasta completar su configuración externa.
 
 ## No disponibles todavía
 
 - Seleccionar una pila automáticamente o tratar el perfil H0 candidato como homologación corporativa.
 - Implementar o verificar automáticamente pilas distintas del perfil H0.
 - Normalizar o modernizar código existente durante la adopción.
-- Publicar, instalar, desplegar, acceder a producción o aprobar excepciones.
+- Instalar automáticamente el bundle, desplegar, acceder a producción o aprobar excepciones.
+- Presentar la infraestructura M5 como un piloto ya ejecutado o una decisión `go` sin resultados reales.
 - Usar MCP, conectores, hooks, apps o agentes.
 - Ejecutar el plugin con soporte garantizado fuera de Codex.
 
