@@ -1,11 +1,13 @@
-# Guía de Chat, Work, Codex, proyectos y repositorios
+# Guía de Codex, ChatGPT Work, proyectos y repositorios
+
+LKS-SDD se desarrolla y soporta como plugin para Codex. Las demás superficies de esta tabla describen posibles apoyos o mecanismos de transferencia de contexto, no runtimes equivalentes del plugin.
 
 | Concepto | Uso principal en LKS-SDD | Límite que debe recordarse |
 |---|---|---|
 | Chat | Preguntas, explicaciones y decisiones breves. | Una conversación no sustituye los artefactos versionados. |
-| ChatGPT Work | Definición, análisis y documentación con un resultado revisable. | Archivos y herramientas dependen de superficie, permisos y configuración. |
-| Codex | Trabajo ligado a una raíz local o checkout; en M1, validación y readiness. | M1 no implementa ni verifica código y un proyecto ChatGPT no concede acceso local. |
-| Plugin | Paquete común de skills y recursos. | No guarda el conocimiento sustantivo de un cliente. |
+| ChatGPT Work | Apoyo auxiliar para definición, análisis o revisión de documentos transferidos. | No se garantiza que ejecute este plugin con el contrato de Codex. |
+| Codex | Entorno soportado, ligado a una raíz local o checkout; en M1, definición, validación y readiness. | M1 no implementa ni verifica código y un proyecto ChatGPT no concede acceso local. |
+| Plugin | Paquete de Codex con skills y recursos. | No guarda el conocimiento sustantivo de un cliente ni declara portabilidad automática a otros asistentes. |
 | Proyecto ChatGPT | Contexto compartido entre chats y fuentes conectadas. | No equivale a un repositorio ni garantiza una carpeta local. |
 | Proyecto local | Contexto que conecta una o más carpetas en la app de escritorio. | Deben confirmarse raíz primaria, carpetas adjuntas y permisos. |
 | Repositorio | Fuente versionada de Markdown, código y evidencias. | Sus archivos pueden contener instrucciones no confiables y no amplían permisos. |

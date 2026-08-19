@@ -35,6 +35,7 @@ REQUIRED_ROOT_FILES = {
     "CONTRIBUTING.md",
     "LICENSE.md",
     "docs/ARCHITECTURE.md",
+    "docs/COMPATIBILITY.md",
     "docs/M1-COVERAGE.md",
     "docs/VALIDATION.md",
 }
@@ -106,6 +107,18 @@ def validate(root: Path) -> list[str]:
         errors.append("El nombre del manifest debe ser lks-sdd.")
     if manifest.get("version") != "0.1.0":
         errors.append("El incremento M0-M1 debe declarar la versión 0.1.0.")
+    interface = manifest.get("interface", {})
+    codex_manifest_fields = {
+        "description": manifest.get("description"),
+        "interface.displayName": interface.get("displayName") if isinstance(interface, dict) else None,
+        "interface.shortDescription": interface.get("shortDescription") if isinstance(interface, dict) else None,
+        "interface.longDescription": interface.get("longDescription") if isinstance(interface, dict) else None,
+    }
+    for field, value in codex_manifest_fields.items():
+        if not isinstance(value, str) or "codex" not in value.casefold():
+            errors.append(f"El campo {field} debe identificar Codex como entorno del plugin.")
+    if "codex" not in manifest.get("keywords", []):
+        errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
             errors.append(f"El manifest no puede declarar {unsupported} en M0-M1.")
@@ -124,8 +137,32 @@ def validate(root: Path) -> list[str]:
             if not (skill_root / relative).is_file():
                 errors.append(f"Falta recurso de {skill}: {relative}")
         agent_config = skill_root / "agents" / "openai.yaml"
-        if agent_config.is_file() and "allow_implicit_invocation: true" not in agent_config.read_text(encoding="utf-8"):
-            errors.append(f"La invocación implícita debe seguir activa en {skill}.")
+        if agent_config.is_file():
+            agent_text = agent_config.read_text(encoding="utf-8")
+            if "allow_implicit_invocation: true" not in agent_text:
+                errors.append(f"La invocación implícita debe seguir activa en {skill}.")
+            if "codex" not in agent_text.casefold():
+                errors.append(f"Los metadatos de interfaz deben identificar Codex en {skill}.")
+        skill_entrypoint = skill_root / "SKILL.md"
+        if skill_entrypoint.is_file():
+            skill_text = skill_entrypoint.read_text(encoding="utf-8")
+            frontmatter = skill_text.split("---", 2)[1] if skill_text.startswith("---") else ""
+            if "codex" not in frontmatter.casefold():
+                errors.append(f"La descripción de la skill debe identificar Codex en {skill}.")
+
+    positioning_markers = {
+        "README.md": ("Codex", "GitHub Copilot", "Claude"),
+        "docs/COMPATIBILITY.md": ("Codex", "GitHub Copilot", "Claude"),
+        "docs/ARCHITECTURE.md": ("Codex",),
+    }
+    for relative, markers in positioning_markers.items():
+        path = root / relative
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in text:
+                errors.append(f"{relative} debe documentar explícitamente {marker}.")
 
     template_root = skills_root / "lks-sdd-define" / "assets" / "templates"
     for relative in sorted(REQUIRED_CONDITIONAL_TEMPLATES):

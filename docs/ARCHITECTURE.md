@@ -1,5 +1,9 @@
 # Arquitectura y alcance de la versión 0.1.0
 
+## Entorno de ejecución
+
+LKS-SDD se implementa como plugin de desarrollo SDD para Codex. Codex es el único entorno soportado contractualmente; la posible reutilización de Markdown, esquemas o scripts en ChatGPT Work, GitHub Copilot, Claude u otros asistentes no implica compatibilidad del plugin. La matriz y los criterios de portabilidad se mantienen en `docs/COMPATIBILITY.md`.
+
 ## Implementado en M0–M1
 
 - Plugin único `lks-sdd`, basado exclusivamente en skills y recursos locales.
@@ -31,4 +35,4 @@ Pendiente: comprobaciones por perfil, evidencias, limitaciones y clasificación 
 
 ## Evolución posterior
 
-M2 debe cerrar y probar el perfil de referencia antes de implementar o verificar aplicaciones. M3 aborda adopción y vistas de cliente. MCP, conectores, hooks, apps y agentes solo se estudiarán si aparece una necesidad demostrada y mediante una decisión posterior.
+M2 debe cerrar y probar el perfil de referencia para Codex antes de implementar o verificar aplicaciones. M3 aborda adopción y vistas de cliente en el mismo entorno objetivo. MCP, conectores, hooks, apps, agentes y adaptaciones a otros asistentes solo se estudiarán si aparece una necesidad demostrada y mediante una decisión posterior.

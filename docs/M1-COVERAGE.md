@@ -3,6 +3,7 @@
 ## Hechos verificados
 
 - El plugin es skills-only y declara únicamente ayuda, definición y readiness.
+- Codex es el entorno objetivo soportado; la compatibilidad con otros asistentes no se infiere ni se declara sin pruebas específicas.
 - Las tres fuentes de `specs/canonical/` se preservan por hash y no se editan desde la implementación.
 - El inicializador crea el núcleo documental de una aplicación nueva, ofrece dry-run, conserva archivos existentes, se reanuda de forma idempotente y deriva repositorios con código a la ruta de adopción no implementada.
 - Los Markdown conservan el contenido sustantivo; `.lks-sdd/project.json` solo indexa artefactos, bloqueos, perfil y readiness.
@@ -33,6 +34,7 @@
 - Propietario del método, mantenedores, responsables de perfiles, seguridad, publicación y soporte.
 - Licencia definitiva y política corporativa aprobada.
 - Marketplace de desarrollo, instalación, piloto y publicación.
+- Integraciones independientes para Copilot, Claude u otros asistentes, si se aprueban en el futuro.
 - Perfil H0 y sus locks probados (M2).
 - Implementación y verificación de incrementos (M2).
 - Adopción automatizada de repositorios, migraciones entre versiones publicadas y vistas de cliente (M3).

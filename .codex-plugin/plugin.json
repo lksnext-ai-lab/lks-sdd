@@ -1,21 +1,22 @@
 {
   "name": "lks-sdd",
   "version": "0.1.0",
-  "description": "Método LKS para definir y evaluar aplicaciones web mediante especificaciones versionadas con ChatGPT Work y Codex.",
+  "description": "Plugin para Codex que aplica Specification-Driven Development (SDD) trazable al desarrollo de aplicaciones web de LKS.",
   "author": {
     "name": "LKS"
   },
   "keywords": [
     "sdd",
     "specification-driven-development",
+    "codex",
     "web-development",
     "governance"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "LKS-SDD",
-    "shortDescription": "Especificaciones trazables para aplicaciones web",
-    "longDescription": "Método corporativo versionado para aprender LKS-SDD, definir aplicaciones y comprobar si un incremento está preparado, sin convertir propuestas en decisiones ni generar código antes de tiempo.",
+    "displayName": "LKS-SDD para Codex",
+    "shortDescription": "Desarrollo SDD trazable con Codex",
+    "longDescription": "Plugin de desarrollo SDD para Codex que permite aprender el método LKS-SDD, definir aplicaciones y comprobar si un incremento está preparado, sin convertir propuestas en decisiones ni generar código antes de tiempo. No declara compatibilidad equivalente con otros asistentes de programación.",
     "developerName": "LKS",
     "category": "Productivity",
     "capabilities": [
@@ -24,9 +25,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Explícame LKS-SDD y oriéntame sin modificar archivos.",
-      "Define esta aplicación con LKS-SDD sin generar código.",
-      "Evalúa si el siguiente incremento está preparado."
+      "Explícame cómo usar LKS-SDD con Codex sin modificar archivos.",
+      "Ayúdame en Codex a definir esta aplicación sin generar código.",
+      "Evalúa si este incremento está preparado para implementarse con Codex."
     ]
   }
 }

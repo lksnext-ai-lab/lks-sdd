@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-define
-description: Start or continue the specification of a new web application in versioned LKS-SDD Markdown, separating facts, proposals, decisions, assumptions, and open points. Use to clarify scope, requirements, acceptance, architecture options, technology choices, risks, or increments; do not use for help-only questions, existing-repository adoption, readiness assessment, code generation, or verification.
+description: Use the LKS-SDD Codex plugin to start or continue the specification of a new web application in versioned Markdown, separating facts, proposals, decisions, assumptions, and open points. Use to clarify scope, requirements, acceptance, architecture options, technology choices, risks, or increments; do not use for help-only questions, existing-repository adoption, readiness assessment, code generation, or verification.
 ---
 
 # Define with LKS-SDD

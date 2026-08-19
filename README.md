@@ -1,6 +1,12 @@
-# LKS-SDD
+# LKS-SDD para Codex
 
-LKS-SDD es un plugin corporativo, único y versionado para aplicar Specification-Driven Development a proyectos de aplicaciones web de LKS. El plugin contiene el método, las plantillas, las reglas, los validadores y la ayuda; cada aplicación conserva su documentación, código, evidencias y estado en su propio repositorio.
+LKS-SDD es un plugin corporativo para desarrollar aplicaciones web con Codex mediante Specification-Driven Development (SDD). El plugin contiene el método, las plantillas, las reglas, los validadores y la ayuda; Codex los aplica sobre el repositorio de cada aplicación, que conserva su propia documentación, código, evidencias y estado.
+
+## Entorno objetivo y compatibilidad
+
+Codex es el entorno objetivo y el único soportado contractualmente por esta implementación. El manifiesto `.codex-plugin`, el descubrimiento e invocación de skills, los metadatos `agents/openai.yaml` y el modelo de trabajo sobre el repositorio se diseñan y validan para Codex.
+
+Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
 Esta entrega implementa el incremento M0–M1 de la versión `0.1.0`: `lks-sdd-help`, `lks-sdd-define` y `lks-sdd-assess-readiness`. No implementa todavía `lks-sdd-adopt-existing`, `lks-sdd-implement` ni `lks-sdd-verify`; tampoco contiene MCP, conectores, hooks, apps, agentes especializados ejecutables ni scaffolds de aplicación. Los `agents/openai.yaml` de cada skill son únicamente metadatos de interfaz e invocación.
 
@@ -23,6 +29,7 @@ Esta entrega implementa el incremento M0–M1 de la versión `0.1.0`: `lks-sdd-h
 - `specs/canonical/`: copias exactas de las tres fuentes canónicas del incremento.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
 - `docs/ARCHITECTURE.md`: límites de M1 y backlog de las tres skills posteriores.
+- `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 
 ## Validación local

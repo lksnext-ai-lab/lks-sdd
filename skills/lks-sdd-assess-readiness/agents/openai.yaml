@@ -1,6 +1,6 @@
 interface:
-  display_name: "Evaluar readiness LKS-SDD"
-  short_description: "Evalúa preparación sin autorizar implementación"
-  default_prompt: "Usa $lks-sdd-assess-readiness para evaluar el siguiente incremento."
+  display_name: "Readiness LKS-SDD para Codex"
+  short_description: "Evalúa readiness antes de implementar con Codex"
+  default_prompt: "Usa $lks-sdd-assess-readiness para evaluar si este incremento puede implementarse con Codex."
 policy:
   allow_implicit_invocation: true

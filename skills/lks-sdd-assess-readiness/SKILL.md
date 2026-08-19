@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-assess-readiness
-description: Assess whether one documented LKS-SDD increment is ready for implementation, ready with non-blocking pending items, or blocked for an explained scope. Use when the user asks if an increment can pass to Codex or what prevents it; do not use to define requirements, authorize work, generate code, implement, or verify.
+description: Use the LKS-SDD Codex plugin to assess whether one documented increment is ready for implementation, ready with non-blocking pending items, or blocked for an explained scope. Use when the user asks if an increment can pass to implementation with Codex or what prevents it; do not use to define requirements, authorize work, generate code, implement, or verify.
 ---
 
 # Assess LKS-SDD Readiness

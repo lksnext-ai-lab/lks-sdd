@@ -8,6 +8,8 @@ La versión `0.1.0` es un incremento local M0–M1 para revisión. No está publ
 
 El plugin puede formular propuestas y registrar confirmaciones, pero no evalúa la autoridad de quien responde ni convierte una frase ambigua en aprobación. Las decisiones de producto, arquitectura, tecnología, riesgo, excepción, publicación y despliegue requieren confirmación explícita y, cuando proceda, aprobación por los órganos externos competentes.
 
+La decisión de producto vigente define LKS-SDD como plugin de desarrollo SDD para Codex. No se declara soporte para GitHub Copilot, Claude u otros asistentes sin una decisión de ampliación, implementación específica y evidencia de validación.
+
 ## Evolución
 
 Todo cambio del método debe documentar motivación, alcance, compatibilidad, impacto, decisión explícita, validaciones y migración o incompatibilidad. Las versiones del plugin, método, esquema y perfiles evolucionan por separado. Las migraciones nunca reescriben silenciosamente contenido adaptado por los equipos.

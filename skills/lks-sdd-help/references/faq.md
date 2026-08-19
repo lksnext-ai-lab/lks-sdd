@@ -20,6 +20,10 @@ No. Significa que no se conocen bloqueos para el alcance evaluado. La autorizaci
 
 M1 explica la ruta y evita escrituras prematuras. La inspección y materialización automatizadas están previstas para M3 y no deben simularse con una skill vacía.
 
+## ¿Funciona igual en GitHub Copilot o Claude?
+
+No se garantiza. LKS-SDD se implementa y soporta como plugin para Codex. Los documentos y algunos validadores pueden ser reutilizables, pero Copilot, Claude u otros asistentes necesitarían su propia integración y pruebas antes de declarar compatibilidad o resultados equivalentes.
+
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 
 El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir el contenido humano silenciosamente.

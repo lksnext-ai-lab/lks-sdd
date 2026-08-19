@@ -6,15 +6,15 @@ Generar código antes de aclarar el objetivo, el alcance y la aceptación crea v
 
 ## 2. Qué añade LKS-SDD
 
-LKS-SDD empaqueta un método común, plantillas y validadores. El plugin no es la fuente de verdad de una aplicación: esa fuente permanece en los Markdown y evidencias de su repositorio.
+LKS-SDD empaqueta para Codex un método común, plantillas y validadores. El plugin no es la fuente de verdad de una aplicación: esa fuente permanece en los Markdown y evidencias de su repositorio.
 
 ## 3. Dónde se trabaja
 
-- ChatGPT Work es útil para definición, análisis y entregables revisables.
-- Codex es útil cuando el trabajo depende de una raíz de proyecto, sus archivos y, en hitos posteriores, del código.
+- Codex es el entorno soportado para ejecutar el plugin sobre una raíz de proyecto, sus archivos y, en hitos posteriores, el código.
+- ChatGPT Work puede ser una superficie auxiliar para análisis y revisión de documentos, pero no se declara como runtime equivalente del plugin.
 - Un proyecto ChatGPT organiza contexto; un repositorio conserva el estado versionado. No son equivalentes.
 
-Lea [Work y Codex](work-codex-guide.md) si esta elección no está clara.
+Lea [Codex, Work y repositorios](work-codex-guide.md) para entender esta separación y los límites de compatibilidad.
 
 ## 4. Dos rutas
 

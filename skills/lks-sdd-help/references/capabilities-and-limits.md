@@ -1,5 +1,7 @@
 # Capacidades y límites de LKS-SDD 0.1.0
 
+Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
+
 ## Disponibles
 
 - Explicar el método, ofrecer onboarding y orientar desde el estado de un proyecto sin modificarlo.
@@ -15,5 +17,6 @@
 - Implementar un incremento o verificar código.
 - Publicar, instalar, desplegar, acceder a producción o aprobar excepciones.
 - Usar MCP, conectores, hooks, apps o agentes.
+- Ejecutar el plugin con soporte garantizado fuera de Codex.
 
 La baseline normativa es candidata. Puede orientar un piloto, pero no debe presentarse como política corporativa, certificación ni aprobación formal.

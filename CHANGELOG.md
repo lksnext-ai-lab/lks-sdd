@@ -10,3 +10,4 @@
 - Completa anexos condicionales, onboarding, comparación Work–Codex, FAQ, troubleshooting y ayuda contextual en siete partes.
 - Endurece la validación del núcleo exacto, tablas, perfil seleccionado y bloqueos por alcance.
 - Registra adopción de existentes, implementación y verificación como backlog no disponible.
+- Define Codex como entorno objetivo soportado y documenta que Copilot, Claude y otros asistentes no tienen compatibilidad verificada.
