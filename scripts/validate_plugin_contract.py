@@ -455,7 +455,7 @@ def validate(root: Path) -> list[str]:
                 "installation": "AVAILABLE",
                 "authentication": "ON_INSTALL",
             },
-            "category": "Productivity",
+            "category": "Developer Tools",
         }
         if marketplace.get("name") != "lks-sdd-development":
             errors.append("El marketplace M5 debe llamarse lks-sdd-development.")

@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.6.0` conserva M0–M5 y añade una evolución compatible de definición y UX como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos, perfil H0, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.6.0` no significa que M6, la publicación estable o el soporte corporativo estén completados o aprobados.
+La versión `0.6.1` conserva M0–M5 y la evolución compatible de definición y UX como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos, perfil H0, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.6.1` no significa que M6, la publicación estable o el soporte corporativo estén completados o aprobados.
 
 ## Contrato de cambio
 

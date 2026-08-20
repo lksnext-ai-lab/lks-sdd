@@ -88,7 +88,7 @@ def validate_marketplace(value: Any) -> dict[str, Any]:
         "name": "lks-sdd",
         "source": {"source": "local", "path": "./plugins/lks-sdd"},
         "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
-        "category": "Productivity",
+        "category": "Developer Tools",
     }
     if plugin != expected:
         raise PackageError("La entrada del marketplace no coincide con el contrato de Codex.")

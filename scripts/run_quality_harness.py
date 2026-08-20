@@ -49,6 +49,24 @@ class HarnessError(Exception):
     """Expected, actionable harness failure."""
 
 
+def _definition_corpus_matches_plugin_line(
+    corpus_version: Any, plugin_version: Any
+) -> bool:
+    """Allow a versioned corpus across compatible patch releases only."""
+    pattern = re.compile(
+        r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+    )
+    if not isinstance(corpus_version, str) or not isinstance(plugin_version, str):
+        return False
+    corpus_match = pattern.fullmatch(corpus_version)
+    plugin_match = pattern.fullmatch(plugin_version)
+    if corpus_match is None or plugin_match is None:
+        return False
+    corpus_parts = tuple(int(part) for part in corpus_match.groups())
+    plugin_parts = tuple(int(part) for part in plugin_match.groups())
+    return corpus_parts[:2] == plugin_parts[:2] and corpus_parts[2] <= plugin_parts[2]
+
+
 def _load_json(path: Path) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -677,9 +695,12 @@ def build_report(
         _load_json(DEFINITION_CORPUS_PATH), catalog
     )
     manifest = _require_object(_load_json(MANIFEST_PATH), "El manifest del plugin")
-    if definition_corpus.get("plugin_version") != manifest.get("version"):
+    if not _definition_corpus_matches_plugin_line(
+        definition_corpus.get("plugin_version"), manifest.get("version")
+    ):
         raise HarnessError(
-            "El corpus de definición debe coincidir con la versión del manifest."
+            "El corpus de definición debe pertenecer a la misma línea major.minor "
+            "del manifest y no puede ser posterior a la release evaluada."
         )
     observations = None
     if observations_path is not None:

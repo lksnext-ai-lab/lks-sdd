@@ -67,8 +67,8 @@ def _valid_config() -> dict:
             "security_url": "https://security.example.invalid/lks-sdd",
         },
         "rollback": {
-            "previous_version": "0.5.0",
-            "candidate_version": "0.6.0",
+            "previous_version": "0.6.0",
+            "candidate_version": "0.6.1",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },
@@ -227,7 +227,7 @@ class M5PilotTests(unittest.TestCase):
             first = build(root / "first", "2026-08-20", source_commit)
             second = build(root / "second", "2026-08-20", source_commit)
             self.assertEqual(first["artifacts"], second["artifacts"])
-            marketplace_zip = root / "first" / "lks-sdd-marketplace-v0.6.0.zip"
+            marketplace_zip = root / "first" / "lks-sdd-marketplace-v0.6.1.zip"
             with zipfile.ZipFile(marketplace_zip) as archive:
                 names = set(archive.namelist())
                 marketplace = json.loads(

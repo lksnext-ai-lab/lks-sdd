@@ -179,6 +179,7 @@ class DefinitionExperienceTests(unittest.TestCase):
             initialize(root, "legacy-coverage")
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            current_version = manifest["plugin_version"]
             manifest["plugin_version"] = "0.5.0"
             manifest_path.write_text(
                 json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
@@ -194,7 +195,7 @@ class DefinitionExperienceTests(unittest.TestCase):
             )
             status = status_path.read_text(encoding="utf-8")
             status = status.replace(
-                'created_with_plugin_version: "0.6.0"',
+                f'created_with_plugin_version: "{current_version}"',
                 'created_with_plugin_version: "0.5.0"',
                 1,
             )

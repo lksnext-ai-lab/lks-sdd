@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1 — 2026-08-20 — clasificación para desarrollo
+
+- Reclasifica el plugin y su entrada de marketplace de `Productivity` a `Developer Tools`, de acuerdo con su finalidad de definición, implementación y verificación de software.
+- Mantiene sin cambios el método, el esquema, las seis skills, los gates, los perfiles bloqueados y los contratos de proyectos consumidores.
+- Conserva el estado de release candidate y no presenta como ejecutados los canales semánticos, humanos o de piloto pendientes.
+
 ## 0.6.0 — 2026-08-20 — definición guiada y diseño visual
 
 - Refuerza el encuadre inicial para que una idea breve no se convierta silenciosamente en un producto genérico: mantiene tandas pequeñas de preguntas de alto impacto, opciones neutrales y supuestos explícitos.

@@ -330,9 +330,12 @@ class VisualContractTests(unittest.TestCase):
 
     def test_v06_project_cannot_downgrade_increment_contract_to_legacy(self):
         increments = self.docs / "04-delivery" / "increments.md"
+        manifest = json.loads(
+            (self.root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
+        )
         increments.write_text(
             increments.read_text(encoding="utf-8").replace(
-                'created_with_plugin_version: "0.6.0"',
+                f'created_with_plugin_version: "{manifest["plugin_version"]}"',
                 'created_with_plugin_version: "0.5.0"',
                 1,
             ),

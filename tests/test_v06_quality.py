@@ -12,6 +12,7 @@ from run_quality_harness import (  # noqa: E402
     CATALOG_PATH,
     DEFINITION_CORPUS_PATH,
     HarnessError,
+    _definition_corpus_matches_plugin_line,
     _load_json,
     evaluate_definition_conversation,
     validate_catalog,
@@ -51,6 +52,11 @@ class V06QualityContractTests(unittest.TestCase):
         changed["evidence"] = ["synthetic-result"]
         with self.assertRaisesRegex(HarnessError, "not-run"):
             validate_definition_corpus(changed, self.catalog)
+
+    def test_definition_corpus_is_reusable_only_within_compatible_patches(self) -> None:
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.6.0", "0.6.1"))
+        self.assertFalse(_definition_corpus_matches_plugin_line("0.6.2", "0.6.1"))
+        self.assertFalse(_definition_corpus_matches_plugin_line("0.6.0", "0.7.0"))
 
 
 if __name__ == "__main__":

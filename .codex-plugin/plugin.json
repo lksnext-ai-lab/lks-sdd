@@ -1,6 +1,6 @@
 {
   "name": "lks-sdd",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Plugin para Codex que aplica Specification-Driven Development (SDD) trazable, incluida la definición guiada y visual de aplicaciones web de LKS.",
   "author": {
     "name": "LKS"
@@ -18,7 +18,7 @@
     "shortDescription": "Desarrollo SDD trazable con Codex",
     "longDescription": "Plugin de desarrollo SDD para Codex que permite aprender el método LKS-SDD, definir aplicaciones mediante descubrimiento adaptativo, snapshots de cobertura y diseño visual condicional con ImageGen, adoptar repositorios existentes, evaluar readiness, implementar y verificar incrementos, derivar borradores de cliente, ejecutar un harness reproducible y preparar un piloto controlado. No declara compatibilidad equivalente con otros asistentes.",
     "developerName": "LKS",
-    "category": "Productivity",
+    "category": "Developer Tools",
     "capabilities": [
       "Interactive",
       "Read",

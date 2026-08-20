@@ -8,7 +8,7 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.6.0` conserva M0–M5 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Añade una evolución compatible de la definición: encuadre inicial más curioso, snapshots sencillos de cobertura y, cuando existe frontend, especificación de pantallas, flujos, interacción y un ciclo visual condicional con ImageGen. Mantiene el perfil H0, migración, vistas cliente, harness de calidad, bundle de marketplace y la infraestructura de piloto M5. El piloto real, M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables.
+La versión `0.6.1` conserva M0–M5 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Mantiene la evolución compatible de la definición incorporada en 0.6.0: encuadre inicial más curioso, snapshots sencillos de cobertura y, cuando existe frontend, especificación de pantallas, flujos, interacción y un ciclo visual condicional con ImageGen. Clasifica el plugin como `Developer Tools`. Mantiene el perfil H0, migración, vistas cliente, harness de calidad, bundle de marketplace y la infraestructura de piloto M5. El piloto real, M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables.
 
 ## Principios operativos
 
@@ -36,7 +36,7 @@ La versión `0.6.0` conserva M0–M5 y las seis skills previstas: ayuda, definic
 - `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
 - `pilot/`: ejemplo bloqueado, plan y rollback para el piloto controlado M5.
 - `distribution/`: plantilla estándar del marketplace de desarrollo generado externamente.
-- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.6.0, M0–M5 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.6.1, M0–M5 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.

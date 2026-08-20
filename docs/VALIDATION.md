@@ -27,7 +27,7 @@ La infraestructura M5 se comprueba con la suite y con:
 
 ```powershell
 python scripts\manage_pilot.py validate-config pilot\pilot-config.example.json
-python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.6.0
+python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.6.1
 ```
 
 La configuración de ejemplo debe devolver `blocked` con código `3`: demuestra que no puede arrancar sin muestra, aliases, responsables, canal confidencial, checksum y rollback. El builder exige una carpeta externa inexistente.

@@ -1,4 +1,4 @@
-# Arquitectura y alcance de la versión 0.6.0
+# Arquitectura y alcance de la versión 0.6.1
 
 ## Entorno de ejecución
 
@@ -35,4 +35,4 @@ La implementación no inventa comportamiento de negocio: prepara la frontera té
 
 ## Evolución posterior
 
-La versión SemVer `0.6.0` no equivale al hito M6. M6 continúa cubriendo la ejecución completa del piloto, resolución de condiciones y publicación interna estable. MCP, conectores, hooks, apps, agentes y adaptaciones a otros asistentes solo se estudiarán si aparece una necesidad demostrada y mediante una decisión posterior.
+La versión SemVer `0.6.1` no equivale al hito M6. M6 continúa cubriendo la ejecución completa del piloto, resolución de condiciones y publicación interna estable. MCP, conectores, hooks, apps, agentes y adaptaciones a otros asistentes solo se estudiarán si aparece una necesidad demostrada y mediante una decisión posterior.

@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.6.0` es una release candidate técnica para Codex que conserva M0–M5 y añade una evolución compatible de definición y UX. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una eventual publicación en GitHub no implica instalación global, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
+La versión `0.6.1` es una release candidate técnica para Codex que conserva M0–M5 y la evolución compatible de definición y UX. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una eventual publicación en GitHub no implica instalación global, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
 
 ## Autoridad y decisiones
 
