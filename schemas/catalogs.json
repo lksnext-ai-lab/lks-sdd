@@ -13,6 +13,7 @@
     "planned",
     "confirmed",
     "rejected",
+    "superseded",
     "retired"
   ],
   "identifier_prefixes": [
@@ -30,6 +31,7 @@
     "SEC",
     "PRIV",
     "UX",
+    "VIS",
     "INC",
     "RISK",
     "DEP",

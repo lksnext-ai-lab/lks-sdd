@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -126,15 +127,33 @@ def _planned_files(root: Path) -> tuple[list[tuple[Path, bytes]], list[str], lis
 
 
 def _preview_hash(
-    root: Path, planned: list[tuple[Path, bytes]], manifest_before: bytes
+    root: Path,
+    planned: list[tuple[Path, bytes]],
+    manifest_before: bytes,
+    input_fingerprint: str,
 ) -> str:
     digest = hashlib.sha256()
     digest.update(b".lks-sdd/project.json\0")
     digest.update(hashlib.sha256(manifest_before).digest())
+    digest.update(b"readiness-input-fingerprint\0")
+    digest.update(input_fingerprint.encode("ascii"))
     for destination, content in planned:
         digest.update(destination.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
         digest.update(hashlib.sha256(content).digest())
+    return digest.hexdigest()
+
+
+def _current_input_fingerprint(root: Path, checked_files: list[str]) -> str:
+    digest = hashlib.sha256()
+    for relative in sorted(set(checked_files)):
+        path = root / relative
+        if not path.is_file():
+            continue
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(hashlib.sha256(path.read_bytes()).digest())
+        digest.update(b"\0")
     return digest.hexdigest()
 
 
@@ -167,7 +186,16 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         }
 
     planned, preserved, manual_integrations = _planned_files(root)
-    preview_hash = _preview_hash(root, planned, original_manifest)
+    input_fingerprint = readiness.get("input_fingerprint")
+    if not isinstance(input_fingerprint, str) or not re.fullmatch(
+        r"[a-f0-9]{64}", input_fingerprint
+    ):
+        raise PreparationError(
+            "Readiness no devolvió un fingerprint válido de sus entradas."
+        )
+    preview_hash = _preview_hash(
+        root, planned, original_manifest, input_fingerprint
+    )
     result = {
         "status": "dry-run" if args.dry_run else "prepared",
         "increment": args.increment,
@@ -178,6 +206,8 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         "preserved": preserved,
         "manual_integrations": manual_integrations,
         "readiness": readiness["status"],
+        "input_fingerprint": input_fingerprint,
+        "checked_files": readiness.get("checked_files", []),
     }
     if args.dry_run:
         return 0, result
@@ -188,6 +218,16 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     if args.preview_hash != preview_hash:
         raise PreparationError(
             "El preview hash no coincide; repita el dry-run antes de escribir."
+        )
+
+    checked_files = readiness.get("checked_files", [])
+    if not isinstance(checked_files, list) or not all(
+        isinstance(item, str) for item in checked_files
+    ):
+        raise PreparationError("Readiness no devolvió la lista válida de entradas.")
+    if _current_input_fingerprint(root, checked_files) != input_fingerprint:
+        raise PreparationError(
+            "La especificación o sus assets visuales cambiaron después de readiness; repita el dry-run."
         )
 
     manifest_path = root / ".lks-sdd" / "project.json"

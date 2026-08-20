@@ -1,0 +1,57 @@
+from __future__ import annotations
+
+import copy
+import sys
+import unittest
+from pathlib import Path
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
+
+from run_quality_harness import (  # noqa: E402
+    CATALOG_PATH,
+    DEFINITION_CORPUS_PATH,
+    HarnessError,
+    _load_json,
+    evaluate_definition_conversation,
+    validate_catalog,
+    validate_definition_corpus,
+)
+
+
+class V06QualityContractTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.catalog = validate_catalog(_load_json(CATALOG_PATH))
+        self.corpus = validate_definition_corpus(
+            _load_json(DEFINITION_CORPUS_PATH), self.catalog
+        )
+
+    def test_fx01_no_longer_claims_automated_conversation_evidence(self) -> None:
+        fx01 = next(case for case in self.catalog["cases"] if case["id"] == "FX-01")
+        self.assertEqual(fx01["mode"], "semantic")
+        self.assertEqual(fx01["evidence"], [])
+
+    def test_v06_cases_are_versioned_and_not_run(self) -> None:
+        self.assertEqual(
+            {case["id"] for case in self.catalog["extension_cases"]},
+            {"FX-20", "FX-21"},
+        )
+        self.assertEqual(
+            {case["id"] for case in self.corpus["cases"]},
+            {"FX-01", "FX-20", "FX-21"},
+        )
+        channel = evaluate_definition_conversation(self.corpus)
+        self.assertEqual(channel["status"], "not-run")
+        self.assertEqual(channel["observed"], 0)
+        self.assertEqual(channel["total"], 3)
+
+    def test_definition_evidence_cannot_be_invented(self) -> None:
+        changed = copy.deepcopy(self.corpus)
+        changed["execution_status"] = "passed"
+        changed["evidence"] = ["synthetic-result"]
+        with self.assertRaisesRegex(HarnessError, "not-run"):
+            validate_definition_corpus(changed, self.catalog)
+
+
+if __name__ == "__main__":
+    unittest.main()

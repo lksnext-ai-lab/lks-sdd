@@ -19,6 +19,7 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.6.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
 DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.4.0.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
@@ -116,6 +117,42 @@ def validate_catalog(value: Any) -> dict[str, Any]:
         raise HarnessError(
             f"El catálogo debe cubrir FX-01 a FX-19; diferencia: {sorted(ids ^ expected)}"
         )
+    fx01 = next(case for case in cases if case["id"] == "FX-01")
+    if fx01.get("mode") != "semantic" or fx01.get("evidence") != []:
+        raise HarnessError(
+            "FX-01 debe ser semántico y permanecer sin evidencia hasta una conversación controlada."
+        )
+    extension_cases = catalog.get("extension_cases")
+    if not isinstance(extension_cases, list) or not extension_cases:
+        raise HarnessError("El catálogo debe declarar los casos de extensión v0.6.")
+    extension_ids: set[str] = set()
+    for case in extension_cases:
+        if not isinstance(case, dict):
+            raise HarnessError("Cada caso de extensión debe ser un objeto.")
+        case_id = case.get("id")
+        if not isinstance(case_id, str) or not re.fullmatch(r"FX-[0-9]{2}", case_id):
+            raise HarnessError(f"ID de caso de extensión inválido: {case_id!r}")
+        if case_id in ids or case_id in extension_ids:
+            raise HarnessError(f"Caso de extensión duplicado: {case_id}")
+        extension_ids.add(case_id)
+        if case.get("mode") not in {"semantic", "human"}:
+            raise HarnessError(f"{case_id} debe requerir evaluación semántica o humana.")
+        if not isinstance(case.get("critical"), bool):
+            raise HarnessError(f"{case_id} debe declarar critical como booleano.")
+        if case.get("evidence") != []:
+            raise HarnessError(
+                f"{case_id} no puede declarar evidencia antes de ejecutar el corpus v0.6."
+            )
+    if extension_ids != {"FX-20", "FX-21"}:
+        raise HarnessError("La extensión v0.6 debe declarar exactamente FX-20 y FX-21.")
+    if "definition-conversation" not in channels["candidate"].get("optional", []):
+        raise HarnessError(
+            "Candidate debe mostrar definition-conversation como evidencia opcional."
+        )
+    if "definition-conversation" not in channels["stable"].get("required", []):
+        raise HarnessError(
+            "Stable debe exigir el canal definition-conversation."
+        )
     for name, threshold in thresholds.items():
         if not isinstance(threshold, dict):
             raise HarnessError(f"Umbral inválido: {name}")
@@ -151,6 +188,75 @@ def validate_corpus(value: Any) -> dict[str, Any]:
         if not isinstance(case.get("critical"), bool):
             raise HarnessError(f"{case_id} debe declarar critical como booleano.")
     return corpus
+
+
+def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str, Any]:
+    corpus = _require_object(value, "El corpus de definición v0.6")
+    if corpus.get("schema_version") != "1.0":
+        raise HarnessError("El corpus de definición debe usar schema_version 1.0.")
+    if corpus.get("execution_status") != "not-run" or corpus.get("evidence") != []:
+        raise HarnessError(
+            "El corpus de definición debe permanecer not-run y sin evidencia hasta una ejecución controlada."
+        )
+    cases = corpus.get("cases")
+    if not isinstance(cases, list):
+        raise HarnessError("El corpus de definición debe declarar casos.")
+    ids: set[str] = set()
+    allowed_dimensions = {
+        "premise_control",
+        "question_relevance",
+        "coverage_clarity",
+        "interaction_completeness",
+        "visual_traceability",
+        "human_validation",
+        "information_protection",
+    }
+    for case in cases:
+        if not isinstance(case, dict):
+            raise HarnessError("Cada caso de definición debe ser un objeto.")
+        case_id = case.get("id")
+        if (
+            not isinstance(case_id, str)
+            or case_id in ids
+            or case_id not in {"FX-01", "FX-20", "FX-21"}
+        ):
+            raise HarnessError(f"Caso de definición inválido o duplicado: {case_id!r}")
+        ids.add(case_id)
+        if not isinstance(case.get("input"), str) or not case["input"].strip():
+            raise HarnessError(f"{case_id} debe declarar una entrada sintética.")
+        for field in ("expected", "forbidden", "review_dimensions"):
+            items = case.get(field)
+            if not isinstance(items, list) or not items:
+                raise HarnessError(f"{case_id} debe declarar {field}.")
+        dimensions = set(case["review_dimensions"])
+        if not dimensions.issubset(allowed_dimensions):
+            raise HarnessError(f"{case_id} contiene dimensiones de revisión desconocidas.")
+    expected_ids = {"FX-01", *[case["id"] for case in catalog["extension_cases"]]}
+    if ids != expected_ids:
+        raise HarnessError(
+            f"El corpus de definición no coincide con el catálogo: {sorted(ids ^ expected_ids)}"
+        )
+    evaluation = corpus.get("evaluation")
+    if not isinstance(evaluation, dict) or evaluation.get("required_review") != [
+        "semantic",
+        "human",
+    ]:
+        raise HarnessError("El corpus de definición debe exigir revisión semántica y humana.")
+    return corpus
+
+
+def evaluate_definition_conversation(corpus: dict[str, Any]) -> dict[str, Any]:
+    if corpus.get("execution_status") != "not-run" or corpus.get("evidence") != []:
+        raise HarnessError(
+            "No existe todavía un contrato de observaciones ejecutadas para definición v0.6."
+        )
+    return {
+        "status": "not-run",
+        "observed": 0,
+        "total": len(corpus["cases"]),
+        "corpus_id": corpus["corpus_id"],
+        "required_review": corpus["evaluation"]["required_review"],
+    }
 
 
 def validate_fixture_manifest(
@@ -567,6 +673,14 @@ def build_report(
 ) -> dict[str, Any]:
     catalog = validate_catalog(_load_json(CATALOG_PATH))
     corpus = validate_corpus(_load_json(CORPUS_PATH))
+    definition_corpus = validate_definition_corpus(
+        _load_json(DEFINITION_CORPUS_PATH), catalog
+    )
+    manifest = _require_object(_load_json(MANIFEST_PATH), "El manifest del plugin")
+    if definition_corpus.get("plugin_version") != manifest.get("version"):
+        raise HarnessError(
+            "El corpus de definición debe coincidir con la versión del manifest."
+        )
     observations = None
     if observations_path is not None:
         observations = validate_observations(_load_json(observations_path), corpus)
@@ -604,6 +718,9 @@ def build_report(
             )
         },
         "regression": {"status": comparison["status"]},
+        "definition-conversation": evaluate_definition_conversation(
+            definition_corpus
+        ),
         "activation": activation,
         "document-review": document_review,
         "pilot": evaluate_pilot(pilot_summary),
@@ -627,7 +744,6 @@ def build_report(
         gate_status = "incomplete"
     else:
         gate_status = "passed"
-    manifest = _require_object(_load_json(MANIFEST_PATH), "El manifest del plugin")
     return {
         "schema_version": "1.0",
         "suite": catalog["suite"],
@@ -637,6 +753,9 @@ def build_report(
         "inputs": {
             "catalog_sha256": _sha256_bytes(_canonical_bytes(catalog)),
             "corpus_sha256": _sha256_bytes(_canonical_bytes(corpus)),
+            "definition_corpus_sha256": _sha256_bytes(
+                _canonical_bytes(definition_corpus)
+            ),
             "fixture_manifest_sha256": _sha256_file(FIXTURE_MANIFEST_PATH),
             "observations_sha256": _sha256_file(observations_path) if observations_path else None,
             "pilot_summary_sha256": _sha256_file(pilot_summary_path) if pilot_summary_path else None,

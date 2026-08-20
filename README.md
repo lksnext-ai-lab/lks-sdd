@@ -8,14 +8,17 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.5.0` implementa M0–M5 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Incorpora el perfil H0, migración, vistas cliente, harness de calidad, bundle de marketplace y un piloto controlado con métricas saneadas y decisión go/no-go. La infraestructura está preparada, pero el uso real del piloto permanece pendiente de muestra, personas responsables y autorizaciones. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables.
+La versión `0.6.0` conserva M0–M5 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Añade una evolución compatible de la definición: encuadre inicial más curioso, snapshots sencillos de cobertura y, cuando existe frontend, especificación de pantallas, flujos, interacción y un ciclo visual condicional con ImageGen. Mantiene el perfil H0, migración, vistas cliente, harness de calidad, bundle de marketplace y la infraestructura de piloto M5. El piloto real, M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables.
 
 ## Principios operativos
 
 - Los Markdown versionados de cada aplicación son la fuente de verdad; `.lks-sdd/project.json` es solo el índice operativo.
 - LKS-SDD propone, pregunta y explica. La persona usuaria decide y confirma.
+- Una idea breve no se interpreta como un producto genérico: primero se aclaran dominio, usuarios, propósito y contexto mediante preguntas de alto impacto.
 - Hechos, inferencias, propuestas, decisiones y pendientes se conservan como tipos distintos.
+- Los bloques de definición se resumen como suficientes, parciales, desconocidos, no aplicables o bloqueados, sin porcentajes de madurez engañosos.
 - FastAPI, React, PostgreSQL y Keycloak son una preferencia que debe justificarse y confirmarse, nunca una selección automática.
+- ImageGen se usa solo con un brief visual suficiente y capacidad disponible; una imagen propuesta no equivale a diseño confirmado ni sustituye requisitos o accesibilidad.
 - La baseline normativa incluida es candidata. Sus `MUST`, `SHOULD` y `MAY` no equivalen a política corporativa aprobada.
 - Una consulta de ayuda no modifica archivos. Una evaluación de readiness no autoriza implementación.
 - No se genera código cuando faltan decisiones críticas para el incremento afectado.
@@ -28,18 +31,19 @@ La versión `0.5.0` implementa M0–M5 y las seis skills previstas: ayuda, defin
 - `schemas/`: contratos del índice, front matter, catálogos, perfil y lock.
 - `scripts/`: validación, trazabilidad, gates técnicos, migración y vistas derivadas.
 - `templates/client/`: plantilla profesional para borradores derivados, nunca fuente canónica.
-- `specs/canonical/`: copias exactas de las tres fuentes canónicas del incremento.
+- `specs/canonical/`: tres fuentes originales preservadas por hash y la extensión aditiva de definición visual v0.1.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
 - `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
 - `pilot/`: ejemplo bloqueado, plan y rollback para el piloto controlado M5.
 - `distribution/`: plantilla estándar del marketplace de desarrollo generado externamente.
-- `docs/ARCHITECTURE.md`: arquitectura M0–M5 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.6.0, M0–M5 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.
 - `docs/M3-COVERAGE.md`: correspondencia auditable entre adopción, migración y vistas cliente.
 - `docs/M4-COVERAGE.md`: correspondencia auditable entre EP-10 y el harness integrado.
 - `docs/M5-COVERAGE.md`: correspondencia auditable entre EP-12 y la infraestructura de piloto.
+- `docs/V0.6-DEFINITION-UX-COVERAGE.md`: cobertura de la evolución compatible de entrevista, estado de definición y diseño visual.
 - `docs/QUALITY-HARNESS.md`: ejecución, evidencia y semántica de las puertas candidate/stable.
 - `docs/DISTRIBUTION.md`: empaquetado, instalación controlada y retirada.
 - `docs/RELEASING.md`: política de versiones, etiquetas y releases técnicas de GitHub.

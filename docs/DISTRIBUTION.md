@@ -7,10 +7,12 @@
 - `lks-sdd-plugin-vX.Y.Z.zip`, con el plugin bajo `lks-sdd/`;
 - `lks-sdd-marketplace-vX.Y.Z.zip`, con `.agents/plugins/marketplace.json` y `plugins/lks-sdd/`.
 
+`X.Y.Z` se deriva del manifiesto del plugin; el builder no mantiene una segunda versión hardcodeada.
+
 La entrada del marketplace usa la forma estándar `local`, ruta `./plugins/lks-sdd`, instalación `AVAILABLE`, autenticación `ON_INSTALL` y categoría `Productivity`. El builder añade un manifiesto por archivo y `SHA256SUMS`, rechaza enlaces, salidas dentro del repositorio y patrones de secretos conocidos.
 
 ```powershell
-python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.5.0
+python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.6.0
 ```
 
 La carpeta de salida debe no existir y `--source-commit` debe identificar el commit exacto de 40 caracteres. Una segunda compilación desde el mismo commit y fecha debe producir los mismos hashes.

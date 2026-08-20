@@ -13,7 +13,7 @@ Esta decisión no modifica las fuentes de `specs/canonical/`; delimita el produc
 | Entorno | Estado | Alcance |
 |---|---|---|
 | Codex | Objetivo soportado | Manifiesto del plugin, skills, invocación implícita, acceso autorizado al repositorio y ejecución de validadores locales. |
-| ChatGPT Work | Superficie auxiliar, no runtime soportado | Puede ayudar a analizar o revisar documentos transferidos, pero no se promete que ejecute este plugin con el mismo contrato que Codex. |
+| ChatGPT Work | Superficie auxiliar, no runtime soportado | Puede ayudar a analizar o revisar documentos transferidos, incluidos briefs y propuestas visuales, pero no se promete que ejecute este plugin o ImageGen con el mismo contrato que Codex. |
 | GitHub Copilot | No soportado ni verificado | No se ha implementado packaging, descubrimiento, instrucciones ni evaluación específicos para Copilot. |
 | Claude o Claude Code | No soportado ni verificado | No se ha implementado packaging, descubrimiento, instrucciones ni evaluación específicos para estos entornos. |
 | Otros asistentes | Fuera de alcance | Requieren un análisis y una validación independientes antes de declarar compatibilidad. |
@@ -29,6 +29,12 @@ Son específicos del contrato de Codex:
 - los metadatos `agents/openai.yaml`;
 - la interpretación de instrucciones, permisos y raíces de trabajo;
 - los futuros workflows que inspeccionen, implementen o verifiquen código con Codex.
+
+## Capacidad condicional de ImageGen
+
+La definición visual v0.6 puede solicitar ImageGen cuando la superficie Codex activa exponga esa capacidad, el frontend o cambio visual lo haga aplicable y exista un brief suficiente. ImageGen no forma parte del manifiesto del plugin, no se empaqueta como MCP, app, conector o agente y su disponibilidad no se presume.
+
+Si está disponible, el flujo genera entre una y tres propuestas para validación humana. Si no lo está, se conserva la especificación textual y el estado `not-run` o pendiente correspondiente; no se fabrica un archivo ni se declara una validación visual. La posibilidad de generar imágenes en otra superficie no demuestra compatibilidad del plugin completo con ella.
 
 ## Regla para futuras integraciones
 

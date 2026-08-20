@@ -25,11 +25,21 @@ Lea [Codex, Work y repositorios](work-codex-guide.md) para entender esta separac
 
 Hechos, requisitos, propuestas, decisiones, supuestos y pendientes conservan etiquetas distintas. Solo una confirmación explícita convierte una propuesta en decisión. La pila preferente se compara después de entender requisitos y restricciones; nunca se elige automáticamente.
 
-## 6. Cuándo aparece el código
+Una idea breve no se convierte automáticamente en un producto genérico. La definición pregunta en tandas pequeñas por dominio, usuarios, tarea o decisión, entradas, reglas y resultado; las opciones ofrecidas son propuestas y siempre permiten otra respuesta o reconocer que todavía no se sabe.
+
+## 6. Cómo se ve el avance
+
+La cobertura se muestra por dimensiones: suficiente para avanzar en un alcance, requiere profundización, desconocida o no aplicable con motivo. El resumen destaca bloqueos y la siguiente decisión y ofrece más detalle bajo petición. Que los documentos sean estructuralmente válidos no significa que la definición sea suficiente.
+
+## 7. Diseño de interfaz
+
+Cuando existe frontend, primero se describen pantallas, flujos, estados, diálogos, accesibilidad y dirección visual. Después pueden generarse propuestas PNG/JPG con ImageGen. Cada imagen sigue siendo propuesta hasta validación humana explícita y se conserva junto al contrato Markdown; la imagen no sustituye comportamiento ni copy confirmados.
+
+## 8. Cuándo aparece el código
 
 La definición y readiness no generan código. Un resultado `ready` tampoco autoriza implementación: el perfil H0 solo se prepara mediante un preview revisado y autorización explícita. La verificación se planifica antes de ejecutarse y distingue checks superados, fallidos y no ejecutados.
 
-## 7. Primer paso a elegir
+## 9. Primer paso a elegir
 
 - pedir una explicación breve;
 - definir una aplicación nueva sin código;

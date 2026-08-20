@@ -17,7 +17,7 @@ from validate_project import validate_project
 
 TARGET_SCHEMA = "1.0"
 SOURCE_SCHEMA = "0.9"
-PLUGIN_VERSION = "0.5.0"
+PLUGIN_VERSION = "0.6.0"
 RECORD_NAME = "migration-record.json"
 
 
@@ -131,7 +131,6 @@ def _plan(root: Path) -> tuple[str, list[tuple[Path, bytes, bytes]], dict[str, A
         after = _migrate_markdown(before, relative)
         changes.append((path, before, after))
     manifest["schema_version"] = TARGET_SCHEMA
-    manifest["plugin_version"] = PLUGIN_VERSION
     manifest_after = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode(
         "utf-8"
     )

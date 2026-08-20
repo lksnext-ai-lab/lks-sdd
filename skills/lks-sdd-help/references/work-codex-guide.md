@@ -20,4 +20,6 @@ LKS-SDD se desarrolla y soporta como plugin para Codex. Las demás superficies d
 4. Registrar decisiones en archivos versionados.
 5. Explicar cualquier limitación de acceso y usar exportación/importación explícita como fallback.
 
+Los prototipos visuales generados en una superficie sin acceso a la raíz no se consideran assets locales por aparecer en el chat. Deben transferirse explícitamente a `docs/lks-sdd/03-solution/ui-prototypes/`, comprobar formato, dimensiones y SHA-256, enlazarse desde `ART-UX` y conservarse como `proposal` hasta validación humana. Si la transferencia no se ha realizado, el estado es `pending`.
+
 Las capacidades dependientes de producto se verifican en [realidad del producto](product-reality.md).

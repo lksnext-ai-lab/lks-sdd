@@ -2,7 +2,9 @@
 
 ## Propósito
 
-El harness integra el catálogo FX-01–FX-19, el corpus etiquetado de activación, la integridad de fixtures sintéticos, las comprobaciones deterministas, los umbrales y la comparación contra una release anterior. No convierte una prueba no ejecutada en un resultado satisfactorio.
+El harness integra el catálogo base FX-01–FX-19, la extensión v0.6 FX-20–FX-21, los corpus etiquetados de activación y conversación, la integridad de fixtures sintéticos, las comprobaciones deterministas, los umbrales y la comparación contra una release anterior. No convierte una prueba no ejecutada en un resultado satisfactorio.
+
+FX-01 requiere entrevista adaptativa y deja de atribuirse al eval automatizado de readiness, que solo demuestra bloqueo ante información insuficiente. FX-20 cubre el snapshot de definición y FX-21 el ciclo visual con ImageGen. El corpus `quality/corpora/definition-v0.6.0.json` contiene entradas y rúbrica, no resultados.
 
 ## Canales de evidencia
 
@@ -10,11 +12,12 @@ El harness integra el catálogo FX-01–FX-19, el corpus etiquetado de activaci�
 - `fixture-integrity`: inventario completo, JSON válido y hash exacto de cada fixture sintético.
 - `profile-complete`: gate H0 integral en Docker, incluidos PostgreSQL, Keycloak, backend y frontend.
 - `regression`: comparación de métricas comunes con una baseline versionada.
+- `definition-conversation`: evaluación semántica y humana de FX-01, FX-20 y FX-21; permanece `not-run` hasta aportar sesiones controladas mediante un contrato de observaciones aprobado.
 - `activation`: resultados observados en sesiones controladas de Codex contra el corpus etiquetado.
 - `document-review`: rúbrica humana de diez dimensiones, de 1 a 5.
 - `pilot`: resultados agregados y saneados del piloto M5.
 
-El canal `candidate` exige automatización, fixtures, perfil completo y regresión. `stable` exige además activación, revisión documental y piloto; por tanto, un reporte sin esas observaciones permanece `incomplete` para publicación estable.
+El canal `candidate` exige automatización, fixtures, perfil completo y regresión y muestra `definition-conversation: not-run` como evidencia opcional pendiente. `stable` exige además definición conversacional, activación, revisión documental y piloto; por tanto, un reporte sin esas observaciones permanece `incomplete` para publicación estable.
 
 ## Ejecución
 

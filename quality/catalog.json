@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5",
+  "suite": "LKS-SDD M0-M5 + v0.6 definition/UX",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
-      "optional": ["activation", "document-review", "pilot"]
+      "optional": ["definition-conversation", "activation", "document-review", "pilot"]
     },
     "stable": {
-      "required": ["automated", "fixture-integrity", "profile-complete", "regression", "activation", "document-review", "pilot"],
+      "required": ["automated", "fixture-integrity", "profile-complete", "regression", "definition-conversation", "activation", "document-review", "pilot"],
       "optional": []
     }
   },
@@ -32,7 +32,7 @@
     "canonical_markdown_remains_source_of_truth"
   ],
   "cases": [
-    {"id": "FX-01", "title": "Idea ambigua", "family": "definition", "layers": ["T3", "T4"], "mode": "automated", "fixture": "insufficient-information.json", "critical": true, "evidence": ["eval:FX-M1-INSUFFICIENT"]},
+    {"id": "FX-01", "title": "Idea ambigua", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": "insufficient-information.json", "critical": true, "evidence": []},
     {"id": "FX-02", "title": "Greenfield de referencia", "family": "implementation", "layers": ["T0", "T1", "T5", "T6"], "mode": "automated", "fixture": "new-project.json", "critical": true, "evidence": ["eval:FX-M1-NEW-PROJECT", "profile:complete-gate"]},
     {"id": "FX-03", "title": "Requisitos contradictorios", "family": "definition", "layers": ["T3", "T4"], "mode": "automated", "fixture": "alternative-stack.json", "critical": true, "evidence": ["eval:FX-M1-ALTERNATIVE-STACK"]},
     {"id": "FX-04", "title": "Repositorio existente sin documentación", "family": "adoption", "layers": ["T1", "T4"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_inspection_is_read_only_and_never_reproduces_secret_values"]},
@@ -51,5 +51,9 @@
     {"id": "FX-17", "title": "Primera experiencia", "family": "help", "layers": ["T2", "T3"], "mode": "human", "fixture": "help.json", "critical": false, "evidence": []},
     {"id": "FX-18", "title": "Ayuda contextual", "family": "help", "layers": ["T1", "T3"], "mode": "automated", "fixture": "help.json", "critical": true, "evidence": ["eval:FX-M1-HELP"]},
     {"id": "FX-19", "title": "Realidad de producto y troubleshooting", "family": "help", "layers": ["T2", "T3"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []}
+  ],
+  "extension_cases": [
+    {"id": "FX-20", "title": "Snapshot de cobertura de definición", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-21", "title": "Ciclo visual con ImageGen", "family": "definition", "layers": ["T3", "T4", "T7"], "mode": "human", "fixture": null, "critical": true, "evidence": []}
   ]
 }

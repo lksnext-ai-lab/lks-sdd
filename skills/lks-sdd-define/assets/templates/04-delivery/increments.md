@@ -21,4 +21,11 @@ last_updated: "{{DATE}}"
 | ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |
 |---|---|---|---|---|---|---|---|---|---|---|
 
+## Aplicabilidad de interfaz y contrato visual
+
+| Increment | Interface applicability | UX contract | Visual mode | Visual prototype | Reason |
+|---|---|---|---|---|---|
+
+Use `applicable`, `pending` o `not-applicable` en `Interface applicability`. Para `pending` y `not-applicable`, explique el motivo. En `Visual mode` use `pending`, `new`, `material-change`, `reuse` o `none`. Un incremento aplicable enlaza los elementos `UX-###` correspondientes dentro de `ART-UX`. `new` y `material-change` enlazan `VIS-###` o permanecen `pending`; `reuse` enlaza una baseline `VIS-###` confirmada y explica qué se reutiliza; `none` usa `not-applicable: motivo` solo cuando no existe cambio visual real. No esconda una reutilización bajo `none`.
+
 Un incremento debe ser vertical, acotado y comprobable. Datos, identidad o integraciones no aplicables se justifican como `not-applicable: motivo`. Su confirmación no autoriza implementación.

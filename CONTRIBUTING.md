@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.5.0` incorpora M0–M5 como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos, perfil H0, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; M6, la publicación estable y el soporte corporativo no deben presentarse como completados o aprobados.
+La versión `0.6.0` conserva M0–M5 y añade una evolución compatible de definición y UX como release candidate técnica para Codex. Una contribución puede mejorar las seis skills, contratos, perfil H0, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.6.0` no significa que M6, la publicación estable o el soporte corporativo estén completados o aprobados.
 
 ## Contrato de cambio
 
@@ -16,6 +16,8 @@ La versión `0.5.0` incorpora M0–M5 como release candidate técnica para Codex
 8. Seguir `docs/RELEASING.md` cuando el cambio cierre una versión publicable.
 9. Actualizar el catálogo, el manifiesto de fixtures o la baseline de comparación cuando el cambio altere la evidencia M4 correspondiente.
 10. Mantener cualquier configuración y evidencia real del piloto fuera del repositorio; solo se versionan contratos, ejemplos vacíos y resultados agregados expresamente saneados.
+11. Cuando una evolución funcional amplíe el contrato, añadir una fuente versionada y su hash sin reescribir fuentes canónicas anteriores; cuando exista solo deriva, corregir implementación y evidencia.
+12. Mantener los activos visuales del proyecto consumidor ligados a Markdown canónico, con estado y procedencia; no tratar una generación de ImageGen como aprobación humana ni como prueba de accesibilidad.
 
 ## Revisión
 

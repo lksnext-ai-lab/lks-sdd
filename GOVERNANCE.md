@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.5.0` es la release candidate técnica M0–M5 para Codex. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. Su publicación en GitHub no implica instalación global, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
+La versión `0.6.0` es una release candidate técnica para Codex que conserva M0–M5 y añade una evolución compatible de definición y UX. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una eventual publicación en GitHub no implica instalación global, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
 
 ## Autoridad y decisiones
 
@@ -10,9 +10,11 @@ El plugin puede formular propuestas y registrar confirmaciones, pero no evalúa 
 
 La decisión de producto vigente define LKS-SDD como plugin de desarrollo SDD para Codex. No se declara soporte para GitHub Copilot, Claude u otros asistentes sin una decisión de ampliación, implementación específica y evidencia de validación.
 
+La extensión visual permite usar ImageGen de forma condicional cuando esa capacidad esté disponible en la superficie autorizada. La herramienta propone activos; la confirmación de la línea visual y de su alcance continúa siendo humana. ChatGPT Work puede apoyar análisis o revisión de documentos transferidos, pero no se convierte por ello en runtime soportado del plugin.
+
 ## Evolución
 
-Todo cambio del método debe documentar motivación, alcance, compatibilidad, impacto, decisión explícita, validaciones y migración o incompatibilidad. Las versiones del plugin, método, esquema y perfiles evolucionan por separado. Las migraciones nunca reescriben silenciosamente contenido adaptado por los equipos.
+Todo cambio del método debe documentar motivación, alcance, compatibilidad, impacto, decisión explícita, validaciones y migración o incompatibilidad. Una extensión se incorpora como fuente aditiva versionada y preserva las fuentes anteriores; una diferencia de implementación se corrige sin reescribir el contrato. Las versiones del plugin, método, esquema, perfiles y hitos evolucionan por separado. Las migraciones nunca reescriben silenciosamente contenido adaptado por los equipos.
 
 Las releases técnicas siguen `docs/RELEASING.md`: cada versión cerrada recibe una etiqueta inmutable y sus notas; los commits intermedios no reescriben una release publicada.
 

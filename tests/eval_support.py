@@ -174,6 +174,11 @@ def materialize_ready_increment(root: Path) -> None:
         "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | not-applicable: no persisted domain data | not-applicable: synthetic fixture has no accounts | not-applicable: no external systems | TEST-001 |",
     )
     _append_row(
+        docs / "04-delivery" / "increments.md",
+        "| Increment | Interface applicability",
+        "| INC-001 | not-applicable: API-only synthetic increment | not-applicable: no human-facing interface | none | not-applicable: no visual change | The fixture exercises a service acknowledgement without screens or interactions. |",
+    )
+    _append_row(
         docs / "05-quality" / "quality-strategy.md",
         "| ID | State | Purpose",
         "| TEST-001 | planned | Verify acknowledgement for valid synthetic data | INC-001 | AC-001 |",

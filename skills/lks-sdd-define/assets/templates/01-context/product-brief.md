@@ -18,14 +18,28 @@ last_updated: "{{DATE}}"
 
 # Brief de producto
 
+## Dominio y contexto profesional
+
+Estado `open`: no se ha confirmado el ámbito, la situación de uso ni el proceso actual. No se presume que una idea ambigua describa un producto genérico.
+
 ## Problema
 
 Estado `open`: no se ha aportado todavía una descripción confirmada.
 
-## Objetivo y valor
+## Usuario, tarea, proceso o decisión
+
+Estado `open`: no se ha confirmado quién utilizará la aplicación, en qué situación ni qué necesita hacer, decidir o demostrar.
+
+## Entradas, reglas y fuentes
+
+Estado `open`: no se han confirmado entradas, unidades, reglas, excepciones ni fuentes autorizadas.
+
+## Resultado, objetivo y valor
 
 Estado `open`: no se ha confirmado el resultado esperado ni su medida de éxito.
 
 ## Usuarios y stakeholders
 
 Estado `open`: no se han confirmado perfiles, necesidades ni responsabilidades.
+
+Los ejemplos y opciones ofrecidos durante la entrevista son propuestas de descubrimiento; solo se incorporan cuando la respuesta de la persona es inequívoca.

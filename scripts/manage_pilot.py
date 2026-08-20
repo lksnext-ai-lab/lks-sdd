@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
+PREVIOUS_CANDIDATE_VERSION = "0.5.0"
 CONFIG_KEYS = {
     "schema_version",
     "pilot_id",
@@ -87,6 +89,17 @@ def _load_json(path: Path) -> Any:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise PilotError(f"JSON ilegible {path}: {exc}") from exc
+
+
+def _current_plugin_version() -> str:
+    manifest = _load_json(MANIFEST_PATH)
+    version = manifest.get("version") if isinstance(manifest, dict) else None
+    if not isinstance(version, str) or not re.fullmatch(
+        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?",
+        version,
+    ):
+        raise PilotError("El manifest del plugin no declara una versión SemVer válida.")
+    return version
 
 
 def _object(value: Any, label: str) -> dict[str, Any]:
@@ -221,10 +234,13 @@ def validate_config(value: Any) -> tuple[dict[str, Any], dict[str, Any]]:
     }:
         errors.append("rollback no respeta el contrato.")
         rollback = {}
-    if rollback.get("previous_version") != "0.4.0":
-        errors.append("La versión de rollback debe ser 0.4.0.")
-    if rollback.get("candidate_version") != "0.5.0":
-        errors.append("La versión candidate debe ser 0.5.0.")
+    if rollback.get("previous_version") != PREVIOUS_CANDIDATE_VERSION:
+        errors.append(
+            f"La versión de rollback debe ser {PREVIOUS_CANDIDATE_VERSION}."
+        )
+    current_version = _current_plugin_version()
+    if rollback.get("candidate_version") != current_version:
+        errors.append(f"La versión candidate debe ser {current_version}.")
     package_hash = rollback.get("package_sha256")
     if package_hash is None:
         blockers.append("Falta el SHA-256 del paquete candidate.")

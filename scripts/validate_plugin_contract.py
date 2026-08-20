@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 invariants beyond the official plugin validator."""
+"""Validate LKS-SDD M0-M5 plus compatible v0.6 invariants."""
 
 from __future__ import annotations
 
@@ -19,10 +19,14 @@ EXPECTED_SKILLS = {
     "lks-sdd-verify",
     "lks-sdd-adopt-existing",
 }
+SEMVER_RE = re.compile(
+    r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+)
 CANONICAL_HASHES = {
     "LKS-SDD_definicion_plugin_v1.md": "4DE2D0AE75B2FF75BBC0C38D05C38AC2D90B57EA4472D46A85BF33C597D79700",
     "LKS-SDD_paquete_preimplementacion_v0.1.md": "A5FFD0D5CA1D9B7AC96D1DABB4A411739E18A01345348D9250F857D5F941504B",
     "LKS-SDD_baseline_normativa_candidata_v0.1.md": "083DED8FB14D77D899CB4F955AEA67D9A21FBA66AC25D7CF28D8C5111C1D1162",
+    "LKS-SDD_extension_definicion_visual_v0.1.md": "ABA2B063A31192D5971CE9DC05323405BF7655737076AC924011E77E2C15ACA3",
 }
 REQUIRED_ROOT_FILES = {
     "README.md",
@@ -39,6 +43,7 @@ REQUIRED_ROOT_FILES = {
     "docs/M3-COVERAGE.md",
     "docs/M4-COVERAGE.md",
     "docs/M5-COVERAGE.md",
+    "docs/V0.6-DEFINITION-UX-COVERAGE.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
     "docs/VALIDATION.md",
@@ -55,6 +60,7 @@ REQUIRED_ROOT_FILES = {
     "scripts/build_candidate_package.py",
     "quality/catalog.json",
     "quality/corpora/activation.json",
+    "quality/corpora/definition-v0.6.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
@@ -93,6 +99,8 @@ REQUIRED_SKILL_RESOURCES = {
         "references/technology-selection.md",
         "references/conditional-annexes.md",
         "references/definition-coverage.md",
+        "references/discovery-interview.md",
+        "references/frontend-design.md",
         "scripts/init_project.py",
         "agents/openai.yaml",
     },
@@ -170,6 +178,23 @@ def sha256(path: Path) -> str:
     return digest.hexdigest().upper()
 
 
+def python_string_constant(path: Path, name: str) -> str | None:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), str(path))
+    except (OSError, UnicodeError, SyntaxError):
+        return None
+    for node in tree.body:
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        if not any(isinstance(target, ast.Name) and target.id == name for target in targets):
+            continue
+        value = node.value
+        if isinstance(value, ast.Constant) and isinstance(value.value, str):
+            return value.value
+    return None
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     for relative in sorted(REQUIRED_ROOT_FILES):
@@ -182,8 +207,78 @@ def validate(root: Path) -> list[str]:
         return [f"Manifest ilegible: {exc}"]
     if manifest.get("name") != "lks-sdd":
         errors.append("El nombre del manifest debe ser lks-sdd.")
-    if manifest.get("version") != "0.5.0":
-        errors.append("El incremento M0-M5 debe declarar la versión 0.5.0.")
+    plugin_version = manifest.get("version")
+    if not isinstance(plugin_version, str) or not SEMVER_RE.fullmatch(plugin_version):
+        errors.append("El manifest debe declarar una versión SemVer válida.")
+        plugin_version = None
+    else:
+        changelog_path = root / "CHANGELOG.md"
+        try:
+            changelog_text = changelog_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"Changelog ilegible: {exc}")
+        else:
+            match = re.search(r"^##\s+([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?)\b", changelog_text, re.MULTILINE)
+            if match is None or match.group(1) != plugin_version:
+                errors.append(
+                    "La primera versión del changelog debe coincidir con el manifest."
+                )
+
+        release_path = root / "docs" / "releases" / f"v{plugin_version}.md"
+        if not release_path.is_file():
+            errors.append(f"Falta la nota de release docs/releases/v{plugin_version}.md.")
+        else:
+            release_text = release_path.read_text(encoding="utf-8")
+            if not re.search(
+                rf"^#\s+LKS-SDD\s+v{re.escape(plugin_version)}\b",
+                release_text,
+                re.MULTILINE,
+            ):
+                errors.append("La nota de release no coincide con la versión del manifest.")
+            release_markers = (
+                "**Fecha:**",
+                "## Changelog",
+                "## Compatibilidad",
+                "## Perfiles y locks",
+                "## Validación y evals",
+                "## Vulnerabilidades conocidas y limitaciones",
+                "## Actualización",
+                "## Migración",
+                "## Rollback",
+                "## Soporte",
+                "## Responsables",
+            )
+            for marker in release_markers:
+                if marker not in release_text:
+                    errors.append(
+                        f"La nota de release {plugin_version} no contiene {marker!r}."
+                    )
+
+        version_markers = {
+            "README.md": f"versión `{plugin_version}`",
+            "docs/ARCHITECTURE.md": f"versión {plugin_version}",
+            "skills/lks-sdd-help/references/capabilities-and-limits.md": plugin_version,
+        }
+        for relative, marker in version_markers.items():
+            path = root / relative
+            try:
+                text = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeError):
+                continue
+            if marker not in text:
+                errors.append(f"{relative} no refleja la versión {plugin_version}.")
+
+        runtime_version_files = (
+            "skills/lks-sdd-define/scripts/init_project.py",
+            "skills/lks-sdd-adopt-existing/scripts/materialize_adoption.py",
+            "scripts/migrate_project.py",
+        )
+        for relative in runtime_version_files:
+            declared = python_string_constant(root / relative, "PLUGIN_VERSION")
+            if declared != plugin_version:
+                errors.append(
+                    f"{relative} declara PLUGIN_VERSION={declared!r}; debe coincidir con {plugin_version}."
+                )
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
@@ -206,7 +301,9 @@ def validate(root: Path) -> list[str]:
         errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
-            errors.append(f"El manifest no puede declarar {unsupported} en M0-M5.")
+            errors.append(
+                f"El manifest no puede declarar {unsupported} en M0-M5 ni en la evolución v0.6."
+            )
 
     skills_root = root / "skills"
     discovered = (
@@ -242,9 +339,21 @@ def validate(root: Path) -> list[str]:
                 )
 
     positioning_markers = {
-        "README.md": ("Codex", "GitHub Copilot", "Claude"),
-        "docs/COMPATIBILITY.md": ("Codex", "GitHub Copilot", "Claude"),
-        "docs/ARCHITECTURE.md": ("Codex",),
+        "README.md": ("Codex", "GitHub Copilot", "Claude", "ImageGen"),
+        "docs/COMPATIBILITY.md": (
+            "Codex",
+            "ChatGPT Work",
+            "GitHub Copilot",
+            "Claude",
+            "ImageGen",
+        ),
+        "docs/ARCHITECTURE.md": ("Codex", "ImageGen", "not-run"),
+        "docs/V0.6-DEFINITION-UX-COVERAGE.md": (
+            "FX-01",
+            "FX-20",
+            "FX-21",
+            "not-run",
+        ),
     }
     for relative, markers in positioning_markers.items():
         path = root / relative
@@ -276,6 +385,45 @@ def validate(root: Path) -> list[str]:
             errors.append(f"Falta especificación canónica: {filename}")
         elif sha256(path) != expected:
             errors.append(f"Hash no canónico: {filename}")
+    canonical_root = root / "specs" / "canonical"
+    discovered_canonical = (
+        {path.name for path in canonical_root.glob("*.md")}
+        if canonical_root.is_dir()
+        else set()
+    )
+    if discovered_canonical != set(CANONICAL_HASHES):
+        errors.append(
+            "Las fuentes canónicas descubiertas no coinciden con el inventario de hashes: "
+            f"{sorted(discovered_canonical ^ set(CANONICAL_HASHES))}"
+        )
+
+    contract_markers = {
+        "specs/canonical/LKS-SDD_extension_definicion_visual_v0.1.md": (
+            "Encuadre inicial sin presuposiciones",
+            "Resumen visual del estado de definición",
+            "debe generar entre una y tres propuestas",
+            "ImageGen",
+            "not-run",
+        ),
+        "specs/SOURCES.md": (
+            CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
+        ),
+        "skills/lks-sdd-define/references/discovery-interview.md": (
+            "una a tres",
+        ),
+        "skills/lks-sdd-define/references/frontend-design.md": (
+            "ImageGen",
+            "not-run",
+        ),
+    }
+    for relative, markers in contract_markers.items():
+        path = root / relative
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in text:
+                errors.append(f"{relative} no contiene el marcador contractual {marker!r}.")
 
     for schema_name in (
         "project.schema.json",
@@ -337,8 +485,35 @@ def validate(root: Path) -> list[str]:
         ):
             if privacy.get(field) is not False:
                 errors.append(f"El ejemplo de piloto debe mantener {field}=false.")
+        rollback = pilot_example.get("rollback", {})
+        if plugin_version and rollback.get("candidate_version") != plugin_version:
+            errors.append(
+                "La candidate del ejemplo de piloto debe coincidir con el manifest."
+            )
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
+
+    try:
+        pilot_schema = json.loads(
+            (root / "schemas" / "pilot-config.schema.json").read_text(encoding="utf-8")
+        )
+        schema_candidate = pilot_schema["properties"]["rollback"]["properties"][
+            "candidate_version"
+        ].get("const")
+        if plugin_version and schema_candidate != plugin_version:
+            errors.append(
+                "pilot-config.schema.json debe fijar la misma candidate que el manifest."
+            )
+    except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
+        errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
+
+    package_builder = root / "scripts" / "build_candidate_package.py"
+    if package_builder.is_file():
+        package_text = package_builder.read_text(encoding="utf-8")
+        if "plugin_version = manifest.get(\"version\")" not in package_text:
+            errors.append(
+                "El empaquetado debe derivar dinámicamente la versión desde el manifest."
+            )
 
     try:
         project_schema = json.loads(
@@ -433,7 +608,14 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 2
-    print("VALID: LKS-SDD M0-M5 contract")
+    try:
+        manifest = json.loads(
+            (root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        version = manifest.get("version", "unknown")
+    except (OSError, json.JSONDecodeError, AttributeError):
+        version = "unknown"
+    print(f"VALID: LKS-SDD {version} contract (M0-M5 + compatible evolution)")
     return 0
 
 

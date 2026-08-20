@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "0.5.0",
-  "description": "Plugin para Codex que aplica Specification-Driven Development (SDD) trazable al desarrollo de aplicaciones web de LKS.",
+  "version": "0.6.0",
+  "description": "Plugin para Codex que aplica Specification-Driven Development (SDD) trazable, incluida la definición guiada y visual de aplicaciones web de LKS.",
   "author": {
     "name": "LKS"
   },
@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo SDD trazable con Codex",
-    "longDescription": "Plugin de desarrollo SDD para Codex que permite aprender el método LKS-SDD, definir aplicaciones, adoptar repositorios existentes, evaluar readiness, implementar y verificar incrementos, derivar borradores de cliente, ejecutar un harness reproducible y preparar un piloto controlado. No declara compatibilidad equivalente con otros asistentes.",
+    "longDescription": "Plugin de desarrollo SDD para Codex que permite aprender el método LKS-SDD, definir aplicaciones mediante descubrimiento adaptativo, snapshots de cobertura y diseño visual condicional con ImageGen, adoptar repositorios existentes, evaluar readiness, implementar y verificar incrementos, derivar borradores de cliente, ejecutar un harness reproducible y preparar un piloto controlado. No declara compatibilidad equivalente con otros asistentes.",
     "developerName": "LKS",
     "category": "Productivity",
     "capabilities": [
@@ -26,7 +26,8 @@
     ],
     "defaultPrompt": [
       "Explícame cómo usar LKS-SDD con Codex sin modificar archivos.",
-      "Ayúdame en Codex a definir esta aplicación sin generar código.",
+      "Ayúdame en Codex a descubrir y definir esta aplicación sin presuponer su dominio ni generar código.",
+      "Muéstrame la cobertura de la definición y, si hay frontend, guía el diseño y prototipado visual.",
       "Adopta con Codex este repositorio existente mediante un preflight de solo lectura.",
       "Implementa o verifica con Codex el siguiente incremento confirmado."
     ]

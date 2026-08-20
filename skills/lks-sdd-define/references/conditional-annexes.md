@@ -9,7 +9,7 @@ Materialice un anexo únicamente cuando su aplicabilidad esté confirmada. Antes
 | Datos, migración y retención | `03-solution/data.md` | `assets/templates/03-solution/data.md` |
 | APIs e integraciones | `03-solution/integrations.md` | `assets/templates/03-solution/integrations.md` |
 | Seguridad, privacidad e identidad | `03-solution/security-privacy-identity.md` | `assets/templates/03-solution/security-privacy-identity.md` |
-| UX y accesibilidad | `03-solution/ux-accessibility.md` | `assets/templates/03-solution/ux-accessibility.md` |
+| UX, interfaz, accesibilidad y prototipado | `03-solution/ux-accessibility.md` | `assets/templates/03-solution/ux-accessibility.md` |
 | Roadmap de varios incrementos | `04-delivery/roadmap.md` | `assets/templates/04-delivery/roadmap.md` |
 | Estrategia de pruebas detallada | `05-quality/test-strategy.md` | `assets/templates/05-quality/test-strategy.md` |
 | Despliegue e infraestructura | `06-operation/deployment.md` | `assets/templates/06-operation/deployment.md` |
@@ -17,5 +17,7 @@ Materialice un anexo únicamente cuando su aplicabilidad esté confirmada. Antes
 | Operación, continuidad y recuperación | `06-operation/operations.md` | `assets/templates/06-operation/operations.md` |
 
 Para una decisión arquitectónica individual, use `assets/templates/03-solution/decisions/decision-record.md`, asigne un `ADR-###` estable y guarde el documento bajo `03-solution/decisions/`. Registre cada `ADR-###` en una sola tabla estructural para evitar duplicados y enlace el resto por referencia. No convierta la propuesta de la plantilla en una decisión confirmada.
+
+Cuando exista una interfaz aplicable, siga [definición y prototipado de frontend](frontend-design.md). `ART-UX` es el contrato Markdown y los PNG/JPG se guardan bajo `03-solution/ui-prototypes/`; no cree una skill adicional ni un documento vacío para simular diseño. Las imágenes generadas permanecen como propuestas hasta validación humana explícita.
 
 Costes, licencias y cumplimiento pueden registrarse en `ART-CONSTRAINTS` mientras el volumen sea manejable. Cree un anexo específico solo si mejora la decisión o la auditabilidad. Los borradores para cliente son vistas derivadas fuera de la fuente canónica: solo incluyen fuentes confirmadas y clasificadas para cliente/público y requieren revisión y aprobación humana.

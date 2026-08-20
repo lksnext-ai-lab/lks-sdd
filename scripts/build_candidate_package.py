@@ -16,8 +16,10 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_VERSION = "0.5.0"
 MARKETPLACE_TEMPLATE = PLUGIN_ROOT / "distribution" / "marketplace.template.json"
+SEMVER_RE = re.compile(
+    r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+)
 EXCLUDED_PARTS = {
     ".git",
     "__pycache__",
@@ -178,8 +180,9 @@ def build(output: Path, build_date: str, source_commit: str) -> dict[str, Any]:
     if not re.fullmatch(r"[a-f0-9]{40}", source_commit):
         raise PackageError("--source-commit debe ser un commit Git completo de 40 caracteres.")
     manifest = _load_json(PLUGIN_ROOT / ".codex-plugin" / "plugin.json")
-    if not isinstance(manifest, dict) or manifest.get("version") != EXPECTED_VERSION:
-        raise PackageError(f"El manifest debe declarar {EXPECTED_VERSION} antes de empaquetar.")
+    plugin_version = manifest.get("version") if isinstance(manifest, dict) else None
+    if not isinstance(plugin_version, str) or not SEMVER_RE.fullmatch(plugin_version):
+        raise PackageError("El manifest debe declarar una versión SemVer válida antes de empaquetar.")
     marketplace = validate_marketplace(_load_json(MARKETPLACE_TEMPLATE))
     files = collect_source_files()
     output = _safe_output(output)
@@ -194,11 +197,11 @@ def build(output: Path, build_date: str, source_commit: str) -> dict[str, Any]:
     ]
     plugin_zip = _zip_bytes(plugin_entries, timestamp)
     marketplace_zip = _zip_bytes(marketplace_entries, timestamp)
-    plugin_name = f"lks-sdd-plugin-v{EXPECTED_VERSION}.zip"
-    marketplace_name = f"lks-sdd-marketplace-v{EXPECTED_VERSION}.zip"
+    plugin_name = f"lks-sdd-plugin-v{plugin_version}.zip"
+    marketplace_name = f"lks-sdd-marketplace-v{plugin_version}.zip"
     release_manifest = {
         "schema_version": "1.0",
-        "plugin_version": EXPECTED_VERSION,
+        "plugin_version": plugin_version,
         "source_commit": source_commit,
         "built_on": build_date,
         "source_file_count": len(files),
@@ -230,7 +233,7 @@ def build(output: Path, build_date: str, source_commit: str) -> dict[str, Any]:
     (output / "SHA256SUMS").write_text(checksums, encoding="utf-8", newline="\n")
     return {
         "status": "built",
-        "plugin_version": EXPECTED_VERSION,
+        "plugin_version": plugin_version,
         "output": str(output),
         "source_file_count": len(files),
         "artifacts": release_manifest["artifacts"],

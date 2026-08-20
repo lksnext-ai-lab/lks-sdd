@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-08-20 — definición guiada y diseño visual
+
+- Refuerza el encuadre inicial para que una idea breve no se convierta silenciosamente en un producto genérico: mantiene tandas pequeñas de preguntas de alto impacto, opciones neutrales y supuestos explícitos.
+- Añade snapshots compactos de cobertura al cerrar bloques relevantes, diferenciando información suficiente, parcial, desconocida, no aplicable y bloqueada sin porcentajes de madurez.
+- Amplía el anexo condicional de UX con inventario, detalle y estados por pantalla, flujos enlazados, interacción, dirección visual y trazabilidad hacia requisitos y criterios.
+- Define un ciclo de prototipado condicional con ImageGen: `Visual mode` explícito, brief suficiente, de una a tres propuestas PNG/JPG, validación humana estructurada, reutilización trazable, activos versionados, hashes y fallback explícito.
+- Endurece gates contra rebajas de versión aisladas, PNG/JPEG ficticios, contratos de pantalla incompletos y evidencia visual no ligada a la implementación, UX, baseline, viewport y capturas exactos.
+- Corrige FX-01 para que la entrevista adaptativa no se presente como evidencia automatizada y añade los escenarios FX-20 y FX-21 como evaluación semántica/humana todavía `not-run`.
+- Mantiene Codex como único runtime soportado, ChatGPT Work como apoyo auxiliar y las seis skills existentes sin MCP, conectores, hooks, apps ni agentes añadidos.
+- Actualiza el contrato, la documentación, el empaquetado y la infraestructura de piloto a la candidate 0.6.0 sin ejecutar M6, el piloto real ni la promoción a `stable`.
+
 ## 0.5.0 — 2026-08-20 — infraestructura de piloto M5
 
 - Añade un marketplace de desarrollo empaquetado con la estructura local estándar de Codex.

@@ -26,7 +26,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import validate_project
 
-PLUGIN_VERSION = "0.5.0"
+PLUGIN_VERSION = "0.6.0"
 METHOD_VERSION = "1.0.0"
 SCHEMA_VERSION = "1.0"
 BASELINE_ID = "BL-0001"
@@ -109,9 +109,12 @@ def _render_core(
         PLUGIN_ROOT / "skills" / "lks-sdd-define" / "assets" / "templates" / relative
     )
     text = template.read_text(encoding="utf-8")
-    text = text.replace(
-        'created_with_plugin_version: "0.1.0"',
+    text = re.sub(
+        r'^created_with_plugin_version: "[0-9A-Za-z.-]+"$',
         f'created_with_plugin_version: "{PLUGIN_VERSION}"',
+        text,
+        count=1,
+        flags=re.MULTILINE,
     )
     text = _render(
         text, {"PROJECT_ID": project_id, "BASELINE_ID": BASELINE_ID, "DATE": today}

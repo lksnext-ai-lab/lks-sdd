@@ -20,4 +20,4 @@ last_updated: "{{DATE}}"
 
 | ID | State | Question | Impact | Scope | Blocking |
 |---|---|---|---|---|---|
-| OPEN-001 | open | ¿Cuál es el objetivo, quiénes son los usuarios y qué resultado observable define el éxito? | Impide confirmar alcance y requisitos | project | true |
+| OPEN-001 | open | ¿En qué dominio y proceso se usará, quién la utilizará, qué tarea o decisión debe resolver, con qué entradas, reglas y fuentes, y qué resultado observable define el éxito? | Impide distinguir una solución profesional concreta de una interpretación genérica y confirmar alcance y requisitos | project | true |

@@ -19,15 +19,15 @@ python tests\run_evals.py
 python scripts\run_quality_harness.py --channel candidate --date 2026-08-20 --baseline quality\baselines\v0.4.0.json --include-complete-profile
 ```
 
-`validate_plugin_contract.py` comprueba manifiesto, skills implementadas, ausencia de componentes fuera de alcance, hashes de las fuentes canónicas y recursos declarados. `validate_reference_profile.py` comprueba el contrato y el lock H0. `validate_fixture_manifest.py` bloquea altas no declaradas y deriva de los fixtures sintéticos. El harness M4 vuelve a ejecutar las comprobaciones automatizables, calcula umbrales y compara contra la baseline; use `--include-complete-profile` para incorporar también Docker en su reporte. El gate completo requiere Docker y red, levanta servicios temporales y siempre ejecuta `compose down --volumes`.
+`validate_plugin_contract.py` comprueba manifiesto, coherencia dinámica de versión con changelog y nota de release, seis skills, ausencia de componentes fuera de alcance, hashes de las cuatro fuentes canónicas y recursos declarados. `validate_reference_profile.py` comprueba el contrato y el lock H0. `validate_fixture_manifest.py` bloquea altas no declaradas y deriva de los fixtures sintéticos. El harness M4 vuelve a ejecutar las comprobaciones automatizables, calcula umbrales y compara contra la baseline; use `--include-complete-profile` para incorporar también Docker en su reporte. El gate completo requiere Docker y red, levanta servicios temporales y siempre ejecuta `compose down --volumes`.
 
-El canal `stable` requiere además `--observations` con resultados reales de activación y revisión documental, más la evidencia agregada de M5. Si faltan, el harness devuelve `incomplete` con código `3`; nunca los presenta como superados.
+El reporte candidate muestra además `definition-conversation: not-run` para FX-01, FX-20 y FX-21: el corpus y la rúbrica están versionados, pero no existen sesiones semánticas o humanas ejecutadas. Este pendiente es opcional para candidate y obligatorio para `stable`. Stable requiere asimismo `--observations` con resultados reales de activación y revisión documental, más la evidencia agregada de M5. Si falta cualquier canal requerido, el harness devuelve `incomplete` con código `3`; nunca lo presenta como superado.
 
 La infraestructura M5 se comprueba con la suite y con:
 
 ```powershell
 python scripts\manage_pilot.py validate-config pilot\pilot-config.example.json
-python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.5.0
+python scripts\build_candidate_package.py --date 2026-08-20 --source-commit COMMIT_COMPLETO --output C:\ruta\externa\lks-sdd-v0.6.0
 ```
 
 La configuración de ejemplo debe devolver `blocked` con código `3`: demuestra que no puede arrancar sin muestra, aliases, responsables, canal confidencial, checksum y rollback. El builder exige una carpeta externa inexistente.

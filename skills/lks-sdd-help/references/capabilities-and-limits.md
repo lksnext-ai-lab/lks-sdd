@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.5.0
+# Capacidades y límites de LKS-SDD 0.6.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -6,7 +6,10 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 
 - Explicar el método, ofrecer onboarding y orientar desde el estado de un proyecto sin modificarlo.
 - Inicializar de forma aditiva la documentación de una aplicación nueva autorizada.
-- Mantener especificaciones profesionales y separar propuestas de decisiones.
+- Encuadrar ideas ambiguas sin presuponer el dominio y mantener especificaciones profesionales separando propuestas de decisiones.
+- Mostrar snapshots compactos de cobertura al completar bloques relevantes, sin sustituir readiness ni usar porcentajes engañosos.
+- Definir pantallas, flujos, estados e interacción cuando existe frontend.
+- Generar con ImageGen entre una y tres propuestas para un frontend nuevo o cambio visual material cuando el brief sea suficiente y la capacidad esté disponible; conservar validación, estado y activos trazables. Si no está disponible, declarar el fallback y el pendiente.
 - Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización documental autorizada.
 - Evaluar readiness de un incremento con bloqueos explicables.
 - Preparar el scaffold del perfil H0 para un incremento listo mediante preview y autorización.
@@ -22,6 +25,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Normalizar o modernizar código existente durante la adopción.
 - Instalar automáticamente el bundle, desplegar, acceder a producción o aprobar excepciones.
 - Presentar la infraestructura M5 como un piloto ya ejecutado o una decisión `go` sin resultados reales.
+- Presentar una imagen generada como diseño confirmado, código, prueba de accesibilidad o evidencia semántica/humana ejecutada.
 - Usar MCP, conectores, hooks, apps o agentes.
 - Ejecutar el plugin con soporte garantizado fuera de Codex.
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -18,7 +19,16 @@ from typing import Any
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-from validate_project import validate_project
+from validate_project import (
+    INTERFACE_CONTRACT_HEADERS,
+    interface_applicability,
+    parse_frontmatter,
+    parse_markdown_table_blocks,
+    table_rows_for_headers,
+    v06_contract_applies,
+    validate_project,
+    validate_visual_review_evidence,
+)
 from validate_reference_profile import PROFILE_ID, validate_profile
 
 EVIDENCE_RE = re.compile(r"^EVID-[0-9]{3}$")
@@ -123,6 +133,100 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
     if not isinstance(value, dict):
         raise VerificationError("project.json debe ser un objeto.")
     return path, value, original
+
+
+def _interface_is_applicable(
+    root: Path, manifest: dict[str, Any], increment: str
+) -> bool:
+    entry = next(
+        (
+            item
+            for item in manifest.get("artifacts", [])
+            if item.get("id") == "ART-INCREMENTS"
+        ),
+        None,
+    )
+    if not isinstance(entry, dict):
+        raise VerificationError("Falta ART-INCREMENTS para determinar la interfaz.")
+    path = root / entry["path"]
+    metadata, body = parse_frontmatter(path.read_text(encoding="utf-8"))
+    if not v06_contract_applies(manifest, metadata):
+        return False
+    rows = table_rows_for_headers(
+        parse_markdown_table_blocks(body), INTERFACE_CONTRACT_HEADERS
+    )
+    if rows is None:
+        raise VerificationError("Falta la tabla de aplicabilidad de interfaz.")
+    matching = [row for row in rows if row.get("Increment", "").strip() == increment]
+    if len(matching) != 1:
+        raise VerificationError(
+            f"{increment} debe tener exactamente una fila de aplicabilidad de interfaz."
+        )
+    applicability, _ = interface_applicability(
+        matching[0].get("Interface applicability", "")
+    )
+    return applicability == "applicable"
+
+
+def _resolve_visual_evidence_path(root: Path, requested: Path) -> Path:
+    candidate = requested if requested.is_absolute() else root / requested
+    try:
+        relative = candidate.absolute().relative_to(root)
+    except ValueError as exc:
+        raise VerificationError("La evidencia visual debe estar dentro del proyecto.") from exc
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if _is_link_like(current):
+            raise VerificationError(
+                f"La evidencia visual usa un symlink o junction: {relative.as_posix()}"
+            )
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to((root / "docs/lks-sdd/evidence/visual").resolve())
+    except ValueError as exc:
+        raise VerificationError(
+            "La evidencia visual debe estar bajo docs/lks-sdd/evidence/visual/."
+        ) from exc
+    return resolved
+
+
+def _visual_evidence_check(
+    root: Path,
+    increment: str,
+    evidence_path: Path | None,
+    manifest: dict[str, Any] | None = None,
+    definitions: dict[str, dict[str, str]] | None = None,
+) -> tuple[dict[str, Any], list[str]]:
+    if evidence_path is None:
+        return (
+            {
+                "name": "visual-browser-review",
+                "status": "not-run",
+                "reason": "manual-browser-evidence-missing",
+            },
+            [],
+        )
+    if manifest is None or definitions is None:
+        report, loaded_manifest, loaded_definitions = validate_project(root)
+        if not report.valid or loaded_manifest is None:
+            raise VerificationError(
+                "El contrato del proyecto no es válido para revisar evidencia visual."
+            )
+        manifest = loaded_manifest
+        definitions = loaded_definitions
+    errors, outcome, limitations, checked_files = validate_visual_review_evidence(
+        root,
+        manifest,
+        definitions,
+        increment,
+        evidence_path,
+        require_fresh=True,
+    )
+    if errors or outcome is None:
+        raise VerificationError("Evidencia visual inválida: " + "; ".join(errors))
+    outcome["checked_files"] = checked_files
+    return outcome, limitations
 
 
 def _execute_check(check: dict[str, Any]) -> dict[str, Any]:
@@ -298,7 +402,7 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     root = args.project_root.expanduser().resolve()
     if not root.is_dir():
         raise VerificationError(f"La raíz no es una carpeta: {root}")
-    report, manifest, _ = validate_project(root)
+    report, manifest, definitions = validate_project(root)
     blockers = list(report.errors)
     if manifest is None:
         blockers.append("Falta el índice LKS-SDD.")
@@ -312,6 +416,15 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             "La verificación automatizada H0 requiere el perfil de referencia seleccionado."
         )
     blockers.extend(validate_profile(require_validated=True))
+    visual_review_required = False
+    if manifest and not report.errors:
+        visual_review_required = _interface_is_applicable(
+            root, manifest, args.increment
+        )
+    if args.visual_evidence is not None and not visual_review_required:
+        blockers.append(
+            "Se aportó evidencia visual para un incremento cuya interfaz no está marcada applicable."
+        )
     checks = _commands(root)
     plan = [
         {
@@ -337,6 +450,14 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
                 "compose-cleanup",
             )
         )
+    if visual_review_required:
+        plan.append(
+            {
+                "name": "visual-browser-review",
+                "cwd": ".",
+                "command": ["manual-browser-review", "--evidence", "<local-json>"],
+            }
+        )
     if blockers:
         return 3, {
             "classification": "not-verified",
@@ -359,8 +480,14 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     outcomes = [_execute_check(check) for check in checks]
     if args.containers and all(item["status"] == "passed" for item in outcomes):
         outcomes.extend(_container_checks(root))
-    failures = [item for item in outcomes if item["status"] != "passed"]
     limitations: list[str] = []
+    if visual_review_required:
+        visual_outcome, visual_limitations = _visual_evidence_check(
+            root, args.increment, args.visual_evidence, manifest, definitions
+        )
+        outcomes.append(visual_outcome)
+        limitations.extend(visual_limitations)
+    failures = [item for item in outcomes if item["status"] != "passed"]
     if not args.containers:
         limitations.append(
             "No se ejecutó la integración local con PostgreSQL y Keycloak."
@@ -498,6 +625,14 @@ def main() -> int:
     mode.add_argument("--execute", action="store_true")
     parser.add_argument("--authorize", action="store_true")
     parser.add_argument("--containers", action="store_true")
+    parser.add_argument(
+        "--visual-evidence",
+        type=Path,
+        help=(
+            "JSON local de revisión manual/browser bajo "
+            "docs/lks-sdd/evidence/visual/ para incrementos con interfaz."
+        ),
+    )
     parser.add_argument("--record-evidence")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
