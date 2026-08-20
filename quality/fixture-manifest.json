@@ -4,6 +4,7 @@
   "classification": "synthetic-only",
   "fixtures": [
     {"path": "alternative-stack.json", "id": "FX-M1-ALTERNATIVE-STACK", "sha256": "3beb48c0480a897091bf795359e21f8282a7446c3c7f16a93e9dea7ad7b6dc1f"},
+    {"path": "calculator-handoff-1.1.json", "id": "FX-M5-CALCULATOR-HANDOFF-1.1", "sha256": "9585363d00d5b854e01e61d47f370b768b9d617ca863c42f493b8915f614fc15"},
     {"path": "help.json", "id": "FX-M1-HELP", "sha256": "5e2f58bccaaf0a941ce43e4484d361b75082ddad2c5c9c62cc71c6c5c834062e"},
     {"path": "insufficient-information.json", "id": "FX-M1-INSUFFICIENT", "sha256": "69eb188a2898bd42bbd43ea7e22aad64a6cab0b8f7d0bcc5b27a661b259d5b2d"},
     {"path": "new-project.json", "id": "FX-M1-NEW-PROJECT", "sha256": "6ebb7f7c0978dc09ae4bbc77f36221fea0601f1b0024284a172474fc942ab09b"},

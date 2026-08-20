@@ -30,7 +30,7 @@ class VisualContractAdversarialTests(unittest.TestCase):
     def test_none_cannot_hide_reuse_in_reason(self) -> None:
         self._assert_project_valid()
         self.fixture._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-002 UX-003 | none | "
+            "| INC-001 | applicable | UX-001, UX-002, UX-003 | none | "
             "not-applicable: no new visual prototype | "
             "Reuse confirmed baseline VIS-001 without visual changes |"
         )
@@ -79,7 +79,7 @@ class VisualContractAdversarialTests(unittest.TestCase):
             "Keyboard | AC-001 | INC-001 |",
         )
         self.fixture._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-011 UX-003 | new | "
+            "| INC-001 | applicable | UX-001, UX-011, UX-003 | new | "
             "VIS-001 | Contract links a screen and an unrelated flow |"
         )
 
@@ -105,10 +105,8 @@ class VisualContractAdversarialTests(unittest.TestCase):
         _append_row(
             increments_path,
             "| ID | State | In scope",
-            "| INC-000 | proposal | Historical visual baseline | none | FR-001 | "
-            "AC-001 | ADR-001 | not-applicable: historical fixture | "
-            "not-applicable: historical fixture | not-applicable: historical fixture | "
-            "TEST-001 |",
+            "| INC-000 | proposed | Historical visual baseline | none | FR-001 | "
+            "AC-001 | ADR-001 | TEST-001 |",
         )
         _append_row(
             ux_path,
@@ -140,14 +138,14 @@ class VisualContractAdversarialTests(unittest.TestCase):
             ux_path,
             "VIS-001",
             "| VIS-001 | confirmed | ![Request screen](ui-prototypes/VIS-001.png) | "
-            "PNG | 1440x900 | UX-010 UX-011 | FR-001 | ImageGen synthetic fixture | "
+            "PNG | 1440x900 | UX-010, UX-011 | FR-001 | ImageGen synthetic fixture | "
             f"2026-08-20 | synthetic UI brief | {self.digest} | "
             "user-confirmed; role=synthetic-reviewer; date=2026-08-20; ref=ADR-001 | "
             "Hierarchy, density and primary-action treatment | Static image does not "
             "prove responsive behavior or accessibility | ADR-001 | INC-000 |",
         )
         self.fixture._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-002 UX-003 | reuse | "
+            "| INC-001 | applicable | UX-001, UX-002, UX-003 | reuse | "
             "VIS-001 | Reuse the confirmed visual ADR from INC-000 |"
         )
         self._assert_project_valid()

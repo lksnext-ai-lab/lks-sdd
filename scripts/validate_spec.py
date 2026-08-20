@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from validate_project import validate_project
+from profile_registry import resolve_profile
 from validate_reference_profile import PROFILE_ID, validate_profile
 
 
@@ -20,17 +21,22 @@ def main() -> int:
     report, manifest, _ = validate_project(args.project_root)
     errors = list(report.errors)
     warnings = list(report.warnings)
+    automation_support = None
     if manifest:
         selected = manifest.get("technology", {}).get("selected_profile")
-        if selected == PROFILE_ID:
-            errors.extend(
-                f"Perfil H0: {item}"
-                for item in validate_profile(require_validated=True)
-            )
-        elif selected is not None:
-            warnings.append(
-                f"El perfil {selected} es documentable, pero no dispone de validación H0 en este plugin."
-            )
+        if selected is not None:
+            support = resolve_profile(selected)
+            support_errors = list(support.errors)
+            if selected == PROFILE_ID:
+                support_errors.extend(validate_profile(require_validated=True))
+            automation_support = {
+                **support.as_dict(),
+                "errors": list(dict.fromkeys(support_errors)),
+            }
+            if support_errors or not support.implementable:
+                warnings.append(
+                    f"El perfil {selected} es documentable, pero la automatización de implementación no está garantizada."
+                )
         if manifest.get("route") == "adopt-existing":
             adoption = manifest.get("adoption", {})
             if adoption.get("status") != "materialized":
@@ -47,6 +53,7 @@ def main() -> int:
         "route": manifest.get("route") if manifest else None,
         "errors": errors,
         "warnings": warnings,
+        "automation_support": automation_support,
         "checked_files": report.checked_files,
     }
     if args.as_json:

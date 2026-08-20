@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.6.1` es una release candidate técnica para Codex que conserva M0–M5 y la evolución compatible de definición y UX. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una eventual publicación en GitHub no implica instalación global, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
+La versión `0.7.0` es una release candidate técnica para Codex que conserva M0–M5, la evolución compatible de definición y UX y añade el contrato documental 1.1. Incluye el harness M4 y la infraestructura de distribución y piloto M5, pero el piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una publicación técnica en GitHub no implica instalación activa, distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y el perfil H0 conservan estado `candidate`.
 
 ## Autoridad y decisiones
 
@@ -16,9 +16,13 @@ La extensión visual permite usar ImageGen de forma condicional cuando esa capac
 
 Todo cambio del método debe documentar motivación, alcance, compatibilidad, impacto, decisión explícita, validaciones y migración o incompatibilidad. Una extensión se incorpora como fuente aditiva versionada y preserva las fuentes anteriores; una diferencia de implementación se corrige sin reescribir el contrato. Las versiones del plugin, método, esquema, perfiles y hitos evolucionan por separado. Las migraciones nunca reescriben silenciosamente contenido adaptado por los equipos.
 
+Los proyectos nuevos de esta release usan método 1.1.0 y esquema 1.1. Los proyectos 1.0 continúan validándose en modo de compatibilidad: actualizar el plugin no los migra ni confirma decisiones. En la ruta 1.0 → 1.1, toda entrada de `human_review_required` bloquea siempre la aplicación antes de crear backup o escribir. La persona debe resolver cada entrada listada en los Markdown canónicos 1.0, validar y repetir el preview hasta obtener una lista vacía. La `Identity` agregada se traslada sin inferencias a identidad, seguridad y privacidad `pending`; no bloquea el apply si no existen otras revisiones, pero sí readiness hasta resolverse en 1.1. La aplicación exige backup externo, hash coincidente, autorización expresa y validación posterior. La ruta histórica 0.9 → 1.0 se conserva como paso separado, no se encadenan saltos de esquema en una sola autorización.
+
+La autoridad para considerar suficiente una especificación se separa de la capacidad técnica del plugin para automatizar una pila. `specification_readiness` puede ser favorable mientras `automation_support` bloquea la implementación; ninguna de las dos selecciona tecnología ni autoriza escribir código.
+
 Las releases técnicas siguen `docs/RELEASING.md`: cada versión cerrada recibe una etiqueta inmutable y sus notas; los commits intermedios no reescriben una release publicada.
 
-Un resultado `candidate` solo puede promocionarse con los canales exigidos por `quality/catalog.json`. `stable` queda bloqueado si falta evidencia semántica, documental o de piloto.
+Un resultado `candidate` solo acredita los canales que `quality/catalog.json` exige para candidate. Los canales opcionales pueden permanecer `not-run`, pero deben seguir visibles y nunca se cuentan como superados. `stable` exige además definición conversacional, activación, revisión documental y piloto; cualquier canal requerido `not-run`, `skipped`, incompleto o fallido bloquea la promoción.
 
 GitHub Issues es el canal candidate para soporte no sensible. La configuración externa debe aportar un canal confidencial de seguridad antes de iniciar el piloto. Los aliases no acreditan autoridad; las asignaciones reales y la decisión go/no-go siguen siendo externas.
 

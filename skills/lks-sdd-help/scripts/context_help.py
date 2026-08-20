@@ -18,6 +18,7 @@ from validate_project import (  # noqa: E402
     parse_markdown_table_blocks,
     validate_project,
 )
+from check_traceability import check as check_traceability  # noqa: E402
 
 
 COVERAGE_HEADERS = (
@@ -42,6 +43,19 @@ def _option(action: str, effect: str) -> dict[str, Any]:
     return {"action": action, "effect": effect, "starts_action": False}
 
 
+def _diagnostic_summary(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    counts: dict[tuple[str, str], int] = {}
+    for item in items:
+        code = str(item.get("code", "LKS-UNKNOWN"))
+        severity = str(item.get("severity", "error"))
+        key = (severity, code)
+        counts[key] = counts.get(key, 0) + 1
+    return [
+        {"code": code, "severity": severity, "count": count}
+        for (severity, code), count in sorted(counts.items())
+    ]
+
+
 def _base_response(root: Path, status: str, meaning: str) -> dict[str, Any]:
     return {
         "status": status,
@@ -50,7 +64,10 @@ def _base_response(root: Path, status: str, meaning: str) -> dict[str, Any]:
         "meaning": meaning,
         "structural_validity": {
             "status": "not-assessed",
+            "mode": "not-assessed",
             "checked_files": 0,
+            "warnings": [],
+            "diagnostic_summary": [],
             "meaning": "La validez estructural todavía no se ha evaluado.",
         },
         "definition_coverage": {
@@ -69,6 +86,13 @@ def _base_response(root: Path, status: str, meaning: str) -> dict[str, Any]:
             "source": "none",
             "revalidated": False,
             "meaning": "No hay un snapshot de readiness disponible.",
+        },
+        "readiness_preflight": {
+            "status": "not-run",
+            "increment": None,
+            "gaps": [],
+            "diagnostics": [],
+            "meaning": "No hay un incremento activo sobre el que ejecutar el preflight.",
         },
         "blockers": [],
         "next_decision": None,
@@ -206,7 +230,10 @@ def load_state(project_root: Path) -> dict[str, Any]:
         response["missing_or_limits"] = report.errors or ["No se pudo leer el índice operativo."]
         response["structural_validity"] = {
             "status": "invalid",
+            "mode": "compatibility" if manifest and manifest.get("schema_version") == "1.0" else "strict",
             "checked_files": len(report.checked_files),
+            "warnings": list(dict.fromkeys(report.warnings)),
+            "diagnostic_summary": _diagnostic_summary(report.diagnostics),
             "meaning": "El contrato estructural contiene errores; no se evalúa suficiencia semántica.",
         }
         response["options"] = [
@@ -220,8 +247,14 @@ def load_state(project_root: Path) -> dict[str, Any]:
     route = manifest.get("route")
     phase = manifest.get("phase")
     gate = manifest.get("gate")
-    readiness = manifest.get("readiness", {}).get("status", "not-assessed")
+    persisted_readiness = manifest.get("readiness")
+    readiness = (
+        persisted_readiness.get("status", "not-assessed")
+        if isinstance(persisted_readiness, dict)
+        else "not-persisted"
+    )
     active_increment = manifest.get("active_increment")
+    compatibility_mode = manifest.get("schema_version") == "1.0"
     definition_coverage, next_decision = _read_definition_status(root, manifest)
     response = _base_response(
         root,
@@ -241,39 +274,65 @@ def load_state(project_root: Path) -> dict[str, Any]:
             },
             "structural_validity": {
                 "status": "valid",
+                "mode": "compatibility" if compatibility_mode else "strict",
                 "checked_files": max(len(report.checked_files) - 1, 0),
-                "meaning": "El índice y los Markdown cumplen el contrato estructural; esto no demuestra que la definición sea suficiente.",
+                "warnings": list(dict.fromkeys(report.warnings)),
+                "diagnostic_summary": _diagnostic_summary(report.diagnostics),
+                "meaning": (
+                    "El índice y los Markdown son válidos en modo de compatibilidad 1.0; los avisos señalan diferencias con el contrato 1.1 y esto no demuestra suficiencia semántica."
+                    if compatibility_mode
+                    else "El índice y los Markdown cumplen el contrato estructural estricto; esto no demuestra que la definición sea suficiente."
+                ),
             },
             "definition_coverage": definition_coverage,
             "readiness_snapshot": {
                 "status": readiness,
-                "source": ".lks-sdd/project.json",
+                "source": (
+                    ".lks-sdd/project.json"
+                    if isinstance(persisted_readiness, dict)
+                    else "derived-on-demand"
+                ),
                 "revalidated": False,
                 "meaning": (
-                    "Es el último snapshot indexado; esta consulta de ayuda no "
-                    "ha vuelto a ejecutar la evaluación de readiness."
+                    "Es un dato legado no revalidado; no actúa como puerta."
+                    if isinstance(persisted_readiness, dict)
+                    else "El contrato 1.1 no persiste readiness: la puerta se calcula sobre los Markdown activos cuando se solicita."
                 ),
             },
             "next_decision": next_decision,
             "resolved": [
                 f"La ruta registrada es {route} y la baseline es {manifest.get('baseline_id')}.",
                 f"La fase indexada es {phase} y la puerta indexada es {gate}.",
-                f"Snapshot de readiness indexado y no revalidado: {readiness}.",
+                (
+                    f"Snapshot legado de readiness no revalidado: {readiness}."
+                    if isinstance(persisted_readiness, dict)
+                    else "Readiness no se persiste; se calcula bajo demanda."
+                ),
             ],
         }
     )
 
     missing: list[str] = []
     blocking: list[str] = []
+    active_blocking_ids: set[str] = set()
     blocker_ids = manifest.get("open_blockers", [])
-    for blocker_id in blocker_ids:
-        row = definitions.get(blocker_id, {})
+    for blocker_id, row in definitions.items():
+        if not blocker_id.startswith("OPEN-"):
+            continue
+        is_active = row.get("State") in {"open", "blocked"}
+        is_blocking = (
+            blocker_id in blocker_ids
+            or row.get("Blocking", "").strip().casefold() == "true"
+        )
+        if not is_active or not is_blocking:
+            continue
         detail = row.get("Question") or row.get("Impact") or "bloqueo sin detalle"
         blocker = f"{blocker_id}: {detail}"
+        active_blocking_ids.add(blocker_id)
         blocking.append(blocker)
         missing.append(blocker)
     for item_id, row in definitions.items():
-        if not item_id.startswith("OPEN-") or item_id in blocker_ids:
+        if not item_id.startswith("OPEN-") or item_id in active_blocking_ids:
             continue
         if row.get("State") in {"open", "blocked"}:
             detail = row.get("Question") or row.get("Impact") or "pendiente sin detalle"
@@ -289,6 +348,10 @@ def load_state(project_root: Path) -> dict[str, Any]:
             "ART-STATUS contiene estados de cobertura no reconocidos en: "
             + ", ".join(definition_coverage["invalid"])
         )
+    missing.extend(
+        f"Aviso estructural: {warning}"
+        for warning in dict.fromkeys(report.warnings)
+    )
     response["blockers"] = blocking
     if response["next_decision"] is None:
         if blocking:
@@ -302,6 +365,22 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "Aclarar " + definition_coverage["unknown"][0]
             )
     response["missing_or_limits"] = missing or ["No hay bloqueos ni límites estructurales indexados."]
+
+    if active_increment:
+        preflight_code, preflight = check_traceability(
+            root, active_increment, "preimplementation"
+        )
+        response["readiness_preflight"] = {
+            "status": "clear" if preflight_code == 0 else "incomplete",
+            "increment": active_increment,
+            "gaps": preflight.get("gaps", []),
+            "diagnostics": preflight.get("diagnostics", []),
+            "meaning": (
+                "La cadena estructural previa a implementación está completa; esto no equivale a readiness ni autoriza implementar."
+                if preflight_code == 0
+                else "El preflight estructural detecta vacíos antes de ejecutar la evaluación completa de readiness."
+            ),
+        }
 
     options = [
         _option(
@@ -382,9 +461,16 @@ def main() -> int:
         readiness_snapshot = state["readiness_snapshot"]
         print(
             "Snapshot de readiness: "
-            f"{readiness_snapshot['status']} (no revalidado). "
+            f"{readiness_snapshot['status']}. "
             f"{readiness_snapshot['meaning']}"
         )
+        preflight = state["readiness_preflight"]
+        print(
+            "Preflight estructural: "
+            f"{preflight['status']}. {preflight['meaning']}"
+        )
+        for item in preflight["gaps"][:5]:
+            print(f"- {item}")
         print("Puedes pedir el detalle completo por dimensión.")
         print("Qué está resuelto:")
         for item in state["resolved"] or ["No hay elementos confirmados por esta lectura."]:

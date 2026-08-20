@@ -1,0 +1,622 @@
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+from eval_support import (
+    HELP_SCRIPT,
+    IMPLEMENT_SCRIPT,
+    READINESS_SCRIPT,
+    VALIDATE_SCRIPT,
+    VERIFY_SCRIPT,
+    initialize,
+    materialize_ready_increment,
+    run_json,
+    tree_digest,
+)
+
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+TRACEABILITY_SCRIPT = PLUGIN_ROOT / "scripts" / "check_traceability.py"
+PACKAGED_LOCK = (
+    PLUGIN_ROOT
+    / "profiles"
+    / "WEB-FASTAPI-REACT-KEYCLOAK-PG"
+    / "technology-profile.lock.json"
+)
+
+
+def _ready_project(root: Path) -> None:
+    initialize(root, "handoff-guards")
+    materialize_ready_increment(root)
+
+
+def _downgrade_ready_project_to_legacy(root: Path) -> None:
+    manifest_path = root / ".lks-sdd/project.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    current_version = manifest["plugin_version"]
+    manifest.update(
+        {
+            "schema_version": "1.0",
+            "method_version": "1.0.0",
+            "plugin_version": "0.6.1",
+            "open_blockers": [],
+            "readiness": {
+                "status": "not-assessed",
+                "assessed_increment": None,
+                "assessed_at": None,
+            },
+        }
+    )
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    for entry in manifest["artifacts"]:
+        path = root / entry["path"]
+        text = (
+            path.read_text(encoding="utf-8")
+            .replace('schema_version: "1.1"', 'schema_version: "1.0"', 1)
+            .replace('method_version: "1.1.0"', 'method_version: "1.0.0"', 1)
+            .replace(
+                f'created_with_plugin_version: "{current_version}"',
+                'created_with_plugin_version: "0.6.1"',
+                1,
+            )
+        )
+        if entry["id"] == "ART-INCREMENTS":
+            text = text.replace(
+                "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
+                "|---|---|---|---|---|---|---|---|",
+                "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
+                "|---|---|---|---|---|---|---|---|---|---|---|",
+                1,
+            ).replace(
+                "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | TEST-001 |",
+                "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | not-applicable: no persistence | not-applicable: no identity | not-applicable: no integration | TEST-001 |",
+                1,
+            )
+        path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def _load_verification_module():
+    spec = importlib.util.spec_from_file_location(
+        "lks_sdd_handoff_verification", VERIFY_SCRIPT
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _prepare_increment(root: Path) -> None:
+    _, preview = run_json(
+        IMPLEMENT_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "--dry-run",
+    )
+    _, applied = run_json(
+        IMPLEMENT_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "--apply",
+        "--authorize",
+        "--preview-hash",
+        preview["preview_hash"],
+    )
+    if applied["status"] != "prepared":
+        raise AssertionError(applied)
+
+
+def _link_evidence(root: Path, evidence_id: str = "EVID-001") -> Path:
+    traceability = root / "docs/lks-sdd/05-quality/traceability.md"
+    traceability.write_text(
+        traceability.read_text(encoding="utf-8").replace(
+            "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | none |",
+            f"| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | {evidence_id} |",
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    evidence_path = root / f"docs/lks-sdd/evidence/{evidence_id}.json"
+    evidence_path.parent.mkdir(parents=True, exist_ok=True)
+    return evidence_path
+
+
+def _write_evidence(
+    path: Path,
+    *,
+    classification: str,
+    statuses: list[str],
+) -> None:
+    path.write_text(
+        json.dumps(
+            {
+                "evidence_id": path.stem,
+                "increment": "INC-001",
+                "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+                "profile_version": "1.0.0-candidate.1",
+                "revision": None,
+                "classification": classification,
+                "checks": [
+                    {"name": f"check-{index}", "status": status}
+                    for index, status in enumerate(statuses, start=1)
+                ],
+                "limitations": (
+                    ["Synthetic reservation."]
+                    if classification == "verified-with-reservations"
+                    else []
+                ),
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+class VerificationEvidenceGuardsTests(unittest.TestCase):
+    def test_preimplementation_keeps_valid_legacy_happy_path_clear(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-trace-legacy-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            _downgrade_ready_project_to_legacy(root)
+            before = tree_digest(root)
+
+            validation_code, validation = run_json(VALIDATE_SCRIPT, str(root))
+            trace_code, traceability = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "preimplementation",
+            )
+            _, context = run_json(HELP_SCRIPT, str(root))
+
+            self.assertEqual(validation_code, 0, validation)
+            self.assertTrue(validation["valid"])
+            self.assertEqual(trace_code, 0, traceability)
+            self.assertTrue(traceability["valid"], traceability["gaps"])
+            self.assertEqual(traceability["diagnostics"], [])
+            self.assertEqual(context["readiness_preflight"]["status"], "clear")
+            self.assertEqual(context["readiness_preflight"]["diagnostics"], [])
+            self.assertEqual(before, tree_digest(root))
+
+    def test_preimplementation_does_not_require_passing_evidence(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-trace-pre-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            evidence = _link_evidence(root)
+            _write_evidence(
+                evidence, classification="not-verified", statuses=["failed"]
+            )
+
+            code, result = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "preimplementation",
+            )
+
+            self.assertEqual(code, 0, result)
+            self.assertTrue(result["valid"])
+            self.assertFalse(result["evidence_required"])
+
+    def test_verification_accepts_only_nonempty_all_passed_checks(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-trace-pass-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            evidence = _link_evidence(root)
+            _write_evidence(
+                evidence,
+                classification="verified-with-reservations",
+                statuses=["passed", "passed"],
+            )
+
+            code, result = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "verification",
+            )
+
+            self.assertEqual(code, 0, result)
+            self.assertTrue(result["valid"])
+            self.assertTrue(result["evidence_required"])
+
+    def test_verification_rejects_non_successful_structured_evidence(self) -> None:
+        for status in ("not-run", "blocked", "failed"):
+            with self.subTest(status=status), tempfile.TemporaryDirectory(
+                prefix=f"lks-sdd-trace-{status}-"
+            ) as temporary:
+                root = Path(temporary)
+                _ready_project(root)
+                evidence = _link_evidence(root)
+                _write_evidence(
+                    evidence, classification="not-verified", statuses=[status]
+                )
+
+                code, result = run_json(
+                    TRACEABILITY_SCRIPT,
+                    str(root),
+                    "--increment",
+                    "INC-001",
+                    "--phase",
+                    "verification",
+                    expected_codes={3},
+                )
+
+                self.assertEqual(code, 3, result)
+                self.assertIn(
+                    "TRACE-EVIDENCE-NOT-PASSED",
+                    {item["code"] for item in result["diagnostics"]},
+                )
+
+    def test_verification_rejects_skipped_or_missing_evidence(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-trace-skip-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            evidence = _link_evidence(root)
+            _write_evidence(
+                evidence, classification="not-verified", statuses=["skipped"]
+            )
+            code, result = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "verification",
+                expected_codes={2},
+            )
+            self.assertEqual(code, 2, result)
+            self.assertFalse(result["valid"])
+
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-trace-missing-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            _link_evidence(root)
+            code, result = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "verification",
+                expected_codes={2},
+            )
+            self.assertEqual(code, 2, result)
+            self.assertFalse(result["valid"])
+
+
+class ConsumerProfileLockGuardsTests(unittest.TestCase):
+    def test_readiness_binds_packaged_lock_before_prepare(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-lock-ready-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            expected_hash = hashlib.sha256(PACKAGED_LOCK.read_bytes()).hexdigest()
+
+            code, before = run_json(
+                READINESS_SCRIPT, str(root), "--increment", "INC-001"
+            )
+            self.assertEqual(code, 0, before)
+            self.assertEqual(before["status"], "ready")
+            self.assertEqual(
+                before["profile_lock"]["fingerprint_sha256"], expected_hash
+            )
+            self.assertIsNone(before["profile_lock"]["sha256"])
+
+            consumer_lock = root / ".lks-sdd/profile.lock.json"
+            consumer_lock.write_bytes(PACKAGED_LOCK.read_bytes())
+            code, after = run_json(
+                READINESS_SCRIPT, str(root), "--increment", "INC-001"
+            )
+            self.assertEqual(code, 0, after)
+            self.assertEqual(after["profile_lock"]["sha256"], expected_hash)
+            self.assertEqual(
+                after["active_contract_fingerprint"],
+                before["active_contract_fingerprint"],
+            )
+
+    def test_substituted_consumer_lock_blocks_all_gates(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-lock-bad-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            consumer_lock = root / ".lks-sdd/profile.lock.json"
+            consumer_lock.write_text("{}\n", encoding="utf-8", newline="\n")
+
+            readiness_code, readiness = run_json(
+                READINESS_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                expected_codes={3},
+            )
+            self.assertEqual(readiness_code, 3, readiness)
+            self.assertEqual(readiness["status"], "blocked")
+            self.assertTrue(
+                any("lock H0 del consumidor" in item for item in readiness["blockers"])
+            )
+
+            prepare_code, preparation = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--dry-run",
+                expected_codes={3},
+            )
+            self.assertEqual(prepare_code, 3, preparation)
+            self.assertEqual(preparation["status"], "blocked")
+
+            verify_code, verification = run_json(
+                VERIFY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--plan",
+                expected_codes={3},
+            )
+            self.assertEqual(verify_code, 3, verification)
+            self.assertEqual(verification["classification"], "not-verified")
+
+    def test_prepare_materializes_lock_and_verify_requires_it(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-lock-flow-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+
+            verify_code, verification = run_json(
+                VERIFY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--plan",
+                expected_codes={3},
+            )
+            self.assertEqual(verify_code, 3, verification)
+            self.assertTrue(
+                any("Falta el lock H0 exacto" in item for item in verification["blockers"])
+            )
+
+            prepare_code, preparation = run_json(
+                IMPLEMENT_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--dry-run",
+            )
+            self.assertEqual(prepare_code, 0, preparation)
+            self.assertIn(
+                ".lks-sdd/profile.lock.json", preparation["created"]
+            )
+
+
+class VerificationImplementationCompletionGuardsTests(unittest.TestCase):
+    def test_execute_and_record_fail_closed_while_implementation_is_in_progress(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-verify-progress-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            _prepare_increment(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            traceability_path = root / "docs/lks-sdd/05-quality/traceability.md"
+            original_manifest = manifest_path.read_bytes()
+            original_traceability = traceability_path.read_bytes()
+
+            module = _load_verification_module()
+            args = argparse.Namespace(
+                project_root=root,
+                increment="INC-001",
+                plan=False,
+                execute=True,
+                authorize=True,
+                containers=False,
+                record_evidence="EVID-001",
+                visual_evidence=None,
+            )
+            with mock.patch.object(
+                module,
+                "_execute_check",
+                side_effect=lambda check: {
+                    "name": check["name"],
+                    "status": "passed",
+                },
+            ) as execute_check:
+                code, result = module.run(args)
+
+            self.assertEqual(code, 3, result)
+            self.assertEqual(result["classification"], "not-verified")
+            self.assertFalse(result["execution_ready"])
+            self.assertEqual(result["checks"], [])
+            self.assertTrue(
+                any("status=completed" in item for item in result["blockers"]),
+                result,
+            )
+            execute_check.assert_not_called()
+            self.assertFalse(
+                (root / "docs/lks-sdd/evidence/EVID-001.json").exists()
+            )
+            self.assertEqual(manifest_path.read_bytes(), original_manifest)
+            self.assertEqual(traceability_path.read_bytes(), original_traceability)
+
+    def test_record_revalidates_implementation_after_checks_without_writing(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-verify-race-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            _prepare_increment(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["implementation"]["status"] = "completed"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            traceability_path = root / "docs/lks-sdd/05-quality/traceability.md"
+            original_traceability = traceability_path.read_bytes()
+            before = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+
+            module = _load_verification_module()
+            args = argparse.Namespace(
+                project_root=root,
+                increment="INC-001",
+                plan=False,
+                execute=True,
+                authorize=True,
+                containers=False,
+                record_evidence="EVID-001",
+                visual_evidence=None,
+            )
+            mutated_manifest: bytes | None = None
+
+            def mutate_manifest_during_first_check(check):
+                nonlocal mutated_manifest
+                if mutated_manifest is None:
+                    current = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    current["implementation"]["status"] = "in-progress"
+                    manifest_path.write_text(
+                        json.dumps(current, indent=2, ensure_ascii=False) + "\n",
+                        encoding="utf-8",
+                        newline="\n",
+                    )
+                    mutated_manifest = manifest_path.read_bytes()
+                return {"name": check["name"], "status": "passed"}
+
+            with mock.patch.object(
+                module,
+                "_execute_check",
+                side_effect=mutate_manifest_during_first_check,
+            ) as execute_check, self.assertRaises(module.VerificationError) as raised:
+                module.run(args)
+
+            self.assertIn("puerta cambió", str(raised.exception))
+            self.assertIn("status=completed", str(raised.exception))
+            self.assertEqual(execute_check.call_count, 10)
+            self.assertIsNotNone(mutated_manifest)
+            self.assertEqual(manifest_path.read_bytes(), mutated_manifest)
+            self.assertEqual(traceability_path.read_bytes(), original_traceability)
+            self.assertFalse(
+                (root / "docs/lks-sdd/evidence/EVID-001.json").exists()
+            )
+            expected = dict(before)
+            expected[".lks-sdd/project.json"] = mutated_manifest
+            after = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(after, expected)
+
+    def test_plan_blocks_an_increment_different_from_the_implementation(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-verify-increment-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            _prepare_increment(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            traceability_path = root / "docs/lks-sdd/05-quality/traceability.md"
+            original_manifest = manifest_path.read_bytes()
+            original_traceability = traceability_path.read_bytes()
+
+            code, result = run_json(
+                VERIFY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-002",
+                "--plan",
+                expected_codes={3},
+            )
+
+            self.assertEqual(code, 3, result)
+            self.assertEqual(result["checks"], [])
+            self.assertTrue(
+                any("implementation.increment no coincide" in item for item in result["blockers"]),
+                result,
+            )
+            self.assertEqual(manifest_path.read_bytes(), original_manifest)
+            self.assertEqual(traceability_path.read_bytes(), original_traceability)
+
+    def test_plan_blocks_an_implementation_profile_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-verify-profile-") as temporary:
+            root = Path(temporary)
+            _ready_project(root)
+            _prepare_increment(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["implementation"]["profile_id"] = "OTHER-PROFILE"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            original_manifest = manifest_path.read_bytes()
+
+            code, result = run_json(
+                VERIFY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--plan",
+                expected_codes={3},
+            )
+
+            self.assertEqual(code, 3, result)
+            self.assertEqual(result["checks"], [])
+            self.assertTrue(
+                any("implementation.profile_id no coincide" in item for item in result["blockers"]),
+                result,
+            )
+            self.assertEqual(manifest_path.read_bytes(), original_manifest)
+
+
+class HandoffContractDocumentationTests(unittest.TestCase):
+    def test_readiness_prepare_and_verify_boundaries_are_documented(self) -> None:
+        readiness = (
+            PLUGIN_ROOT
+            / "skills/lks-sdd-assess-readiness/references/readiness-rubric.md"
+        ).read_text(encoding="utf-8")
+        implementation = (
+            PLUGIN_ROOT
+            / "skills/lks-sdd-implement/references/implementation-contract.md"
+        ).read_text(encoding="utf-8")
+        verification = (
+            PLUGIN_ROOT
+            / "skills/lks-sdd-verify/references/verification-contract.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("puede no existir todavía", implementation)
+        self.assertIn("idéntico byte a byte", readiness)
+        self.assertIn("materializa la copia exacta", implementation)
+        self.assertIn("realmente completos", implementation)
+        self.assertIn("lista no vacía de checks", verification)
+        self.assertIn("todos ellos en `passed`", verification)
+        self.assertIn("lock ausente, `{}`, editado o enlazado", verification)
+        self.assertIn("implementation.status=completed", verification)
+
+
+if __name__ == "__main__":
+    unittest.main()

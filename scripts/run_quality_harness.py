@@ -8,21 +8,23 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
 from datetime import date
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
-DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.6.0.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.7.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
-DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.4.0.json"
+DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.6.1.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
+PILOT_SUMMARY_SCHEMA_PATH = PLUGIN_ROOT / "schemas" / "pilot-summary.schema.json"
 ALLOWED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
@@ -42,6 +44,41 @@ SCORE_KEYS = {
     "audience_fit",
     "information_separation",
     "information_protection",
+}
+METRIC_DIRECTIONS = {
+    "activation_precision": "higher",
+    "activation_recall": "higher",
+    "activation_samples": "neutral",
+    "automated_catalog_cases": "neutral",
+    "automated_catalog_cases_failed": "lower",
+    "automated_catalog_cases_incomplete": "lower",
+    "automated_catalog_cases_passed": "higher",
+    "automated_eval_cases": "neutral",
+    "automated_eval_pass_rate": "higher",
+    "critical_failures": "lower",
+    "document_review_average": "higher",
+    "document_review_minimum": "higher",
+    "document_review_samples": "neutral",
+    "profile_complete_gate": "higher",
+    "profile_structure_gate": "higher",
+    "routing_accuracy": "higher",
+    "unit_tests_executed": "neutral",
+    "unit_tests_failed": "lower",
+    "unit_tests_passed": "higher",
+    "unit_tests_skipped": "lower",
+    "unit_tests_total": "neutral",
+}
+_SCHEMA_ANNOTATION_KEYS = {"$id", "$schema", "description", "title"}
+_SCHEMA_VALIDATION_KEYS = {
+    "additionalProperties",
+    "const",
+    "enum",
+    "items",
+    "minimum",
+    "properties",
+    "required",
+    "type",
+    "uniqueItems",
 }
 
 
@@ -95,6 +132,124 @@ def _require_object(value: Any, label: str) -> dict[str, Any]:
     return value
 
 
+def _matches_json_type(value: Any, expected: str) -> bool:
+    checks = {
+        "array": lambda item: isinstance(item, list),
+        "boolean": lambda item: type(item) is bool,
+        "integer": lambda item: isinstance(item, int) and type(item) is not bool,
+        "null": lambda item: item is None,
+        "number": lambda item: (
+            isinstance(item, (int, float)) and type(item) is not bool
+        ),
+        "object": lambda item: isinstance(item, dict),
+        "string": lambda item: isinstance(item, str),
+    }
+    return expected in checks and checks[expected](value)
+
+
+def _assert_supported_json_schema(
+    schema: dict[str, Any], location: str = "$schema"
+) -> None:
+    """Fail closed if the pilot schema grows beyond the implemented vocabulary."""
+    unsupported = sorted(
+        set(schema) - _SCHEMA_ANNOTATION_KEYS - _SCHEMA_VALIDATION_KEYS
+    )
+    if unsupported:
+        raise HarnessError(
+            f"{location}: keywords JSON Schema no soportadas: {unsupported}"
+        )
+    properties = schema.get("properties", {})
+    if not isinstance(properties, dict):
+        raise HarnessError(f"{location}.properties debe ser un objeto.")
+    for name, child in properties.items():
+        if not isinstance(child, dict):
+            raise HarnessError(f"{location}.properties.{name} debe ser un schema.")
+        _assert_supported_json_schema(child, f"{location}.properties.{name}")
+    items = schema.get("items")
+    if items is not None:
+        if not isinstance(items, dict):
+            raise HarnessError(f"{location}.items debe ser un schema.")
+        _assert_supported_json_schema(items, f"{location}.items")
+
+
+def _validate_json_schema(
+    value: Any, schema: dict[str, Any], location: str = "$"
+) -> list[str]:
+    """Validate every validation keyword used by pilot-summary.schema.json."""
+    errors: list[str] = []
+    expected = schema.get("type")
+    if expected is not None:
+        options = expected if isinstance(expected, list) else [expected]
+        if not all(isinstance(option, str) for option in options):
+            return [f"{location}: declaración de tipo inválida en el schema."]
+        if not any(_matches_json_type(value, option) for option in options):
+            return [f"{location}: tipo inválido; se esperaba {options}."]
+    if "const" in schema and value != schema["const"]:
+        errors.append(f"{location}: debe ser {schema['const']!r}.")
+    if "enum" in schema and value not in schema["enum"]:
+        errors.append(f"{location}: valor {value!r} fuera del catálogo permitido.")
+    if (
+        "minimum" in schema
+        and isinstance(value, (int, float))
+        and type(value) is not bool
+        and value < schema["minimum"]
+    ):
+        errors.append(f"{location}: debe ser mayor o igual que {schema['minimum']}.")
+    if isinstance(value, list):
+        if schema.get("uniqueItems") is True:
+            canonical_items = [
+                json.dumps(item, sort_keys=True, separators=(",", ":"))
+                for item in value
+            ]
+            if len(canonical_items) != len(set(canonical_items)):
+                errors.append(f"{location}: contiene elementos duplicados.")
+        item_schema = schema.get("items")
+        if isinstance(item_schema, dict):
+            for index, item in enumerate(value):
+                errors.extend(
+                    _validate_json_schema(item, item_schema, f"{location}[{index}]")
+                )
+    if isinstance(value, dict):
+        required = schema.get("required", [])
+        if not isinstance(required, list):
+            errors.append(f"{location}: required inválido en el schema.")
+            required = []
+        for key in required:
+            if key not in value:
+                errors.append(f"{location}: falta la propiedad obligatoria {key!r}.")
+        properties = schema.get("properties", {})
+        if schema.get("additionalProperties") is False:
+            for key in value:
+                if key not in properties:
+                    errors.append(f"{location}: propiedad no admitida {key!r}.")
+        for key, child_schema in properties.items():
+            if key in value:
+                errors.extend(
+                    _validate_json_schema(value[key], child_schema, f"{location}.{key}")
+                )
+    return errors
+
+
+def validate_pilot_summary(
+    value: Any, schema_value: Any | None = None
+) -> dict[str, Any]:
+    summary = _require_object(value, "El resumen de piloto")
+    schema = _require_object(
+        schema_value
+        if schema_value is not None
+        else _load_json(PILOT_SUMMARY_SCHEMA_PATH),
+        "El schema de resumen de piloto",
+    )
+    _assert_supported_json_schema(schema)
+    errors = _validate_json_schema(summary, schema)
+    if errors:
+        raise HarnessError(
+            "El resumen de piloto no cumple schemas/pilot-summary.schema.json: "
+            + " | ".join(errors)
+        )
+    return summary
+
+
 def validate_catalog(value: Any) -> dict[str, Any]:
     catalog = _require_object(value, "El catálogo")
     if catalog.get("schema_version") != "1.0":
@@ -124,7 +279,8 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             raise HarnessError(f"{case_id} debe declarar critical como booleano.")
         evidence = case.get("evidence")
         if not isinstance(evidence, list) or not all(
-            isinstance(item, str) and re.fullmatch(r"(?:eval|test|profile):[A-Za-z0-9._-]+", item)
+            isinstance(item, str)
+            and re.fullmatch(r"(?:eval|test|profile):[A-Za-z0-9._-]+", item)
             for item in evidence
         ):
             raise HarnessError(f"Evidencia inválida en {case_id}.")
@@ -154,12 +310,14 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             raise HarnessError(f"Caso de extensión duplicado: {case_id}")
         extension_ids.add(case_id)
         if case.get("mode") not in {"semantic", "human"}:
-            raise HarnessError(f"{case_id} debe requerir evaluación semántica o humana.")
+            raise HarnessError(
+                f"{case_id} debe requerir evaluación semántica o humana."
+            )
         if not isinstance(case.get("critical"), bool):
             raise HarnessError(f"{case_id} debe declarar critical como booleano.")
         if case.get("evidence") != []:
             raise HarnessError(
-                f"{case_id} no puede declarar evidencia antes de ejecutar el corpus v0.6."
+                f"{case_id} no puede declarar evidencia antes de ejecutar el corpus de definición."
             )
     if extension_ids != {"FX-20", "FX-21"}:
         raise HarnessError("La extensión v0.6 debe declarar exactamente FX-20 y FX-21.")
@@ -168,9 +326,7 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             "Candidate debe mostrar definition-conversation como evidencia opcional."
         )
     if "definition-conversation" not in channels["stable"].get("required", []):
-        raise HarnessError(
-            "Stable debe exigir el canal definition-conversation."
-        )
+        raise HarnessError("Stable debe exigir el canal definition-conversation.")
     for name, threshold in thresholds.items():
         if not isinstance(threshold, dict):
             raise HarnessError(f"Umbral inválido: {name}")
@@ -209,7 +365,7 @@ def validate_corpus(value: Any) -> dict[str, Any]:
 
 
 def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str, Any]:
-    corpus = _require_object(value, "El corpus de definición v0.6")
+    corpus = _require_object(value, "El corpus de definición")
     if corpus.get("schema_version") != "1.0":
         raise HarnessError("El corpus de definición debe usar schema_version 1.0.")
     if corpus.get("execution_status") != "not-run" or corpus.get("evidence") != []:
@@ -248,7 +404,9 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
                 raise HarnessError(f"{case_id} debe declarar {field}.")
         dimensions = set(case["review_dimensions"])
         if not dimensions.issubset(allowed_dimensions):
-            raise HarnessError(f"{case_id} contiene dimensiones de revisión desconocidas.")
+            raise HarnessError(
+                f"{case_id} contiene dimensiones de revisión desconocidas."
+            )
     expected_ids = {"FX-01", *[case["id"] for case in catalog["extension_cases"]]}
     if ids != expected_ids:
         raise HarnessError(
@@ -259,14 +417,16 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
         "semantic",
         "human",
     ]:
-        raise HarnessError("El corpus de definición debe exigir revisión semántica y humana.")
+        raise HarnessError(
+            "El corpus de definición debe exigir revisión semántica y humana."
+        )
     return corpus
 
 
 def evaluate_definition_conversation(corpus: dict[str, Any]) -> dict[str, Any]:
     if corpus.get("execution_status") != "not-run" or corpus.get("evidence") != []:
         raise HarnessError(
-            "No existe todavía un contrato de observaciones ejecutadas para definición v0.6."
+            "No existe todavía un contrato de observaciones ejecutadas para el canal de definición."
         )
     return {
         "status": "not-run",
@@ -381,7 +541,9 @@ def validate_observations(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
         raise HarnessError("corpus_id no coincide con el corpus evaluado.")
     corpus_hash = _sha256_bytes(_canonical_bytes(corpus))
     if observations.get("corpus_sha256") != corpus_hash:
-        raise HarnessError("corpus_sha256 no coincide; las observaciones están obsoletas.")
+        raise HarnessError(
+            "corpus_sha256 no coincide; las observaciones están obsoletas."
+        )
     context = observations.get("evaluator_context")
     if not isinstance(context, dict) or set(context) != {
         "kind",
@@ -393,16 +555,21 @@ def validate_observations(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
     if context.get("kind") not in {"controlled-codex-session", "human-review"}:
         raise HarnessError("kind de evaluador no soportado.")
     if context.get("product") != "Codex":
-        raise HarnessError("Las observaciones de esta implementación deben proceder de Codex.")
+        raise HarnessError(
+            "Las observaciones de esta implementación deben proceder de Codex."
+        )
     if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", str(context.get("executed_on"))):
         raise HarnessError("executed_on debe ser una fecha ISO.")
-    if not isinstance(context.get("evidence_reference"), str) or len(
-        context["evidence_reference"].strip()
-    ) < 3:
+    if (
+        not isinstance(context.get("evidence_reference"), str)
+        or len(context["evidence_reference"].strip()) < 3
+    ):
         raise HarnessError("Falta una referencia de evidencia saneada.")
     activation_results = observations.get("activation_results")
     document_reviews = observations.get("document_reviews")
-    if not isinstance(activation_results, list) or not isinstance(document_reviews, list):
+    if not isinstance(activation_results, list) or not isinstance(
+        document_reviews, list
+    ):
         raise HarnessError("activation_results y document_reviews deben ser listas.")
     seen: set[str] = set()
     for result in activation_results:
@@ -424,24 +591,41 @@ def validate_observations(value: Any, corpus: dict[str, Any]) -> dict[str, Any]:
         }:
             raise HarnessError("Revisión documental inválida.")
         scores = review.get("scores")
-        if not isinstance(review.get("artifact_reference"), str) or len(
-            review["artifact_reference"].strip()
-        ) < 3:
+        if (
+            not isinstance(review.get("artifact_reference"), str)
+            or len(review["artifact_reference"].strip()) < 3
+        ):
             raise HarnessError("artifact_reference debe ser una referencia saneada.")
         if not isinstance(scores, dict) or set(scores) != SCORE_KEYS:
-            raise HarnessError("La revisión documental debe incluir las diez dimensiones.")
-        if any(not isinstance(score, int) or not 1 <= score <= 5 for score in scores.values()):
-            raise HarnessError("Las puntuaciones documentales deben ser enteros entre 1 y 5.")
+            raise HarnessError(
+                "La revisión documental debe incluir las diez dimensiones."
+            )
+        if any(
+            not isinstance(score, int) or not 1 <= score <= 5
+            for score in scores.values()
+        ):
+            raise HarnessError(
+                "Las puntuaciones documentales deben ser enteros entre 1 y 5."
+            )
     return observations
 
 
 def evaluate_activation(
-    corpus: dict[str, Any], observations: dict[str, Any] | None, thresholds: dict[str, Any]
+    corpus: dict[str, Any],
+    observations: dict[str, Any] | None,
+    thresholds: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, float | int], list[str]]:
     if observations is None:
-        return {"status": "not-run", "observed": 0, "total": len(corpus["cases"])}, {}, []
+        return (
+            {"status": "not-run", "observed": 0, "total": len(corpus["cases"])},
+            {},
+            [],
+        )
     expected = {case["id"]: case for case in corpus["cases"]}
-    actual = {result["case_id"]: result["actual_skill"] for result in observations["activation_results"]}
+    actual = {
+        result["case_id"]: result["actual_skill"]
+        for result in observations["activation_results"]
+    }
     unknown = sorted(set(actual) - set(expected))
     if unknown:
         raise HarnessError(f"Observaciones para casos inexistentes: {unknown}")
@@ -482,13 +666,23 @@ def evaluate_activation(
             failures.append(f"{name}: muestra insuficiente ({count})")
         elif metrics[name] < rule["target"]:
             failures.append(f"{name}: {metrics[name]} < {rule['target']}")
-    status = "passed" if complete and not failures and not critical_failures else "failed" if critical_failures or (complete and failures) else "incomplete"
-    return {
-        "status": status,
-        "observed": count,
-        "total": len(expected),
-        "failures": failures,
-    }, metrics, critical_failures
+    status = (
+        "passed"
+        if complete and not failures and not critical_failures
+        else "failed"
+        if critical_failures or (complete and failures)
+        else "incomplete"
+    )
+    return (
+        {
+            "status": status,
+            "observed": count,
+            "total": len(expected),
+            "failures": failures,
+        },
+        metrics,
+        critical_failures,
+    )
 
 
 def evaluate_document_reviews(
@@ -522,11 +716,8 @@ def evaluate_document_reviews(
 def evaluate_pilot(summary: dict[str, Any] | None) -> dict[str, Any]:
     if summary is None:
         return {"status": "not-run", "decision": "not-evaluated"}
-    if summary.get("schema_version") != "1.0":
-        raise HarnessError("El resumen de piloto debe usar schema_version 1.0.")
-    decision = summary.get("decision")
-    if not isinstance(decision, dict):
-        raise HarnessError("El resumen de piloto no contiene una decisión válida.")
+    summary = validate_pilot_summary(summary)
+    decision = summary["decision"]
     status = decision.get("status")
     if status == "go":
         channel_status = "passed"
@@ -545,7 +736,9 @@ def evaluate_pilot(summary: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
-def _run_command(check_id: str, command: list[str], json_output: bool = False, timeout: int = 600) -> tuple[dict[str, Any], Any | None, str]:
+def _run_command(
+    check_id: str, command: list[str], json_output: bool = False, timeout: int = 600
+) -> tuple[dict[str, Any], Any | None, str]:
     process = subprocess.run(
         command,
         cwd=PLUGIN_ROOT,
@@ -559,7 +752,7 @@ def _run_command(check_id: str, command: list[str], json_output: bool = False, t
     combined = f"{process.stdout}\n{process.stderr}".strip()
     payload: Any | None = None
     parse_error = ""
-    if json_output and process.returncode == 0:
+    if json_output and process.stdout.strip():
         try:
             payload = json.loads(process.stdout)
         except json.JSONDecodeError as exc:
@@ -568,15 +761,216 @@ def _run_command(check_id: str, command: list[str], json_output: bool = False, t
     summary = "exit=0" if passed else f"exit={process.returncode}"
     if parse_error:
         summary = f"{summary}; {parse_error}"
+    return (
+        {
+            "id": check_id,
+            "status": "passed" if passed else "failed",
+            "critical": True,
+            "summary": summary,
+        },
+        payload,
+        combined,
+    )
+
+
+def _result_index(
+    payload: dict[str, Any] | None,
+    *,
+    source: str,
+    allow_short_name: bool,
+) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
+    if payload is None:
+        return {}, []
+    results = payload.get("results")
+    if not isinstance(results, list):
+        return {}, [f"{source}: falta la lista estructurada results"]
+    index: dict[str, list[dict[str, Any]]] = {}
+    errors: list[str] = []
+    for position, result in enumerate(results, 1):
+        if not isinstance(result, dict):
+            errors.append(f"{source}: resultado {position} no es un objeto")
+            continue
+        result_id = result.get("id")
+        status = result.get("status")
+        if not isinstance(result_id, str) or not result_id:
+            errors.append(f"{source}: resultado {position} sin id")
+            continue
+        if status is None and isinstance(result.get("passed"), bool):
+            status = "passed" if result["passed"] else "failed"
+        if status not in {"passed", "failed", "skipped"}:
+            errors.append(f"{source}: estado inválido en {result_id}: {status!r}")
+            continue
+        normalized = {**result, "id": result_id, "status": status}
+        keys = {result_id}
+        if allow_short_name:
+            name = result.get("name")
+            if isinstance(name, str) and name:
+                keys.add(name)
+            keys.add(result_id.rsplit(".", 1)[-1])
+        for key in keys:
+            index.setdefault(key, []).append(normalized)
+    return index, errors
+
+
+def evaluate_automated_evidence(
+    catalog: dict[str, Any],
+    unit_payload: dict[str, Any] | None,
+    eval_payload: dict[str, Any] | None,
+    profile_payload: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Resolve every automated catalog claim to one concrete executed result."""
+
+    test_index, errors = _result_index(
+        unit_payload, source="unit-tests", allow_short_name=True
+    )
+    eval_index, eval_errors = _result_index(
+        eval_payload, source="deterministic-evals", allow_short_name=False
+    )
+    errors.extend(eval_errors)
+    cases: list[dict[str, Any]] = []
+    failures = list(errors)
+    critical_incomplete: list[str] = []
+    for case in [*catalog["cases"], *catalog.get("extension_cases", [])]:
+        if case.get("mode") != "automated":
+            continue
+        outcomes: list[dict[str, Any]] = []
+        for reference in case["evidence"]:
+            kind, evidence_id = reference.split(":", 1)
+            matches: list[dict[str, Any]] = []
+            if kind == "test":
+                matches = test_index.get(evidence_id, [])
+                unavailable = unit_payload is None
+            elif kind == "eval":
+                matches = eval_index.get(evidence_id, [])
+                unavailable = eval_payload is None
+            else:
+                unavailable = profile_payload is None
+                if evidence_id != "complete-gate":
+                    outcomes.append(
+                        {
+                            "reference": reference,
+                            "status": "failed",
+                            "reason": "profile-evidence-unknown",
+                        }
+                    )
+                    continue
+                if profile_payload is not None:
+                    outcomes.append(
+                        {
+                            "reference": reference,
+                            "status": "passed"
+                            if profile_payload.get("complete_gate") is True
+                            else "failed",
+                            "resolved_id": "complete-gate",
+                            "reason": None
+                            if profile_payload.get("complete_gate") is True
+                            else "complete-gate-failed",
+                        }
+                    )
+                    continue
+            if unavailable:
+                outcomes.append(
+                    {
+                        "reference": reference,
+                        "status": "not-run",
+                        "reason": f"{kind}-results-unavailable",
+                    }
+                )
+            elif len(matches) == 1:
+                match = matches[0]
+                outcomes.append(
+                    {
+                        "reference": reference,
+                        "status": match["status"],
+                        "resolved_id": match["id"],
+                        **(
+                            {"reason": f"{kind}-{match['status']}"}
+                            if match["status"] != "passed"
+                            else {}
+                        ),
+                    }
+                )
+            else:
+                outcomes.append(
+                    {
+                        "reference": reference,
+                        "status": "failed",
+                        "reason": "evidence-not-found"
+                        if not matches
+                        else "evidence-ambiguous",
+                    }
+                )
+        failed = [item for item in outcomes if item["status"] == "failed"]
+        pending = [
+            item for item in outcomes if item["status"] in {"skipped", "not-run"}
+        ]
+        case_status = "failed" if failed else "incomplete" if pending else "passed"
+        case_result = {
+            "id": case["id"],
+            "critical": case["critical"],
+            "status": case_status,
+            "evidence": outcomes,
+        }
+        cases.append(case_result)
+        if failed:
+            failures.extend(
+                f"{case['id']}: {item['reference']} ({item.get('reason', 'failed')})"
+                for item in failed
+            )
+        if case["critical"] and case_status == "incomplete":
+            critical_incomplete.append(case["id"])
+    failed_cases = [case["id"] for case in cases if case["status"] == "failed"]
+    incomplete_cases = [case["id"] for case in cases if case["status"] == "incomplete"]
+    status = (
+        "failed"
+        if failures or failed_cases
+        else "incomplete"
+        if critical_incomplete
+        else "passed"
+    )
     return {
-        "id": check_id,
-        "status": "passed" if passed else "failed",
-        "critical": True,
-        "summary": summary,
-    }, payload, combined
+        "status": status,
+        "cases": cases,
+        "counts": {
+            "total": len(cases),
+            "passed": sum(case["status"] == "passed" for case in cases),
+            "failed": len(failed_cases),
+            "incomplete": len(incomplete_cases),
+        },
+        "critical_incomplete": sorted(critical_incomplete),
+        "pending": sorted(incomplete_cases),
+        "failures": sorted(set(failures)),
+    }
 
 
-def run_automated(include_complete_profile: bool) -> tuple[list[dict[str, Any]], dict[str, float | int], list[str]]:
+def _unit_test_metrics(payload: dict[str, Any] | None) -> dict[str, int]:
+    if payload is None or not isinstance(payload.get("results"), list):
+        return {}
+    statuses = [
+        result.get("status")
+        for result in payload["results"]
+        if isinstance(result, dict)
+    ]
+    passed = statuses.count("passed")
+    skipped = statuses.count("skipped")
+    failed = statuses.count("failed")
+    return {
+        "unit_tests_total": len(statuses),
+        "unit_tests_executed": passed + failed,
+        "unit_tests_passed": passed,
+        "unit_tests_skipped": skipped,
+        "unit_tests_failed": failed,
+    }
+
+
+def run_automated(
+    catalog: dict[str, Any], include_complete_profile: bool
+) -> tuple[
+    list[dict[str, Any]],
+    dict[str, float | int],
+    list[str],
+    dict[str, Any],
+]:
     checks: list[dict[str, Any]] = []
     metrics: dict[str, float | int] = {}
     critical_failures: list[str] = []
@@ -606,8 +1000,8 @@ def run_automated(include_complete_profile: bool) -> tuple[list[dict[str, Any]],
         ),
         (
             "unit-tests",
-            [sys.executable, "-X", "utf8", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py", "-v"],
-            False,
+            [sys.executable, "-X", "utf8", "tests/run_unit_tests.py"],
+            True,
             600,
         ),
         (
@@ -621,44 +1015,321 @@ def run_automated(include_complete_profile: bool) -> tuple[list[dict[str, Any]],
         commands.append(
             (
                 "reference-profile-complete",
-                [sys.executable, "-X", "utf8", "scripts/run_reference_profile_gate.py", "--runtime", "docker", "--containers", "--json"],
+                [
+                    sys.executable,
+                    "-X",
+                    "utf8",
+                    "scripts/run_reference_profile_gate.py",
+                    "--runtime",
+                    "docker",
+                    "--containers",
+                    "--json",
+                ],
                 True,
                 1800,
             )
         )
+    unit_payload: dict[str, Any] | None = None
+    eval_payload: dict[str, Any] | None = None
+    profile_payload: dict[str, Any] | None = None
     for check_id, command, json_output, timeout in commands:
-        check, payload, output = _run_command(check_id, command, json_output, timeout)
+        check, payload, _output = _run_command(check_id, command, json_output, timeout)
         checks.append(check)
+        if check_id == "unit-tests" and isinstance(payload, dict):
+            unit_payload = payload
+            metrics.update(_unit_test_metrics(payload))
+        elif check_id == "deterministic-evals" and isinstance(payload, dict):
+            eval_payload = payload
+        elif check_id == "reference-profile-complete" and isinstance(payload, dict):
+            profile_payload = payload
         if check["status"] != "passed":
             critical_failures.append(f"{check_id}: {check['summary']}")
             continue
         if check_id == "reference-profile-structure":
             metrics["profile_structure_gate"] = 1
-        elif check_id == "unit-tests":
-            match = re.search(r"Ran ([0-9]+) tests?", output)
-            metrics["unit_tests_passed"] = int(match.group(1)) if match else 0
         elif check_id == "deterministic-evals" and isinstance(payload, dict):
             results = payload.get("results", [])
             passed_count = sum(1 for result in results if result.get("passed") is True)
             total = len(results)
             metrics["automated_eval_cases"] = total
-            metrics["automated_eval_pass_rate"] = round(passed_count / total, 6) if total else 0.0
+            metrics["automated_eval_pass_rate"] = (
+                round(passed_count / total, 6) if total else 0.0
+            )
             for result in results:
                 if result.get("passed") is not True:
-                    critical_failures.append(f"Eval determinista fallida: {result.get('id')}")
+                    critical_failures.append(
+                        f"Eval determinista fallida: {result.get('id')}"
+                    )
         elif check_id == "reference-profile-complete" and isinstance(payload, dict):
-            metrics["profile_complete_gate"] = 1 if payload.get("complete_gate") is True else 0
+            metrics["profile_complete_gate"] = (
+                1 if payload.get("complete_gate") is True else 0
+            )
             if payload.get("complete_gate") is not True:
-                critical_failures.append("El gate completo del perfil no quedó acreditado.")
+                critical_failures.append(
+                    "El gate completo del perfil no quedó acreditado."
+                )
+    automated_evidence = evaluate_automated_evidence(
+        catalog, unit_payload, eval_payload, profile_payload
+    )
+    critical_failures.extend(automated_evidence["failures"])
+    metrics.update(
+        {
+            "automated_catalog_cases": automated_evidence["counts"]["total"],
+            "automated_catalog_cases_passed": automated_evidence["counts"]["passed"],
+            "automated_catalog_cases_failed": automated_evidence["counts"]["failed"],
+            "automated_catalog_cases_incomplete": automated_evidence["counts"][
+                "incomplete"
+            ],
+        }
+    )
+    critical_failures = sorted(set(critical_failures))
     metrics["critical_failures"] = len(critical_failures)
-    return checks, metrics, critical_failures
+    return checks, metrics, critical_failures, automated_evidence
 
 
-def compare_metrics(current: dict[str, float | int], baseline: dict[str, Any]) -> dict[str, Any]:
+def _git_output(arguments: list[str]) -> str:
+    try:
+        process = subprocess.run(
+            ["git", *arguments],
+            cwd=PLUGIN_ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise HarnessError(f"No se pudo consultar Git: {exc}") from exc
+    if process.returncode != 0:
+        detail = (process.stderr or process.stdout).strip()
+        raise HarnessError(
+            f"Git no pudo vincular el reporte ({' '.join(arguments)}): {detail}"
+        )
+    return process.stdout.strip()
+
+
+def _git_bytes(arguments: list[str]) -> bytes:
+    """Run a Git query without losing NUL-delimited path information."""
+    try:
+        process = subprocess.run(
+            ["git", *arguments],
+            cwd=PLUGIN_ROOT,
+            capture_output=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise HarnessError(f"No se pudo consultar Git: {exc}") from exc
+    if process.returncode != 0:
+        detail = (process.stderr or process.stdout).decode(
+            "utf-8", errors="replace"
+        ).strip()
+        raise HarnessError(
+            f"Git no pudo vincular el reporte ({' '.join(arguments)}): {detail}"
+        )
+    return process.stdout
+
+
+def _validated_git_path(raw_path: bytes) -> str:
+    try:
+        relative = raw_path.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise HarnessError("Git devolvió una ruta que no es UTF-8 válida.") from exc
+    posix_path = PurePosixPath(relative)
+    windows_path = PureWindowsPath(relative)
+    if (
+        not relative
+        or "\\" in relative
+        or posix_path.is_absolute()
+        or windows_path.is_absolute()
+        or windows_path.drive
+        or any(part in {"", ".", ".."} for part in posix_path.parts)
+    ):
+        raise HarnessError(f"Git devolvió una ruta no segura: {relative!r}")
+    return relative
+
+
+def _head_entries() -> dict[str, tuple[str, str, str]]:
+    entries: dict[str, tuple[str, str, str]] = {}
+    aliases: set[str] = set()
+    for record in _git_bytes(["ls-tree", "-r", "-z", "--full-tree", "HEAD"]).split(
+        b"\0"
+    ):
+        if not record:
+            continue
+        try:
+            metadata, raw_path = record.split(b"\t", 1)
+            raw_mode, raw_type, raw_object_id = metadata.split(b" ", 2)
+            mode = raw_mode.decode("ascii", errors="strict")
+            object_type = raw_type.decode("ascii", errors="strict")
+            object_id = raw_object_id.decode("ascii", errors="strict").lower()
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise HarnessError("El árbol HEAD contiene una entrada no interpretable.") from exc
+        valid_entry = (
+            (mode in {"100644", "100755", "120000"} and object_type == "blob")
+            or (mode == "160000" and object_type == "commit")
+        )
+        if not valid_entry or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", object_id):
+            raise HarnessError(
+                f"El árbol HEAD contiene modo, tipo u objeto no admitido: {record!r}"
+            )
+        relative = _validated_git_path(raw_path)
+        alias = os.path.normcase(str(PLUGIN_ROOT / Path(*PurePosixPath(relative).parts)))
+        if relative in entries or alias in aliases:
+            raise HarnessError(
+                f"El árbol HEAD contiene rutas duplicadas o ambiguas: {relative!r}"
+            )
+        entries[relative] = (mode, object_type, object_id)
+        aliases.add(alias)
+    return entries
+
+
+def _index_entries() -> dict[str, tuple[str, str, str]]:
+    entries: dict[str, tuple[str, str, str]] = {}
+    for record in _git_bytes(["ls-files", "--stage", "-z"]).split(b"\0"):
+        if not record:
+            continue
+        try:
+            metadata, raw_path = record.split(b"\t", 1)
+            raw_mode, raw_object_id, raw_stage = metadata.split(b" ", 2)
+            mode = raw_mode.decode("ascii", errors="strict")
+            object_id = raw_object_id.decode("ascii", errors="strict").lower()
+            stage = raw_stage.decode("ascii", errors="strict")
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise HarnessError("El índice Git contiene una entrada no interpretable.") from exc
+        relative = _validated_git_path(raw_path)
+        if (
+            stage != "0"
+            or relative in entries
+            or mode not in {"100644", "100755", "120000", "160000"}
+            or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", object_id)
+        ):
+            raise HarnessError(
+                f"El índice Git contiene una entrada no consolidada o inválida: {relative!r}"
+            )
+        object_type = "commit" if mode == "160000" else "blob"
+        entries[relative] = (mode, object_type, object_id)
+    return entries
+
+
+def _is_link_like(path: Path) -> bool:
+    if path.is_symlink():
+        return True
+    is_junction = getattr(path, "is_junction", None)
+    return bool(is_junction and is_junction())
+
+
+def _safe_worktree_path(relative: str) -> tuple[Path, os.stat_result] | None:
+    current = PLUGIN_ROOT
+    parts = PurePosixPath(relative).parts
+    for part in parts[:-1]:
+        current /= part
+        try:
+            current_stat = current.lstat()
+        except OSError:
+            return None
+        if _is_link_like(current) or not stat.S_ISDIR(current_stat.st_mode):
+            return None
+    path = current / parts[-1]
+    try:
+        return path, path.lstat()
+    except OSError:
+        return None
+
+
+def _symlink_blob_id(path: Path, object_id_length: int) -> str:
+    try:
+        payload = os.fsencode(os.readlink(path))
+    except OSError:
+        return ""
+    header = f"blob {len(payload)}\0".encode("ascii")
+    algorithm = hashlib.sha1 if object_id_length == 40 else hashlib.sha256
+    return algorithm(header + payload).hexdigest()
+
+
+def _worktree_entry_matches(
+    relative: str, mode: str, object_id: str
+) -> bool:
+    resolved = _safe_worktree_path(relative)
+    if resolved is None:
+        return False
+    path, path_stat = resolved
+    if mode == "120000":
+        return path.is_symlink() and _symlink_blob_id(path, len(object_id)) == object_id
+    if mode == "160000":
+        # Release bundles do not admit submodules; a gitlink can never attest a
+        # complete, self-contained plugin working tree.
+        return False
+    if _is_link_like(path) or not stat.S_ISREG(path_stat.st_mode):
+        return False
+    if os.name != "nt":
+        executable = bool(path_stat.st_mode & 0o111)
+        if executable != (mode == "100755"):
+            return False
+    actual_id = _git_output(
+        ["hash-object", f"--path={relative}", "--", relative]
+    ).lower()
+    return actual_id == object_id
+
+
+def _repository_tree_matches_head() -> bool:
+    """Compare HEAD, index and real files without trusting index stat flags."""
+    head = _head_entries()
+    if _index_entries() != head:
+        return False
+    # Deliberately inspect ignored files too. Python startup hooks, .pth files,
+    # local configs, scripts and dependency trees can affect the child checks
+    # even when .gitignore or .git/info/exclude hides them from git status.
+    # A release attestation therefore starts from a checkout with no untracked
+    # files; generated outputs created by the checks occur after this snapshot.
+    untracked = _git_bytes(["ls-files", "--others", "-z"])
+    if any(untracked.split(b"\0")):
+        return False
+    return all(
+        _worktree_entry_matches(relative, mode, object_id)
+        for relative, (mode, _object_type, object_id) in head.items()
+    )
+
+
+def repository_binding() -> dict[str, str]:
+    """Bind a report to the exact repository HEAD and observed tree state."""
+    repository_root = Path(_git_output(["rev-parse", "--show-toplevel"])).resolve()
+    if repository_root != PLUGIN_ROOT.resolve():
+        raise HarnessError(
+            "La raíz Git no coincide con la raíz del plugin; no se puede vincular "
+            "el reporte de forma inequívoca."
+        )
+    commit = _git_output(["rev-parse", "--verify", "HEAD"]).lower()
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise HarnessError(f"HEAD no es un commit SHA-1 completo válido: {commit!r}")
+    porcelain = not _repository_tree_matches_head()
+    return {
+        "commit": commit,
+        "tree_state": "dirty" if porcelain else "clean",
+    }
+
+
+def _metric_direction(name: str) -> str:
+    try:
+        return METRIC_DIRECTIONS[name]
+    except KeyError as exc:
+        raise HarnessError(
+            f"La métrica {name!r} no declara dirección de comparación."
+        ) from exc
+
+
+def compare_metrics(
+    current: dict[str, float | int], baseline: dict[str, Any]
+) -> dict[str, Any]:
     baseline_metrics = baseline.get("metrics")
     if not isinstance(baseline_metrics, dict):
         raise HarnessError("La baseline no declara metrics.")
-    lower_is_better = {"critical_failures"}
+    baseline_commit = baseline.get("source_commit")
+    if not isinstance(baseline_commit, str) or not re.fullmatch(
+        r"[0-9a-f]{40}", baseline_commit
+    ):
+        raise HarnessError("La baseline no declara un source_commit SHA-1 completo.")
     comparisons = []
     regressions = []
     for name in sorted(set(current) & set(baseline_metrics)):
@@ -666,18 +1337,33 @@ def compare_metrics(current: dict[str, float | int], baseline: dict[str, Any]) -
         new = current[name]
         if not isinstance(old, (int, float)) or not isinstance(new, (int, float)):
             continue
-        regressed = new > old if name in lower_is_better else new < old
+        direction = _metric_direction(name)
+        regressed = (
+            new > old
+            if direction == "lower"
+            else new < old
+            if direction == "higher"
+            else False
+        )
         comparisons.append(
-            {"metric": name, "baseline": old, "current": new, "regressed": regressed}
+            {
+                "metric": name,
+                "direction": direction,
+                "baseline": old,
+                "current": new,
+                "regressed": regressed,
+            }
         )
         if regressed:
             regressions.append(f"{name}: {new} frente a {old}")
     return {
         "baseline_version": baseline.get("plugin_version"),
+        "baseline_commit": baseline_commit,
         "status": "failed" if regressions else "passed",
         "comparisons": comparisons,
         "regressions": regressions,
         "not_compared": sorted(set(baseline_metrics) - set(current)),
+        "current_only": sorted(set(current) - set(baseline_metrics)),
     }
 
 
@@ -689,6 +1375,10 @@ def build_report(
     baseline_path: Path,
     include_complete_profile: bool,
 ) -> dict[str, Any]:
+    # Capture the source boundary before launching any child validator, test or
+    # profile gate. This prevents an ignored file from influencing checks and
+    # only afterwards being misreported as part of a clean starting tree.
+    source = repository_binding()
     catalog = validate_catalog(_load_json(CATALOG_PATH))
     corpus = validate_corpus(_load_json(CORPUS_PATH))
     definition_corpus = validate_definition_corpus(
@@ -707,10 +1397,10 @@ def build_report(
         observations = validate_observations(_load_json(observations_path), corpus)
     pilot_summary = None
     if pilot_summary_path is not None:
-        pilot_summary = _require_object(
-            _load_json(pilot_summary_path), "El resumen de piloto"
-        )
-    checks, metrics, critical_failures = run_automated(include_complete_profile)
+        pilot_summary = validate_pilot_summary(_load_json(pilot_summary_path))
+    checks, metrics, critical_failures, automated_evidence = run_automated(
+        catalog, include_complete_profile
+    )
     activation, activation_metrics, activation_critical = evaluate_activation(
         corpus, observations, catalog["thresholds"]
     )
@@ -723,11 +1413,25 @@ def build_report(
     metrics["critical_failures"] = len(critical_failures)
     baseline = _require_object(_load_json(baseline_path), "La baseline")
     comparison = compare_metrics(metrics, baseline)
+    automated_status = (
+        "failed"
+        if any(check["status"] == "failed" for check in checks)
+        or automated_evidence["status"] == "failed"
+        else "incomplete"
+        if automated_evidence["status"] == "incomplete"
+        else "passed"
+    )
     channels = {
         "automated": {
-            "status": "passed" if all(check["status"] == "passed" for check in checks) else "failed"
+            "status": automated_status,
+            "counts": automated_evidence["counts"],
+            "cases": automated_evidence["cases"],
+            "critical_incomplete": automated_evidence["critical_incomplete"],
+            "pending": automated_evidence["pending"],
         },
-        "fixture-integrity": next(check for check in checks if check["id"] == "fixture-integrity"),
+        "fixture-integrity": next(
+            check for check in checks if check["id"] == "fixture-integrity"
+        ),
         "profile-complete": {
             "status": next(
                 (
@@ -739,9 +1443,7 @@ def build_report(
             )
         },
         "regression": {"status": comparison["status"]},
-        "definition-conversation": evaluate_definition_conversation(
-            definition_corpus
-        ),
+        "definition-conversation": evaluate_definition_conversation(definition_corpus),
         "activation": activation,
         "document-review": document_review,
         "pilot": evaluate_pilot(pilot_summary),
@@ -755,6 +1457,11 @@ def build_report(
         for name in required
         if channels[name]["status"] in {"not-run", "incomplete"}
     ]
+    if "automated" in required:
+        missing_evidence.extend(
+            f"automated:{case_id}"
+            for case_id in automated_evidence["critical_incomplete"]
+        )
     failed_channels = [
         name for name in required if channels[name]["status"] == "failed"
     ]
@@ -766,11 +1473,12 @@ def build_report(
     else:
         gate_status = "passed"
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "suite": catalog["suite"],
         "plugin_version": manifest.get("version"),
         "evaluated_on": evaluated_on,
         "channel": channel,
+        "source": source,
         "inputs": {
             "catalog_sha256": _sha256_bytes(_canonical_bytes(catalog)),
             "corpus_sha256": _sha256_bytes(_canonical_bytes(corpus)),
@@ -778,9 +1486,13 @@ def build_report(
                 _canonical_bytes(definition_corpus)
             ),
             "fixture_manifest_sha256": _sha256_file(FIXTURE_MANIFEST_PATH),
-            "observations_sha256": _sha256_file(observations_path) if observations_path else None,
-            "pilot_summary_sha256": _sha256_file(pilot_summary_path) if pilot_summary_path else None,
-            "baseline_sha256": _sha256_file(baseline_path),
+            "observations_sha256": _sha256_file(observations_path)
+            if observations_path
+            else None,
+            "pilot_summary_sha256": _sha256_file(pilot_summary_path)
+            if pilot_summary_path
+            else None,
+            "baseline_sha256": _sha256_bytes(_canonical_bytes(baseline)),
         },
         "checks": checks,
         "channels": channels,
@@ -799,7 +1511,9 @@ def build_report(
 def _atomic_write(path: Path, value: dict[str, Any], force: bool) -> None:
     destination = path.expanduser().resolve()
     if destination.exists() and not force:
-        raise HarnessError(f"El reporte ya existe; use --force para reemplazarlo: {destination}")
+        raise HarnessError(
+            f"El reporte ya existe; use --force para reemplazarlo: {destination}"
+        )
     destination.parent.mkdir(parents=True, exist_ok=True)
     content = json.dumps(value, indent=2, ensure_ascii=False) + "\n"
     handle, temporary_name = tempfile.mkstemp(
@@ -816,7 +1530,9 @@ def _atomic_write(path: Path, value: dict[str, Any], force: bool) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--channel", choices=("candidate", "stable"), default="candidate")
+    parser.add_argument(
+        "--channel", choices=("candidate", "stable"), default="candidate"
+    )
     parser.add_argument("--date", default=date.today().isoformat(), dest="evaluated_on")
     parser.add_argument("--observations", type=Path)
     parser.add_argument("--pilot-summary", type=Path)

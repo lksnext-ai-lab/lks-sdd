@@ -8,7 +8,7 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.6.1` conserva M0–M5 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Mantiene la evolución compatible de la definición incorporada en 0.6.0: encuadre inicial más curioso, snapshots sencillos de cobertura y, cuando existe frontend, especificación de pantallas, flujos, interacción y un ciclo visual condicional con ImageGen. Clasifica el plugin como `Developer Tools`. Mantiene el perfil H0, migración, vistas cliente, harness de calidad, bundle de marketplace y la infraestructura de piloto M5. El piloto real, M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables.
+La versión `0.7.0` conserva M0–M5 y las seis skills previstas: ayuda, definición, adopción de existentes, readiness, implementación y verificación. Añade el contrato documental 1.1 y un handoff común para validación, trazabilidad y readiness, sin perder la evolución de definición y UX introducida en 0.6. Los proyectos nuevos usan `method_version: 1.1.0` y `schema_version: 1.1`; los proyectos 1.0 permanecen validables en modo de compatibilidad y solo cambian mediante una migración explícita. El perfil H0, las vistas cliente, el harness, el bundle de marketplace y la infraestructura de piloto M5 siguen en estado candidate. El piloto real, M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes especializados ejecutables.
 
 ## Principios operativos
 
@@ -21,6 +21,8 @@ La versión `0.6.1` conserva M0–M5 y las seis skills previstas: ayuda, definic
 - ImageGen se usa solo con un brief visual suficiente y capacidad disponible; una imagen propuesta no equivale a diseño confirmado ni sustituye requisitos o accesibilidad.
 - La baseline normativa incluida es candidata. Sus `MUST`, `SHOULD` y `MAY` no equivalen a política corporativa aprobada.
 - Una consulta de ayuda no modifica archivos. Una evaluación de readiness no autoriza implementación.
+- La preparación de la especificación (`specification_readiness`) y el soporte de automatización (`automation_support`) se informan por separado. Una pila puede estar suficientemente especificada y no disponer de automatización implementable en este plugin.
+- La trazabilidad previa a implementar exige requisito, aceptación, decisión o no aplicabilidad motivada, incremento y prueba. También resuelve el contrato activo del incremento: una relación activa a un elemento inexistente, no confirmado o histórico deja el preflight incompleto con diagnósticos `LKS-ACTIVE-*`. Esta puerta comprueba el handoff estructural, no sustituye la evaluación completa de readiness. La fase de verificación exige además evidencia ejecutada; una comprobación de alcance vacío nunca se presenta como válida. El plan puede anticiparse para una implementación `in-progress` del mismo incremento, pero ejecutar checks o registrar evidencia requiere `implementation.status: completed` y coherencia con el perfil seleccionado.
 - No se genera código cuando faltan decisiones críticas para el incremento afectado.
 
 ## Estructura
@@ -31,12 +33,12 @@ La versión `0.6.1` conserva M0–M5 y las seis skills previstas: ayuda, definic
 - `schemas/`: contratos del índice, front matter, catálogos, perfil y lock.
 - `scripts/`: validación, trazabilidad, gates técnicos, migración y vistas derivadas.
 - `templates/client/`: plantilla profesional para borradores derivados, nunca fuente canónica.
-- `specs/canonical/`: tres fuentes originales preservadas por hash y la extensión aditiva de definición visual v0.1.
+- `specs/canonical/`: tres fuentes originales preservadas por hash y dos extensiones aditivas: definición visual 0.6 y contrato/handoff 1.1.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
 - `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
 - `pilot/`: ejemplo bloqueado, plan y rollback para el piloto controlado M5.
 - `distribution/`: plantilla estándar del marketplace de desarrollo generado externamente.
-- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.6.1, M0–M5 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.7.0, M0–M5 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: correspondencia auditable entre perfil H0, implementación y verificación.
@@ -44,6 +46,7 @@ La versión `0.6.1` conserva M0–M5 y las seis skills previstas: ayuda, definic
 - `docs/M4-COVERAGE.md`: correspondencia auditable entre EP-10 y el harness integrado.
 - `docs/M5-COVERAGE.md`: correspondencia auditable entre EP-12 y la infraestructura de piloto.
 - `docs/V0.6-DEFINITION-UX-COVERAGE.md`: cobertura de la evolución compatible de entrevista, estado de definición y diseño visual.
+- `docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md`: cobertura del contrato documental 1.1, compatibilidad 1.0 y handoff por incremento.
 - `docs/QUALITY-HARNESS.md`: ejecución, evidencia y semántica de las puertas candidate/stable.
 - `docs/DISTRIBUTION.md`: empaquetado, instalación controlada y retirada.
 - `docs/RELEASING.md`: política de versiones, etiquetas y releases técnicas de GitHub.
@@ -51,5 +54,14 @@ La versión `0.6.1` conserva M0–M5 y las seis skills previstas: ayuda, definic
 ## Validación local
 
 Los comandos reproducibles y sus códigos de salida están documentados en `docs/VALIDATION.md`. La validación contractual es local; el gate técnico completo descarga las imágenes y dependencias bloqueadas y requiere Docker.
+
+Para operar sobre un proyecto consumidor, resuelva `<plugin-root>` como la carpeta instalada que contiene `.codex-plugin/plugin.json`; no busque `scripts/` dentro del proyecto consumidor. El dispatcher portable mantiene separados ambos roots:
+
+```powershell
+python "<plugin-root>/scripts/lks_sdd.py" validate-project "<project-root>"
+python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase preimplementation
+```
+
+Use `--phase verification` cuando deba exigir `EVID-###` ejecutada. La migración a 1.1 es otro comando explícito: un preview con entradas en `human_review_required` bloquea siempre la aplicación antes de escribir; cada entrada listada debe resolverse en los Markdown 1.0 de origen y el preview debe repetirse hasta obtener una lista vacía. La antigua dimensión agregada `Identity` es la excepción estructural: se traslada a identidad, seguridad y privacidad como `pending`, sin referencias inferidas y con el valor anterior como contexto; la migración puede aplicarse, pero readiness queda bloqueado hasta resolver esos pendientes en 1.1. Después exige backup externo, hash de autorización y validación posterior. Actualizar el plugin no migra proyectos.
 
 Este repositorio publica releases técnicas y genera un marketplace candidate para evaluación controlada, pero no instala globalmente el plugin ni representa una distribución corporativa estable. La licencia definitiva, los responsables nominales, el SLA y la promoción a stable requieren decisiones separadas. `LICENSE.md` registra esta restricción sin inventar una licencia y `CONTRIBUTING.md` define el contrato de cambio.

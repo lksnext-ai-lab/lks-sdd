@@ -1,9 +1,9 @@
 ---
 artifact_id: "{{ARTIFACT_ID}}"
 artifact_type: architecture-decision
-schema_version: "1.0"
-method_version: "1.0.0"
-created_with_plugin_version: "0.1.0"
+schema_version: "1.1"
+method_version: "1.1.0"
+created_with_plugin_version: "0.7.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: proposed
@@ -20,7 +20,7 @@ last_updated: "{{DATE}}"
 
 | ID | State | Decision | Requirements | Impact |
 |---|---|---|---|---|
-| {{ADR_ID}} | proposal | Pendiente de confirmación | {{REQUIREMENTS}} | Pendiente de evaluar |
+| {{ADR_ID}} | proposed | Pendiente de confirmación | {{REQUIREMENTS}} | Pendiente de evaluar |
 
 ## Contexto y decisión necesaria
 

@@ -61,8 +61,8 @@
       "additionalProperties": false,
       "required": ["previous_version", "candidate_version", "package_sha256", "procedure_confirmed"],
       "properties": {
-        "previous_version": {"const": "0.6.0"},
-        "candidate_version": {"const": "0.6.1"},
+        "previous_version": {"const": "0.6.1"},
+        "candidate_version": {"const": "0.7.0"},
         "package_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
         "procedure_confirmed": {"type": "boolean"}
       }

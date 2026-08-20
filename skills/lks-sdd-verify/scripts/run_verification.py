@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -19,7 +18,8 @@ from typing import Any
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-from validate_project import (
+from contract_engine import build_project_model, resolve_active_increment  # noqa: E402
+from validate_project import (  # noqa: E402
     INTERFACE_CONTRACT_HEADERS,
     interface_applicability,
     parse_frontmatter,
@@ -29,7 +29,11 @@ from validate_project import (
     validate_project,
     validate_visual_review_evidence,
 )
-from validate_reference_profile import PROFILE_ID, validate_profile
+from validate_reference_profile import (  # noqa: E402
+    PROFILE_ID,
+    validate_consumer_profile_lock,
+    validate_profile,
+)
 
 EVIDENCE_RE = re.compile(r"^EVID-[0-9]{3}$")
 
@@ -133,6 +137,134 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
     if not isinstance(value, dict):
         raise VerificationError("project.json debe ser un objeto.")
     return path, value, original
+
+
+def _implementation_gate(
+    manifest: dict[str, Any], increment: str, *, planning: bool
+) -> tuple[list[str], dict[str, Any]]:
+    """Require an attributable implementation before planning or executing checks."""
+    implementation = manifest.get("implementation")
+    if not isinstance(implementation, dict):
+        return ["Falta implementation en .lks-sdd/project.json."], {}
+
+    blockers: list[str] = []
+    implementation_increment = implementation.get("increment")
+    implementation_status = implementation.get("status")
+    implementation_profile = implementation.get("profile_id")
+    selected_profile = manifest.get("technology", {}).get("selected_profile")
+
+    if implementation_increment != increment:
+        blockers.append(
+            "implementation.increment no coincide con el incremento solicitado: "
+            f"{implementation_increment!r} != {increment!r}."
+        )
+
+    allowed_statuses = {"in-progress", "completed"} if planning else {"completed"}
+    if implementation_status not in allowed_statuses:
+        if planning:
+            blockers.append(
+                "El plan de verificación requiere implementation.status "
+                "in-progress o completed para el mismo incremento."
+            )
+        else:
+            blockers.append(
+                "Ejecutar checks o registrar evidencia requiere "
+                "implementation.status=completed."
+            )
+
+    if not isinstance(implementation_profile, str) or not implementation_profile:
+        blockers.append("Falta implementation.profile_id en project.json.")
+    elif implementation_profile != selected_profile:
+        blockers.append(
+            "implementation.profile_id no coincide con "
+            "technology.selected_profile: "
+            f"{implementation_profile!r} != {selected_profile!r}."
+        )
+
+    return blockers, {
+        "status": implementation_status,
+        "increment": implementation_increment,
+        "profile_id": implementation_profile,
+    }
+
+
+def _active_contract_snapshot(root: Path, increment: str) -> tuple[str, list[str]]:
+    """Bind verification to the currently resolved active contract."""
+    active = resolve_active_increment(build_project_model(root), increment)
+    errors = [
+        f"Contrato activo: {item.message}"
+        for item in active.diagnostics
+        if item.severity == "error"
+    ]
+    return active.fingerprint, errors
+
+
+def _revalidate_evidence_gate(
+    root: Path,
+    increment: str,
+    *,
+    initial_manifest: bytes,
+    initial_contract_fingerprint: str,
+    initial_lock_details: dict[str, str | None],
+) -> tuple[Path, dict[str, Any], bytes, dict[str, str | None]]:
+    """Recheck every attributable input after checks and before any write."""
+    manifest_path, current_manifest, current_manifest_bytes = _load_manifest(root)
+    current_report, validated_manifest, _ = validate_project(root)
+    blockers = [
+        f"Contrato inválido tras ejecutar los checks: {error}"
+        for error in current_report.errors
+    ]
+
+    try:
+        manifest_still_current = manifest_path.read_bytes() == current_manifest_bytes
+    except OSError as exc:
+        raise VerificationError(
+            f"No se puede confirmar project.json antes de registrar evidencia: {exc}"
+        ) from exc
+    if not manifest_still_current or validated_manifest != current_manifest:
+        blockers.append(
+            "project.json cambió mientras se revalidaba el registro de evidencia."
+        )
+    if current_manifest_bytes != initial_manifest:
+        blockers.append("project.json cambió después de ejecutar los checks.")
+
+    if current_manifest.get("active_increment") not in {None, increment}:
+        blockers.append(
+            f"Otro incremento está activo: {current_manifest.get('active_increment')}"
+        )
+    implementation_blockers, _ = _implementation_gate(
+        current_manifest, increment, planning=False
+    )
+    blockers.extend(implementation_blockers)
+    if current_manifest.get("technology", {}).get("selected_profile") != PROFILE_ID:
+        blockers.append(
+            "La verificación automatizada H0 requiere el perfil de referencia seleccionado."
+        )
+    blockers.extend(validate_profile(require_validated=True))
+
+    lock_errors, current_lock_details = validate_consumer_profile_lock(root)
+    blockers.extend(lock_errors)
+    if current_lock_details != initial_lock_details:
+        blockers.append("El lock H0 cambió después de ejecutar los checks.")
+
+    current_contract_fingerprint, contract_errors = _active_contract_snapshot(
+        root, increment
+    )
+    blockers.extend(contract_errors)
+    if current_contract_fingerprint != initial_contract_fingerprint:
+        blockers.append("El contrato activo cambió después de ejecutar los checks.")
+
+    if blockers:
+        raise VerificationError(
+            "No se registra evidencia porque la puerta cambió tras ejecutar los checks: "
+            + "; ".join(dict.fromkeys(blockers))
+        )
+    return (
+        manifest_path,
+        current_manifest,
+        current_manifest_bytes,
+        current_lock_details,
+    )
 
 
 def _interface_is_applicable(
@@ -407,17 +539,36 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     if manifest is None:
         blockers.append("Falta el índice LKS-SDD.")
         manifest = {}
+    initial_manifest = b""
+    if manifest:
+        _, loaded_manifest, initial_manifest = _load_manifest(root)
+        if loaded_manifest != manifest:
+            blockers.append(
+                "project.json cambió durante la validación inicial; repita la verificación."
+            )
     if manifest.get("active_increment") not in {None, args.increment}:
         blockers.append(
             f"Otro incremento está activo: {manifest.get('active_increment')}"
         )
+    implementation_blockers, implementation_details = _implementation_gate(
+        manifest, args.increment, planning=args.plan
+    )
+    blockers.extend(implementation_blockers)
     if manifest.get("technology", {}).get("selected_profile") != PROFILE_ID:
         blockers.append(
             "La verificación automatizada H0 requiere el perfil de referencia seleccionado."
         )
     blockers.extend(validate_profile(require_validated=True))
+    lock_errors, lock_details = validate_consumer_profile_lock(root)
+    blockers.extend(lock_errors)
+    initial_contract_fingerprint = ""
+    if manifest and not blockers:
+        initial_contract_fingerprint, contract_errors = _active_contract_snapshot(
+            root, args.increment
+        )
+        blockers.extend(contract_errors)
     visual_review_required = False
-    if manifest and not report.errors:
+    if manifest and not blockers:
         visual_review_required = _interface_is_applicable(
             root, manifest, args.increment
         )
@@ -464,13 +615,26 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             "increment": args.increment,
             "blockers": blockers,
             "checks": [],
+            "execution_ready": False,
+            "implementation": implementation_details,
+            "profile_lock": lock_details,
         }
     if args.plan:
+        execution_ready = implementation_details.get("status") == "completed"
+        limitations = ["No se ejecutó ninguna comprobación."]
+        if not execution_ready:
+            limitations.append(
+                "El plan anticipa los checks, pero ejecutarlos o registrar evidencia "
+                "requiere implementation.status=completed."
+            )
         return 0, {
             "classification": "not-run",
             "increment": args.increment,
             "checks": [{**item, "status": "not-run"} for item in plan],
-            "limitations": ["No se ejecutó ninguna comprobación."],
+            "limitations": limitations,
+            "execution_ready": execution_ready,
+            "implementation": implementation_details,
+            "profile_lock": lock_details,
         }
     if not args.execute or not args.authorize:
         raise VerificationError(
@@ -509,6 +673,7 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         "checks": outcomes,
         "limitations": limitations,
         "evidence_recorded": False,
+        "profile_lock": lock_details,
     }
     if args.record_evidence:
         if not EVIDENCE_RE.fullmatch(args.record_evidence):
@@ -520,7 +685,19 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             raise VerificationError(
                 f"La evidencia ya existe: {evidence_path.relative_to(root)}"
             )
-        manifest_path, current_manifest, original_manifest = _load_manifest(root)
+        (
+            manifest_path,
+            current_manifest,
+            original_manifest,
+            lock_details,
+        ) = _revalidate_evidence_gate(
+            root,
+            args.increment,
+            initial_manifest=initial_manifest,
+            initial_contract_fingerprint=initial_contract_fingerprint,
+            initial_lock_details=lock_details,
+        )
+        result["profile_lock"] = lock_details
         trace_path = root / "docs" / "lks-sdd" / "05-quality" / "traceability.md"
         _assert_safe_path(root, trace_path)
         original_trace, updated_trace = _updated_traceability(

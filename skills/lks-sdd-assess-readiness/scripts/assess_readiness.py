@@ -26,14 +26,55 @@ from validate_project import (  # noqa: E402
     v06_contract_applies,
     validate_project,
 )
-from validate_reference_profile import PROFILE_ID, validate_profile  # noqa: E402
+from profile_registry import resolve_profile  # noqa: E402
+from contract_engine import (  # noqa: E402
+    RelationSpec,
+    build_project_model,
+    document_fingerprint,
+    parse_reference_cell,
+    resolve_active_increment,
+)
+from validate_reference_profile import (  # noqa: E402
+    PROFILE_ID,
+    validate_consumer_profile_lock,
+    validate_profile,
+)
+
+DOMAIN_CONTRACT_HEADERS = (
+    "Increment",
+    "Domain",
+    "Applicability",
+    "References",
+    "Reason",
+)
+DOMAIN_PREFIXES = {
+    "data": {"DATA"},
+    "identity": {"SEC"},
+    "security": {"SEC"},
+    "privacy": {"PRIV"},
+    "integrations": {"INT"},
+}
 
 
 def _ids(value: str, prefixes: set[str] | None = None) -> list[str]:
-    found = ID_RE.findall(value or "")
-    if prefixes is None:
-        return found
-    return [item for item in found if item.split("-", 1)[0] in prefixes]
+    allowed = prefixes or {
+        item.split("-", 1)[0] for item in ID_RE.findall(value or "")
+    }
+    if not allowed:
+        return []
+    relation = RelationSpec(
+        column="runtime",
+        targets=frozenset(allowed),
+        minimum=0,
+        maximum=None,
+        active_input=False,
+        require_defined=False,
+        allow_empty=True,
+        allow_applicability=frozenset({"pending", "not-applicable"}),
+        allow_legacy_artifact_marker=True,
+    )
+    parsed = parse_reference_cell(value or "", relation, mode="compat")
+    return list(parsed.references) if parsed.valid else []
 
 
 def _empty(value: str) -> bool:
@@ -69,6 +110,85 @@ def _domain_references(
             result["blockers"].append(
                 f"{item_id} afecta a {label} pero no está confirmado; estado: {item.get('State', 'absent')}."
             )
+
+
+def _assess_domains(
+    root: Path,
+    manifest: dict[str, Any],
+    definitions: dict[str, dict[str, str]],
+    increment_id: str,
+    increment: dict[str, str],
+    result: dict[str, Any],
+) -> None:
+    if manifest.get("schema_version") != "1.1":
+        _domain_references(result, increment, definitions, "Data", "datos", {"DATA"})
+        _domain_references(
+            result,
+            increment,
+            definitions,
+            "Identity",
+            "identidad y privacidad",
+            {"SEC", "PRIV"},
+        )
+        _domain_references(
+            result,
+            increment,
+            definitions,
+            "Integrations",
+            "integraciones",
+            {"INT"},
+        )
+        return
+
+    body = _load_artifact_body(root, manifest, "ART-INCREMENTS")
+    rows = table_rows_for_headers(
+        parse_markdown_table_blocks(body), DOMAIN_CONTRACT_HEADERS
+    )
+    if rows is None:
+        result["blockers"].append("Falta la tabla contractual de aplicabilidad por dominio.")
+        return
+    scoped = [
+        row for row in rows if row.get("Increment", "").strip() == increment_id
+    ]
+    for domain, prefixes in DOMAIN_PREFIXES.items():
+        matching = [
+            row for row in scoped if row.get("Domain", "").strip().casefold() == domain
+        ]
+        if len(matching) != 1:
+            result["blockers"].append(
+                f"{increment_id} debe declarar exactamente una aplicabilidad para {domain}."
+            )
+            continue
+        row = matching[0]
+        applicability = row.get("Applicability", "").strip().casefold()
+        reason = row.get("Reason", "").strip()
+        references = _ids(row.get("References", ""), prefixes)
+        if applicability == "pending":
+            result["blockers"].append(
+                f"{increment_id} mantiene pendiente la aplicabilidad de {domain}: {reason or 'sin motivo'}."
+            )
+            continue
+        if applicability == "not-applicable":
+            if references:
+                result["blockers"].append(
+                    f"{increment_id} declara {domain} no aplicable pero conserva referencias activas."
+                )
+            if not reason:
+                result["blockers"].append(
+                    f"La no aplicabilidad de {domain} requiere un motivo."
+                )
+            continue
+        if applicability != "applicable":
+            result["blockers"].append(
+                f"{increment_id} usa una aplicabilidad inválida para {domain}: {applicability or 'vacía'}."
+            )
+            continue
+        if not references:
+            result["blockers"].append(
+                f"{domain} applicable debe enlazar {sorted(prefixes)}."
+            )
+        for reference in references:
+            _confirmed_reference(result, definitions, reference, domain)
 
 
 def _load_artifact_body(root: Path, manifest: dict[str, Any], artifact_id: str) -> str:
@@ -220,7 +340,9 @@ def _assess_visual_contract(
             confirmed_ux.add(ux_id)
         if "Screen" in item:
             confirmed_screens.add(ux_id)
-            requirement_ids = _ids(item.get("Requirements", ""), {"FR", "NFR", "TR"})
+            requirement_ids = _ids(
+                item.get("Requirements", ""), {"FR", "NFR", "TR", "BR"}
+            )
             acceptance_ids = _ids(item.get("Acceptance", ""), {"AC"})
             if not requirement_ids:
                 result["blockers"].append(f"{ux_id} no enlaza requisitos.")
@@ -359,26 +481,76 @@ def _assess_visual_contract(
         )
 
 
+def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
+    """Expose specification and automation outcomes without duplicate diagnostics."""
+    specification_blockers = list(dict.fromkeys(result.get("blockers", [])))
+    pending = list(dict.fromkeys(result.get("non_blocking_pending", [])))
+    specification_status = (
+        "blocked"
+        if specification_blockers
+        else "ready-with-non-blocking-pending"
+        if pending
+        else "ready"
+    )
+    result["specification_readiness"] = {
+        "status": specification_status,
+        "blockers": specification_blockers,
+        "non_blocking_pending": pending,
+    }
+    automation = result.get("automation_support", {})
+    automation_blockers = list(dict.fromkeys(automation.get("blockers", [])))
+    combined = specification_blockers + [
+        f"Soporte de automatización: {item}" for item in automation_blockers
+    ]
+    result["blockers"] = list(dict.fromkeys(combined))
+    result["non_blocking_pending"] = pending
+    if result["blockers"]:
+        result["status"] = "blocked"
+    elif pending:
+        result["status"] = "ready-with-non-blocking-pending"
+    else:
+        result["status"] = "ready"
+    return result
+
+
 def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
     root = project_root.expanduser().resolve()
     first_report, _, _ = validate_project(root)
-    first_checked = list(dict.fromkeys(first_report.checked_files))
-    first_fingerprint = _input_fingerprint(root, first_checked)
+    first_model = build_project_model(root)
+    first_document_fingerprint = document_fingerprint(first_model)
     report, manifest, definitions = validate_project(root)
-    checked_files = list(dict.fromkeys(report.checked_files))
-    input_fingerprint = _input_fingerprint(root, checked_files)
-    unstable_snapshot = (
-        first_checked != checked_files or first_fingerprint != input_fingerprint
-    )
+    model = build_project_model(root)
+    active_contract = resolve_active_increment(model, increment_id)
+    current_document_fingerprint = document_fingerprint(model)
+    checked_files = list(active_contract.checked_files)
+    input_fingerprint = active_contract.fingerprint
+    unstable_snapshot = first_document_fingerprint != current_document_fingerprint
     result: dict[str, Any] = {
         "increment": increment_id,
         "status": "blocked",
+        "specification_readiness": {
+            "status": "blocked",
+            "blockers": [],
+            "non_blocking_pending": [],
+        },
+        "automation_support": {
+            "status": "not-assessed",
+            "blockers": [],
+        },
         "scope": increment_id,
         "blockers": [],
         "non_blocking_pending": [],
         "evidence_checked": checked_files,
         "checked_files": checked_files,
+        "structural_checked_files": list(dict.fromkeys(report.checked_files)),
         "input_fingerprint": input_fingerprint,
+        "active_contract_fingerprint": input_fingerprint,
+        "profile_lock": {
+            "path": ".lks-sdd/profile.lock.json",
+            "sha256": active_contract.project.get("profile_lock_sha256"),
+        },
+        "document_fingerprint": current_document_fingerprint,
+        "diagnostics": [item.as_dict() for item in active_contract.diagnostics],
         "limitations": [
             "La validación determinista no sustituye la revisión semántica de claridad, riesgo y suficiencia.",
             "Este resultado no autoriza implementación."
@@ -387,31 +559,64 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
     }
     if not re.fullmatch(r"INC-[0-9]{3}", increment_id):
         result["blockers"].append("El identificador debe usar el formato INC-###.")
-        return 2, result
+        return 2, _finalize_result(result)
     if unstable_snapshot:
         result["blockers"].append(
             "Los Markdown o assets cambiaron durante la lectura inicial; repita readiness sobre una instantánea estable."
         )
     if not report.valid or manifest is None:
+        result["diagnostics"] = list(report.diagnostics)
         result["blockers"].extend(f"Contrato inválido: {error}" for error in report.errors)
-        return 2, result
+        return 2, _finalize_result(result)
+    result["blockers"].extend(
+        f"Contrato activo: {item.message}"
+        for item in active_contract.diagnostics
+        if item.severity == "error"
+    )
 
     selected_profile = manifest.get("technology", {}).get("selected_profile")
     if selected_profile is None:
-        result["blockers"].append("No hay un perfil tecnológico seleccionado mediante una decisión confirmada.")
-    elif selected_profile != PROFILE_ID:
-        result["blockers"].append(
-            f"El perfil {selected_profile} no dispone de soporte H0 implementado; perfil disponible: {PROFILE_ID}."
-        )
+        result["automation_support"] = {
+            "status": "selection-required",
+            "profile_id": None,
+            "blockers": [
+                "No hay un perfil tecnológico seleccionado mediante una decisión confirmada."
+            ],
+        }
     else:
-        result["blockers"].extend(
-            f"Perfil tecnológico no apto: {error}" for error in validate_profile(require_validated=True)
-        )
+        support = resolve_profile(selected_profile)
+        automation_errors = list(support.errors)
+        if selected_profile == PROFILE_ID:
+            automation_errors.extend(validate_profile(require_validated=True))
+            lock_errors, lock_details = validate_consumer_profile_lock(
+                root, required=False
+            )
+            automation_errors.extend(lock_errors)
+            # The active fingerprint uses the packaged lock hash before prepare,
+            # then the byte-identical consumer lock hash after materialization.
+            lock_details["fingerprint_sha256"] = active_contract.project.get(
+                "profile_lock_sha256"
+            )
+            result["profile_lock"] = lock_details
+        automation_errors = list(dict.fromkeys(automation_errors))
+        supported = support.implementable and not automation_errors
+        result["automation_support"] = {
+            **support.as_dict(),
+            "status": "supported" if supported else "unsupported",
+            "blockers": automation_errors
+            or (
+                []
+                if supported
+                else [
+                    f"El perfil {selected_profile} es documentable, pero no dispone de automatización implementable validada."
+                ]
+            ),
+        }
 
     increment = definitions.get(increment_id)
     if increment is None or increment.get("path", "").endswith("increments.md") is False:
         result["blockers"].append(f"El incremento {increment_id} no está definido en ART-INCREMENTS.")
-        return 3, result
+        return 3, _finalize_result(result)
     if increment.get("State") != "confirmed":
         result["blockers"].append(f"{increment_id} debe estar confirmed; estado actual: {increment.get('State', 'absent')}.")
     if _empty(increment.get("In scope", "")):
@@ -421,7 +626,9 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
 
     _assess_visual_contract(root, manifest, definitions, increment_id, result)
 
-    requirement_ids = _ids(increment.get("Requirements", ""), {"FR", "NFR", "TR"})
+    requirement_ids = _ids(
+        increment.get("Requirements", ""), {"FR", "NFR", "TR", "BR"}
+    )
     acceptance_ids = _ids(increment.get("Acceptance", ""), {"AC"})
     decisions_raw = increment.get("Decisions", "").strip()
     decision_ids = _ids(decisions_raw, {"ADR"})
@@ -442,9 +649,9 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
     if not test_ids:
         result["blockers"].append(f"{increment_id} no enlaza pruebas previstas.")
 
-    _domain_references(result, increment, definitions, "Data", "datos", {"DATA"})
-    _domain_references(result, increment, definitions, "Identity", "identidad y privacidad", {"SEC", "PRIV"})
-    _domain_references(result, increment, definitions, "Integrations", "integraciones", {"INT"})
+    _assess_domains(
+        root, manifest, definitions, increment_id, increment, result
+    )
 
     expected_states = {
         **{item: {"confirmed"} for item in requirement_ids + acceptance_ids},
@@ -470,7 +677,9 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
 
     for acceptance_id in acceptance_ids:
         item = definitions.get(acceptance_id, {})
-        linked = set(_ids(item.get("Requirement", ""), {"FR", "NFR", "TR"}))
+        linked = set(
+            _ids(item.get("Requirement", ""), {"FR", "NFR", "TR", "BR"})
+        )
         if not linked.intersection(requirement_ids):
             result["blockers"].append(
                 f"{acceptance_id} no enlaza un requisito incluido en {increment_id}."
@@ -478,7 +687,9 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
 
     for decision_id in decision_ids:
         item = definitions.get(decision_id, {})
-        linked = set(_ids(item.get("Requirements", ""), {"FR", "NFR", "TR"}))
+        linked = set(
+            _ids(item.get("Requirements", ""), {"FR", "NFR", "TR", "BR"})
+        )
         if not linked.intersection(requirement_ids):
             result["blockers"].append(
                 f"{decision_id} no enlaza un requisito incluido en {increment_id}."
@@ -499,7 +710,8 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
     for requirement_id in requirement_ids:
         matching = [
             row for row in trace_rows
-            if requirement_id in _ids(row.get("Requirement", ""), {"FR", "NFR", "TR"})
+            if requirement_id
+            in _ids(row.get("Requirement", ""), {"FR", "NFR", "TR", "BR"})
             and increment_id in _ids(row.get("Increment", ""), {"INC"})
         ]
         if not matching:
@@ -547,8 +759,10 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
 
     if not result["blockers"]:
         post_report, _, _ = validate_project(root)
-        post_checked = list(dict.fromkeys(post_report.checked_files))
-        post_fingerprint = _input_fingerprint(root, post_checked)
+        post_model = build_project_model(root)
+        post_active = resolve_active_increment(post_model, increment_id)
+        post_checked = list(post_active.checked_files)
+        post_fingerprint = post_active.fingerprint
         if not post_report.valid:
             result["blockers"].extend(
                 f"El contrato cambió durante readiness: {error}"
@@ -561,15 +775,14 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
         result["checked_files"] = post_checked
         result["evidence_checked"] = post_checked
         result["input_fingerprint"] = post_fingerprint
+        result["active_contract_fingerprint"] = post_fingerprint
+        result["document_fingerprint"] = document_fingerprint(post_model)
+        result["structural_checked_files"] = list(
+            dict.fromkeys(post_report.checked_files)
+        )
 
-    if result["blockers"]:
-        result["status"] = "blocked"
-        return 3, result
-    if result["non_blocking_pending"]:
-        result["status"] = "ready-with-non-blocking-pending"
-    else:
-        result["status"] = "ready"
-    return 0, result
+    _finalize_result(result)
+    return (0 if result["status"] != "blocked" else 3), result
 
 
 def main() -> int:

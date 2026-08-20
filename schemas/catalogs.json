@@ -1,7 +1,9 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "document_states": ["draft", "proposed", "confirmed", "superseded", "retired"],
   "element_states": [
+    "draft",
+    "proposed",
     "fact",
     "requirement",
     "proposal",
@@ -14,12 +16,20 @@
     "confirmed",
     "rejected",
     "superseded",
-    "retired"
+    "retired",
+    "resolved",
+    "accepted",
+    "mitigated",
+    "observation",
+    "inference",
+    "unknown",
+    "contradicted"
   ],
   "identifier_prefixes": [
     "OBJ",
     "STK",
     "USR",
+    "CON",
     "FR",
     "NFR",
     "TR",

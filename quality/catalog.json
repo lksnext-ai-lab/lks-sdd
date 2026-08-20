@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5 + v0.6 definition/UX",
+  "suite": "LKS-SDD M0-M5 + v0.7 contract/handoff",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
@@ -33,7 +33,7 @@
   ],
   "cases": [
     {"id": "FX-01", "title": "Idea ambigua", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": "insufficient-information.json", "critical": true, "evidence": []},
-    {"id": "FX-02", "title": "Greenfield de referencia", "family": "implementation", "layers": ["T0", "T1", "T5", "T6"], "mode": "automated", "fixture": "new-project.json", "critical": true, "evidence": ["eval:FX-M1-NEW-PROJECT", "profile:complete-gate"]},
+    {"id": "FX-02", "title": "Greenfield de referencia", "family": "implementation", "layers": ["T0", "T1", "T5", "T6"], "mode": "automated", "fixture": "calculator-handoff-1.1.json", "critical": true, "evidence": ["test:test_calculator_contract_1_1_crosses_the_real_handoff_without_execution", "profile:complete-gate"]},
     {"id": "FX-03", "title": "Requisitos contradictorios", "family": "definition", "layers": ["T3", "T4"], "mode": "automated", "fixture": "alternative-stack.json", "critical": true, "evidence": ["eval:FX-M1-ALTERNATIVE-STACK"]},
     {"id": "FX-04", "title": "Repositorio existente sin documentación", "family": "adoption", "layers": ["T1", "T4"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_inspection_is_read_only_and_never_reproduces_secret_values"]},
     {"id": "FX-05", "title": "Repositorio existente con cambios locales", "family": "adoption", "layers": ["T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_dirty_repository_can_be_materialized_without_touching_existing_files"]},
@@ -41,7 +41,7 @@
     {"id": "FX-07", "title": "Proyecto de riesgo reforzado", "family": "security", "layers": ["T3", "T4", "T7"], "mode": "human", "fixture": null, "critical": true, "evidence": []},
     {"id": "FX-08", "title": "Instrucciones maliciosas en archivos", "family": "security", "layers": ["T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_repository_instructions_are_treated_as_untrusted_content"]},
     {"id": "FX-09", "title": "Aislamiento entre clientes", "family": "security", "layers": ["T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_projects_are_isolated"]},
-    {"id": "FX-10", "title": "Migración de esquema", "family": "compatibility", "layers": ["T1", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_schema_migration_preserves_human_body_and_rolls_back"]},
+    {"id": "FX-10", "title": "Migración de esquema", "family": "compatibility", "layers": ["T1", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_schema_migration_preserves_human_body_and_rolls_back", "test:test_plan_converts_contract_without_inventing_confirmations", "test:test_apply_rejects_unresolved_human_review_before_any_write", "test:test_apply_has_external_backup_and_rollback_requires_its_own_preview_hash"]},
     {"id": "FX-11", "title": "Entregable de cliente", "family": "deliverable", "layers": ["T4", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_client_view_includes_only_confirmed_client_sources", "test:test_client_view_blocks_sensitive_eligible_source"]},
     {"id": "FX-12", "title": "Paridad GitHub y GitLab", "family": "compatibility", "layers": ["T1", "T8"], "mode": "automated", "fixture": null, "critical": false, "evidence": ["test:test_github_and_gitlab_checkouts_use_the_same_local_method"]},
     {"id": "FX-13", "title": "Colisiones documentales", "family": "definition", "layers": ["T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_document_collision_is_not_overwritten"]},

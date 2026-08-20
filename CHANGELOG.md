@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.0 — 2026-08-20 — contrato documental y handoff fiable
+
+- Unifica el análisis de artefactos, tablas, estados y referencias para que validación, ayuda, trazabilidad y readiness consuman el mismo contrato documental normalizado.
+- Endurece las referencias individuales, listas y rangos inclusivos `..`: evita expansiones parciales silenciosas y admite las formas legacy `a` o separadas por espacios solo en compatibilidad, con aviso.
+- Separa relaciones activas de elementos históricos y calcula fingerprints distintos para integridad documental e inputs activos de implementación.
+- Añade una matriz de aplicabilidad por dominio para datos, identidad, seguridad, privacidad e integraciones sin forzar un único estado agregado.
+- Hace fallar de forma explícita la trazabilidad vacía o incompleta, incorpora un preflight de handoff y separa readiness funcional de soporte automatizado sin convertir limitaciones del perfil en defectos de la especificación.
+- Añade diagnósticos estructurados, localizados y agrupados por causa raíz, manteniendo una vista textual compatible para los consumidores existentes.
+- Añade la migración explícita 1.0 → 1.1 con dry-run y cierre seguro: cualquier entrada de `human_review_required` bloquea siempre la aplicación antes de crear backup o escribir hasta resolver el Markdown 1.0 de origen y repetir el preview. La dimensión agregada `Identity` se traslada sin inferencias a tres aplicabilidades `pending` con motivo; permite completar la migración si no existen otras revisiones, pero bloquea readiness hasta resolverse en 1.1.
+- Incorpora fixtures y regresiones del recorrido real de la calculadora para cubrir el handoff `define → validate → help → traceability → readiness → prepare → verify-plan` que no representaban los happy paths anteriores.
+- Cierra la puerta de verificación sobre el registro real de implementación: el plan anticipatorio solo admite el mismo incremento en `in-progress` o `completed`, y la ejecución o el registro de evidencia exigen `implementation.status=completed` y un perfil coherente antes de invocar checks o escribir archivos.
+- Endurece la atestación y el empaquetado candidate: el harness captura antes de ejecutar checks la concordancia exacta entre `HEAD`, índice y bytes reales, y rechaza cualquier archivo no versionado preexistente, incluso ignorado; el builder revalida el esquema, hashes comprometidos, inventarios, evidencias, métricas y comparación del reporte antes de leer los bytes del commit e incluirlo en `SHA256SUMS`.
+- Mantiene la release como candidate: los canales sin evidencia continúan `not-run`; el harness aún no importa resultados de `definition-conversation`, por lo que `stable` permanece bloqueado aunque se aporten observaciones de activación y revisión documental.
+
 ## 0.6.1 — 2026-08-20 — clasificación para desarrollo
 
 - Reclasifica el plugin y su entrada de marketplace de `Productivity` a `Developer Tools`, de acuerdo con su finalidad de definición, implementación y verificación de software.

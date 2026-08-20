@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-TEST-STRATEGY
 artifact_type: test-strategy
-schema_version: "1.0"
-method_version: "1.0.0"
-created_with_plugin_version: "0.1.0"
+schema_version: "1.1"
+method_version: "1.1.0"
+created_with_plugin_version: "0.7.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -18,7 +18,7 @@ last_updated: "{{DATE}}"
 
 # Estrategia de pruebas
 
-| ID | State | Level or type | Scope | Acceptance | Environment | Evidence |
-|---|---|---|---|---|---|---|
+| Test | Level or type | Scope | Acceptance | Environment | Evidence |
+|---|---|---|---|---|---|
 
-Planificado, ejecutado y superado son estados distintos. Use datos sintéticos o anonimizados.
+El propietario de cada `TEST-###` está en `ART-QUALITY`; esta tabla lo detalla sin volver a definir su estado. Planificado, ejecutado y superado son estados distintos. Use datos sintéticos o anonimizados.

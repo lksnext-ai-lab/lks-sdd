@@ -5,7 +5,6 @@ import base64
 import hashlib
 import importlib.util
 import json
-import re
 import sys
 import tempfile
 import unittest
@@ -55,13 +54,21 @@ def _load_verification_module():
 
 
 def _load_validator_module():
+    scripts_root = str(PLUGIN_ROOT / "scripts")
+    added_to_path = scripts_root not in sys.path
+    if added_to_path:
+        sys.path.insert(0, scripts_root)
     spec = importlib.util.spec_from_file_location(
         "lks_sdd_project_validator", VALIDATE_SCRIPT
     )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if added_to_path:
+            sys.path.remove(scripts_root)
     return module
 
 
@@ -96,6 +103,32 @@ class VisualContractTests(unittest.TestCase):
         self.assertTrue(lines[row_index].startswith("| INC-001 |"))
         lines[row_index] = row
         path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+    def _materialize_profile_lock(self, implementation_status: str = "in-progress") -> None:
+        packaged = (
+            PLUGIN_ROOT
+            / "profiles"
+            / "WEB-FASTAPI-REACT-KEYCLOAK-PG"
+            / "technology-profile.lock.json"
+        )
+        (self.root / ".lks-sdd/profile.lock.json").write_bytes(
+            packaged.read_bytes()
+        )
+        manifest_path = self.root / ".lks-sdd/project.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["implementation"] = {
+            "status": implementation_status,
+            "increment": "INC-001",
+            "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+            "profile_version": "1.0.0-candidate.1",
+            "changed_paths": [],
+            "evidence_ids": [],
+        }
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
 
     def _materialize_visual_contract(self, state: str = "confirmed") -> tuple[Path, str]:
         ux_path = self.docs / "03-solution" / "ux-accessibility.md"
@@ -161,10 +194,10 @@ class VisualContractTests(unittest.TestCase):
         _append_row(
             ux_path,
             "| ID | State | Asset",
-            f"| VIS-001 | {state} | ![Request screen](ui-prototypes/VIS-001.png) | PNG | 1440x900 | UX-001 UX-002 | FR-001 | ImageGen synthetic fixture | 2026-08-20 | synthetic UI brief | {digest} | {human_validation} | Hierarchy, density and primary-action treatment | Static image does not prove responsive behavior or accessibility | ADR-001 | INC-001 |",
+            f"| VIS-001 | {state} | ![Request screen](ui-prototypes/VIS-001.png) | PNG | 1440x900 | UX-001, UX-002 | FR-001 | ImageGen synthetic fixture | 2026-08-20 | synthetic UI brief | {digest} | {human_validation} | Hierarchy, density and primary-action treatment | Static image does not prove responsive behavior or accessibility | ADR-001 | INC-001 |",
         )
         self._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-002 UX-003 | new | VIS-001 | New user-facing screen and interaction |"
+            "| INC-001 | applicable | UX-001, UX-002, UX-003 | new | VIS-001 | New user-facing screen and interaction |"
         )
         return asset, digest
 
@@ -229,26 +262,26 @@ class VisualContractTests(unittest.TestCase):
     def test_readiness_uses_the_snapshot_after_a_mid_read_mutation(self):
         module = _load_readiness_module()
         increments = self.docs / "04-delivery" / "increments.md"
-        original_fingerprint = module._input_fingerprint
+        original_fingerprint = module.document_fingerprint
         calls = 0
 
-        def mutate_then_fingerprint(root: Path, checked_files: list[str]) -> str:
+        def mutate_then_fingerprint(model) -> str:
             nonlocal calls
             if calls == 0:
                 increments.write_text(
                     increments.read_text(encoding="utf-8").replace(
                         "| INC-001 | confirmed |",
-                        "| INC-001 | proposal |",
+                        "| INC-001 | proposed |",
                         1,
                     ),
                     encoding="utf-8",
                     newline="\n",
                 )
             calls += 1
-            return original_fingerprint(root, checked_files)
+            return original_fingerprint(model)
 
         with mock.patch.object(
-            module, "_input_fingerprint", side_effect=mutate_then_fingerprint
+            module, "document_fingerprint", side_effect=mutate_then_fingerprint
         ):
             code, result = module.assess(self.root, "INC-001")
         self.assertEqual(code, 3)
@@ -397,7 +430,7 @@ class VisualContractTests(unittest.TestCase):
     def test_reused_visual_baseline_requires_explicit_mode_reference_and_reason(self):
         self._materialize_visual_contract()
         self._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-002 UX-003 | reuse | VIS-001 | Reuse the confirmed hierarchy and component treatment without visual changes |"
+            "| INC-001 | applicable | UX-001, UX-002, UX-003 | reuse | VIS-001 | Reuse the confirmed hierarchy and component treatment without visual changes |"
         )
         _, readiness = run_json(
             READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
@@ -406,7 +439,7 @@ class VisualContractTests(unittest.TestCase):
         self.assertEqual(readiness["visual_mode"], "reuse")
 
         self._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-002 UX-003 | reuse | not-applicable: reuse baseline | Reuse the confirmed hierarchy |"
+            "| INC-001 | applicable | UX-001, UX-002, UX-003 | reuse | not-applicable: reuse baseline | Reuse the confirmed hierarchy |"
         )
         code, result = run_json(VALIDATE_SCRIPT, str(self.root), expected_codes={2})
         self.assertEqual(code, 2)
@@ -423,7 +456,7 @@ class VisualContractTests(unittest.TestCase):
         ux_path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
         asset.unlink()
         self._replace_interface_row(
-            "| INC-001 | applicable | ART-UX UX-001 UX-002 UX-003 | none | not-applicable: behavior changes but composition and visual direction do not | No screen, pattern or visual treatment changes |"
+            "| INC-001 | applicable | UX-001, UX-002, UX-003 | none | not-applicable: behavior changes but composition and visual direction do not | No screen, pattern or visual treatment changes |"
         )
         _, readiness = run_json(
             READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
@@ -431,6 +464,7 @@ class VisualContractTests(unittest.TestCase):
         self.assertEqual(readiness["status"], "ready")
         self.assertEqual(readiness["visual_mode"], "none")
         self.assertEqual(readiness["visual_prototypes"], [])
+        self._materialize_profile_lock()
         _, plan = run_json(
             VERIFY_SCRIPT, str(self.root), "--increment", "INC-001", "--plan"
         )
@@ -481,7 +515,7 @@ class VisualContractTests(unittest.TestCase):
         self.assertTrue(any("enlace simbólico" in item for item in result["errors"]))
 
     def test_proposal_visual_does_not_satisfy_readiness(self):
-        self._materialize_visual_contract(state="proposal")
+        self._materialize_visual_contract(state="proposed")
         _, validation = run_json(VALIDATE_SCRIPT, str(self.root))
         code, readiness = run_json(
             READINESS_SCRIPT,
@@ -552,6 +586,7 @@ class VisualContractTests(unittest.TestCase):
 
     def test_frontend_verification_cannot_pass_without_manual_visual_evidence(self):
         self._materialize_visual_contract()
+        self._materialize_profile_lock(implementation_status="completed")
         _, plan = run_json(
             VERIFY_SCRIPT, str(self.root), "--increment", "INC-001", "--plan"
         )

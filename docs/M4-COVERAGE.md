@@ -1,8 +1,10 @@
 # Cobertura auditable de M4
 
+Este documento conserva la fotografía base cerrada por la versión `0.4.0`. Las extensiones FX-20–FX-21 y la cobertura automatizada del contrato 1.1 se describen en [el harness vigente](QUALITY-HARNESS.md) y [la cobertura 0.7](V0.7-CONTRACT-HANDOFF-COVERAGE.md).
+
 ## Hechos verificados
 
-- El catálogo versionado cubre exactamente FX-01–FX-19 y distingue capas, familias, modo de evaluación y criticidad.
+- El catálogo base cubre exactamente FX-01–FX-19 y distingue capas, familias, modo de evaluación y criticidad.
 - El corpus de activación contiene casos positivos, negativos y de límites operativos con un único oracle etiquetado por caso.
 - El manifiesto de fixtures solo admite JSON sintético declarado, detecta altas no registradas, ausencias, enlaces y deriva de hash.
 - El runner ejecuta contrato, perfil, pruebas y evals, calcula umbrales, destaca fallos críticos y no promueve evidencia `not-run`.
@@ -13,7 +15,7 @@
 
 | Entregable EP-10 | Implementación | Evidencia |
 |---|---|---|
-| Catálogo de casos | `quality/catalog.json` | Cobertura exacta FX-01–FX-19 y validación estructural |
+| Catálogo de casos | `quality/catalog.json` | Cobertura base exacta FX-01–FX-19 y validación estructural |
 | Corpus etiquetado | `quality/corpora/activation.json` | 18 intenciones positivas y negativas para Codex |
 | Runner | `scripts/run_quality_harness.py` | Canales candidate/stable, códigos de salida y reporte JSON |
 | Reportes | `schemas/quality-report.schema.json` | Salida determinista, atómica y validable |

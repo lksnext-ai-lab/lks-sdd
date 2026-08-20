@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-ROADMAP
 artifact_type: roadmap
-schema_version: "1.0"
-method_version: "1.0.0"
-created_with_plugin_version: "0.1.0"
+schema_version: "1.1"
+method_version: "1.1.0"
+created_with_plugin_version: "0.7.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft

@@ -11,9 +11,9 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "0.6.1"
-METHOD_VERSION = "1.0.0"
-SCHEMA_VERSION = "1.0"
+PLUGIN_VERSION = "0.7.0"
+METHOD_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.1"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 CODE_EXTENSIONS = {
@@ -129,9 +129,11 @@ def render_template(
     template: Path, project_id: str, baseline_id: str, today: str
 ) -> str:
     content = template.read_text(encoding="utf-8")
-    content = content.replace(
-        'created_with_plugin_version: "0.1.0"',
+    content = re.sub(
+        r'^created_with_plugin_version: "[0-9A-Za-z.-]+"$',
         f'created_with_plugin_version: "{PLUGIN_VERSION}"',
+        content,
+        flags=re.MULTILINE,
     )
     replacements = {
         "{{PROJECT_ID}}": project_id,
@@ -173,12 +175,6 @@ def build_manifest(
             "selection_decision": None,
         },
         "active_increment": None,
-        "open_blockers": ["OPEN-001"],
-        "readiness": {
-            "status": "not-assessed",
-            "assessed_increment": None,
-            "assessed_at": None,
-        },
         "version_control": {
             "type": "git" if (root / ".git").exists() else "none",
             "origin": "none",

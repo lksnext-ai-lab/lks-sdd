@@ -20,7 +20,7 @@ from run_quality_harness import (  # noqa: E402
 )
 
 
-class V06QualityContractTests(unittest.TestCase):
+class DefinitionQualityContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.catalog = validate_catalog(_load_json(CATALOG_PATH))
         self.corpus = validate_definition_corpus(
@@ -32,7 +32,9 @@ class V06QualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["mode"], "semantic")
         self.assertEqual(fx01["evidence"], [])
 
-    def test_v06_cases_are_versioned_and_not_run(self) -> None:
+    def test_definition_cases_are_versioned_for_v07_and_not_run(self) -> None:
+        self.assertEqual(self.corpus["plugin_version"], "0.7.0")
+        self.assertEqual(self.corpus["corpus_id"], "lks-sdd-definition-ux-es-0.7.0")
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
             {"FX-20", "FX-21"},
@@ -57,6 +59,8 @@ class V06QualityContractTests(unittest.TestCase):
         self.assertTrue(_definition_corpus_matches_plugin_line("0.6.0", "0.6.1"))
         self.assertFalse(_definition_corpus_matches_plugin_line("0.6.2", "0.6.1"))
         self.assertFalse(_definition_corpus_matches_plugin_line("0.6.0", "0.7.0"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.7.0", "0.7.0"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.7.0", "0.7.1"))
 
 
 if __name__ == "__main__":

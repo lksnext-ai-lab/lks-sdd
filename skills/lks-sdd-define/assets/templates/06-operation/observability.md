@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-OBSERVABILITY
 artifact_type: observability
-schema_version: "1.0"
-method_version: "1.0.0"
-created_with_plugin_version: "0.1.0"
+schema_version: "1.1"
+method_version: "1.1.0"
+created_with_plugin_version: "0.7.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -18,7 +18,7 @@ last_updated: "{{DATE}}"
 
 # Observabilidad
 
-| Reference | State | Signal | Purpose | Threshold or query | Retention | Owner |
+| Label | State | Signal | Purpose | Threshold or query | Retention | Owner |
 |---|---|---|---|---|---|---|
 
 Defina logs, métricas, trazas y alertas aplicables sin registrar datos sensibles innecesarios.

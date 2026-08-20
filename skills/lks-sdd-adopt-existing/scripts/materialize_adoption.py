@@ -24,13 +24,21 @@ from validate_adoption import validate
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-from validate_project import validate_project
+from validate_project import validate_project  # noqa: E402
 
-PLUGIN_VERSION = "0.6.1"
-METHOD_VERSION = "1.0.0"
-SCHEMA_VERSION = "1.0"
+PLUGIN_VERSION = "0.7.0"
+METHOD_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.1"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+STATUS_SUMMARY_HEADERS = (
+    "Ruta",
+    "Fase",
+    "Puerta",
+    "Incremento activo",
+    "Readiness",
+    "Próximo paso",
+)
 CORE_ARTIFACTS = [
     ("ART-STATUS", "00-control/project-status.md"),
     ("ART-SCOPE", "00-control/scope-register.md"),
@@ -102,6 +110,63 @@ def _render(text: str, replacements: dict[str, str]) -> str:
     return text
 
 
+def _markdown_cells(line: str) -> tuple[str, ...] | None:
+    stripped = line.strip()
+    if not (stripped.startswith("|") and stripped.endswith("|")):
+        return None
+    return tuple(cell.strip() for cell in stripped[1:-1].split("|"))
+
+
+def _rewrite_status_summary(text: str) -> str:
+    """Render the adoption state from the table contract, not template wording."""
+
+    lines = text.splitlines(keepends=True)
+    matches: list[tuple[int, int]] = []
+    for index in range(len(lines) - 2):
+        if _markdown_cells(lines[index]) != STATUS_SUMMARY_HEADERS:
+            continue
+        separator = _markdown_cells(lines[index + 1])
+        if separator is None or len(separator) != len(STATUS_SUMMARY_HEADERS) or not all(
+            re.fullmatch(r":?-{3,}:?", cell) for cell in separator
+        ):
+            raise AdoptionError(
+                "ART-STATUS contiene una tabla resumen con separador inválido."
+            )
+        row_indexes: list[int] = []
+        row_index = index + 2
+        while row_index < len(lines) and _markdown_cells(lines[row_index]) is not None:
+            row_indexes.append(row_index)
+            row_index += 1
+        if len(row_indexes) != 1:
+            raise AdoptionError(
+                "ART-STATUS debe contener exactamente una fila de estado del proyecto."
+            )
+        matches.append((index, row_indexes[0]))
+    if len(matches) != 1:
+        raise AdoptionError(
+            "ART-STATUS debe contener exactamente una tabla resumen contractual."
+        )
+
+    _, row_index = matches[0]
+    newline = (
+        "\r\n"
+        if lines[row_index].endswith("\r\n")
+        else "\n"
+        if lines[row_index].endswith("\n")
+        else ""
+    )
+    values = (
+        "adopt-existing",
+        "adoption",
+        "G5",
+        "none",
+        "not-assessed",
+        "Continuar la definición incremental desde la baseline adoptada",
+    )
+    lines[row_index] = "| " + " | ".join(values) + " |" + newline
+    return "".join(lines)
+
+
 def _render_core(
     relative: str, project_id: str, today: str, intent: dict[str, Any]
 ) -> str:
@@ -120,10 +185,7 @@ def _render_core(
         text, {"PROJECT_ID": project_id, "BASELINE_ID": BASELINE_ID, "DATE": today}
     )
     if relative == "00-control/project-status.md":
-        text = text.replace(
-            "| new | definition | G0 | none | not-assessed | Confirmar objetivo, alcance y usuarios |",
-            "| adopt-existing | adoption | G5 | none | not-assessed | Continuar la definición incremental desde la baseline adoptada |",
-        ).replace(
+        text = _rewrite_status_summary(text).replace(
             "La inicialización no confirma decisiones ni autoriza generación de código.",
             "La baseline adoptada no homologa la aplicación ni autoriza cambios funcionales.",
         )
@@ -186,12 +248,6 @@ def _build_manifest(
             "selection_decision": None,
         },
         "active_increment": None,
-        "open_blockers": [],
-        "readiness": {
-            "status": "not-assessed",
-            "assessed_increment": None,
-            "assessed_at": None,
-        },
         "version_control": {"type": git["type"], "origin": git["origin"]},
         "last_verified_revision": git["revision"],
         "adoption": {

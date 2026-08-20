@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -114,6 +115,77 @@ def validate_profile(require_validated: bool = True) -> list[str]:
             if stripped.startswith(("image:", "FROM ")) and "@sha256:" not in stripped:
                 errors.append(f"Imagen OCI sin digest en {path.relative_to(PLUGIN_ROOT)}: {stripped}")
     return errors
+
+
+def validate_consumer_profile_lock(
+    project_root: Path,
+    *,
+    required: bool = True,
+) -> tuple[list[str], dict[str, str | None]]:
+    """Require the consumer H0 lock to be the exact packaged lock.
+
+    The byte-for-byte comparison is intentional: the consumer lock is an immutable
+    handoff input, not an editable declaration.  Returning both hashes lets callers
+    bind readiness and later gates to the exact snapshot without trusting fields
+    parsed from a potentially substituted document.
+    """
+
+    errors: list[str] = []
+    root = project_root.expanduser().resolve()
+    consumer_path = root / ".lks-sdd" / "profile.lock.json"
+    packaged_path = PROFILE_ROOT / "technology-profile.lock.json"
+    details: dict[str, str | None] = {
+        "path": ".lks-sdd/profile.lock.json",
+        "sha256": None,
+        "expected_sha256": None,
+    }
+    try:
+        packaged = packaged_path.read_bytes()
+    except OSError as exc:
+        errors.append(f"No se puede leer el lock H0 empaquetado: {exc}")
+        return errors, details
+    details["expected_sha256"] = hashlib.sha256(packaged).hexdigest()
+
+    if consumer_path.is_symlink() or (
+        hasattr(consumer_path, "is_junction") and consumer_path.is_junction()
+    ):
+        errors.append(
+            "El lock H0 del consumidor no puede ser un symlink o junction."
+        )
+        return errors, details
+    if consumer_path.exists() and not consumer_path.is_file():
+        errors.append(
+            "El lock H0 del consumidor debe ser un archivo regular en "
+            ".lks-sdd/profile.lock.json."
+        )
+        return errors, details
+    if not consumer_path.is_file():
+        if required:
+            errors.append(
+                "Falta el lock H0 exacto del consumidor en "
+                ".lks-sdd/profile.lock.json."
+            )
+        return errors, details
+    try:
+        consumer = consumer_path.read_bytes()
+    except OSError as exc:
+        errors.append(f"No se puede leer el lock H0 del consumidor: {exc}")
+        return errors, details
+    details["sha256"] = hashlib.sha256(consumer).hexdigest()
+
+    try:
+        decoded = json.loads(consumer.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        errors.append(f"El lock H0 del consumidor no es JSON válido: {exc}")
+        return errors, details
+    if not isinstance(decoded, dict) or not decoded:
+        errors.append("El lock H0 del consumidor debe ser un objeto JSON no vacío.")
+    if consumer != packaged:
+        errors.append(
+            "El lock H0 del consumidor diverge del lock exacto empaquetado; "
+            "restáurelo antes de readiness, implementación o verificación."
+        )
+    return errors, details
 
 
 def main() -> int:

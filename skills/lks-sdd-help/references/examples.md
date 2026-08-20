@@ -34,6 +34,14 @@ Resultado esperado: explicación del preflight, alcance, exclusiones, separació
 
 > Usa `$lks-sdd-assess-readiness` para evaluar `INC-001`. No corrijas documentos ni implementes nada.
 
+Resultado esperado: informa por separado `specification_readiness` y `automation_support`, mantiene `implementation_authorized: false` y explica el cambio mínimo para cada bloqueo. Una pila alternativa suficientemente definida no se sustituye por H0 aunque carezca de automatización.
+
+## Trazabilidad previa a implementación
+
+> Comprueba la trazabilidad `preimplementation` de `INC-001`. No exijas evidencias de pruebas que todavía no se han ejecutado y no cambies archivos.
+
+Resultado esperado: exige requisito, aceptación, decisión o no aplicabilidad motivada, incremento y prueba; no exige `EVID-###` hasta verificación y no acepta una comprobación vacía.
+
 ## Alternativa tecnológica
 
 > Compara la pila preferente con mi alternativa, pero conserva ambas como propuestas hasta que yo confirme una decisión.

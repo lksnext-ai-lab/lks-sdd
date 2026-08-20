@@ -21,3 +21,5 @@ Revise cada dimensión con uno de cuatro estados: `unknown`, `partial`, `suffici
 Registre el estado resumido en la tabla de cobertura de `ART-STATUS` y la evidencia sustantiva en los artefactos canónicos afectados. Use `ART-OPEN` para el vacío y su impacto; no duplique contenido sustantivo en `.lks-sdd/project.json`. Si la persona cierra deliberadamente el nivel de detalle, conserve qué se cerró, para qué alcance y qué riesgo residual permanece.
 
 `Sufficient` solo significa que hay información suficiente para avanzar en el alcance indicado. Para una interfaz aplicable, una imagen no vuelve suficiente la dimensión si faltan comportamiento, copy, estados o aceptación en Markdown. Un prototipo requerido permanece `proposal` hasta validación humana explícita.
+
+La cobertura de definición alimenta `specification_readiness`, no `automation_support`. Una dimensión tecnológica puede estar suficientemente decidida para una pila alternativa aunque el plugin no disponga de scaffold o gate para ella. Informe esa limitación como soporte de automatización y mantenga bloqueada la implementación asistida, sin degradar la suficiencia funcional ni sustituir la decisión por H0.

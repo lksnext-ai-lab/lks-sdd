@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-OPERATIONS
 artifact_type: operations
-schema_version: "1.0"
-method_version: "1.0.0"
-created_with_plugin_version: "0.1.0"
+schema_version: "1.1"
+method_version: "1.1.0"
+created_with_plugin_version: "0.7.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -18,7 +18,7 @@ last_updated: "{{DATE}}"
 
 # Operación, continuidad y recuperación
 
-| Reference | State | Scenario or task | Trigger | Response | Recovery objective | Owner |
+| Label | State | Scenario or task | Trigger | Response | Recovery objective | Owner |
 |---|---|---|---|---|---|---|
 
 Documente operación, soporte, backup, restauración, RPO, RTO y retirada solo con responsables y condiciones confirmadas.

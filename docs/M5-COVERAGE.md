@@ -18,7 +18,7 @@
 | Canal de soporte | `SUPPORT.md`, `.github/ISSUE_TEMPLATE/` | Issues no sensibles y separación de seguridad |
 | Feedback compatible con privacidad | `pilot-observation.schema.json`, `manage_pilot.py` | Contrato cerrado, aliases y almacén externo |
 | Plan y resultados | `pilot/PLAN.md`, `pilot-config.example.json`, resumen y decisión | Plan versionado; resultados reales aún pendientes |
-| Paquete candidate | `build_candidate_package.py` | Dos ZIP, manifiesto y `SHA256SUMS` |
+| Paquete candidate | `build_candidate_package.py` | Dos ZIP, reporte de calidad ligado al commit, manifiesto y `SHA256SUMS` |
 | Responsables y rollback | Configuración bloqueante, `pilot/ROLLBACK.md` | No se inicia con roles o checksum ausentes |
 
 ## Estado de aceptación

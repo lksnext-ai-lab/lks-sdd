@@ -1,5 +1,7 @@
 # Cobertura auditable de M3
 
+Este documento conserva la fotografía histórica cerrada por la versión `0.3.0`. La evolución del contrato, incluida la migración 1.0 → 1.1, se documenta en [la cobertura 0.7](V0.7-CONTRACT-HANDOFF-COVERAGE.md) y no reescribe la evidencia de aquel hito.
+
 ## Hechos verificados
 
 - `lks-sdd-adopt-existing` separa inspección, validación y escritura; el preflight no ejecuta código ni red y el informe se guarda fuera del repositorio.

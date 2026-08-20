@@ -10,16 +10,27 @@ import os
 import re
 import sys
 import zlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from contract_engine import Diagnostic, build_project_model, legacy_messages
+
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-PROJECT_SCHEMA = PLUGIN_ROOT / "schemas" / "project.schema.json"
-FRONTMATTER_SCHEMA = PLUGIN_ROOT / "schemas" / "frontmatter.schema.json"
+PROJECT_SCHEMAS = {
+    "1.0": PLUGIN_ROOT / "schemas" / "project.schema.json",
+    "1.1": PLUGIN_ROOT / "schemas" / "project-1.1.schema.json",
+}
+FRONTMATTER_SCHEMAS = {
+    "1.0": PLUGIN_ROOT / "schemas" / "frontmatter.schema.json",
+    "1.1": PLUGIN_ROOT / "schemas" / "frontmatter-1.1.schema.json",
+}
 CATALOGS = json.loads(
     (PLUGIN_ROOT / "schemas" / "catalogs.json").read_text(encoding="utf-8")
+)
+DOCUMENT_CONTRACTS = json.loads(
+    (PLUGIN_ROOT / "schemas" / "document-contracts.json").read_text(encoding="utf-8")
 )
 ID_PREFIX_PATTERN = "|".join(
     re.escape(prefix) for prefix in CATALOGS["identifier_prefixes"]
@@ -266,6 +277,7 @@ class ValidationReport:
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     checked_files: list[str] = field(default_factory=list)
+    diagnostics: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def valid(self) -> bool:
@@ -278,7 +290,26 @@ class ValidationReport:
             "errors": self.errors,
             "warnings": self.warnings,
             "checked_files": self.checked_files,
+            "diagnostics": self.diagnostics,
         }
+
+
+def _legacy_error_backing_diagnostic(
+    diagnostic: Diagnostic, legacy_errors: list[str]
+) -> int | None:
+    """Return the legacy error index that independently confirms a diagnostic."""
+
+    if diagnostic.code == "LKS-REF-UNDEFINED" and isinstance(
+        diagnostic.observed, str
+    ):
+        marker = f"referencia sin definición: {diagnostic.observed}"
+        for index, error in enumerate(legacy_errors):
+            if marker in error and (
+                diagnostic.location.path is None
+                or error.startswith(f"{diagnostic.location.path}:")
+            ):
+                return index
+    return None
 
 
 def _matches_type(value: Any, expected: str) -> bool:
@@ -495,6 +526,20 @@ def table_rows_for_headers(
     if len(matching) != 1:
         return None
     return matching[0]
+
+
+def document_table_contract(
+    artifact_id: str, headers: tuple[str, ...], schema_version: str
+) -> dict[str, Any] | None:
+    """Resolve one declared table contract for schema-aware parsing."""
+    artifact = DOCUMENT_CONTRACTS.get("artifacts", {}).get(artifact_id, {})
+    for contract in artifact.get("tables", []):
+        if (
+            schema_version in contract.get("schemas", [])
+            and tuple(contract.get("headers", [])) == headers
+        ):
+            return contract
+    return None
 
 
 def interface_applicability(value: str) -> tuple[str | None, str | None]:
@@ -1620,9 +1665,20 @@ def load_project_manifest(
         return None, ["Falta .lks-sdd/project.json."]
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        schema = json.loads(PROJECT_SCHEMA.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         return None, [f"No se puede leer el índice o su esquema: {exc}"]
+    if not isinstance(data, dict):
+        return None, ["El índice operativo debe contener un objeto JSON."]
+    schema_version = data.get("schema_version")
+    schema_path = PROJECT_SCHEMAS.get(schema_version)
+    if schema_path is None:
+        return data, [
+            f"project.schema_version={schema_version!r} no está soportado; use 1.0 o 1.1."
+        ]
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return data, [f"No se puede leer el esquema {schema_version}: {exc}"]
     return data, validate_json_schema(data, schema, "project")
 
 
@@ -1654,7 +1710,18 @@ def validate_project(
     artifact_bodies: dict[str, str] = {}
     definitions: dict[str, dict[str, str]] = {}
     references: list[tuple[str, str]] = []
-    frontmatter_schema = json.loads(FRONTMATTER_SCHEMA.read_text(encoding="utf-8"))
+    schema_version = str(manifest.get("schema_version", ""))
+    frontmatter_schema = json.loads(
+        FRONTMATTER_SCHEMAS[schema_version].read_text(encoding="utf-8")
+    )
+    if schema_version == "1.0":
+        report.warnings.append(
+            "Proyecto schema 1.0 validado en modo compatibilidad; prepare 1.1 "
+            "con `python \"<plugin-root>/scripts/lks_sdd.py\" migrate "
+            "\"<project-root>\" --target-schema 1.1 --dry-run`. Si "
+            "human_review_required no está vacío, resuelva las ambigüedades "
+            "en los Markdown 1.0 antes de aplicar; no se infieren confirmaciones."
+        )
 
     for entry in artifacts if isinstance(artifacts, list) else []:
         if not isinstance(entry, dict):
@@ -1720,19 +1787,46 @@ def validate_project(
             artifact_metadata[artifact_id] = metadata
             artifact_bodies[artifact_id] = body
         actual_headers = {headers for headers, _ in table_blocks}
-        for required_headers in REQUIRED_TABLE_HEADERS.get(artifact_id, []):
+        if schema_version == "1.1":
+            artifact_contract = DOCUMENT_CONTRACTS.get("artifacts", {}).get(
+                artifact_id, {}
+            )
+            required_header_sets = [
+                tuple(item.get("headers", []))
+                for item in artifact_contract.get("tables", [])
+                if schema_version in item.get("schemas", [])
+                and item.get("min_occurs", 0) > 0
+            ]
+        else:
+            required_header_sets = REQUIRED_TABLE_HEADERS.get(artifact_id, [])
+        for required_headers in required_header_sets:
             if required_headers not in actual_headers:
                 report.errors.append(
                     f"{relative}: falta la tabla contractual con cabeceras {list(required_headers)!r}."
                 )
 
-        for _, table in table_blocks:
+        for headers, table in table_blocks:
+            table_contract = document_table_contract(
+                str(artifact_id), headers, schema_version
+            )
+            key_column = "ID"
+            if schema_version == "1.1" and table_contract is not None:
+                key_column = table_contract.get("key", {}).get("column", "")
             for row in table:
-                element_id = row.get("ID")
+                element_id = row.get(key_column) if key_column else None
                 if element_id:
                     if not ID_RE.fullmatch(element_id):
                         report.errors.append(
                             f"{relative}: identificador inválido {element_id!r}."
+                        )
+                    elif (
+                        schema_version == "1.1"
+                        and table_contract is not None
+                        and element_id.split("-", 1)[0]
+                        not in set(table_contract.get("key", {}).get("prefixes", []))
+                    ):
+                        report.errors.append(
+                            f"{relative}: {element_id} no pertenece al prefijo propietario de {table_contract.get('id')}."
                         )
                     elif element_id in definitions:
                         report.errors.append(
@@ -1745,15 +1839,28 @@ def validate_project(
                             **row,
                         }
                 state = row.get("State")
-                if state and state not in VALID_ELEMENT_STATES:
+                if schema_version == "1.1" and state and table_contract is not None:
+                    policy_name = table_contract.get("state", {}).get("policy")
+                    allowed_states = set(
+                        DOCUMENT_CONTRACTS.get("state_policies", {})
+                        .get(policy_name, {})
+                        .get("allowed", [])
+                    )
+                    if state not in allowed_states:
+                        report.errors.append(
+                            f"{relative}: estado {state!r} no admitido por la política {policy_name!r}."
+                        )
+                elif state and state not in VALID_ELEMENT_STATES:
                     report.errors.append(
                         f"{relative}: estado de elemento no admitido {state!r}."
                     )
-                for column, cell in row.items():
-                    if column != "ID":
-                        references.extend(
-                            (relative, item) for item in ID_RE.findall(cell)
-                        )
+                if schema_version == "1.1" and table_contract is not None:
+                    relation_columns = set(table_contract.get("relations", {}))
+                else:
+                    relation_columns = set(row) - {"ID"}
+                for column in relation_columns:
+                    cell = row.get(column, "")
+                    references.extend((relative, item) for item in ID_RE.findall(cell))
 
     manifest_v06_contract = plugin_version_at_least(
         manifest.get("plugin_version"), (0, 6, 0)
@@ -2232,6 +2339,14 @@ def validate_project(
                         f"{expected_ux_path}: prototipo visual con ID inválido {visual_id!r}."
                     )
                     continue
+                if schema_version == "1.1" and row.get("State") in {
+                    "rejected",
+                    "superseded",
+                    "retired",
+                }:
+                    # Historical visual rows remain auditable through the common
+                    # contract model, but their assets are not active inputs.
+                    continue
                 target, target_error = _markdown_image_target(row.get("Asset", ""))
                 if target_error or target is None:
                     report.errors.append(
@@ -2528,30 +2643,31 @@ def validate_project(
                 f"{artifact_id}: el artefacto del núcleo debe ser obligatorio."
             )
 
-    indexed_blockers = set(manifest.get("open_blockers", []))
-    for blocker_id in indexed_blockers:
-        blocker = definitions.get(blocker_id)
-        if blocker is None or not blocker.get("path", "").endswith("open-points.md"):
-            report.errors.append(
-                f"El índice referencia un bloqueo sin definición en ART-OPEN: {blocker_id}"
-            )
-        elif blocker.get("State") not in {"open", "blocked"}:
-            report.errors.append(
-                f"El bloqueo indexado {blocker_id} no está open ni blocked."
-            )
-        elif blocker.get("Blocking", "").strip().lower() != "true":
-            report.errors.append(
-                f"El bloqueo indexado {blocker_id} no declara Blocking=true en ART-OPEN."
-            )
-    for item_id, item in definitions.items():
-        if not item.get("path", "").endswith("open-points.md"):
-            continue
-        is_blocking = item.get("Blocking", "").strip().lower() == "true"
-        is_open = item.get("State") in {"open", "blocked"}
-        if is_blocking and is_open and item_id not in indexed_blockers:
-            report.errors.append(
-                f"El bloqueo {item_id} está activo en ART-OPEN pero no aparece en el índice."
-            )
+    if schema_version == "1.0":
+        indexed_blockers = set(manifest.get("open_blockers", []))
+        for blocker_id in indexed_blockers:
+            blocker = definitions.get(blocker_id)
+            if blocker is None or not blocker.get("path", "").endswith("open-points.md"):
+                report.errors.append(
+                    f"El índice referencia un bloqueo sin definición en ART-OPEN: {blocker_id}"
+                )
+            elif blocker.get("State") not in {"open", "blocked"}:
+                report.errors.append(
+                    f"El bloqueo indexado {blocker_id} no está open ni blocked."
+                )
+            elif blocker.get("Blocking", "").strip().lower() != "true":
+                report.errors.append(
+                    f"El bloqueo indexado {blocker_id} no declara Blocking=true en ART-OPEN."
+                )
+        for item_id, item in definitions.items():
+            if not item.get("path", "").endswith("open-points.md"):
+                continue
+            is_blocking = item.get("Blocking", "").strip().lower() == "true"
+            is_open = item.get("State") in {"open", "blocked"}
+            if is_blocking and is_open and item_id not in indexed_blockers:
+                report.errors.append(
+                    f"El bloqueo {item_id} está activo en ART-OPEN pero no aparece en el índice."
+                )
 
     technology = manifest.get("technology", {})
     selected_profile = (
@@ -2625,6 +2741,58 @@ def validate_project(
                 )
     elif "adoption" in manifest:
         report.warnings.append("La ruta new no necesita un bloque adoption.")
+
+    contract_model = build_project_model(root)
+    legacy_errors = list(report.errors)
+    backed_legacy_errors: set[int] = set()
+    contract_diagnostics: list[Diagnostic] = []
+    for item in contract_model.diagnostics:
+        if schema_version != "1.0" or item.severity != "error":
+            contract_diagnostics.append(item)
+            continue
+        legacy_error_index = _legacy_error_backing_diagnostic(item, legacy_errors)
+        if legacy_error_index is None:
+            contract_diagnostics.append(replace(item, severity="warning"))
+        else:
+            backed_legacy_errors.add(legacy_error_index)
+            contract_diagnostics.append(item)
+    report.diagnostics = [item.as_dict() for item in contract_diagnostics]
+    if schema_version == "1.0":
+        report.diagnostics.extend(
+            {
+                "code": "LKS-LEGACY-VALIDATION",
+                "severity": "error",
+                "stage": "structure",
+                "message": error,
+                "location": {},
+                "cause": "legacy-validator",
+            }
+            for index, error in enumerate(legacy_errors)
+            if index not in backed_legacy_errors
+        )
+        diagnostic_counts: dict[str, int] = {}
+        for item in contract_diagnostics:
+            if item.severity != "warning":
+                continue
+            diagnostic_counts[item.code] = diagnostic_counts.get(item.code, 0) + 1
+        compatibility_warnings = [
+            f"[{code}] Compatibilidad 1.0: {count} incidencia(s); "
+            "consulte diagnostics para ubicaciones y migre a 1.1 para aplicar "
+            "el contrato estricto."
+            for code, count in sorted(diagnostic_counts.items())
+        ]
+        report.warnings = list(
+            dict.fromkeys([*report.warnings, *compatibility_warnings])
+        )
+    else:
+        messages = legacy_messages(contract_diagnostics)
+        report.errors = list(dict.fromkeys([*report.errors, *messages["errors"]]))
+        report.warnings = list(
+            dict.fromkeys([*report.warnings, *messages["warnings"]])
+        )
+    report.checked_files = list(
+        dict.fromkeys([*report.checked_files, *contract_model.checked_files])
+    )
 
     return report, manifest, definitions
 

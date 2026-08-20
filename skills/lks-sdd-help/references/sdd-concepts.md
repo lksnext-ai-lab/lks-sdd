@@ -9,5 +9,11 @@
 - **Baseline:** estado de referencia identificado y vigente.
 - **Puerta:** conjunto de condiciones comprobables para decidir si un alcance puede avanzar.
 - **Perfil:** combinación tecnológica y nivel de soporte documentado.
+- **Preparación de especificación:** suficiencia funcional del incremento documentado; se informa como `specification_readiness`.
+- **Soporte de automatización:** capacidad del plugin para preparar y verificar la pila confirmada; se informa como `automation_support` y no cambia la decisión tecnológica.
+- **Huella documental:** hash de la instantánea completa, incluido el historial conservado.
+- **Huella de contrato activo:** hash de los inputs confirmados y aplicables a un incremento; excluye filas rechazadas, sustituidas o retiradas.
 
 LKS-SDD distingue hecho, objetivo, requisito, restricción, propuesta, decisión, supuesto, punto abierto, riesgo y evidencia. Una propuesta no se transforma en decisión sin confirmación explícita.
+
+Los proyectos nuevos de 0.7.0 usan método 1.1.0 y esquema 1.1. El esquema 1.0 permanece soportado en compatibilidad y su migración nunca se deduce de una actualización del plugin.

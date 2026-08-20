@@ -16,8 +16,9 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 sys.path.insert(0, str(PLUGIN_ROOT / "skills" / "lks-sdd-assess-readiness" / "scripts"))
 
-from assess_readiness import assess
-from validate_reference_profile import (
+from assess_readiness import assess  # noqa: E402
+from contract_engine import build_project_model, resolve_active_increment  # noqa: E402
+from validate_reference_profile import (  # noqa: E402
     PROFILE_ID,
     PROFILE_ROOT,
     validate_profile,
@@ -144,17 +145,11 @@ def _preview_hash(
     return digest.hexdigest()
 
 
-def _current_input_fingerprint(root: Path, checked_files: list[str]) -> str:
-    digest = hashlib.sha256()
-    for relative in sorted(set(checked_files)):
-        path = root / relative
-        if not path.is_file():
-            continue
-        digest.update(relative.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(hashlib.sha256(path.read_bytes()).digest())
-        digest.update(b"\0")
-    return digest.hexdigest()
+def _current_input_fingerprint(root: Path, increment: str) -> str:
+    """Recompute the same semantic fingerprint used by the readiness gate."""
+
+    model = build_project_model(root)
+    return resolve_active_increment(model, increment).fingerprint
 
 
 def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
@@ -225,7 +220,7 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         isinstance(item, str) for item in checked_files
     ):
         raise PreparationError("Readiness no devolvió la lista válida de entradas.")
-    if _current_input_fingerprint(root, checked_files) != input_fingerprint:
+    if _current_input_fingerprint(root, args.increment) != input_fingerprint:
         raise PreparationError(
             "La especificación o sus assets visuales cambiaron después de readiness; repita el dry-run."
         )

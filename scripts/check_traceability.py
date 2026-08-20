@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check semantic traceability between confirmed needs, acceptance, increments, tests, and evidence."""
+"""Check traceability at the preimplementation or verification handoff."""
 
 from __future__ import annotations
 
@@ -9,8 +9,13 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from contract_engine import (
+    RelationSpec,
+    build_project_model,
+    parse_reference_cell,
+    resolve_active_increment,
+)
 from validate_project import (
-    ID_RE,
     parse_frontmatter,
     parse_markdown_tables,
     validate_project,
@@ -18,23 +23,177 @@ from validate_project import (
 
 
 def _ids(value: str, prefixes: set[str]) -> set[str]:
-    return {
-        item for item in ID_RE.findall(value or "") if item.split("-", 1)[0] in prefixes
-    }
+    relation = RelationSpec(
+        column="traceability",
+        targets=frozenset(prefixes),
+        minimum=0,
+        maximum=None,
+        active_input=False,
+        require_defined=False,
+        allow_empty=True,
+        allow_applicability=frozenset({"pending", "not-applicable"}),
+        allow_legacy_artifact_marker=True,
+    )
+    result = parse_reference_cell(value or "", relation, mode="compat")
+    return set(result.references) if result.valid else set()
 
 
-def check(root: Path, increment: str | None) -> tuple[int, dict[str, Any]]:
+def _resolved_phase(manifest: dict[str, Any], requested: str) -> str:
+    if requested != "auto":
+        return requested
+    if manifest.get("phase") in {"verification", "operation"}:
+        return "verification"
+    verification = manifest.get("verification")
+    if isinstance(verification, dict) and verification.get("status") != "not-run":
+        return "verification"
+    return "preimplementation"
+
+
+def _successful_evidence(
+    evidence: dict[str, Any] | None,
+    evidence_id: str,
+    row_increments: set[str],
+    scoped_increment: str | None,
+) -> bool:
+    """Accept only structured, applicable evidence whose checks all passed."""
+
+    if not evidence or evidence.get("evidence_id") != evidence_id:
+        return False
+    evidence_increment = evidence.get("increment")
+    if evidence_increment not in row_increments:
+        return False
+    if scoped_increment is not None and evidence_increment != scoped_increment:
+        return False
+    if evidence.get("classification") not in {
+        "verified",
+        "verified-with-reservations",
+    }:
+        return False
+    checks = evidence.get("checks")
+    return (
+        isinstance(checks, list)
+        and bool(checks)
+        and all(
+            isinstance(item, dict) and item.get("status") == "passed"
+            for item in checks
+        )
+    )
+
+
+def _active_gap(item: dict[str, Any]) -> str:
+    """Render one handoff diagnostic with enough relation context to act on it."""
+
+    location = item.get("location", {})
+    source = (
+        location.get("source_id")
+        or location.get("table_id")
+        or location.get("path")
+    )
+    observed = item.get("observed")
+    if isinstance(observed, dict):
+        target = str(observed.get("id") or observed)
+        state = observed.get("state")
+        if state:
+            target += f" ({state})"
+    elif observed is not None:
+        target = str(observed)
+    else:
+        target = None
+    relation = ""
+    column = location.get("column")
+    if source and column and target:
+        relation = f"{source} [{column}] -> {target}: "
+    elif source and target and source != target:
+        relation = f"{source} -> {target}: "
+    elif target:
+        relation = f"{target}: "
+    elif source:
+        relation = f"{source}: "
+    remediation_value = item.get("remediation")
+    remediation = f" Acción: {remediation_value}" if remediation_value else ""
+    return f"[{item['code']}] {relation}{item['message']}{remediation}"
+
+
+def _diagnostic_gap(item: dict[str, Any]) -> str:
+    """Keep legacy trace gaps readable while exposing typed diagnostic codes."""
+
+    code = str(item.get("code", "TRACE-UNKNOWN"))
+    if code.startswith("LKS-ACTIVE-"):
+        return _active_gap(item)
+    element = item.get("element_id")
+    prefix = f"{element}: " if element else ""
+    return f"[{code}] {prefix}{item['message']}"
+
+
+def _deduplicate(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Deduplicate exact structured diagnostics without merging distinct locations."""
+
+    seen: set[str] = set()
+    result: list[dict[str, Any]] = []
+    for item in items:
+        key = json.dumps(item, sort_keys=True, ensure_ascii=True, default=str)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(item)
+    return result
+
+
+def check(
+    root: Path, increment: str | None, phase: str = "auto"
+) -> tuple[int, dict[str, Any]]:
     report, manifest, definitions = validate_project(root)
-    gaps = [f"Contrato inválido: {item}" for item in report.errors]
+    diagnostics: list[dict[str, Any]] = []
+
+    def gap(code: str, message: str, element_id: str | None = None) -> None:
+        diagnostics.append(
+            {
+                "code": code,
+                "severity": "error",
+                "stage": "traceability",
+                "message": message,
+                "element_id": element_id,
+            }
+        )
+
+    for item in report.errors:
+        gap("TRACE-CONTRACT-INVALID", f"Contrato inválido: {item}")
     if manifest is None or report.errors:
-        return 2, {"valid": False, "increment": increment, "gaps": gaps, "checked": []}
+        diagnostics = _deduplicate(diagnostics)
+        return 2, {
+            "valid": False,
+            "phase": phase,
+            "increment": increment,
+            "gaps": [_diagnostic_gap(item) for item in diagnostics],
+            "diagnostics": diagnostics,
+            "checked": [],
+        }
+
+    resolved_phase = _resolved_phase(manifest, phase)
+    if increment is not None:
+        increment_definition = definitions.get(increment)
+        if (
+            increment_definition is None
+            or not increment_definition.get("path", "").endswith("increments.md")
+        ):
+            gap(
+                "TRACE-INCREMENT-UNDEFINED",
+                f"El incremento {increment} no está definido.",
+                increment,
+            )
+
+        active_contract = resolve_active_increment(
+            build_project_model(root), increment
+        )
+        for item in active_contract.diagnostics:
+            diagnostics.append(item.as_dict())
+
     trace_entry = next(
         item for item in manifest["artifacts"] if item["id"] == "ART-TRACE"
     )
-    metadata, body = parse_frontmatter(
+    _, body = parse_frontmatter(
         (root / trace_entry["path"]).read_text(encoding="utf-8")
     )
-    del metadata
     rows = [
         row
         for table in parse_markdown_tables(body)
@@ -45,7 +204,7 @@ def check(root: Path, increment: str | None) -> tuple[int, dict[str, Any]]:
     evidence_cache: dict[str, dict[str, Any] | None] = {}
     for requirement_id, item in definitions.items():
         if (
-            requirement_id.split("-", 1)[0] not in {"FR", "NFR", "TR"}
+            requirement_id.split("-", 1)[0] not in {"FR", "NFR", "TR", "BR"}
             or item.get("State") != "confirmed"
         ):
             continue
@@ -56,7 +215,8 @@ def check(root: Path, increment: str | None) -> tuple[int, dict[str, Any]]:
         matching = [
             row
             for row in rows
-            if requirement_id in _ids(row.get("Requirement", ""), {"FR", "NFR", "TR"})
+            if requirement_id
+            in _ids(row.get("Requirement", ""), {"FR", "NFR", "TR", "BR"})
         ]
         if increment:
             matching = [
@@ -65,24 +225,50 @@ def check(root: Path, increment: str | None) -> tuple[int, dict[str, Any]]:
                 if increment in _ids(row.get("Increment", ""), {"INC"})
             ]
         if not matching:
-            gaps.append(f"{requirement_id}: falta una fila de trazabilidad aplicable.")
+            gap(
+                "TRACE-ROW-MISSING",
+                f"{requirement_id}: falta una fila de trazabilidad aplicable.",
+                requirement_id,
+            )
             continue
-        for label, column, prefixes in (
-            ("aceptación", "Acceptance", {"AC"}),
-            ("incremento", "Increment", {"INC"}),
-            ("prueba", "Test", {"TEST"}),
+        for code, label, column, prefixes in (
+            ("TRACE-AC-MISSING", "aceptación", "Acceptance", {"AC"}),
+            ("TRACE-INC-MISSING", "incremento", "Increment", {"INC"}),
+            ("TRACE-TEST-MISSING", "prueba", "Test", {"TEST"}),
         ):
             if not any(_ids(row.get(column, ""), prefixes) for row in matching):
-                gaps.append(f"{requirement_id}: falta enlace de {label}.")
+                gap(code, f"{requirement_id}: falta enlace de {label}.", requirement_id)
+
+        decision_cells = [row.get("Decision", "").strip() for row in matching]
+        has_decision = any(_ids(cell, {"ADR"}) for cell in decision_cells)
+        has_reasoned_na = any(
+            cell.casefold().startswith("not-applicable:")
+            and bool(cell.partition(":")[2].strip())
+            for cell in decision_cells
+        )
+        if not has_decision and not has_reasoned_na:
+            gap(
+                "TRACE-ADR-MISSING",
+                f"{requirement_id}: falta decisión o justificación de no aplicabilidad.",
+                requirement_id,
+            )
+
+        if resolved_phase == "preimplementation":
+            continue
         linked_evidence = [
             (row, evidence_id)
             for row in matching
             for evidence_id in _ids(row.get("Evidence", ""), {"EVID"})
         ]
         if not linked_evidence:
-            gaps.append(f"{requirement_id}: no existe evidencia ejecutada enlazada.")
+            gap(
+                "TRACE-EVIDENCE-MISSING",
+                f"{requirement_id}: no existe evidencia ejecutada enlazada.",
+                requirement_id,
+            )
             continue
         applicable_evidence = False
+        unsuccessful_applicable_evidence = False
         for row, evidence_id in linked_evidence:
             if evidence_id not in evidence_cache:
                 path = root / "docs" / "lks-sdd" / "evidence" / f"{evidence_id}.json"
@@ -95,44 +281,77 @@ def check(root: Path, increment: str | None) -> tuple[int, dict[str, Any]]:
                 )
             evidence = evidence_cache[evidence_id]
             row_increments = _ids(row.get("Increment", ""), {"INC"})
-            if (
-                evidence
-                and evidence.get("increment") in row_increments
-                and (increment is None or evidence.get("increment") == increment)
+            evidence_increment = evidence.get("increment") if evidence else None
+            same_scope = evidence_increment in row_increments and (
+                increment is None or evidence_increment == increment
+            )
+            if same_scope and _successful_evidence(
+                evidence, evidence_id, row_increments, increment
             ):
                 applicable_evidence = True
                 break
+            if same_scope:
+                unsuccessful_applicable_evidence = True
         if not applicable_evidence:
-            gaps.append(
-                f"{requirement_id}: la evidencia enlazada no corresponde al incremento."
-            )
-    if increment and increment not in definitions:
-        gaps.append(f"El incremento {increment} no está definido.")
+            if unsuccessful_applicable_evidence:
+                gap(
+                    "TRACE-EVIDENCE-NOT-PASSED",
+                    f"{requirement_id}: la evidencia enlazada no acredita checks ejecutados satisfactoriamente.",
+                    requirement_id,
+                )
+            else:
+                gap(
+                    "TRACE-EVIDENCE-INAPPLICABLE",
+                    f"{requirement_id}: la evidencia enlazada no corresponde al incremento.",
+                    requirement_id,
+                )
+
+    if not checked:
+        scope = f" para {increment}" if increment else ""
+        gap(
+            "TRACE-EMPTY-SCOPE",
+            "No hay requisitos confirmados aplicables"
+            f"{scope}; una comprobación vacía no puede considerarse válida.",
+            increment,
+        )
+
+    diagnostics = _deduplicate(diagnostics)
     result = {
-        "valid": not gaps,
+        "valid": not diagnostics,
+        "phase": resolved_phase,
         "increment": increment,
         "checked": checked,
-        "gaps": gaps,
+        "gaps": [_diagnostic_gap(item) for item in diagnostics],
+        "diagnostics": diagnostics,
+        "evidence_required": resolved_phase == "verification",
         "limitations": [
-            "La comprobación valida enlaces y estados; no juzga la suficiencia semántica de la evidencia."
+            "La comprobación exige checks ejecutados y passed; no juzga la suficiencia semántica de la evidencia."
         ],
     }
-    return (0 if not gaps else 3), result
+    return (0 if not diagnostics else 3), result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--increment")
+    parser.add_argument(
+        "--phase",
+        choices=("auto", "preimplementation", "verification"),
+        default="auto",
+    )
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
-    code, result = check(args.project_root.expanduser().resolve(), args.increment)
+    code, result = check(
+        args.project_root.expanduser().resolve(), args.increment, args.phase
+    )
     if args.as_json:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
         print("VALID" if result["valid"] else "INCOMPLETE")
-        for gap in result["gaps"]:
-            print(f"GAP: {gap}")
+        print(f"Phase: {result['phase']}")
+        for item in result["gaps"]:
+            print(f"GAP: {item}")
     return code
 
 

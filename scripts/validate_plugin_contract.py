@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus compatible v0.6 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.7/document-contract 1.1 invariants."""
 
 from __future__ import annotations
 
@@ -27,8 +27,10 @@ CANONICAL_HASHES = {
     "LKS-SDD_paquete_preimplementacion_v0.1.md": "A5FFD0D5CA1D9B7AC96D1DABB4A411739E18A01345348D9250F857D5F941504B",
     "LKS-SDD_baseline_normativa_candidata_v0.1.md": "083DED8FB14D77D899CB4F955AEA67D9A21FBA66AC25D7CF28D8C5111C1D1162",
     "LKS-SDD_extension_definicion_visual_v0.1.md": "ABA2B063A31192D5971CE9DC05323405BF7655737076AC924011E77E2C15ACA3",
+    "LKS-SDD_extension_contrato_documental_v1.1.md": "84CEAA4C5243B2942CAA0EDE9288173A603E12640645C6D1E0C2915DED3B0C7D",
 }
 REQUIRED_ROOT_FILES = {
+    ".gitattributes",
     "README.md",
     "CHANGELOG.md",
     "GOVERNANCE.md",
@@ -44,6 +46,7 @@ REQUIRED_ROOT_FILES = {
     "docs/M4-COVERAGE.md",
     "docs/M5-COVERAGE.md",
     "docs/V0.6-DEFINITION-UX-COVERAGE.md",
+    "docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
     "docs/VALIDATION.md",
@@ -58,17 +61,26 @@ REQUIRED_ROOT_FILES = {
     "scripts/validate_fixture_manifest.py",
     "scripts/manage_pilot.py",
     "scripts/build_candidate_package.py",
+    "scripts/contract_engine.py",
+    "scripts/lks_sdd.py",
+    "scripts/profile_registry.py",
     "quality/catalog.json",
     "quality/corpora/activation.json",
     "quality/corpora/definition-v0.6.0.json",
+    "quality/corpora/definition-v0.7.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
+    "quality/baselines/v0.6.1.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
     "schemas/pilot-config.schema.json",
     "schemas/pilot-observation.schema.json",
     "schemas/pilot-summary.schema.json",
+    "schemas/document-contracts.json",
+    "schemas/document-contracts.schema.json",
+    "schemas/project-1.1.schema.json",
+    "schemas/frontmatter-1.1.schema.json",
     "distribution/marketplace.template.json",
     "pilot/pilot-config.example.json",
     "pilot/PLAN.md",
@@ -79,6 +91,17 @@ REQUIRED_ROOT_FILES = {
     ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
     "templates/client/client-deliverable.md",
 }
+EXPECTED_GIT_ATTRIBUTES = (
+    "* text=auto eol=lf",
+    "*.gif binary",
+    "*.ico binary",
+    "*.jpeg binary",
+    "*.jpg binary",
+    "*.pdf binary",
+    "*.png binary",
+    "*.webp binary",
+    "*.zip binary",
+)
 REQUIRED_SKILL_RESOURCES = {
     "lks-sdd-help": {
         "references/sdd-concepts.md",
@@ -163,6 +186,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
     "urllib",
 }
 RUNTIME_IMPORT_ALLOWLIST = {
+    "scripts/build_candidate_package.py": {"subprocess"},
     "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
     "scripts/run_quality_harness.py": {"subprocess"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess", "urllib"},
@@ -200,6 +224,21 @@ def validate(root: Path) -> list[str]:
     for relative in sorted(REQUIRED_ROOT_FILES):
         if not (root / relative).is_file():
             errors.append(f"Falta archivo de gobierno o documentación: {relative}")
+    attributes_path = root / ".gitattributes"
+    try:
+        attributes = tuple(
+            line.strip()
+            for line in attributes_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+    except (OSError, UnicodeError) as exc:
+        errors.append(f".gitattributes ilegible: {exc}")
+    else:
+        if attributes != EXPECTED_GIT_ATTRIBUTES:
+            errors.append(
+                ".gitattributes debe fijar LF para texto y preservar sin conversión "
+                "los formatos binarios declarados."
+            )
     manifest_path = root / ".codex-plugin" / "plugin.json"
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -302,7 +341,7 @@ def validate(root: Path) -> list[str]:
     for unsupported in ("apps", "mcpServers", "hooks"):
         if unsupported in manifest:
             errors.append(
-                f"El manifest no puede declarar {unsupported} en M0-M5 ni en la evolución v0.6."
+                f"El manifest no puede declarar {unsupported} en el alcance actual."
             )
 
     skills_root = root / "skills"
@@ -405,8 +444,21 @@ def validate(root: Path) -> list[str]:
             "ImageGen",
             "not-run",
         ),
+        "specs/canonical/LKS-SDD_extension_contrato_documental_v1.1.md": (
+            "active_contract_fingerprint",
+            "specification_readiness",
+            "automation_support",
+            "FR-001..FR-079",
+            "preimplementation",
+        ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
+        ),
+        "scripts/run_quality_harness.py": (
+            '"v0.6.1.json"',
+            "PILOT_SUMMARY_SCHEMA_PATH",
+            "METRIC_DIRECTIONS",
+            '"tree_state": "dirty" if porcelain else "clean"',
         ),
         "skills/lks-sdd-define/references/discovery-interview.md": (
             "una a tres",
@@ -436,6 +488,10 @@ def validate(root: Path) -> list[str]:
         "pilot-observation.schema.json",
         "pilot-summary.schema.json",
         "catalogs.json",
+        "project-1.1.schema.json",
+        "frontmatter-1.1.schema.json",
+        "document-contracts.json",
+        "document-contracts.schema.json",
     ):
         try:
             json.loads((root / "schemas" / schema_name).read_text(encoding="utf-8"))
@@ -514,6 +570,38 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "El empaquetado debe derivar dinámicamente la versión desde el manifest."
             )
+        for marker in (
+            "--quality-report",
+            "QUALITY_REPORT_NAME",
+            "tree_state",
+            "baseline_sha256",
+            "EXPECTED_BASELINE_COMMIT",
+        ):
+            if marker not in package_text:
+                errors.append(
+                    f"El empaquetado no protege la evidencia de calidad: falta {marker}."
+                )
+
+    public_cli = root / "scripts" / "lks_sdd.py"
+    if public_cli.is_file():
+        cli_text = public_cli.read_text(encoding="utf-8")
+        for command in (
+            "help",
+            "define",
+            "adopt-inspect",
+            "adopt-validate",
+            "adopt-materialize",
+            "assess-readiness",
+            "implement",
+            "verify",
+            "validate-project",
+            "validate-spec",
+            "traceability",
+            "migrate",
+            "client-view",
+        ):
+            if f'"{command}"' not in cli_text:
+                errors.append(f"El dispatcher portable no declara {command}.")
 
     try:
         project_schema = json.loads(
@@ -531,6 +619,78 @@ def validate(root: Path) -> list[str]:
             )
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         errors.append("project.schema.json no expone el contrato operativo esperado.")
+
+    try:
+        project_11 = json.loads(
+            (root / "schemas" / "project-1.1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        required_11 = set(project_11["required"])
+        properties_11 = project_11["properties"]
+        if project_11["properties"]["schema_version"].get("const") != "1.1":
+            errors.append("project-1.1.schema.json debe fijar schema_version 1.1.")
+        if project_11["properties"]["method_version"].get("const") != "1.1.0":
+            errors.append("project-1.1.schema.json debe fijar method_version 1.1.0.")
+        if {"open_blockers", "readiness"} & (required_11 | set(properties_11)):
+            errors.append(
+                "El índice 1.1 no debe persistir open_blockers ni snapshots de readiness."
+            )
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("project-1.1.schema.json no expone el contrato derivado esperado.")
+
+    try:
+        quality_report = json.loads(
+            (root / "schemas" / "quality-report.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        quality_required = set(quality_report["required"])
+        source_contract = quality_report["properties"]["source"]
+        if quality_report["properties"]["schema_version"].get("const") != "1.1":
+            errors.append("quality-report.schema.json debe fijar schema_version 1.1.")
+        if "source" not in quality_required or set(source_contract["required"]) != {
+            "commit",
+            "tree_state",
+        }:
+            errors.append(
+                "El reporte de calidad debe exigir commit y estado del árbol fuente."
+            )
+        if source_contract["properties"]["tree_state"].get("enum") != [
+            "clean",
+            "dirty",
+        ]:
+            errors.append("El estado fuente debe distinguir clean y dirty.")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("quality-report.schema.json no expone el vínculo de release 1.1.")
+
+    try:
+        baseline_061 = json.loads(
+            (root / "quality" / "baselines" / "v0.6.1.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        expected_metrics = {
+            "automated_eval_cases": 5,
+            "automated_eval_pass_rate": 1.0,
+            "unit_tests_total": 81,
+            "unit_tests_executed": 80,
+            "unit_tests_passed": 80,
+            "unit_tests_skipped": 1,
+            "unit_tests_failed": 0,
+            "critical_failures": 0,
+            "profile_structure_gate": 1,
+            "profile_complete_gate": 1,
+        }
+        if (
+            baseline_061.get("plugin_version") != "0.6.1"
+            or baseline_061.get("source_commit")
+            != "7318ccc337570e296bffda68a8e49724bed94c99"
+            or baseline_061.get("metrics") != expected_metrics
+        ):
+            errors.append("La baseline v0.6.1 no coincide con la release publicada.")
+    except (OSError, json.JSONDecodeError, TypeError):
+        errors.append("quality/baselines/v0.6.1.json no es una baseline válida.")
 
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:

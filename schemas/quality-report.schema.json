@@ -1,22 +1,123 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://lks.invalid/lks-sdd/schemas/quality-report-1.0.json",
+  "$id": "https://lks.invalid/lks-sdd/schemas/quality-report-1.1.json",
   "title": "LKS-SDD quality harness report",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "suite", "plugin_version", "evaluated_on", "channel", "inputs", "checks", "channels", "metrics", "critical_failures", "comparison", "gate"],
+  "required": [
+    "schema_version",
+    "suite",
+    "plugin_version",
+    "evaluated_on",
+    "channel",
+    "source",
+    "inputs",
+    "checks",
+    "channels",
+    "metrics",
+    "critical_failures",
+    "comparison",
+    "gate"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0"},
-    "suite": {"type": "string"},
-    "plugin_version": {"type": "string"},
+    "schema_version": {"const": "1.1"},
+    "suite": {"type": "string", "minLength": 1},
+    "plugin_version": {"type": "string", "minLength": 1},
     "evaluated_on": {"type": "string", "format": "date"},
     "channel": {"enum": ["candidate", "stable"]},
-    "inputs": {"type": "object"},
-    "checks": {"type": "array"},
-    "channels": {"type": "object"},
-    "metrics": {"type": "object"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree_state"],
+      "properties": {
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "tree_state": {"enum": ["clean", "dirty"]}
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_sha256",
+        "corpus_sha256",
+        "definition_corpus_sha256",
+        "fixture_manifest_sha256",
+        "observations_sha256",
+        "pilot_summary_sha256",
+        "baseline_sha256"
+      ],
+      "properties": {
+        "catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "corpus_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "definition_corpus_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "fixture_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "observations_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pilot_summary_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "baseline_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "critical", "summary"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["passed", "failed"]},
+          "critical": {"type": "boolean"},
+          "summary": {"type": "string"}
+        }
+      }
+    },
+    "channels": {"type": "object", "minProperties": 1},
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {"type": "number"}
+    },
     "critical_failures": {"type": "array", "items": {"type": "string"}},
-    "comparison": {"type": "object"},
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_version",
+        "baseline_commit",
+        "status",
+        "comparisons",
+        "regressions",
+        "not_compared",
+        "current_only"
+      ],
+      "properties": {
+        "baseline_version": {"type": "string", "minLength": 1},
+        "baseline_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "status": {"enum": ["passed", "failed"]},
+        "comparisons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["metric", "direction", "baseline", "current", "regressed"],
+            "properties": {
+              "metric": {"type": "string", "minLength": 1},
+              "direction": {"enum": ["higher", "lower", "neutral"]},
+              "baseline": {"type": "number"},
+              "current": {"type": "number"},
+              "regressed": {"type": "boolean"}
+            }
+          }
+        },
+        "regressions": {"type": "array", "items": {"type": "string"}},
+        "not_compared": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "current_only": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
     "gate": {
       "type": "object",
       "additionalProperties": false,

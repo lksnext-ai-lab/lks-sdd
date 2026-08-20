@@ -1,0 +1,188 @@
+{
+  "id": "FX-M5-CALCULATOR-HANDOFF-1.1",
+  "description": "Recorrido sintético y saneado de una calculadora profesional de presupuestos de construcción mediante el contrato 1.1.",
+  "classification": "synthetic-only",
+  "project_id": "construction-calculator-fixture",
+  "date": "2026-08-20",
+  "increment": "INC-001",
+  "profile": {
+    "id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "decision": "ADR-001"
+  },
+  "optional_artifacts": [
+    {"id": "ART-DATA", "path": "03-solution/data.md"},
+    {"id": "ART-SECURITY", "path": "03-solution/security-privacy-identity.md"},
+    {"id": "ART-UX", "path": "03-solution/ux-accessibility.md"}
+  ],
+  "tables": [
+    {
+      "path": "02-requirements/functional-requirements.md",
+      "header": "| ID | State | Statement | Source | Priority | Acceptance | Increment |",
+      "rows": [
+        ["FR-001", "confirmed", "La persona profesional crea un presupuesto de obra con unidades y dimensiones normalizadas.", "synthetic-confirmed-brief", "must", "AC-001", "INC-001"],
+        ["FR-002", "confirmed", "La persona añade partidas de material con precio unitario y porcentaje de merma.", "synthetic-confirmed-brief", "must", "AC-002", "INC-001"],
+        ["FR-003", "confirmed", "El sistema calcula cantidades, costes parciales e importe total con redondeo explícito.", "synthetic-confirmed-brief", "must", "AC-003", "INC-001"],
+        ["FR-004", "confirmed", "La persona guarda y recupera versiones del presupuesto sin mezclar proyectos.", "synthetic-confirmed-brief", "should", "AC-004", "INC-001"]
+      ]
+    },
+    {
+      "path": "02-requirements/non-functional-requirements.md",
+      "header": "| ID | State | Statement | Source | Priority | Acceptance | Increment |",
+      "rows": [
+        ["NFR-001", "confirmed", "Los resultados monetarios usan aritmética decimal y conservan dos decimales tras el redondeo final.", "synthetic-quality-review", "must", "AC-005", "INC-001"],
+        ["NFR-002", "confirmed", "Una operación de cálculo con hasta cien partidas responde en menos de 500 ms en el entorno de referencia.", "synthetic-quality-review", "should", "AC-006", "INC-001"]
+      ]
+    },
+    {
+      "path": "02-requirements/technical-requirements.md",
+      "header": "| ID | State | Statement | Source | Priority | Acceptance | Increment |",
+      "rows": [
+        ["TR-001", "confirmed", "La API ejecuta una única regla canónica de cálculo decimal compartida por todas las interfaces.", "synthetic-architecture-review", "must", "AC-007", "INC-001"],
+        ["TR-002", "confirmed", "La persistencia y la API aíslan cada presupuesto por identidad autenticada.", "synthetic-architecture-review", "must", "AC-008", "INC-001"]
+      ]
+    },
+    {
+      "path": "02-requirements/acceptance-criteria.md",
+      "header": "| ID | State | Condition | Requirement | Evidence |",
+      "rows": [
+        ["AC-001", "confirmed", "Con unidades válidas, las dimensiones quedan normalizadas antes de calcular.", "FR-001", ""],
+        ["AC-002", "confirmed", "Al indicar precio y merma, la partida conserva ambos valores y muestra su coste derivado.", "FR-002", ""],
+        ["AC-003", "confirmed", "El total coincide con la suma decimal de partidas después de aplicar merma y redondeo.", "FR-003", ""],
+        ["AC-004", "confirmed", "Guardar una nueva versión no altera versiones anteriores ni presupuestos ajenos.", "FR-004", ""],
+        ["AC-005", "confirmed", "Los casos límite de moneda devuelven exactamente dos decimales sin coma flotante binaria visible.", "NFR-001", ""],
+        ["AC-006", "confirmed", "El percentil 95 de cien cálculos sintéticos permanece por debajo de 500 ms en el entorno fijado.", "NFR-002", ""],
+        ["AC-007", "confirmed", "La interfaz y la API producen el mismo resultado para el mismo conjunto de partidas.", "TR-001", ""],
+        ["AC-008", "confirmed", "Una identidad no puede leer ni modificar un presupuesto perteneciente a otra identidad.", "TR-002", ""]
+      ]
+    },
+    {
+      "path": "03-solution/solution-overview.md",
+      "header": "| ID | State | Decision | Requirements | Impact |",
+      "rows": [
+        ["ADR-001", "confirmed", "Se selecciona explícitamente el perfil WEB-FASTAPI-REACT-KEYCLOAK-PG para este fixture multiusuario.", "FR-001..FR-004, NFR-001..NFR-002, TR-001..TR-002", "Baseline técnica bloqueada para INC-001"],
+        ["ADR-002", "confirmed", "Se confirma una experiencia de cálculo guiada y una regla decimal canónica.", "FR-001..FR-004, NFR-001, TR-001", "La imagen solo fija jerarquía y flujo; no constituye evidencia ejecutada"]
+      ]
+    },
+    {
+      "path": "03-solution/data.md",
+      "header": "| ID | State | Data concern | Classification | Retention | Migration | Requirements |",
+      "rows": [
+        ["DATA-001", "confirmed", "Entradas, partidas, versiones y totales de presupuestos sintéticos.", "internal-synthetic", "24 meses configurables", "No aplica en el primer incremento", "FR-001..FR-004, TR-002"]
+      ]
+    },
+    {
+      "path": "03-solution/security-privacy-identity.md",
+      "header": "| ID | State | Concern | Requirement | Risk | Control proposal | Evidence expected |",
+      "rows": [
+        ["SEC-001", "confirmed", "Aislamiento de presupuestos entre identidades autenticadas.", "TR-002", "Acceso cruzado a datos internos", "Autorización por propietario en API y repositorio", "Prueba de integración planificada; no ejecutada"],
+        ["PRIV-001", "confirmed", "Minimización de atributos de identidad y ausencia de datos personales en el fixture.", "FR-004, TR-002", "Retención innecesaria de atributos", "Conservar solo un identificador técnico seudónimo", "Revisión de esquema planificada; no ejecutada"]
+      ]
+    },
+    {
+      "path": "03-solution/ux-accessibility.md",
+      "header": "| ID | State | Screen | Purpose | Users | Content | Main actions | Requirements | Acceptance | Increment |",
+      "rows": [
+        ["UX-001", "confirmed", "Editor de presupuesto", "Introducir partidas y calcular", "professional-estimator", "Dimensiones, unidades, merma, precio y totales", "Añadir partida, recalcular y validar", "FR-001..FR-003, NFR-001", "AC-001..AC-003, AC-005", "INC-001"],
+        ["UX-002", "confirmed", "Versiones guardadas", "Recuperar presupuestos aislados", "professional-estimator", "Listado y detalle de versiones", "Guardar, abrir y comparar", "FR-004, TR-002", "AC-004, AC-008", "INC-001"]
+      ]
+    },
+    {
+      "path": "03-solution/ux-accessibility.md",
+      "header": "| Screen | Entry and exit | Information hierarchy | Secondary actions | Permissions and role variants | Responsive and priority devices | Accessibility | Pending content |",
+      "rows": [
+        ["UX-001", "Entrada tras autenticación y salida al guardar", "Total, partidas y validaciones", "Duplicar o retirar partida", "Solo propietario del presupuesto", "Escritorio prioritario y tablet soportada", "Etiquetas, orden de foco y errores asociados", "not-applicable: copy sintético cerrado para el fixture"],
+        ["UX-002", "Entrada tras guardar o desde navegación", "Versión actual y cronología", "Comparar versiones", "Solo propietario del presupuesto", "Escritorio prioritario y tablet soportada", "Tabla navegable y estado anunciado", "not-applicable: copy sintético cerrado para el fixture"]
+      ]
+    },
+    {
+      "path": "03-solution/ux-accessibility.md",
+      "header": "| Screen | Loading | Empty | Error | No permission | Confirmation | Recovery |",
+      "rows": [
+        ["UX-001", "Indicador junto al total", "Primera partida guiada", "Error asociado al campo", "Acceso bloqueado", "Total actualizado", "Conservar entradas corregibles"],
+        ["UX-002", "Esqueleto de versiones", "Mensaje sin versiones", "Reintento explícito", "Acceso bloqueado", "Versión guardada", "Volver al editor sin perder cambios"]
+      ]
+    },
+    {
+      "path": "03-solution/ux-accessibility.md",
+      "header": "| ID | State | Flow or interaction | User | Screens | Entry or trigger | Expected steps or response | Alternate, error or recovery path | Dialog or confirmation | Accessibility | Acceptance | Increment |",
+      "rows": [
+        ["UX-010", "confirmed", "Calcular y guardar una versión", "professional-estimator", "UX-001..UX-002", "Abrir un presupuesto autenticado", "Introducir partidas, recalcular, revisar y guardar", "Los errores conservan las entradas y permiten corregir", "Confirmación no modal de versión guardada", "Foco estable y resultados anunciados", "AC-001..AC-005, AC-008", "INC-001"]
+      ]
+    },
+    {
+      "path": "03-solution/ux-accessibility.md",
+      "header": "| ID | State | Aspect | Proposal | Rationale | Constraints | Human validation | Decision | Increment |",
+      "rows": [
+        ["UX-020", "confirmed", "Jerarquía visual", "Editor denso con total persistente y errores locales", "Reduce saltos de contexto en presupuestos largos", "No sustituye pruebas responsive ni accesibles", "user-confirmed; role=synthetic-fixture-reviewer; date=2026-08-20; ref=ADR-002", "ADR-002", "INC-001"]
+      ]
+    },
+    {
+      "path": "04-delivery/increments.md",
+      "header": "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |",
+      "rows": [
+        ["INC-001", "confirmed", "Crear, calcular y versionar un presupuesto multiusuario", "Catálogos externos, facturación y analítica", "FR-001..FR-004, NFR-001..NFR-002, TR-001..TR-002", "AC-001..AC-008", "ADR-001..ADR-002", "TEST-001..TEST-005"]
+      ]
+    },
+    {
+      "path": "04-delivery/increments.md",
+      "header": "| Increment | Domain | Applicability | References | Reason |",
+      "rows": [
+        ["INC-001", "data", "applicable", "DATA-001", "El cálculo persiste presupuestos y versiones sintéticas"],
+        ["INC-001", "identity", "not-applicable", "", "El contrato de identidad lo aporta el perfil y no se amplía en este incremento"],
+        ["INC-001", "security", "applicable", "SEC-001", "El aislamiento entre propietarios es parte del alcance"],
+        ["INC-001", "privacy", "applicable", "PRIV-001", "Se exige minimización aunque el fixture no contenga datos reales"],
+        ["INC-001", "integrations", "not-applicable", "", "No se consumen sistemas externos en INC-001"]
+      ]
+    },
+    {
+      "path": "04-delivery/increments.md",
+      "header": "| Increment | Interface applicability | UX contract | Visual mode | Visual prototype | Reason |",
+      "rows": [
+        ["INC-001", "applicable", "UX-001..UX-002, UX-010, UX-020", "new", "VIS-003", "La interfaz forma parte del recorrido vertical; VIS-001 queda solo como historial rechazado"]
+      ]
+    },
+    {
+      "path": "05-quality/quality-strategy.md",
+      "header": "| ID | State | Purpose | Increment | Acceptance |",
+      "rows": [
+        ["TEST-001", "planned", "Comprobar fórmula decimal y merma con casos deterministas", "INC-001", "AC-003, AC-005, AC-007"],
+        ["TEST-002", "planned", "Comprobar límites de unidades, dimensiones y redondeo", "INC-001", "AC-001..AC-003"],
+        ["TEST-003", "planned", "Comprobar persistencia de versiones y presupuesto completo", "INC-001", "AC-004, AC-006"],
+        ["TEST-004", "planned", "Comprobar aislamiento de acceso entre identidades sintéticas", "INC-001", "AC-008"],
+        ["TEST-005", "planned", "Comprobar el recorrido de interfaz sin registrar evidencia todavía", "INC-001", "AC-001..AC-004, AC-006"]
+      ]
+    },
+    {
+      "path": "05-quality/traceability.md",
+      "header": "| Requirement | Acceptance | Decision | Increment | Test | Evidence |",
+      "rows": [
+        ["FR-001..FR-004", "AC-001..AC-004", "ADR-001..ADR-002", "INC-001", "TEST-001..TEST-003, TEST-005", ""],
+        ["NFR-001..NFR-002", "AC-005..AC-006", "ADR-001..ADR-002", "INC-001", "TEST-001, TEST-003, TEST-005", ""],
+        ["TR-001..TR-002", "AC-007..AC-008", "ADR-001..ADR-002", "INC-001", "TEST-001, TEST-004", ""]
+      ]
+    }
+  ],
+  "visuals": {
+    "active": {
+      "id": "VIS-003",
+      "filename": "VIS-003.png",
+      "rgb": [31, 79, 117]
+    },
+    "historical": {
+      "id": "VIS-001",
+      "filename": "VIS-001.png",
+      "rgb": [117, 50, 31],
+      "replacement_rgb": [74, 74, 74]
+    }
+  },
+  "assertions": [
+    "real_init_uses_schema_1.1",
+    "canonical_ranges_expand_without_losing_interior_ids",
+    "mixed_domain_applicability_is_explicit",
+    "traceability_preimplementation_checks_non_empty_scope",
+    "specification_readiness_and_automation_support_are_separate",
+    "historical_rejected_visual_does_not_change_active_fingerprint",
+    "prepare_is_preview_only",
+    "verification_is_plan_only_and_records_no_evidence"
+  ]
+}

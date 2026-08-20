@@ -14,7 +14,15 @@ No. Integran el perfil H0 implementable y verificable `WEB-FASTAPI-REACT-KEYCLOA
 
 ## ¿`ready` significa que Codex puede empezar?
 
-No. Significa que no se conocen bloqueos para el alcance evaluado. La autorización humana para implementar es independiente; `lks-sdd-implement` exige además un preview y un hash coincidente antes de escribir.
+No. `specification_readiness` indica si no se conocen bloqueos funcionales para el alcance, mientras `automation_support` comprueba si la pila confirmada tiene soporte implementable. El estado combinado puede seguir bloqueado aunque la especificación esté lista. La autorización humana es independiente; `lks-sdd-implement` exige además un preview y un hash coincidente antes de escribir.
+
+## ¿Actualizar a 0.7.0 cambia mis documentos 1.0?
+
+No. Los proyectos 1.0 siguen validándose en modo de compatibilidad. Pasar a método 1.1.0 y esquema 1.1 requiere una migración explícita con dry-run. Si `human_review_required` contiene entradas, la aplicación se rechaza siempre antes de crear el backup o escribir: hay que resolver cada entrada listada en los Markdown canónicos 1.0, validar el origen y repetir el dry-run hasta obtener una lista vacía. Solo entonces se aplica con backup externo, hash coincidente, autorización y validación posterior. La `Identity` agregada 1.0 se convierte aparte en identidad, seguridad y privacidad `pending`, sin referencias inferidas: no impide el apply si la lista está vacía, pero bloquea readiness hasta resolverse en 1.1. Si el origen es 0.9, primero se solicita 1.0 y se revisa ese salto por separado.
+
+## ¿Cuándo se exige evidencia en la trazabilidad?
+
+`preimplementation` exige relaciones desde cada requisito aplicable hasta aceptación, decisión o no aplicabilidad motivada, incremento y prueba. `verification` exige además evidencia ejecutada del mismo incremento. Una comprobación sin requisitos aplicables falla como alcance vacío en vez de producir un falso positivo.
 
 ## ¿Puedo usar LKS-SDD con un repositorio existente?
 
@@ -26,4 +34,4 @@ No se garantiza. LKS-SDD se implementa y soporta como plugin para Codex. Los doc
 
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 
-El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir el contenido humano silenciosamente.
+El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir el contenido humano silenciosamente. En esquema 1.1, readiness se deriva al consultar y no se persiste en el índice como aprobación.

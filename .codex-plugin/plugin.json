@@ -1,6 +1,6 @@
 {
   "name": "lks-sdd",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Plugin para Codex que aplica Specification-Driven Development (SDD) trazable, incluida la definición guiada y visual de aplicaciones web de LKS.",
   "author": {
     "name": "LKS"

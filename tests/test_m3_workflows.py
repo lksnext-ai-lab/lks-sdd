@@ -251,6 +251,26 @@ class M3WorkflowTests(unittest.TestCase):
             )
             self.assertEqual(manifest["adoption"]["status"], "materialized")
             self.assertEqual(len(manifest["artifacts"]), 22)
+            status_lines = (
+                root
+                / "docs"
+                / "lks-sdd"
+                / "00-control"
+                / "project-status.md"
+            ).read_text(encoding="utf-8").splitlines()
+            status_header = (
+                "| Ruta | Fase | Puerta | Incremento activo | Readiness | Próximo paso |"
+            )
+            status_index = status_lines.index(status_header)
+            status_cells = [
+                cell.strip()
+                for cell in status_lines[status_index + 2].strip("|").split("|")
+            ]
+            self.assertEqual(
+                status_cells[:3],
+                [manifest["route"], manifest["phase"], manifest["gate"]],
+            )
+            self.assertEqual(status_cells[3:5], ["none", "not-assessed"])
             _, repeated = run_json(
                 MATERIALIZE_ADOPTION_SCRIPT,
                 str(root),
@@ -358,27 +378,65 @@ class M3WorkflowTests(unittest.TestCase):
             initialize(root, "legacy-project")
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest["schema_version"] = "0.9"
+            manifest.update(
+                {
+                    "schema_version": "1.0",
+                    "method_version": "1.0.0",
+                    "plugin_version": "0.6.1",
+                    "open_blockers": [],
+                    "readiness": {
+                        "status": "not-assessed",
+                        "assessed_increment": None,
+                        "fingerprint": None,
+                    },
+                }
+            )
             manifest_path.write_text(
                 json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
             )
             for entry in manifest["artifacts"]:
                 path = root / entry["path"]
-                text = path.read_text(encoding="utf-8").replace(
-                    'schema_version: "1.0"', 'schema_version: "0.9"'
+                text = (
+                    path.read_text(encoding="utf-8")
+                    .replace('schema_version: "1.1"', 'schema_version: "1.0"')
+                    .replace('method_version: "1.1.0"', 'method_version: "1.0.0"')
+                    .replace(
+                        'created_with_plugin_version: "0.7.0"',
+                        'created_with_plugin_version: "0.6.1"',
+                    )
                 )
+                if entry["id"] == "ART-INCREMENTS":
+                    domain_start = text.index("## Aplicabilidad por dominio")
+                    interface_start = text.index(
+                        "## Aplicabilidad de interfaz y contrato visual"
+                    )
+                    text = text[:domain_start] + text[interface_start:]
+                    text = text.replace(
+                        "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
+                        "|---|---|---|---|---|---|---|---|",
+                        "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
+                        "|---|---|---|---|---|---|---|---|---|---|---|",
+                    )
                 path.write_text(text, encoding="utf-8")
             brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
             brief.write_text(
                 brief.read_text(encoding="utf-8") + "\nHuman body marker.\n",
                 encoding="utf-8",
             )
-            _, preview = run_json(MIGRATE_SCRIPT, str(root), "--dry-run")
+            _, preview = run_json(
+                MIGRATE_SCRIPT,
+                str(root),
+                "--target-schema",
+                "1.1",
+                "--dry-run",
+            )
             backup = container / "migration-backup"
             _, applied = run_json(
                 MIGRATE_SCRIPT,
                 str(root),
                 "--apply",
+                "--target-schema",
+                "1.1",
                 "--authorize",
                 "--preview-hash",
                 preview["preview_hash"],
@@ -389,9 +447,15 @@ class M3WorkflowTests(unittest.TestCase):
             self.assertIn("Human body marker.", brief.read_text(encoding="utf-8"))
             self.assertEqual(
                 json.loads(manifest_path.read_text(encoding="utf-8"))["schema_version"],
-                "1.0",
+                "1.1",
             )
-            _, current = run_json(MIGRATE_SCRIPT, str(root), "--dry-run")
+            _, current = run_json(
+                MIGRATE_SCRIPT,
+                str(root),
+                "--target-schema",
+                "1.1",
+                "--dry-run",
+            )
             self.assertEqual(current["status"], "current")
             backup_brief = (
                 backup
@@ -409,20 +473,34 @@ class M3WorkflowTests(unittest.TestCase):
                 str(root),
                 "--rollback",
                 str(backup),
-                "--authorize",
+                "--dry-run",
                 expected_codes={2},
             )
             self.assertEqual(code, 2)
             self.assertEqual(failed_rollback["status"], "error")
             self.assertEqual(before_failed_rollback, tree_digest(root))
             backup_brief.write_bytes(original_backup)
+            _, rollback_preview = run_json(
+                MIGRATE_SCRIPT,
+                str(root),
+                "--rollback",
+                str(backup),
+                "--dry-run",
+            )
             _, rolled_back = run_json(
-                MIGRATE_SCRIPT, str(root), "--rollback", str(backup), "--authorize"
+                MIGRATE_SCRIPT,
+                str(root),
+                "--rollback",
+                str(backup),
+                "--apply",
+                "--authorize",
+                "--preview-hash",
+                rollback_preview["preview_hash"],
             )
             self.assertEqual(rolled_back["status"], "rolled-back")
             self.assertEqual(
                 json.loads(manifest_path.read_text(encoding="utf-8"))["schema_version"],
-                "0.9",
+                "1.0",
             )
             self.assertIn("Human body marker.", brief.read_text(encoding="utf-8"))
 

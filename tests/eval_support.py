@@ -131,7 +131,6 @@ def materialize_ready_increment(root: Path) -> None:
             "phase": "readiness",
             "gate": "G2",
             "active_increment": "INC-001",
-            "open_blockers": [],
         }
     )
     manifest["technology"] = {
@@ -166,13 +165,25 @@ def materialize_ready_increment(root: Path) -> None:
     _append_row(
         docs / "03-solution" / "solution-overview.md",
         "| ID | State | Decision",
-        "| ADR-001 | decision | Select WEB-FASTAPI-REACT-KEYCLOAK-PG with a reversible web boundary derived from requirements. | FR-001 | Limited to INC-001 |",
+        "| ADR-001 | confirmed | Select WEB-FASTAPI-REACT-KEYCLOAK-PG with a reversible web boundary derived from requirements. | FR-001 | Limited to INC-001 |",
     )
     _append_row(
         docs / "04-delivery" / "increments.md",
         "| ID | State | In scope",
-        "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | not-applicable: no persisted domain data | not-applicable: synthetic fixture has no accounts | not-applicable: no external systems | TEST-001 |",
+        "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | TEST-001 |",
     )
+    for domain, reason in (
+        ("data", "The fixture does not persist domain data."),
+        ("identity", "The synthetic fixture has no accounts."),
+        ("security", "No protected boundary is introduced by this fixture."),
+        ("privacy", "No personal data is processed by this fixture."),
+        ("integrations", "The fixture calls no external system."),
+    ):
+        _append_row(
+            docs / "04-delivery" / "increments.md",
+            "| Increment | Domain | Applicability",
+            f"| INC-001 | {domain} | not-applicable | none | {reason} |",
+        )
     _append_row(
         docs / "04-delivery" / "increments.md",
         "| Increment | Interface applicability",
@@ -255,15 +266,14 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
     _append_row(
         docs / "03-solution" / "solution-overview.md",
         "| ID | State | Option",
-        f"| {proposal['id']} | proposal | {proposal['title']} | {proposal['support_level']} | "
+        f"| {proposal['id']} | proposed | {proposal['title']} | {proposal['support_level']} | "
         f"{proposal['rationale']} | Requiere decisión explícita | Pila de referencia |",
     )
     _replace_row(
         docs / "04-delivery" / "increments.md",
         "INC-001",
         f"| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | "
-        f"FR-001 | AC-001 | {proposal['id']} | not-applicable: no persisted domain data | "
-        "not-applicable: synthetic fixture has no accounts | not-applicable: no external systems | TEST-001 |",
+        f"FR-001 | AC-001 | {proposal['id']} | TEST-001 |",
     )
     _replace_row(
         docs / "05-quality" / "traceability.md",
@@ -292,7 +302,7 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
     )
     after_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     blocker = any(
-        proposal["id"] in item and "proposal" in item for item in result["blockers"]
+        proposal["id"] in item and "proposed" in item for item in result["blockers"]
     )
     solution_text = (docs / "03-solution" / "solution-overview.md").read_text(
         encoding="utf-8"
@@ -304,7 +314,7 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
             blocker,
             after_manifest["technology"]["selected_profile"] is None,
             after_manifest["technology"]["selection_decision"] is None,
-            f"| {proposal['id']} | proposal |" in solution_text,
+            f"| {proposal['id']} | proposed |" in solution_text,
             before == tree_digest(root),
             result["implementation_authorized"] is False,
         ]
@@ -349,23 +359,14 @@ def run_scoped_blocker(root: Path) -> dict[str, Any]:
     _append_row(
         root / "docs" / "lks-sdd" / "04-delivery" / "increments.md",
         "| ID | State | In scope",
-        f"| {fixture['other_increment']} | open | Trabajo futuro independiente | {fixture['increment']} | "
-        "not-applicable | not-applicable | not-applicable | not-applicable: pending definition | "
-        "not-applicable: pending definition | not-applicable: pending definition | not-applicable |",
+        f"| {fixture['other_increment']} | draft | Trabajo futuro independiente | {fixture['increment']} | "
+        "pending: definición futura | pending: definición futura | pending: definición futura | pending: definición futura |",
     )
     _append_row(
         root / "docs" / "lks-sdd" / "00-control" / "open-points.md",
         "| ID | State | Question",
         f"| OPEN-002 | blocked | Falta una decisión de {fixture['other_increment']} | "
         f"No afecta a {fixture['increment']} | {fixture['other_increment']} | true |",
-    )
-    manifest_path = root / ".lks-sdd" / "project.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["open_blockers"] = ["OPEN-002"]
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-        newline="\n",
     )
     before = tree_digest(root)
     _, result = run_json(

@@ -12,7 +12,6 @@ from eval_support import (
     VALIDATE_SCRIPT,
     VERIFY_SCRIPT,
     _append_row,
-    _replace_row,
     initialize,
     materialize_ready_increment,
     run_alternative_stack,
@@ -22,6 +21,10 @@ from eval_support import (
     run_new_project,
     tree_digest,
 )
+
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+TRACEABILITY_SCRIPT = PLUGIN_ROOT / "scripts" / "check_traceability.py"
 
 
 class WorkflowTests(unittest.TestCase):
@@ -157,6 +160,10 @@ class WorkflowTests(unittest.TestCase):
             self.assertTrue(
                 all(check["status"] == "not-run" for check in plan["checks"])
             )
+            self.assertFalse(plan["execution_ready"])
+            self.assertTrue(
+                any("implementation.status=completed" in item for item in plan["limitations"])
+            )
             self.assertEqual(after_apply, tree_digest(root))
 
     def test_document_collision_is_not_overwritten(self):
@@ -217,14 +224,12 @@ class WorkflowTests(unittest.TestCase):
                 set(manifest["technology"]),
                 {"preferred_stack_assessed", "selected_profile", "selection_decision"},
             )
-            self.assertEqual(manifest["open_blockers"], ["OPEN-001"])
-            self.assertTrue(
-                all(isinstance(item, str) for item in manifest["open_blockers"])
-            )
-            self.assertEqual(
-                set(manifest["readiness"]),
-                {"status", "assessed_increment", "assessed_at"},
-            )
+            self.assertNotIn("open_blockers", manifest)
+            self.assertNotIn("readiness", manifest)
+            open_points = (
+                root / "docs" / "lks-sdd" / "00-control" / "open-points.md"
+            ).read_text(encoding="utf-8")
+            self.assertIn("| OPEN-001 | open |", open_points)
 
     def test_validator_enforces_exact_core_mapping_and_table_contract(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
@@ -266,20 +271,13 @@ class WorkflowTests(unittest.TestCase):
             _append_row(
                 root / "docs" / "lks-sdd" / "04-delivery" / "increments.md",
                 "| ID | State | In scope",
-                "| INC-002 | open | Trabajo futuro independiente | INC-001 | not-applicable | not-applicable | not-applicable | not-applicable: pending definition | not-applicable: pending definition | not-applicable: pending definition | not-applicable |",
+                "| INC-002 | draft | Trabajo futuro independiente | INC-001 | pending: definición futura | pending: definición futura | pending: definición futura | pending: definición futura |",
             )
             open_points = root / "docs" / "lks-sdd" / "00-control" / "open-points.md"
             _append_row(
                 open_points,
                 "| ID | State | Question",
                 "| OPEN-002 | blocked | Falta una decisión de otro incremento | No afecta a INC-001 | INC-002 | true |",
-            )
-            manifest_path = root / ".lks-sdd" / "project.json"
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest["open_blockers"] = ["OPEN-002"]
-            manifest_path.write_text(
-                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-                encoding="utf-8",
             )
             before = tree_digest(root)
             code, result = run_json(
@@ -312,26 +310,113 @@ class WorkflowTests(unittest.TestCase):
             root = Path(directory)
             initialize(root, "domain-applicability")
             materialize_ready_increment(root)
-            _replace_row(
-                root / "docs" / "lks-sdd" / "04-delivery" / "increments.md",
-                "INC-001",
-                "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | not-applicable | not-applicable: synthetic fixture has no accounts | not-applicable: no external systems | TEST-001 |",
+            increments_path = (
+                root / "docs" / "lks-sdd" / "04-delivery" / "increments.md"
             )
+            increments = increments_path.read_text(encoding="utf-8")
+            increments = increments.replace(
+                "| INC-001 | data | not-applicable | none | The fixture does not persist domain data. |",
+                "| INC-001 | data | not-applicable | none | |",
+                1,
+            )
+            increments_path.write_text(increments, encoding="utf-8", newline="\n")
             before = tree_digest(root)
             code, result = run_json(
                 READINESS_SCRIPT,
                 str(root),
                 "--increment",
                 "INC-001",
-                expected_codes={3},
+                expected_codes={2},
             )
-            self.assertEqual(code, 3)
+            self.assertEqual(code, 2)
             self.assertTrue(
                 any(
-                    "no aplicabilidad de datos requiere un motivo" in item
+                    "LKS-DOMAIN-REASON" in item
                     for item in result["blockers"]
                 )
             )
+            self.assertEqual(before, tree_digest(root))
+
+    def test_readiness_exposes_structured_diagnostics_on_invalid_contract(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
+            root = Path(directory)
+            initialize(root, "readiness-diagnostics")
+            materialize_ready_increment(root)
+            increments_path = (
+                root / "docs" / "lks-sdd" / "04-delivery" / "increments.md"
+            )
+            increments = increments_path.read_text(encoding="utf-8")
+            increments = increments.replace(
+                "| INC-001 | confirmed | Submit and acknowledge one request | "
+                "Reporting and administration | FR-001 | AC-001 | ADR-001 | TEST-001 |",
+                "| INC-001 | confirmed | Submit and acknowledge one request | "
+                "Reporting and administration | FR-001 | AC-001 |  | TEST-001 |",
+                1,
+            )
+            increments_path.write_text(increments, encoding="utf-8", newline="\n")
+
+            before = tree_digest(root)
+            code, result = run_json(
+                READINESS_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                expected_codes={2},
+            )
+
+            self.assertEqual(code, 2, result)
+            self.assertTrue(
+                any("Contrato inválido:" in item for item in result["blockers"])
+            )
+            self.assertTrue(
+                any(
+                    item["code"] == "LKS-REF-REQUIRED"
+                    and item["severity"] == "error"
+                    and item.get("location", {}).get("column") == "Decisions"
+                    for item in result["diagnostics"]
+                )
+            )
+            self.assertEqual(before, tree_digest(root))
+
+    def test_readiness_accepts_business_requirements_in_contract_relations(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
+            root = Path(directory)
+            initialize(root, "business-requirement")
+            materialize_ready_increment(root)
+            docs = root / "docs" / "lks-sdd"
+            for relative in (
+                "02-requirements/functional-requirements.md",
+                "02-requirements/acceptance-criteria.md",
+                "03-solution/solution-overview.md",
+                "04-delivery/increments.md",
+                "05-quality/traceability.md",
+            ):
+                path = docs / relative
+                path.write_text(
+                    path.read_text(encoding="utf-8").replace("FR-001", "BR-001"),
+                    encoding="utf-8",
+                    newline="\n",
+                )
+
+            before = tree_digest(root)
+            code, result = run_json(
+                READINESS_SCRIPT, str(root), "--increment", "INC-001"
+            )
+
+            self.assertEqual(code, 0)
+            self.assertEqual(result["status"], "ready")
+            self.assertEqual(result["specification_readiness"]["status"], "ready")
+            trace_code, traceability = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "preimplementation",
+            )
+            self.assertEqual(trace_code, 0, traceability)
+            self.assertTrue(traceability["valid"], traceability["gaps"])
+            self.assertEqual(traceability["checked"], ["BR-001"])
             self.assertEqual(before, tree_digest(root))
 
     def test_projects_are_isolated(self):

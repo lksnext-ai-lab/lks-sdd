@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/frontmatter-1.1.json",
+  "title": "LKS-SDD 1.1 canonical Markdown front matter",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "artifact_id",
+    "artifact_type",
+    "schema_version",
+    "method_version",
+    "created_with_plugin_version",
+    "project_id",
+    "baseline_id",
+    "status",
+    "classification",
+    "audience",
+    "owners",
+    "source_of_truth",
+    "last_updated"
+  ],
+  "properties": {
+    "artifact_id": {"type": "string", "pattern": "^ART-[A-Z0-9-]+$"},
+    "artifact_type": {
+      "enum": [
+        "project-status", "scope-register", "open-points", "product-brief",
+        "constraints", "functional-requirements", "non-functional-requirements",
+        "technical-requirements", "acceptance-criteria", "solution-overview",
+        "increments", "risks-dependencies", "quality-strategy", "traceability",
+        "stakeholders-and-users", "architecture", "data", "integrations",
+        "security-privacy-identity", "ux-accessibility", "roadmap", "test-strategy",
+        "deployment", "observability", "operations", "architecture-decision",
+        "inspection-scope", "repository-inventory", "observed-architecture",
+        "observed-behavior", "gaps-and-unknowns", "reconciliation",
+        "adoption-strategy", "baseline-record"
+      ]
+    },
+    "schema_version": {"const": "1.1"},
+    "method_version": {"const": "1.1.0"},
+    "created_with_plugin_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "project_id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "baseline_id": {"type": "string", "pattern": "^BL-[0-9]{4}$"},
+    "status": {"enum": ["draft", "proposed", "confirmed", "superseded", "retired"]},
+    "classification": {"enum": ["internal", "confidential", "restricted", "public", "client"]},
+    "audience": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "owners": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "source_of_truth": {"const": true},
+    "last_updated": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+  }
+}
