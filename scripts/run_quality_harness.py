@@ -1450,6 +1450,11 @@ def build_report(
     }
     required = catalog["channels"][channel]["required"]
     blockers = list(critical_failures)
+    if source["tree_state"] != "clean":
+        blockers.append(
+            "Fuente no publicable: el checkout inicial no coincide íntegramente "
+            "con HEAD (source.tree_state=dirty)."
+        )
     if comparison["regressions"]:
         blockers.extend(f"Regresión: {item}" for item in comparison["regressions"])
     missing_evidence = [

@@ -22,11 +22,13 @@ from run_quality_harness import (  # noqa: E402
     _load_json,
     _sha256_bytes,
     _unit_test_metrics,
+    build_report,
     compare_metrics,
     evaluate_activation,
     evaluate_automated_evidence,
     evaluate_document_reviews,
     evaluate_pilot,
+    main,
     repository_binding,
     validate_catalog,
     validate_corpus,
@@ -491,6 +493,79 @@ class QualityHarnessTests(unittest.TestCase):
                 repository_binding(),
                 {"commit": "b" * 40, "tree_state": "clean"},
             )
+
+    def test_dirty_source_fails_candidate_gate_without_running_real_suite(self):
+        automated = (
+            [
+                {
+                    "id": "fixture-integrity",
+                    "status": "passed",
+                    "critical": True,
+                    "summary": "synthetic fixture check",
+                },
+                {
+                    "id": "reference-profile-complete",
+                    "status": "passed",
+                    "critical": True,
+                    "summary": "synthetic complete profile",
+                },
+            ],
+            {"critical_failures": 0},
+            [],
+            {
+                "status": "passed",
+                "counts": {
+                    "total": 0,
+                    "passed": 0,
+                    "failed": 0,
+                    "incomplete": 0,
+                },
+                "cases": [],
+                "critical_incomplete": [],
+                "pending": [],
+            },
+        )
+        with patch(
+            "run_quality_harness.repository_binding",
+            return_value={"commit": "c" * 40, "tree_state": "dirty"},
+        ), patch("run_quality_harness.run_automated", return_value=automated):
+            report = build_report(
+                "2026-08-20",
+                "candidate",
+                None,
+                None,
+                DEFAULT_BASELINE_PATH,
+                True,
+            )
+
+        self.assertEqual(report["source"]["tree_state"], "dirty")
+        self.assertEqual(report["gate"]["status"], "failed")
+        self.assertFalse(report["gate"]["eligible"])
+        self.assertTrue(
+            any(
+                "source.tree_state=dirty" in blocker
+                for blocker in report["gate"]["blockers"]
+            )
+        )
+
+    def test_cli_returns_failure_for_dirty_source_gate(self):
+        report = {
+            "source": {"commit": "d" * 40, "tree_state": "dirty"},
+            "gate": {
+                "status": "failed",
+                "eligible": False,
+                "blockers": ["source.tree_state=dirty"],
+                "missing_evidence": [],
+            },
+        }
+        with patch.object(
+            sys,
+            "argv",
+            ["run_quality_harness.py", "--channel", "candidate"],
+        ), patch("run_quality_harness.build_report", return_value=report), patch(
+            "builtins.print"
+        ):
+            self.assertEqual(main(), 2)
 
     def test_assume_unchanged_cannot_create_a_clean_release_attestation(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-hidden-dirty-") as directory:
