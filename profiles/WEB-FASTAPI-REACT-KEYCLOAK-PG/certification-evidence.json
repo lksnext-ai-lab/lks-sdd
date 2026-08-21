@@ -9,8 +9,8 @@
   "passed": true,
   "profile_sha256": "d94304c724099975842e0a1b5c2c55cd8bf4070e6cf7d083bc23249ff4bc23ab",
   "driver_sha256": "bcdb99ef572655d7e38ea053b5afe56dd002f2d875681daeccd71a193be16598",
-  "scaffold_sha256": "5e93a1cd624f846655205d3c10c89d13957db16566a20f0a68cf2f8e5474d0d2",
-  "composition_digest": "bc12beb10cc118b283bd1df61dffb847639044fa3beb946f9bab2c1e622d3f0f",
+  "scaffold_sha256": "e6063d4c7a3ca69df2cde3a56861da79f07c059c5215c4eaf026aaf841ba0b72",
+  "composition_digest": "c2b4a072422df9f5f63f0ebaacb8bf69ad3694fe0ba10bcfbd37c7cdfbd973d7",
   "certification_engine_sha256": "8d0bbb842292fb14731eafaccdd130c5643ba594f524f4975b5708e4e66b1429",
   "checks": [
     {

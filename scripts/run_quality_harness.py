@@ -775,6 +775,18 @@ def _run_command(
     summary = "exit=0" if passed else f"exit={process.returncode}"
     if parse_error:
         summary = f"{summary}; {parse_error}"
+    elif not passed and isinstance(payload, dict):
+        failed_checks = [
+            check
+            for check in payload.get("checks", [])
+            if isinstance(check, dict) and check.get("status") == "failed"
+        ]
+        if failed_checks:
+            failures = ",".join(
+                f"{check.get('name', 'unknown')}(exit={check.get('exit_code', '?')})"
+                for check in failed_checks[:3]
+            )
+            summary = f"{summary}; failed={failures}"
     return (
         {
             "id": check_id,

@@ -20,6 +20,7 @@ from run_quality_harness import (  # noqa: E402
     PILOT_SUMMARY_SCHEMA_PATH,
     _canonical_bytes,
     _load_json,
+    _run_command,
     _sha256_bytes,
     _unit_test_metrics,
     build_report,
@@ -99,6 +100,37 @@ class QualityHarnessTests(unittest.TestCase):
         result = validate_fixture_manifest(manifest_value=manifest)
         self.assertEqual(result["status"], "failed")
         self.assertTrue(any("Hash" in error for error in result["errors"]))
+
+    def test_failed_json_check_names_the_failing_inner_gate(self):
+        payload = {
+            "passed": False,
+            "complete_gate": False,
+            "checks": [
+                {
+                    "name": "frontend-tests",
+                    "status": "failed",
+                    "exit_code": 1,
+                }
+            ],
+        }
+        completed = subprocess.CompletedProcess(
+            args=["synthetic"],
+            returncode=2,
+            stdout=json.dumps(payload),
+            stderr="",
+        )
+        with patch("run_quality_harness.subprocess.run", return_value=completed):
+            check, parsed, _ = _run_command(
+                "reference-profile-complete",
+                ["synthetic"],
+                json_output=True,
+            )
+
+        self.assertEqual(parsed, payload)
+        self.assertEqual(check["status"], "failed")
+        self.assertEqual(
+            check["summary"], "exit=2; failed=frontend-tests(exit=1)"
+        )
 
     def test_perfect_activation_and_document_observations_pass(self):
         observations = validate_observations(self._observations(), self.corpus)
