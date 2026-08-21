@@ -21,9 +21,61 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from delivery_engine import load_delivery_evidence  # noqa: E402
 from profile_registry import load_catalog, resolve_profile  # noqa: E402
+from run_reference_profile_gate import _dockerized  # noqa: E402
 
 
 class MultiProfileDeliveryTests(unittest.TestCase):
+    def test_node_gate_uses_a_linux_dependency_volume(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-node-volume-") as temporary:
+            work = Path(temporary)
+            frontend = work / "apps" / "frontend"
+            frontend.mkdir(parents=True)
+            command = _dockerized(
+                ["npx", "--yes", "pnpm@10.34.5", "test"],
+                work,
+                frontend,
+                "frontend-tests",
+                dependency_volume="lkssdd-test-node-modules",
+            )
+
+        self.assertIn(
+            "lkssdd-test-node-modules:/work/apps/frontend/node_modules",
+            command,
+        )
+        self.assertIn("node:24.19.0-bookworm-slim@", " ".join(command))
+
+    def test_python_gate_uses_a_linux_virtualenv_volume(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-python-volume-") as temporary:
+            work = Path(temporary)
+            backend = work / "apps" / "backend"
+            backend.mkdir(parents=True)
+            command = _dockerized(
+                ["uv", "run", "mypy"],
+                work,
+                backend,
+                "backend-typecheck",
+                dependency_volume="lkssdd-test-python-venv",
+            )
+
+        self.assertIn(
+            "lkssdd-test-python-venv:/work/apps/backend/.venv",
+            command,
+        )
+        self.assertIn("python:3.14.7-slim@", " ".join(command))
+        self.assertIn("pip install", " ".join(command))
+
+    def test_plain_python_gate_does_not_install_uv(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-python-command-") as temporary:
+            work = Path(temporary)
+            command = _dockerized(
+                ["python", "-c", "print('ok')"],
+                work,
+                work,
+                "scaffold-integrity",
+            )
+
+        self.assertNotIn("pip install", " ".join(command))
+
     def test_only_exactly_certified_active_profiles_are_supported(self) -> None:
         catalog, catalog_errors = load_catalog()
         self.assertEqual(catalog_errors, [])

@@ -142,7 +142,11 @@ def _docker_mount(path: Path) -> str:
 
 
 def _dockerized(
-    command: list[str], work: Path, cwd: Path, check_name: str
+    command: list[str],
+    work: Path,
+    cwd: Path,
+    check_name: str,
+    dependency_volume: str | None = None,
 ) -> list[str]:
     relative = cwd.relative_to(work).as_posix()
     shell_cwd = "/work" if relative == "." else f"/work/{relative}"
@@ -156,17 +160,32 @@ def _dockerized(
         script = f"cd {shlex.quote(shell_cwd)} && {shlex.join(command)}"
     else:
         image = PYTHON_IMAGE
-        script = (
+        uv_prefix = (
             "python -m pip install --disable-pip-version-check --quiet "
             "uv==0.12.5 && "
-            f"cd {shlex.quote(shell_cwd)} && {shlex.join(command)}"
+            if first in {"uv", "uv.exe"}
+            else ""
         )
+        script = (
+            f"{uv_prefix}cd {shlex.quote(shell_cwd)} && {shlex.join(command)}"
+        )
+    mounts = ["-v", f"{_docker_mount(work)}:/work"]
+    if dependency_volume and first in {
+        "npm",
+        "npx",
+        "npm.cmd",
+        "npx.cmd",
+        "pnpm",
+        "pnpm.cmd",
+    }:
+        mounts.extend(["-v", f"{dependency_volume}:{shell_cwd}/node_modules"])
+    elif dependency_volume and first in {"uv", "uv.exe"}:
+        mounts.extend(["-v", f"{dependency_volume}:{shell_cwd}/.venv"])
     return [
         "docker",
         "run",
         "--rm",
-        "-v",
-        f"{_docker_mount(work)}:/work",
+        *mounts,
         image,
         "sh",
         "-lc",
@@ -409,6 +428,8 @@ def run_gate(
     env = os.environ.copy()
     suffix = hashlib.sha256(profile_id.encode("ascii")).hexdigest()[:8]
     env["COMPOSE_PROJECT_NAME"] = f"lkssddgate{os.getpid()}{suffix}"
+    dependency_volumes: dict[str, str] = {}
+    created_dependency_volumes: set[str] = set()
     with tempfile.TemporaryDirectory(
         prefix=f"lks-sdd-{profile_id.casefold()}-",
         ignore_cleanup_errors=True,
@@ -461,7 +482,51 @@ def run_gate(
                     and command[0] != "docker"
                     and check.get("execution_context", "runtime") != "host"
                 ):
-                    executable = _dockerized(command, work, cwd, name)
+                    dependency_volume = None
+                    dependency_kind = None
+                    if command[0] in {
+                        "npm",
+                        "npx",
+                        "npm.cmd",
+                        "npx.cmd",
+                        "pnpm",
+                        "pnpm.cmd",
+                    }:
+                        dependency_kind = "node"
+                    elif command[0] in {"uv", "uv.exe"}:
+                        dependency_kind = "python"
+                    if dependency_kind:
+                        dependency_key = (
+                            f"{dependency_kind}:{declared_cwd.as_posix()}"
+                        )
+                        dependency_volume = dependency_volumes.setdefault(
+                            dependency_key,
+                            (
+                                f"{env['COMPOSE_PROJECT_NAME']}{dependency_kind}"
+                                + hashlib.sha256(
+                                    dependency_key.encode("utf-8")
+                                ).hexdigest()[:8]
+                            ),
+                        )
+                        if dependency_volume not in created_dependency_volumes:
+                            volume_ready = _run(
+                                "dependency-volume-create",
+                                ["docker", "volume", "create", dependency_volume],
+                                work,
+                                results,
+                                env=env,
+                                timeout=60,
+                            )
+                            if not volume_ready:
+                                break
+                            created_dependency_volumes.add(dependency_volume)
+                    executable = _dockerized(
+                        command,
+                        work,
+                        cwd,
+                        name,
+                        dependency_volume=dependency_volume,
+                    )
                     execution_cwd = work
                 else:
                     executable = command
@@ -486,6 +551,15 @@ def run_gate(
         finally:
             if containers:
                 _compose_cleanup(work, checks, results, env)
+            for volume in sorted(created_dependency_volumes):
+                _run(
+                    "dependency-volume-cleanup",
+                    ["docker", "volume", "rm", "--force", volume],
+                    work,
+                    results,
+                    env=env,
+                    timeout=60,
+                )
 
     failed = any(item["status"] == "failed" for item in results)
     passed = not failed and not skipped_required

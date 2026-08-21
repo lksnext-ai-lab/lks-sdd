@@ -11,7 +11,7 @@
   "driver_sha256": "c6e285af822675223fc584cae7a06a7278ac77968da17a1c009b0af7558091e8",
   "scaffold_sha256": "b88981d48b6b1a8a44b663b1a5a65438d0b562a50a147eb55f024307e877c8b8",
   "composition_digest": "3297a0c4ca0710e0dcae0abb38f9c4d0da0ff50977328c68592201c47a684bdc",
-  "certification_engine_sha256": "8d0bbb842292fb14731eafaccdd130c5643ba594f524f4975b5708e4e66b1429",
+  "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
   "checks": [
     {
       "gate_id": "GATE-API-LINT",

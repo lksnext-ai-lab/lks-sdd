@@ -11,7 +11,7 @@
   "driver_sha256": "2d189549a99736c8c552b24881cb8b6c2f3a5e6aa8e8a3f302149d9929e022f4",
   "scaffold_sha256": "e1664a4489a3c837330664690ef87afc86155ec0f1024c0b466710141b0e0826",
   "composition_digest": "934b95ece45caade3160e1101b6385b8914d3a63f01fbc186f09367317b9cbb6",
-  "certification_engine_sha256": "8d0bbb842292fb14731eafaccdd130c5643ba594f524f4975b5708e4e66b1429",
+  "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
   "checks": [
     {
       "gate_id": "GATE-BROWSER-ACCESSIBILITY",

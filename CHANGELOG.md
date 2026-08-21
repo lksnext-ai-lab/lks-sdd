@@ -10,6 +10,7 @@
 - Incorpora diez perfiles de referencia: React y Angular estáticos, dos variantes API-only, Next.js SSR, Angular SSR, sistemas web completos React y Angular, worker RabbitMQ y procesador Kafka.
 - Declara seis perfiles active y cuatro candidate; solo un active con certificación exacta vigente puede ser `supported`. Un lock identifica la composición, pero no acredita compatibilidad sin gates por capability y gate end-to-end de la composición.
 - Añade scaffolds, gates y certificaciones ligadas por hash a descriptor, capabilities, driver, scaffold, composición y motor; cualquier deriva invalida el soporte hasta recertificar.
+- Aísla `node_modules` y `.venv` de los gates Docker en volúmenes Linux efímeros con limpieza registrada, evitando que el rendimiento de bind mounts Windows haga fallar de forma intermitente Vitest o mypy; el harness identifica además el check interno que provoca un fallo.
 - Generaliza readiness, preparación y verificación a múltiples bindings y tareas, y exige que G3/G4 queden ligados a revisión Git, tree ID/hash, build, digest de artefacto y entorno.
 - Añade la migración explícita y reversible `1.1 → 1.2`, que crea gobierno, arquitectura, planes, tareas y bindings pendientes sin inventar decisiones ni evidencias.
 - Amplía el harness con FX-22–FX-27 y crea un corpus conversacional 0.8 independiente, todavía `not-run`; el corpus 0.7 queda histórico y no acredita esta línea de producto.
