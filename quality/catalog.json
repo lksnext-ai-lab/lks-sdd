@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5 + v0.7 contract/handoff",
+  "suite": "LKS-SDD M0-M5 + v0.8 delivery/multiprofile",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
@@ -29,7 +29,9 @@
     "no_verification_without_evidence",
     "no_unverified_product_claim",
     "no_implicit_scope_expansion",
-    "canonical_markdown_remains_source_of_truth"
+    "canonical_markdown_remains_source_of_truth",
+    "no_uncertified_profile_claimed_as_supported",
+    "no_delivery_without_exact_revision_and_artifact"
   ],
   "cases": [
     {"id": "FX-01", "title": "Idea ambigua", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": "insufficient-information.json", "critical": true, "evidence": []},
@@ -54,6 +56,12 @@
   ],
   "extension_cases": [
     {"id": "FX-20", "title": "Snapshot de cobertura de definición", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
-    {"id": "FX-21", "title": "Ciclo visual con ImageGen", "family": "definition", "layers": ["T3", "T4", "T7"], "mode": "human", "fixture": null, "critical": true, "evidence": []}
+    {"id": "FX-21", "title": "Ciclo visual con ImageGen", "family": "definition", "layers": ["T3", "T4", "T7"], "mode": "human", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-22", "title": "Ciclo profesional de una tarea", "family": "planning", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_professional_transition_flow_records_blocker_and_done_evidence"]},
+    {"id": "FX-23", "title": "Transición o contenido de tarea no autorizado", "family": "security", "layers": ["T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_invalid_transition_and_table_injection_leave_files_unchanged"]},
+    {"id": "FX-24", "title": "Migración de gobierno 1.1 a 1.2", "family": "compatibility", "layers": ["T1", "T7", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_11_to_12_creates_governance_and_rolls_back_created_artifacts"]},
+    {"id": "FX-25", "title": "Soporte ligado a certificación exacta", "family": "compatibility", "layers": ["T0", "T1", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_only_exactly_certified_active_profiles_are_supported"]},
+    {"id": "FX-26", "title": "Preparación de varias unidades desplegables", "family": "implementation", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_two_certified_bindings_prepare_one_task_slice_without_collisions"]},
+    {"id": "FX-27", "title": "Entrega ligada a revisión, árbol, build y artefacto", "family": "verification", "layers": ["T0", "T1", "T6", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_delivery_evidence_rejects_unverifiable_revision_tree_build_or_artifact"]}
   ]
 }

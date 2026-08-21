@@ -27,6 +27,7 @@ from validate_project import (  # noqa: E402
     validate_project,
 )
 from profile_registry import resolve_profile  # noqa: E402
+from delivery_engine import delivery_readiness  # noqa: E402
 from contract_engine import (  # noqa: E402
     RelationSpec,
     build_project_model,
@@ -120,7 +121,7 @@ def _assess_domains(
     increment: dict[str, str],
     result: dict[str, Any],
 ) -> None:
-    if manifest.get("schema_version") != "1.1":
+    if manifest.get("schema_version") not in {"1.1", "1.2"}:
         _domain_references(result, increment, definitions, "Data", "datos", {"DATA"})
         _domain_references(
             result,
@@ -513,7 +514,11 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
+def assess(
+    project_root: Path,
+    increment_id: str,
+    task_ids: list[str] | None = None,
+) -> tuple[int, dict[str, Any]]:
     root = project_root.expanduser().resolve()
     first_report, _, _ = validate_project(root)
     first_model = build_project_model(root)
@@ -574,44 +579,119 @@ def assess(project_root: Path, increment_id: str) -> tuple[int, dict[str, Any]]:
         if item.severity == "error"
     )
 
-    selected_profile = manifest.get("technology", {}).get("selected_profile")
-    if selected_profile is None:
+    if str(manifest.get("schema_version")) == "1.2":
+        delivery = delivery_readiness(
+            root, manifest, increment_id, task_ids=task_ids
+        )
+        result["delivery_readiness"] = delivery
+        result["blockers"].extend(
+            f"Plan de entrega: {item}" for item in delivery["blockers"]
+        )
+        result["non_blocking_pending"].extend(delivery["warnings"])
+        bindings = {
+            item.get("binding_id"): item
+            for item in manifest.get("technology", {}).get(
+                "profile_bindings", []
+            )
+            if isinstance(item, dict)
+        }
+        binding_results: list[dict[str, Any]] = []
+        automation_errors: list[str] = []
+        for binding_id in delivery.get("binding_ids", []):
+            binding = bindings.get(binding_id, {})
+            profile_id = binding.get("profile_id")
+            if not isinstance(profile_id, str):
+                automation_errors.append(
+                    f"{binding_id}: falta un profile_id resoluble."
+                )
+                continue
+            support = resolve_profile(profile_id)
+            profile_errors = list(support.errors)
+            profile_errors.extend(
+                validate_profile(profile_id, require_validated=True)
+            )
+            lock_errors, lock_details = validate_consumer_profile_lock(
+                root,
+                profile_id=profile_id,
+                binding_id=binding_id,
+                required=False,
+            )
+            profile_errors.extend(lock_errors)
+            profile_errors = list(dict.fromkeys(profile_errors))
+            binding_supported = support.implementable and not profile_errors
+            binding_results.append(
+                {
+                    "binding_id": binding_id,
+                    "unit_id": binding.get("unit_id"),
+                    **support.as_dict(),
+                    "status": (
+                        "supported" if binding_supported else "unsupported"
+                    ),
+                    "lock": lock_details,
+                    "blockers": profile_errors,
+                }
+            )
+            automation_errors.extend(
+                f"{binding_id}/{profile_id}: {item}"
+                for item in profile_errors
+            )
+        if not delivery.get("binding_ids"):
+            automation_errors.append(
+                "El incremento no resuelve ningún profile binding confirmado."
+            )
+        supported = bool(binding_results) and all(
+            item["status"] == "supported" for item in binding_results
+        )
+        result["profile_locks"] = [
+            item["lock"] for item in binding_results
+        ]
         result["automation_support"] = {
-            "status": "selection-required",
-            "profile_id": None,
-            "blockers": [
-                "No hay un perfil tecnológico seleccionado mediante una decisión confirmada."
-            ],
+            "status": "supported" if supported else "unsupported",
+            "bindings": binding_results,
+            "blockers": list(dict.fromkeys(automation_errors)),
         }
     else:
-        support = resolve_profile(selected_profile)
-        automation_errors = list(support.errors)
-        if selected_profile == PROFILE_ID:
-            automation_errors.extend(validate_profile(require_validated=True))
-            lock_errors, lock_details = validate_consumer_profile_lock(
-                root, required=False
-            )
-            automation_errors.extend(lock_errors)
-            # The active fingerprint uses the packaged lock hash before prepare,
-            # then the byte-identical consumer lock hash after materialization.
-            lock_details["fingerprint_sha256"] = active_contract.project.get(
-                "profile_lock_sha256"
-            )
-            result["profile_lock"] = lock_details
-        automation_errors = list(dict.fromkeys(automation_errors))
-        supported = support.implementable and not automation_errors
-        result["automation_support"] = {
-            **support.as_dict(),
-            "status": "supported" if supported else "unsupported",
-            "blockers": automation_errors
-            or (
-                []
-                if supported
-                else [
-                    f"El perfil {selected_profile} es documentable, pero no dispone de automatización implementable validada."
-                ]
-            ),
-        }
+        selected_profile = manifest.get("technology", {}).get(
+            "selected_profile"
+        )
+        if selected_profile is None:
+            result["automation_support"] = {
+                "status": "selection-required",
+                "profile_id": None,
+                "blockers": [
+                    "No hay un perfil tecnológico seleccionado mediante una decisión confirmada."
+                ],
+            }
+        else:
+            support = resolve_profile(selected_profile)
+            automation_errors = list(support.errors)
+            if selected_profile == PROFILE_ID:
+                automation_errors.extend(
+                    validate_profile(require_validated=True)
+                )
+                lock_errors, lock_details = validate_consumer_profile_lock(
+                    root, required=False
+                )
+                automation_errors.extend(lock_errors)
+                lock_details["fingerprint_sha256"] = (
+                    active_contract.project.get("profile_lock_sha256")
+                )
+                result["profile_lock"] = lock_details
+            automation_errors = list(dict.fromkeys(automation_errors))
+            supported = support.implementable and not automation_errors
+            result["automation_support"] = {
+                **support.as_dict(),
+                "status": "supported" if supported else "unsupported",
+                "blockers": automation_errors
+                or (
+                    []
+                    if supported
+                    else [
+                        f"El perfil {selected_profile} es documentable, "
+                        "pero no dispone de automatización validada."
+                    ]
+                ),
+            }
 
     increment = definitions.get(increment_id)
     if increment is None or increment.get("path", "").endswith("increments.md") is False:

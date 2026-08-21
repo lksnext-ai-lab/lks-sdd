@@ -11,9 +11,9 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "0.7.0"
-METHOD_VERSION = "1.1.0"
-SCHEMA_VERSION = "1.1"
+PLUGIN_VERSION = "0.8.0"
+METHOD_VERSION = "1.2.0"
+SCHEMA_VERSION = "1.2"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 CODE_EXTENSIONS = {
@@ -66,10 +66,16 @@ ARTIFACTS = [
     ("ART-TR", "02-requirements/technical-requirements.md"),
     ("ART-AC", "02-requirements/acceptance-criteria.md"),
     ("ART-SOLUTION", "03-solution/solution-overview.md"),
+    ("ART-ARCH", "03-solution/architecture.md"),
     ("ART-INCREMENTS", "04-delivery/increments.md"),
+    ("ART-GOVERNANCE", "04-delivery/delivery-governance.md"),
+    ("ART-PLANS", "04-delivery/plans.md"),
+    ("ART-TASKS", "04-delivery/tasks.md"),
     ("ART-RISK", "04-delivery/risks-dependencies.md"),
     ("ART-QUALITY", "05-quality/quality-strategy.md"),
+    ("ART-TEST-STRATEGY", "05-quality/test-strategy.md"),
     ("ART-TRACE", "05-quality/traceability.md"),
+    ("ART-DEPLOYMENT", "06-operation/deployment.md"),
 ]
 
 
@@ -135,6 +141,18 @@ def render_template(
         content,
         flags=re.MULTILINE,
     )
+    content = re.sub(
+        r'^schema_version: "[0-9.]+"$',
+        f'schema_version: "{SCHEMA_VERSION}"',
+        content,
+        flags=re.MULTILINE,
+    )
+    content = re.sub(
+        r'^method_version: "[0-9.]+"$',
+        f'method_version: "{METHOD_VERSION}"',
+        content,
+        flags=re.MULTILINE,
+    )
     replacements = {
         "{{PROJECT_ID}}": project_id,
         "{{BASELINE_ID}}": baseline_id,
@@ -173,11 +191,26 @@ def build_manifest(
             "preferred_stack_assessed": False,
             "selected_profile": None,
             "selection_decision": None,
+            "profile_bindings": [],
         },
         "active_increment": None,
+        "active_plan": "PLAN-001",
+        "active_task": None,
+        "delivery_governance": {
+            "state": "proposed",
+            "model": None,
+            "decision": None,
+            "source": "docs/lks-sdd/04-delivery/delivery-governance.md",
+            "active_change": "CHG-001",
+            "review_due": None,
+        },
         "version_control": {
             "type": "git" if (root / ".git").exists() else "none",
             "origin": "none",
+            "branching_model": None,
+            "main_branch": None,
+            "integration_branch": None,
+            "decision": None,
         },
         "last_verified_revision": None,
     }

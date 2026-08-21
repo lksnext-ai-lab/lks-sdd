@@ -330,6 +330,7 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
     required = {
         "catalog_version",
         "supported_project_schemas",
+        "schema_inheritance",
         "identifier_prefixes",
         "reference_grammar",
         "state_policies",
@@ -338,14 +339,19 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
     missing = sorted(required - set(value))
     if missing:
         raise ContractEngineError(f"Catálogo incompleto; faltan {missing}.")
-    if value.get("catalog_version") != "1.1":
+    if value.get("catalog_version") != "1.2":
         raise ContractEngineError(
-            "El catálogo documental debe usar catalog_version 1.1."
+            "El catálogo documental debe usar catalog_version 1.2."
         )
     supported = value.get("supported_project_schemas")
-    if not isinstance(supported, list) or set(supported) != {"1.0", "1.1"}:
+    if not isinstance(supported, list) or set(supported) != {"1.0", "1.1", "1.2"}:
         raise ContractEngineError(
-            "El catálogo debe declarar soporte explícito 1.0 y 1.1."
+            "El catálogo debe declarar soporte explícito 1.0, 1.1 y 1.2."
+        )
+    inheritance = value.get("schema_inheritance")
+    if inheritance != {"1.2": "1.1"}:
+        raise ContractEngineError(
+            "schema_inheritance debe declarar únicamente 1.2 -> 1.1."
         )
     prefixes = value.get("identifier_prefixes")
     if (
@@ -408,7 +414,7 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
                 or len(headers) != len(set(headers))
             ):
                 raise ContractEngineError(f"Cabeceras inválidas en {table_id}.")
-            if not isinstance(schemas, list) or not set(schemas) <= {"1.0", "1.1"}:
+            if not isinstance(schemas, list) or not set(schemas) <= set(supported):
                 raise ContractEngineError(f"Schemas inválidos en {table_id}.")
             key = table.get("key")
             if key:
@@ -477,9 +483,21 @@ def load_registry(
     }
     artifacts: dict[str, ArtifactContract] = {}
     for artifact_id, raw_artifact in value["artifacts"].items():
+        explicit_schema = any(
+            schema_version in raw_table.get("schemas", [])
+            for raw_table in raw_artifact["tables"]
+            if isinstance(raw_table, dict)
+        )
+        table_schema = (
+            schema_version
+            if explicit_schema
+            else value.get("schema_inheritance", {}).get(
+                schema_version, schema_version
+            )
+        )
         tables: list[TableContract] = []
         for raw_table in raw_artifact["tables"]:
-            if schema_version not in raw_table["schemas"]:
+            if table_schema not in raw_table["schemas"]:
                 continue
             relations: dict[str, RelationSpec] = {}
             for column, raw_relation in raw_table.get("relations", {}).items():
@@ -548,7 +566,8 @@ def load_registry(
             artifact_id=artifact_id,
             artifact_type=raw_artifact["artifact_type"],
             path=raw_artifact.get("path"),
-            required=bool(raw_artifact.get("required", False)),
+            required=bool(raw_artifact.get("required", False))
+            or schema_version in raw_artifact.get("required_schemas", []),
             tables=tuple(tables),
         )
     return ContractRegistry(
@@ -1703,6 +1722,14 @@ def build_project_model(
         content = profile_lock.read_bytes()
         source_hashes[relative] = _hash_bytes(content)
         checked_files.append(relative)
+    profile_locks = root / ".lks-sdd" / "profiles"
+    if profile_locks.is_dir() and not profile_locks.is_symlink():
+        for candidate in sorted(profile_locks.glob("BIND-*.lock.json")):
+            if not candidate.is_file() or candidate.is_symlink():
+                continue
+            relative = candidate.relative_to(root).as_posix()
+            source_hashes[relative] = _hash_bytes(candidate.read_bytes())
+            checked_files.append(relative)
 
     return ProjectModel(
         root=root,
@@ -1775,6 +1802,36 @@ def _active_payload(
             )
             if packaged_lock.is_file() and not packaged_lock.is_symlink():
                 profile_lock_hash = _hash_bytes(packaged_lock.read_bytes())
+    profile_lock_hashes: dict[str, str] = {
+        path: digest
+        for path, digest in model.source_hashes.items()
+        if re.fullmatch(r"\.lks-sdd/profiles/BIND-[0-9]{3}\.lock\.json", path)
+    }
+    technology = model.manifest.get("technology")
+    if (
+        str(model.manifest.get("schema_version")) == "1.2"
+        and isinstance(technology, dict)
+    ):
+        for binding in technology.get("profile_bindings", []):
+            if not isinstance(binding, dict) or binding.get("state") != "confirmed":
+                continue
+            lock_path = binding.get("lock_path")
+            profile_id = binding.get("profile_id")
+            if (
+                isinstance(lock_path, str)
+                and lock_path not in profile_lock_hashes
+                and isinstance(profile_id, str)
+            ):
+                packaged_lock = (
+                    PLUGIN_ROOT
+                    / "profiles"
+                    / profile_id
+                    / "technology-profile.lock.json"
+                )
+                if packaged_lock.is_file() and not packaged_lock.is_symlink():
+                    profile_lock_hashes[lock_path] = _hash_bytes(
+                        packaged_lock.read_bytes()
+                    )
     project = {
         "project_id": model.manifest.get("project_id"),
         "route": model.manifest.get("route"),
@@ -1783,6 +1840,7 @@ def _active_payload(
         "baseline_id": model.manifest.get("baseline_id"),
         "technology": model.manifest.get("technology"),
         "profile_lock_sha256": profile_lock_hash,
+        "profile_locks_sha256": dict(sorted(profile_lock_hashes.items())),
     }
     row_payloads = [
         {

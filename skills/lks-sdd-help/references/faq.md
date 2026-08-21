@@ -10,15 +10,27 @@ No. Puede comparar y proponer. La persona confirma las decisiones y su autoridad
 
 ## ¿FastAPI, React, PostgreSQL y Keycloak son obligatorios?
 
-No. Integran el perfil H0 implementable y verificable `WEB-FASTAPI-REACT-KEYCLOAK-PG`, pero el perfil sigue siendo candidato y debe seleccionarse mediante una decisión confirmada. Una alternativa puede documentarse con su justificación.
+No. Son una composición de referencia entre varias. El catálogo incluye perfiles cerrados para React/Vite, Angular, API, SSR y web completa, y candidatos event-driven. Cada unidad desplegable selecciona un perfil exacto por ADR; una familia o combinación ad hoc no queda soportada por compartir tecnologías.
+
+## ¿Qué diferencia hay entre capability, perfil y lock?
+
+Una capability reutiliza preparación y gates. Un perfil fija una composición exacta y es la unidad mínima de certificación. El lock identifica bytes y versiones resueltos, pero no demuestra por sí solo que la composición funcione: necesita todos los gates y el gate de integración exacto.
+
+## ¿Cómo se gestionan proyectos cerrados, agile y mantenimiento?
+
+Con un modelo explícito: `bounded-release`, `continuous-evolution` o `maintenance-stream`. Cada uno concreta versionado, ramas, releases/streams, entornos, despliegue y recuperación. Si cambia la forma de trabajo, se añade un `CHG-###` con fecha efectiva y transición; no se reescribe el historial.
+
+## ¿Cómo se siguen las tareas?
+
+`ART-TASKS` ofrece una vista rápida por horizonte mayor con estado, salud, progreso, dependencias y bloqueos. Cada `TASK-###` tiene una ficha independiente con definición, aceptación, gates, owner, revisión, build, artefacto, entorno, evidencia e historial. `tasks board` deriva la vista y `tasks transition` aplica cambios mediante preview, hash y autorización.
 
 ## ¿`ready` significa que Codex puede empezar?
 
 No. `specification_readiness` indica si no se conocen bloqueos funcionales para el alcance, mientras `automation_support` comprueba si la pila confirmada tiene soporte implementable. El estado combinado puede seguir bloqueado aunque la especificación esté lista. La autorización humana es independiente; `lks-sdd-implement` exige además un preview y un hash coincidente antes de escribir.
 
-## ¿Actualizar a 0.7.0 cambia mis documentos 1.0?
+## ¿Actualizar a 0.8.0 cambia mis documentos anteriores?
 
-No. Los proyectos 1.0 siguen validándose en modo de compatibilidad. Pasar a método 1.1.0 y esquema 1.1 requiere una migración explícita con dry-run. Si `human_review_required` contiene entradas, la aplicación se rechaza siempre antes de crear el backup o escribir: hay que resolver cada entrada listada en los Markdown canónicos 1.0, validar el origen y repetir el dry-run hasta obtener una lista vacía. Solo entonces se aplica con backup externo, hash coincidente, autorización y validación posterior. La `Identity` agregada 1.0 se convierte aparte en identidad, seguridad y privacidad `pending`, sin referencias inferidas: no impide el apply si la lista está vacía, pero bloquea readiness hasta resolverse en 1.1. Si el origen es 0.9, primero se solicita 1.0 y se revisa ese salto por separado.
+No. Los proyectos 1.0 y 1.1 siguen validándose en compatibilidad. Llegar a 1.2 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.1 → 1.2 crea gobierno, planes y tareas pendientes; no interpreta el proyecto anterior como aprobación.
 
 ## ¿Cuándo se exige evidencia en la trazabilidad?
 
@@ -34,4 +46,4 @@ No se garantiza. LKS-SDD se implementa y soporta como plugin para Codex. Los doc
 
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 
-El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir el contenido humano silenciosamente. En esquema 1.1, readiness se deriva al consultar y no se persiste en el índice como aprobación.
+El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir contenido humano. En esquema 1.2, readiness, bloqueos y tablero se derivan al consultar y no se persisten como aprobación.

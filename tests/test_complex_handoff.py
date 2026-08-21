@@ -106,6 +106,57 @@ def _mark_definition_sufficient(path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
+def _downgrade_initialized_project_to_11(root: Path) -> None:
+    """Build a genuine compatibility fixture from the current initializer."""
+    manifest_path = root / ".lks-sdd" / "project.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.update(
+        {
+            "schema_version": "1.1",
+            "method_version": "1.1.0",
+            "plugin_version": "0.7.0",
+        }
+    )
+    for key in ("active_plan", "active_task", "delivery_governance"):
+        manifest.pop(key, None)
+    manifest["technology"].pop("profile_bindings", None)
+    manifest["version_control"] = {
+        "type": manifest["version_control"]["type"],
+        "origin": manifest["version_control"]["origin"],
+    }
+    v12_only = {
+        "ART-ARCH",
+        "ART-GOVERNANCE",
+        "ART-PLANS",
+        "ART-TASKS",
+        "ART-TEST-STRATEGY",
+        "ART-DEPLOYMENT",
+    }
+    manifest["artifacts"] = [
+        item for item in manifest["artifacts"] if item["id"] not in v12_only
+    ]
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    for artifact in manifest["artifacts"]:
+        path = root / artifact["path"]
+        text = path.read_text(encoding="utf-8")
+        text = text.replace('schema_version: "1.2"', 'schema_version: "1.1"', 1)
+        text = text.replace('method_version: "1.2.0"', 'method_version: "1.1.0"', 1)
+        text = text.replace(
+            'created_with_plugin_version: "0.8.0"',
+            'created_with_plugin_version: "0.7.0"',
+            1,
+        )
+        text = text.replace(
+            "PLAN-001 y REL-001 son propuestas iniciales",
+            "La planificación de entrega todavía no está definida",
+        )
+        path.write_text(text, encoding="utf-8", newline="\n")
+
+
 def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Path]:
     docs = root / "docs" / "lks-sdd"
     manifest_path = root / ".lks-sdd" / "project.json"
@@ -126,8 +177,21 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
         relative = artifact["path"]
         destination = docs / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
+        rendered = _render_template(
+            relative, fixture["project_id"], fixture["date"]
+        )
+        if manifest.get("schema_version") == "1.1":
+            rendered = rendered.replace(
+                'schema_version: "1.2"', 'schema_version: "1.1"', 1
+            ).replace(
+                'method_version: "1.2.0"', 'method_version: "1.1.0"', 1
+            ).replace(
+                'created_with_plugin_version: "0.8.0"',
+                'created_with_plugin_version: "0.7.0"',
+                1,
+            )
         destination.write_text(
-            _render_template(relative, fixture["project_id"], fixture["date"]),
+            rendered,
             encoding="utf-8",
             newline="\n",
         )
@@ -226,6 +290,7 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-active-visual-") as temporary:
             root = Path(temporary)
             initialize(root, fixture["project_id"])
+            _downgrade_initialized_project_to_11(root)
             _materialize_fixture(root, fixture)
 
             increments_path = root / "docs/lks-sdd/04-delivery/increments.md"
@@ -296,6 +361,7 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-calculator-1-1-") as temporary:
             root = Path(temporary)
             initialized = initialize(root, fixture["project_id"])
+            _downgrade_initialized_project_to_11(root)
             manifest = json.loads(
                 (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
             )

@@ -12,7 +12,7 @@
     "project_code": {"type": "string", "pattern": "^PRJ-[0-9]{3}$"},
     "participant_code": {"type": "string", "pattern": "^USR-[0-9]{3}$"},
     "week": {"type": "integer", "minimum": 0, "maximum": 8},
-    "route": {"enum": ["greenfield-h0", "adopt-existing", "alternative-stack", "reinforced-risk"]},
+    "route": {"enum": ["greenfield-certified-profile", "adopt-existing", "candidate-or-external-profile", "reinforced-risk"]},
     "metrics": {
       "type": "object",
       "additionalProperties": false,

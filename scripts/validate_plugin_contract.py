@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.7/document-contract 1.1 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.8/method-contract 1.2 invariants."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ CANONICAL_HASHES = {
     "LKS-SDD_baseline_normativa_candidata_v0.1.md": "083DED8FB14D77D899CB4F955AEA67D9A21FBA66AC25D7CF28D8C5111C1D1162",
     "LKS-SDD_extension_definicion_visual_v0.1.md": "ABA2B063A31192D5971CE9DC05323405BF7655737076AC924011E77E2C15ACA3",
     "LKS-SDD_extension_contrato_documental_v1.1.md": "84CEAA4C5243B2942CAA0EDE9288173A603E12640645C6D1E0C2915DED3B0C7D",
+    "LKS-SDD_extension_gobierno_entrega_perfiles_tareas_v1.2.md": "45EB724665ACC88913775EC56A9F0D4DD2F07579D7E6674C8E479A2D29790C53",
 }
 REQUIRED_ROOT_FILES = {
     ".gitattributes",
@@ -47,12 +48,15 @@ REQUIRED_ROOT_FILES = {
     "docs/M5-COVERAGE.md",
     "docs/V0.6-DEFINITION-UX-COVERAGE.md",
     "docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md",
+    "docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
     "docs/VALIDATION.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
+    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-driver.json",
+    "profiles/catalog.json",
     "scripts/validate_spec.py",
     "scripts/check_traceability.py",
     "scripts/migrate_project.py",
@@ -64,10 +68,13 @@ REQUIRED_ROOT_FILES = {
     "scripts/contract_engine.py",
     "scripts/lks_sdd.py",
     "scripts/profile_registry.py",
+    "scripts/delivery_engine.py",
+    "scripts/manage_tasks.py",
+    "scripts/update_profile_locks.py",
     "quality/catalog.json",
     "quality/corpora/activation.json",
     "quality/corpora/definition-v0.6.0.json",
-    "quality/corpora/definition-v0.7.0.json",
+    "quality/corpora/definition-v0.8.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
@@ -81,6 +88,12 @@ REQUIRED_ROOT_FILES = {
     "schemas/document-contracts.schema.json",
     "schemas/project-1.1.schema.json",
     "schemas/frontmatter-1.1.schema.json",
+    "schemas/project-1.2.schema.json",
+    "schemas/frontmatter-1.2.schema.json",
+    "schemas/profile-catalog.schema.json",
+    "schemas/profile-driver.schema.json",
+    "schemas/profile-certification.schema.json",
+    "schemas/delivery-evidence.schema.json",
     "distribution/marketplace.template.json",
     "pilot/pilot-config.example.json",
     "pilot/PLAN.md",
@@ -141,6 +154,7 @@ REQUIRED_SKILL_RESOURCES = {
         "references/verification-contract.md",
         "references/client-view-rules.md",
         "scripts/run_verification.py",
+        "assets/delivery-evidence.example.json",
         "agents/openai.yaml",
     },
     "lks-sdd-adopt-existing": {
@@ -161,6 +175,10 @@ REQUIRED_CONDITIONAL_TEMPLATES = {
     "03-solution/ux-accessibility.md",
     "03-solution/decisions/decision-record.md",
     "04-delivery/roadmap.md",
+    "04-delivery/delivery-governance.md",
+    "04-delivery/plans.md",
+    "04-delivery/tasks.md",
+    "04-delivery/task-detail.md",
     "05-quality/test-strategy.md",
     "06-operation/deployment.md",
     "06-operation/observability.md",
@@ -187,6 +205,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
 }
 RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/build_candidate_package.py": {"subprocess"},
+    "scripts/delivery_engine.py": {"subprocess"},
     "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
     "scripts/run_quality_harness.py": {"subprocess"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess", "urllib"},
@@ -451,8 +470,20 @@ def validate(root: Path) -> list[str]:
             "FR-001..FR-079",
             "preimplementation",
         ),
+        "specs/canonical/LKS-SDD_extension_gobierno_entrega_perfiles_tareas_v1.2.md": (
+            "bounded-release",
+            "continuous-evolution",
+            "maintenance-stream",
+            "BIND-###",
+            "gate de composición",
+            "RabbitMQ",
+            "Kafka",
+        ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
+            CANONICAL_HASHES[
+                "LKS-SDD_extension_gobierno_entrega_perfiles_tareas_v1.2.md"
+            ],
         ),
         "scripts/run_quality_harness.py": (
             '"v0.6.1.json"',
@@ -490,6 +521,12 @@ def validate(root: Path) -> list[str]:
         "catalogs.json",
         "project-1.1.schema.json",
         "frontmatter-1.1.schema.json",
+        "project-1.2.schema.json",
+        "frontmatter-1.2.schema.json",
+        "profile-catalog.schema.json",
+        "profile-driver.schema.json",
+        "profile-certification.schema.json",
+        "delivery-evidence.schema.json",
         "document-contracts.json",
         "document-contracts.schema.json",
     ):
@@ -497,6 +534,61 @@ def validate(root: Path) -> list[str]:
             json.loads((root / "schemas" / schema_name).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             errors.append(f"Schema inválido {schema_name}: {exc}")
+
+    try:
+        profile_catalog = json.loads(
+            (root / "profiles" / "catalog.json").read_text(encoding="utf-8")
+        )
+        catalog_profiles = {
+            item["id"]: item
+            for item in profile_catalog.get("profiles", [])
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        }
+        discovered_profiles = {
+            path.name
+            for path in (root / "profiles").iterdir()
+            if path.is_dir() and (path / "technology-profile.yaml").is_file()
+        }
+        if discovered_profiles != set(catalog_profiles):
+            errors.append(
+                "El inventario físico de perfiles diverge del catálogo: "
+                f"{sorted(discovered_profiles ^ set(catalog_profiles))}."
+            )
+        for profile_id, entry in catalog_profiles.items():
+            profile_root = root / str(entry.get("path", ""))
+            try:
+                profile_root.resolve().relative_to((root / "profiles").resolve())
+            except ValueError:
+                errors.append(f"{profile_id}: path fuera de profiles/.")
+                continue
+            for filename in (
+                "technology-profile.yaml",
+                "technology-profile.lock.json",
+                "profile-driver.json",
+            ):
+                if not (profile_root / filename).is_file():
+                    errors.append(f"{profile_id}: falta {filename}.")
+            if not (profile_root / "scaffold").is_dir():
+                errors.append(f"{profile_id}: falta scaffold/.")
+            if (
+                entry.get("lifecycle") == "active"
+                and not (profile_root / "certification-evidence.json").is_file()
+            ):
+                errors.append(
+                    f"{profile_id}: active exige certification-evidence.json."
+                )
+        from profile_registry import validate_profile_bundle
+
+        for profile_id, entry in sorted(catalog_profiles.items()):
+            profile_errors = validate_profile_bundle(
+                profile_id,
+                require_validated=entry.get("lifecycle") == "active",
+            )
+            errors.extend(
+                f"Contrato de perfil: {item}" for item in profile_errors
+            )
+    except (OSError, json.JSONDecodeError, TypeError, KeyError) as exc:
+        errors.append(f"No se puede validar el inventario dinámico de perfiles: {exc}")
 
     try:
         marketplace = json.loads(
@@ -599,6 +691,8 @@ def validate(root: Path) -> list[str]:
             "traceability",
             "migrate",
             "client-view",
+            "tasks",
+            "profiles",
         ):
             if f'"{command}"' not in cli_text:
                 errors.append(f"El dispatcher portable no declara {command}.")
@@ -638,6 +732,43 @@ def validate(root: Path) -> list[str]:
             )
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         errors.append("project-1.1.schema.json no expone el contrato derivado esperado.")
+
+    try:
+        project_12 = json.loads(
+            (root / "schemas" / "project-1.2.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        required_12 = set(project_12["required"])
+        properties_12 = project_12["properties"]
+        if properties_12["schema_version"].get("const") != "1.2":
+            errors.append("project-1.2.schema.json debe fijar schema_version 1.2.")
+        if properties_12["method_version"].get("const") != "1.2.0":
+            errors.append("project-1.2.schema.json debe fijar method_version 1.2.0.")
+        expected = {
+            "active_plan",
+            "active_task",
+            "delivery_governance",
+            "version_control",
+            "last_verified_revision",
+        }
+        if not expected <= required_12:
+            errors.append(
+                "El índice 1.2 debe exigir gobierno, plan/tarea y revisión verificable."
+            )
+        technology_required = set(
+            properties_12["technology"].get("required", [])
+        )
+        if "profile_bindings" not in technology_required:
+            errors.append("El índice 1.2 debe exigir profile_bindings.")
+        if {"open_blockers", "readiness"} & (
+            required_12 | set(properties_12)
+        ):
+            errors.append(
+                "El índice 1.2 no debe persistir bloqueos o readiness derivados."
+            )
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("project-1.2.schema.json no expone el contrato esperado.")
 
     try:
         quality_report = json.loads(

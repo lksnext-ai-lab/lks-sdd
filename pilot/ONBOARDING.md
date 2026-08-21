@@ -12,12 +12,12 @@
 1. Explicar SDD, el papel de los Markdown y la separación entre propuesta, decisión y autorización.
 2. Instalar el bundle candidate de marketplace en el entorno Codex autorizado.
 3. Abrir una tarea nueva y realizar primero una consulta de ayuda de solo lectura.
-4. Elegir explícitamente la ruta greenfield, adopción o pila alternativa.
+4. Elegir explícitamente la ruta greenfield, adopción o pila alternativa; confirmar el modelo de entrega y un perfil coherente por unidad desplegable.
 5. Recordar que la skill puede bloquear o proponer, pero no acredita la autoridad de la persona.
 
 ## Durante el piloto
 
-- Registrar únicamente observaciones cerradas con aliases y métricas.
+- Registrar únicamente observaciones cerradas con aliases y métricas; no copiar el contenido sustantivo de `TASK-###`, bloqueos o evidencias al almacén del piloto.
 - No copiar conversaciones, código, documentos, URLs, capturas o nombres al almacén del piloto.
 - Usar Issues solo para soporte saneado y el canal confidencial para seguridad.
 - Detener la actividad ante exposición, escritura no autorizada, contaminación entre proyectos o pérdida de trazabilidad.

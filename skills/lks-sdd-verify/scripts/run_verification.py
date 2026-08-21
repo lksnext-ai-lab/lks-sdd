@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Plan or execute the locked H0 verification checks for one increment."""
+"""Plan or execute locked multi-profile checks for one LKS-SDD increment."""
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -34,6 +35,12 @@ from validate_reference_profile import (  # noqa: E402
     validate_consumer_profile_lock,
     validate_profile,
 )
+from delivery_engine import (  # noqa: E402
+    load_delivery_evidence,
+    repository_revision,
+    validate_delivery_contract,
+)
+from profile_registry import load_profile_bundle  # noqa: E402
 
 EVIDENCE_RE = re.compile(r"^EVID-[0-9]{3}$")
 
@@ -530,6 +537,701 @@ def _updated_traceability(
     return original, ("\n".join(lines) + "\n").encode("utf-8")
 
 
+def _profile_command(
+    root: Path,
+    binding: dict[str, Any],
+    check: dict[str, Any],
+) -> dict[str, Any]:
+    unit = Path(str(binding.get("unit_path", ".")))
+    relative_cwd = Path(str(check["cwd"]))
+    if (
+        unit.is_absolute()
+        or relative_cwd.is_absolute()
+        or ".." in unit.parts
+        or ".." in relative_cwd.parts
+    ):
+        raise VerificationError(
+            f"{binding.get('binding_id')}: cwd inseguro en el driver."
+        )
+    command = list(check["command"])
+    if os.name == "nt" and command and command[0] in {"npm", "npx"}:
+        command[0] += ".cmd"
+    return {
+        "name": f"{binding['binding_id']}:{check['name']}",
+        "gate_id": check["id"],
+        "binding_id": binding["binding_id"],
+        "cwd": root / unit / relative_cwd,
+        "command": command,
+        "timeout_seconds": check["timeout_seconds"],
+        "requires_containers": check["requires_containers"],
+        "required": check["required"],
+    }
+
+
+def _execute_profile_command(
+    check: dict[str, Any], env: dict[str, str]
+) -> dict[str, Any]:
+    if not check["cwd"].is_dir():
+        return {
+            "name": check["name"],
+            "gate_id": check["gate_id"],
+            "binding_id": check["binding_id"],
+            "status": "blocked",
+            "reason": "working-directory-missing",
+        }
+    started = time.monotonic()
+    try:
+        process = subprocess.run(
+            check["command"],
+            cwd=check["cwd"],
+            env=env,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=int(check["timeout_seconds"]),
+            check=False,
+        )
+    except FileNotFoundError:
+        status, reason = "not-run", "tool-not-found"
+        return {
+            "name": check["name"],
+            "gate_id": check["gate_id"],
+            "binding_id": check["binding_id"],
+            "status": status,
+            "reason": reason,
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "name": check["name"],
+            "gate_id": check["gate_id"],
+            "binding_id": check["binding_id"],
+            "status": "failed",
+            "reason": "timeout",
+        }
+    return {
+        "name": check["name"],
+        "gate_id": check["gate_id"],
+        "binding_id": check["binding_id"],
+        "status": "passed" if process.returncode == 0 else "failed",
+        "exit_code": process.returncode,
+        "duration_seconds": round(time.monotonic() - started, 3),
+        "stdout_tail": process.stdout[-2000:],
+        "stderr_tail": process.stderr[-2000:],
+    }
+
+
+def _cleanup_profile_compositions(
+    root: Path,
+    checks: list[dict[str, Any]],
+    env: dict[str, str],
+) -> list[dict[str, Any]]:
+    prefixes: set[tuple[str, tuple[str, ...]]] = set()
+    for check in checks:
+        command = check["command"]
+        normalized = [
+            item[:-4] if index == 0 and item.endswith(".cmd") else item
+            for index, item in enumerate(command)
+        ]
+        if normalized[:2] != ["docker", "compose"]:
+            continue
+        prefix = ["docker", "compose"]
+        if "-f" in normalized:
+            index = normalized.index("-f")
+            if index + 1 < len(normalized):
+                prefix.extend(["-f", normalized[index + 1]])
+        prefixes.add((str(check["cwd"]), tuple(prefix)))
+    outcomes: list[dict[str, Any]] = []
+    for cwd_text, prefix in sorted(prefixes):
+        outcomes.append(
+            _execute_check_with_env(
+                {
+                    "name": "compose-cleanup",
+                    "cwd": Path(cwd_text),
+                    "command": [
+                        *prefix,
+                        "down",
+                        "--volumes",
+                        "--remove-orphans",
+                    ],
+                },
+                env,
+                timeout=300,
+            )
+        )
+    return outcomes
+
+
+def _tree_digest(path: Path) -> str:
+    digest = hashlib.sha256()
+    ignored = {
+        ".git",
+        ".lks-sdd",
+        ".venv",
+        "node_modules",
+        "coverage",
+        "test-results",
+        "playwright-report",
+    }
+    if path.is_file():
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    entries: list[Path] = []
+    for current, directories, files in os.walk(path, topdown=True):
+        current_path = Path(current)
+        directories[:] = sorted(
+            directory
+            for directory in directories
+            if directory not in ignored
+            and not (current_path / directory).is_symlink()
+        )
+        entries.extend(
+            current_path / filename
+            for filename in sorted(files)
+            if filename not in ignored
+            and not (current_path / filename).is_symlink()
+        )
+    for item in sorted(entries, key=lambda value: value.relative_to(path).as_posix()):
+        digest.update(item.relative_to(path).as_posix().encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(hashlib.sha256(item.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def _artifact_digests(
+    root: Path,
+    bindings: list[dict[str, Any]],
+    checks: list[dict[str, Any]],
+) -> list[str]:
+    values: list[str] = []
+    for binding in bindings:
+        unit_root = root / str(binding.get("unit_path", "."))
+        candidates = [
+            unit_root / "dist",
+            unit_root / ".next" / "standalone",
+            unit_root / "build",
+        ]
+        selected = next((item for item in candidates if item.exists()), None)
+        if selected is None:
+            selected = unit_root
+        values.append(f"sha256:{_tree_digest(selected)}")
+    image_tags: set[str] = set()
+    for check in checks:
+        command = check["command"]
+        for marker in ("--tag", "-t"):
+            if marker in command:
+                index = command.index(marker)
+                if index + 1 < len(command):
+                    image_tags.add(command[index + 1])
+    for tag in sorted(image_tags):
+        process = subprocess.run(
+            ["docker", "image", "inspect", tag, "--format", "{{.Id}}"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+        value = process.stdout.strip()
+        if process.returncode == 0 and re.fullmatch(
+            r"sha256:[a-f0-9]{64}", value
+        ):
+            values.append(value)
+    return list(dict.fromkeys(values))
+
+
+def _run_v12(
+    args: argparse.Namespace,
+    root: Path,
+    report: Any,
+    manifest: dict[str, Any],
+    definitions: dict[str, dict[str, str]],
+) -> tuple[int, dict[str, Any]]:
+    # `run()` is also a supported internal test/integration seam.  Keep newly
+    # added 1.2 CLI options backwards-compatible for callers that construct an
+    # argparse.Namespace directly instead of going through `main()`.
+    for name, default in (
+        ("task", None),
+        ("environment", "not-applicable"),
+        ("delivery_evidence", None),
+    ):
+        if not hasattr(args, name):
+            setattr(args, name, default)
+    blockers = list(report.errors)
+    if not re.fullmatch(r"(?:ENV-[0-9]{3}|not-applicable)", args.environment):
+        blockers.append(
+            "--environment debe usar ENV-### o not-applicable."
+        )
+    manifest_path, loaded_manifest, initial_manifest = _load_manifest(root)
+    if loaded_manifest != manifest:
+        blockers.append("project.json cambió durante la validación inicial.")
+    implementation = manifest.get("implementation", {})
+    if implementation.get("increment") != args.increment:
+        blockers.append(
+            "implementation.increment no coincide con el solicitado."
+        )
+    allowed_status = {"in-progress", "completed"} if args.plan else {"completed"}
+    if implementation.get("status") not in allowed_status:
+        blockers.append(
+            "La verificación requiere implementation.status=completed; "
+            "el plan admite además in-progress."
+        )
+    task_ids = list(implementation.get("task_ids", []))
+    requested_tasks = list(dict.fromkeys(args.task or []))
+    if requested_tasks:
+        missing = sorted(set(requested_tasks) - set(task_ids))
+        if missing:
+            blockers.append(
+                f"Las tareas no pertenecen a la implementación: {missing}."
+            )
+        else:
+            task_ids = requested_tasks
+    delivery = validate_delivery_contract(root, manifest)
+    blockers.extend(delivery["errors"])
+    for task_id in task_ids:
+        state = delivery["tasks"].get(task_id, {}).get("Workflow state")
+        if state not in {"in-progress", "in-review", "done"}:
+            blockers.append(
+                f"{task_id} debe estar in-progress, in-review o done; está {state}."
+            )
+
+    bindings_by_id = {
+        item.get("binding_id"): item
+        for item in manifest.get("technology", {}).get("profile_bindings", [])
+        if isinstance(item, dict)
+    }
+    bindings: list[dict[str, Any]] = []
+    lock_details: list[dict[str, str | None]] = []
+    implementation_locks = {
+        item.get("binding_id"): item.get("sha256")
+        for item in implementation.get("locks", [])
+        if isinstance(item, dict)
+    }
+    for binding_id in implementation.get("profile_bindings", []):
+        binding = bindings_by_id.get(binding_id)
+        if binding is None:
+            blockers.append(f"Binding de implementación inexistente: {binding_id}.")
+            continue
+        bindings.append(binding)
+        profile_id = str(binding.get("profile_id"))
+        blockers.extend(
+            validate_profile(profile_id, require_validated=True)
+        )
+        lock_errors, details = validate_consumer_profile_lock(
+            root,
+            profile_id=profile_id,
+            binding_id=binding_id,
+            required=True,
+        )
+        blockers.extend(lock_errors)
+        if implementation_locks.get(binding_id) != details.get("sha256"):
+            blockers.append(
+                f"{binding_id}: el lock no coincide con implementation.locks."
+            )
+        lock_details.append(details)
+    if not bindings:
+        blockers.append("No hay bindings verificables en implementation.")
+
+    initial_contract_fingerprint, contract_errors = _active_contract_snapshot(
+        root, args.increment
+    )
+    blockers.extend(contract_errors)
+    revision_before = repository_revision(root)
+    if not args.plan and revision_before["kind"] == "git" and revision_before["dirty"]:
+        blockers.append(
+            "No se puede atribuir verificación a un Git con cambios sin confirmar."
+        )
+
+    profile_checks: list[dict[str, Any]] = []
+    for binding in bindings:
+        bundle = load_profile_bundle(str(binding["profile_id"]))
+        for check in bundle.driver.get("verify", {}).get("checks", []):
+            if check.get("kind") != "command" or check.get("phase") == "G4":
+                continue
+            profile_checks.append(
+                _profile_command(root, binding, check)
+            )
+    plan = [
+        {
+            "name": item["name"],
+            "gate_id": item["gate_id"],
+            "binding_id": item["binding_id"],
+            "cwd": str(item["cwd"].relative_to(root)),
+            "command": item["command"],
+            "required": item["required"],
+            "requires_containers": item["requires_containers"],
+        }
+        for item in profile_checks
+    ]
+    visual_required = False
+    if not blockers:
+        visual_required = _interface_is_applicable(
+            root, manifest, args.increment
+        )
+    if args.visual_evidence is not None and not visual_required:
+        blockers.append(
+            "Se aportó evidencia visual para un incremento sin interfaz applicable."
+        )
+    if visual_required:
+        plan.append(
+            {
+                "name": "visual-browser-review",
+                "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
+                "binding_id": None,
+                "binding_ids": [item["binding_id"] for item in bindings],
+                "scope": "cross-cutting",
+                "cwd": ".",
+                "command": ["manual-browser-review", "--evidence", "<local-json>"],
+                "required": True,
+                "requires_containers": False,
+            }
+        )
+    if blockers:
+        return 3, {
+            "classification": "not-verified",
+            "increment": args.increment,
+            "task_ids": task_ids,
+            "blockers": list(dict.fromkeys(blockers)),
+            "checks": [],
+            "execution_ready": False,
+            "profile_locks": lock_details,
+        }
+    if args.plan:
+        execution_ready = implementation.get("status") == "completed"
+        limitations = ["No se ejecutó ninguna comprobación."]
+        if not execution_ready:
+            limitations.append(
+                "El plan anticipa los checks, pero ejecutarlos o registrar evidencia "
+                "requiere implementation.status=completed."
+            )
+        return 0, {
+            "classification": "not-run",
+            "increment": args.increment,
+            "task_ids": task_ids,
+            "checks": [
+                {**item, "status": "not-run"} for item in plan
+            ],
+            "limitations": limitations,
+            "execution_ready": execution_ready,
+            "profile_locks": lock_details,
+            "revision": revision_before,
+        }
+    if not args.execute or not args.authorize:
+        raise VerificationError(
+            "La ejecución requiere --execute y --authorize tras revisar el plan."
+        )
+
+    env = os.environ.copy()
+    env["COMPOSE_PROJECT_NAME"] = (
+        f"lkssddverify{os.getpid()}"
+    )
+    outcomes: list[dict[str, Any]] = []
+    try:
+        for check in profile_checks:
+            if check["requires_containers"] and not args.containers:
+                outcomes.append(
+                    {
+                        "name": check["name"],
+                        "gate_id": check["gate_id"],
+                        "binding_id": check["binding_id"],
+                        "status": "not-run",
+                        "reason": "container-authorization-missing",
+                    }
+                )
+                continue
+            outcomes.append(_execute_profile_command(check, env))
+    finally:
+        if args.containers:
+            outcomes.extend(
+                _cleanup_profile_compositions(root, profile_checks, env)
+            )
+
+    limitations: list[str] = []
+    if visual_required:
+        visual, visual_limitations = _visual_evidence_check(
+            root,
+            args.increment,
+            args.visual_evidence,
+            manifest,
+            definitions,
+        )
+        visual["gate_id"] = "GATE-VISUAL-BROWSER-REVIEW"
+        outcomes.append(visual)
+        limitations.extend(visual_limitations)
+    delivery_value: dict[str, Any] | None = None
+    if args.delivery_evidence is not None:
+        candidate = (
+            args.delivery_evidence
+            if args.delivery_evidence.is_absolute()
+            else root / args.delivery_evidence
+        )
+        _assert_safe_path(root, candidate)
+        if not candidate.is_file():
+            raise VerificationError(
+                "--delivery-evidence debe ser un archivo del proyecto."
+            )
+        delivery_value, delivery_errors = load_delivery_evidence(candidate)
+        selected_releases = {
+            delivery["tasks"][task_id].get("Release")
+            for task_id in task_ids
+            if task_id in delivery["tasks"]
+        }
+        declared_release = delivery_value.get("release")
+        if selected_releases != {declared_release}:
+            delivery_errors.append(
+                "delivery.release no coincide de forma unívoca con las tareas verificadas."
+            )
+        release_row = delivery["releases"].get(str(declared_release))
+        if release_row is None:
+            delivery_errors.append("delivery.release no existe en ART-PLANS.")
+        else:
+            release_environments = set(
+                re.findall(r"\bENV-[0-9]{3}\b", release_row.get("Environments", ""))
+            )
+            if delivery_value.get("environment") not in release_environments:
+                delivery_errors.append(
+                    "delivery.environment no pertenece a la release declarada."
+                )
+        environment_row = delivery["environments"].get(
+            str(delivery_value.get("environment"))
+        )
+        if environment_row is None or environment_row.get("State") != "confirmed":
+            delivery_errors.append(
+                "delivery.environment debe existir y estar confirmed."
+            )
+        outcomes.append(
+            {
+                "name": "delivery-evidence",
+                "gate_id": "GATE-DELIVERY-EVIDENCE",
+                "status": "passed" if not delivery_errors else "failed",
+                "errors": delivery_errors,
+            }
+        )
+    else:
+        limitations.append(
+            "G4 de promoción/despliegue no se evaluó; no se aportó --delivery-evidence."
+        )
+    required_failures = [
+        item
+        for item in outcomes
+        if item.get("status") != "passed"
+        and item.get("name") != "compose-cleanup"
+    ]
+    revision_after = repository_revision(root)
+    current_contract, current_contract_errors = _active_contract_snapshot(
+        root, args.increment
+    )
+    if current_contract_errors or current_contract != initial_contract_fingerprint:
+        required_failures.append(
+            {"name": "contract-stability", "status": "failed"}
+        )
+    if (
+        revision_after["revision"] != revision_before["revision"]
+        or revision_after["tree"] != revision_before["tree"]
+        or (
+            revision_after["kind"] == "git"
+            and revision_after["dirty"]
+        )
+    ):
+        required_failures.append(
+            {"name": "revision-stability", "status": "failed"}
+        )
+    if required_failures:
+        classification = "not-verified"
+    elif limitations:
+        classification = "verified-with-reservations"
+    else:
+        classification = "verified"
+    artifact_digests = _artifact_digests(
+        root, bindings, profile_checks
+    )
+    tree_id = str(revision_after["tree_id"])
+    tree_sha256 = str(revision_after["tree_sha256"])
+    build_material = {
+        "revision": revision_after["revision"],
+        "tree_id": tree_id,
+        "tree_sha256": tree_sha256,
+        "locks": lock_details,
+        "checks": outcomes,
+        "artifacts": artifact_digests,
+    }
+    build_id = "build-sha256:" + hashlib.sha256(
+        json.dumps(
+            build_material,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    if delivery_value is not None:
+        delivery_mismatches: list[str] = []
+        if delivery_value.get("revision") != revision_after["revision"]:
+            delivery_mismatches.append(
+                "delivery.revision no coincide con la revisión verificada"
+            )
+        if delivery_value.get("tree_id") != tree_id:
+            delivery_mismatches.append(
+                "delivery.tree_id no coincide con el árbol verificado"
+            )
+        if delivery_value.get("build_id") != build_id:
+            delivery_mismatches.append(
+                "delivery.build_id no coincide con el build verificado"
+            )
+        if set(delivery_value.get("artifact_digests", [])) != set(
+            artifact_digests
+        ):
+            delivery_mismatches.append(
+                "delivery.artifact_digests no coincide con los artefactos verificados"
+            )
+        if delivery_mismatches:
+            classification = "not-verified"
+            for outcome in outcomes:
+                if outcome.get("gate_id") == "GATE-DELIVERY-EVIDENCE":
+                    outcome["status"] = "failed"
+                    outcome.setdefault("errors", []).extend(
+                        delivery_mismatches
+                    )
+    environment = (
+        str(delivery_value["environment"])
+        if delivery_value is not None and delivery_value.get("environment")
+        else args.environment
+    )
+    result: dict[str, Any] = {
+        "classification": classification,
+        "increment": args.increment,
+        "task_ids": task_ids,
+        "checks": outcomes,
+        "limitations": limitations,
+        "evidence_recorded": False,
+        "profile_locks": lock_details,
+        "revision": revision_after,
+        "tree_id": tree_id,
+        "tree_sha256": tree_sha256,
+        "build_id": build_id,
+        "artifact_digests": artifact_digests,
+        "environment": environment,
+    }
+    if not args.record_evidence:
+        return (0 if classification != "not-verified" else 3), result
+    if not EVIDENCE_RE.fullmatch(args.record_evidence):
+        raise VerificationError("--record-evidence debe usar EVID-###.")
+    if manifest_path.read_bytes() != initial_manifest:
+        raise VerificationError(
+            "project.json cambió después de ejecutar los checks."
+        )
+    evidence_path = (
+        root
+        / "docs"
+        / "lks-sdd"
+        / "evidence"
+        / f"{args.record_evidence}.json"
+    )
+    if evidence_path.exists():
+        raise VerificationError(f"La evidencia ya existe: {evidence_path}.")
+    trace_path = root / "docs/lks-sdd/05-quality/traceability.md"
+    trace_original, trace_new = _updated_traceability(
+        trace_path, args.increment, args.record_evidence
+    )
+    evidence = {
+        "schema_version": "1.2",
+        "evidence_id": args.record_evidence,
+        "increment": args.increment,
+        "task_ids": task_ids,
+        "profile_bindings": [
+            item["binding_id"] for item in bindings
+        ],
+        "profile_locks": lock_details,
+        "revision": revision_after["revision"],
+        "branch": revision_after.get("branch"),
+        "tree_id": tree_id,
+        "tree_sha256": tree_sha256,
+        "build_id": build_id,
+        "artifact_digests": artifact_digests,
+        "environment": environment,
+        "classification": classification,
+        "gate_ids": sorted(
+            {item["gate_id"] for item in outcomes if item.get("gate_id")}
+        ),
+        "checks": outcomes,
+        "limitations": limitations,
+    }
+    manifest_new = json.loads(json.dumps(manifest))
+    manifest_new["phase"] = "verification"
+    manifest_new["gate"] = "G4"
+    manifest_new["last_verified_revision"] = str(
+        revision_after["revision"]
+    )
+    manifest_new["verification"] = {
+        "status": classification,
+        "increment": args.increment,
+        "task_ids": task_ids,
+        "revision": str(revision_after["revision"]),
+        "tree_id": tree_id,
+        "tree_sha256": tree_sha256,
+        "build_id": build_id,
+        "artifact_digests": artifact_digests,
+        "environment": environment,
+        "gate_ids": evidence["gate_ids"],
+        "evidence_ids": [args.record_evidence],
+        "limitations": limitations,
+    }
+    if delivery_value is not None and not any(
+        item.get("status") == "failed"
+        for item in outcomes
+        if item.get("gate_id") == "GATE-DELIVERY-EVIDENCE"
+    ):
+        manifest_new["last_delivery"] = {
+            "release": delivery_value["release"],
+            "environment": delivery_value["environment"],
+            "revision": delivery_value["revision"],
+            "tree_id": delivery_value["tree_id"],
+            "build_id": delivery_value["build_id"],
+            "artifact_digests": delivery_value["artifact_digests"],
+            "status": "verified",
+            "evidence_ids": [args.record_evidence],
+        }
+    manifest_new_bytes = (
+        json.dumps(manifest_new, indent=2, ensure_ascii=False) + "\n"
+    ).encode("utf-8")
+    evidence_bytes = (
+        json.dumps(evidence, indent=2, ensure_ascii=False) + "\n"
+    ).encode("utf-8")
+    evidence_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_trace = trace_path.with_name(trace_path.name + ".lks-sdd.tmp")
+    temp_manifest = manifest_path.with_name(
+        manifest_path.name + ".lks-sdd.tmp"
+    )
+    try:
+        with evidence_path.open("xb") as stream:
+            stream.write(evidence_bytes)
+        with temp_trace.open("xb") as stream:
+            stream.write(trace_new)
+        with temp_manifest.open("xb") as stream:
+            stream.write(manifest_new_bytes)
+        if (
+            trace_path.read_bytes() != trace_original
+            or manifest_path.read_bytes() != initial_manifest
+        ):
+            raise VerificationError(
+                "Las entradas cambiaron antes de registrar evidencia."
+            )
+        os.replace(temp_trace, trace_path)
+        os.replace(temp_manifest, manifest_path)
+    except (OSError, VerificationError):
+        if evidence_path.exists():
+            evidence_path.unlink()
+        for temporary in (temp_trace, temp_manifest):
+            if temporary.exists():
+                temporary.unlink()
+        if trace_path.read_bytes() != trace_original:
+            trace_path.write_bytes(trace_original)
+        if manifest_path.read_bytes() != initial_manifest:
+            manifest_path.write_bytes(initial_manifest)
+        raise
+    result["evidence_recorded"] = True
+    result["evidence_id"] = args.record_evidence
+    return (0 if classification != "not-verified" else 3), result
+
+
 def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     root = args.project_root.expanduser().resolve()
     if not root.is_dir():
@@ -539,6 +1241,10 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     if manifest is None:
         blockers.append("Falta el índice LKS-SDD.")
         manifest = {}
+    if manifest.get("schema_version") == "1.2":
+        return _run_v12(
+            args, root, report, manifest, definitions
+        )
     initial_manifest = b""
     if manifest:
         _, loaded_manifest, initial_manifest = _load_manifest(root)
@@ -797,11 +1503,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--increment", required=True)
+    parser.add_argument("--task", action="append")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--plan", action="store_true")
     mode.add_argument("--execute", action="store_true")
     parser.add_argument("--authorize", action="store_true")
     parser.add_argument("--containers", action="store_true")
+    parser.add_argument(
+        "--environment",
+        default="not-applicable",
+        help="ENV-### verificado o not-applicable para verificación local.",
+    )
+    parser.add_argument(
+        "--delivery-evidence",
+        type=Path,
+        help="JSON G4 con promoción, despliegue, smoke, observabilidad y recovery.",
+    )
     parser.add_argument(
         "--visual-evidence",
         type=Path,
@@ -821,7 +1538,7 @@ def main() -> int:
             {"classification": "not-verified", "error": str(exc), "checks": []},
         )
     if args.as_json:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print(json.dumps(result, indent=2, ensure_ascii=True))
     else:
         print(result["classification"])
         for check in result.get("checks", []):

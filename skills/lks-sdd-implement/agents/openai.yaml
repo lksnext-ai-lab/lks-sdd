@@ -1,6 +1,6 @@
 interface:
   display_name: "Implementar LKS-SDD con Codex"
-  short_description: "Implementa un incremento SDD acotado con Codex"
-  default_prompt: "Usa $lks-sdd-implement para implementar con Codex el incremento confirmado y mantener su trazabilidad."
+  short_description: "Implementa tareas listas con perfiles bloqueados"
+  default_prompt: "Usa $lks-sdd-implement para implementar con Codex la selección TASK lista usando sus bindings y locks exactos."
 policy:
   allow_implicit_invocation: true

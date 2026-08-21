@@ -30,6 +30,7 @@ from run_quality_harness import (  # noqa: E402
     evaluate_pilot,
     main,
     repository_binding,
+    run_automated,
     validate_catalog,
     validate_corpus,
     validate_fixture_manifest,
@@ -493,6 +494,41 @@ class QualityHarnessTests(unittest.TestCase):
                 repository_binding(),
                 {"commit": "b" * 40, "tree_state": "clean"},
             )
+
+    def test_complete_profile_gate_names_the_representative_profile(self):
+        commands: dict[str, list[str]] = {}
+
+        def fake_run(check_id, command, json_output=False, timeout=600):
+            commands[check_id] = command
+            payload = (
+                {"results": []}
+                if check_id in {"unit-tests", "deterministic-evals"}
+                else {"complete_gate": True, "passed": True, "checks": []}
+                if check_id == "reference-profile-complete"
+                else None
+            )
+            return (
+                {
+                    "id": check_id,
+                    "status": "passed",
+                    "critical": True,
+                    "summary": "exit=0",
+                },
+                payload,
+                "",
+            )
+
+        with patch(
+            "run_quality_harness.validate_fixture_manifest",
+            return_value={"status": "passed", "fixture_count": 6, "errors": []},
+        ), patch("run_quality_harness._run_command", side_effect=fake_run):
+            run_automated(self.catalog, True)
+
+        command = commands["reference-profile-complete"]
+        profile_index = command.index("--profile")
+        self.assertEqual(
+            command[profile_index + 1], "WEB-FASTAPI-REACT-KEYCLOAK-PG"
+        )
 
     def test_dirty_source_fails_candidate_gate_without_running_real_suite(self):
         automated = (

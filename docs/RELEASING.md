@@ -20,7 +20,7 @@ Antes de publicar una versión:
 1. Cerrar el alcance y actualizar versión, changelog, estado documental, ayudas y notas en `docs/releases/`.
 2. Ejecutar las validaciones de `docs/VALIDATION.md` y revisar el diff completo.
 3. Integrar el commit exacto en `main`, subirlo y comprobar que el árbol de trabajo está limpio y sin divergencia con `origin/main`.
-4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto, generar allí un reporte candidate 1.1 que atestigüe `HEAD`, índice y bytes reales sin ningún archivo no versionado preexistente —también los ignorados—, generar dos veces los bundles con ese mismo reporte, verificar reproducibilidad, manifiesto y checksums, y mantenerlos fuera del árbol Git.
+4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto, generar allí un reporte candidate 1.1 que atestigüe `HEAD`, índice y bytes reales sin ningún archivo no versionado preexistente —también los ignorados— y valide las certificaciones exactas de todos los perfiles active; generar dos veces los bundles con ese mismo reporte, verificar reproducibilidad, manifiesto y checksums, y mantenerlos fuera del árbol Git.
 5. Solo después de superar el harness limpio y el doble build, crear y subir una etiqueta anotada `vX.Y.Z` sobre ese commit.
 6. Crear la prerelease de GitHub desde la etiqueta remota existente, con las notas versionadas y los cinco assets candidate; verificar URL, commit, estado, cuerpo, hashes y descargas.
 
@@ -31,8 +31,8 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "0.7.0"
-$releaseDate = "2026-08-20"
+$releaseVersion = "0.8.0"
+$releaseDate = "2026-08-21"
 $releaseTag = "v$releaseVersion"
 
 git status --short --branch
@@ -114,11 +114,11 @@ Cada nota incluye como mínimo:
 - versión y fecha;
 - enlace o referencia al changelog;
 - matriz o declaración de compatibilidad;
-- perfiles y locks aplicables;
+- catálogo de perfiles, estados active/candidate, locks y certificaciones exactas aplicables;
 - resultados de tests, evals y canales que siguen `not-run`;
 - vulnerabilidades conocidas y otras limitaciones;
 - instrucciones de actualización;
-- migración o declaración explícita de que no se requiere; si `human_review_required` contiene entradas, las notas deben indicar que la aplicación queda siempre bloqueada antes de escribir hasta resolver cada entrada en el origen y repetir el preview con lista vacía. La `Identity` agregada se traslada aparte a tres dominios `pending`: no bloquea la escritura de la migración, pero sí readiness hasta su resolución en 1.1;
+- migración o declaración explícita de que no se requiere; si `human_review_required` contiene entradas en 1.0 → 1.1, las notas deben indicar que la aplicación queda siempre bloqueada antes de escribir hasta resolver cada entrada en el origen y repetir el preview con lista vacía. La `Identity` agregada se traslada aparte a tres dominios `pending`: no bloquea la escritura de ese salto, pero sí readiness hasta su resolución. El salto 1.1 → 1.2 crea gobierno, bindings, planes y tareas pendientes sin inferir decisiones;
 - rollback;
 - periodo o estado de soporte;
 - responsables confirmados o, si todavía no existen, el pendiente explícito.

@@ -20,11 +20,11 @@ La clasificación técnica no aprueba producción, excepción, entrega, riesgo r
 
 ## Puerta de implementación
 
-El plan solo se calcula si `.lks-sdd/project.json` contiene `implementation` para el mismo `INC-###`, con un `profile_id` idéntico a `technology.selected_profile` y estado `in-progress` o `completed`. El estado `in-progress` permite anticipar los checks durante el handoff, pero el resultado declara que la ejecución todavía no está habilitada.
+El plan solo se calcula si `.lks-sdd/project.json` contiene `implementation` para el mismo `INC-###`, una selección `task_ids` perteneciente a ese incremento, `profile_bindings` existentes y sus locks exactos, con estado `in-progress` o `completed`. `in-progress` permite anticipar checks, pero declara que la ejecución todavía no está habilitada.
 
 Ejecutar cualquier check o registrar un `EVID-###` exige que ese mismo registro mantenga `implementation.status=completed`. Si falta `implementation`, el incremento no coincide, el perfil es incoherente o el estado es `not-started`, `in-progress` o `blocked`, el runner falla cerrado antes de invocar herramientas, crear evidencia o modificar trazabilidad e índice. Un plan, una autorización o unos checks potencialmente exitosos no sustituyen esta puerta.
 
-Después de ejecutar los checks y antes de cualquier escritura, el runner recarga `project.json` y revalida el estado `completed`, el incremento, el perfil, el lock H0 y el contrato activo contra la instantánea inicial. Si cualquiera de esas entradas cambió durante la ejecución, no crea `EVID-###` ni modifica trazabilidad o índice; la mutación externa se conserva para que pueda revisarse y sea necesario repetir la verificación.
+Después de ejecutar y antes de escribir, el runner recarga `project.json` y revalida estado `completed`, incremento, tareas, bindings, todos los locks, revisión/árbol del repositorio y contrato activo contra la instantánea inicial. Si algo cambió, no crea `EVID-###` ni modifica trazabilidad o índice; la mutación externa se conserva y debe repetirse la verificación.
 
 ## Fases de trazabilidad
 
@@ -42,15 +42,19 @@ El argumento `--visual-evidence` acepta un JSON 1.1 local bajo `docs/lks-sdd/evi
 
 La evidencia canónica registra el SHA-256 del JSON, baseline, árbol de fuentes de implementación relevante y lista de capturas consumidas. El fingerprint incluye los archivos declarados y los árboles de código habituales (`apps`, `packages`, `services`, `src`, `lib` y `tests`), excluyendo dependencias, cachés y salidas de build; así no puede omitirse silenciosamente otro archivo fuente del mismo proyecto. La validación vuelve a comprobar el JSON y esos archivos; una mutación posterior queda expuesta sin copiar contenido visual sensible al Markdown.
 
-## Evidencia mínima
+## Gates componibles y evidencia mínima
 
-La evidencia registra identificador, revisión, incremento, perfil y lock, fecha, herramienta, comprobación, resultado, limitaciones y relaciones con criterios y pruebas. No copia tokens, contraseñas, datos personales, imágenes, volcados completos ni logs productivos; para capturas conserva solo ruta y hash.
+Por cada binding se ejecutan los gates obligatorios de sus capacidades y el gate de composición exacta. G2 demuestra que el contrato es preparable; G3 ejecuta calidad, build, pruebas e integración aplicables; G4 consume evidencia estructurada de promoción/despliegue. Un gate de capacidad no certifica una mezcla tecnológica distinta y un lock no sustituye el gate de composición.
 
-La verificación H0 exige que `.lks-sdd/profile.lock.json` exista como archivo regular y coincida byte a byte con el lock H0 empaquetado. Un lock ausente, `{}`, editado o enlazado bloquea incluso el modo `--plan`; así el plan, la ejecución y la evidencia se atribuyen a la misma pila exacta que quedó enlazada en `active_contract_fingerprint` y fue materializada por `prepare`. La misma atribución exige coherencia entre `implementation.profile_id`, `technology.selected_profile` y el perfil H0 soportado.
+La evidencia registra identificador, revisión de commit o workspace, rama, `tree_id` exacto, SHA-256 del listado del árbol, build determinista, incremento, tareas, bindings y locks, digests inmutables de artefactos, entorno, gates, resultados, limitaciones y relaciones con criterios/pruebas. No copia tokens, contraseñas, datos personales, imágenes, volcados completos ni logs productivos; para capturas conserva solo ruta y hash.
+
+La verificación 1.2 exige cada `.lks-sdd/profiles/BIND-###.lock.json` como archivo regular idéntico al lock certificado empaquetado. Ausencia, `{}`, edición o enlace bloquean incluso `--plan`; así plan, ejecución y evidencia pertenecen a las mismas composiciones que fijó `active_contract_fingerprint` y materializó `prepare`.
+
+La evidencia G4 se aporta desde un JSON local del proyecto y cumple `schemas/delivery-evidence.schema.json`. Debe declarar `schema_version: 1.0`, `REL-###`, `ENV-###`, un commit o fingerprint de workspace, `tree_id`, `build-sha256`, los mismos digests calculados y objetos `promotion`, `smoke`, `observability` y `recovery` con `status`, instante UTC y referencia verificable. `authorization` añade la autoridad responsable. La release debe contener exactamente las tareas verificadas y el entorno debe estar confirmado. El plugin valida la evidencia; no ejecuta ni autoriza merge, promoción o despliegue.
 
 Use el dispatcher instalado y declare la fase de trazabilidad de forma explícita cuando la inferencia automática no sea apropiada:
 
 ```powershell
 python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase verification --json
-python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --plan
+python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --plan
 ```

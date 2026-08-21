@@ -26,9 +26,9 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import validate_project  # noqa: E402
 
-PLUGIN_VERSION = "0.7.0"
-METHOD_VERSION = "1.1.0"
-SCHEMA_VERSION = "1.1"
+PLUGIN_VERSION = "0.8.0"
+METHOD_VERSION = "1.2.0"
+SCHEMA_VERSION = "1.2"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 STATUS_SUMMARY_HEADERS = (
@@ -50,10 +50,16 @@ CORE_ARTIFACTS = [
     ("ART-TR", "02-requirements/technical-requirements.md"),
     ("ART-AC", "02-requirements/acceptance-criteria.md"),
     ("ART-SOLUTION", "03-solution/solution-overview.md"),
+    ("ART-ARCH", "03-solution/architecture.md"),
     ("ART-INCREMENTS", "04-delivery/increments.md"),
+    ("ART-GOVERNANCE", "04-delivery/delivery-governance.md"),
+    ("ART-PLANS", "04-delivery/plans.md"),
+    ("ART-TASKS", "04-delivery/tasks.md"),
     ("ART-RISK", "04-delivery/risks-dependencies.md"),
     ("ART-QUALITY", "05-quality/quality-strategy.md"),
+    ("ART-TEST-STRATEGY", "05-quality/test-strategy.md"),
     ("ART-TRACE", "05-quality/traceability.md"),
+    ("ART-DEPLOYMENT", "06-operation/deployment.md"),
 ]
 ADOPTION_ARTIFACTS = [
     ("ART-ADOPT-SCOPE", "07-adoption/inspection-scope.md", "inspection-scope.md"),
@@ -246,10 +252,28 @@ def _build_manifest(
             "preferred_stack_assessed": False,
             "selected_profile": None,
             "selection_decision": None,
+            "profile_bindings": [],
         },
         "active_increment": None,
-        "version_control": {"type": git["type"], "origin": git["origin"]},
-        "last_verified_revision": git["revision"],
+        "active_plan": "PLAN-001",
+        "active_task": None,
+        "delivery_governance": {
+            "state": "proposed",
+            "model": None,
+            "decision": None,
+            "source": "docs/lks-sdd/04-delivery/delivery-governance.md",
+            "active_change": "CHG-001",
+            "review_due": None,
+        },
+        "version_control": {
+            "type": git["type"],
+            "origin": git["origin"],
+            "branching_model": None,
+            "main_branch": None,
+            "integration_branch": None,
+            "decision": None,
+        },
+        "last_verified_revision": None,
         "adoption": {
             "status": "materialized",
             "strategy": decision["strategy"],

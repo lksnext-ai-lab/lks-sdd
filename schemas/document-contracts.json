@@ -1,6 +1,7 @@
 {
-  "catalog_version": "1.1",
-  "supported_project_schemas": ["1.0", "1.1"],
+  "catalog_version": "1.2",
+  "supported_project_schemas": ["1.0", "1.1", "1.2"],
+  "schema_inheritance": {"1.2": "1.1"},
   "identifier_prefixes": [
     "OBJ",
     "STK",
@@ -24,7 +25,14 @@
     "DEV",
     "TEST",
     "EVID",
-    "OPEN"
+    "OPEN",
+    "PLAN",
+    "TASK",
+    "REL",
+    "UNIT",
+    "BIND",
+    "CHG",
+    "ENV"
   ],
   "reference_grammar": {
     "canonical_range": "..",
@@ -67,6 +75,34 @@
       "pending": ["draft", "proposed"],
       "inactive": ["resolved", "superseded", "retired"],
       "legacy_classes": {"assumption": "pending"}
+    },
+    "governance-lifecycle": {
+      "allowed": ["proposed", "confirmed", "superseded", "retired"],
+      "active": ["confirmed"],
+      "pending": ["proposed"],
+      "inactive": ["superseded", "retired"],
+      "legacy_classes": {}
+    },
+    "plan-lifecycle": {
+      "allowed": ["draft", "proposed", "confirmed", "active", "completed", "superseded", "retired"],
+      "active": ["confirmed", "active", "completed"],
+      "pending": ["draft", "proposed"],
+      "inactive": ["superseded", "retired"],
+      "legacy_classes": {}
+    },
+    "release-lifecycle": {
+      "allowed": ["draft", "planned", "active", "frozen", "released", "withdrawn", "retired"],
+      "active": ["planned", "active", "frozen", "released"],
+      "pending": ["draft"],
+      "inactive": ["withdrawn", "retired"],
+      "legacy_classes": {}
+    },
+    "task-workflow": {
+      "allowed": ["backlog", "ready", "in-progress", "in-review", "done", "blocked", "cancelled"],
+      "active": ["ready", "in-progress", "in-review", "done"],
+      "pending": ["backlog", "blocked"],
+      "inactive": ["cancelled"],
+      "legacy_classes": {}
     },
     "epistemic-adoption": {
       "allowed": ["fact", "observation", "inference", "assumption", "unknown", "contradicted"],
@@ -233,7 +269,7 @@
           "state": {"column": "State", "policy": "content-lifecycle"},
           "relations": {
             "Requirement": {"targets": ["FR", "NFR", "TR", "BR"], "min": 1, "max": null, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
-            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": []}
+            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": ["pending", "not-applicable"]}
           }
         }
       ]
@@ -270,6 +306,7 @@
       "artifact_type": "architecture",
       "path": "docs/lks-sdd/03-solution/architecture.md",
       "required": false,
+      "required_schemas": ["1.2"],
       "tables": [
         {
           "id": "solution.architecture-legacy",
@@ -291,6 +328,19 @@
           "state": {"column": "State", "policy": "content-lifecycle"},
           "relations": {
             "Requirements": {"targets": ["FR", "NFR", "TR", "BR"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": []}
+          }
+        },
+        {
+          "id": "solution.architecture-units",
+          "schemas": ["1.2"],
+          "headers": ["Unit", "State", "Component", "Responsibility", "Runtime boundary", "Interfaces", "Data ownership", "Requirements", "Profile binding"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "Unit", "prefixes": ["UNIT"]},
+          "state": {"column": "State", "policy": "content-lifecycle"},
+          "relations": {
+            "Requirements": {"targets": ["FR", "NFR", "TR", "BR"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": ["pending"]},
+            "Profile binding": {"targets": ["BIND"], "min": 0, "max": 1, "active_input": true, "require_defined": false, "allow_empty": true, "allow_applicability": ["pending", "not-applicable"]}
           }
         }
       ]
@@ -526,6 +576,100 @@
         }
       ]
     },
+    "ART-GOVERNANCE": {
+      "artifact_type": "delivery-governance",
+      "path": "docs/lks-sdd/04-delivery/delivery-governance.md",
+      "required": false,
+      "required_schemas": ["1.2"],
+      "tables": [
+        {
+          "id": "delivery.governance",
+          "schemas": ["1.2"],
+          "headers": ["ID", "State", "Effective from", "Delivery model", "Versioning", "Branching", "Artifact promotion", "Deployment", "Recovery", "Decision", "Review trigger"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["CHG"]},
+          "state": {"column": "State", "policy": "governance-lifecycle"},
+          "relations": {
+            "Decision": {"targets": ["ADR"], "min": 0, "max": 1, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]}
+          }
+        },
+        {
+          "id": "delivery.environments",
+          "schemas": ["1.2"],
+          "headers": ["ID", "State", "Role", "Promotion order", "Deployables", "Approval", "Configuration", "Data", "Observability", "Recovery"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["ENV"]},
+          "state": {"column": "State", "policy": "governance-lifecycle"},
+          "relations": {
+            "Deployables": {"targets": ["UNIT"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending", "not-applicable"]}
+          }
+        }
+      ]
+    },
+    "ART-PLANS": {
+      "artifact_type": "delivery-plans",
+      "path": "docs/lks-sdd/04-delivery/plans.md",
+      "required": false,
+      "required_schemas": ["1.2"],
+      "tables": [
+        {
+          "id": "delivery.plans",
+          "schemas": ["1.2"],
+          "headers": ["ID", "State", "Name", "Delivery model", "Major horizon", "Objective", "Increments", "Dependencies", "Owner", "Review date"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["PLAN"]},
+          "state": {"column": "State", "policy": "plan-lifecycle"},
+          "relations": {
+            "Increments": {"targets": ["INC"], "min": 0, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]},
+            "Dependencies": {"targets": ["PLAN", "DEP"], "min": 0, "max": null, "active_input": false, "require_defined": true, "allow_empty": true, "allow_applicability": ["not-applicable"]}
+          }
+        },
+        {
+          "id": "delivery.releases",
+          "schemas": ["1.2"],
+          "headers": ["ID", "State", "Version", "Plan", "Target date", "Branch or stream", "Environments", "Tasks", "Commit", "Artifact", "Evidence"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["REL"]},
+          "state": {"column": "State", "policy": "release-lifecycle"},
+          "relations": {
+            "Plan": {"targets": ["PLAN"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Environments": {"targets": ["ENV"], "min": 0, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending", "not-applicable"]},
+            "Tasks": {"targets": ["TASK"], "min": 0, "max": null, "active_input": false, "require_defined": true, "allow_empty": true, "allow_applicability": ["pending"]},
+            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": ["pending", "not-applicable"]}
+          }
+        }
+      ]
+    },
+    "ART-TASKS": {
+      "artifact_type": "development-task-board",
+      "path": "docs/lks-sdd/04-delivery/tasks.md",
+      "required": false,
+      "required_schemas": ["1.2"],
+      "tables": [
+        {
+          "id": "delivery.tasks",
+          "schemas": ["1.2"],
+          "headers": ["ID", "Plan", "Title", "Release", "Increment", "Unit", "Profile binding", "Workflow state", "Health", "Progress", "Dependencies", "Blockers", "Owner", "Detail", "Updated"],
+          "min_occurs": 1,
+          "max_occurs": null,
+          "key": {"column": "ID", "prefixes": ["TASK"]},
+          "state": {"column": "Workflow state", "policy": "task-workflow"},
+          "scope_column": "Increment",
+          "relations": {
+            "Plan": {"targets": ["PLAN"], "min": 1, "max": 1, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Release": {"targets": ["REL"], "min": 0, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]},
+            "Increment": {"targets": ["INC"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Unit": {"targets": ["UNIT"], "min": 1, "max": 1, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Profile binding": {"targets": ["BIND"], "min": 1, "max": 1, "active_input": true, "require_defined": false, "allow_empty": false, "allow_applicability": []},
+            "Dependencies": {"targets": ["TASK"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": ["not-applicable"]}
+          }
+        }
+      ]
+    },
     "ART-RISK": {
       "artifact_type": "risks-dependencies",
       "path": "docs/lks-sdd/04-delivery/risks-dependencies.md",
@@ -586,6 +730,7 @@
       "artifact_type": "test-strategy",
       "path": "docs/lks-sdd/05-quality/test-strategy.md",
       "required": false,
+      "required_schemas": ["1.2"],
       "tables": [
         {
           "id": "quality.test-detail-legacy",
@@ -597,7 +742,7 @@
           "state": {"column": "State", "policy": "test-plan"},
           "relations": {
             "Acceptance": {"targets": ["AC"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": []},
-            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": []}
+            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": ["pending", "not-applicable"]}
           }
         },
         {
@@ -609,7 +754,7 @@
           "relations": {
             "Test": {"targets": ["TEST"], "min": 1, "max": 1, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
             "Acceptance": {"targets": ["AC"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": []},
-            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": []}
+            "Evidence": {"targets": ["EVID"], "min": 0, "max": null, "active_input": false, "require_defined": false, "allow_empty": true, "allow_applicability": ["pending", "not-applicable"]}
           }
         }
       ]
@@ -641,6 +786,7 @@
       "artifact_type": "deployment",
       "path": "docs/lks-sdd/06-operation/deployment.md",
       "required": false,
+      "required_schemas": ["1.2"],
       "tables": [
         {
           "id": "operation.deployment-legacy",
@@ -661,6 +807,19 @@
           "max_occurs": 1,
           "state": {"column": "State", "policy": "content-lifecycle"},
           "relations": {
+            "Requirements": {"targets": ["FR", "NFR", "TR", "BR"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": []}
+          }
+        },
+        {
+          "id": "operation.deployment-units",
+          "schemas": ["1.2"],
+          "headers": ["Environment", "State", "Role", "Deployment unit", "Artifact strategy", "Configuration", "Deployment strategy", "Recovery", "Observability", "Requirements"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {"column": "State", "policy": "content-lifecycle"},
+          "relations": {
+            "Environment": {"targets": ["ENV"], "min": 1, "max": 1, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Deployment unit": {"targets": ["UNIT"], "min": 1, "max": null, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
             "Requirements": {"targets": ["FR", "NFR", "TR", "BR"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": []}
           }
         }

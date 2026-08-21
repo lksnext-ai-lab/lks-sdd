@@ -8,7 +8,12 @@
 - **Repositorio:** fuente versionada de documentación, código y evidencias.
 - **Baseline:** estado de referencia identificado y vigente.
 - **Puerta:** conjunto de condiciones comprobables para decidir si un alcance puede avanzar.
-- **Perfil:** combinación tecnológica y nivel de soporte documentado.
+- **Familia:** agrupación no seleccionable de perfiles con una forma arquitectónica común.
+- **Capability:** unidad reutilizable de constraints, preparación y gates; no es unidad de homologación.
+- **Perfil:** composición tecnológica cerrada y acotada; solo un perfil exacto puede certificarse y seleccionarse mediante `BIND-###`.
+- **Unidad desplegable:** frontera `UNIT-###` con runtime, interfaces y ownership propios.
+- **Gobierno de entrega:** decisión `CHG-###` vigente sobre modelo de trabajo, versionado, Git, entornos, promoción, despliegue y recuperación.
+- **Plan, release y tarea:** jerarquía `PLAN-###` → `REL-###` → `TASK-###` para planificación y seguimiento ejecutable.
 - **Preparación de especificación:** suficiencia funcional del incremento documentado; se informa como `specification_readiness`.
 - **Soporte de automatización:** capacidad del plugin para preparar y verificar la pila confirmada; se informa como `automation_support` y no cambia la decisión tecnológica.
 - **Huella documental:** hash de la instantánea completa, incluido el historial conservado.
@@ -16,4 +21,4 @@
 
 LKS-SDD distingue hecho, objetivo, requisito, restricción, propuesta, decisión, supuesto, punto abierto, riesgo y evidencia. Una propuesta no se transforma en decisión sin confirmación explícita.
 
-Los proyectos nuevos de 0.7.0 usan método 1.1.0 y esquema 1.1. El esquema 1.0 permanece soportado en compatibilidad y su migración nunca se deduce de una actualización del plugin.
+Los proyectos nuevos de 0.8.0 usan método 1.2.0 y esquema 1.2. Los esquemas 1.0 y 1.1 permanecen soportados en compatibilidad y su migración nunca se deduce de una actualización.

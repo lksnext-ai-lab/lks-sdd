@@ -1,6 +1,6 @@
 # Procedencia de las especificaciones canónicas
 
-Las tres fuentes originales de `specs/canonical/` se incorporaron de forma aditiva el 19 de agosto de 2026 y permanecen inmutables. El 20 de agosto de 2026 se añadieron dos fuentes, también aditivas: la extensión de definición y diseño visual 0.6 y el contrato documental y de handoff 1.1. Ninguna reescribe retrospectivamente las fuentes anteriores.
+Las tres fuentes originales de `specs/canonical/` se incorporaron de forma aditiva el 19 de agosto de 2026 y permanecen inmutables. El 20 de agosto de 2026 se añadieron dos fuentes, también aditivas: la extensión de definición y diseño visual 0.6 y el contrato documental y de handoff 1.1. El 21 de agosto de 2026 se añadió el contrato 1.2 de gobierno de entrega, perfiles multiperfil y tareas. Ninguna reescribe retrospectivamente las fuentes anteriores.
 
 | Archivo versionado | SHA-256 |
 |---|---|
@@ -9,7 +9,8 @@ Las tres fuentes originales de `specs/canonical/` se incorporaron de forma aditi
 | `LKS-SDD_baseline_normativa_candidata_v0.1.md` | `083DED8FB14D77D899CB4F955AEA67D9A21FBA66AC25D7CF28D8C5111C1D1162` |
 | `LKS-SDD_extension_definicion_visual_v0.1.md` | `ABA2B063A31192D5971CE9DC05323405BF7655737076AC924011E77E2C15ACA3` |
 | `LKS-SDD_extension_contrato_documental_v1.1.md` | `84CEAA4C5243B2942CAA0EDE9288173A603E12640645C6D1E0C2915DED3B0C7D` |
+| `LKS-SDD_extension_gobierno_entrega_perfiles_tareas_v1.2.md` | `45EB724665ACC88913775EC56A9F0D4DD2F07579D7E6674C8E479A2D29790C53` |
 
-La definición funcional y arquitectónica gobierna el propósito y los límites generales del producto. El paquete de preimplementación concreta contratos, M0–M1 y evals. La baseline normativa aporta reglas candidatas y no se interpreta como política aprobada. La extensión visual concreta, para el alcance 0.6, la entrevista inicial, la cobertura y el ciclo condicional con ImageGen. La extensión 1.1 gobierna la ontología por tabla, la gramática de referencias, el grafo activo, la aplicabilidad por dominio, el handoff y la compatibilidad 1.0; no altera el estado normativo de las fuentes anteriores.
+La definición funcional y arquitectónica gobierna el propósito y los límites generales del producto. El paquete de preimplementación concreta contratos, M0–M1 y evals. La baseline normativa aporta reglas candidatas y no se interpreta como política aprobada. La extensión visual concreta, para el alcance 0.6, la entrevista inicial, la cobertura y el ciclo condicional con ImageGen. La extensión 1.1 gobierna la ontología por tabla, la gramática de referencias, el grafo activo, la aplicabilidad por dominio, el handoff y la compatibilidad 1.0. La extensión 1.2 gobierna modelos de entrega, planes, releases, tareas, unidades desplegables, bindings, soporte estricto y evidencia de G2–G4; no altera el estado normativo de las fuentes anteriores.
 
 Si una futura revisión detecta una contradicción material que no pueda resolverse con esta jerarquía y el alcance específico de la extensión, debe detener el cambio y solicitar una decisión concreta. Una diferencia entre implementación y contrato se corrige en la implementación; nunca reescribiendo retrospectivamente una fuente canónica.

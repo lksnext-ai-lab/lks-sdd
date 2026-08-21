@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.8.0 — 2026-08-21 — gobierno de entrega y arquitectura multiperfil
+
+- Añade el contrato de método 1.2 para definir antes de G2 el modelo de entrega, versionado, Git/ramas, CI/CD, entornos, promoción, despliegue, observabilidad y recuperación, sin imponer una estrategia única.
+- Modela `bounded-release`, `continuous-evolution` y `maintenance-stream`, y registra cambios posteriores como transiciones `CHG-###` trazables que no reescriben el historial.
+- Incorpora planificación por horizontes `PLAN-###`, releases `REL-###` y tareas `TASK-###`, con tablero visual, detalle independiente, dependencias, problemas `PROB-###`, gates y evidencias.
+- Añade transiciones de tarea validadas mediante preview, hash de autorización y escritura atómica; completar una tarea exige evidencia, revisión, build, digest y entorno.
+- Sustituye el acoplamiento operativo a H0 por un registro multiperfil con familias, capabilities internas, perfiles cerrados, drivers genéricos, bindings por unidad desplegable y locks 2.0.
+- Incorpora diez perfiles de referencia: React y Angular estáticos, dos variantes API-only, Next.js SSR, Angular SSR, sistemas web completos React y Angular, worker RabbitMQ y procesador Kafka.
+- Declara seis perfiles active y cuatro candidate; solo un active con certificación exacta vigente puede ser `supported`. Un lock identifica la composición, pero no acredita compatibilidad sin gates por capability y gate end-to-end de la composición.
+- Añade scaffolds, gates y certificaciones ligadas por hash a descriptor, capabilities, driver, scaffold, composición y motor; cualquier deriva invalida el soporte hasta recertificar.
+- Generaliza readiness, preparación y verificación a múltiples bindings y tareas, y exige que G3/G4 queden ligados a revisión Git, tree ID/hash, build, digest de artefacto y entorno.
+- Añade la migración explícita y reversible `1.1 → 1.2`, que crea gobierno, arquitectura, planes, tareas y bindings pendientes sin inventar decisiones ni evidencias.
+- Amplía el harness con FX-22–FX-27 y crea un corpus conversacional 0.8 independiente, todavía `not-run`; el corpus 0.7 queda histórico y no acredita esta línea de producto.
+- Actualiza las seis skills, prompts, ayudas, esquemas, plantillas, documentación, metadata, validadores, tests y nota de release; mantiene los canales humanos y de piloto no ejecutados como `not-run`.
+
 ## 0.7.0 — 2026-08-20 — contrato documental y handoff fiable
 
 - Unifica el análisis de artefactos, tablas, estados y referencias para que validación, ayuda, trazabilidad y readiness consuman el mismo contrato documental normalizado.

@@ -90,6 +90,26 @@ class VisualContractTests(unittest.TestCase):
         initialize(self.root, "visual-contract")
         materialize_ready_increment(self.root)
         self.docs = self.root / "docs" / "lks-sdd"
+        manifest_path = self.root / ".lks-sdd" / "project.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["technology"]["selected_profile"] = "WEB-REACT-VITE-STATIC"
+        manifest["technology"]["profile_bindings"][0]["profile_id"] = (
+            "WEB-REACT-VITE-STATIC"
+        )
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        overview = self.docs / "03-solution" / "solution-overview.md"
+        overview.write_text(
+            overview.read_text(encoding="utf-8").replace(
+                "Select API-FASTAPI-STATELESS-OCI for UNIT-001.",
+                "Select WEB-REACT-VITE-STATIC for UNIT-001.",
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -105,25 +125,26 @@ class VisualContractTests(unittest.TestCase):
         path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
     def _materialize_profile_lock(self, implementation_status: str = "in-progress") -> None:
-        packaged = (
-            PLUGIN_ROOT
-            / "profiles"
-            / "WEB-FASTAPI-REACT-KEYCLOAK-PG"
-            / "technology-profile.lock.json"
+        _, preview = run_json(
+            IMPLEMENT_SCRIPT,
+            str(self.root),
+            "--increment",
+            "INC-001",
+            "--dry-run",
         )
-        (self.root / ".lks-sdd/profile.lock.json").write_bytes(
-            packaged.read_bytes()
+        run_json(
+            IMPLEMENT_SCRIPT,
+            str(self.root),
+            "--increment",
+            "INC-001",
+            "--apply",
+            "--authorize",
+            "--preview-hash",
+            preview["preview_hash"],
         )
         manifest_path = self.root / ".lks-sdd/project.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest["implementation"] = {
-            "status": implementation_status,
-            "increment": "INC-001",
-            "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-            "profile_version": "1.0.0-candidate.1",
-            "changed_paths": [],
-            "evidence_ids": [],
-        }
+        manifest["implementation"]["status"] = implementation_status
         manifest_path.write_text(
             json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
@@ -289,6 +310,7 @@ class VisualContractTests(unittest.TestCase):
         self.assertTrue(any("debe estar confirmed" in item for item in result["blockers"]))
 
     def test_implementation_fingerprint_covers_undeclared_files_in_source_tree(self):
+        self._materialize_profile_lock(implementation_status="completed")
         app_root = self.root / "apps"
         app_root.mkdir(parents=True, exist_ok=True)
         declared = app_root / "a.txt"
@@ -298,14 +320,7 @@ class VisualContractTests(unittest.TestCase):
         manifest = json.loads(
             (self.root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
         )
-        manifest["implementation"] = {
-            "status": "completed",
-            "increment": "INC-001",
-            "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-            "profile_version": "1.0.0-candidate.1",
-            "changed_paths": ["apps/a.txt"],
-            "evidence_ids": [],
-        }
+        manifest["implementation"]["changed_paths"].append("apps/a.txt")
         validator = _load_validator_module()
         before, _, errors = validator.implementation_fingerprint(
             self.root, manifest, "INC-001"
@@ -327,8 +342,8 @@ class VisualContractTests(unittest.TestCase):
                 {
                     "evidence_id": "EVID-999",
                     "increment": "INC-001",
-                    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-                    "profile_version": "1.0.0-candidate.1",
+                    "profile_id": "WEB-REACT-VITE-STATIC",
+                    "profile_version": "2.0.0",
                     "revision": None,
                     "classification": "verified",
                     "checks": [{"name": "backend-tests", "status": "passed"}],
@@ -607,8 +622,13 @@ class VisualContractTests(unittest.TestCase):
         )
         with mock.patch.object(
             module,
-            "_execute_check",
-            side_effect=lambda check: {"name": check["name"], "status": "passed"},
+            "_execute_profile_command",
+            side_effect=lambda check, env: {
+                "name": check["name"],
+                "gate_id": check["gate_id"],
+                "binding_id": check["binding_id"],
+                "status": "passed",
+            },
         ):
             code, result = module.run(args)
         self.assertEqual(code, 3)
@@ -624,20 +644,15 @@ class VisualContractTests(unittest.TestCase):
 
     def test_visual_review_evidence_freezes_json_and_screenshot_hashes(self):
         _, visual_hash = self._materialize_visual_contract()
+        self._materialize_profile_lock(implementation_status="completed")
         implementation_file = self.root / "apps" / "frontend" / "reviewed.txt"
         implementation_file.parent.mkdir(parents=True, exist_ok=True)
         implementation_file.write_text("reviewed implementation\n", encoding="utf-8")
         implementation_relative = implementation_file.relative_to(self.root).as_posix()
         manifest_path = self.root / ".lks-sdd" / "project.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest["implementation"] = {
-            "status": "completed",
-            "increment": "INC-001",
-            "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-            "profile_version": "1.0.0-candidate.1",
-            "changed_paths": [implementation_relative],
-            "evidence_ids": [],
-        }
+        manifest["implementation"]["status"] = "completed"
+        manifest["implementation"]["changed_paths"].append(implementation_relative)
         manifest_path.write_text(
             json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
@@ -745,8 +760,8 @@ class VisualContractTests(unittest.TestCase):
                 {
                     "evidence_id": "EVID-001",
                     "increment": "INC-001",
-                    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-                    "profile_version": "1.0.0-candidate.1",
+                    "profile_id": "WEB-REACT-VITE-STATIC",
+                    "profile_version": "2.0.0",
                     "revision": None,
                     "classification": "verified",
                     "checks": [outcome],

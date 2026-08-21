@@ -18,7 +18,11 @@ Clasificar cada afirmación como hecho, objetivo, requisito, restricción, propu
 
 Cada dimensión se marca `unknown`, `partial`, `sufficient` o `not-applicable: motivo`. `Sufficient` significa suficiente para el alcance o siguiente incremento indicado, no terminado ni aprobado globalmente. No usar porcentajes globales de madurez.
 
-En proyectos nuevos, escriba el contrato 1.1 (`method_version: 1.1.0`, `schema_version: 1.1`) y use las tablas, estados y relaciones declarados para cada artefacto. Los proyectos 1.0 se leen en compatibilidad; la conversación de definición no los migra de forma implícita.
+En proyectos nuevos, escriba el contrato 1.2 (`method_version: 1.2.0`, `schema_version: 1.2`) y use las tablas, estados y relaciones declarados para cada artefacto. Los proyectos 1.0 y 1.1 se leen en compatibilidad; la conversación de definición no los migra de forma implícita.
+
+Antes de G2, la definición incluye tres capas inseparables del producto: arquitectura por `UNIT-###` y `BIND-###`, gobierno de entrega versionado por `CHG-###`, y planificación ejecutable `PLAN-###` → `REL-###` → `TASK-###`. El modelo de entrega se elige entre `bounded-release`, `continuous-evolution` y `maintenance-stream`; cualquier cambio posterior conserva la decisión anterior y declara fecha efectiva, impacto, transición y trigger de revisión.
+
+Cada tarea mantiene una fila breve para seguimiento visual y una ficha independiente con definición ejecutable, dependencias, gates, estado, salud, progreso, bloqueos, revisión, build, artefacto, entorno, evidencia e historial. Una tabla por horizonte mayor evita que el tablero se convierta en un registro inmanejable.
 
 ## Resumen de definición
 

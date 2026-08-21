@@ -19,6 +19,8 @@ COMMANDS = {
     "assess-readiness": "skills/lks-sdd-assess-readiness/scripts/assess_readiness.py",
     "implement": "skills/lks-sdd-implement/scripts/prepare_increment.py",
     "verify": "skills/lks-sdd-verify/scripts/run_verification.py",
+    "tasks": "scripts/manage_tasks.py",
+    "profiles": "scripts/validate_reference_profile.py",
     "validate-project": "scripts/validate_project.py",
     "validate-spec": "scripts/validate_spec.py",
     "traceability": "scripts/check_traceability.py",

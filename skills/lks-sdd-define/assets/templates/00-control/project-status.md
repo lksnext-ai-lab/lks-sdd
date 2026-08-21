@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-STATUS
 artifact_type: project-status
-schema_version: "1.1"
-method_version: "1.1.0"
-created_with_plugin_version: "0.7.0"
+schema_version: "1.2"
+method_version: "1.2.0"
+created_with_plugin_version: "0.8.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -37,7 +37,10 @@ last_updated: "{{DATE}}"
 | Identidad, seguridad y privacidad | unknown | project | No confirmado durante la inicialización | Necesidades y decisiones o no aplicabilidad | Puede bloquear el incremento según riesgo |
 | Integraciones | unknown | project | No confirmado durante la inicialización | Sistemas, contratos y fallos o no aplicabilidad | Puede bloquear comportamiento extremo a extremo |
 | Solución y tecnología | unknown | project | No se ha seleccionado una pila | Alternativas, encaje, riesgos y decisión | Impide fijar baseline técnica |
+| Arquitectura y desplegables | unknown | project | No se han identificado unidades desplegables | Límites de runtime, datos, interfaces y perfiles por unidad | Impide resolver composición y gates |
 | Entrega | unknown | project | No hay incremento activo | Alcance vertical, dependencias y riesgos | Impide evaluar readiness |
+| Gobierno de entrega | unknown | project | Modelo, versionado, ramas y promoción pendientes | Confirmar modelo de entrega, Git, entornos, despliegue y recuperación | Bloquea G2 |
+| Planificación y tareas | unknown | project | PLAN-001 y REL-001 son propuestas iniciales | Definir tareas independientes, dependencias, responsables y gates | Impide planificar y seguir la ejecución |
 | Operación | unknown | project | Aplicabilidad no confirmada | Despliegue, observabilidad y continuidad | Puede dejar requisitos operativos sin tratar |
 
 Estados admitidos: `unknown`, `partial`, `sufficient` o `not-applicable: motivo`. No calcule un porcentaje global; cada estado se refiere al alcance indicado.

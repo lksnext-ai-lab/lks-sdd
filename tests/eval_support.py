@@ -51,6 +51,15 @@ MIGRATE_SCRIPT = PLUGIN_ROOT / "scripts" / "migrate_project.py"
 CLIENT_VIEW_SCRIPT = PLUGIN_ROOT / "scripts" / "render_client_view.py"
 VALIDATE_SPEC_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_spec.py"
 VALIDATE_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_project.py"
+TASK_TEMPLATE = (
+    PLUGIN_ROOT
+    / "skills"
+    / "lks-sdd-define"
+    / "assets"
+    / "templates"
+    / "04-delivery"
+    / "task-detail.md"
+)
 
 
 def load_fixture(name: str) -> dict[str, Any]:
@@ -131,12 +140,42 @@ def materialize_ready_increment(root: Path) -> None:
             "phase": "readiness",
             "gate": "G2",
             "active_increment": "INC-001",
+            "active_plan": "PLAN-001",
+            "active_task": "TASK-001",
+            "delivery_governance": {
+                "state": "confirmed",
+                "model": "continuous-evolution",
+                "decision": "ADR-002",
+                "source": "docs/lks-sdd/04-delivery/delivery-governance.md",
+                "active_change": "CHG-001",
+                "review_due": "2026-11-19",
+            },
+            "version_control": {
+                "type": "none",
+                "origin": "none",
+                "branching_model": "not-applicable",
+                "main_branch": None,
+                "integration_branch": None,
+                "decision": "ADR-002",
+            },
         }
     )
     manifest["technology"] = {
         "preferred_stack_assessed": True,
-        "selected_profile": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+        "selected_profile": "API-FASTAPI-STATELESS-OCI",
         "selection_decision": "ADR-001",
+        "profile_bindings": [
+            {
+                "binding_id": "BIND-001",
+                "unit_id": "UNIT-001",
+                "unit_path": ".",
+                "profile_id": "API-FASTAPI-STATELESS-OCI",
+                "profile_scope": "deployable",
+                "selection_decision": "ADR-001",
+                "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+                "state": "confirmed",
+            }
+        ],
     }
     manifest_path.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
@@ -165,7 +204,12 @@ def materialize_ready_increment(root: Path) -> None:
     _append_row(
         docs / "03-solution" / "solution-overview.md",
         "| ID | State | Decision",
-        "| ADR-001 | confirmed | Select WEB-FASTAPI-REACT-KEYCLOAK-PG with a reversible web boundary derived from requirements. | FR-001 | Limited to INC-001 |",
+        "| ADR-001 | confirmed | Select API-FASTAPI-STATELESS-OCI for UNIT-001. | FR-001 | Limited to INC-001 and BIND-001 |",
+    )
+    _append_row(
+        docs / "03-solution" / "solution-overview.md",
+        "| ID | State | Decision",
+        "| ADR-002 | confirmed | Use continuous evolution, SemVer, immutable promotion and automated recovery for the synthetic fixture; version control is not applicable. | FR-001 | Governs CHG-001, PLAN-001 and ENV-001 |",
     )
     _append_row(
         docs / "04-delivery" / "increments.md",
@@ -199,6 +243,76 @@ def materialize_ready_increment(root: Path) -> None:
         "| Requirement | Acceptance",
         "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | none |",
     )
+    _append_row(
+        docs / "05-quality" / "test-strategy.md",
+        "| Test | Level or type",
+        "| TEST-001 | API integration | INC-001 acknowledgement | AC-001 | ENV-001 | pending: executed during G3 |",
+    )
+    _append_row(
+        docs / "03-solution" / "architecture.md",
+        "| Unit | State | Component",
+        "| UNIT-001 | confirmed | Stateless acknowledgement API | Accept and acknowledge synthetic requests | OCI service boundary | HTTP/OpenAPI | none: stateless | FR-001 | BIND-001 |",
+    )
+    governance = docs / "04-delivery" / "delivery-governance.md"
+    _replace_row(
+        governance,
+        "CHG-001",
+        "| CHG-001 | confirmed | 2026-08-19 | continuous-evolution | SemVer with independently releasable increments | not-applicable: fixture has no VCS | Promote the same immutable digest | Automated deployment to confirmed environments | Roll back artifact then forward-fix | ADR-002 | Quarterly or on product, risk or platform change |",
+    )
+    _append_row(
+        governance,
+        "| ID | State | Role",
+        "| ENV-001 | confirmed | CI verification | 1 | UNIT-001 | automated gate plus human release authority | environment variables without secrets | synthetic and ephemeral | structured logs and health | discard environment and restore prior artifact |",
+    )
+    plans = docs / "04-delivery" / "plans.md"
+    _replace_row(
+        plans,
+        "PLAN-001",
+        "| PLAN-001 | active | Synthetic continuous delivery | continuous-evolution | 0.x | Deliver INC-001 with verifiable evidence | INC-001 | not-applicable: initial plan | fixture-owner | 2026-11-19 |",
+    )
+    _replace_row(
+        plans,
+        "REL-001",
+        "| REL-001 | active | 0.1.0 | PLAN-001 | 2026-08-19 | continuous stream | ENV-001 | TASK-001 | pending | pending | pending: G3/G4 not executed |",
+    )
+    tasks = docs / "04-delivery" / "tasks.md"
+    _append_row(
+        tasks,
+        "| ID | Plan | Title",
+        "| TASK-001 | PLAN-001 | Implement synthetic acknowledgement | REL-001 | INC-001 | UNIT-001 | BIND-001 | ready | on-track | 0 | not-applicable: no prerequisite task | none | fixture-owner | ./tasks/TASK-001.md | 2026-08-19 |",
+    )
+    task_directory = docs / "04-delivery" / "tasks"
+    task_directory.mkdir(parents=True, exist_ok=True)
+    task_text = TASK_TEMPLATE.read_text(encoding="utf-8")
+    replacements = {
+        "{{TASK_ID}}": "TASK-001",
+        "{{TASK_TITLE}}": "Implement synthetic acknowledgement",
+        "{{PLAN_ID}}": "PLAN-001",
+        "{{RELEASE_ID}}": "REL-001",
+        "{{INCREMENT_ID}}": "INC-001",
+        "{{UNIT_ID}}": "UNIT-001",
+        "{{BINDING_ID}}": "BIND-001",
+        "{{PROJECT_ID}}": manifest["project_id"],
+        "{{BASELINE_ID}}": manifest["baseline_id"],
+        "{{DATE}}": "2026-08-19",
+    }
+    for marker, value in replacements.items():
+        task_text = task_text.replace(marker, value)
+    task_text = task_text.replace(
+        "| pending | pending | pending | pending | pending | pending | pending | not-applicable |",
+        "| Implement the confirmed acknowledgement behavior | UNIT-001 API behavior and tests | Reporting and administration | FR-001 | AC-001 | CAP-API-CONTRACT, CAP-OCI-RUNTIME | GATE-API-TEST, GATE-API-OPENAPI, GATE-OCI-BUILD | not-applicable |",
+    ).replace(
+        "| backlog | unknown | 0 | pending-assignment | pending | pending | pending | pending | pending | 2026-08-19 |",
+        "| ready | on-track | 0 | fixture-owner | pending | pending | pending | pending | ENV-001 | 2026-08-19 |",
+    )
+    (task_directory / "TASK-001.md").write_text(
+        task_text, encoding="utf-8", newline="\n"
+    )
+    _append_row(
+        docs / "06-operation" / "deployment.md",
+        "| Environment | State | Role",
+        "| ENV-001 | confirmed | CI verification | UNIT-001 | immutable OCI digest | environment variables without secrets | replace and smoke | restore previous digest | health and structured logs | FR-001 |",
+    )
 
 
 def run_new_project(root: Path) -> dict[str, Any]:
@@ -215,7 +329,7 @@ def run_new_project(root: Path) -> dict[str, Any]:
         [
             before == after_dry_run,
             dry_run["changed"] is False,
-            len(created["created"]) == 15,
+            len(created["created"]) == 21,
             resumed["would_change"] is False,
             validation["valid"] is True,
             ready["status"] == "ready",
@@ -286,6 +400,18 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
         "preferred_stack_assessed": True,
         "selected_profile": None,
         "selection_decision": None,
+        "profile_bindings": [
+            {
+                "binding_id": "BIND-001",
+                "unit_id": "UNIT-001",
+                "unit_path": ".",
+                "profile_id": proposal["profile_id"],
+                "profile_scope": "deployable",
+                "selection_decision": proposal["id"],
+                "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+                "state": "proposed",
+            }
+        ],
     }
     manifest_path.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",

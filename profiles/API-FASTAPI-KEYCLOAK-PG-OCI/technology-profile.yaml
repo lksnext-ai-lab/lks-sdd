@@ -1,0 +1,69 @@
+{
+  "schema_version": "2.0",
+  "id": "API-FASTAPI-KEYCLOAK-PG-OCI",
+  "version": "1.0.0",
+  "family_id": "FAM-API-SERVICE",
+  "profile_scope": "deployable",
+  "lifecycle": "active",
+  "support_level": "H1",
+  "default_rigor": "P1",
+  "summary": "FastAPI API-only service with bearer-token OIDC, PostgreSQL migrations and digest-pinned OCI delivery.",
+  "units": [{"role": "api", "runtime": "Python ASGI with PostgreSQL and external OIDC", "default_path": "."}],
+  "dimensions": {
+    "frontend": [],
+    "backend": [
+      {"name": "Python", "version_range": "3.14.x", "required": true},
+      {"name": "FastAPI", "version_range": "0.141.x", "required": true},
+      {"name": "SQLAlchemy", "version_range": "2.0.x", "required": true},
+      {"name": "Alembic", "version_range": "1.19.x", "required": true}
+    ],
+    "data": [{"name": "PostgreSQL", "version_range": "18.x", "required": true}],
+    "identity": [{"name": "Keycloak OIDC", "version_range": "26.7.x", "required": true}],
+    "integration": [{"name": "OpenAPI", "version_range": "3.1.x", "required": true}],
+    "delivery": [{"name": "OCI image", "version_range": "digest-pinned base", "required": true}],
+    "testing": [{"name": "pytest", "version_range": "9.1.x", "required": true}],
+    "observability": [{"name": "health, readiness and structured logs", "version_range": "profile contract 1.0", "required": true}]
+  },
+  "required_capabilities": ["CAP-SCAFFOLD-COPY", "CAP-API-CONTRACT", "CAP-IDENTITY-OIDC", "CAP-DATA-POSTGRES", "CAP-OCI-RUNTIME", "CAP-DELIVERY-EVIDENCE"],
+  "excluded_capabilities": ["CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE", "CAP-BROWSER-PLAYWRIGHT", "CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "capability_bindings": [
+    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD composed copy driver", "version_range": "1.0.0"},
+    {"capability_id": "CAP-API-CONTRACT", "provider": "FastAPI and pytest", "version_range": "0.141 / 9.1"},
+    {"capability_id": "CAP-IDENTITY-OIDC", "provider": "PyJWT and Keycloak", "version_range": "2.13 / 26.7"},
+    {"capability_id": "CAP-DATA-POSTGRES", "provider": "PostgreSQL, SQLAlchemy and Alembic", "version_range": "18 / 2.0 / 1.19"},
+    {"capability_id": "CAP-OCI-RUNTIME", "provider": "Docker Compose or compatible OCI engine", "version_range": "OCI 1.x"},
+    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+  ],
+  "compatibility_rules": [
+    "This API-only profile does not materialize a browser frontend.",
+    "OIDC issuer, audience, scopes and authorization model require confirmed decisions.",
+    "Every database change requires migration plus rollback, restore or forward-fix analysis.",
+    "Production promotes the same immutable API image and externalizes environment configuration."
+  ],
+  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-SCAFFOLD-INTEGRITY", "GATE-API-LOCK", "GATE-API-LINT",
+      "GATE-API-TYPECHECK", "GATE-API-TEST", "GATE-API-OPENAPI",
+      "GATE-OIDC-CONTRACT", "GATE-OIDC-INTEGRATION", "GATE-DATA-MIGRATION",
+      "GATE-DATA-INTEGRATION", "GATE-OCI-BUILD", "GATE-OCI-SMOKE",
+      "GATE-DELIVERY-EVIDENCE"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-FASTAPI-OIDC-PG"
+  },
+  "certification": {
+    "technical_gate": "passed",
+    "composition_gate": "passed",
+    "e2e_eval": "passed",
+    "human_review": "not-applicable",
+    "pilot": "not-applicable",
+    "validated_at": "2026-08-21",
+    "review_due": "2026-11-21",
+    "evidence": [
+      "python scripts/validate_reference_profile.py --profile API-FASTAPI-KEYCLOAK-PG-OCI",
+      "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-KEYCLOAK-PG-OCI --runtime docker --containers",
+      "tests/test_multi_profile_delivery.py"
+    ]
+  },
+  "owner": "LKS-SDD maintainers"
+}

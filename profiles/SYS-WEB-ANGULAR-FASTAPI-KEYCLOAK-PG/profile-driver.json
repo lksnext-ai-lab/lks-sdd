@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
+  "profile_version": "1.0.0-candidate.1",
+  "prepare": {
+    "strategy": "copy",
+    "sources": [
+      {"from": "profiles/SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG/scaffold", "to": "."},
+      {"from": "profiles/WEB-ANGULAR-STATIC/scaffold", "to": "apps/frontend"},
+      {"from": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/scaffold/apps/backend", "to": "apps/backend"},
+      {"from": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/scaffold/infra/keycloak", "to": "infra/keycloak"}
+    ]
+  },
+  "verify": {
+    "checks": [
+      {"id": "GATE-SCAFFOLD-INTEGRITY", "name": "scaffold-integrity", "phase": "G2", "kind": "command", "cwd": ".", "command": ["python", "-c", "from pathlib import Path; assert Path('apps/frontend/angular.json').is_file(); assert Path('apps/backend/pyproject.toml').is_file()"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-FRONTEND-LOCK", "name": "frontend-lock", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npm", "ci", "--ignore-scripts"], "required": true, "requires_containers": false, "timeout_seconds": 600},
+      {"id": "GATE-FRONTEND-LINT", "name": "frontend-lint", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npm", "run", "lint"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-FRONTEND-TYPECHECK", "name": "frontend-typecheck", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npm", "run", "typecheck"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-FRONTEND-TEST", "name": "frontend-tests", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npm", "test"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-FRONTEND-BUILD", "name": "frontend-build", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npm", "run", "build"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-STATIC-OUTPUT", "name": "static-output", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["python", "-c", "from pathlib import Path; assert Path('dist/lks-sdd-angular/browser/index.html').is_file()"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-BROWSER-SMOKE", "name": "browser-smoke", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npx", "playwright", "test", "--grep", "smoke"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-BROWSER-ACCESSIBILITY", "name": "browser-accessibility", "phase": "G3", "kind": "command", "cwd": "apps/frontend", "command": ["npx", "playwright", "test", "--grep", "accessibility"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-API-LOCK", "name": "api-lock", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "sync", "--frozen"], "required": true, "requires_containers": false, "timeout_seconds": 600},
+      {"id": "GATE-API-LINT", "name": "api-lint", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "run", "ruff", "check", "."], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-API-TYPECHECK", "name": "api-typecheck", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "run", "mypy"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-API-TEST", "name": "api-tests", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "run", "pytest"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-API-OPENAPI", "name": "api-openapi", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "run", "python", "-c", "import sys; sys.path.insert(0, 'src'); from lks_sdd_app.main import app; assert app.openapi()['openapi'].startswith('3.1.')"], "required": true, "requires_containers": false, "timeout_seconds": 60},
+      {"id": "GATE-OIDC-CONTRACT", "name": "oidc-contract", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "run", "pytest", "-k", "identity"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-DATA-MIGRATION", "name": "data-migration", "phase": "G3", "kind": "command", "cwd": "apps/backend", "command": ["uv", "run", "python", "-c", "import alembic; assert alembic.__version__"], "required": true, "requires_containers": false, "timeout_seconds": 60},
+      {"id": "GATE-OCI-BUILD", "name": "oci-build", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "-f", "infra/compose.yaml", "build"], "required": true, "requires_containers": true, "timeout_seconds": 1200},
+      {"id": "GATE-OCI-SMOKE", "name": "oci-smoke", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "-f", "infra/compose.yaml", "up", "-d", "--wait"], "required": true, "requires_containers": true, "timeout_seconds": 600},
+      {"id": "GATE-OIDC-INTEGRATION", "name": "oidc-integration", "phase": "G3", "kind": "command", "execution_context": "host", "cwd": ".", "command": ["python", "-c", "import time, urllib.request\nurl = 'http://127.0.0.1:18080/realms/lks-sdd/.well-known/openid-configuration'\nopener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\nlast = None\nfor _ in range(30):\n    try:\n        if opener.open(url, timeout=5).status == 200:\n            raise SystemExit(0)\n    except Exception as exc:\n        last = exc\n    time.sleep(2)\nraise SystemExit(f'OIDC endpoint not ready: {last}')"], "required": true, "requires_containers": true, "timeout_seconds": 90},
+      {"id": "GATE-DATA-INTEGRATION", "name": "data-integration", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "-f", "infra/compose.yaml", "exec", "-T", "postgres", "pg_isready", "-U", "lks_sdd", "-d", "app"], "required": true, "requires_containers": true, "timeout_seconds": 60},
+      {"id": "GATE-DELIVERY-EVIDENCE", "name": "delivery-evidence", "phase": "G4", "kind": "delivery-evidence", "cwd": ".", "command": [], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-COMPOSE-ANGULAR-FULL-WEB", "name": "system-composition", "phase": "G3", "kind": "command", "execution_context": "host", "cwd": ".", "command": ["python", "-c", "import urllib.request; opener=urllib.request.build_opener(urllib.request.ProxyHandler({})); assert opener.open('http://127.0.0.1:15173', timeout=15).status == 200; assert opener.open('http://127.0.0.1:18000/health', timeout=15).status == 200"], "required": true, "requires_containers": true, "timeout_seconds": 60}
+    ]
+  }
+}

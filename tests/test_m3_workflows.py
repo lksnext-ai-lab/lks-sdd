@@ -250,7 +250,7 @@ class M3WorkflowTests(unittest.TestCase):
                 (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
             )
             self.assertEqual(manifest["adoption"]["status"], "materialized")
-            self.assertEqual(len(manifest["artifacts"]), 22)
+            self.assertEqual(len(manifest["artifacts"]), 28)
             status_lines = (
                 root
                 / "docs"
@@ -387,22 +387,46 @@ class M3WorkflowTests(unittest.TestCase):
                     "readiness": {
                         "status": "not-assessed",
                         "assessed_increment": None,
-                        "fingerprint": None,
+                        "assessed_at": None,
                     },
                 }
             )
+            for key in ("active_plan", "active_task", "delivery_governance"):
+                manifest.pop(key, None)
+            manifest["technology"].pop("profile_bindings", None)
+            manifest["version_control"] = {
+                "type": manifest["version_control"]["type"],
+                "origin": manifest["version_control"]["origin"],
+            }
+            v12_only = {
+                "ART-ARCH",
+                "ART-GOVERNANCE",
+                "ART-PLANS",
+                "ART-TASKS",
+                "ART-TEST-STRATEGY",
+                "ART-DEPLOYMENT",
+            }
+            manifest["artifacts"] = [
+                item for item in manifest["artifacts"] if item["id"] not in v12_only
+            ]
             manifest_path.write_text(
-                json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
             )
             for entry in manifest["artifacts"]:
                 path = root / entry["path"]
                 text = (
                     path.read_text(encoding="utf-8")
-                    .replace('schema_version: "1.1"', 'schema_version: "1.0"')
-                    .replace('method_version: "1.1.0"', 'method_version: "1.0.0"')
+                    .replace('schema_version: "1.2"', 'schema_version: "1.0"')
+                    .replace('method_version: "1.2.0"', 'method_version: "1.0.0"')
                     .replace(
-                        'created_with_plugin_version: "0.7.0"',
+                        'created_with_plugin_version: "0.8.0"',
                         'created_with_plugin_version: "0.6.1"',
+                    )
+                    .replace(
+                        "PLAN-001 y REL-001 son propuestas iniciales",
+                        "El horizonte y la release son propuestas iniciales",
                     )
                 )
                 if entry["id"] == "ART-INCREMENTS":
@@ -411,13 +435,27 @@ class M3WorkflowTests(unittest.TestCase):
                         "## Aplicabilidad de interfaz y contrato visual"
                     )
                     text = text[:domain_start] + text[interface_start:]
-                    text = text.replace(
+                    current_main = (
                         "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
-                        "|---|---|---|---|---|---|---|---|",
-                        "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
-                        "|---|---|---|---|---|---|---|---|---|---|---|",
+                        "|---|---|---|---|---|---|---|---|\n"
                     )
-                path.write_text(text, encoding="utf-8")
+                    legacy_main = (
+                        "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
+                        "|---|---|---|---|---|---|---|---|---|---|---|\n"
+                    )
+                    text = text.replace(current_main, legacy_main, 1)
+                if entry["id"] == "ART-SOLUTION":
+                    text = "\n".join(
+                        line for line in text.splitlines() if "| ADR-002 |" not in line
+                    ) + "\n"
+                    text = text.replace(
+                        "Select API-FASTAPI-STATELESS-OCI for UNIT-001.",
+                        "Select API-FASTAPI-STATELESS-OCI for the increment.",
+                    ).replace(
+                        "Limited to INC-001 and BIND-001",
+                        "Limited to INC-001",
+                    )
+                path.write_text(text, encoding="utf-8", newline="\n")
             brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
             brief.write_text(
                 brief.read_text(encoding="utf-8") + "\nHuman body marker.\n",

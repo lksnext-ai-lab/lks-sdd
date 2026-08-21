@@ -34,13 +34,37 @@ Resultado esperado: explicación del preflight, alcance, exclusiones, separació
 
 > Usa `$lks-sdd-assess-readiness` para evaluar `INC-001`. No corrijas documentos ni implementes nada.
 
-Resultado esperado: informa por separado `specification_readiness` y `automation_support`, mantiene `implementation_authorized: false` y explica el cambio mínimo para cada bloqueo. Una pila alternativa suficientemente definida no se sustituye por H0 aunque carezca de automatización.
+Resultado esperado: informa por separado `specification_readiness`, `delivery_readiness` y `automation_support`, mantiene `implementation_authorized: false` y explica el cambio mínimo para cada bloqueo. Una pila suficientemente definida no se sustituye por otro perfil aunque carezca de certificación.
 
 ## Trazabilidad previa a implementación
 
 > Comprueba la trazabilidad `preimplementation` de `INC-001`. No exijas evidencias de pruebas que todavía no se han ejecutado y no cambies archivos.
 
 Resultado esperado: exige requisito, aceptación, decisión o no aplicabilidad motivada, incremento y prueba; no exige `EVID-###` hasta verificación y no acepta una comprobación vacía.
+
+## Gobierno de entrega inicial
+
+> Ayúdame a definir, antes de implementar, si este proyecto funciona como entrega cerrada, evolución continua o mantenimiento evolutivo; propón versionado, ramas, entornos, promoción, despliegue y reversión. Conserva todo como propuesta hasta mi confirmación.
+
+Resultado esperado: compara `bounded-release`, `continuous-evolution` y `maintenance-stream` según el contexto real; no impone Git Flow, trunk-based ni SemVer; identifica responsables, gates y evidencias; y registra las decisiones confirmadas en `delivery-governance.md`.
+
+## Cambio del modelo de proyecto
+
+> El proyecto pasa de una entrega cerrada a evolutivos continuos. Analiza el impacto y prepara la transición sin reescribir la historia ni darla por aprobada.
+
+Resultado esperado: crea una transición versionada con modelo anterior y propuesto, motivo, fecha efectiva, impacto en ramas, versiones, planes, releases, entornos y trabajo abierto, además de aprobación y rollback pendientes. El cambio solo entra en vigor después del gate humano definido.
+
+## Plan y tablero de tareas
+
+> Muéstrame el tablero de `PLAN-001`, los bloqueos y dependencias; después define `TASK-004` de forma independiente. No implementes código.
+
+Resultado esperado: ofrece una tabla compacta por `REL-###` con símbolo, estado, salud, progreso, versión, dependencias y bloqueo. El detalle de `TASK-004` conserva alcance, trazabilidad, unidades desplegables, plan, aceptación, pruebas, riesgos, problemas y evidencia; la tabla es una vista de seguimiento, no la fuente única de definición.
+
+## Arquitectura multiperfil
+
+> La solución tiene una SPA Angular, una API y un procesador Kafka. Comprueba qué perfiles cerrados existen y cuáles están realmente soportados; no sustituyas mi arquitectura por otra.
+
+Resultado esperado: asigna un `BIND-###` por `UNIT-###`, distingue perfil `active` certificado de `candidate`, y explica que las capabilities se reutilizan pero no homologan una combinación. Un perfil sin certificación exacta puede especificarse, pero bloquea la automatización garantizada de esa unidad.
 
 ## Alternativa tecnológica
 

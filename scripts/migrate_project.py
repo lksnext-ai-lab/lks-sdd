@@ -11,16 +11,28 @@ import re
 import shutil
 import sys
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from validate_project import validate_project
 
-LATEST_SCHEMA = "1.1"
-PLUGIN_VERSION = "0.7.0"
-METHOD_VERSION = "1.1.0"
+LATEST_SCHEMA = "1.2"
+PLUGIN_VERSION = "0.8.0"
+METHOD_VERSION = "1.2.0"
+V11_PLUGIN_VERSION = "0.7.0"
+V11_METHOD_VERSION = "1.1.0"
 RECORD_NAME = "migration-record.json"
-SUPPORTED_MIGRATIONS = {("0.9", "1.0"), ("1.0", "1.1")}
+SUPPORTED_MIGRATIONS = {("0.9", "1.0"), ("1.0", "1.1"), ("1.1", "1.2")}
+
+V12_ARTIFACTS = (
+    ("ART-ARCH", "docs/lks-sdd/03-solution/architecture.md"),
+    ("ART-GOVERNANCE", "docs/lks-sdd/04-delivery/delivery-governance.md"),
+    ("ART-PLANS", "docs/lks-sdd/04-delivery/plans.md"),
+    ("ART-TASKS", "docs/lks-sdd/04-delivery/tasks.md"),
+    ("ART-TEST-STRATEGY", "docs/lks-sdd/05-quality/test-strategy.md"),
+    ("ART-DEPLOYMENT", "docs/lks-sdd/06-operation/deployment.md"),
+)
 
 LEGACY_STATE_MAP = {
     "proposal": "proposed",
@@ -102,6 +114,8 @@ class PlannedChange:
     before: bytes
     after: bytes
     operations: list[str] = field(default_factory=list)
+    created: bool = False
+    delete: bool = False
 
 
 @dataclass
@@ -159,6 +173,27 @@ def _safe_artifact(root: Path, relative: str) -> Path:
         raise MigrationError(f"Ruta de artefacto fuera de la raíz: {relative}") from exc
     if not candidate.is_file():
         raise MigrationError(f"El artefacto no es un archivo regular: {relative}")
+    return candidate
+
+
+def _safe_new_artifact(root: Path, relative: str) -> Path:
+    requested = Path(relative)
+    if requested.is_absolute() or ".." in requested.parts:
+        raise MigrationError(f"Ruta de artefacto no permitida: {relative}")
+    current = root
+    for part in requested.parts:
+        current = current / part
+        if current.exists() and _is_link_like(current):
+            raise MigrationError(f"El artefacto usa un enlace simbólico: {relative}")
+    candidate = (root / requested).resolve(strict=False)
+    try:
+        _relative_path(root, candidate)
+    except ValueError as exc:
+        raise MigrationError(f"Ruta de artefacto fuera de la raíz: {relative}") from exc
+    if candidate.exists():
+        raise MigrationError(
+            f"Existe {relative} pero no está indexado; reconcilie la colisión manualmente."
+        )
     return candidate
 
 
@@ -550,10 +585,10 @@ def _migrate_markdown_10_to_11(
     reviews: list[dict[str, str]] = []
     _set_frontmatter_value(lines, start, end, "schema_version", "1.1", relative)
     _set_frontmatter_value(
-        lines, start, end, "method_version", METHOD_VERSION, relative
+        lines, start, end, "method_version", V11_METHOD_VERSION, relative
     )
     _set_frontmatter_value(
-        lines, start, end, "created_with_plugin_version", PLUGIN_VERSION, relative
+        lines, start, end, "created_with_plugin_version", V11_PLUGIN_VERSION, relative
     )
     status = _frontmatter_value(lines, start, end, "status")
     if status and status.casefold() in LEGACY_STATE_MAP:
@@ -567,6 +602,91 @@ def _migrate_markdown_10_to_11(
         reviews,
         ["frontmatter-contract-1.1", "legacy-range-normalization", *operations],
     )
+
+
+def _migrate_markdown_11_to_12(
+    content: bytes, relative: str
+) -> tuple[bytes, list[dict[str, str]], list[str]]:
+    """Upgrade metadata and add the explicit deployable-unit boundary.
+
+    Existing prose and legacy component rows remain evidence.  The migration never
+    guesses which legacy component is independently deployable or which exact
+    profile should be bound to it.
+    """
+
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise MigrationError(f"Markdown no UTF-8: {relative}") from exc
+    lines = text.splitlines(keepends=True)
+    start, end = _frontmatter_bounds(lines, relative)
+    if _frontmatter_value(lines, start, end, "schema_version") != "1.1":
+        raise MigrationError(
+            f"{relative}: se esperaba schema_version 1.1 en front matter."
+        )
+    artifact_type = _frontmatter_value(lines, start, end, "artifact_type")
+    if not artifact_type:
+        raise MigrationError(f"{relative}: artifact_type ausente en front matter.")
+    _set_frontmatter_value(lines, start, end, "schema_version", "1.2", relative)
+    _set_frontmatter_value(
+        lines, start, end, "method_version", METHOD_VERSION, relative
+    )
+    _set_frontmatter_value(
+        lines, start, end, "created_with_plugin_version", PLUGIN_VERSION, relative
+    )
+    operations = ["frontmatter-contract-1.2"]
+    migrated = "".join(lines)
+    architecture_header = (
+        "| Unit | State | Component | Responsibility | Runtime boundary | "
+        "Interfaces | Data ownership | Requirements | Profile binding |"
+    )
+    if artifact_type == "architecture" and architecture_header not in migrated:
+        newline = "\r\n" if "\r\n" in migrated else "\n"
+        migrated = migrated.rstrip("\r\n") + newline * 2 + newline.join(
+            (
+                "## Unidades desplegables y fronteras de ejecución",
+                "",
+                architecture_header,
+                "|---|---|---|---|---|---|---|---|---|",
+                "",
+                "La migración conserva los componentes anteriores, pero no infiere "
+                "qué constituye una `UNIT-###` ni qué `BIND-###` le corresponde. "
+                "Confirme esas fronteras antes de G2.",
+                "",
+            )
+        )
+        operations.append("architecture-unit-boundary")
+    return migrated.encode("utf-8"), [], operations
+
+
+def _render_v12_template(
+    root: Path, relative: str, project_id: str, baseline_id: str, today: str
+) -> bytes:
+    template_relative = relative.removeprefix("docs/lks-sdd/")
+    template = (
+        Path(__file__).resolve().parents[1]
+        / "skills"
+        / "lks-sdd-define"
+        / "assets"
+        / "templates"
+        / template_relative
+    )
+    if not template.is_file():
+        raise MigrationError(f"Falta la plantilla 1.2 empaquetada: {template_relative}")
+    text = template.read_text(encoding="utf-8")
+    replacements = {
+        "{{PROJECT_ID}}": project_id,
+        "{{BASELINE_ID}}": baseline_id,
+        "{{DATE}}": today,
+    }
+    for token, value in replacements.items():
+        text = text.replace(token, value)
+    remaining = re.findall(r"\{\{[A-Z0-9_]+\}\}", text)
+    if remaining:
+        raise MigrationError(
+            f"Tokens 1.2 sin resolver en {template_relative}: {remaining}"
+        )
+    return text.encode("utf-8")
 
 
 def _read_manifest(root: Path) -> tuple[Path, bytes, dict[str, Any]]:
@@ -614,24 +734,109 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
             after, artifact_reviews, operations = _migrate_markdown_09_to_10(
                 before, relative
             )
-        else:
+        elif (source_schema, target_schema) == ("1.0", "1.1"):
             after, artifact_reviews, operations = _migrate_markdown_10_to_11(
+                before, relative
+            )
+        else:
+            after, artifact_reviews, operations = _migrate_markdown_11_to_12(
                 before, relative
             )
         reviews.extend(artifact_reviews)
         if before != after:
             changes.append(PlannedChange(path, before, after, operations))
+    if (source_schema, target_schema) == ("1.1", "1.2"):
+        project_id = manifest.get("project_id")
+        baseline_id = manifest.get("baseline_id")
+        if not isinstance(project_id, str) or not isinstance(baseline_id, str):
+            raise MigrationError(
+                "project_id y baseline_id son necesarios para crear los artefactos 1.2."
+            )
+        today = datetime.now(UTC).date().isoformat()
+        artifacts_by_id = {
+            item.get("id"): item
+            for item in artifacts
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        }
+        for artifact_id, relative in V12_ARTIFACTS:
+            existing = artifacts_by_id.get(artifact_id)
+            if existing is not None:
+                if existing.get("path") != relative:
+                    raise MigrationError(
+                        f"{artifact_id} usa una ruta incompatible: {existing.get('path')!r}."
+                    )
+                existing["required"] = True
+                continue
+            destination = _safe_new_artifact(root, relative)
+            rendered = _render_v12_template(
+                root, relative, project_id, baseline_id, today
+            )
+            changes.append(
+                PlannedChange(
+                    destination,
+                    b"",
+                    rendered,
+                    ["create-required-artifact-1.2"],
+                    created=True,
+                )
+            )
+            artifacts.append(
+                {"id": artifact_id, "path": relative, "required": True}
+            )
+            artifacts_by_id[artifact_id] = artifacts[-1]
     manifest["schema_version"] = target_schema
     manifest_operations = ["operational-index-version"]
     if target_schema == "1.1":
-        manifest["method_version"] = METHOD_VERSION
-        manifest["plugin_version"] = PLUGIN_VERSION
+        manifest["method_version"] = V11_METHOD_VERSION
+        manifest["plugin_version"] = V11_PLUGIN_VERSION
         for stale_key in ("open_blockers", "readiness"):
             if stale_key in manifest:
                 manifest.pop(stale_key)
                 manifest_operations.append(
                     f"remove-derived-{stale_key.replace('_', '-')}"
                 )
+    if target_schema == "1.2":
+        manifest["method_version"] = METHOD_VERSION
+        manifest["plugin_version"] = PLUGIN_VERSION
+        technology = manifest.setdefault("technology", {})
+        if not isinstance(technology, dict):
+            raise MigrationError("technology debe ser un objeto antes de migrar a 1.2.")
+        technology.setdefault("profile_bindings", [])
+        manifest.setdefault("active_plan", "PLAN-001")
+        manifest.setdefault("active_task", None)
+        manifest["delivery_governance"] = {
+            "state": "proposed",
+            "model": None,
+            "decision": None,
+            "source": "docs/lks-sdd/04-delivery/delivery-governance.md",
+            "active_change": "CHG-001",
+            "review_due": None,
+        }
+        version_control = manifest.get("version_control")
+        if not isinstance(version_control, dict):
+            version_control = {"type": "none", "origin": "none"}
+        manifest["version_control"] = {
+            "type": version_control.get("type", "none"),
+            "origin": version_control.get("origin", "none"),
+            "branching_model": None,
+            "main_branch": None,
+            "integration_branch": None,
+            "decision": None,
+        }
+        for stale_key in ("readiness", "implementation", "verification"):
+            if stale_key in manifest:
+                manifest.pop(stale_key)
+                manifest_operations.append(
+                    f"remove-derived-{stale_key.replace('_', '-')}"
+                )
+        manifest_operations.extend(
+            [
+                "delivery-governance-proposed",
+                "task-horizon-initialized",
+                "profile-bindings-initialized",
+                "version-control-decision-pending",
+            ]
+        )
     manifest_after = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode(
         "utf-8"
     )
@@ -751,6 +956,7 @@ def _apply(
                     "path": relative.as_posix(),
                     "before_sha256": _hash(change.before),
                     "after_sha256": _hash(change.after),
+                    "created": change.created,
                 }
             )
     except OSError as exc:
@@ -776,11 +982,18 @@ def _apply(
     except OSError as exc:
         shutil.rmtree(backup, ignore_errors=True)
         raise MigrationError(f"No se pudo registrar el backup externo: {exc}") from exc
-    written: list[tuple[Path, bytes]] = []
+    written: list[tuple[Path, bytes | None]] = []
     temporary_paths: list[Path] = []
     try:
         for change in plan.changes:
-            if change.path.read_bytes() != change.before:
+            if change.created:
+                if change.path.exists():
+                    raise MigrationError(
+                        "Apareció un archivo después del preview: "
+                        f"{_relative_path(root, change.path)}"
+                    )
+                change.path.parent.mkdir(parents=True, exist_ok=True)
+            elif change.path.read_bytes() != change.before:
                 raise MigrationError(
                     f"Cambio el archivo despues del preview: {_relative_path(root, change.path)}"
                 )
@@ -792,7 +1005,7 @@ def _apply(
                 stream.write(change.after)
             os.replace(temporary, change.path)
             temporary_paths.remove(temporary)
-            written.append((change.path, change.before))
+            written.append((change.path, None if change.created else change.before))
         validation, _, _ = validate_project(root)
         if not validation.valid:
             raise MigrationError(
@@ -811,7 +1024,13 @@ def _apply(
             except OSError:
                 pass
         for path, before in reversed(written):
-            path.write_bytes(before)
+            if before is None:
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
+            else:
+                path.write_bytes(before)
         record["status"] = "apply-failed-rolled-back"
         try:
             record_path.write_text(
@@ -857,6 +1076,7 @@ def _load_backup(root: Path, backup: Path) -> tuple[Path, dict[str, Any]]:
             or not isinstance(item.get("path"), str)
             or not isinstance(item.get("before_sha256"), str)
             or not isinstance(item.get("after_sha256"), str)
+            or not isinstance(item.get("created", False), bool)
             or re.fullmatch(r"[a-f0-9]{64}", item.get("before_sha256", "")) is None
             or re.fullmatch(r"[a-f0-9]{64}", item.get("after_sha256", "")) is None
         ):
@@ -875,16 +1095,30 @@ def _plan_rollback(
     record_path, record = _load_backup(root, backup)
     changes: list[PlannedChange] = []
     for item in record["files"]:
+        if item.get("created") and not (root / Path(item["path"])).exists():
+            _safe_new_artifact(root, item["path"])
+            continue
         path = _safe_artifact(root, item["path"])
         current = path.read_bytes()
         current_hash = _hash(current)
         if current_hash == item["after_sha256"]:
-            source = _safe_backup_source(backup, item["path"])
-            before = source.read_bytes()
-            if _hash(before) != item["before_sha256"]:
-                raise MigrationError(f"Backup corrupto: {item['path']}")
+            if item.get("created"):
+                before = b""
+                delete = True
+            else:
+                source = _safe_backup_source(backup, item["path"])
+                before = source.read_bytes()
+                if _hash(before) != item["before_sha256"]:
+                    raise MigrationError(f"Backup corrupto: {item['path']}")
+                delete = False
             changes.append(
-                PlannedChange(path, current, before, ["restore-from-backup"])
+                PlannedChange(
+                    path,
+                    current,
+                    before,
+                    ["remove-created-artifact" if delete else "restore-from-backup"],
+                    delete=delete,
+                )
             )
         elif current_hash != item["before_sha256"]:
             raise MigrationError(
@@ -914,6 +1148,10 @@ def _apply_rollback(
                 raise MigrationError(
                     f"Cambio el archivo durante el rollback: {_relative_path(root, change.path)}"
                 )
+            if change.delete:
+                change.path.unlink()
+                restored.append((change.path, change.before))
+                continue
             temporary = change.path.with_name(
                 change.path.name + ".lks-sdd-rollback.tmp"
             )
@@ -962,7 +1200,7 @@ def main() -> int:
     mode.add_argument("--apply", action="store_true")
     parser.add_argument("--rollback", type=Path)
     parser.add_argument(
-        "--target-schema", choices=("1.0", "1.1"), default=LATEST_SCHEMA
+        "--target-schema", choices=("1.0", "1.1", "1.2"), default=LATEST_SCHEMA
     )
     parser.add_argument("--backup-dir", type=Path)
     parser.add_argument("--authorize", action="store_true")

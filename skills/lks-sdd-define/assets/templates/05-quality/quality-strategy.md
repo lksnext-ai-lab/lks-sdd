@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-QUALITY
 artifact_type: quality-strategy
-schema_version: "1.1"
-method_version: "1.1.0"
-created_with_plugin_version: "0.7.0"
+schema_version: "1.2"
+method_version: "1.2.0"
+created_with_plugin_version: "0.8.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft

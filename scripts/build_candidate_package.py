@@ -54,6 +54,12 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-14",
     "FX-15",
     "FX-18",
+    "FX-22",
+    "FX-23",
+    "FX-24",
+    "FX-25",
+    "FX-26",
+    "FX-27",
 )
 EXPECTED_DETERMINISTIC_EVAL_IDS = {
     "FX-M1-ALTERNATIVE-STACK",
@@ -621,7 +627,7 @@ def _validated_quality_report(
     catalog = _committed_json(committed_files, "quality/catalog.json")
     corpus = _committed_json(committed_files, "quality/corpora/activation.json")
     definition_corpus = _committed_json(
-        committed_files, "quality/corpora/definition-v0.7.0.json"
+        committed_files, "quality/corpora/definition-v0.8.0.json"
     )
     fixture_manifest = _committed_json(
         committed_files, "quality/fixture-manifest.json"
@@ -724,7 +730,7 @@ def _validated_quality_report(
         or len(catalog_ids) != len(set(catalog_ids))
         or len(extension_ids) != len(extension_cases)
         or not all(isinstance(case_id, str) for case_id in extension_ids)
-        or set(extension_ids) != {"FX-20", "FX-21"}
+        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 28)}
         or len(extension_ids) != len(set(extension_ids))
     ):
         raise PackageError("El inventario comprometido de casos FX cambió.")

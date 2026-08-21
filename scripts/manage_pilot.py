@@ -14,7 +14,7 @@ from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
-PREVIOUS_CANDIDATE_VERSION = "0.6.1"
+PREVIOUS_CANDIDATE_VERSION = "0.7.0"
 CONFIG_KEYS = {
     "schema_version",
     "pilot_id",
@@ -72,12 +72,16 @@ OUTCOME_KEYS = {
     "security_incidents",
 }
 ROUTES = {
-    "greenfield-h0",
+    "greenfield-certified-profile",
     "adopt-existing",
-    "alternative-stack",
+    "candidate-or-external-profile",
     "reinforced-risk",
 }
-REQUIRED_ROUTES = {"greenfield-h0", "adopt-existing", "alternative-stack"}
+REQUIRED_ROUTES = {
+    "greenfield-certified-profile",
+    "adopt-existing",
+    "candidate-or-external-profile",
+}
 
 
 class PilotError(Exception):
@@ -523,7 +527,7 @@ def decide(
     if not summary.get("sample_sufficient"):
         blockers.append("La muestra observada no alcanza 3 proyectos, 5 participantes y las tres rutas obligatorias.")
     completed = set(summary.get("completed_route_coverage", []))
-    for route in ("greenfield-h0", "adopt-existing"):
+    for route in ("greenfield-certified-profile", "adopt-existing"):
         if route not in completed:
             blockers.append(f"La ruta {route} no está completada.")
     if metrics.get("security_incidents", 0) != 0:
@@ -533,7 +537,7 @@ def decide(
     if quality_metrics.get("critical_failures") != 0:
         blockers.append("El harness M4 contiene fallos críticos.")
     if quality_metrics.get("profile_complete_gate") != 1:
-        blockers.append("El perfil H0 completo no está verde.")
+        blockers.append("La cobertura técnica completa de perfiles activos no está verde.")
     document_quality = metrics.get("document_quality_average")
     if document_quality is None or document_quality < 4:
         blockers.append("La calidad documental media no alcanza 4 sobre 5.")

@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-ARCH
 artifact_type: architecture
-schema_version: "1.1"
-method_version: "1.1.0"
-created_with_plugin_version: "0.7.0"
+schema_version: "1.2"
+method_version: "1.2.0"
+created_with_plugin_version: "0.8.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -24,9 +24,9 @@ Pendiente de confirmar para el alcance aplicable.
 
 ## Componentes y relaciones
 
-| Label | State | Component | Responsibility | Interfaces | Requirements |
-|---|---|---|---|---|---|
+| Unit | State | Component | Responsibility | Runtime boundary | Interfaces | Data ownership | Requirements | Profile binding |
+|---|---|---|---|---|---|---|---|---|
 
 ## Decisiones relacionadas
 
-Registre referencias `ADR-###`; no convierta una propuesta en decisión.
+Cada `UNIT-###` representa una unidad desplegable o una frontera de ejecución. Registre referencias `ADR-###`; no convierta una propuesta tecnológica ni un perfil candidato en decisión.

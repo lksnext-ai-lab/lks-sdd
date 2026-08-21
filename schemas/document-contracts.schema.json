@@ -1,24 +1,31 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://lks.invalid/lks-sdd/schemas/document-contracts-1.1.json",
+  "$id": "https://lks.invalid/lks-sdd/schemas/document-contracts-1.2.json",
   "title": "LKS-SDD declarative Markdown contract registry",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "catalog_version",
     "supported_project_schemas",
+    "schema_inheritance",
     "identifier_prefixes",
     "reference_grammar",
     "state_policies",
     "artifacts"
   ],
   "properties": {
-    "catalog_version": {"const": "1.1"},
+    "catalog_version": {"const": "1.2"},
     "supported_project_schemas": {
       "type": "array",
-      "minItems": 2,
+      "minItems": 3,
       "uniqueItems": true,
-      "items": {"enum": ["1.0", "1.1"]}
+      "items": {"enum": ["1.0", "1.1", "1.2"]}
+    },
+    "schema_inheritance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["1.2"],
+      "properties": {"1.2": {"const": "1.1"}}
     },
     "identifier_prefixes": {
       "type": "array",
@@ -193,7 +200,7 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"enum": ["1.0", "1.1"]}
+          "items": {"enum": ["1.0", "1.1", "1.2"]}
         },
         "headers": {
           "type": "array",
@@ -222,6 +229,11 @@
         "artifact_type": {"type": "string", "minLength": 1},
         "path": {"type": ["string", "null"]},
         "required": {"type": "boolean"},
+        "required_schemas": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["1.0", "1.1", "1.2"]}
+        },
         "tables": {
           "type": "array",
           "items": {"$ref": "#/$defs/table"}

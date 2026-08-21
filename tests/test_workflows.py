@@ -95,7 +95,7 @@ class WorkflowTests(unittest.TestCase):
             )
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest["last_verified_revision"] = "changed-after-preview"
+            manifest["last_verified_revision"] = "f" * 40
             manifest_path.write_text(
                 json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8",
@@ -143,7 +143,8 @@ class WorkflowTests(unittest.TestCase):
                 preview["preview_hash"],
             )
             self.assertTrue(applied["changed"])
-            self.assertTrue((root / "apps" / "backend" / "pyproject.toml").is_file())
+            self.assertTrue((root / "pyproject.toml").is_file())
+            self.assertTrue((root / "Dockerfile").is_file())
             manifest = json.loads(
                 (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
             )
@@ -222,7 +223,12 @@ class WorkflowTests(unittest.TestCase):
             )
             self.assertEqual(
                 set(manifest["technology"]),
-                {"preferred_stack_assessed", "selected_profile", "selection_decision"},
+                {
+                    "preferred_stack_assessed",
+                    "selected_profile",
+                    "selection_decision",
+                    "profile_bindings",
+                },
             )
             self.assertNotIn("open_blockers", manifest)
             self.assertNotIn("readiness", manifest)
@@ -388,8 +394,10 @@ class WorkflowTests(unittest.TestCase):
                 "02-requirements/functional-requirements.md",
                 "02-requirements/acceptance-criteria.md",
                 "03-solution/solution-overview.md",
+                "03-solution/architecture.md",
                 "04-delivery/increments.md",
                 "05-quality/traceability.md",
+                "06-operation/deployment.md",
             ):
                 path = docs / relative
                 path.write_text(

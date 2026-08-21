@@ -1,0 +1,84 @@
+{
+  "schema_version": "2.0",
+  "id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
+  "version": "1.0.0-candidate.1",
+  "family_id": "FAM-WEB-SYSTEM",
+  "profile_scope": "system",
+  "lifecycle": "candidate",
+  "support_level": "H2",
+  "default_rigor": "P1",
+  "summary": "Candidate full web system composing Angular, FastAPI, Keycloak OIDC and PostgreSQL as independently governed units.",
+  "units": [
+    {"role": "frontend", "runtime": "Angular static assets behind nginx", "default_path": "apps/frontend"},
+    {"role": "api", "runtime": "Python ASGI", "default_path": "apps/backend"},
+    {"role": "identity", "runtime": "Keycloak", "default_path": "infra/keycloak"},
+    {"role": "database", "runtime": "PostgreSQL", "default_path": "infra/compose"}
+  ],
+  "dimensions": {
+    "frontend": [
+      {"name": "Angular", "version_range": "22.1.x", "required": true},
+      {"name": "TypeScript", "version_range": "6.0.x", "required": true}
+    ],
+    "backend": [
+      {"name": "Python", "version_range": "3.14.x", "required": true},
+      {"name": "FastAPI", "version_range": "0.141.x", "required": true}
+    ],
+    "data": [{"name": "PostgreSQL", "version_range": "18.x", "required": true}],
+    "identity": [{"name": "Keycloak OIDC", "version_range": "26.7.x", "required": true}],
+    "integration": [{"name": "OpenAPI", "version_range": "3.1.x", "required": true}],
+    "delivery": [{"name": "OCI composition", "version_range": "digest-pinned bases", "required": true}],
+    "testing": [
+      {"name": "pytest", "version_range": "9.1.x", "required": true},
+      {"name": "Vitest", "version_range": "4.1.x", "required": true},
+      {"name": "Playwright", "version_range": "1.62.x", "required": true}
+    ],
+    "observability": [{"name": "end-to-end health and telemetry", "version_range": "project decision", "required": true}]
+  },
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY", "CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE",
+    "CAP-BROWSER-PLAYWRIGHT", "CAP-API-CONTRACT", "CAP-IDENTITY-OIDC",
+    "CAP-DATA-POSTGRES", "CAP-OCI-RUNTIME", "CAP-DELIVERY-EVIDENCE"
+  ],
+  "excluded_capabilities": ["CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "capability_bindings": [
+    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD composed copy driver", "version_range": "1.0.0"},
+    {"capability_id": "CAP-FRONTEND-QUALITY", "provider": "Angular quality toolchain", "version_range": "22.1"},
+    {"capability_id": "CAP-STATIC-BUNDLE", "provider": "Angular production build", "version_range": "22.1"},
+    {"capability_id": "CAP-BROWSER-PLAYWRIGHT", "provider": "Playwright and axe-core", "version_range": "1.62 / 4.13"},
+    {"capability_id": "CAP-API-CONTRACT", "provider": "FastAPI and pytest", "version_range": "0.141 / 9.1"},
+    {"capability_id": "CAP-IDENTITY-OIDC", "provider": "Keycloak and PyJWT", "version_range": "26.7 / 2.13"},
+    {"capability_id": "CAP-DATA-POSTGRES", "provider": "PostgreSQL, SQLAlchemy and Alembic", "version_range": "18 / 2.0 / 1.19"},
+    {"capability_id": "CAP-OCI-RUNTIME", "provider": "Docker Compose", "version_range": "OCI 1.x"},
+    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+  ],
+  "compatibility_rules": [
+    "The profile is a closed system composition; passing component gates alone is insufficient.",
+    "It remains candidate until its Angular-to-API OIDC flow and recovery path pass end-to-end certification.",
+    "Each deployable unit may also be bound independently when lifecycle ownership differs.",
+    "Database, identity and frontend delivery decisions remain explicit project contracts."
+  ],
+  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-SCAFFOLD-INTEGRITY", "GATE-FRONTEND-LOCK", "GATE-FRONTEND-LINT",
+      "GATE-FRONTEND-TYPECHECK", "GATE-FRONTEND-TEST", "GATE-FRONTEND-BUILD",
+      "GATE-STATIC-OUTPUT", "GATE-BROWSER-SMOKE", "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-API-LOCK", "GATE-API-LINT", "GATE-API-TYPECHECK", "GATE-API-TEST",
+      "GATE-API-OPENAPI", "GATE-OIDC-CONTRACT", "GATE-OIDC-INTEGRATION",
+      "GATE-DATA-MIGRATION", "GATE-DATA-INTEGRATION", "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE", "GATE-DELIVERY-EVIDENCE"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-ANGULAR-FULL-WEB"
+  },
+  "certification": {
+    "technical_gate": "not-run",
+    "composition_gate": "not-run",
+    "e2e_eval": "not-run",
+    "human_review": "not-run",
+    "pilot": "not-run",
+    "validated_at": null,
+    "review_due": null,
+    "evidence": ["Candidate composition is packaged; end-to-end certification is pending."]
+  },
+  "owner": "LKS-SDD maintainers"
+}

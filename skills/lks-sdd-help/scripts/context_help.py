@@ -254,7 +254,8 @@ def load_state(project_root: Path) -> dict[str, Any]:
         else "not-persisted"
     )
     active_increment = manifest.get("active_increment")
-    compatibility_mode = manifest.get("schema_version") == "1.0"
+    schema_version = str(manifest.get("schema_version", ""))
+    compatibility_mode = schema_version in {"1.0", "1.1"}
     definition_coverage, next_decision = _read_definition_status(root, manifest)
     response = _base_response(
         root,
@@ -270,6 +271,11 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "gate": gate,
                 "baseline_id": manifest.get("baseline_id"),
                 "active_increment": active_increment,
+                "active_plan": manifest.get("active_plan"),
+                "active_task": manifest.get("active_task"),
+                "delivery_model": manifest.get("delivery_governance", {}).get(
+                    "model"
+                ),
                 "readiness": readiness,
             },
             "structural_validity": {
@@ -279,7 +285,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "warnings": list(dict.fromkeys(report.warnings)),
                 "diagnostic_summary": _diagnostic_summary(report.diagnostics),
                 "meaning": (
-                    "El índice y los Markdown son válidos en modo de compatibilidad 1.0; los avisos señalan diferencias con el contrato 1.1 y esto no demuestra suficiencia semántica."
+                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.2 y esto no demuestra suficiencia semántica."
                     if compatibility_mode
                     else "El índice y los Markdown cumplen el contrato estructural estricto; esto no demuestra que la definición sea suficiente."
                 ),
@@ -296,7 +302,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "meaning": (
                     "Es un dato legado no revalidado; no actúa como puerta."
                     if isinstance(persisted_readiness, dict)
-                    else "El contrato 1.1 no persiste readiness: la puerta se calcula sobre los Markdown activos cuando se solicita."
+                    else "Los contratos 1.1 y 1.2 no persisten readiness: la puerta se calcula sobre los Markdown activos cuando se solicita."
                 ),
             },
             "next_decision": next_decision,

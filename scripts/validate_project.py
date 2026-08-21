@@ -21,10 +21,12 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_SCHEMAS = {
     "1.0": PLUGIN_ROOT / "schemas" / "project.schema.json",
     "1.1": PLUGIN_ROOT / "schemas" / "project-1.1.schema.json",
+    "1.2": PLUGIN_ROOT / "schemas" / "project-1.2.schema.json",
 }
 FRONTMATTER_SCHEMAS = {
     "1.0": PLUGIN_ROOT / "schemas" / "frontmatter.schema.json",
     "1.1": PLUGIN_ROOT / "schemas" / "frontmatter-1.1.schema.json",
+    "1.2": PLUGIN_ROOT / "schemas" / "frontmatter-1.2.schema.json",
 }
 CATALOGS = json.loads(
     (PLUGIN_ROOT / "schemas" / "catalogs.json").read_text(encoding="utf-8")
@@ -63,13 +65,39 @@ CORE_ARTIFACTS = {
         "docs/lks-sdd/03-solution/solution-overview.md",
         "solution-overview",
     ),
+    "ART-ARCH": ("docs/lks-sdd/03-solution/architecture.md", "architecture"),
     "ART-INCREMENTS": ("docs/lks-sdd/04-delivery/increments.md", "increments"),
+    "ART-GOVERNANCE": (
+        "docs/lks-sdd/04-delivery/delivery-governance.md",
+        "delivery-governance",
+    ),
+    "ART-PLANS": ("docs/lks-sdd/04-delivery/plans.md", "delivery-plans"),
+    "ART-TASKS": (
+        "docs/lks-sdd/04-delivery/tasks.md",
+        "development-task-board",
+    ),
     "ART-RISK": (
         "docs/lks-sdd/04-delivery/risks-dependencies.md",
         "risks-dependencies",
     ),
     "ART-QUALITY": ("docs/lks-sdd/05-quality/quality-strategy.md", "quality-strategy"),
+    "ART-TEST-STRATEGY": (
+        "docs/lks-sdd/05-quality/test-strategy.md",
+        "test-strategy",
+    ),
     "ART-TRACE": ("docs/lks-sdd/05-quality/traceability.md", "traceability"),
+    "ART-DEPLOYMENT": (
+        "docs/lks-sdd/06-operation/deployment.md",
+        "deployment",
+    ),
+}
+V12_CORE_ARTIFACTS = {
+    "ART-ARCH",
+    "ART-GOVERNANCE",
+    "ART-PLANS",
+    "ART-TASKS",
+    "ART-TEST-STRATEGY",
+    "ART-DEPLOYMENT",
 }
 ADOPTION_ARTIFACTS = {
     "ART-ADOPT-SCOPE": (
@@ -533,9 +561,20 @@ def document_table_contract(
 ) -> dict[str, Any] | None:
     """Resolve one declared table contract for schema-aware parsing."""
     artifact = DOCUMENT_CONTRACTS.get("artifacts", {}).get(artifact_id, {})
-    for contract in artifact.get("tables", []):
+    contracts = artifact.get("tables", [])
+    explicit = any(
+        schema_version in contract.get("schemas", []) for contract in contracts
+    )
+    effective_schema = (
+        schema_version
+        if explicit
+        else DOCUMENT_CONTRACTS.get("schema_inheritance", {}).get(
+            schema_version, schema_version
+        )
+    )
+    for contract in contracts:
         if (
-            schema_version in contract.get("schemas", [])
+            effective_schema in contract.get("schemas", [])
             and tuple(contract.get("headers", [])) == headers
         ):
             return contract
@@ -1673,7 +1712,7 @@ def load_project_manifest(
     schema_path = PROJECT_SCHEMAS.get(schema_version)
     if schema_path is None:
         return data, [
-            f"project.schema_version={schema_version!r} no está soportado; use 1.0 o 1.1."
+            f"project.schema_version={schema_version!r} no está soportado; use 1.0, 1.1 o 1.2."
         ]
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -1721,6 +1760,12 @@ def validate_project(
             "\"<project-root>\" --target-schema 1.1 --dry-run`. Si "
             "human_review_required no está vacío, resuelva las ambigüedades "
             "en los Markdown 1.0 antes de aplicar; no se infieren confirmaciones."
+        )
+    elif schema_version == "1.1":
+        report.warnings.append(
+            "Proyecto schema 1.1 validado en modo compatible; la gobernanza de "
+            "entrega, perfiles por desplegable y PLAN/TASK requieren una migración "
+            "explícita 1.1 -> 1.2."
         )
 
     for entry in artifacts if isinstance(artifacts, list) else []:
@@ -1787,14 +1832,25 @@ def validate_project(
             artifact_metadata[artifact_id] = metadata
             artifact_bodies[artifact_id] = body
         actual_headers = {headers for headers, _ in table_blocks}
-        if schema_version == "1.1":
+        if schema_version != "1.0":
             artifact_contract = DOCUMENT_CONTRACTS.get("artifacts", {}).get(
                 artifact_id, {}
             )
+            contracts = artifact_contract.get("tables", [])
+            explicit = any(
+                schema_version in item.get("schemas", []) for item in contracts
+            )
+            effective_schema = (
+                schema_version
+                if explicit
+                else DOCUMENT_CONTRACTS.get("schema_inheritance", {}).get(
+                    schema_version, schema_version
+                )
+            )
             required_header_sets = [
                 tuple(item.get("headers", []))
-                for item in artifact_contract.get("tables", [])
-                if schema_version in item.get("schemas", [])
+                for item in contracts
+                if effective_schema in item.get("schemas", [])
                 and item.get("min_occurs", 0) > 0
             ]
         else:
@@ -1810,7 +1866,7 @@ def validate_project(
                 str(artifact_id), headers, schema_version
             )
             key_column = "ID"
-            if schema_version == "1.1" and table_contract is not None:
+            if schema_version != "1.0" and table_contract is not None:
                 key_column = table_contract.get("key", {}).get("column", "")
             for row in table:
                 element_id = row.get(key_column) if key_column else None
@@ -1820,7 +1876,7 @@ def validate_project(
                             f"{relative}: identificador inválido {element_id!r}."
                         )
                     elif (
-                        schema_version == "1.1"
+                        schema_version != "1.0"
                         and table_contract is not None
                         and element_id.split("-", 1)[0]
                         not in set(table_contract.get("key", {}).get("prefixes", []))
@@ -1839,7 +1895,7 @@ def validate_project(
                             **row,
                         }
                 state = row.get("State")
-                if schema_version == "1.1" and state and table_contract is not None:
+                if schema_version != "1.0" and state and table_contract is not None:
                     policy_name = table_contract.get("state", {}).get("policy")
                     allowed_states = set(
                         DOCUMENT_CONTRACTS.get("state_policies", {})
@@ -1854,7 +1910,7 @@ def validate_project(
                     report.errors.append(
                         f"{relative}: estado de elemento no admitido {state!r}."
                     )
-                if schema_version == "1.1" and table_contract is not None:
+                if schema_version != "1.0" and table_contract is not None:
                     relation_columns = set(table_contract.get("relations", {}))
                 else:
                     relation_columns = set(row) - {"ID"}
@@ -2339,7 +2395,7 @@ def validate_project(
                         f"{expected_ux_path}: prototipo visual con ID inválido {visual_id!r}."
                     )
                     continue
-                if schema_version == "1.1" and row.get("State") in {
+                if schema_version != "1.0" and row.get("State") in {
                     "rejected",
                     "superseded",
                     "retired",
@@ -2514,8 +2570,13 @@ def validate_project(
                         )
 
     evidence_cache: dict[str, Any] = {}
+    index_defined_ids = {
+        str(item.get("binding_id"))
+        for item in manifest.get("technology", {}).get("profile_bindings", [])
+        if isinstance(item, dict) and item.get("binding_id")
+    }
     for relative, reference in references:
-        if reference in definitions:
+        if reference in definitions or reference in index_defined_ids:
             continue
         if reference.startswith("EVID-"):
             evidence_relative = f"docs/lks-sdd/evidence/{reference}.json"
@@ -2628,6 +2689,8 @@ def validate_project(
         report.errors.append(f"{relative}: referencia sin definición: {reference}")
 
     for artifact_id, (expected_path, _) in CORE_ARTIFACTS.items():
+        if artifact_id in V12_CORE_ARTIFACTS and schema_version != "1.2":
+            continue
         entry = artifact_entries.get(artifact_id)
         if entry is None:
             report.errors.append(
@@ -2704,10 +2767,40 @@ def validate_project(
             report.errors.append(
                 f"La decisión de perfil {selection_decision} no está confirmada; estado: {decision.get('State')}."
             )
-        elif selected_profile not in " ".join(decision.values()):
+        elif selected_profile is not None and selected_profile not in " ".join(
+            str(value) for value in decision.values()
+        ):
             report.errors.append(
                 f"La decisión {selection_decision} no identifica el perfil seleccionado {selected_profile}."
             )
+    if schema_version == "1.2" and isinstance(technology, dict):
+        bindings = technology.get("profile_bindings", [])
+        if bindings and technology.get("preferred_stack_assessed") is not True:
+            report.errors.append(
+                "Los profile_bindings requieren preferred_stack_assessed=true."
+            )
+        for binding in bindings if isinstance(bindings, list) else []:
+            if not isinstance(binding, dict) or binding.get("state") != "confirmed":
+                continue
+            binding_id = binding.get("binding_id")
+            decision_id = binding.get("selection_decision")
+            profile_id = binding.get("profile_id")
+            decision = definitions.get(decision_id)
+            if decision is None or decision.get("artifact_type") not in {
+                "solution-overview",
+                "architecture-decision",
+            }:
+                report.errors.append(
+                    f"{binding_id}: la ADR {decision_id} no está definida en solución."
+                )
+            elif decision.get("State") not in {"decision", "confirmed"}:
+                report.errors.append(
+                    f"{binding_id}: la ADR {decision_id} no está confirmada."
+                )
+            elif profile_id not in " ".join(str(value) for value in decision.values()):
+                report.errors.append(
+                    f"{binding_id}: la ADR {decision_id} no identifica {profile_id}."
+                )
 
     for field_name, increment_id in (
         ("active_increment", manifest.get("active_increment")),
@@ -2741,6 +2834,18 @@ def validate_project(
                 )
     elif "adoption" in manifest:
         report.warnings.append("La ruta new no necesita un bloque adoption.")
+
+    if schema_version == "1.2":
+        from delivery_engine import validate_delivery_contract
+
+        delivery = validate_delivery_contract(root, manifest)
+        report.errors.extend(
+            f"Contrato de entrega: {item}" for item in delivery["errors"]
+        )
+        report.warnings.extend(
+            f"Contrato de entrega: {item}" for item in delivery["warnings"]
+        )
+        report.checked_files.extend(delivery["checked_files"])
 
     contract_model = build_project_model(root)
     legacy_errors = list(report.errors)

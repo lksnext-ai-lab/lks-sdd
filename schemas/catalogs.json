@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "document_states": ["draft", "proposed", "confirmed", "superseded", "retired"],
   "element_states": [
     "draft",
@@ -23,7 +23,18 @@
     "observation",
     "inference",
     "unknown",
-    "contradicted"
+    "contradicted",
+    "active",
+    "completed",
+    "backlog",
+    "ready",
+    "in-progress",
+    "in-review",
+    "done",
+    "cancelled",
+    "frozen",
+    "released",
+    "withdrawn"
   ],
   "identifier_prefixes": [
     "OBJ",
@@ -48,6 +59,13 @@
     "DEV",
     "TEST",
     "EVID",
-    "OPEN"
+    "OPEN",
+    "PLAN",
+    "TASK",
+    "REL",
+    "UNIT",
+    "BIND",
+    "CHG",
+    "ENV"
   ]
 }

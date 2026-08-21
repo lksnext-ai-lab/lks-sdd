@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the LKS-SDD H0 reference profile, lock, and scaffold contract."""
+"""Validate one or all closed LKS-SDD technology profile compositions."""
 
 from __future__ import annotations
 
@@ -12,198 +12,252 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-from validate_project import validate_json_schema
+from profile_registry import (
+    PLUGIN_ROOT,
+    PROFILES_ROOT,
+    load_catalog,
+    load_profile_bundle,
+    profile_source_files,
+    validate_profile_bundle,
+)
 
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+# Compatibility aliases for 1.1 callers. New code must resolve bindings.
 PROFILE_ID = "WEB-FASTAPI-REACT-KEYCLOAK-PG"
-PROFILE_ROOT = PLUGIN_ROOT / "profiles" / PROFILE_ID
-REQUIRED_SCAFFOLD = {
-    ".github/workflows/ci.yml",
-    ".gitlab-ci.yml",
-    ".gitignore",
-    "apps/backend/pyproject.toml",
-    "apps/backend/uv.lock",
-    "apps/backend/src/lks_sdd_app/main.py",
-    "apps/backend/tests/test_api.py",
-    "apps/frontend/package.json",
-    "apps/frontend/pnpm-lock.yaml",
-    "apps/frontend/src/App.tsx",
-    "apps/frontend/src/App.test.tsx",
-    "infra/compose/compose.yaml",
-    "infra/keycloak/realm-export.json",
-    "infra/containers/backend.Dockerfile",
-    "infra/containers/frontend.Dockerfile",
-}
+PROFILE_ROOT = PROFILES_ROOT / PROFILE_ID
+EXACT_NPM_VERSION = re.compile(
+    r"^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+)
 
 
 def _load_json(path: Path, errors: list[str]) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        errors.append(f"No se puede leer {path.relative_to(PLUGIN_ROOT)}: {exc}")
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        errors.append(f"No se puede leer {path}: {exc}")
         return {}
     if not isinstance(value, dict):
-        errors.append(f"{path.relative_to(PLUGIN_ROOT)} debe contener un objeto.")
+        errors.append(f"{path} debe contener un objeto.")
         return {}
     return value
 
 
-def validate_profile(require_validated: bool = True) -> list[str]:
+def _validate_dependency_pins(profile_id: str) -> list[str]:
+    bundle = load_profile_bundle(profile_id)
+    if bundle.root is None:
+        return []
     errors: list[str] = []
-    profile_path = PROFILE_ROOT / "technology-profile.yaml"
-    lock_path = PROFILE_ROOT / "technology-profile.lock.json"
-    profile = _load_json(profile_path, errors)
-    lock = _load_json(lock_path, errors)
-    if errors:
-        return errors
+    scaffold = bundle.root / "scaffold"
+    for path in profile_source_files(scaffold):
+        relative = path.relative_to(scaffold).as_posix()
+        if path.name == "package.json":
+            package = _load_json(path, errors)
+            for section in (
+                "dependencies",
+                "devDependencies",
+                "optionalDependencies",
+            ):
+                for name, version in package.get(section, {}).items():
+                    if not EXACT_NPM_VERSION.fullmatch(str(version)):
+                        errors.append(
+                            f"{profile_id}: dependencia npm sin pin exacto "
+                            f"en {relative}: {name}={version}"
+                        )
+            sibling_locks = {
+                "package-lock.json",
+                "pnpm-lock.yaml",
+                "yarn.lock",
+            }
+            if not any((path.parent / name).is_file() for name in sibling_locks):
+                errors.append(
+                    f"{profile_id}: {relative} no tiene lock npm/pnpm/yarn."
+                )
+        elif path.name == "pyproject.toml":
+            try:
+                project = tomllib.loads(path.read_text(encoding="utf-8"))
+            except (OSError, tomllib.TOMLDecodeError) as exc:
+                errors.append(f"{profile_id}: {relative} no es TOML válido: {exc}")
+                continue
+            dependencies = list(project.get("project", {}).get("dependencies", []))
+            for group in project.get("dependency-groups", {}).values():
+                if isinstance(group, list):
+                    dependencies.extend(group)
+            for dependency in dependencies:
+                if "==" not in str(dependency):
+                    errors.append(
+                        f"{profile_id}: dependencia Python sin pin exacto "
+                        f"en {relative}: {dependency}"
+                    )
+            if not (path.parent / "uv.lock").is_file():
+                errors.append(f"{profile_id}: {relative} no tiene uv.lock.")
 
-    profile_schema = _load_json(PLUGIN_ROOT / "schemas" / "technology-profile.schema.json", errors)
-    lock_schema = _load_json(PLUGIN_ROOT / "schemas" / "technology-profile-lock.schema.json", errors)
-    errors.extend(validate_json_schema(profile, profile_schema, "profile"))
-    errors.extend(validate_json_schema(lock, lock_schema, "lock"))
-    if profile.get("id") != PROFILE_ID or lock.get("profile_id") != PROFILE_ID:
-        errors.append("El perfil y el lock deben usar el identificador H0 canónico.")
-    if profile.get("version") != lock.get("profile_version"):
-        errors.append("La versión del perfil no coincide con el lock.")
-    if profile.get("support_level") != "H0":
-        errors.append("El perfil de referencia debe declarar soporte H0.")
-    capabilities = profile.get("capabilities", {})
-    if not all(capabilities.get(name) is True for name in ("documentable", "analyzable", "implementable", "verifiable")):
-        errors.append("El perfil H0 debe declarar las cuatro capacidades verificables.")
-    if require_validated and lock.get("validated") is not True:
-        errors.append("El lock H0 no puede publicarse como válido antes de superar la puerta técnica.")
-
-    component_names = {item.get("name") for item in lock.get("components", []) if isinstance(item, dict)}
-    for required in {"Python", "uv", "FastAPI", "Node.js", "pnpm", "React", "PostgreSQL", "Keycloak"}:
-        if required not in component_names:
-            errors.append(f"Falta el componente bloqueado {required}.")
-
-    scaffold = PROFILE_ROOT / "scaffold"
-    for relative in sorted(REQUIRED_SCAFFOLD):
-        if not (scaffold / relative).is_file():
-            errors.append(f"Falta recurso del scaffold H0: {relative}")
-
-    try:
-        backend = tomllib.loads((scaffold / "apps/backend/pyproject.toml").read_text(encoding="utf-8"))
-        dependencies = backend["project"]["dependencies"] + backend["dependency-groups"]["dev"]
-        for dependency in dependencies:
-            if "==" not in dependency:
-                errors.append(f"Dependencia Python sin pin exacto: {dependency}")
-    except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as exc:
-        errors.append(f"pyproject.toml del perfil no es validable: {exc}")
-
-    frontend = _load_json(scaffold / "apps/frontend/package.json", errors)
-    for section in ("dependencies", "devDependencies"):
-        for name, version in frontend.get(section, {}).items():
-            if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?", str(version)):
-                errors.append(f"Dependencia npm sin pin exacto: {name}={version}")
-    if frontend.get("packageManager") != "pnpm@10.34.5":
-        errors.append("El packageManager debe coincidir con el lock del perfil.")
-
-    runtime_files = [
-        scaffold / "infra/compose/compose.yaml",
-        scaffold / "infra/containers/backend.Dockerfile",
-        scaffold / "infra/containers/frontend.Dockerfile",
-    ]
-    for path in runtime_files:
-        text = path.read_text(encoding="utf-8")
-        if re.search(r"(?i)(?:image:|FROM)\s+\S+:latest\b", text):
-            errors.append(f"Etiqueta latest prohibida en {path.relative_to(PLUGIN_ROOT)}")
-        for line in text.splitlines():
-            stripped = line.strip()
-            if stripped.startswith(("image:", "FROM ")) and "@sha256:" not in stripped:
-                errors.append(f"Imagen OCI sin digest en {path.relative_to(PLUGIN_ROOT)}: {stripped}")
+    for path in profile_source_files(scaffold):
+        if path.name == "compose.yaml" or path.name.endswith("Dockerfile"):
+            text = path.read_text(encoding="utf-8")
+            for line in text.splitlines():
+                stripped = line.strip()
+                if re.search(r"(?i)(?:image:|FROM)\s+\S+:latest\b", stripped):
+                    errors.append(
+                        f"{profile_id}: etiqueta latest prohibida en "
+                        f"{path.relative_to(scaffold).as_posix()}."
+                    )
+                if stripped.startswith(("image:", "FROM ")) and (
+                    "@sha256:" not in stripped
+                ):
+                    errors.append(
+                        f"{profile_id}: imagen OCI sin digest en "
+                        f"{path.relative_to(scaffold).as_posix()}: {stripped}"
+                    )
     return errors
+
+
+def validate_profile(
+    profile_id: str = PROFILE_ID, *, require_validated: bool = True
+) -> list[str]:
+    errors = validate_profile_bundle(
+        profile_id, require_validated=require_validated
+    )
+    errors.extend(_validate_dependency_pins(profile_id))
+    return list(dict.fromkeys(errors))
 
 
 def validate_consumer_profile_lock(
     project_root: Path,
     *,
+    profile_id: str = PROFILE_ID,
+    binding_id: str | None = None,
     required: bool = True,
 ) -> tuple[list[str], dict[str, str | None]]:
-    """Require the consumer H0 lock to be the exact packaged lock.
-
-    The byte-for-byte comparison is intentional: the consumer lock is an immutable
-    handoff input, not an editable declaration.  Returning both hashes lets callers
-    bind readiness and later gates to the exact snapshot without trusting fields
-    parsed from a potentially substituted document.
-    """
-
+    """Require a consumer binding lock to equal the packaged immutable lock."""
     errors: list[str] = []
     root = project_root.expanduser().resolve()
-    consumer_path = root / ".lks-sdd" / "profile.lock.json"
-    packaged_path = PROFILE_ROOT / "technology-profile.lock.json"
+    if binding_id is None:
+        relative = Path(".lks-sdd/profile.lock.json")
+    else:
+        if not re.fullmatch(r"BIND-[0-9]{3}", binding_id):
+            return ["binding_id debe usar BIND-###."], {
+                "path": None,
+                "sha256": None,
+                "expected_sha256": None,
+                "profile_id": profile_id,
+                "binding_id": binding_id,
+            }
+        relative = Path(f".lks-sdd/profiles/{binding_id}.lock.json")
+    consumer_path = root / relative
+    bundle = load_profile_bundle(profile_id)
+    packaged_path = (
+        bundle.root / "technology-profile.lock.json"
+        if bundle.root is not None
+        else PROFILES_ROOT / profile_id / "technology-profile.lock.json"
+    )
     details: dict[str, str | None] = {
-        "path": ".lks-sdd/profile.lock.json",
+        "path": relative.as_posix(),
         "sha256": None,
         "expected_sha256": None,
+        "profile_id": profile_id,
+        "binding_id": binding_id,
     }
     try:
         packaged = packaged_path.read_bytes()
     except OSError as exc:
-        errors.append(f"No se puede leer el lock H0 empaquetado: {exc}")
+        errors.append(
+            f"No se puede leer el lock empaquetado de {profile_id}: {exc}"
+        )
         return errors, details
     details["expected_sha256"] = hashlib.sha256(packaged).hexdigest()
-
-    if consumer_path.is_symlink() or (
-        hasattr(consumer_path, "is_junction") and consumer_path.is_junction()
-    ):
+    is_link = consumer_path.is_symlink() or (
+        hasattr(consumer_path, "is_junction")
+        and consumer_path.is_junction()
+    )
+    if is_link:
         errors.append(
-            "El lock H0 del consumidor no puede ser un symlink o junction."
+            f"El lock consumidor {relative.as_posix()} no puede ser un enlace."
         )
         return errors, details
     if consumer_path.exists() and not consumer_path.is_file():
         errors.append(
-            "El lock H0 del consumidor debe ser un archivo regular en "
-            ".lks-sdd/profile.lock.json."
+            f"El lock consumidor {relative.as_posix()} debe ser un archivo."
         )
         return errors, details
     if not consumer_path.is_file():
         if required:
             errors.append(
-                "Falta el lock H0 exacto del consumidor en "
-                ".lks-sdd/profile.lock.json."
+                f"Falta el lock exacto de {profile_id} en "
+                f"{relative.as_posix()}."
             )
         return errors, details
     try:
         consumer = consumer_path.read_bytes()
-    except OSError as exc:
-        errors.append(f"No se puede leer el lock H0 del consumidor: {exc}")
+        decoded = json.loads(consumer.decode("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        errors.append(
+            f"El lock consumidor {relative.as_posix()} no es legible: {exc}"
+        )
         return errors, details
     details["sha256"] = hashlib.sha256(consumer).hexdigest()
-
-    try:
-        decoded = json.loads(consumer.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        errors.append(f"El lock H0 del consumidor no es JSON válido: {exc}")
-        return errors, details
-    if not isinstance(decoded, dict) or not decoded:
-        errors.append("El lock H0 del consumidor debe ser un objeto JSON no vacío.")
+    if (
+        not isinstance(decoded, dict)
+        or decoded.get("profile_id") != profile_id
+    ):
+        errors.append(
+            f"El lock consumidor no pertenece a {profile_id}."
+        )
     if consumer != packaged:
         errors.append(
-            "El lock H0 del consumidor diverge del lock exacto empaquetado; "
-            "restáurelo antes de readiness, implementación o verificación."
+            f"El lock de {profile_id} diverge del lock exacto empaquetado."
         )
     return errors, details
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--profile", action="append", dest="profiles")
+    parser.add_argument("--all", action="store_true")
     parser.add_argument("--allow-unvalidated", action="store_true")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
-    errors = validate_profile(require_validated=not args.allow_unvalidated)
-    result = {"valid": not errors, "profile_id": PROFILE_ID, "errors": errors}
+    catalog, catalog_errors = load_catalog()
+    catalog_ids = [
+        item["id"]
+        for item in catalog.get("profiles", [])
+        if isinstance(item, dict)
+    ]
+    selected = catalog_ids if args.all else (args.profiles or [PROFILE_ID])
+    results = []
+    for profile_id in selected:
+        errors = list(catalog_errors)
+        errors.extend(
+            validate_profile(
+                profile_id,
+                require_validated=not args.allow_unvalidated,
+            )
+        )
+        results.append(
+            {
+                "valid": not errors,
+                "profile_id": profile_id,
+                "errors": list(dict.fromkeys(errors)),
+            }
+        )
+    valid = all(item["valid"] for item in results)
+    output: dict[str, Any] = {
+        "valid": valid,
+        "profile_count": len(results),
+        "profiles": results,
+    }
+    if len(results) == 1:
+        output.update(results[0])
     if args.as_json:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
-    elif errors:
-        print("INVALID")
-        for error in errors:
-            print(f"ERROR: {error}")
+        print(json.dumps(output, indent=2, ensure_ascii=False))
     else:
-        print(f"VALID: {PROFILE_ID}")
-    return 0 if not errors else 2
+        for item in results:
+            print(
+                f"{'VALID' if item['valid'] else 'INVALID'}: "
+                f"{item['profile_id']}"
+            )
+            for error in item["errors"]:
+                print(f"ERROR: {error}")
+    return 0 if valid else 2
 
 
 if __name__ == "__main__":

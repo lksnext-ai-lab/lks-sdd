@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "WEB-NEXTJS-SSR-NODE",
+  "profile_version": "1.0.0",
+  "certified_at": "2026-08-21",
+  "runtime": "docker",
+  "containers_executed": true,
+  "complete_gate": true,
+  "passed": true,
+  "profile_sha256": "c0667fba6b7adf00e16ecbc9a3f9815518ddadec20693628c435fc72da42b13d",
+  "driver_sha256": "2a7f5a8872c88d3c74d34b3010eeb939d50cca416816166af0c6621e89c43346",
+  "scaffold_sha256": "0976471e791f6ec2586b429cc4ca32f1c9a875fa01904daff528bc2aae5a40c0",
+  "composition_digest": "bd0e4bb2617446e08b1f6ab13e6239115c7add409bdb59e114fc455f910b4ccb",
+  "certification_engine_sha256": "8d0bbb842292fb14731eafaccdd130c5643ba594f524f4975b5708e4e66b1429",
+  "checks": [
+    {
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-BROWSER-SMOKE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-COMPOSE-NEXTJS-SSR",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LINT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LOCK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TEST",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TYPECHECK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SSR-BUILD",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SSR-HYDRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SSR-RUNTIME",
+      "status": "passed"
+    }
+  ],
+  "result_sha256": "4b1086c299dbae544daf0ebac0d68ae3f3de3431c69a56863c82a59e69d224f2",
+  "command": "python scripts/run_reference_profile_gate.py --profile WEB-NEXTJS-SSR-NODE --runtime docker --containers --record-certification"
+}

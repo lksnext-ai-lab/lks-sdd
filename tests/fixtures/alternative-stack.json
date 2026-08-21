@@ -4,7 +4,8 @@
   "project_id": "fixture-alternative",
   "increment": "INC-001",
   "proposal": {
-    "id": "ADR-002",
+    "id": "ADR-003",
+    "profile_id": "WEB-ALTERNATIVE-STACK",
     "title": "Pila web alternativa",
     "status": "proposal",
     "support_level": "documentable",

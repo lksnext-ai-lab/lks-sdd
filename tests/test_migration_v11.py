@@ -129,6 +129,24 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
             },
         }
     )
+    for key in ("active_plan", "active_task", "delivery_governance"):
+        manifest.pop(key, None)
+    manifest["technology"].pop("profile_bindings", None)
+    manifest["version_control"] = {
+        "type": manifest["version_control"]["type"],
+        "origin": manifest["version_control"]["origin"],
+    }
+    v12_only = {
+        "ART-ARCH",
+        "ART-GOVERNANCE",
+        "ART-PLANS",
+        "ART-TASKS",
+        "ART-TEST-STRATEGY",
+        "ART-DEPLOYMENT",
+    }
+    manifest["artifacts"] = [
+        item for item in manifest["artifacts"] if item["id"] not in v12_only
+    ]
     manifest_path.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
@@ -140,11 +158,15 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         relative = artifact["path"]
         path = root / relative
         content = path.read_text(encoding="utf-8")
-        content = content.replace('schema_version: "1.1"', 'schema_version: "1.0"')
-        content = content.replace('method_version: "1.1.0"', 'method_version: "1.0.0"')
+        content = content.replace('schema_version: "1.2"', 'schema_version: "1.0"')
+        content = content.replace('method_version: "1.2.0"', 'method_version: "1.0.0"')
         content = content.replace(
-            'created_with_plugin_version: "0.7.0"',
+            'created_with_plugin_version: "0.8.0"',
             'created_with_plugin_version: "0.6.1"',
+        )
+        content = content.replace(
+            "PLAN-001 y REL-001 son propuestas iniciales",
+            "El horizonte y la release son propuestas iniciales",
         )
         if artifact["id"] == "ART-INCREMENTS":
             current_main = """| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |
@@ -163,6 +185,17 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
                 "## Aplicabilidad de interfaz y contrato visual", domain_start
             )
             content = content[:domain_start] + content[interface_start:]
+        if artifact["id"] == "ART-SOLUTION":
+            content = "\n".join(
+                line for line in content.splitlines() if "| ADR-002 |" not in line
+            ) + "\n"
+            content = content.replace(
+                "Select API-FASTAPI-STATELESS-OCI for UNIT-001.",
+                "Select API-FASTAPI-STATELESS-OCI for the increment.",
+            ).replace(
+                "Limited to INC-001 and BIND-001",
+                "Limited to INC-001",
+            )
         path.write_text(content, encoding="utf-8", newline="\n")
         paths[artifact["id"]] = path.resolve()
     return paths
@@ -380,6 +413,87 @@ class Schema11MigrationTests(unittest.TestCase):
         self.assertIn("Human body marker.", text)
         self.assertEqual(reviews, [])
         self.assertEqual(operations, ["frontmatter-schema-version"])
+
+    def test_11_to_12_creates_governance_and_rolls_back_created_artifacts(self):
+        with tempfile.TemporaryDirectory(
+            prefix="lks-sdd-migration-12-"
+        ) as directory:
+            container = Path(directory)
+            root = container / "project"
+            root.mkdir()
+            _write_review_free_project(root)
+            safe_root = migration._safe_root(root)
+
+            plan_11 = migration._plan(safe_root, "1.1")
+            self.assertEqual(plan_11.human_review_required, [])
+            backup_11 = container / "backup-11"
+            migration._apply(
+                safe_root,
+                plan_11,
+                backup_11,
+                migration._preview(safe_root, plan_11)["preview_hash"],
+            )
+            manifest_11 = json.loads(
+                (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(manifest_11["schema_version"], "1.1")
+
+            # The helper starts from a current initializer. Remove the unindexed
+            # 1.2 files so this source accurately represents a real 1.1 project.
+            for _, relative in migration.V12_ARTIFACTS:
+                candidate = root / relative
+                if candidate.exists():
+                    candidate.unlink()
+            task_directory = root / "docs/lks-sdd/04-delivery/tasks"
+            if task_directory.is_dir():
+                for task in task_directory.glob("TASK-*.md"):
+                    task.unlink()
+                task_directory.rmdir()
+            snapshot = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+
+            plan_12 = migration._plan(safe_root, "1.2")
+            preview_12 = migration._preview(safe_root, plan_12)
+            self.assertEqual(plan_12.source_schema, "1.1")
+            self.assertEqual(plan_12.target_schema, "1.2")
+            self.assertEqual(plan_12.human_review_required, [])
+            created = [change for change in plan_12.changes if change.created]
+            self.assertEqual(len(created), len(migration.V12_ARTIFACTS))
+            backup_12 = container / "backup-12"
+            applied = migration._apply(
+                safe_root,
+                plan_12,
+                backup_12,
+                preview_12["preview_hash"],
+            )
+            self.assertTrue(applied["validated"])
+            migrated = json.loads(
+                (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(migrated["schema_version"], "1.2")
+            self.assertEqual(migrated["method_version"], "1.2.0")
+            self.assertEqual(migrated["plugin_version"], "0.8.0")
+            self.assertEqual(migrated["delivery_governance"]["state"], "proposed")
+            self.assertEqual(migrated["technology"]["profile_bindings"], [])
+            self.assertNotIn("implementation", migrated)
+            self.assertNotIn("verification", migrated)
+
+            rollback_plan, record_path, record = migration._plan_rollback(
+                safe_root, backup_12
+            )
+            rolled_back = migration._apply_rollback(
+                safe_root, rollback_plan, record_path, record
+            )
+            self.assertEqual(rolled_back["status"], "rolled-back")
+            restored = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(restored, snapshot)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "WEB-REACT-VITE-STATIC",
+  "profile_version": "1.0.0",
+  "certified_at": "2026-08-21",
+  "runtime": "docker",
+  "containers_executed": true,
+  "complete_gate": true,
+  "passed": true,
+  "profile_sha256": "cd81948f365c95308ef57e69ecd40e1a724d1176ea826fccc53e756d127576a6",
+  "driver_sha256": "3e40707745a4412693675877bfcb37b38baef7c52098a49f9f9d0f4dd9241f97",
+  "scaffold_sha256": "99fe52cd863d6ba8dcebcd0e64600841e61797050e13e2f0e61444fa618d5201",
+  "composition_digest": "85cc1a28f55c3b96686712439eac4dfa53c6b81203f867bb58eb1c31b57630cc",
+  "certification_engine_sha256": "8d0bbb842292fb14731eafaccdd130c5643ba594f524f4975b5708e4e66b1429",
+  "checks": [
+    {
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-BROWSER-SMOKE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-COMPOSE-REACT-STATIC",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-BUILD",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LINT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LOCK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TEST",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TYPECHECK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-STATIC-OUTPUT",
+      "status": "passed"
+    }
+  ],
+  "result_sha256": "10c208003b4e19780791c402dc4e4966dc50c2e8f25e4590f7c4f65fd7e50689",
+  "command": "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-STATIC --runtime docker --containers --record-certification"
+}

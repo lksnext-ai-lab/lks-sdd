@@ -31,23 +31,29 @@ Una idea breve no se convierte automáticamente en un producto genérico. La def
 
 La cobertura se muestra por dimensiones: suficiente para avanzar en un alcance, requiere profundización, desconocida o no aplicable con motivo. El resumen destaca bloqueos y la siguiente decisión y ofrece más detalle bajo petición. Que los documentos sean estructuralmente válidos no significa que la definición sea suficiente.
 
-Readiness conserva dos resultados: `specification_readiness` indica si el incremento funcional está suficientemente definido; `automation_support` indica si la pila confirmada dispone de perfil, lock y gates implementables. Una especificación puede estar lista con automatización no soportada. En ese caso se mantiene la decisión tecnológica y se bloquea la implementación automatizada, sin seleccionar H0 por defecto.
+Readiness conserva tres resultados: `specification_readiness` para la definición funcional, `delivery_readiness` para gobierno/plan/release/tareas y `automation_support` para perfiles, locks y gates. Una especificación puede estar lista con entrega o automatización bloqueada; se mantiene la decisión tecnológica sin seleccionar otro perfil por defecto.
 
 ## 7. Diseño de interfaz
 
 Cuando existe frontend, primero se describen pantallas, flujos, estados, diálogos, accesibilidad y dirección visual. Después pueden generarse propuestas PNG/JPG con ImageGen. Cada imagen sigue siendo propuesta hasta validación humana explícita y se conserva junto al contrato Markdown; la imagen no sustituye comportamiento ni copy confirmados.
 
-## 8. Cuándo aparece el código
+## 8. Cómo se organiza la entrega
 
-La definición y readiness no generan código. Un resultado `ready` tampoco autoriza implementación: el perfil H0 solo se prepara mediante un preview revisado y autorización explícita. La verificación puede planificarse para la implementación `in-progress` del mismo incremento, pero no ejecuta checks ni registra evidencia hasta que `implementation.status` sea `completed`; además exige que el perfil del registro coincida con el seleccionado. Después distingue checks superados, fallidos y no ejecutados.
+Antes de implementar se confirma si el producto trabaja como release acotada, evolución continua o mantenimiento. Esa decisión incluye versionado, Git/ramas, entornos, pipeline, promoción, despliegue y recuperación. El trabajo se organiza en un plan y una release, con un tablero breve y una ficha independiente por tarea. Un cambio posterior se registra con fecha efectiva; no invalida ni borra el historial anterior.
+
+La arquitectura puede contener varias unidades desplegables. Cada unidad selecciona un perfil de referencia exacto. Las capabilities permiten reutilizar gates, pero solo la composición completa certificada puede anunciar soporte automático.
+
+## 9. Cuándo aparece el código
+
+La definición y readiness no generan código. Un resultado `ready` tampoco autoriza implementación: la selección TASK y sus bindings solo se preparan mediante preview revisado y autorización explícita. La verificación puede planificarse durante `in-progress`, pero no ejecuta ni registra evidencia hasta `implementation.status=completed`. Después distingue checks superados, fallidos y no ejecutados.
 
 La trazabilidad previa a implementar llega hasta `TEST-###`; después de ejecutar, la fase de verificación exige también `EVID-###` aplicable. Si no hay requisitos confirmados para el alcance, la comprobación no puede superar la puerta por estar vacía.
 
-## 9. Versiones y compatibilidad
+## 10. Versiones y compatibilidad
 
-Los proyectos nuevos usan método 1.1.0 y esquema 1.1. Los proyectos 1.0 continúan validándose en compatibilidad y no se migran al actualizar el plugin. La migración es explícita y de un salto. Si el dry-run devuelve entradas en `human_review_required`, la aplicación se bloquea siempre antes de escribir: resuelva cada entrada listada en los Markdown canónicos 1.0, valide y repita el preview hasta que la lista quede vacía. La `Identity` agregada se convierte sin inferencias en identidad, seguridad y privacidad `pending`; no entra en esa lista y se resuelve después en 1.1 para desbloquear readiness. El apply exige backup externo, autorización y hash coincidente.
+Los proyectos nuevos usan método 1.2.0 y esquema 1.2. Los proyectos 1.0/1.1 continúan validándose en compatibilidad y no se migran al actualizar. La migración es explícita, reversible y de un salto. El paso a 1.2 añade estructura pendiente sin inventar gobierno, tareas, perfiles ni evidencia. El apply exige backup externo, autorización y hash coincidente.
 
-## 10. Primer paso a elegir
+## 11. Primer paso a elegir
 
 - pedir una explicación breve;
 - definir una aplicación nueva sin código;

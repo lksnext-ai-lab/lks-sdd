@@ -28,7 +28,7 @@ TRACEABILITY_SCRIPT = PLUGIN_ROOT / "scripts" / "check_traceability.py"
 PACKAGED_LOCK = (
     PLUGIN_ROOT
     / "profiles"
-    / "WEB-FASTAPI-REACT-KEYCLOAK-PG"
+    / "API-FASTAPI-STATELESS-OCI"
     / "technology-profile.lock.json"
 )
 
@@ -55,6 +55,24 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
             },
         }
     )
+    for key in ("active_plan", "active_task", "delivery_governance"):
+        manifest.pop(key, None)
+    manifest["technology"].pop("profile_bindings", None)
+    manifest["version_control"] = {
+        "type": manifest["version_control"]["type"],
+        "origin": manifest["version_control"]["origin"],
+    }
+    v12_only = {
+        "ART-ARCH",
+        "ART-GOVERNANCE",
+        "ART-PLANS",
+        "ART-TASKS",
+        "ART-TEST-STRATEGY",
+        "ART-DEPLOYMENT",
+    }
+    manifest["artifacts"] = [
+        item for item in manifest["artifacts"] if item["id"] not in v12_only
+    ]
     manifest_path.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
@@ -64,8 +82,8 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
         path = root / entry["path"]
         text = (
             path.read_text(encoding="utf-8")
-            .replace('schema_version: "1.1"', 'schema_version: "1.0"', 1)
-            .replace('method_version: "1.1.0"', 'method_version: "1.0.0"', 1)
+            .replace('schema_version: "1.2"', 'schema_version: "1.0"', 1)
+            .replace('method_version: "1.2.0"', 'method_version: "1.0.0"', 1)
             .replace(
                 f'created_with_plugin_version: "{current_version}"',
                 'created_with_plugin_version: "0.6.1"',
@@ -73,6 +91,12 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
             )
         )
         if entry["id"] == "ART-INCREMENTS":
+            if "## Aplicabilidad por dominio" in text:
+                domain_start = text.index("## Aplicabilidad por dominio")
+                interface_start = text.index(
+                    "## Aplicabilidad de interfaz y contrato visual"
+                )
+                text = text[:domain_start] + text[interface_start:]
             text = text.replace(
                 "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
                 "|---|---|---|---|---|---|---|---|",
@@ -84,6 +108,15 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
                 "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | not-applicable: no persistence | not-applicable: no identity | not-applicable: no integration | TEST-001 |",
                 1,
             )
+        for source, replacement in {
+            "PLAN-001": "delivery horizon",
+            "REL-001": "release horizon",
+            "CHG-001": "governance transition",
+            "ENV-001": "verification environment",
+            "BIND-001": "technology binding",
+            "UNIT-001": "deployable unit",
+        }.items():
+            text = text.replace(source, replacement)
         path.write_text(text, encoding="utf-8", newline="\n")
 
 
@@ -146,8 +179,8 @@ def _write_evidence(
             {
                 "evidence_id": path.stem,
                 "increment": "INC-001",
-                "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-                "profile_version": "1.0.0-candidate.1",
+                "profile_id": "API-FASTAPI-STATELESS-OCI",
+                "profile_version": "1.0.0",
                 "revision": None,
                 "classification": classification,
                 "checks": [
@@ -320,17 +353,18 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
             self.assertEqual(code, 0, before)
             self.assertEqual(before["status"], "ready")
             self.assertEqual(
-                before["profile_lock"]["fingerprint_sha256"], expected_hash
+                before["profile_locks"][0]["expected_sha256"], expected_hash
             )
-            self.assertIsNone(before["profile_lock"]["sha256"])
+            self.assertIsNone(before["profile_locks"][0]["sha256"])
 
-            consumer_lock = root / ".lks-sdd/profile.lock.json"
+            consumer_lock = root / ".lks-sdd/profiles/BIND-001.lock.json"
+            consumer_lock.parent.mkdir(parents=True, exist_ok=True)
             consumer_lock.write_bytes(PACKAGED_LOCK.read_bytes())
             code, after = run_json(
                 READINESS_SCRIPT, str(root), "--increment", "INC-001"
             )
             self.assertEqual(code, 0, after)
-            self.assertEqual(after["profile_lock"]["sha256"], expected_hash)
+            self.assertEqual(after["profile_locks"][0]["sha256"], expected_hash)
             self.assertEqual(
                 after["active_contract_fingerprint"],
                 before["active_contract_fingerprint"],
@@ -340,7 +374,8 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-lock-bad-") as temporary:
             root = Path(temporary)
             _ready_project(root)
-            consumer_lock = root / ".lks-sdd/profile.lock.json"
+            consumer_lock = root / ".lks-sdd/profiles/BIND-001.lock.json"
+            consumer_lock.parent.mkdir(parents=True, exist_ok=True)
             consumer_lock.write_text("{}\n", encoding="utf-8", newline="\n")
 
             readiness_code, readiness = run_json(
@@ -353,7 +388,10 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
             self.assertEqual(readiness_code, 3, readiness)
             self.assertEqual(readiness["status"], "blocked")
             self.assertTrue(
-                any("lock H0 del consumidor" in item for item in readiness["blockers"])
+                any(
+                    "BIND-001" in item and "lock" in item.casefold()
+                    for item in readiness["blockers"]
+                )
             )
 
             prepare_code, preparation = run_json(
@@ -393,7 +431,11 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
             )
             self.assertEqual(verify_code, 3, verification)
             self.assertTrue(
-                any("Falta el lock H0 exacto" in item for item in verification["blockers"])
+                any(
+                    "implementation" in item.casefold()
+                    or "bindings verificables" in item.casefold()
+                    for item in verification["blockers"]
+                )
             )
 
             prepare_code, preparation = run_json(
@@ -405,7 +447,7 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
             )
             self.assertEqual(prepare_code, 0, preparation)
             self.assertIn(
-                ".lks-sdd/profile.lock.json", preparation["created"]
+                ".lks-sdd/profiles/BIND-001.lock.json", preparation["created"]
             )
 
 
@@ -494,7 +536,7 @@ class VerificationImplementationCompletionGuardsTests(unittest.TestCase):
             )
             mutated_manifest: bytes | None = None
 
-            def mutate_manifest_during_first_check(check):
+            def mutate_manifest_during_first_check(check, env):
                 nonlocal mutated_manifest
                 if mutated_manifest is None:
                     current = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -505,18 +547,22 @@ class VerificationImplementationCompletionGuardsTests(unittest.TestCase):
                         newline="\n",
                     )
                     mutated_manifest = manifest_path.read_bytes()
-                return {"name": check["name"], "status": "passed"}
+                return {
+                    "name": check["name"],
+                    "gate_id": check["gate_id"],
+                    "binding_id": check["binding_id"],
+                    "status": "passed",
+                }
 
             with mock.patch.object(
                 module,
-                "_execute_check",
+                "_execute_profile_command",
                 side_effect=mutate_manifest_during_first_check,
             ) as execute_check, self.assertRaises(module.VerificationError) as raised:
                 module.run(args)
 
-            self.assertIn("puerta cambió", str(raised.exception))
-            self.assertIn("status=completed", str(raised.exception))
-            self.assertEqual(execute_check.call_count, 10)
+            self.assertIn("project.json cambió", str(raised.exception))
+            self.assertEqual(execute_check.call_count, 7)
             self.assertIsNotNone(mutated_manifest)
             self.assertEqual(manifest_path.read_bytes(), mutated_manifest)
             self.assertEqual(traceability_path.read_bytes(), original_traceability)
@@ -567,7 +613,7 @@ class VerificationImplementationCompletionGuardsTests(unittest.TestCase):
             _prepare_increment(root)
             manifest_path = root / ".lks-sdd/project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest["implementation"]["profile_id"] = "OTHER-PROFILE"
+            manifest["implementation"]["profile_bindings"] = ["BIND-999"]
             manifest_path.write_text(
                 json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8",
@@ -587,7 +633,10 @@ class VerificationImplementationCompletionGuardsTests(unittest.TestCase):
             self.assertEqual(code, 3, result)
             self.assertEqual(result["checks"], [])
             self.assertTrue(
-                any("implementation.profile_id no coincide" in item for item in result["blockers"]),
+                any(
+                    "Binding de implementación inexistente: BIND-999" in item
+                    for item in result["blockers"]
+                ),
                 result,
             )
             self.assertEqual(manifest_path.read_bytes(), original_manifest)
@@ -608,13 +657,13 @@ class HandoffContractDocumentationTests(unittest.TestCase):
             / "skills/lks-sdd-verify/references/verification-contract.md"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("puede no existir todavía", implementation)
+        self.assertIn("puede no existir", implementation)
         self.assertIn("idéntico byte a byte", readiness)
-        self.assertIn("materializa la copia exacta", implementation)
-        self.assertIn("realmente completos", implementation)
+        self.assertIn("copia byte a byte", implementation)
+        self.assertIn("código, documentación, pruebas y handoff", implementation)
         self.assertIn("lista no vacía de checks", verification)
         self.assertIn("todos ellos en `passed`", verification)
-        self.assertIn("lock ausente, `{}`, editado o enlazado", verification)
+        self.assertIn("Ausencia, `{}`, edición o enlace", verification)
         self.assertIn("implementation.status=completed", verification)
 
 

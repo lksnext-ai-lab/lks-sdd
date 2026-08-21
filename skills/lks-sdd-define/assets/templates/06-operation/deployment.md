@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-DEPLOYMENT
 artifact_type: deployment
-schema_version: "1.1"
-method_version: "1.1.0"
-created_with_plugin_version: "0.7.0"
+schema_version: "1.2"
+method_version: "1.2.0"
+created_with_plugin_version: "0.8.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -18,7 +18,7 @@ last_updated: "{{DATE}}"
 
 # Despliegue e infraestructura
 
-| Label | State | Environment | Deployment unit | Configuration | Rollback | Requirements |
-|---|---|---|---|---|---|---|
+| Environment | State | Role | Deployment unit | Artifact strategy | Configuration | Deployment strategy | Recovery | Observability | Requirements |
+|---|---|---|---|---|---|---|---|---|---|
 
-No incluya secretos ni presuponga una nube, plataforma o pipeline no confirmados.
+No incluya secretos ni presuponga una nube, plataforma o pipeline no confirmados. Distinga rollback de artefacto, configuración, esquema, datos, caché, replay, compensación y forward-fix según aplicabilidad.

@@ -1,46 +1,91 @@
-# Arquitectura y alcance de la versión 0.7.0
+# Arquitectura y alcance de la versión 0.8.0
 
-## Entorno de ejecución
+## Decisión de producto
 
-LKS-SDD se implementa como plugin de desarrollo SDD para Codex. Codex es el único entorno soportado contractualmente; la posible reutilización de Markdown, esquemas o scripts en ChatGPT Work, GitHub Copilot, Claude u otros asistentes no implica compatibilidad del plugin. La matriz y los criterios de portabilidad se mantienen en `docs/COMPATIBILITY.md`.
+LKS-SDD es un plugin skills-only para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-## Implementado en M0–M5 y evoluciones compatibles v0.6–v0.7
+La versión 0.8.0 conserva las seis skills y añade una capa transversal de gobierno de entrega, planificación profesional y arquitectura multiperfil. El contrato activo para proyectos nuevos es `method_version: 1.2.0` y `schema_version: 1.2`. Los contratos 1.0 y 1.1 continúan validándose en compatibilidad y solo evolucionan mediante migraciones explícitas de un salto.
 
-- Plugin único `lks-sdd`, basado exclusivamente en skills y recursos locales.
-- Ayuda didáctica y contextual de solo lectura.
-- Definición de aplicaciones nuevas mediante Markdown estructurado, inicialización aditiva y encuadre inicial que evita convertir ideas ambiguas en productos genéricos.
-- Snapshots compactos de cobertura tras bloques relevantes, con estados comprensibles y sin porcentaje global de madurez.
-- Para frontends aplicables, especificación condicional de detalle y estados por pantalla, flujos enlazados, interacción, dirección visual y activos trazables.
-- Ciclo visual obligatorio cuando existe frontend nuevo o cambio visual material: brief suficiente, una a tres propuestas ImageGen si la capacidad está disponible, validación humana y fallback explícito; una baseline ya confirmada puede reutilizarse con motivo documentado.
-- Evaluación explicable por incremento que separa `specification_readiness` de `automation_support`, sin seleccionar una pila ni conceder autorización implícita. El estado combinado de implementación permanece bloqueado si falta cualquiera de las dos condiciones.
-- Contrato documental 1.1 para proyectos nuevos (`method_version: 1.1.0`, `schema_version: 1.1`) y validación compatible de proyectos 1.0, sin actualización automática.
-- Catálogo declarativo por artefacto y tabla para cabeceras, propietario de identificadores, estados, relaciones, cardinalidad, aplicabilidad y assets. La naturaleza del elemento procede del artefacto o prefijo y el estado expresa su ciclo de vida.
-- Parser común de referencias individuales, listas y rangos inclusivos `FR-001..FR-079`. El rango `a` y las listas separadas solo por espacios se aceptan con aviso exclusivamente en compatibilidad 1.0; una expansión parcial o un ID inexistente no se silencian.
-- Matriz de dominios separada para datos, identidad, seguridad, privacidad e integraciones, con aplicabilidad y referencias explícitas por incremento.
-- Diagnósticos estructurados con código, severidad, fase, localización, observado, esperado y corrección mínima, además de una vista textual compatible para consumidores anteriores.
-- Esquemas para `.lks-sdd/project.json`, front matter, catálogos, perfil y lock.
-- Núcleo de catorce artefactos y plantillas de anexos que solo se materializan cuando son aplicables.
-- Perfil H0 `WEB-FASTAPI-REACT-KEYCLOAK-PG`, con versiones y contenedores fijados, scaffold de referencia, CI y gate reproducible.
-- Preparación aditiva y autorizada del scaffold solo para un incremento listo y un perfil H0 validado.
-- Handoff por fases: `preimplementation` exige trazabilidad desde requisitos aplicables hasta pruebas planificadas, mientras `verification` exige además evidencia ejecutada y correspondiente al incremento. Un alcance vacío nunca supera la comprobación.
-- Grafo activo por incremento que excluye de los inputs operativos filas rechazadas, sustituidas o retiradas, aunque las conserva en el modelo documental para auditoría. La huella documental completa y la huella del contrato activo tienen propósitos distintos.
-- Verificación planificada y ejecutable que diferencia `passed`, `failed`, `blocked`, `not-run` y `not-applicable`; la evidencia visual 1.1 se liga a implementación, UX/VIS, viewports y capturas por hash.
-- Adopción de repositorios existentes mediante inventario estático externo, reconciliación confirmada, detección de deriva y materialización exclusivamente documental.
-- Validación integral y migraciones explícitas, reversibles y de un solo salto: se conserva `0.9` → `1.0` al solicitar ese destino y se añade `1.0` → `1.1`. Esta última falla siempre antes de crear backup o escribir si el preview contiene entradas en `human_review_required`; cada entrada se resuelve en los Markdown 1.0 y se repite el preview antes de aplicar con backup, autorización, hash y rollback. Como `Identity` 1.0 agregaba tres dominios que el origen no puede separar, se materializan identidad, seguridad y privacidad como `pending` con motivo y sin referencias inferidas; no entran en esa lista, validan tras la migración y bloquean readiness hasta resolverse en 1.1.
-- Borradores para cliente derivados solo de fuentes `confirmed` y `client`/`public`, con bloqueo de indicadores sensibles y aprobación siempre pendiente.
-- Validadores locales; solo el gate técnico explícito ejecuta herramientas externas y tráfico de descarga o health checks.
-- Fixtures y evals de proyecto nuevo, información insuficiente, alternativa tecnológica, bloqueo independiente y ayuda.
-- Harness M4 con catálogo base FX-01–FX-19, extensión v0.6 FX-20–FX-21, corpus de activación y conversación etiquetados, integridad de fixtures, umbrales, reportes y comparación con baselines versionadas. Los nuevos escenarios semánticos y humanos permanecen `not-run` hasta una ejecución controlada.
-- Puertas diferenciadas para candidate y stable que conservan como `not-run` cualquier evidencia semántica, humana o de piloto aún no aportada.
-- Dispatcher portable `scripts/lks_sdd.py` que resuelve recursos desde la instalación del plugin y recibe por separado la raíz del proyecto consumidor.
-- Bundle reproducible de plugin y marketplace de desarrollo construido desde un commit Git real igual a `HEAD`, con árbol limpio, manifiesto, checksums y exclusión de enlaces, cachés, generados y patrones de secretos.
-- Piloto M5 con configuración externa, aliases, observaciones sin texto libre, almacén externo, agregación sin códigos y decisión go/no-go vinculada al harness M4.
-- Soporte no sensible mediante Issues, canal de seguridad obligatorio en la configuración y rollback que no modifica automáticamente proyectos consumidores.
+## Capas del producto
 
-## Límite de capacidad
+| Capa | Responsabilidad | Fuente principal |
+|---|---|---|
+| Método y contrato | Estados, identificadores, tablas, trazabilidad, gates y reglas de cambio | `specs/canonical/`, `schemas/`, `scripts/contract_engine.py` |
+| Definición y adopción | Descubrir intención o reconciliar una implementación existente sin inventar decisiones | `skills/lks-sdd-define/`, `skills/lks-sdd-adopt-existing/` |
+| Gobierno de entrega | Modelo de evolución, versionado, Git, CI/CD, entornos, promoción, despliegue y recuperación | `delivery-governance.md`, `deployment.md`, `scripts/delivery_engine.py` |
+| Planificación | Horizontes `PLAN-###`, entregas `REL-###`, unidades `UNIT-###` y tareas `TASK-###` | `plans.md`, `tasks.md`, `task-detail.md`, `scripts/manage_tasks.py` |
+| Arquitectura multiperfil | Familias, capabilities internas, perfiles cerrados, bindings, locks y certificaciones | `profiles/catalog.json`, `profiles/*`, `scripts/profile_registry.py` |
+| Ejecución | Readiness, preparación aditiva, implementación acotada y rollback | `lks-sdd-assess-readiness`, `lks-sdd-implement` |
+| Evidencia | Gates G3/G4, revisión Git, árbol, build, artefactos, entorno y autorización | `lks-sdd-verify`, `scripts/delivery_engine.py` |
+| Calidad y distribución | Tests, evals, candidate/stable, piloto y bundle reproducible | `tests/`, `quality/`, `pilot/`, `distribution/` |
 
-La implementación no inventa comportamiento de negocio: prepara la frontera técnica H0 y solo continúa cuando las decisiones y el incremento están confirmados. Una especificación puede estar preparada sin disponer de soporte automatizado para su perfil; eso no es permiso para seleccionar H0 ni para implementar manualmente sin una decisión aparte. Una propuesta visual generada no sustituye requisitos, responsive, accesibilidad ni aprobación humana. La adopción no modifica comportamiento ni convierte el estado observado en intención. La verificación no convierte una comprobación no ejecutada en superada y una vista cliente generada no equivale a aprobación.
+## Gobierno adaptable del ciclo de vida
+
+Cada proyecto debe confirmar antes de G2 uno de estos modelos, sin convertirlo en una plantilla rígida:
+
+| Modelo | Uso principal | Unidad de planificación y entrega |
+|---|---|---|
+| `bounded-release` | Producto con alcance inicial y versión publicable objetivo | Hitos y releases acotadas |
+| `continuous-evolution` | Desarrollo agile con incrementos continuos | Horizonte móvil y entregas frecuentes |
+| `maintenance-stream` | Correctivos y evolutivos sobre un producto vivo | Flujo de cambios con prioridad, riesgo y urgencia |
+
+El mismo contrato documenta versionado de producto, política de compatibilidad, estrategia Git, protección y revisión de ramas, CI/CD, entornos, promoción, despliegue, migraciones, observabilidad y recuperación. Un cambio de modelo durante la vida del proyecto se registra como `CHG-###` con origen, impacto, transición, fecha efectiva y decisión; no reescribe la historia ni invalida automáticamente evidencias anteriores.
+
+## Planificación y seguimiento
+
+La estructura `PLAN-### → REL-### → TASK-###` evita tanto un backlog plano como tablas interminables. Cada `PLAN` representa un horizonte —normalmente una versión mayor, etapa o ventana de mantenimiento— y contiene releases manejables. El tablero de tareas ofrece lectura visual mediante símbolos y estados, mientras cada tarea mantiene su definición independiente con:
+
+- objetivo, alcance incluido y excluido;
+- trazabilidad a requisitos, aceptación, decisiones, riesgos e incremento;
+- unidad desplegable, binding de perfil y release destino;
+- dependencias, estimación, responsable lógico y criterios de entrada/salida;
+- plan de implementación, pruebas y gates aplicables;
+- problemas `PROB-###`, bloqueos, evidencias, revisión Git, build, artefacto y entorno.
+
+Las transiciones se validan mediante una máquina de estados y se aplican con preview, hash de autorización y escritura atómica. `done` no se infiere de una casilla: exige criterios, gates y evidencias verificables. El tablero es una vista canónica de seguimiento; el detalle de tarea conserva la información necesaria para ejecutar y auditar el trabajo.
+
+## Arquitectura multiperfil
+
+El catálogo usa cuatro niveles deliberadamente distintos:
+
+1. Una **familia** clasifica una arquitectura; no es seleccionable.
+2. Una **capability** reutiliza restricciones, scaffold y gates; no acredita compatibilidad por sí sola.
+3. Un **perfil de referencia** define una composición exacta y cerrada; es la única unidad certificable y seleccionable.
+4. Un **binding** liga ese perfil y su lock a una unidad desplegable concreta del proyecto.
+
+Un perfil solo se presenta como `supported` cuando su lifecycle es `active` y existe una certificación completa que coincide exactamente con los hashes actuales de descriptor, capabilities, scaffold, driver, composición, gates y motor de certificación. Un lock aporta identidad y reproducibilidad; la evidencia del gate de composición demuestra que esa mezcla concreta fue probada. Si cualquiera de esos bytes cambia, el soporte deja de ser válido hasta volver a certificar.
+
+El catálogo 0.8.0 incluye diez perfiles en seis familias:
+
+| Perfil | Arquitectura | Estado de producto |
+|---|---|---|
+| `WEB-REACT-VITE-STATIC` | SPA React/Vite estática | active; requiere certificación exacta vigente |
+| `WEB-ANGULAR-STATIC` | SPA Angular estática | active; requiere certificación exacta vigente |
+| `API-FASTAPI-STATELESS-OCI` | API-only sin estado en OCI | active; requiere certificación exacta vigente |
+| `API-FASTAPI-KEYCLOAK-PG-OCI` | API-only con OIDC y PostgreSQL | active; requiere certificación exacta vigente |
+| `WEB-NEXTJS-SSR-NODE` | SSR/hidratación con Next.js | active; requiere certificación exacta vigente |
+| `WEB-FASTAPI-REACT-KEYCLOAK-PG` | Sistema web React, API, OIDC y PostgreSQL | active; requiere certificación exacta vigente |
+| `WEB-ANGULAR-SSR-NODE` | SSR/hidratación con Angular | candidate; documentable, no soportado aún |
+| `SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG` | Sistema web Angular, API, OIDC y PostgreSQL | candidate; documentable, no soportado aún |
+| `MSG-PYTHON-RABBITMQ-WORKER-OCI` | Worker event-driven RabbitMQ | candidate; documentable, no soportado aún |
+| `STR-PYTHON-KAFKA-PROCESSOR-OCI` | Procesador event-driven Kafka | candidate; documentable, no soportado aún |
+
+Los perfiles candidate contienen contrato, scaffold, locks y gates diseñados, pero no se promocionan a active ni a `supported` sin ejecutar y registrar su gate completo. Esta distinción evita prometer soporte por el mero hecho de que una tecnología figure en el catálogo.
+
+## Gates y evidencia
+
+- **G2** autoriza preparar una tarea lista con gobierno, arquitectura, binding y lock coherentes.
+- **G3** ejecuta los gates obligatorios de cada perfil y el gate de composición exacta.
+- **G4** acredita promoción o entrega con revisión/árbol Git, build, digest de artefacto inmutable, entorno, smoke/observabilidad, autorización y recuperación.
+
+La revisión verificada no puede quedar en `null`: la evidencia 1.2 distingue commit o revisión de workspace, `tree_id`, hash del listado del árbol, build y digests. La promoción humana, merge o despliegue siguen requiriendo la autoridad definida por el proyecto; una ejecución técnica no los autoriza implícitamente.
+
+## Límites vigentes
+
+Codex es el único runtime soportado contractualmente. ImageGen es condicional y una propuesta visual no equivale a aprobación. La adopción estática no demuestra comportamiento productivo. Los perfiles candidate no son automatización soportada. Los canales semánticos, humanos, de activación, revisión documental y piloto sin observaciones reales permanecen `not-run`; candidate puede mantenerlos opcionales, pero `stable` no.
+
+La implementación no añade MCP, conectores, hooks, apps ni agentes ejecutables. Tampoco inventa dominio, selecciona tecnología, decide ramas, aprueba merges, publica, instala o despliega por cuenta de una persona autorizada.
 
 ## Evolución posterior
 
-La versión SemVer `0.7.0` no equivale al hito M6. M6 continúa cubriendo la ejecución completa del piloto, resolución de condiciones y publicación interna estable. Los canales semánticos, humanos, de activación, revisión documental o piloto sin observaciones reales permanecen `not-run`; candidate puede declararlos opcionales, pero `stable` no. MCP, conectores, hooks, apps, agentes y adaptaciones a otros asistentes solo se estudiarán si aparece una necesidad demostrada y mediante una decisión posterior.
+La versión SemVer `0.8.0` no equivale a M6 ni a una política corporativa aprobada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado. Los cambios del propio método seguirán siendo aditivos y migrables, con trazabilidad de transición.

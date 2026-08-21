@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.7.0
+# Capacidades y límites de LKS-SDD 0.8.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -11,22 +11,25 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Definir pantallas, flujos, estados e interacción cuando existe frontend.
 - Generar con ImageGen entre una y tres propuestas para un frontend nuevo o cambio visual material cuando el brief sea suficiente y la capacidad esté disponible; conservar validación, estado y activos trazables. Si no está disponible, declarar el fallback y el pendiente.
 - Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización documental autorizada.
-- Inicializar proyectos nuevos con método 1.1.0 y esquema 1.1, y validar proyectos 1.0 en modo de compatibilidad sin reescribirlos.
+- Inicializar proyectos nuevos con método 1.2.0 y esquema 1.2, y validar proyectos 1.0/1.1 en compatibilidad sin reescribirlos.
+- Definir y evolucionar `bounded-release`, `continuous-evolution` o `maintenance-stream`, incluyendo SemVer u otra política confirmada, Git/ramas, entornos, CI/CD, promoción inmutable, despliegue, recuperación y revisiones `CHG-###`.
+- Gestionar planes, releases y tareas mediante un tablero visual `PLAN/REL/TASK`, fichas independientes, estados, salud, progreso, dependencias, bloqueos, evidencias e historial.
+- Resolver arquitecturas multiunidad y multiperfil mediante `UNIT-###` y `BIND-###`, sin convertir familias o capabilities en composiciones homologadas.
 - Validar tablas, estados, propietarios de IDs, listas, rangos inclusivos `..`, relaciones y una matriz separada de datos, identidad, seguridad, privacidad e integraciones mediante un contrato declarativo común.
 - Evaluar readiness de un incremento con bloqueos explicables, separando `specification_readiness` de `automation_support`.
 - Comprobar trazabilidad en fase `preimplementation` hasta pruebas planificadas y en fase `verification` hasta evidencia ejecutada; un alcance vacío falla de forma explícita. El preflight resuelve además las relaciones del contrato activo y queda incompleto ante destinos inexistentes, históricos o no confirmados, con diagnósticos `LKS-ACTIVE-*`; sigue siendo un handoff estructural y no una evaluación completa de readiness.
 - Distinguir la huella documental completa de la huella del contrato activo, conservando historial sin convertir elementos rechazados, sustituidos o retirados en inputs de implementación.
-- Preparar el scaffold del perfil H0 para un incremento listo mediante preview y autorización.
-- Planificar verificaciones locales del perfil H0 para una implementación `in-progress` o `completed` del mismo incremento, y ejecutarlas o registrar evidencia solo cuando ese registro está `completed` y mantiene coherencia de perfil; incluye la integración opcional con PostgreSQL y Keycloak.
-- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0 o 1.0 → 1.1 de un solo salto y generar borradores cliente controlados.
+- Preparar de forma genérica y collision-safe cada perfil exacto activo de una selección TASK, copiando locks por binding mediante preview y autorización.
+- Verificar gates componibles G2/G3 y evidencia G4 contra commit/árbol/build/digests/entorno exactos, sin desplegar ni autorizar una entrega.
+- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0, 1.0 → 1.1 o 1.1 → 1.2 de un solo salto y generar borradores cliente controlados.
 - Ejecutar el harness candidate M4, comparar releases y conservar como `not-run` la evidencia aún no aportada.
 - Generar un bundle candidate de marketplace y preparar un piloto saneado que permanece bloqueado hasta completar su configuración externa.
 
 ## No disponibles todavía
 
-- Seleccionar una pila automáticamente o tratar el perfil H0 candidato como homologación corporativa.
-- Implementar o verificar automáticamente pilas distintas del perfil H0.
-- Migrar automáticamente proyectos al actualizar el plugin, encadenar saltos de esquema o aplicar una migración con entradas en `human_review_required`; cada entrada listada se resuelve explícitamente en los Markdown de origen. La `Identity` agregada se traslada a tres dominios `pending` para resolverlos después en 1.1, sin inferir referencias ni readiness.
+- Seleccionar una pila automáticamente o tratar un perfil activo como homologación corporativa.
+- Implementar mezclas arbitrarias, familias, capabilities aisladas o perfiles candidatos que no tengan certificación exacta de composición.
+- Migrar automáticamente al actualizar el plugin, encadenar saltos o convertir propuestas de gobierno, ramas, entornos o arquitectura en decisiones.
 - Normalizar o modernizar código existente durante la adopción.
 - Instalar automáticamente el bundle, desplegar, acceder a producción o aprobar excepciones.
 - Presentar la infraestructura M5 como un piloto ya ejecutado o una decisión `go` sin resultados reales.

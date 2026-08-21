@@ -7,9 +7,11 @@
 3. Especificación.
 4. Diseño de experiencia e interfaz, cuando resulte aplicable, incluida validación humana de prototipos visuales.
 5. Diseño técnico y decisiones.
-6. Planificación por incrementos.
-7. Readiness del incremento.
-8. Implementación autorizada del perfil seleccionado y verificación con evidencia.
+6. Gobierno de entrega: modelo, versionado, Git, entornos, CI/CD, despliegue y recuperación.
+7. Arquitectura por unidades y bindings de perfiles exactos.
+8. Planificación `PLAN/REL/TASK` y selección de una tarea ejecutable.
+9. Readiness conjunto de especificación, entrega y automatización.
+10. Implementación autorizada y verificación G3/G4 con evidencia exacta.
 
 El sistema resume la definición tras el encuadre, al cerrar un bloque funcional material, al consolidar solución, UX o decisiones técnicas, antes de readiness, cuando se reabre una dimensión suficiente, al pausar y cuando la persona lo solicita. Evita repetir el snapshot tras cambios menores y declara siempre fase y alcance o incremento. Los estados `unknown`, `partial`, `sufficient` y `not-applicable: motivo` se refieren al alcance indicado; no forman un porcentaje ni equivalen a aprobación.
 
@@ -31,6 +33,8 @@ Readiness muestra además dos ejes. `specification_readiness` evalúa si el cont
 
 La fase `preimplementation` exige una cadena no vacía desde requisitos confirmados hasta criterios, decisión o no aplicabilidad motivada, incremento y pruebas. La fase `verification` añade evidencia ejecutada y aplicable. Los elementos rechazados, sustituidos o retirados se conservan como historial, pero no alimentan el contrato activo.
 
+Una tarea recorre `backlog → ready → in-progress → in-review → done`; `blocked` y `cancelled` son estados explícitos. La tabla resume; la ficha conserva detalle e historial. `done` exige evidencia ligada a revisión, build, artefacto, entorno y gates. El modelo de entrega puede cambiar durante la vida del producto mediante un nuevo `CHG-###` y una transición efectiva, sin reescribir releases o evidencias anteriores.
+
 ## Evolución del contrato
 
-Las rutas nuevas y las adopciones materializadas con 0.7.0 usan método 1.1.0 y esquema 1.1. Un proyecto 1.0 puede continuar en modo de compatibilidad. Migrarlo es una operación explícita, reversible y de un salto. Toda entrada de `human_review_required` bloquea siempre la aplicación antes de escribir; la persona debe resolver cada entrada listada en los Markdown canónicos 1.0, validarlos y repetir el preview hasta que la lista quede vacía. Revisar la lista no confirma decisiones automáticamente. La `Identity` agregada no puede separarse en origen: se materializa como tres dominios `pending` con motivo, permite validar el resultado migrado y bloquea readiness hasta su resolución explícita en 1.1.
+Las rutas nuevas y adopciones materializadas con 0.8.0 usan método 1.2.0 y esquema 1.2. Los proyectos 1.0/1.1 continúan en compatibilidad. Cada salto es explícito y reversible. `1.1 → 1.2` crea el contrato de gobierno, arquitectura, planificación y tareas como pendiente; no confirma decisiones, perfiles ni evidencias.

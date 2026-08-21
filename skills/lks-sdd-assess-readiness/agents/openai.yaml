@@ -1,6 +1,6 @@
 interface:
   display_name: "Readiness LKS-SDD para Codex"
-  short_description: "Evalúa readiness antes de implementar con Codex"
-  default_prompt: "Usa $lks-sdd-assess-readiness para evaluar si este incremento puede implementarse con Codex."
+  short_description: "Evalúa G2, tareas, entrega y perfiles con Codex"
+  default_prompt: "Usa $lks-sdd-assess-readiness para evaluar si el incremento y su selección de tareas, gobierno y perfiles están listos para G2."
 policy:
   allow_implicit_invocation: true

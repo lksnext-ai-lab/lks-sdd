@@ -20,7 +20,7 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
-DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.7.0.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.8.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
 DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.6.1.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
@@ -298,7 +298,7 @@ def validate_catalog(value: Any) -> dict[str, Any]:
         )
     extension_cases = catalog.get("extension_cases")
     if not isinstance(extension_cases, list) or not extension_cases:
-        raise HarnessError("El catálogo debe declarar los casos de extensión v0.6.")
+        raise HarnessError("El catálogo debe declarar casos de extensión versionados.")
     extension_ids: set[str] = set()
     for case in extension_cases:
         if not isinstance(case, dict):
@@ -309,18 +309,25 @@ def validate_catalog(value: Any) -> dict[str, Any]:
         if case_id in ids or case_id in extension_ids:
             raise HarnessError(f"Caso de extensión duplicado: {case_id}")
         extension_ids.add(case_id)
-        if case.get("mode") not in {"semantic", "human"}:
-            raise HarnessError(
-                f"{case_id} debe requerir evaluación semántica o humana."
-            )
+        if case.get("mode") not in {"automated", "semantic", "human", "pilot"}:
+            raise HarnessError(f"Modo inválido en {case_id}.")
         if not isinstance(case.get("critical"), bool):
             raise HarnessError(f"{case_id} debe declarar critical como booleano.")
-        if case.get("evidence") != []:
+        evidence = case.get("evidence")
+        if not isinstance(evidence, list) or not all(
+            isinstance(item, str)
+            and re.fullmatch(r"(?:eval|test|profile):[A-Za-z0-9._-]+", item)
+            for item in evidence
+        ):
+            raise HarnessError(f"Evidencia inválida en {case_id}.")
+        if case.get("mode") == "automated" and not evidence:
+            raise HarnessError(f"{case_id} es automatizado pero no declara evidencia.")
+        if case.get("mode") in {"semantic", "human"} and evidence:
             raise HarnessError(
-                f"{case_id} no puede declarar evidencia antes de ejecutar el corpus de definición."
+                f"{case_id} no puede declarar evidencia antes de su ejecución controlada."
             )
-    if extension_ids != {"FX-20", "FX-21"}:
-        raise HarnessError("La extensión v0.6 debe declarar exactamente FX-20 y FX-21.")
+    if extension_ids != {f"FX-{index:02d}" for index in range(20, 28)}:
+        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-27.")
     if "definition-conversation" not in channels["candidate"].get("optional", []):
         raise HarnessError(
             "Candidate debe mostrar definition-conversation como evidencia opcional."
@@ -407,7 +414,14 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
             raise HarnessError(
                 f"{case_id} contiene dimensiones de revisión desconocidas."
             )
-    expected_ids = {"FX-01", *[case["id"] for case in catalog["extension_cases"]]}
+    expected_ids = {
+        "FX-01",
+        *[
+            case["id"]
+            for case in catalog["extension_cases"]
+            if case.get("mode") in {"semantic", "human"}
+        ],
+    }
     if ids != expected_ids:
         raise HarnessError(
             f"El corpus de definición no coincide con el catálogo: {sorted(ids ^ expected_ids)}"
@@ -994,7 +1008,14 @@ def run_automated(
         ),
         (
             "reference-profile-structure",
-            [sys.executable, "-X", "utf8", "scripts/validate_reference_profile.py"],
+            [
+                sys.executable,
+                "-X",
+                "utf8",
+                "scripts/validate_reference_profile.py",
+                "--all",
+                "--allow-unvalidated",
+            ],
             False,
             120,
         ),
@@ -1020,6 +1041,8 @@ def run_automated(
                     "-X",
                     "utf8",
                     "scripts/run_reference_profile_gate.py",
+                    "--profile",
+                    "WEB-FASTAPI-REACT-KEYCLOAK-PG",
                     "--runtime",
                     "docker",
                     "--containers",

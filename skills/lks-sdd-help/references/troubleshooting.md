@@ -10,11 +10,19 @@ Confirme la raíz. Un proyecto ChatGPT no concede acceso directo a una carpeta; 
 
 ## El índice es inválido
 
-Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.1 aplica el contrato estricto; uno 1.0 se valida en compatibilidad y puede mostrar avisos legacy. No reconstruya decisiones desde el índice, no sustituya Markdown humanos y no use la actualización del plugin como autorización de migración.
+Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.2 aplica gobierno, arquitectura, planes y tareas estrictos; 1.0/1.1 se validan en compatibilidad. No reconstruya decisiones desde el índice ni use la actualización como autorización de migración.
 
 ## Readiness está bloqueado
 
-Revise primero qué eje falla. `specification_readiness` comprueba alcance, requisitos, aceptación, decisiones, incremento y pruebas; `automation_support` comprueba la pila, el registro, el lock y los gates implementables. Una especificación lista con automatización no soportada no debe reescribirse ni cambiar de pila automáticamente. Un bloqueo de otro incremento no debe paralizar el evaluado.
+Revise primero qué eje falla. `specification_readiness` comprueba alcance y aceptación; `delivery_readiness`, gobierno/plan/release/tareas/dependencias; `automation_support`, cada perfil exacto, certificación y lock. Una especificación lista con automatización no soportada no debe cambiar de pila automáticamente. Un backlog independiente no bloquea la selección TASK.
+
+## El perfil aparece en el catálogo pero sigue `unsupported`
+
+Estar catalogado o tener scaffold no basta. Compruebe lifecycle, `certification-evidence.json`, hashes de descriptor/driver/scaffold/motor, todos los gates de capacidad, gate de composición y lock consumidor del `BIND-###`. Un candidato permanece documentable y analizable, pero no implementable automáticamente.
+
+## El tablero de tareas no valida
+
+Ejecute `tasks <project-root> validate` o `board`. Compruebe que fila y ficha coinciden, estado/progreso/salud son coherentes, dependencias no forman ciclos y cada bloqueo tiene un `PROB-###` abierto. Use `tasks transition --preview` y luego el hash autorizado; no edite solo una de las dos representaciones.
 
 ## La migración devuelve `human_review_required`
 
@@ -22,11 +30,11 @@ No repita el mismo comando con `--apply`: la operación se rechazará siempre an
 
 ## La trazabilidad pasa sin comprobar nada
 
-Eso no es válido en 0.7.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado debe señalar alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando ya deba existir evidencia ejecutada.
+Eso no es válido en 0.8.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
 
 ## La ejecución de verificación se bloquea aunque el plan existe
 
-Un plan puede anticipar checks mientras la implementación del mismo incremento está `in-progress`. Ejecutarlos o registrar `EVID-###` requiere que `.lks-sdd/project.json` conserve ese incremento, marque `implementation.status` como `completed` y use el mismo `profile_id` que `technology.selected_profile`. Corrija el registro de implementación; no fuerce los checks ni cree evidencia manual para eludir la puerta.
+Un plan puede anticipar checks mientras la implementación del mismo incremento está `in-progress`. Ejecutarlos o registrar `EVID-###` requiere que `.lks-sdd/project.json` conserve ese incremento, marque `implementation.status` como `completed`, mantenga las mismas `task_ids` y `profile_bindings`, y que cada lock consumidor coincida con la certificación exacta del perfil ligado. Corrija el registro de implementación; no fuerce los checks ni cree evidencia manual para eludir la puerta.
 
 ## El comando busca scripts en el proyecto consumidor
 
