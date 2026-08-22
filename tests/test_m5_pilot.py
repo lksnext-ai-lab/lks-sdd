@@ -13,7 +13,7 @@ from unittest.mock import patch
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-from build_candidate_package import PackageError, build  # noqa: E402
+from build_candidate_package import PackageError, SECRET_PATTERNS, build  # noqa: E402
 import run_quality_harness as quality_harness  # noqa: E402
 from manage_pilot import (  # noqa: E402
     PilotError,
@@ -355,6 +355,15 @@ def _quality_report() -> dict:
 
 
 class M5PilotTests(unittest.TestCase):
+    def test_secret_scanner_distinguishes_task_labels_from_openai_keys(self):
+        benign = b"task-definitions-marked-incomplete"
+        synthetic_key = b"credential=" + b"sk-" + (b"x" * 24)
+
+        self.assertFalse(any(pattern.search(benign) for pattern in SECRET_PATTERNS))
+        self.assertTrue(
+            any(pattern.search(synthetic_key) for pattern in SECRET_PATTERNS)
+        )
+
     def test_example_config_is_explicitly_blocked(self):
         example = json.loads(
             (PLUGIN_ROOT / "pilot" / "pilot-config.example.json").read_text(

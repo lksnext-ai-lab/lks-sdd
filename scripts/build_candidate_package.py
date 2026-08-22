@@ -141,7 +141,7 @@ EXCLUDED_PARTS = {
 SECRET_PATTERNS = (
     re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(rb"gh[pousr]_[A-Za-z0-9]{20,}"),
-    re.compile(rb"sk-(?:proj-)?[A-Za-z0-9_-]{20,}"),
+    re.compile(rb"(?<![A-Za-z0-9])sk-(?:proj-)?[A-Za-z0-9_-]{20,}"),
     re.compile(rb"AKIA[0-9A-Z]{16}"),
 )
 
