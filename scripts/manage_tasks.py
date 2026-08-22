@@ -18,10 +18,13 @@ from delivery_engine import (
     TASK_DETAIL_HEADERS,
     TASK_HEALTH,
     TASK_HEADERS,
+    TASK_DETAIL_HEADERS_V13,
     parse_tables,
     task_board,
     validate_delivery_contract,
 )
+from planning_engine import assess_authorization, assess_planning
+from validate_project import validate_project
 
 
 TRANSITIONS = {
@@ -30,7 +33,7 @@ TRANSITIONS = {
     "in-progress": {"in-review", "blocked", "cancelled"},
     "in-review": {"in-progress", "done", "blocked", "cancelled"},
     "blocked": {"backlog", "ready", "in-progress", "cancelled"},
-    "done": set(),
+    "done": {"backlog"},
     "cancelled": set(),
 }
 SYMBOLS = {
@@ -55,15 +58,23 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise TaskManagementError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") != "1.2":
-        raise TaskManagementError("La gestión PLAN/TASK requiere schema 1.2.")
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.2", "1.3"}:
+        raise TaskManagementError("La gestión PLAN/TASK requiere schema 1.2 o 1.3.")
     return path, value, original
 
 
 def _artifact_path(manifest: dict[str, Any], artifact_id: str) -> str:
+    expected = {
+        "ART-TASKS": "docs/lks-sdd/04-delivery/tasks.md",
+    }.get(artifact_id)
     for item in manifest.get("artifacts", []):
-        if item.get("id") == artifact_id:
-            return str(item["path"])
+        if isinstance(item, dict) and item.get("id") == artifact_id:
+            observed = str(item.get("path", ""))
+            if expected is not None and observed != expected:
+                raise TaskManagementError(
+                    f"{artifact_id} debe usar la ruta canónica {expected}."
+                )
+            return observed
     raise TaskManagementError(f"Falta {artifact_id} en el índice.")
 
 
@@ -141,8 +152,25 @@ def _replace_frontmatter_date(text: str, value: str) -> str:
 
 
 def _default_tracking(
-    target: str, current_progress: int
+    target: str,
+    current_progress: int,
+    current_health: str,
+    *,
+    schema_version: str,
 ) -> tuple[str, int]:
+    if schema_version == "1.3":
+        if target == "done":
+            return "on-track", 100
+        if target == "blocked":
+            return "blocked", current_progress
+        if target == "cancelled":
+            return "unknown", current_progress
+        # Progress is an observation, not a workflow-state estimate. Preserve
+        # it unless the caller supplies --progress explicitly.
+        return (
+            "unknown" if current_health == "blocked" else current_health,
+            current_progress,
+        )
     if target == "backlog":
         return "unknown", 0
     if target == "ready":
@@ -169,6 +197,16 @@ def _safe_cell(label: str, value: str | None, *, required: bool = False) -> str 
     if "|" in normalized or "\n" in normalized or "\r" in normalized:
         raise TaskManagementError(f"{label} no puede contener barras de tabla ni saltos de línea.")
     return normalized
+
+
+def _observed_evidence(value: str | None) -> bool:
+    normalized = (value or "").strip().casefold()
+    return normalized not in {
+        "", "pending", "none", "unknown", "not-run", "not-applicable",
+        "tbd", "todo",
+    } and not normalized.startswith(
+        ("pending:", "unknown:", "not-run:", "tbd:", "todo:")
+    )
 
 
 def _next_problem_id(detail_text: str) -> str:
@@ -205,6 +243,119 @@ def _preview_hash(
     return digest.hexdigest()
 
 
+def _require_verified_done_evidence(
+    root: Path,
+    manifest: dict[str, Any],
+    row: dict[str, str],
+    *,
+    task_id: str,
+    evidence_id: str,
+    revision: str,
+    build_id: str,
+    artifact_digest: str,
+    environment: str,
+    gate_ids: list[str],
+) -> None:
+    """Reject a 1.3 done claim unless it matches recorded verification bytes."""
+
+    verification = manifest.get("verification")
+    if not isinstance(verification, dict) or verification.get("status") != "verified":
+        raise TaskManagementError(
+            "done en schema 1.3 exige una verificación canónica con status=verified."
+        )
+    if verification.get("increment") != row.get("Increment"):
+        raise TaskManagementError("La verificación no pertenece al incremento de la tarea.")
+    if task_id not in verification.get("task_ids", []):
+        raise TaskManagementError(f"La verificación no incluye {task_id}.")
+    if evidence_id not in verification.get("evidence_ids", []):
+        raise TaskManagementError(f"La verificación no enlaza {evidence_id}.")
+    comparisons = {
+        "revision": (revision, verification.get("revision")),
+        "build": (build_id, verification.get("build_id")),
+        "environment": (environment, verification.get("environment")),
+    }
+    for label, (requested, recorded) in comparisons.items():
+        if requested != recorded:
+            raise TaskManagementError(
+                f"El {label} declarado para done no coincide con la verificación."
+            )
+    if artifact_digest not in verification.get("artifact_digests", []):
+        raise TaskManagementError(
+            "El artifact-digest declarado para done no coincide con la verificación."
+        )
+    if not set(gate_ids) <= set(verification.get("gate_ids", [])):
+        raise TaskManagementError(
+            "Los gates declarados para done no coinciden con la verificación."
+        )
+
+    evidence_path = root / "docs" / "lks-sdd" / "evidence" / f"{evidence_id}.json"
+    if evidence_path.is_symlink() or not evidence_path.is_file():
+        raise TaskManagementError(f"No existe evidencia canónica regular para {evidence_id}.")
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise TaskManagementError(
+            f"No se puede validar la evidencia canónica {evidence_id}: {exc}"
+        ) from exc
+    if not isinstance(evidence, dict):
+        raise TaskManagementError(f"La evidencia {evidence_id} no es un objeto JSON.")
+    evidence_checks = [
+        item for item in evidence.get("checks", []) if isinstance(item, dict)
+    ]
+    evidence_mismatches = []
+    if evidence.get("evidence_id") != evidence_id:
+        evidence_mismatches.append("evidence_id")
+    if evidence.get("classification") != "verified":
+        evidence_mismatches.append("classification")
+    if evidence.get("increment") != row.get("Increment"):
+        evidence_mismatches.append("increment")
+    if task_id not in evidence.get("task_ids", []):
+        evidence_mismatches.append("task_ids")
+    if evidence.get("revision") != revision:
+        evidence_mismatches.append("revision")
+    if evidence.get("build_id") != build_id:
+        evidence_mismatches.append("build_id")
+    if artifact_digest not in evidence.get("artifact_digests", []):
+        evidence_mismatches.append("artifact_digests")
+    if evidence.get("environment") != environment:
+        evidence_mismatches.append("environment")
+    verification_execution_id = verification.get("execution_id")
+    if verification_execution_id is not None and evidence.get(
+        "execution_id"
+    ) != verification_execution_id:
+        evidence_mismatches.append("execution_id")
+    for gate_id in gate_ids:
+        outcomes = [
+            item.get("status")
+            for item in evidence_checks
+            if item.get("gate_id") == gate_id
+        ]
+        if not outcomes or any(status != "passed" for status in outcomes):
+            evidence_mismatches.append(f"gate:{gate_id}")
+    if evidence_mismatches:
+        raise TaskManagementError(
+            f"{evidence_id} no demuestra done: "
+            + ", ".join(sorted(set(evidence_mismatches)))
+            + "."
+        )
+
+    execution_matches = [
+        item
+        for item in manifest.get("executions", [])
+        if isinstance(item, dict)
+        and task_id in item.get("task_ids", [])
+        and evidence_id in item.get("evidence_ids", [])
+        and (
+            verification_execution_id is None
+            or item.get("execution_id") == verification_execution_id
+        )
+    ]
+    if not execution_matches:
+        raise TaskManagementError(
+            f"{evidence_id} no está enlazada a una EXEC-### que incluya {task_id}."
+        )
+
+
 def _transition(
     root: Path, manifest: dict[str, Any], args: argparse.Namespace
 ) -> tuple[bytes, bytes, dict[str, Any], dict[str, Any]]:
@@ -216,11 +367,119 @@ def _transition(
     row = validated["tasks"].get(args.task)
     if row is None:
         raise TaskManagementError(f"No existe {args.task}.")
+    planning_snapshot = (
+        assess_planning(root, manifest, row["Increment"], release=row["Release"])
+        if manifest.get("schema_version") == "1.3"
+        else None
+    )
     current = row["Workflow state"]
     if args.to_state not in TRANSITIONS.get(current, set()):
         raise TaskManagementError(
             f"Transición no permitida: {current} -> {args.to_state}."
         )
+    if args.to_state in {"ready", "in-progress", "in-review"}:
+        dependency_ids = re.findall(
+            r"\bTASK-[0-9]{3}\b", row.get("Dependencies", "")
+        )
+        unresolved = [
+            dependency
+            for dependency in dependency_ids
+            if validated["tasks"].get(dependency, {}).get("Workflow state")
+            != "done"
+        ]
+        if unresolved:
+            raise TaskManagementError(
+                f"{args.task} no puede pasar a {args.to_state}: dependencias no done: "
+                + ", ".join(sorted(set(unresolved)))
+                + ". cancelled no equivale a resuelta."
+            )
+    if (
+        manifest.get("schema_version") == "1.3"
+        and args.to_state in {"ready", "in-progress", "in-review", "done"}
+        and args.task not in planning_snapshot.get("tasks", {}).get(
+            "executable", []
+        )
+    ):
+        missing = next(
+            (
+                item.get("missing", [])
+                for item in planning_snapshot.get("tasks", {}).get(
+                    "incomplete", []
+                )
+                if item.get("task") == args.task
+            ),
+            [],
+        )
+        raise TaskManagementError(
+            f"{args.task} no tiene una definición ejecutable"
+            + (": " + ", ".join(missing) if missing else "")
+            + "."
+        )
+    if (
+        manifest.get("schema_version") == "1.3"
+        and args.to_state in {"in-progress", "in-review", "done"}
+    ):
+        current_authorization = assess_authorization(
+            manifest, planning_snapshot, [args.task]
+        )
+        if current_authorization.get("status") != "authorized":
+            raise TaskManagementError(
+                f"{args.task} no puede pasar a {args.to_state} sin una AUTH-### vigente para los fingerprints actuales."
+            )
+        execution_matches = [
+            item
+            for item in manifest.get("executions", [])
+            if isinstance(item, dict)
+            and args.task in item.get("task_ids", [])
+            and item.get("status")
+            in {"in-progress", "in-review", "paused", "blocked"}
+        ]
+        if len(execution_matches) != 1:
+            raise TaskManagementError(
+                f"{args.task} necesita una única EXEC-### activa; inicie tareas ready mediante implement apply o reconcilie la ejecución."
+            )
+        if execution_matches[0].get("authorization_id") != current_authorization.get(
+            "authorization_id"
+        ):
+            raise TaskManagementError(
+                "La ejecución activa no está ligada a la autorización vigente."
+            )
+    if current == "done" and args.to_state == "backlog":
+        if args.classification == "new-scope":
+            raise TaskManagementError(
+                "El alcance nuevo debe crear otra TASK; no reabra una tarea terminada."
+            )
+        if args.classification != "original-contract-failure" or not re.fullmatch(
+            r"PCH-[0-9]{3}", args.change_id or ""
+        ):
+            raise TaskManagementError(
+                "Reabrir done exige --classification original-contract-failure y --change-id PCH-###."
+            )
+        if manifest.get("schema_version") != "1.3":
+            raise TaskManagementError("La reapertura controlada requiere schema 1.3.")
+        planning = assess_planning(root, manifest, row["Increment"], release=row["Release"])
+        matching_changes = [
+            item
+            for item in planning.get("change_impact", {}).get(
+                "applicable_confirmed_changes", []
+            )
+            if item.get("id") == args.change_id
+            and item.get("classification") == "original-contract-failure"
+            and args.task in item.get("affected_tasks", [])
+        ]
+        if len(matching_changes) != 1:
+            raise TaskManagementError(
+                f"{args.change_id} no confirma un fallo del contrato original que afecte a {args.task}."
+            )
+        if any(
+            item.get("state") == "authorized"
+            and args.task in item.get("task_ids", [])
+            for item in manifest.get("authorizations", [])
+            if isinstance(item, dict)
+        ):
+            raise TaskManagementError(
+                "Invalide primero en Markdown e índice las autorizaciones que incluyen la tarea."
+            )
     try:
         transition_date = date.fromisoformat(args.date).isoformat()
     except ValueError as exc:
@@ -235,7 +494,12 @@ def _transition(
     environment = _safe_cell("--environment", args.environment)
     evidence = _safe_cell("--evidence", args.evidence)
     current_progress = int(row["Progress"])
-    health, progress = _default_tracking(args.to_state, current_progress)
+    health, progress = _default_tracking(
+        args.to_state,
+        current_progress,
+        row.get("Health", "unknown"),
+        schema_version=str(manifest.get("schema_version")),
+    )
     if args.health is not None:
         health = args.health
     if args.progress is not None:
@@ -279,6 +543,60 @@ def _transition(
         if not re.fullmatch(r"sha256:[a-f0-9]{64}", args.artifact_digest):
             raise TaskManagementError(
                 "--artifact-digest debe usar sha256:<64 hex>."
+            )
+        detail_contract = validated.get("task_details", {}).get(args.task, {})
+        definition_rows = detail_contract.get("definition", [])
+        required_gates = set(
+            re.findall(
+                r"\bGATE-[A-Z0-9-]{3,80}\b",
+                definition_rows[0].get("Technical gates", "")
+                if len(definition_rows) == 1
+                else "",
+            )
+        )
+        missing_gates = sorted(required_gates - set(args.gate))
+        if missing_gates:
+            raise TaskManagementError(
+                "done exige todos los gates técnicos de la tarea: "
+                + ", ".join(missing_gates)
+                + "."
+            )
+        if manifest.get("schema_version") == "1.3":
+            _require_verified_done_evidence(
+                root,
+                manifest,
+                row,
+                task_id=args.task,
+                evidence_id=evidence,
+                revision=revision,
+                build_id=build,
+                artifact_digest=args.artifact_digest,
+                environment=environment,
+                gate_ids=args.gate,
+            )
+        deliverables = detail_contract.get("deliverables", [])
+        unfinished_deliverables = [
+            item.get("Deliverable", "unnamed deliverable")
+            for item in deliverables
+            if item.get("State") not in {"done", "verified"}
+            or not _observed_evidence(item.get("Evidence"))
+        ]
+        if not deliverables or unfinished_deliverables:
+            raise TaskManagementError(
+                "done exige todos los entregables terminados y con evidencia: "
+                + ", ".join(unfinished_deliverables or ["no deliverables declared"])
+                + "."
+            )
+        open_issues = [
+            item.get("ID", "PROB")
+            for item in detail_contract.get("issues", [])
+            if item.get("State") in {"open", "blocked"}
+        ]
+        if open_issues:
+            raise TaskManagementError(
+                "done no admite problemas abiertos: "
+                + ", ".join(open_issues)
+                + "."
             )
     blocker = blocker_text if args.to_state == "blocked" else "none"
     board_path = root / _artifact_path(manifest, "ART-TASKS")
@@ -351,7 +669,11 @@ def _transition(
             transition_date,
             current,
             args.to_state,
-            reason,
+            (
+                f"{reason} ({args.change_id}: original-contract-failure)"
+                if current == "done" and args.to_state == "backlog"
+                else reason
+            ),
             actor,
             evidence or "not-applicable",
         ],
@@ -377,7 +699,15 @@ def _transition(
         acceptance_ids = re.findall(
             r"\bAC-[0-9]{3}\b", definition.get("Acceptance", "")
         ) or [definition.get("Acceptance", "confirmed acceptance")]
-        for acceptance in acceptance_ids:
+        test_ids = []
+        if manifest.get("schema_version") == "1.3":
+            plan = _single_detail_row(
+                detail_text, TASK_DETAIL_HEADERS_V13["plan"]
+            )
+            test_ids = re.findall(
+                r"\bTEST-[0-9]{3}\b", plan.get("Tests", "")
+            )
+        for acceptance in list(dict.fromkeys([*acceptance_ids, *test_ids])):
             detail_text = _append_table_row(
                 detail_text,
                 TASK_DETAIL_HEADERS["validation"],
@@ -391,13 +721,206 @@ def _transition(
                     environment,
                 ],
             )
+    if (
+        manifest.get("schema_version") == "1.3"
+        and current == "done"
+        and args.to_state == "backlog"
+    ):
+        continuity = TASK_DETAIL_HEADERS_V13["continuity"]
+        detail_text = _replace_table_row(
+            detail_text,
+            continuity,
+            _single_detail_row(detail_text, continuity)["Definition status"],
+            {
+                "Definition status": "stale",
+                "Authorization": "none",
+                "Authorization scope": "none",
+                "Next safe action": "reconcile original contract failure and replan",
+            },
+        )
     board_text = _replace_frontmatter_date(board_text, transition_date)
     detail_text = _replace_frontmatter_date(detail_text, transition_date)
     updated_manifest = json.loads(json.dumps(manifest))
+    prospective_states = {
+        task_id: (
+            args.to_state
+            if task_id == args.task
+            else task_row.get("Workflow state")
+        )
+        for task_id, task_row in validated["tasks"].items()
+    }
     if args.to_state in {"in-progress", "in-review", "blocked"}:
         updated_manifest["active_task"] = args.task
     elif updated_manifest.get("active_task") == args.task:
         updated_manifest["active_task"] = None
+    if manifest.get("schema_version") == "1.3":
+        active_tasks = set(updated_manifest.get("active_tasks", []))
+        if args.to_state in {"in-progress", "in-review", "blocked"}:
+            active_tasks.add(args.task)
+        else:
+            active_tasks.discard(args.task)
+        updated_manifest["active_tasks"] = sorted(active_tasks)
+        if len(active_tasks) != 1:
+            updated_manifest["active_task"] = None
+        for execution in updated_manifest.get("executions", []):
+            if not isinstance(execution, dict) or args.task not in execution.get(
+                "task_ids", []
+            ):
+                continue
+            # EXEC records are historical once terminal. Reopening a task must
+            # not rewrite a completed/cancelled execution; a subsequent
+            # authorized implementation creates a new EXEC instead.
+            if execution.get("status") in {"completed", "cancelled"}:
+                continue
+            states = {
+                prospective_states.get(task_id, "cancelled")
+                for task_id in execution.get("task_ids", [])
+            }
+            execution["status"] = (
+                "blocked"
+                if "blocked" in states
+                else "in-progress"
+                if "in-progress" in states
+                else "in-review"
+                if "in-review" in states
+                else "completed"
+                if states and states <= {"done"}
+                else "cancelled"
+                if states and states <= {"cancelled"}
+                else "paused"
+            )
+        implementation = updated_manifest.get("implementation")
+        if isinstance(implementation, dict) and args.task in implementation.get(
+            "task_ids", []
+        ):
+            implementation_states = {
+                prospective_states.get(task_id, "cancelled")
+                for task_id in implementation.get("task_ids", [])
+            }
+            implementation["status"] = (
+                "blocked"
+                if implementation_states & {"blocked", "cancelled"}
+                else "in-progress"
+                if implementation_states
+                - {"in-review", "done"}
+                else "completed"
+            )
+        if current == "done" and args.to_state == "backlog":
+            updated_manifest["planning"].update(
+                {
+                    "specification_fingerprint": None,
+                    "planning_fingerprint": None,
+                    "confirmed_by_role": None,
+                    "confirmed_on": None,
+                    "last_change": args.change_id,
+                }
+            )
+            if (
+                isinstance(implementation, dict)
+                and args.task in implementation.get("task_ids", [])
+            ):
+                implementation["status"] = "blocked"
+            verification = updated_manifest.get("verification")
+            if (
+                isinstance(verification, dict)
+                and args.task in verification.get("task_ids", [])
+            ):
+                verification["status"] = "not-verified"
+                verification["limitations"] = list(
+                    dict.fromkeys(
+                        [
+                            *verification.get("limitations", []),
+                            f"Invalidated for current planning by {args.change_id}; prior evidence remains historical.",
+                        ]
+                    )
+                )
+    release_id = row.get("Release")
+    release_states = {
+        task_id: prospective_states[task_id]
+        for task_id, task_row in validated["tasks"].items()
+        if task_row.get("Release") == release_id
+    }
+    release_complete = bool(release_states) and all(
+        state == "done" for state in release_states.values()
+    )
+    completed_tasks = sorted(
+        task_id for task_id, state in prospective_states.items() if state == "done"
+    )
+    in_progress_tasks = sorted(
+        task_id
+        for task_id, state in prospective_states.items()
+        if state in {"in-progress", "in-review"}
+    )
+    pending_tasks = sorted(
+        task_id
+        for task_id, state in prospective_states.items()
+        if state in {"backlog", "ready"}
+    )
+    blocked_tasks = sorted(
+        task_id
+        for task_id, state in prospective_states.items()
+        if state in {"blocked", "cancelled"}
+    )
+    planning_status = (
+        planning_snapshot.get("status") if planning_snapshot is not None else "legacy"
+    )
+    planning_integrity = (
+        planning_snapshot.get("integrity")
+        if planning_snapshot is not None
+        else "not-assessed"
+    )
+    planning_pending: list[str] = []
+    if planning_snapshot is not None and (
+        planning_status != "complete" or planning_integrity != "valid"
+    ):
+        planning_pending.append(
+            f"Planificación de {planning_snapshot['target']['id']}: "
+            f"{planning_status}/{planning_integrity}."
+        )
+        unassigned = planning_snapshot.get("coverage", {}).get(
+            "unassigned_items", []
+        )
+        if unassigned:
+            planning_pending.append(
+                "Contrato sin tarea primaria: " + ", ".join(unassigned) + "."
+            )
+    release_plan_complete = (
+        planning_snapshot is None
+        or (planning_status == "complete" and planning_integrity == "valid")
+    )
+    if release_complete and not release_plan_complete:
+        planning_phase = (
+            "invalid" if planning_integrity == "invalid" else planning_status
+        )
+        where_we_are = f"release-tasks-complete-planning-{planning_phase}"
+        next_step = (
+            "Completar o reconciliar la planificación y cubrir el contrato pendiente "
+            "antes de presentar, verificar conjuntamente o promover la release completa."
+        )
+        human_decision = (
+            "Confirmar la descomposición o replanificación restante; la terminación de "
+            "las tareas registradas no autoriza la release completa."
+        )
+    elif release_complete:
+        where_we_are = "release-tasks-complete"
+        next_step = "Crear o actualizar el checkpoint y ejecutar la verificación conjunta de la release antes de promoverla."
+        human_decision = "Autorizar la verificación o promoción solo después de revisar evidencia y gates reales."
+    elif args.to_state == "blocked":
+        where_we_are = "task-blocked"
+        next_step = "Crear un checkpoint, resolver o replanificar el bloqueo y continuar solo tareas independientes ready."
+        human_decision = "Decidir cómo resolver, sustituir o aceptar el bloqueo sin fingir progreso."
+    elif args.to_state == "done":
+        where_we_are = "task-done"
+        next_step = "Crear un checkpoint, comprobar dependencias desbloqueadas y seleccionar la siguiente tarea segura."
+        human_decision = "Ninguna nueva salvo que la siguiente porción o la verificación requieran autorización."
+    elif args.to_state == "in-review":
+        where_we_are = "task-in-review"
+        next_step = "Revisar aceptación, gates, revisión y artefacto antes de permitir done."
+        human_decision = "Aceptar o rechazar la revisión con evidencia concreta."
+    else:
+        where_we_are = f"task-{args.to_state}"
+        next_step = "Continuar la definición autorizada y actualizar el checkpoint antes de cualquier pausa."
+        human_decision = "Ninguna nueva mientras alcance, dependencias y autorización sigan vigentes."
     payload = {
         "task": args.task,
         "from": current,
@@ -409,6 +932,23 @@ def _transition(
         "date": transition_date,
         "blocker": blocker,
         "evidence": evidence,
+        "planning_status": planning_status,
+        "planning_integrity": planning_integrity,
+        "checkpoint_required": manifest.get("schema_version") == "1.3",
+        "next_command": (
+            "continuity checkpoint"
+            if manifest.get("schema_version") == "1.3"
+            else None
+        ),
+        "transition_summary": {
+            "where_we_are": where_we_are,
+            "completed": completed_tasks,
+            "in_progress": in_progress_tasks,
+            "pending": pending_tasks + planning_pending,
+            "blocked": blocked_tasks,
+            "next_step": next_step,
+            "human_decision": human_decision,
+        },
     }
     return (
         board_text.encode("utf-8"),
@@ -462,8 +1002,8 @@ def _print_board(board: dict[str, Any]) -> None:
             state = row["Workflow state"]
             print(
                 f" {SYMBOLS.get(state, '?')} {row['task_id']} "
-                f"{row['Title']} · {state} · {row['Progress']}% · "
-                f"{row['Health']} · {row['Release']}"
+                f"{row['Title']} · {state} · definición {row.get('definition_status', 'legacy')} · "
+                f"{row['Health']} · {row['Release']} · checkpoint {row.get('checkpoint', 'none')}"
             )
 
 
@@ -491,6 +1031,10 @@ def main() -> int:
     transition.add_argument("--artifact-digest")
     transition.add_argument("--gate", action="append")
     transition.add_argument("--evidence")
+    transition.add_argument(
+        "--classification", choices=("original-contract-failure", "new-scope")
+    )
+    transition.add_argument("--change-id")
     mode = transition.add_mutually_exclusive_group(required=True)
     mode.add_argument("--preview", action="store_true")
     mode.add_argument("--apply", action="store_true")
@@ -516,6 +1060,8 @@ def main() -> int:
             return 0 if result["valid"] else 2
 
         board_path = root / _artifact_path(manifest, "ART-TASKS")
+        if not re.fullmatch(r"TASK-[0-9]{3}", args.task):
+            raise TaskManagementError("--task debe usar TASK-###.")
         detail_path = (
             root / "docs/lks-sdd/04-delivery/tasks" / f"{args.task}.md"
         )
@@ -537,6 +1083,17 @@ def main() -> int:
             **payload,
         }
         if args.preview:
+            result["transition_summary"] = {
+                "where_we_are": "task-transition-preview",
+                "completed": [],
+                "in_progress": [],
+                "pending": [
+                    f"Transición propuesta {payload['task']}: {payload['from']} → {payload['to']}; todavía no aplicada."
+                ],
+                "blocked": [],
+                "next_step": "Revisar estado, evidencia, dependencias y checkpoint antes de aplicar.",
+                "human_decision": "Aplicar o rechazar la transición propuesta.",
+            }
             if args.as_json:
                 print(json.dumps(result, indent=2, ensure_ascii=False))
             else:
@@ -553,14 +1110,16 @@ def main() -> int:
             [board_new, detail_new, manifest_new_bytes],
         )
         final = validate_delivery_contract(root, manifest_new)
-        if final["errors"]:
+        report, _, _ = validate_project(root)
+        if final["errors"] or not report.valid:
             _apply_atomic(
                 [board_path, detail_path, manifest_path],
                 [board_new, detail_new, manifest_new_bytes],
                 [board_original, detail_original, manifest_original],
             )
             raise TaskManagementError(
-                "La transición se revirtió: " + "; ".join(final["errors"])
+                "La transición se revirtió: "
+                + "; ".join(list(final["errors"]) + list(report.errors))
             )
         result.update({"status": "applied", "changed": True})
         if args.as_json:

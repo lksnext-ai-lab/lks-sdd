@@ -11,9 +11,9 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "0.8.0"
-METHOD_VERSION = "1.2.0"
-SCHEMA_VERSION = "1.2"
+PLUGIN_VERSION = "0.9.0"
+METHOD_VERSION = "1.3.0"
+SCHEMA_VERSION = "1.3"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 CODE_EXTENSIONS = {
@@ -71,6 +71,7 @@ ARTIFACTS = [
     ("ART-GOVERNANCE", "04-delivery/delivery-governance.md"),
     ("ART-PLANS", "04-delivery/plans.md"),
     ("ART-TASKS", "04-delivery/tasks.md"),
+    ("ART-PLANNING", "04-delivery/planning-coverage.md"),
     ("ART-RISK", "04-delivery/risks-dependencies.md"),
     ("ART-QUALITY", "05-quality/quality-strategy.md"),
     ("ART-TEST-STRATEGY", "05-quality/test-strategy.md"),
@@ -196,6 +197,7 @@ def build_manifest(
         "active_increment": None,
         "active_plan": "PLAN-001",
         "active_task": None,
+        "active_tasks": [],
         "delivery_governance": {
             "state": "proposed",
             "model": None,
@@ -212,6 +214,20 @@ def build_manifest(
             "integration_branch": None,
             "decision": None,
         },
+        "planning": {
+            "source": "docs/lks-sdd/04-delivery/planning-coverage.md",
+            "target_type": "release",
+            "target_id": "REL-001",
+            "policy": "complete-before-implementation",
+            "policy_decision": None,
+            "specification_fingerprint": None,
+            "planning_fingerprint": None,
+            "confirmed_by_role": None,
+            "confirmed_on": None,
+            "last_change": None,
+        },
+        "authorizations": [],
+        "executions": [],
         "last_verified_revision": None,
     }
 

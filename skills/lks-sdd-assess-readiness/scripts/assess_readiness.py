@@ -27,7 +27,8 @@ from validate_project import (  # noqa: E402
     validate_project,
 )
 from profile_registry import resolve_profile  # noqa: E402
-from delivery_engine import delivery_readiness  # noqa: E402
+from delivery_engine import delivery_readiness, validate_delivery_contract  # noqa: E402
+from planning_engine import assess_authorization, assess_planning, next_tasks  # noqa: E402
 from contract_engine import (  # noqa: E402
     RelationSpec,
     build_project_model,
@@ -121,7 +122,7 @@ def _assess_domains(
     increment: dict[str, str],
     result: dict[str, Any],
 ) -> None:
-    if manifest.get("schema_version") not in {"1.1", "1.2"}:
+    if manifest.get("schema_version") not in {"1.1", "1.2", "1.3"}:
         _domain_references(result, increment, definitions, "Data", "datos", {"DATA"})
         _domain_references(
             result,
@@ -483,7 +484,7 @@ def _assess_visual_contract(
 
 
 def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
-    """Expose specification and automation outcomes without duplicate diagnostics."""
+    """Expose orthogonal phase outcomes and one unambiguous next action."""
     specification_blockers = list(dict.fromkeys(result.get("blockers", [])))
     pending = list(dict.fromkeys(result.get("non_blocking_pending", [])))
     specification_status = (
@@ -505,12 +506,78 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
     ]
     result["blockers"] = list(dict.fromkeys(combined))
     result["non_blocking_pending"] = pending
-    if result["blockers"]:
-        result["status"] = "blocked"
-    elif pending:
-        result["status"] = "ready-with-non-blocking-pending"
+    delivery = result.get("delivery_readiness", {})
+    planning = result.get("planning_completeness", {})
+    authorization = result.get("implementation_authorization", {})
+    manifest_phase = result.pop("_manifest_phase", {})
+    implementation = manifest_phase.get("implementation", "not-started")
+    verification = manifest_phase.get("verification", "not-run")
+    delivery_state = manifest_phase.get("delivery", "not-started")
+    result["phase_states"] = {
+        "specification": specification_status,
+        "architecture_and_automation": automation.get("status", "not-assessed"),
+        "planning_completeness": planning.get("status", "not-assessed"),
+        "planning_integrity": planning.get("integrity", "not-assessed"),
+        "selected_portion": delivery.get("status", "not-assessed"),
+        "implementation": implementation,
+        "verification": verification,
+        "delivery": delivery_state,
+    }
+    if specification_blockers:
+        action = "specification-blocked"
+        recommendation = "Resolver los bloqueos de especificación del alcance evaluado."
+    elif automation_blockers:
+        action = "automation-blocked"
+        recommendation = "Resolver el soporte de automatización o cambiar una decisión técnica confirmada."
+    elif planning.get("integrity") == "invalid":
+        action = "replanning-required"
+        recommendation = "Corregir incoherencias de cobertura o dependencias antes de implementar."
+    elif planning.get("status") == "stale":
+        action = "reconciliation-required"
+        recommendation = "Reconciliar el cambio y volver a confirmar los fingerprints de planificación."
+    elif planning.get("status") != "complete" and not planning.get(
+        "partial_implementation_policy_satisfied"
+    ):
+        action = "planning-required"
+        recommendation = "Completar y validar la planificación antes de iniciar la implementación."
+    elif delivery.get("status") != "ready":
+        action = "selected-portion-blocked"
+        recommendation = "Seleccionar o completar una tarea ready con todas sus dependencias done."
+    elif authorization.get("status") != "authorized":
+        action = "ready-for-implementation-authorization"
+        recommendation = "Revisar el plan y registrar una autorización humana delimitada por tareas y fingerprints."
     else:
-        result["status"] = "ready"
+        action = "ready-to-implement"
+        recommendation = "Iniciar o reanudar las tareas autorizadas y mantener su checkpoint."
+    result["status"] = action
+    result["recommended_next_step"] = recommendation
+    result["implementation_authorized"] = authorization.get("status") == "authorized"
+    decision = (
+        "Confirmar la descomposición integral; alternativamente autorizar planificación incremental con una ADR explícita, o pausar con checkpoint."
+        if action == "planning-required"
+        else "Autorizar o no la implementación de la porción indicada."
+        if action == "ready-for-implementation-authorization"
+        else "Resolver la reconciliación o replanificación propuesta."
+        if action in {"reconciliation-required", "replanning-required"}
+        else "Ninguna decisión humana nueva; conservar los límites de la autorización vigente."
+        if action == "ready-to-implement"
+        else "Resolver los bloqueos indicados."
+    )
+    result["human_decision_required"] = decision
+    result["transition_summary"] = {
+        "where_we_are": action,
+        "completed": result.pop("_completed_summary", []),
+        "in_progress": manifest_phase.get("active_tasks", []),
+        "pending": planning.get("gaps", []),
+        "blocked": list(dict.fromkeys(
+            specification_blockers
+            + automation_blockers
+            + delivery.get("blockers", [])
+            + planning.get("integrity_errors", [])
+        )),
+        "next_step": recommendation,
+        "human_decision": decision,
+    }
     return result
 
 
@@ -561,6 +628,8 @@ def assess(
             "Este resultado no autoriza implementación."
         ],
         "implementation_authorized": False,
+        "_manifest_phase": {},
+        "_completed_summary": [],
     }
     if not re.fullmatch(r"INC-[0-9]{3}", increment_id):
         result["blockers"].append("El identificador debe usar el formato INC-###.")
@@ -579,15 +648,75 @@ def assess(
         if item.severity == "error"
     )
 
-    if str(manifest.get("schema_version")) == "1.2":
+    prefix_counts: dict[str, int] = {}
+    for item_id in active_contract.node_ids:
+        prefix = item_id.split("-", 1)[0]
+        prefix_counts[prefix] = prefix_counts.get(prefix, 0) + 1
+    result["_completed_summary"] = [
+        f"Alcance activo de {increment_id} resuelto desde Markdown canónico.",
+        (
+            f"Requisitos activos: {sum(prefix_counts.get(prefix, 0) for prefix in ('FR', 'NFR', 'TR', 'BR'))}; "
+            f"criterios de aceptación: {prefix_counts.get('AC', 0)}; pruebas planificadas: {prefix_counts.get('TEST', 0)}."
+        ),
+        f"Decisiones activas trazadas: {prefix_counts.get('ADR', 0)}.",
+    ]
+    executions = [
+        item for item in manifest.get("executions", []) if isinstance(item, dict)
+    ]
+    active_execution_states = sorted(
+        {
+            str(item.get("status"))
+            for item in executions
+            if item.get("status")
+            in {"in-progress", "in-review", "paused", "blocked"}
+        }
+    )
+    terminal_execution_states = sorted(
+        {str(item.get("status")) for item in executions}
+    )
+    legacy_implementation = manifest.get("implementation", {})
+    implementation_state: Any = (
+        active_execution_states[0]
+        if len(active_execution_states) == 1
+        else "mixed-active"
+        if active_execution_states
+        else terminal_execution_states[0]
+        if len(terminal_execution_states) == 1
+        else "mixed-terminal"
+        if terminal_execution_states
+        else legacy_implementation.get("status", "not-started")
+        if isinstance(legacy_implementation, dict)
+        else "not-started"
+    )
+    verification = manifest.get("verification", {})
+    last_delivery = manifest.get("last_delivery", {})
+    result["_manifest_phase"] = {
+        "implementation": implementation_state,
+        "verification": verification.get("status", "not-run") if isinstance(verification, dict) else "not-run",
+        "delivery": last_delivery.get("status", "not-started") if isinstance(last_delivery, dict) else "not-started",
+        "active_tasks": list(manifest.get("active_tasks", [])) if isinstance(manifest.get("active_tasks", []), list) else [],
+    }
+
+    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
         delivery = delivery_readiness(
             root, manifest, increment_id, task_ids=task_ids
         )
         result["delivery_readiness"] = delivery
-        result["blockers"].extend(
-            f"Plan de entrega: {item}" for item in delivery["blockers"]
-        )
+        result["selected_portion_readiness"] = delivery
         result["non_blocking_pending"].extend(delivery["warnings"])
+        planning = assess_planning(root, manifest, increment_id)
+        result["planning_completeness"] = planning
+        result["implementation_authorization"] = assess_authorization(
+            manifest, planning, delivery.get("task_ids", [])
+        )
+        delivery_contract = validate_delivery_contract(root, manifest)
+        result["next_tasks"] = next_tasks(delivery_contract, planning)
+        result["_completed_summary"].extend(
+            [
+                f"Unidades desplegables registradas: {len(delivery_contract.get('units', {}))}; bindings tecnológicos: {len(delivery_contract.get('bindings', {}))}.",
+                "Gobierno, release, tablero y detalles TASK se evaluaron como dimensiones separadas.",
+            ]
+        )
         bindings = {
             item.get("binding_id"): item
             for item in manifest.get("technology", {}).get(
@@ -651,6 +780,24 @@ def assess(
             "blockers": list(dict.fromkeys(automation_errors)),
         }
     else:
+        result["selected_portion_readiness"] = {
+            "status": "not-applicable",
+            "blockers": [],
+            "task_ids": [],
+        }
+        result["planning_completeness"] = {
+            "status": "not-applicable",
+            "integrity": "not-assessed",
+            "gaps": [{
+                "kind": "migration-required",
+                "items": ["schema 1.2 or 1.3"],
+                "explanation": "La completitud de planificación requiere migrar el contrato de entrega.",
+            }],
+            "integrity_errors": [],
+        }
+        result["implementation_authorization"] = {
+            "status": "required", "authorization_id": None, "task_ids": []
+        }
         selected_profile = manifest.get("technology", {}).get(
             "selected_profile"
         )
@@ -703,8 +850,24 @@ def assess(
         result["blockers"].append(f"{increment_id} no declara alcance incluido.")
     if _empty(increment.get("Out of scope", "")):
         result["blockers"].append(f"{increment_id} no declara alcance excluido.")
+    if (
+        increment.get("State") == "confirmed"
+        and not _empty(increment.get("In scope", ""))
+        and not _empty(increment.get("Out of scope", ""))
+    ):
+        result["_completed_summary"][0] = (
+            f"Alcance confirmado de {increment_id}: {increment['In scope']}. "
+            f"Fuera de alcance: {increment['Out of scope']}."
+        )
 
     _assess_visual_contract(root, manifest, definitions, increment_id, result)
+    result["_completed_summary"].append(
+        "UX e interfaz evaluadas: "
+        f"aplicabilidad={result.get('interface_applicability', 'legacy')}; "
+        f"modo visual={result.get('visual_mode', 'legacy')}; "
+        f"elementos UX activos={prefix_counts.get('UX', 0)}; "
+        f"baselines visuales activas={prefix_counts.get('VIS', 0)}."
+    )
 
     requirement_ids = _ids(
         increment.get("Requirements", ""), {"FR", "NFR", "TR", "BR"}
@@ -732,6 +895,26 @@ def assess(
     _assess_domains(
         root, manifest, definitions, increment_id, increment, result
     )
+    if manifest.get("schema_version") in {"1.1", "1.2", "1.3"}:
+        domain_body = _load_artifact_body(root, manifest, "ART-INCREMENTS")
+        domain_rows = table_rows_for_headers(
+            parse_markdown_table_blocks(domain_body), DOMAIN_CONTRACT_HEADERS
+        ) or []
+        domain_states = {
+            row.get("Domain", "").strip().casefold(): row.get(
+                "Applicability", "unknown"
+            ).strip().casefold()
+            for row in domain_rows
+            if row.get("Increment", "").strip() == increment_id
+        }
+        result["_completed_summary"].append(
+            "Datos, identidad, seguridad, privacidad e integraciones evaluados: "
+            + "; ".join(
+                f"{domain}={domain_states.get(domain, 'missing')}"
+                for domain in DOMAIN_PREFIXES
+            )
+            + "."
+        )
 
     expected_states = {
         **{item: {"confirmed"} for item in requirement_ids + acceptance_ids},
@@ -809,6 +992,7 @@ def assess(
             result["blockers"].append(f"La trazabilidad de {requirement_id} no incluye prueba.")
 
     open_rows = _rows(_load_artifact_body(root, manifest, "ART-OPEN"))
+    scoped_open_points: list[str] = []
     for row in open_rows:
         if row.get("State") not in {"open", "blocked"}:
             continue
@@ -819,11 +1003,17 @@ def assess(
             or row.get("Blocking", "").strip().lower() == "true"
         )
         if blocking and scope in {"project", increment_id}:
+            scoped_open_points.append(row.get("ID", "OPEN"))
             if message not in result["blockers"]:
                 result["blockers"].append(message)
         else:
             if message not in result["non_blocking_pending"]:
                 result["non_blocking_pending"].append(message)
+    if not scoped_open_points:
+        result["_completed_summary"].append(
+            "No quedan bloqueos ni puntos abiertos bloqueantes para el alcance evaluado; "
+            "cualquier pendiente no bloqueante permanece visible por separado."
+        )
 
     if manifest.get("route") == "adopt-existing":
         adoption = manifest.get("adoption", {})
@@ -862,16 +1052,27 @@ def assess(
         )
 
     _finalize_result(result)
-    return (0 if result["status"] != "blocked" else 3), result
+    return (
+        0
+        if result["status"]
+        in {"ready-for-implementation-authorization", "ready-to-implement"}
+        else 3,
+        result,
+    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--increment", required=True)
+    parser.add_argument(
+        "--task",
+        action="append",
+        help="TASK-### selected for portion readiness; repeat for multiple tasks.",
+    )
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
-    exit_code, result = assess(args.project_root, args.increment)
+    exit_code, result = assess(args.project_root, args.increment, args.task)
     if args.as_json:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:

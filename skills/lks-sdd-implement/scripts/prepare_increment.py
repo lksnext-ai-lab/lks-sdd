@@ -27,7 +27,13 @@ sys.path.insert(
 
 from assess_readiness import assess  # noqa: E402
 from contract_engine import build_project_model, resolve_active_increment  # noqa: E402
-from delivery_engine import delivery_readiness, repository_revision  # noqa: E402
+from delivery_engine import (  # noqa: E402
+    delivery_readiness,
+    parse_tables,
+    repository_revision,
+    validate_delivery_contract,
+)
+from planning_engine import assess_authorization, assess_planning, next_tasks  # noqa: E402
 from manage_tasks import (  # noqa: E402
     _append_table_row,
     _replace_frontmatter_date,
@@ -35,10 +41,12 @@ from manage_tasks import (  # noqa: E402
     _single_detail_row,
     TaskManagementError,
     TASK_DETAIL_HEADERS,
+    TASK_DETAIL_HEADERS_V13,
     TASK_HEADERS,
 )
 from profile_registry import load_profile_bundle, profile_source_files  # noqa: E402
 from validate_reference_profile import validate_profile  # noqa: E402
+from validate_project import validate_project  # noqa: E402
 
 
 class PreparationError(Exception):
@@ -109,7 +117,7 @@ def _binding_contracts(
     delivery: dict[str, Any],
 ) -> list[dict[str, Any]]:
     technology = manifest.get("technology", {})
-    if str(manifest.get("schema_version")) == "1.2":
+    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
         by_id = {
             item.get("binding_id"): item
             for item in technology.get("profile_bindings", [])
@@ -256,9 +264,17 @@ def _preview_hash(
 
 
 def _artifact_path(manifest: dict[str, Any], artifact_id: str) -> Path:
+    expected = {
+        "ART-TASKS": "docs/lks-sdd/04-delivery/tasks.md",
+    }.get(artifact_id)
     for item in manifest.get("artifacts", []):
         if isinstance(item, dict) and item.get("id") == artifact_id:
-            return Path(str(item["path"]))
+            observed = str(item.get("path", ""))
+            if expected is not None and observed != expected:
+                raise PreparationError(
+                    f"{artifact_id} debe usar la ruta canónica {expected}."
+                )
+            return Path(observed)
     raise PreparationError(f"Falta {artifact_id} en el índice.")
 
 
@@ -269,6 +285,7 @@ def _task_replacements(
     revision: dict[str, Any],
     transition_date: str,
     actor: str,
+    continuity: dict[str, str] | None = None,
 ) -> list[tuple[Path, bytes, bytes]]:
     if not task_ids:
         return []
@@ -311,10 +328,8 @@ def _task_replacements(
             task_id,
             {
                 "Workflow state": "in-progress",
-                "Health": "on-track",
-                "Progress": str(
-                    max(1, min(int(current.get("Progress", "0")), 99))
-                ),
+                "Health": current.get("Health", "unknown"),
+                "Progress": current.get("Progress", "0"),
                 "Blockers": "none",
                 "Updated": normalized_date,
             },
@@ -325,10 +340,8 @@ def _task_replacements(
             "ready",
             {
                 "Workflow state": "in-progress",
-                "Health": "on-track",
-                "Progress": str(
-                    max(1, min(int(current.get("Progress", "0")), 99))
-                ),
+                "Health": current.get("Health", "unknown"),
+                "Progress": current.get("Progress", "0"),
                 "Branch": branch,
                 "Revision start": revision_start,
                 "Updated": normalized_date,
@@ -346,6 +359,28 @@ def _task_replacements(
                 "not-applicable",
             ],
         )
+        if continuity is not None:
+            continuity_headers = TASK_DETAIL_HEADERS_V13["continuity"]
+            current_continuity = _single_detail_row(
+                detail_text, continuity_headers
+            )
+            detail_text = _replace_table_row(
+                detail_text,
+                continuity_headers,
+                current_continuity["Definition status"],
+                {
+                    "Current checkpoint": continuity["checkpoint"],
+                    "Authorization": continuity["authorization"],
+                    "Authorization scope": continuity["scope"],
+                    "Specification fingerprint": continuity[
+                        "specification_fingerprint"
+                    ],
+                    "Planning fingerprint": continuity[
+                        "planning_fingerprint"
+                    ],
+                    "Next safe action": continuity["next_safe_action"],
+                },
+            )
         detail_text = _replace_frontmatter_date(detail_text, normalized_date)
         replacements.append(
             (detail_path, detail_original, detail_text.encode("utf-8"))
@@ -360,6 +395,143 @@ def _task_replacements(
 def _current_input_fingerprint(root: Path, increment: str) -> str:
     model = build_project_model(root)
     return resolve_active_increment(model, increment).fingerprint
+
+
+def _next_indexed_id(values: list[str], prefix: str) -> str:
+    used = {
+        int(match.group(1))
+        for value in values
+        if (match := re.fullmatch(rf"{re.escape(prefix)}-([0-9]{{3}})", value))
+    }
+    for number in range(1, 1000):
+        if number not in used:
+            return f"{prefix}-{number:03d}"
+    raise PreparationError(f"Se agotó el espacio {prefix}-###.")
+
+
+def _render_initial_checkpoint(
+    root: Path,
+    manifest: dict[str, Any],
+    execution_id: str,
+    checkpoint_id: str,
+    task_ids: list[str],
+    release_id: str,
+    authorization_id: str,
+    planning: dict[str, Any],
+    revision_start: dict[str, Any],
+    observed_revision: dict[str, Any],
+    transition_date: str,
+    actor: str,
+    independent_ready: list[str],
+    planned: list[tuple[Path, bytes]],
+    replacements: list[tuple[Path, bytes, bytes]],
+) -> bytes:
+    template = (
+        PLUGIN_ROOT
+        / "skills/lks-sdd-define/assets/templates/04-delivery/checkpoint.md"
+    ).read_text(encoding="utf-8")
+    file_rows: list[str] = []
+    task_label = task_ids[0] if len(task_ids) == 1 else ", ".join(task_ids)
+    for path, content in planned:
+        relative = path.relative_to(root).as_posix()
+        file_rows.append(
+            f"| {relative} | created | {hashlib.sha256(content).hexdigest()} | {task_label} | technical preparation |"
+        )
+    for path, _, content in replacements:
+        relative = path.relative_to(root).as_posix()
+        file_rows.append(
+            f"| {relative} | updated | {hashlib.sha256(content).hexdigest()} | {task_label} | task tracking and continuity |"
+        )
+    deliverable_rows: list[str] = []
+    check_rows: list[str] = []
+    replacement_by_path = {path: content for path, _, content in replacements}
+    for task_id in task_ids:
+        detail_path = root / f"docs/lks-sdd/04-delivery/tasks/{task_id}.md"
+        content = replacement_by_path.get(detail_path, detail_path.read_bytes())
+        tables = parse_tables(content.decode("utf-8"))
+        for headers, rows in tables:
+            if headers == TASK_DETAIL_HEADERS_V13["deliverables"]:
+                for row in rows:
+                    deliverable_rows.append(
+                        "| "
+                        + " | ".join(
+                            [
+                                task_id,
+                                row.get("Deliverable", "pending"),
+                                row.get("State", "pending"),
+                                row.get("Acceptance", "pending"),
+                                row.get("Evidence", "pending"),
+                                row.get("Notes", "pending"),
+                            ]
+                        )
+                        + " |"
+                    )
+            if headers == TASK_DETAIL_HEADERS["definition"] and rows:
+                acceptance = re.findall(
+                    r"\bAC-[0-9]{3}\b", rows[0].get("Acceptance", "")
+                ) or ["pending"]
+                gates = re.findall(
+                    r"\bGATE-[A-Z0-9-]{3,80}\b",
+                    rows[0].get("Technical gates", ""),
+                )
+                tests = []
+                for plan_headers, plan_rows in tables:
+                    if plan_headers == TASK_DETAIL_HEADERS_V13["plan"] and plan_rows:
+                        tests = re.findall(
+                            r"\bTEST-[0-9]{3}\b", plan_rows[0].get("Tests", "")
+                        )
+                for contract_item, kind in [
+                    *((item, "acceptance") for item in acceptance),
+                    *((item, "test") for item in tests),
+                    *((item, "gate") for item in gates),
+                ]:
+                    check_rows.append(
+                        f"| {task_id} | {contract_item} | {kind} | not-run | pending | {observed_revision['revision']} | implementation not yet verified |"
+                    )
+    independent = sorted(set(independent_ready) - set(task_ids))
+    values = {
+        "{{CHECKPOINT_ID}}": checkpoint_id,
+        "{{PROJECT_ID}}": str(manifest["project_id"]),
+        "{{BASELINE_ID}}": str(manifest["baseline_id"]),
+        "{{OWNER_ROLE}}": actor,
+        "{{DATE}}": transition_date,
+        "{{EXECUTION_ID}}": execution_id,
+        "{{EXECUTION_STATE}}": "in-progress",
+        "{{TASK_IDS}}": ", ".join(task_ids),
+        "{{INCREMENT_ID}}": str(planning["target"]["increment"]),
+        "{{RELEASE_ID}}": release_id,
+        "{{AUTHORIZATION_ID}}": authorization_id,
+        "{{BRANCH}}": str(revision_start.get("branch") or "not-applicable"),
+        "{{REVISION_START}}": str(revision_start["revision"]),
+        "{{LAST_REVISION}}": str(observed_revision["revision"]),
+        "{{TREE_STATE}}": "dirty" if observed_revision["dirty"] else "clean",
+        "{{SPECIFICATION_FINGERPRINT}}": str(
+            planning["specification_fingerprint"]
+        ),
+        "{{PLANNING_FINGERPRINT}}": str(planning["planning_fingerprint"]),
+        "{{FILE_ROWS}}": "\n".join(file_rows)
+        or "| not-applicable | clean | not-applicable | not-applicable | no files prepared |",
+        "{{DELIVERABLE_ROWS}}": "\n".join(deliverable_rows)
+        or "| not-applicable | none | pending | pending | pending | no deliverable rows |",
+        "{{CHECK_ROWS}}": "\n".join(check_rows)
+        or "| not-applicable | pending | planned-check | not-run | pending | pending | no check mapped |",
+        "{{ISSUE_ROWS}}": "| not-applicable | resolved | none | no blocker observed | not-applicable | not-applicable | not-applicable |",
+        "{{COMPLETED}}": "technical preparation and transition to in-progress",
+        "{{PARTIAL}}": "implementation not yet performed",
+        "{{PENDING}}": "task deliverables, acceptance, tests and gates",
+        "{{BLOCKED}}": "none observed",
+        "{{NEXT_SAFE_ACTION}}": "implement only the authorized task definitions",
+        "{{INDEPENDENT_TASKS}}": ", ".join(independent)
+        if independent
+        else "none observed",
+        "{{RECONCILIATION}}": "no",
+    }
+    for token, value in values.items():
+        template = template.replace(token, value)
+    remaining = re.findall(r"\{\{[A-Z0-9_]+\}\}", template)
+    if remaining:
+        raise PreparationError(f"Tokens de checkpoint sin resolver: {remaining}")
+    return template.encode("utf-8")
 
 
 def _write_transaction(
@@ -419,6 +591,12 @@ def _write_transaction(
         os.replace(temporary, manifest_path)
         temporary = None
         manifest_replaced = True
+        report, _, _ = validate_project(root)
+        if not report.valid:
+            raise PreparationError(
+                "La preparación produciría un contrato inválido: "
+                + "; ".join(report.errors)
+            )
         return created_files
     except (OSError, PreparationError) as exc:
         if temporary is not None:
@@ -463,7 +641,7 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         root, args.increment, task_ids=requested_tasks or None
     )
     blockers = list(readiness.get("blockers", []))
-    if str(manifest.get("schema_version")) == "1.2":
+    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
         delivery = delivery_readiness(
             root,
             manifest,
@@ -479,6 +657,24 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             "release_ids": [],
         }
     blockers.extend(delivery.get("blockers", []))
+    planning = assess_planning(root, manifest, args.increment)
+    authorization = assess_authorization(
+        manifest, planning, delivery.get("task_ids", [])
+    )
+    if str(manifest.get("schema_version")) != "1.3":
+        blockers.append(
+            "La implementación nueva requiere migrar a schema 1.3 para registrar cobertura, autorización y checkpoint."
+        )
+    elif planning.get("status") != "complete" and not planning.get(
+        "partial_implementation_policy_satisfied"
+    ):
+        blockers.append(
+            "La planificación integral no está completa y no existe una política incremental humana confirmada."
+        )
+    if authorization.get("status") != "authorized":
+        blockers.append(
+            "Falta una autorización de implementación vigente y ligada a los fingerprints actuales."
+        )
     bindings = _binding_contracts(manifest, delivery)
     if not bindings:
         blockers.append(
@@ -533,14 +729,98 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     task_ids = list(delivery.get("task_ids", []))
     transition_date = getattr(args, "date", None) or date.today().isoformat()
     actor = getattr(args, "actor", None) or "codex"
+    execution_id = _next_indexed_id(
+        [
+            str(item.get("execution_id"))
+            for item in manifest.get("executions", [])
+            if isinstance(item, dict)
+        ],
+        "EXEC",
+    )
+    checkpoint_folder = root / "docs/lks-sdd/04-delivery/checkpoints"
+    checkpoint_id = _next_indexed_id(
+        [
+            *(
+                [path.stem for path in checkpoint_folder.glob("CKPT-*.md")]
+                if checkpoint_folder.is_dir()
+                else []
+            ),
+            *[
+                Path(str(item.get("latest_checkpoint"))).stem
+                for item in manifest.get("executions", [])
+                if isinstance(item, dict) and item.get("latest_checkpoint")
+            ],
+        ],
+        "CKPT",
+    )
+    release_ids = list(delivery.get("release_ids", []))
+    if len(release_ids) != 1:
+        raise PreparationError(
+            "La ejecución autorizada debe pertenecer a una única release."
+        )
+    release_id = release_ids[0]
+    authorization_id = authorization.get("authorization_id")
+    if not isinstance(authorization_id, str):
+        raise PreparationError("No se resolvió AUTH-### para la ejecución.")
+    continuity = {
+        "checkpoint": f"../checkpoints/{checkpoint_id}.md",
+        "authorization": authorization_id,
+        "scope": ", ".join(task_ids),
+        "specification_fingerprint": planning["specification_fingerprint"],
+        "planning_fingerprint": planning["planning_fingerprint"],
+        "next_safe_action": "implement only the authorized task definitions",
+    }
     try:
         replacements = _task_replacements(
-            root, manifest, task_ids, revision, transition_date, actor
+            root,
+            manifest,
+            task_ids,
+            revision,
+            transition_date,
+            actor,
+            continuity,
         )
     except TaskManagementError as exc:
         raise PreparationError(
             f"No se puede sincronizar el seguimiento TASK: {exc}"
         ) from exc
+    anticipated_revision = repository_revision(
+        root,
+        overrides={
+            path.relative_to(root).as_posix(): content
+            for path, content in planned
+        }
+        | {
+            path.relative_to(root).as_posix(): replacement
+            for path, _, replacement in replacements
+        },
+    )
+    if anticipated_revision["kind"] == "git" and (planned or replacements):
+        anticipated_revision = {**anticipated_revision, "dirty": True}
+    checkpoint_content = _render_initial_checkpoint(
+        root,
+        manifest,
+        execution_id,
+        checkpoint_id,
+        task_ids,
+        release_id,
+        authorization_id,
+        planning,
+        revision,
+        anticipated_revision,
+        transition_date,
+        actor,
+        next_tasks(validate_delivery_contract(root, manifest), planning).get(
+            "ready", []
+        ),
+        planned,
+        replacements,
+    )
+    checkpoint_path = checkpoint_folder / f"{checkpoint_id}.md"
+    _assert_safe_destination(root, checkpoint_path)
+    if checkpoint_path.exists():
+        raise PreparationError(f"Colisión de checkpoint: {checkpoint_id}.")
+    planned.append((checkpoint_path, checkpoint_content))
     preview_hash = _preview_hash(
         root,
         planned,
@@ -566,9 +846,28 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         "preserved": preserved,
         "manual_integrations": manual,
         "readiness": readiness["status"],
+        "planning_completeness": planning["status"],
+        "planning_integrity": planning["integrity"],
+        "implementation_authorization": authorization,
+        "execution_id": execution_id,
+        "checkpoint": checkpoint_path.relative_to(root).as_posix(),
         "input_fingerprint": input_fingerprint,
         "revision_start": revision,
+        "last_observed_revision": anticipated_revision,
         "locks": locks,
+        "transition_summary": {
+            "where_we_are": "task-start-preview",
+            "completed": [
+                f"Plan {planning['target']['id']} y {authorization_id} están vigentes para la porción seleccionada."
+            ],
+            "in_progress": [],
+            "pending": [
+                f"Crear {execution_id}, {checkpoint_id} y pasar a in-progress: {', '.join(task_ids)}."
+            ],
+            "blocked": [],
+            "next_step": "Revisar todos los archivos y transiciones del preview antes del apply.",
+            "human_decision": "Aplicar o rechazar el inicio de la porción ya autorizada.",
+        },
     }
     if args.dry_run:
         return 0, result
@@ -592,8 +891,49 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     manifest["phase"] = "implementation"
     manifest["gate"] = "G3"
     manifest["active_increment"] = args.increment
-    if str(manifest.get("schema_version")) == "1.2":
-        manifest["active_task"] = task_ids[0] if len(task_ids) == 1 else None
+    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
+        active_task_ids = set(task_ids)
+        if str(manifest.get("schema_version")) == "1.3":
+            active_task_ids.update(manifest.get("active_tasks", []))
+            manifest["active_tasks"] = sorted(active_task_ids)
+        manifest["active_task"] = (
+            next(iter(active_task_ids)) if len(active_task_ids) == 1 else None
+        )
+        if str(manifest.get("schema_version")) == "1.3":
+            changed_paths = [
+                path.relative_to(root).as_posix() for path, _ in planned
+            ] + [
+                path.relative_to(root).as_posix()
+                for path, _, _ in replacements
+            ]
+            manifest["executions"].append(
+                {
+                    "execution_id": execution_id,
+                    "status": "in-progress",
+                    "increment": args.increment,
+                    "release": release_id,
+                    "task_ids": task_ids,
+                    "profile_bindings": [
+                        str(item["binding_id"]) for item in bindings
+                    ],
+                    "locks": locks,
+                    "branch": revision.get("branch"),
+                    "revision_start": str(revision["revision"]),
+                    "last_observed_revision": str(
+                        anticipated_revision["revision"]
+                    ),
+                    "authorization_id": authorization_id,
+                    "specification_fingerprint": planning[
+                        "specification_fingerprint"
+                    ],
+                    "planning_fingerprint": planning["planning_fingerprint"],
+                    "latest_checkpoint": checkpoint_path.relative_to(
+                        root
+                    ).as_posix(),
+                    "changed_paths": changed_paths,
+                    "evidence_ids": [],
+                }
+            )
         manifest["implementation"] = {
             "status": "in-progress",
             "increment": args.increment,
@@ -612,6 +952,12 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
                 for path, _, _ in replacements
             ],
             "evidence_ids": [],
+            "authorization_id": authorization_id,
+            "specification_fingerprint": planning[
+                "specification_fingerprint"
+            ],
+            "planning_fingerprint": planning["planning_fingerprint"],
+            "latest_checkpoint": checkpoint_path.relative_to(root).as_posix(),
         }
     else:
         bundle = load_profile_bundle(str(bindings[0]["profile_id"]))
@@ -635,6 +981,19 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             "created": [
                 path.relative_to(root).as_posix() for path in created
             ],
+            "transition_summary": {
+                "where_we_are": "implementation-in-progress",
+                "completed": [
+                    f"{execution_id} y el checkpoint inicial {checkpoint_id} quedaron registrados."
+                ],
+                "in_progress": task_ids,
+                "pending": [
+                    "Implementación, revisión, aceptación, gates y evidencia aún no demostrados."
+                ],
+                "blocked": [],
+                "next_step": "Implementar únicamente la definición autorizada y actualizar el checkpoint antes de pausar.",
+                "human_decision": "Ninguna nueva; conservar los límites del plan y la autorización vigentes.",
+            },
         }
     )
     return 0, result

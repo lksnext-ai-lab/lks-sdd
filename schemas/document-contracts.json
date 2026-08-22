@@ -1,7 +1,7 @@
 {
-  "catalog_version": "1.2",
-  "supported_project_schemas": ["1.0", "1.1", "1.2"],
-  "schema_inheritance": {"1.2": "1.1"},
+  "catalog_version": "1.3",
+  "supported_project_schemas": ["1.0", "1.1", "1.2", "1.3"],
+  "schema_inheritance": {"1.2": "1.1", "1.3": "1.2"},
   "identifier_prefixes": [
     "OBJ",
     "STK",
@@ -32,7 +32,11 @@
     "UNIT",
     "BIND",
     "CHG",
-    "ENV"
+    "ENV",
+    "PCH",
+    "CKPT",
+    "AUTH",
+    "EXEC"
   ],
   "reference_grammar": {
     "canonical_range": "..",
@@ -102,6 +106,27 @@
       "active": ["ready", "in-progress", "in-review", "done"],
       "pending": ["backlog", "blocked"],
       "inactive": ["cancelled"],
+      "legacy_classes": {}
+    },
+    "planning-lifecycle": {
+      "allowed": ["proposed", "confirmed", "superseded", "retired"],
+      "active": ["confirmed"],
+      "pending": ["proposed"],
+      "inactive": ["superseded", "retired"],
+      "legacy_classes": {}
+    },
+    "authorization-lifecycle": {
+      "allowed": ["authorized", "invalidated", "revoked"],
+      "active": ["authorized"],
+      "pending": [],
+      "inactive": ["invalidated", "revoked"],
+      "legacy_classes": {}
+    },
+    "planning-change-lifecycle": {
+      "allowed": ["proposed", "confirmed", "superseded", "retired"],
+      "active": ["confirmed"],
+      "pending": ["proposed"],
+      "inactive": ["superseded", "retired"],
       "legacy_classes": {}
     },
     "epistemic-adoption": {
@@ -666,6 +691,72 @@
             "Unit": {"targets": ["UNIT"], "min": 1, "max": 1, "active_input": true, "require_defined": true, "allow_empty": false, "allow_applicability": []},
             "Profile binding": {"targets": ["BIND"], "min": 1, "max": 1, "active_input": true, "require_defined": false, "allow_empty": false, "allow_applicability": []},
             "Dependencies": {"targets": ["TASK"], "min": 0, "max": null, "active_input": true, "require_defined": true, "allow_empty": true, "allow_applicability": ["not-applicable"]}
+          }
+        }
+      ]
+    },
+    "ART-PLANNING": {
+      "artifact_type": "planning-coverage",
+      "path": "docs/lks-sdd/04-delivery/planning-coverage.md",
+      "required": false,
+      "required_schemas": ["1.3"],
+      "tables": [
+        {
+          "id": "planning.targets",
+          "schemas": ["1.3"],
+          "headers": ["Target", "Type", "State", "Objective", "Increments", "Planning policy", "Decision", "Integration task", "Review trigger"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {"column": "State", "policy": "planning-lifecycle"},
+          "relations": {
+            "Target": {"targets": ["INC", "REL"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Increments": {"targets": ["INC"], "min": 0, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]},
+            "Decision": {"targets": ["ADR"], "min": 0, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending", "not-applicable"]},
+            "Integration task": {"targets": ["TASK"], "min": 0, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]}
+          }
+        },
+        {
+          "id": "planning.coverage",
+          "schemas": ["1.3"],
+          "headers": ["Target", "Increment", "Contract items", "Primary task", "Contributing tasks", "Responsibility", "Rationale"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "relations": {
+            "Target": {"targets": ["INC", "REL"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Increment": {"targets": ["INC"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Contract items": {"targets": ["FR", "NFR", "TR", "BR", "AC", "TEST", "CON", "ADR", "INT", "DATA", "SEC", "PRIV", "UX", "VIS", "RISK", "DEP"], "min": 1, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Primary task": {"targets": ["TASK"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Contributing tasks": {"targets": ["TASK"], "min": 0, "max": null, "active_input": false, "require_defined": true, "allow_empty": true, "allow_applicability": ["not-applicable"]}
+          }
+        },
+        {
+          "id": "planning.authorizations",
+          "schemas": ["1.3"],
+          "headers": ["ID", "State", "Target", "Increment", "Release", "Tasks", "Specification fingerprint", "Planning fingerprint", "Authorized by role", "Authorized on", "Decision", "Constraints"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["AUTH"]},
+          "state": {"column": "State", "policy": "authorization-lifecycle"},
+          "relations": {
+            "Target": {"targets": ["INC", "REL"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Increment": {"targets": ["INC"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Release": {"targets": ["REL"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Tasks": {"targets": ["TASK"], "min": 1, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Decision": {"targets": ["ADR"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []}
+          }
+        },
+        {
+          "id": "planning.changes",
+          "schemas": ["1.3"],
+          "headers": ["ID", "State", "Classification", "Affected contract", "Affected tasks", "Previous fingerprint", "Current fingerprint", "Decision", "Reason"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["PCH"]},
+          "state": {"column": "State", "policy": "planning-change-lifecycle"},
+          "relations": {
+            "Affected contract": {"targets": ["FR", "NFR", "TR", "BR", "AC", "TEST", "CON", "ADR", "INT", "DATA", "SEC", "PRIV", "UX", "VIS", "RISK", "DEP"], "min": 1, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Affected tasks": {"targets": ["TASK"], "min": 1, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Decision": {"targets": ["ADR"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []}
           }
         }
       ]

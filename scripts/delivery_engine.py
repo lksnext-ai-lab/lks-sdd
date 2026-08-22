@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and summarize the LKS-SDD 1.2 delivery and task contract."""
+"""Validate and summarize the LKS-SDD 1.2/1.3 delivery and task contract."""
 
 from __future__ import annotations
 
@@ -181,6 +181,36 @@ TASK_DETAIL_HEADERS = {
         "Evidence",
     ),
 }
+TASK_DETAIL_HEADERS_V13 = {
+    "plan": (
+        "Tests",
+        "Decisions and constraints",
+        "Risks and blockers",
+        "Responsible role",
+        "Review entry conditions",
+        "Definition of done",
+        "Required evidence",
+        "Integration points",
+        "Parallel constraints",
+    ),
+    "deliverables": (
+        "Deliverable",
+        "State",
+        "Acceptance",
+        "Tests",
+        "Evidence",
+        "Notes",
+    ),
+    "continuity": (
+        "Definition status",
+        "Current checkpoint",
+        "Authorization",
+        "Authorization scope",
+        "Specification fingerprint",
+        "Planning fingerprint",
+        "Next safe action",
+    ),
+}
 
 
 class DeliveryContractError(ValueError):
@@ -323,11 +353,28 @@ def _date(value: str) -> bool:
     return True
 
 
+def _safe_manifest_relative(root: Path, value: Any) -> bool:
+    if not isinstance(value, str) or not value or any(
+        marker in value for marker in ("|", "\x00", "\r", "\n")
+    ):
+        return False
+    candidate = Path(value)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        return False
+    try:
+        (root / candidate).resolve(strict=False).relative_to(root.resolve())
+    except ValueError:
+        return False
+    return True
+
+
 def _validate_task_detail(
     root: Path,
     row: dict[str, str],
     errors: list[str],
     checked: list[str],
+    schema_version: str,
+    execution_blockers: list[str],
 ) -> dict[str, Any] | None:
     task_id = row["ID"]
     target = row.get("Detail", "").strip()
@@ -352,8 +399,8 @@ def _validate_task_detail(
         errors.append(f"{task_id}: artifact_id debe ser ART-{task_id}.")
     if _frontmatter_scalar(text, "artifact_type") != "development-task":
         errors.append(f"{task_id}: artifact_type debe ser development-task.")
-    if _frontmatter_scalar(text, "schema_version") != "1.2":
-        errors.append(f"{task_id}: schema_version debe ser 1.2.")
+    if _frontmatter_scalar(text, "schema_version") != schema_version:
+        errors.append(f"{task_id}: schema_version debe ser {schema_version}.")
     tables = parse_tables(text)
     resolved: dict[str, list[dict[str, str]]] = {}
     for name, headers in TASK_DETAIL_HEADERS.items():
@@ -365,6 +412,16 @@ def _validate_task_detail(
             resolved[name] = []
         else:
             resolved[name] = matches[0]
+    if schema_version == "1.3":
+        for name, headers in TASK_DETAIL_HEADERS_V13.items():
+            matches = [rows for actual, rows in tables if actual == headers]
+            if len(matches) != 1:
+                errors.append(
+                    f"{task_id}: falta o se repite la tabla 1.3 de detalle {name}."
+                )
+                resolved[name] = []
+            else:
+                resolved[name] = matches[0]
     identity = resolved.get("identity", [])
     execution = resolved.get("execution", [])
     definition = resolved.get("definition", [])
@@ -408,9 +465,40 @@ def _validate_task_detail(
         )
         missing = [column for column in required if not _meaningful(definition[0].get(column, ""))]
         if row["Workflow state"] not in {"backlog", "blocked", "cancelled"} and missing:
-            errors.append(
-                f"{task_id}: una tarea {row['Workflow state']} tiene campos sin cerrar: {', '.join(missing)}."
+            message = (
+                f"{task_id}: una tarea {row['Workflow state']} tiene campos sin cerrar: "
+                + ", ".join(missing)
+                + "."
             )
+            (execution_blockers if schema_version == "1.3" else errors).append(
+                message
+            )
+    if schema_version == "1.3":
+        plan_rows = resolved.get("plan", [])
+        continuity_rows = resolved.get("continuity", [])
+        if len(plan_rows) != 1:
+            errors.append(f"{task_id}: Plan de ejecución verificable necesita una fila.")
+        else:
+            required_plan = tuple(TASK_DETAIL_HEADERS_V13["plan"])
+            missing_plan = [
+                column
+                for column in required_plan
+                if not _meaningful(plan_rows[0].get(column, ""))
+            ]
+            if row["Workflow state"] not in {"backlog", "blocked", "cancelled"} and missing_plan:
+                execution_blockers.append(
+                    f"{task_id}: una tarea {row['Workflow state']} no tiene un plan ejecutable: {', '.join(missing_plan)}."
+                )
+        if len(continuity_rows) != 1:
+            errors.append(f"{task_id}: Continuidad necesita exactamente una fila.")
+        else:
+            definition_status = continuity_rows[0].get("Definition status")
+            if definition_status not in {"incomplete", "executable", "stale"}:
+                errors.append(f"{task_id}: Definition status inválido: {definition_status!r}.")
+            if row["Workflow state"] in {"ready", "in-progress", "in-review", "done"} and definition_status != "executable":
+                execution_blockers.append(
+                    f"{task_id}: {row['Workflow state']} exige Definition status=executable."
+                )
     issues = resolved.get("issues", [])
     issue_ids: set[str] = set()
     for issue in issues:
@@ -498,7 +586,8 @@ def _dependency_cycles(tasks: dict[str, dict[str, str]]) -> list[list[str]]:
 def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str, Any]:
     """Validate delivery governance, plans, releases, tasks and task details."""
 
-    if str(manifest.get("schema_version")) != "1.2":
+    schema_version = str(manifest.get("schema_version"))
+    if schema_version not in {"1.2", "1.3"}:
         return {
             "errors": [],
             "warnings": [],
@@ -637,6 +726,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
                 errors.append(f"{release_id}: entorno inexistente {environment_id}.")
 
     detail_contracts: dict[str, Any] = {}
+    task_readiness_blockers: dict[str, list[str]] = {}
     for task_id, row in tasks.items():
         state = row.get("Workflow state", "")
         health = row.get("Health", "")
@@ -653,10 +743,13 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
             errors.append(f"{task_id}: Progress queda fuera de 0..100.")
         if state == "done" and progress != 100:
             errors.append(f"{task_id}: done exige Progress=100.")
-        if state in {"backlog", "ready"} and progress != 0:
-            errors.append(f"{task_id}: {state} exige Progress=0.")
-        if state in {"in-progress", "in-review"} and not 1 <= progress <= 99:
-            errors.append(f"{task_id}: {state} exige Progress entre 1 y 99.")
+        if schema_version == "1.2":
+            if state in {"backlog", "ready"} and progress != 0:
+                errors.append(f"{task_id}: {state} exige Progress=0.")
+            if state in {"in-progress", "in-review"} and not 1 <= progress <= 99:
+                errors.append(
+                    f"{task_id}: {state} exige Progress entre 1 y 99."
+                )
         blockers = row.get("Blockers", "").strip().casefold()
         if state == "blocked" and (
             health != "blocked" or blockers in {"", "none", "not-applicable"}
@@ -675,9 +768,22 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         updated = row.get("Updated", "")
         if not _date(updated):
             errors.append(f"{task_id}: Updated debe usar AAAA-MM-DD.")
-        detail = _validate_task_detail(root, row, errors, checked)
+        execution_blockers: list[str] = []
+        detail = _validate_task_detail(
+            root,
+            row,
+            errors,
+            checked,
+            schema_version,
+            execution_blockers,
+        )
         if detail is not None:
             detail_contracts[task_id] = detail
+        if execution_blockers:
+            task_readiness_blockers[task_id] = list(
+                dict.fromkeys(execution_blockers)
+            )
+            warnings.extend(execution_blockers)
 
     for cycle in _dependency_cycles(tasks):
         errors.append("Ciclo de dependencias entre tareas: " + " -> ".join(cycle))
@@ -687,10 +793,103 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
                 errors.append(f"{task_id}: dependencia inexistente {dependency}.")
             elif row.get("Workflow state") == "ready" and tasks[dependency].get(
                 "Workflow state"
-            ) not in {"done", "cancelled"}:
+            ) != "done":
                 errors.append(
-                    f"{task_id}: no puede estar ready mientras {dependency} no esté resuelta."
+                    f"{task_id}: no puede estar ready mientras {dependency} no esté done."
                 )
+
+    if schema_version == "1.3":
+        indexed_active = set(manifest.get("active_tasks", []))
+        observed_active = {
+            task_id
+            for task_id, row in tasks.items()
+            if row.get("Workflow state") in {"in-progress", "in-review", "blocked"}
+        }
+        if indexed_active != observed_active:
+            errors.append(
+                "active_tasks diverge de las tareas in-progress, in-review o blocked del contrato canónico."
+            )
+        active_task = manifest.get("active_task")
+        if active_task is not None and active_task not in indexed_active:
+            errors.append("active_task debe ser null o pertenecer a active_tasks.")
+        executions = [
+            item
+            for item in manifest.get("executions", [])
+            if isinstance(item, dict)
+        ]
+        execution_ids = [item.get("execution_id") for item in executions]
+        if len(set(execution_ids)) != len(execution_ids) or None in execution_ids:
+            errors.append("Hay ejecuciones duplicadas o sin EXEC-### en project.json.")
+        active_execution_owners: dict[str, list[str]] = defaultdict(list)
+        nonterminal_execution_states = {
+            "in-progress", "in-review", "paused", "blocked"
+        }
+        for execution in executions:
+            execution_id = str(execution.get("execution_id", "EXEC"))
+            execution_tasks = execution.get("task_ids", [])
+            if not isinstance(execution_tasks, list):
+                continue
+            unknown = sorted(set(execution_tasks) - set(tasks))
+            if unknown:
+                errors.append(
+                    f"{execution_id}: contiene tareas inexistentes: "
+                    + ", ".join(unknown)
+                    + "."
+                )
+            if execution.get("status") in nonterminal_execution_states:
+                for task_id in execution_tasks:
+                    if tasks.get(task_id, {}).get("Workflow state") in {
+                        "in-progress", "in-review", "blocked"
+                    }:
+                        active_execution_owners[task_id].append(execution_id)
+            checkpoint = execution.get("latest_checkpoint")
+            if not isinstance(checkpoint, str) or not re.fullmatch(
+                r"docs/lks-sdd/04-delivery/checkpoints/CKPT-[0-9]{3}\.md",
+                checkpoint,
+            ):
+                errors.append(
+                    f"{execution_id}: latest_checkpoint debe usar una ruta CKPT-### canónica."
+                )
+            else:
+                checkpoint_path = root / checkpoint
+                if (
+                    not checkpoint_path.is_file()
+                    or _is_link_like(checkpoint_path)
+                ):
+                    errors.append(
+                        f"{execution_id}: latest_checkpoint no existe como archivo regular."
+                    )
+            for changed_path in execution.get("changed_paths", []):
+                if not _safe_manifest_relative(root, changed_path):
+                    errors.append(
+                        f"{execution_id}: changed_path no segura: {changed_path!r}."
+                    )
+        duplicate_active_execution = {
+            task_id: owners
+            for task_id, owners in active_execution_owners.items()
+            if len(owners) > 1
+        }
+        if duplicate_active_execution:
+            errors.append(
+                "Una tarea activa pertenece a varias ejecuciones: "
+                + "; ".join(
+                    f"{task_id} -> {', '.join(owners)}"
+                    for task_id, owners in sorted(
+                        duplicate_active_execution.items()
+                    )
+                )
+                + "."
+            )
+        missing_execution = sorted(indexed_active - set(active_execution_owners))
+        if missing_execution:
+            message = (
+                "Tareas activas sin EXEC-### reconstruible: "
+                + ", ".join(missing_execution)
+                + "."
+            )
+            warnings.append(message)
+            for task_id in missing_execution:
+                task_readiness_blockers.setdefault(task_id, []).append(message)
 
     return {
         "errors": list(dict.fromkeys(errors)),
@@ -702,6 +901,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         "releases": releases,
         "tasks": tasks,
         "task_details": detail_contracts,
+        "task_readiness_blockers": task_readiness_blockers,
         "units": units,
         "bindings": bindings,
     }
@@ -718,12 +918,12 @@ def delivery_readiness(
     result = validate_delivery_contract(root, manifest)
     blockers = list(result["errors"])
     warnings = list(result["warnings"])
-    if str(manifest.get("schema_version")) != "1.2":
+    if str(manifest.get("schema_version")) not in {"1.2", "1.3"}:
         return {
             "status": "not-applicable",
             "blockers": [],
             "warnings": [
-                "El contrato PLAN/TASK y el gobierno de entrega requieren schema 1.2."
+                "El contrato PLAN/TASK y el gobierno de entrega requieren schema 1.2 o 1.3."
             ],
             "task_ids": [],
             "binding_ids": [],
@@ -777,6 +977,9 @@ def delivery_readiness(
             f"{increment} no tiene una tarea ready seleccionada para G2."
         )
     for task_id, row in tasks.items():
+        blockers.extend(
+            result.get("task_readiness_blockers", {}).get(task_id, [])
+        )
         if row.get("Workflow state") != "ready":
             blockers.append(
                 f"{task_id} debe estar ready antes de iniciar implementación; "
@@ -792,7 +995,7 @@ def delivery_readiness(
             dependency_state = result["tasks"].get(dependency, {}).get(
                 "Workflow state"
             )
-            if dependency_state not in {"done", "cancelled"}:
+            if dependency_state != "done":
                 blockers.append(
                     f"{task_id} depende de {dependency}, que aún está "
                     f"{dependency_state or 'absent'}."
@@ -823,8 +1026,21 @@ def task_board(root: Path, manifest: dict[str, Any]) -> dict[str, Any]:
     validated = validate_delivery_contract(root, manifest)
     tasks = validated["tasks"]
     by_plan: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    definition_statuses: list[str] = []
     for task_id, row in sorted(tasks.items()):
-        by_plan[row.get("Plan", "unknown")].append({"task_id": task_id, **row})
+        details = validated.get("task_details", {}).get(task_id, {})
+        continuity_rows = details.get("continuity", [])
+        continuity = continuity_rows[0] if len(continuity_rows) == 1 else {}
+        definition_statuses.append(continuity.get("Definition status", "legacy"))
+        by_plan[row.get("Plan", "unknown")].append(
+            {
+                "task_id": task_id,
+                **row,
+                "definition_status": continuity.get("Definition status", "legacy"),
+                "checkpoint": continuity.get("Current checkpoint", "none"),
+                "next_safe_action": continuity.get("Next safe action", "not-recorded"),
+            }
+        )
     return {
         "valid": not validated["errors"],
         "errors": validated["errors"],
@@ -838,13 +1054,18 @@ def task_board(root: Path, manifest: dict[str, Any]) -> dict[str, Any]:
                 for task_id, row in tasks.items()
                 if row.get("Workflow state") == "blocked"
             ),
+            "definition": dict(
+                sorted(Counter(definition_statuses).items())
+            ),
         },
         "plans": dict(sorted(by_plan.items())),
         "source": "docs/lks-sdd/04-delivery/tasks.md",
     }
 
 
-def repository_revision(root: Path) -> dict[str, Any]:
+def repository_revision(
+    root: Path, *, overrides: dict[str, bytes] | None = None
+) -> dict[str, Any]:
     """Bind evidence to Git HEAD or a deterministic workspace fingerprint."""
 
     root = root.expanduser().resolve()
@@ -887,7 +1108,8 @@ def repository_revision(root: Path) -> dict[str, Any]:
     digest = hashlib.sha256()
     ignored = {
         ".git",
-        ".lks-sdd/evidence",
+        ".lks-sdd",
+        "docs/lks-sdd",
         "node_modules",
         ".venv",
         "dist",
@@ -898,15 +1120,30 @@ def repository_revision(root: Path) -> dict[str, Any]:
         "test-results",
         "playwright-report",
     }
-    for path in sorted(root.rglob("*")):
+    replacement_bytes = {
+        Path(relative).as_posix(): content
+        for relative, content in (overrides or {}).items()
+    }
+    workspace_files: dict[str, Path] = {}
+    for path in root.rglob("*"):
         if not path.is_file() or _is_link_like(path):
             continue
         relative = path.relative_to(root).as_posix()
         if any(relative == item or relative.startswith(item + "/") for item in ignored):
             continue
+        workspace_files[relative] = path
+    for relative in sorted(set(workspace_files) | set(replacement_bytes)):
+        if any(relative == item or relative.startswith(item + "/") for item in ignored):
+            continue
         digest.update(relative.encode("utf-8"))
         digest.update(b"\0")
-        digest.update(hashlib.sha256(path.read_bytes()).digest())
+        digest.update(
+            hashlib.sha256(
+                replacement_bytes[relative]
+                if relative in replacement_bytes
+                else workspace_files[relative].read_bytes()
+            ).digest()
+        )
     value = digest.hexdigest()
     return {
         "kind": "workspace",

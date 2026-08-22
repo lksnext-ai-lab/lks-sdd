@@ -70,8 +70,8 @@ def _valid_config() -> dict:
             "security_url": "https://security.example.invalid/lks-sdd",
         },
         "rollback": {
-            "previous_version": "0.7.0",
-            "candidate_version": "0.8.0",
+            "previous_version": "0.8.0",
+            "candidate_version": "0.9.0",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },
@@ -113,7 +113,7 @@ def _package_repository(root: Path) -> str:
     }
     manifest = {
         "name": "lks-sdd",
-        "version": "0.8.0",
+        "version": "0.9.0",
         "description": "Synthetic package fixture",
         "author": {"name": "LKS"},
         "skills": "./skills/",
@@ -132,7 +132,7 @@ def _package_repository(root: Path) -> str:
         "quality/baselines/v0.6.1.json",
         "quality/catalog.json",
         "quality/corpora/activation.json",
-        "quality/corpora/definition-v0.8.0.json",
+        "quality/corpora/definition-v0.9.0.json",
         "quality/fixture-manifest.json",
         "schemas/quality-report.schema.json",
     ]
@@ -175,7 +175,7 @@ def _forged_release_quality_report(
     report = {
         "schema_version": "1.1",
         "suite": "synthetic release gate",
-        "plugin_version": "0.8.0",
+        "plugin_version": "0.9.0",
         "evaluated_on": "2026-08-20",
         "channel": "candidate",
         "source": {"commit": source_commit, "tree_state": tree_state},
@@ -281,7 +281,7 @@ def _harness_quality_report(
         "CATALOG_PATH": source_root / "quality/catalog.json",
         "CORPUS_PATH": source_root / "quality/corpora/activation.json",
         "DEFINITION_CORPUS_PATH": source_root
-        / "quality/corpora/definition-v0.8.0.json",
+        / "quality/corpora/definition-v0.9.0.json",
         "FIXTURE_MANIFEST_PATH": source_root / "quality/fixture-manifest.json",
         "MANIFEST_PATH": source_root / ".codex-plugin/plugin.json",
     }
@@ -498,8 +498,8 @@ class M5PilotTests(unittest.TestCase):
             self.assertEqual(
                 set(checksum_entries),
                 {
-                    "lks-sdd-plugin-v0.8.0.zip",
-                    "lks-sdd-marketplace-v0.8.0.zip",
+                    "lks-sdd-plugin-v0.9.0.zip",
+                    "lks-sdd-marketplace-v0.9.0.zip",
                     "quality-report.json",
                     "release-manifest.json",
                 },
@@ -518,7 +518,7 @@ class M5PilotTests(unittest.TestCase):
                 release_manifest["quality"]["baseline_commit"],
                 "7318ccc337570e296bffda68a8e49724bed94c99",
             )
-            marketplace_zip = root / "first" / "lks-sdd-marketplace-v0.8.0.zip"
+            marketplace_zip = root / "first" / "lks-sdd-marketplace-v0.9.0.zip"
             with zipfile.ZipFile(marketplace_zip) as archive:
                 names = set(archive.namelist())
                 marketplace = json.loads(
@@ -730,7 +730,7 @@ class M5PilotTests(unittest.TestCase):
                 source_root,
                 quality_report,
             )
-            plugin_zip = root / "built" / "lks-sdd-plugin-v0.8.0.zip"
+            plugin_zip = root / "built" / "lks-sdd-plugin-v0.9.0.zip"
             with zipfile.ZipFile(plugin_zip) as archive:
                 self.assertNotIn("lks-sdd/ignored.txt", archive.namelist())
                 self.assertEqual(
@@ -740,7 +740,7 @@ class M5PilotTests(unittest.TestCase):
                 committed_manifest = json.loads(
                     archive.read("lks-sdd/.codex-plugin/plugin.json")
                 )
-                self.assertEqual(committed_manifest["version"], "0.8.0")
+                self.assertEqual(committed_manifest["version"], "0.9.0")
 
 
 if __name__ == "__main__":

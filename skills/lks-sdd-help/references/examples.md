@@ -34,7 +34,19 @@ Resultado esperado: explicación del preflight, alcance, exclusiones, separació
 
 > Usa `$lks-sdd-assess-readiness` para evaluar `INC-001`. No corrijas documentos ni implementes nada.
 
-Resultado esperado: informa por separado `specification_readiness`, `delivery_readiness` y `automation_support`, mantiene `implementation_authorized: false` y explica el cambio mínimo para cada bloqueo. Una pila suficientemente definida no se sustituye por otro perfil aunque carezca de certificación.
+Resultado esperado: informa por separado especificación, automatización, completitud integral, porción seleccionada, autorización, implementación, verificación y entrega. Mantiene `TASK-001: ready` aunque la release sea `partial`, sin convertirlo en readiness global, y explica el cambio mínimo para cada eje.
+
+## Cierre con planificación parcial
+
+> La especificación de `INC-001` está cerrada y `TASK-001` está lista. Muéstrame el handoff y qué falta antes de implementar toda la release.
+
+Resultado esperado: resume lo confirmado; declara `planning_completeness: partial`; enumera alcance, aceptación y pruebas sin tarea; recomienda completar la planificación; ofrece planificación integral, porción incremental explícita o pausa; y pide confirmación antes de materializar tareas propuestas.
+
+## Reanudación
+
+> Reanuda la implementación desde el último checkpoint. No repitas trabajo ni supongas que los checks pendientes pasaron.
+
+Resultado esperado: valida rama, revisión, árbol, archivos, huellas y autorización; muestra entregables completos/parciales, checks y bloqueos; recomienda continuar, reconciliar o replanificar; y expone tareas independientes seguras.
 
 ## Trazabilidad previa a implementación
 

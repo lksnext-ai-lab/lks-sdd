@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5 + v0.8 delivery/multiprofile",
+  "suite": "LKS-SDD M0-M5 + v0.9 planning/continuity",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
@@ -31,7 +31,11 @@
     "no_implicit_scope_expansion",
     "canonical_markdown_remains_source_of_truth",
     "no_uncertified_profile_claimed_as_supported",
-    "no_delivery_without_exact_revision_and_artifact"
+    "no_delivery_without_exact_revision_and_artifact",
+    "no_task_readiness_presented_as_full_plan",
+    "no_implementation_without_current_authorization",
+    "no_resume_without_checkpoint_reconciliation",
+    "no_written_code_presented_as_verified"
   ],
   "cases": [
     {"id": "FX-01", "title": "Idea ambigua", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": "insufficient-information.json", "critical": true, "evidence": []},
@@ -62,6 +66,14 @@
     {"id": "FX-24", "title": "Migración de gobierno 1.1 a 1.2", "family": "compatibility", "layers": ["T1", "T7", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_11_to_12_creates_governance_and_rolls_back_created_artifacts"]},
     {"id": "FX-25", "title": "Soporte ligado a certificación exacta", "family": "compatibility", "layers": ["T0", "T1", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_only_exactly_certified_active_profiles_are_supported"]},
     {"id": "FX-26", "title": "Preparación de varias unidades desplegables", "family": "implementation", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_two_certified_bindings_prepare_one_task_slice_without_collisions"]},
-    {"id": "FX-27", "title": "Entrega ligada a revisión, árbol, build y artefacto", "family": "verification", "layers": ["T0", "T1", "T6", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_delivery_evidence_rejects_unverifiable_revision_tree_build_or_artifact"]}
+    {"id": "FX-27", "title": "Entrega ligada a revisión, árbol, build y artefacto", "family": "verification", "layers": ["T0", "T1", "T6", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_delivery_evidence_rejects_unverifiable_revision_tree_build_or_artifact"]},
+    {"id": "FX-28", "title": "Calculadora cerrada con planificación parcial", "family": "planning", "layers": ["T0", "T1", "T3", "T5"], "mode": "automated", "fixture": "prueba-calculadora-planning-partial.json", "critical": true, "evidence": ["test:test_calculator_release_remains_partial_when_only_task_001_is_ready", "test:test_incremental_policy_authorizes_only_the_explicit_ready_slice", "test:test_verified_slice_does_not_invite_partial_release_promotion"]},
+    {"id": "FX-29", "title": "Plan integral confirmado y autorizable", "family": "planning", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_complete_plan_exposes_parallel_frontier_and_authorization", "test:test_parallel_execution_start_preserves_existing_active_tasks", "test:test_coverage_rejects_contributors_outside_the_release_objective", "test:test_task_overlap_requires_explicit_contributor_responsibility", "test:test_task_capabilities_and_gates_must_belong_to_its_binding", "test:test_plan_is_partial_when_binding_contract_cannot_be_loaded", "test:test_explanatory_pending_placeholder_is_not_executable_content", "test:test_authorization_rejects_a_proposed_decision", "test:test_authorization_constraints_cannot_diverge_from_canonical_markdown"]},
+    {"id": "FX-30", "title": "Checkpoint y reanudación segura", "family": "implementation", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_checkpoint_reconstructs_partial_blocked_and_independent_work"]},
+    {"id": "FX-31", "title": "Cambio de alcance invalida huellas", "family": "planning", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_scope_change_stales_planning_and_authorization", "test:test_proposed_change_does_not_become_confirmed_impact", "test:test_planning_change_rejects_unknown_classification_and_bad_hashes", "test:test_plan_change_stales_authorization_without_operational_noise", "test:test_coverage_responsibility_change_stales_authorization", "test:test_done_reopens_only_for_an_exact_confirmed_original_contract_failure"]},
+    {"id": "FX-32", "title": "Objetivo de release con alcance sin tarea", "family": "planning", "layers": ["T0", "T1", "T5"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_release_objective_with_unassigned_scope_is_partial", "test:test_release_assessment_covers_every_declared_increment"]},
+    {"id": "FX-33", "title": "Dependencia cancelada no resuelta", "family": "planning", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_cancelled_dependency_does_not_unlock_task"]},
+    {"id": "FX-34", "title": "Camino crítico sin duraciones", "family": "planning", "layers": ["T0", "T1", "T5"], "mode": "automated", "fixture": null, "critical": false, "evidence": ["test:test_critical_path_is_undetermined_without_confirmed_durations"]},
+    {"id": "FX-35", "title": "Migración 1.2 a 1.3 conservadora y reversible", "family": "compatibility", "layers": ["T0", "T1", "T7", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_12_to_13_creates_partial_planning_without_authorization_and_rolls_back", "test:test_migrated_ready_task_keeps_workflow_but_loses_executable_readiness"]}
   ]
 }

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.9.0 — 2026-08-22 — planificación integral y continuidad autónoma
+
+- Añade el contrato de método 1.3 y separa explícitamente readiness de especificación, soporte de automatización, completitud e integridad de planificación, readiness de la porción seleccionada, implementación, verificación y entrega.
+- Emite un handoff orientado a acción cuando la especificación está cerrada, sin presentar una tarea `ready` como planificación completa ni usar un `ready` global ambiguo.
+- Incorpora `ART-PLANNING` con objetivo, política `complete-before-implementation` o `incremental-authorized`, propiedad primaria de todo el contrato activo, contribuyentes, autorizaciones y cambios `PCH-###`.
+- Deriva huecos concretos de requisitos, aceptación, pruebas y obligaciones activas; valida definiciones ejecutables, release, ausencia de propiedad duplicada, DAG acíclico, raíces, fronteras paralelas e integración conjunta.
+- Mantiene el camino crítico como `undetermined` cuando no existen duraciones confirmadas y no inventa fechas, esfuerzo, velocidad, capacidad, avance, autoridad ni evidencia.
+- Añade autorizaciones `AUTH-###` ligadas a tareas y fingerprints separados de especificación y planificación; persisten entre pausas y se invalidan ante divergencia, cambio de alcance o revocación.
+- Añade ejecuciones `EXEC-###` y checkpoints `CKPT-###` versionables con revisión, rama, archivos y hashes observados, entregables, aceptación, gates, evidencia, bloqueos, siguiente acción y trabajo paralelo seguro.
+- Endurece dependencias: `cancelled` ya no equivale a `done`. Reabrir una tarea terminada exige un `PCH-###` confirmado por fallo del contrato original; el alcance nuevo crea otra tarea.
+- Impide iniciar una tarea 1.3 sin `EXEC-###` activa y marcarla `done` mediante referencias declarativas: revisión, build, artefacto, entorno y gates deben coincidir con una evidencia canónica `verified` enlazada a la ejecución.
+- Añade comandos portables `planning` y `continuity`, integra el checkpoint inicial en la preparación autorizada y valida al reanudar si procede continuar, reconciliar o replanificar.
+- Añade migración explícita y reversible `1.2 → 1.3`, que crea cobertura y continuidad pendientes sin inventar tareas, completitud, autorización, ejecución, checkpoint, avance o evidencia.
+- Conserva el workflow histórico de tareas migradas, pero separa su readiness ejecutable: una tarea 1.2 antes `ready` queda visible como tal y bloqueada para ejecución hasta completar la definición 1.3.
+- Actualiza las seis skills, ayudas, plantillas, esquemas, documentación, validadores, pruebas y escenarios, incluido el caso real de `prueba-calculadora` con especificación cerrada, `TASK-001` ready y release todavía parcial.
+- Mantiene la release como candidate y los canales humanos, semánticos o de piloto no ejecutados como `not-run`; no instala ni activa el plugin al publicarlo.
+
 ## 0.8.0 — 2026-08-21 — gobierno de entrega y arquitectura multiperfil
 
 - Añade el contrato de método 1.2 para definir antes de G2 el modelo de entrega, versionado, Git/ramas, CI/CD, entornos, promoción, despliegue, observabilidad y recuperación, sin imponer una estrategia única.

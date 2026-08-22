@@ -21,7 +21,7 @@ python scripts\validate_plugin_contract.py .
 python scripts\validate_fixture_manifest.py .
 ```
 
-`--allow-unvalidated` comprueba la estructura de los diez perfiles, incluidos los candidate; no los presenta como soportados. `validate_plugin_contract.py` exige además que cada perfil `active` tenga una certificación exacta vigente, valida catálogo, drivers, scaffolds y locks, las seis fuentes canónicas, el contrato 1.2, las seis skills y la ausencia de componentes fuera de alcance.
+`--allow-unvalidated` comprueba la estructura de los diez perfiles, incluidos los candidate; no los presenta como soportados. `validate_plugin_contract.py` exige además que cada perfil `active` tenga una certificación exacta vigente, valida catálogo, drivers, scaffolds y locks, las siete fuentes canónicas, el contrato 1.3, las seis skills y la ausencia de componentes fuera de alcance.
 
 Puede consultar el inventario de producto así:
 
@@ -62,7 +62,7 @@ El harness conserva su formato de reporte 1.1 y reejecuta un perfil completo rep
 
 El reporte publicable debe crearse desde un checkout dedicado, limpio y sin archivos no versionados preexistentes, incluso ignorados. Una ejecución sobre el árbol de desarrollo es diagnóstico, no atestación publicable. El procedimiento reproducible y el doble build están en `docs/DISTRIBUTION.md`.
 
-## Validación de un proyecto consumidor 1.2
+## Validación de un proyecto consumidor 1.3
 
 `<plugin-root>` y `<project-root>` son ubicaciones distintas:
 
@@ -71,12 +71,16 @@ python "<plugin-root>\scripts\lks_sdd.py" validate-project "<project-root>" --js
 python "<plugin-root>\scripts\lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase preimplementation --json
 python "<plugin-root>\scripts\lks_sdd.py" tasks "<project-root>" validate
 python "<plugin-root>\scripts\lks_sdd.py" tasks "<project-root>" board
-python "<plugin-root>\scripts\lks_sdd.py" assess-readiness "<project-root>" --increment INC-001 --json
+python "<plugin-root>\scripts\lks_sdd.py" planning "<project-root>" --increment INC-001 assess --json
+python "<plugin-root>\scripts\lks_sdd.py" planning "<project-root>" --increment INC-001 next --json
+python "<plugin-root>\scripts\lks_sdd.py" assess-readiness "<project-root>" --increment INC-001 --task TASK-001 --json
 python "<plugin-root>\scripts\lks_sdd.py" implement "<project-root>" --increment INC-001 --task TASK-001 --dry-run --json
-python "<plugin-root>\scripts\lks_sdd.py" tasks "<project-root>" transition --task TASK-001 --to blocked --reason "PROB-001 pendiente" --actor delivery-owner --date 2026-08-21 --blocker PROB-001 --preview --json
+python "<plugin-root>\scripts\lks_sdd.py" continuity "<project-root>" resume --json
+python "<plugin-root>\scripts\lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --execution-id EXEC-001 --plan --json
+python "<plugin-root>\scripts\lks_sdd.py" tasks "<project-root>" transition --task TASK-001 --to blocked --reason "PROB-001 pendiente" --actor delivery-owner --date 2026-08-22 --blocker PROB-001 --preview --json
 ```
 
-La preparación y las transiciones que escriben usan preview, hash de autorización y apply explícito. El apply de preparación sincroniza automáticamente las tareas seleccionadas de `ready` a `in-progress`; las demás transiciones se realizan con `tasks transition`. La verificación G3/G4 debe vincularse a revisión, árbol, build, artefactos y entorno. Ningún comando de validación autoriza merge o despliegue.
+La confirmación del plan, la autorización, la preparación, los checkpoints y las transiciones que escriben usan preview, hash y apply explícito. El apply de preparación sincroniza las tareas seleccionadas a `in-progress`, crea `EXEC-###` y un checkpoint inicial; no crea commit. La verificación G3/G4 debe vincularse a revisión, árbol, build, artefactos y entorno. Ningún comando de validación autoriza merge o despliegue.
 
 ## Migraciones
 
@@ -85,9 +89,10 @@ Las migraciones son de un salto:
 ```powershell
 python "<plugin-root>\scripts\lks_sdd.py" migrate "<project-root>" --target-schema 1.1 --dry-run
 python "<plugin-root>\scripts\lks_sdd.py" migrate "<project-root>" --target-schema 1.2 --dry-run
+python "<plugin-root>\scripts\lks_sdd.py" migrate "<project-root>" --target-schema 1.3 --dry-run
 ```
 
-1.0 → 1.1 bloquea apply si existe cualquier `human_review_required`; resuelva el Markdown 1.0 de origen y repita el preview. 1.1 → 1.2 crea gobierno, arquitectura, planes, tareas y bindings pendientes sin inventar decisiones. Cada apply exige backup externo, autorización y hash exacto; el rollback utiliza el manifiesto de esa operación.
+1.0 → 1.1 bloquea apply si existe cualquier `human_review_required`; resuelva el Markdown 1.0 de origen y repita el preview. 1.1 → 1.2 crea gobierno, arquitectura, planes, tareas y bindings pendientes. 1.2 → 1.3 añade cobertura, huellas, autorizaciones y ejecuciones vacías sin inventar decisiones, tareas, avance o evidencia. Cada apply exige backup externo, autorización y hash exacto; el rollback utiliza el manifiesto de esa operación.
 
 ## Piloto y distribución
 

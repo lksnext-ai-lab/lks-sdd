@@ -2,7 +2,7 @@
 
 ## Decisión de producto
 
-LKS-SDD 0.8.0 es un plugin SDD para Codex. Codex es el entorno objetivo y el único soportado contractualmente. El manifiesto, el descubrimiento de skills, los prompts, los permisos y los workflows se diseñan y evalúan en ese contexto.
+LKS-SDD 0.9.0 es un plugin SDD para Codex. Codex es el entorno objetivo y el único soportado contractualmente. El manifiesto, el descubrimiento de skills, los prompts, los permisos y los workflows se diseñan y evalúan en ese contexto.
 
 | Entorno | Estado | Alcance |
 |---|---|---|
@@ -18,12 +18,15 @@ Los Markdown, JSON Schema y scripts Python pueden ser técnicamente reutilizable
 
 | Proyecto consumidor | Validación | Evolución |
 |---|---|---|
-| Nuevo con LKS-SDD 0.8.0 | Método `1.2.0`, esquema `1.2` | Formato activo con gobierno, unidades, bindings, planes y tareas. |
-| Existente 1.1 | Compatible sin escritura automática | Migración explícita `1.1 → 1.2`; crea pendientes, nunca inventa decisiones. |
-| Existente 1.0 | Compatible con reglas legacy y avisos | Primero `1.0 → 1.1`; después, en otra operación, `1.1 → 1.2`. |
+| Nuevo con LKS-SDD 0.9.0 | Método `1.3.0`, esquema `1.3` | Formato activo con cobertura integral, autorización y continuidad reanudable. |
+| Existente 1.2 | Compatible sin escritura automática | Su cobertura se deriva conservadoramente; migración explícita `1.2 → 1.3` para nuevas ejecuciones durables. |
+| Existente 1.1 | Compatible sin escritura automática | Migración explícita `1.1 → 1.2`; después, en otra operación, `1.2 → 1.3`. |
+| Existente 1.0 | Compatible con reglas legacy y avisos | Ruta explícita `1.0 → 1.1 → 1.2 → 1.3`, una operación por salto. |
 | Existente 0.9 | Sin salto directo | Ruta histórica `0.9 → 1.0`, un salto autorizado cada vez. |
 
-La actualización del plugin no migra proyectos consumidores. Cada aplicación de migración exige preview, hash coincidente, backup externo, autorización expresa y validación posterior. `1.0 → 1.1` mantiene el bloqueo por `human_review_required`; `1.1 → 1.2` materializa gobierno, arquitectura, planes, tareas y bindings como pendientes cuando no existe una decisión confirmada.
+La actualización del plugin no migra proyectos consumidores. Cada aplicación de migración exige preview, hash coincidente, backup externo, autorización expresa y validación posterior. `1.0 → 1.1` mantiene el bloqueo por `human_review_required`; `1.1 → 1.2` materializa gobierno, arquitectura, planes, tareas y bindings como pendientes; `1.2 → 1.3` añade cobertura, huellas, autorizaciones y ejecuciones vacías, sin inventar tareas, decisiones, avance, evidencia o checkpoints.
+
+La migración conserva el `Workflow state` histórico de cada tarea. Si una tarea 1.2 figuraba `ready` pero no contiene los nuevos campos ejecutables, el tablero seguirá mostrando ese hecho y `Definition status` quedará `incomplete`; el readiness derivado de la porción será `blocked` hasta completar y confirmar la definición. No se degrada el pasado ni se presenta el estado legado como autorización vigente.
 
 ## Compatibilidad tecnológica
 
@@ -38,7 +41,7 @@ La compatibilidad se declara por composición exacta, no por semejanza de nombre
 
 `active` expresa intención de producto; `supported` exige además una certificación exacta válida. `candidate` significa que el perfil puede documentarse y evaluarse, pero el plugin no garantiza todavía su recorrido reproducible `readiness → prepare → implement → verify`. Un proyecto con React/Vite estático no debe forzarse al perfil completo con API, identidad y base de datos; debe seleccionar el perfil coherente con su arquitectura y quedar bloqueado si esa composición no está certificada.
 
-El esquema 1.2 admite varias unidades desplegables y un binding independiente por unidad. La combinación dinámica de capabilities dentro de un proyecto no crea automáticamente un perfil nuevo: la composición debe existir y estar certificada en la release del plugin.
+Los esquemas 1.2 y 1.3 admiten varias unidades desplegables y un binding independiente por unidad. La combinación dinámica de capabilities dentro de un proyecto no crea automáticamente un perfil nuevo: la composición debe existir y estar certificada en la release del plugin.
 
 ## CLI portable
 
@@ -49,8 +52,10 @@ python "<plugin-root>/scripts/lks_sdd.py" profiles --all
 python "<plugin-root>/scripts/lks_sdd.py" validate-project "<project-root>" --json
 python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase preimplementation --json
 python "<plugin-root>/scripts/lks_sdd.py" assess-readiness "<project-root>" --increment INC-001 --json
+python "<plugin-root>/scripts/lks_sdd.py" planning "<project-root>" --increment INC-001 assess
 python "<plugin-root>/scripts/lks_sdd.py" tasks "<project-root>" board
-python "<plugin-root>/scripts/lks_sdd.py" migrate "<project-root>" --target-schema 1.2 --dry-run
+python "<plugin-root>/scripts/lks_sdd.py" continuity "<project-root>" resume
+python "<plugin-root>/scripts/lks_sdd.py" migrate "<project-root>" --target-schema 1.3 --dry-run
 ```
 
 Use la ayuda de la versión instalada para los argumentos exactos. Una evaluación, preview o plan no autoriza escribir, mergear, desplegar ni promover artefactos.

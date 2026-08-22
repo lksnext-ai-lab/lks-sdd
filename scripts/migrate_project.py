@@ -16,14 +16,19 @@ from pathlib import Path
 from typing import Any
 
 from validate_project import validate_project
+from delivery_engine import TASK_HEADERS, parse_tables
 
-LATEST_SCHEMA = "1.2"
-PLUGIN_VERSION = "0.8.0"
-METHOD_VERSION = "1.2.0"
+LATEST_SCHEMA = "1.3"
+PLUGIN_VERSION = "0.9.0"
+METHOD_VERSION = "1.3.0"
+V12_PLUGIN_VERSION = "0.8.0"
+V12_METHOD_VERSION = "1.2.0"
 V11_PLUGIN_VERSION = "0.7.0"
 V11_METHOD_VERSION = "1.1.0"
 RECORD_NAME = "migration-record.json"
-SUPPORTED_MIGRATIONS = {("0.9", "1.0"), ("1.0", "1.1"), ("1.1", "1.2")}
+SUPPORTED_MIGRATIONS = {
+    ("0.9", "1.0"), ("1.0", "1.1"), ("1.1", "1.2"), ("1.2", "1.3")
+}
 
 V12_ARTIFACTS = (
     ("ART-ARCH", "docs/lks-sdd/03-solution/architecture.md"),
@@ -32,6 +37,9 @@ V12_ARTIFACTS = (
     ("ART-TASKS", "docs/lks-sdd/04-delivery/tasks.md"),
     ("ART-TEST-STRATEGY", "docs/lks-sdd/05-quality/test-strategy.md"),
     ("ART-DEPLOYMENT", "docs/lks-sdd/06-operation/deployment.md"),
+)
+V13_ARTIFACTS = (
+    ("ART-PLANNING", "docs/lks-sdd/04-delivery/planning-coverage.md"),
 )
 
 LEGACY_STATE_MAP = {
@@ -629,10 +637,10 @@ def _migrate_markdown_11_to_12(
         raise MigrationError(f"{relative}: artifact_type ausente en front matter.")
     _set_frontmatter_value(lines, start, end, "schema_version", "1.2", relative)
     _set_frontmatter_value(
-        lines, start, end, "method_version", METHOD_VERSION, relative
+        lines, start, end, "method_version", V12_METHOD_VERSION, relative
     )
     _set_frontmatter_value(
-        lines, start, end, "created_with_plugin_version", PLUGIN_VERSION, relative
+        lines, start, end, "created_with_plugin_version", V12_PLUGIN_VERSION, relative
     )
     operations = ["frontmatter-contract-1.2"]
     migrated = "".join(lines)
@@ -659,6 +667,69 @@ def _migrate_markdown_11_to_12(
     return migrated.encode("utf-8"), [], operations
 
 
+def _migrate_markdown_12_to_13(
+    content: bytes, relative: str
+) -> tuple[bytes, list[dict[str, str]], list[str]]:
+    """Add planning-continuity structure without inferring completion or evidence."""
+
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise MigrationError(f"Markdown no UTF-8: {relative}") from exc
+    lines = text.splitlines(keepends=True)
+    start, end = _frontmatter_bounds(lines, relative)
+    if _frontmatter_value(lines, start, end, "schema_version") != "1.2":
+        raise MigrationError(
+            f"{relative}: se esperaba schema_version 1.2 en front matter."
+        )
+    artifact_type = _frontmatter_value(lines, start, end, "artifact_type")
+    if not artifact_type:
+        raise MigrationError(f"{relative}: artifact_type ausente en front matter.")
+    _set_frontmatter_value(lines, start, end, "schema_version", "1.3", relative)
+    _set_frontmatter_value(lines, start, end, "method_version", METHOD_VERSION, relative)
+    _set_frontmatter_value(
+        lines, start, end, "created_with_plugin_version", PLUGIN_VERSION, relative
+    )
+    operations = ["frontmatter-contract-1.3"]
+    migrated = "".join(lines)
+    if artifact_type == "development-task":
+        newline = "\r\n" if "\r\n" in migrated else "\n"
+        additions: list[str] = []
+        if "## Plan de ejecución verificable" not in migrated:
+            additions.extend(
+                [
+                    "## Plan de ejecución verificable",
+                    "",
+                    "| Tests | Decisions and constraints | Risks and blockers | Responsible role | Review entry conditions | Definition of done | Required evidence | Integration points | Parallel constraints |",
+                    "|---|---|---|---|---|---|---|---|---|",
+                    "| pending | pending | pending | pending-assignment | pending | pending | pending | pending | pending |",
+                    "",
+                    "## Entregables",
+                    "",
+                    "| Deliverable | State | Acceptance | Tests | Evidence | Notes |",
+                    "|---|---|---|---|---|---|",
+                    "| pending | pending | pending | pending | pending | migration did not infer progress |",
+                    "",
+                ]
+            )
+            operations.append("task-executable-plan-pending")
+        if "## Continuidad" not in migrated:
+            additions.extend(
+                [
+                    "## Continuidad",
+                    "",
+                    "| Definition status | Current checkpoint | Authorization | Authorization scope | Specification fingerprint | Planning fingerprint | Next safe action |",
+                    "|---|---|---|---|---|---|---|",
+                    "| incomplete | none | none | none | pending | pending | complete and confirm the migrated task definition |",
+                    "",
+                ]
+            )
+            operations.append("task-continuity-pending")
+        if additions:
+            migrated = migrated.rstrip("\r\n") + newline * 2 + newline.join(additions)
+    return migrated.encode("utf-8"), [], operations
+
+
 def _render_v12_template(
     root: Path, relative: str, project_id: str, baseline_id: str, today: str
 ) -> bytes:
@@ -674,6 +745,24 @@ def _render_v12_template(
     if not template.is_file():
         raise MigrationError(f"Falta la plantilla 1.2 empaquetada: {template_relative}")
     text = template.read_text(encoding="utf-8")
+    text = re.sub(
+        r'^schema_version: "[0-9.]+"$',
+        'schema_version: "1.2"',
+        text,
+        flags=re.MULTILINE,
+    )
+    text = re.sub(
+        r'^method_version: "[0-9.]+"$',
+        f'method_version: "{V12_METHOD_VERSION}"',
+        text,
+        flags=re.MULTILINE,
+    )
+    text = re.sub(
+        r'^created_with_plugin_version: "[0-9A-Za-z.-]+"$',
+        f'created_with_plugin_version: "{V12_PLUGIN_VERSION}"',
+        text,
+        flags=re.MULTILINE,
+    )
     replacements = {
         "{{PROJECT_ID}}": project_id,
         "{{BASELINE_ID}}": baseline_id,
@@ -685,6 +774,34 @@ def _render_v12_template(
     if remaining:
         raise MigrationError(
             f"Tokens 1.2 sin resolver en {template_relative}: {remaining}"
+        )
+    return text.encode("utf-8")
+
+
+def _render_v13_template(
+    root: Path, relative: str, project_id: str, baseline_id: str, today: str
+) -> bytes:
+    template_relative = relative.removeprefix("docs/lks-sdd/")
+    template = (
+        Path(__file__).resolve().parents[1]
+        / "skills/lks-sdd-define"
+        / "assets/templates"
+        / template_relative
+    )
+    if not template.is_file():
+        raise MigrationError(f"Falta la plantilla 1.3 empaquetada: {template_relative}")
+    text = template.read_text(encoding="utf-8")
+    replacements = {
+        "{{PROJECT_ID}}": project_id,
+        "{{BASELINE_ID}}": baseline_id,
+        "{{DATE}}": today,
+    }
+    for token, value in replacements.items():
+        text = text.replace(token, value)
+    remaining = re.findall(r"\{\{[A-Z0-9_]+\}\}", text)
+    if remaining:
+        raise MigrationError(
+            f"Tokens 1.3 sin resolver en {template_relative}: {remaining}"
         )
     return text.encode("utf-8")
 
@@ -738,8 +855,12 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
             after, artifact_reviews, operations = _migrate_markdown_10_to_11(
                 before, relative
             )
-        else:
+        elif (source_schema, target_schema) == ("1.1", "1.2"):
             after, artifact_reviews, operations = _migrate_markdown_11_to_12(
+                before, relative
+            )
+        else:
+            after, artifact_reviews, operations = _migrate_markdown_12_to_13(
                 before, relative
             )
         reviews.extend(artifact_reviews)
@@ -784,6 +905,69 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
                 {"id": artifact_id, "path": relative, "required": True}
             )
             artifacts_by_id[artifact_id] = artifacts[-1]
+    if (source_schema, target_schema) == ("1.2", "1.3"):
+        project_id = manifest.get("project_id")
+        baseline_id = manifest.get("baseline_id")
+        if not isinstance(project_id, str) or not isinstance(baseline_id, str):
+            raise MigrationError(
+                "project_id y baseline_id son necesarios para crear los artefactos 1.3."
+            )
+        today = datetime.now(UTC).date().isoformat()
+        artifacts_by_id = {
+            item.get("id"): item
+            for item in artifacts
+            if isinstance(item, dict) and isinstance(item.get("id"), str)
+        }
+        for artifact_id, relative in V13_ARTIFACTS:
+            existing = artifacts_by_id.get(artifact_id)
+            if existing is not None:
+                if existing.get("path") != relative:
+                    raise MigrationError(
+                        f"{artifact_id} usa una ruta incompatible: {existing.get('path')!r}."
+                    )
+                existing["required"] = True
+                continue
+            destination = _safe_new_artifact(root, relative)
+            rendered = _render_v13_template(
+                root, relative, project_id, baseline_id, today
+            )
+            # A migration never guesses that REL-001 is the active planning target.
+            rendered_text = rendered.decode("utf-8")
+            rendered_text = re.sub(
+                r"(?m)^\| REL-001 \| release \| proposed \|.*\|$\r?\n",
+                "",
+                rendered_text,
+                count=1,
+            )
+            changes.append(
+                PlannedChange(
+                    destination,
+                    b"",
+                    rendered_text.encode("utf-8"),
+                    ["create-planning-coverage-1.3-without-inference"],
+                    created=True,
+                )
+            )
+            artifacts.append(
+                {"id": artifact_id, "path": relative, "required": True}
+            )
+            artifacts_by_id[artifact_id] = artifacts[-1]
+
+        task_folder = root / "docs/lks-sdd/04-delivery/tasks"
+        if task_folder.is_dir() and not _is_link_like(task_folder):
+            for task_path in sorted(task_folder.glob("TASK-[0-9][0-9][0-9].md")):
+                relative = _relative_path(root, task_path).as_posix()
+                if relative in seen or _is_link_like(task_path):
+                    continue
+                before = task_path.read_bytes()
+                after, task_reviews, operations = _migrate_markdown_12_to_13(
+                    before, relative
+                )
+                reviews.extend(task_reviews)
+                if before != after:
+                    changes.append(
+                        PlannedChange(task_path, before, after, operations)
+                    )
     manifest["schema_version"] = target_schema
     manifest_operations = ["operational-index-version"]
     if target_schema == "1.1":
@@ -796,8 +980,8 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
                     f"remove-derived-{stale_key.replace('_', '-')}"
                 )
     if target_schema == "1.2":
-        manifest["method_version"] = METHOD_VERSION
-        manifest["plugin_version"] = PLUGIN_VERSION
+        manifest["method_version"] = V12_METHOD_VERSION
+        manifest["plugin_version"] = V12_PLUGIN_VERSION
         technology = manifest.setdefault("technology", {})
         if not isinstance(technology, dict):
             raise MigrationError("technology debe ser un objeto antes de migrar a 1.2.")
@@ -835,6 +1019,57 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
                 "task-horizon-initialized",
                 "profile-bindings-initialized",
                 "version-control-decision-pending",
+            ]
+        )
+    if target_schema == "1.3":
+        manifest["method_version"] = METHOD_VERSION
+        manifest["plugin_version"] = PLUGIN_VERSION
+        task_states: dict[str, str] = {}
+        task_entry = next(
+            (
+                item for item in artifacts
+                if isinstance(item, dict) and item.get("id") == "ART-TASKS"
+            ),
+            None,
+        )
+        if isinstance(task_entry, dict):
+            task_path = _safe_artifact(root, str(task_entry["path"]))
+            for headers, rows in parse_tables(
+                task_path.read_text(encoding="utf-8")
+            ):
+                if headers == TASK_HEADERS:
+                    task_states.update(
+                        {
+                            row.get("ID", ""): row.get("Workflow state", "")
+                            for row in rows if row.get("ID")
+                        }
+                    )
+        active_tasks = sorted(
+            task_id for task_id, state in task_states.items()
+            if state in {"in-progress", "in-review", "blocked"}
+        )
+        manifest["active_tasks"] = active_tasks
+        manifest["active_task"] = active_tasks[0] if len(active_tasks) == 1 else None
+        manifest["planning"] = {
+            "source": "docs/lks-sdd/04-delivery/planning-coverage.md",
+            "target_type": None,
+            "target_id": None,
+            "policy": "complete-before-implementation",
+            "policy_decision": None,
+            "specification_fingerprint": None,
+            "planning_fingerprint": None,
+            "confirmed_by_role": None,
+            "confirmed_on": None,
+            "last_change": None,
+        }
+        manifest["authorizations"] = []
+        manifest["executions"] = []
+        manifest_operations.extend(
+            [
+                "planning-coverage-created-partial",
+                "task-definitions-marked-incomplete",
+                "authorizations-not-inferred",
+                "executions-and-checkpoints-not-inferred",
             ]
         )
     manifest_after = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode(
@@ -1200,7 +1435,7 @@ def main() -> int:
     mode.add_argument("--apply", action="store_true")
     parser.add_argument("--rollback", type=Path)
     parser.add_argument(
-        "--target-schema", choices=("1.0", "1.1", "1.2"), default=LATEST_SCHEMA
+        "--target-schema", choices=("1.0", "1.1", "1.2", "1.3"), default=LATEST_SCHEMA
     )
     parser.add_argument("--backup-dir", type=Path)
     parser.add_argument("--authorize", action="store_true")

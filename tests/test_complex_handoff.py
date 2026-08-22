@@ -117,7 +117,10 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
             "plugin_version": "0.7.0",
         }
     )
-    for key in ("active_plan", "active_task", "delivery_governance"):
+    for key in (
+        "active_plan", "active_task", "active_tasks", "delivery_governance",
+        "planning", "authorizations", "executions",
+    ):
         manifest.pop(key, None)
     manifest["technology"].pop("profile_bindings", None)
     manifest["version_control"] = {
@@ -131,6 +134,7 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
         "ART-TASKS",
         "ART-TEST-STRATEGY",
         "ART-DEPLOYMENT",
+        "ART-PLANNING",
     }
     manifest["artifacts"] = [
         item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -143,10 +147,10 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
     for artifact in manifest["artifacts"]:
         path = root / artifact["path"]
         text = path.read_text(encoding="utf-8")
-        text = text.replace('schema_version: "1.2"', 'schema_version: "1.1"', 1)
-        text = text.replace('method_version: "1.2.0"', 'method_version: "1.1.0"', 1)
+        text = text.replace('schema_version: "1.3"', 'schema_version: "1.1"', 1)
+        text = text.replace('method_version: "1.3.0"', 'method_version: "1.1.0"', 1)
         text = text.replace(
-            'created_with_plugin_version: "0.8.0"',
+            'created_with_plugin_version: "0.9.0"',
             'created_with_plugin_version: "0.7.0"',
             1,
         )
@@ -182,11 +186,11 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
         )
         if manifest.get("schema_version") == "1.1":
             rendered = rendered.replace(
-                'schema_version: "1.2"', 'schema_version: "1.1"', 1
+                'schema_version: "1.3"', 'schema_version: "1.1"', 1
             ).replace(
-                'method_version: "1.2.0"', 'method_version: "1.1.0"', 1
+                'method_version: "1.3.0"', 'method_version: "1.1.0"', 1
             ).replace(
-                'created_with_plugin_version: "0.8.0"',
+                'created_with_plugin_version: "0.9.0"',
                 'created_with_plugin_version: "0.7.0"',
                 1,
             )
@@ -349,7 +353,7 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
                 expected_codes={3},
             )
             self.assertEqual(readiness_code, 3, readiness)
-            self.assertEqual(readiness["status"], "blocked")
+            self.assertEqual(readiness["status"], "specification-blocked")
             self.assertIn(
                 "LKS-ACTIVE-HISTORICAL-REFERENCE",
                 {item["code"] for item in readiness["diagnostics"]},
@@ -407,15 +411,21 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
             )
             self.assertFalse(traceability["evidence_required"])
 
-            _, first_readiness = run_json(
+            first_code, first_readiness = run_json(
                 READINESS_SCRIPT,
                 str(root),
                 "--increment",
                 fixture["increment"],
+                expected_codes={3},
             )
-            self.assertEqual(first_readiness["status"], "ready")
+            self.assertEqual(first_code, 3)
+            self.assertEqual(first_readiness["status"], "planning-required")
             self.assertEqual(first_readiness["specification_readiness"]["status"], "ready")
             self.assertEqual(first_readiness["automation_support"]["status"], "supported")
+            self.assertEqual(
+                first_readiness["planning_completeness"]["status"],
+                "not-applicable",
+            )
             self.assertEqual(first_readiness["visual_prototypes"], ["VIS-003"])
             self.assertIn(active_path.relative_to(root).as_posix(), first_readiness["checked_files"])
             self.assertNotIn(historical_path.relative_to(root).as_posix(), first_readiness["checked_files"])
@@ -424,64 +434,40 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
 
             replacement_rgb = fixture["visuals"]["historical"]["replacement_rgb"]
             historical_path.write_bytes(_png_bytes(1440, 900, replacement_rgb))
-            _, second_readiness = run_json(
+            second_code, second_readiness = run_json(
                 READINESS_SCRIPT,
                 str(root),
                 "--increment",
                 fixture["increment"],
+                expected_codes={3},
             )
-            self.assertEqual(second_readiness["status"], "ready")
+            self.assertEqual(second_code, 3)
+            self.assertEqual(second_readiness["status"], "planning-required")
             self.assertEqual(second_readiness["active_contract_fingerprint"], active_fingerprint)
             self.assertNotEqual(second_readiness["document_fingerprint"], document_fingerprint)
 
             before_plans = tree_digest(root)
-            _, preparation = run_json(
+            preparation_code, preparation = run_json(
                 IMPLEMENT_SCRIPT,
                 str(root),
                 "--increment",
                 fixture["increment"],
                 "--dry-run",
+                expected_codes={3},
             )
-            self.assertEqual(preparation["status"], "dry-run")
+            self.assertEqual(preparation_code, 3)
+            self.assertEqual(preparation["status"], "blocked")
             self.assertFalse(preparation["changed"])
-            self.assertEqual(preparation["input_fingerprint"], active_fingerprint)
-
-            _, applied = run_json(
-                IMPLEMENT_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                "--apply",
-                "--authorize",
-                "--preview-hash",
-                preparation["preview_hash"],
-            )
-            self.assertEqual(applied["status"], "prepared")
-            self.assertTrue(applied["changed"])
-            self.assertTrue((root / "apps" / "backend" / "pyproject.toml").is_file())
-            self.assertTrue((root / "apps" / "frontend" / "package.json").is_file())
-
-            _, verification = run_json(
-                VERIFY_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                "--plan",
-            )
-            self.assertEqual(verification["classification"], "not-run")
-            self.assertGreater(len(verification["checks"]), 10)
             self.assertTrue(
-                all(check["status"] == "not-run" for check in verification["checks"])
+                any("migrar" in item.casefold() for item in preparation["blockers"])
             )
-            self.assertNotEqual(tree_digest(root), before_plans)
+            self.assertEqual(tree_digest(root), before_plans)
+            self.assertFalse((root / "apps").exists())
             self.assertFalse((root / "docs" / "lks-sdd" / "evidence").exists())
             final_manifest = json.loads(
                 (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
             )
-            self.assertEqual(final_manifest["implementation"]["status"], "in-progress")
-            self.assertEqual(
-                final_manifest["implementation"]["increment"], fixture["increment"]
-            )
+            self.assertNotIn("implementation", final_manifest)
             self.assertNotIn("verification", final_manifest)
 
 

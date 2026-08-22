@@ -2,13 +2,13 @@
 
 ## Propósito
 
-El harness integra el catálogo base FX-01–FX-19, la extensión visual v0.6 FX-20–FX-21 y la extensión automatizada v0.8 FX-22–FX-27, junto con corpus etiquetados, integridad de fixtures, comprobaciones deterministas, umbrales y regresión. En 0.8.0 cubre además gobierno de entrega, tareas, migración 1.2, soporte ligado a certificación exacta, preparación multiperfil y evidencia G4 atribuible. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
+El harness integra el catálogo base FX-01–FX-19, la extensión visual v0.6 FX-20–FX-21, la extensión automatizada v0.8 FX-22–FX-27 y planificación/continuidad v0.9 FX-28–FX-35. En 0.9.0 cubre además el caso real de planificación parcial, cobertura integral, autorización, checkpoints, cambio de alcance, dependencias canceladas, camino crítico indeterminado y migración conservadora 1.2 → 1.3. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01 requiere entrevista adaptativa y deja de atribuirse al eval automatizado de readiness, que solo demuestra bloqueo ante información insuficiente. FX-20 cubre el snapshot de definición y FX-21 el ciclo visual con ImageGen. FX-22–FX-27 son pruebas deterministas, no sustituyen aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.8.0.json` como corpus vigente de conversación; contiene entradas y rúbrica, no resultados. El corpus 0.7 permanece histórico y nunca se reutiliza para acreditar una línea 0.8.
+FX-01 requiere entrevista adaptativa y deja de atribuirse al eval automatizado de readiness, que solo demuestra bloqueo ante información insuficiente. FX-20 cubre el snapshot de definición y FX-21 el ciclo visual con ImageGen. FX-22–FX-35 son pruebas deterministas, no sustituyen aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.9.0.json` como corpus vigente de conversación; contiene entradas y rúbrica, no resultados. Los corpus anteriores permanecen históricos y nunca se reutilizan para acreditar otra línea minor.
 
 ## Canales de evidencia
 
-- `automated`: contrato 0.8/1.2, inventario y certificaciones exactas de perfiles active, pruebas unitarias y evals deterministas.
+- `automated`: contratos 0.8/1.2 y 0.9/1.3, inventario y certificaciones exactas de perfiles active, pruebas unitarias y evals deterministas.
 - `fixture-integrity`: inventario completo, JSON válido y hash exacto de cada fixture sintético.
 - `profile-complete`: reejecución integral en Docker de un perfil representativo. La puerta contractual valida además que todos los perfiles active conserven una certificación completa ligada a sus bytes exactos.
 - `regression`: comparación de métricas comunes con una baseline versionada.

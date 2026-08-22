@@ -191,7 +191,10 @@ class DefinitionExperienceTests(unittest.TestCase):
                 "assessed_increment": None,
                 "assessed_at": None,
             }
-            for key in ("active_plan", "active_task", "delivery_governance"):
+            for key in (
+                "active_plan", "active_task", "active_tasks", "delivery_governance",
+                "planning", "authorizations", "executions",
+            ):
                 manifest.pop(key, None)
             manifest["technology"].pop("profile_bindings", None)
             manifest["version_control"] = {
@@ -205,6 +208,7 @@ class DefinitionExperienceTests(unittest.TestCase):
                 "ART-TASKS",
                 "ART-TEST-STRATEGY",
                 "ART-DEPLOYMENT",
+                "ART-PLANNING",
             }
             manifest["artifacts"] = [
                 item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -219,9 +223,9 @@ class DefinitionExperienceTests(unittest.TestCase):
                 artifact_path = root / artifact["path"]
                 artifact_text = artifact_path.read_text(encoding="utf-8")
                 artifact_text = artifact_text.replace(
-                    'schema_version: "1.2"', 'schema_version: "1.0"', 1
+                    'schema_version: "1.3"', 'schema_version: "1.0"', 1
                 ).replace(
-                    'method_version: "1.2.0"', 'method_version: "1.0.0"', 1
+                    'method_version: "1.3.0"', 'method_version: "1.0.0"', 1
                 ).replace(
                     f'created_with_plugin_version: "{current_version}"',
                     'created_with_plugin_version: "0.5.0"',

@@ -10,11 +10,19 @@ Confirme la raíz. Un proyecto ChatGPT no concede acceso directo a una carpeta; 
 
 ## El índice es inválido
 
-Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.2 aplica gobierno, arquitectura, planes y tareas estrictos; 1.0/1.1 se validan en compatibilidad. No reconstruya decisiones desde el índice ni use la actualización como autorización de migración.
+Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.3 aplica gobierno, arquitectura, cobertura, tareas, autorización y continuidad estrictos; 1.0/1.1/1.2 se validan en compatibilidad. No reconstruya decisiones desde el índice ni use la actualización como autorización de migración.
 
 ## Readiness está bloqueado
 
-Revise primero qué eje falla. `specification_readiness` comprueba alcance y aceptación; `delivery_readiness`, gobierno/plan/release/tareas/dependencias; `automation_support`, cada perfil exacto, certificación y lock. Una especificación lista con automatización no soportada no debe cambiar de pila automáticamente. Un backlog independiente no bloquea la selección TASK.
+Revise primero qué eje falla. `specification_readiness` comprueba alcance y aceptación; `planning_completeness`, cobertura total e integridad; `selected_slice_readiness`, tareas/dependencias; `automation_support`, perfiles y locks; autorización, las huellas exactas. Una especificación lista con plan parcial o automatización no soportada conserva esos hechos sin cambiar de pila. Un backlog independiente puede no bloquear la porción, pero sí mantener la release como parcial.
+
+## TASK-001 está lista pero la release no
+
+Es un resultado válido, no una contradicción. Revise `planning ... assess --json`: mostrará IDs sin propietario y `planning_completeness: partial`. Complete y confirme el plan como opción recomendada, o documente una ADR `incremental-authorized`; no presente la porción como release completa.
+
+## Reanudar recomienda reconciliar o replanificar
+
+`continuity resume` ha detectado una divergencia de checkout, archivo, huella o autorización. No repita trabajo ni marque la tarea terminada. Compare el checkpoint, reconcilie cambios observados o registre un `PCH-###` confirmado que enlace los `planning_fingerprint` anterior y actual, y recalcule cobertura. Un PCH propuesto no valida el cambio. Solo `continue-recommended` permite seguir directamente.
 
 ## El perfil aparece en el catálogo pero sigue `unsupported`
 
@@ -30,7 +38,7 @@ No repita el mismo comando con `--apply`: la operación se rechazará siempre an
 
 ## La trazabilidad pasa sin comprobar nada
 
-Eso no es válido en 0.8.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
+Eso no es válido en 0.9.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
 
 ## La ejecución de verificación se bloquea aunque el plan existe
 

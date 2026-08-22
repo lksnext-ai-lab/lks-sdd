@@ -26,11 +26,19 @@ Con un modelo explícito: `bounded-release`, `continuous-evolution` o `maintenan
 
 ## ¿`ready` significa que Codex puede empezar?
 
-No. `specification_readiness` indica si no se conocen bloqueos funcionales para el alcance, mientras `automation_support` comprueba si la pila confirmada tiene soporte implementable. El estado combinado puede seguir bloqueado aunque la especificación esté lista. La autorización humana es independiente; `lks-sdd-implement` exige además un preview y un hash coincidente antes de escribir.
+No. LKS-SDD muestra por separado especificación, automatización, cobertura integral, porción seleccionada y autorización. Una `TASK-001` puede estar `ready` mientras su release sigue `partial`. Solo `ready-to-implement` con un `AUTH-###` vigente habilita preparar exactamente la porción autorizada; el apply conserva además preview y hash coincidente.
 
-## ¿Actualizar a 0.8.0 cambia mis documentos anteriores?
+## ¿Cómo sé si toda una release está planificada?
 
-No. Los proyectos 1.0 y 1.1 siguen validándose en compatibilidad. Llegar a 1.2 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.1 → 1.2 crea gobierno, planes y tareas pendientes; no interpreta el proyecto anterior como aprobación.
+`planning_completeness: complete` exige que todo el alcance activo, criterios y pruebas tengan tarea responsable, todas las fichas sean ejecutables, release/tablero/cobertura concuerden, el DAG no tenga ciclos y exista integración conjunta. La salida enumera cualquier hueco concreto. No se calcula a partir de un porcentaje ni de que exista una tarea lista.
+
+## ¿Actualizar a 0.9.0 cambia mis documentos anteriores?
+
+No. Los proyectos 1.0, 1.1 y 1.2 siguen validándose en compatibilidad. Llegar a 1.3 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.2 → 1.3 añade cobertura, autorización y continuidad vacías; no interpreta el proyecto anterior como plan completo o aprobación.
+
+## ¿Qué permite reanudar sin recordar el chat?
+
+El repositorio conserva la ejecución y su último `CKPT-###`: tareas, rama/revisión, archivos, entregables completos/parciales, aceptación, checks, evidencia, bloqueos, decisiones y siguiente acción. `continuity resume` compara esos hechos con el checkout y recomienda continuar, reconciliar o replanificar. Un checkpoint no equivale a commit ni verificación.
 
 ## ¿Cuándo se exige evidencia en la trazabilidad?
 
@@ -46,4 +54,4 @@ No se garantiza. LKS-SDD se implementa y soporta como plugin para Codex. Los doc
 
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 
-El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir contenido humano. En esquema 1.2, readiness, bloqueos y tablero se derivan al consultar y no se persisten como aprobación.
+El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir contenido humano. En 1.3, readiness y cobertura se derivan al consultar; el índice solo conserva referencias y huellas confirmadas, no una aprobación implícita.

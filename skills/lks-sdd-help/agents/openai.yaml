@@ -1,6 +1,6 @@
 interface:
   display_name: "Ayuda LKS-SDD para Codex"
-  short_description: "Explica método, entrega, perfiles y tareas sin cambios"
-  default_prompt: "Usa $lks-sdd-help para explicarme LKS-SDD, su gobierno de entrega, perfiles y tareas desde el estado actual sin modificar nada."
+  short_description: "Explica fases, planificación y continuidad sin cambios"
+  default_prompt: "Usa $lks-sdd-help para explicarme el estado separado de especificación, planificación, tareas, autorización y continuidad sin modificar nada."
 policy:
   allow_implicit_invocation: true

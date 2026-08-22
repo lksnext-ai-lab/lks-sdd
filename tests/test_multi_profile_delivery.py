@@ -10,6 +10,8 @@ from eval_support import (
     IMPLEMENT_SCRIPT,
     _append_row,
     _replace_row,
+    authorize_implementation,
+    confirm_planning,
     initialize,
     materialize_ready_increment,
     run_json,
@@ -122,7 +124,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-multiprofile-") as temporary:
             root = Path(temporary)
             initialize(root, "multi-profile")
-            materialize_ready_increment(root)
+            materialize_ready_increment(root, confirm_plan=False)
             docs = root / "docs" / "lks-sdd"
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -167,6 +169,15 @@ class MultiProfileDeliveryTests(unittest.TestCase):
                 "REL-001",
                 "| REL-001 | active | 0.1.0 | PLAN-001 | 2026-08-19 | continuous stream | ENV-001 | TASK-001, TASK-002 | pending | pending | pending: G3/G4 not executed |",
             )
+            planning_path = docs / "04-delivery" / "planning-coverage.md"
+            planning_path.write_text(
+                planning_path.read_text(encoding="utf-8").replace(
+                    "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001 | TASK-001 | not-applicable: single-task release | Implement and jointly verify the complete synthetic increment | All active items are owned by the only executable task |",
+                    "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001 | TASK-001 | TASK-002 | Coordinate the API ownership with the web contribution | TASK-001 keeps primary ownership and TASK-002 provides the bound frontend contribution |",
+                ),
+                encoding="utf-8",
+                newline="\n",
+            )
             detail_1 = docs / "04-delivery" / "tasks" / "TASK-001.md"
             detail_2 = docs / "04-delivery" / "tasks" / "TASK-002.md"
             task_text = detail_1.read_text(encoding="utf-8")
@@ -175,10 +186,23 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             task_text = task_text.replace("UNIT-001", "UNIT-002")
             task_text = task_text.replace("BIND-001", "BIND-002")
             task_text = task_text.replace(
+                "CAP-API-CONTRACT, CAP-OCI-RUNTIME",
+                "CAP-FRONTEND-QUALITY, CAP-STATIC-BUNDLE",
+            )
+            task_text = task_text.replace(
+                "GATE-API-TEST, GATE-API-OPENAPI, GATE-OCI-BUILD",
+                "GATE-FRONTEND-TEST, GATE-FRONTEND-BUILD, GATE-BROWSER-SMOKE",
+            )
+            task_text = task_text.replace(
                 "Implement synthetic acknowledgement",
                 "Implement synthetic web",
             )
             detail_2.write_text(task_text, encoding="utf-8", newline="\n")
+
+            confirm_planning(root)
+            authorize_implementation(
+                root, task_ids=("TASK-001", "TASK-002")
+            )
 
             _, preview = run_json(
                 IMPLEMENT_SCRIPT,

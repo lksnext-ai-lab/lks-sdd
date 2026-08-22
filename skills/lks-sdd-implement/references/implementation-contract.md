@@ -3,8 +3,9 @@
 ## Entrada obligatoria
 
 - índice y Markdown válidos;
-- incremento `INC-###` confirmado y selección no vacía de `TASK-###` ready, con `specification_readiness` y `delivery_readiness` favorables;
-- autorización explícita para implementar;
+- incremento `INC-###` confirmado y selección no vacía de `TASK-###` ready, con `specification_readiness` y preparación de la porción favorables;
+- esquema 1.3, planificación `complete` o política `incremental-authorized` confirmada, y cobertura/integridad coherentes;
+- `AUTH-###` explícito, persistido y vigente para el mismo incremento, release, tareas, política y fingerprints;
 - gobierno de entrega confirmado, `PLAN-###`/`REL-###` aplicables y dependencias resueltas;
 - `UNIT-###` y `BIND-###` seleccionados mediante ADR confirmada;
 - `automation_support: supported` y lock exacto certificado para cada binding;
@@ -22,7 +23,9 @@ El resultado de readiness aporta `checked_files`, `active_contract_fingerprint`,
 
 En el dry-run, cada `.lks-sdd/profiles/BIND-###.lock.json` puede no existir: el plan incluye la copia byte a byte del lock certificado y la huella activa ya contiene su SHA-256. Si un destino idéntico existe se conserva; si difiere, contiene `{}`, es un directorio o enlace, la preparación falla cerrada. El preview también fija inventario, revisión inicial, paths por unidad, fuentes, colisiones y archivos a crear. El apply exige autorización y hash vigente y revierte el conjunto si la validación posterior falla.
 
-La preparación también incluye en el mismo preview las filas y fichas de las tareas seleccionadas. Un apply correcto cambia de forma atómica cada tarea `ready` a `in-progress`, eleva su progreso inicial sin fingir finalización, registra rama, revisión de inicio, fecha, actor e historial y después actualiza el índice. `--actor` y `--date` permiten declarar esos dos datos; si se omiten se usan `codex` y la fecha local. Si una ficha, el tablero o `project.json` cambian tras el preview, el apply se rechaza y debe repetirse.
+La preparación también incluye en el mismo preview las filas y fichas de las tareas seleccionadas. Un apply correcto cambia de forma atómica cada tarea `ready` a `in-progress`, eleva su progreso inicial sin fingir finalización, registra rama, revisión de inicio, fecha, actor e historial, materializa un `EXEC-###` y crea el `CKPT-###` inicial. No crea commit, push, merge, release o despliegue. Si una ficha, cobertura, tablero o `project.json` cambian tras el preview, el apply se rechaza y debe repetirse.
+
+Si ya existe una ejecución, `continuity ... resume` valida rama, revisión observada, estado del árbol, hashes de archivos, fingerprints y autorización. Solo `continue-recommended` permite seguir directamente; `reconcile-recommended` obliga a explicar y reconciliar la divergencia, y `replan-recommended` reabre la planificación afectada.
 
 Que `specification_readiness` sea favorable no basta si `delivery_readiness` o `automation_support` están bloqueados. Esta skill resuelve drivers por binding; no compone perfiles dinámicos, no sustituye una pila alternativa, no considera un candidato un defecto funcional y no selecciona un perfil automáticamente.
 
@@ -37,15 +40,23 @@ Para frontend, Codex implementa contra pantallas, flujos, interacciones, accesib
 - lista de comandos ejecutados y no ejecutados;
 - desviaciones o cambios de alcance visibles;
 - evidencia pendiente de verificación independiente.
+- checkpoint durable con entregables terminados, parciales y pendientes, aceptación cubierta, checks ejecutados/fallidos/no ejecutados, problemas, decisiones, archivos y siguiente acción segura.
 
 La implementación no declara por sí misma conformidad, seguridad, accesibilidad, rendimiento ni preparación para entrega.
 
-El índice conserva `implementation.status: in-progress` mientras quede trabajo seleccionado y usa `blocked` si no puede continuar. Registra `increment`, `task_ids`, `profile_bindings`, hashes de locks, rama, revisión inicial y paths modificados. Solo cuando código, documentación, pruebas y handoff estén completos puede cambiar a `completed`. El plan de verificación puede consultarse durante `in-progress`, pero ejecutar o registrar evidencia falla cerrado hasta `completed`. La transición TASK a `done` exige revisión verificada, build, digest de artefacto, entorno, gates y `EVID-###`; no se deduce de `implementation.status`.
+El índice conserva ejecución y tarea como `in-progress` mientras quede trabajo seleccionado y usa `blocked` si no puede continuar. La transición natural es `backlog → ready → in-progress → in-review → done`; `blocked` y `cancelled` son explícitos. Solo `done` resuelve una dependencia. Código completo pasa primero a revisión y no a `done`: esta última exige revisión verificada, build, digest de artefacto, entorno, gates y `EVID-###`.
+
+Antes de una pausa o fin de sesión, y al terminar o bloquear una tarea, se crea un checkpoint mediante preview/hash/apply. El checkpoint no sustituye commits ni evidencia y conserva `not-run` como tal. Una nueva sesión debe leerlo antes de tocar código. Los cambios de alcance o requisitos se registran como `PCH-###`, invalidan las huellas afectadas y reabren solo lo necesario; el historial anterior no se reescribe.
 
 La invocación portable resuelve el dispatcher desde la instalación del plugin, no desde el proyecto consumidor:
 
 ```powershell
 python "<plugin-root>/scripts/lks_sdd.py" implement "<project-root>" --increment INC-001 --task TASK-001 --dry-run
-python "<plugin-root>/scripts/lks_sdd.py" implement "<project-root>" --increment INC-001 --task TASK-001 --date 2026-08-21 --actor codex --apply --authorize --preview-hash <hash>
+python "<plugin-root>/scripts/lks_sdd.py" implement "<project-root>" --increment INC-001 --task TASK-001 --date 2026-08-22 --actor codex --apply --authorize --preview-hash <hash>
 python "<plugin-root>/scripts/lks_sdd.py" tasks "<project-root>" board
+python "<plugin-root>/scripts/lks_sdd.py" planning "<project-root>" --increment INC-001 next --json
+python "<plugin-root>/scripts/lks_sdd.py" continuity "<project-root>" checkpoint --execution-id EXEC-001 --state paused --date 2026-08-22 --owner-role delivery-owner --partial "trabajo parcial observado" --pending "aceptación y gates" --next-action "continuar TASK-001" --changed-path src/app.py --preview --json
+python "<plugin-root>/scripts/lks_sdd.py" continuity "<project-root>" resume --json
 ```
+
+En Git, el checkpoint deriva las rutas modificadas de `git status`. En un workspace sin Git, todo cambio posterior al checkpoint anterior exige `--changed-path` por cada ruta observada; el plugin valida que sean rutas relativas internas y no inventa el inventario.

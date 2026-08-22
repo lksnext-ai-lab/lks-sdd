@@ -20,6 +20,8 @@ COMMANDS = {
     "implement": "skills/lks-sdd-implement/scripts/prepare_increment.py",
     "verify": "skills/lks-sdd-verify/scripts/run_verification.py",
     "tasks": "scripts/manage_tasks.py",
+    "planning": "scripts/manage_planning.py",
+    "continuity": "scripts/manage_continuity.py",
     "profiles": "scripts/validate_reference_profile.py",
     "validate-project": "scripts/validate_project.py",
     "validate-spec": "scripts/validate_spec.py",

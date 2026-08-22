@@ -19,6 +19,8 @@ from validate_project import (  # noqa: E402
     validate_project,
 )
 from check_traceability import check as check_traceability  # noqa: E402
+from delivery_engine import validate_delivery_contract  # noqa: E402
+from planning_engine import assess_planning, next_tasks  # noqa: E402
 
 
 COVERAGE_HEADERS = (
@@ -93,6 +95,11 @@ def _base_response(root: Path, status: str, meaning: str) -> dict[str, Any]:
             "gaps": [],
             "diagnostics": [],
             "meaning": "No hay un incremento activo sobre el que ejecutar el preflight.",
+        },
+        "planning_snapshot": {
+            "status": "not-assessed",
+            "integrity": "not-assessed",
+            "meaning": "No se ha evaluado la cobertura completa del objetivo.",
         },
         "blockers": [],
         "next_decision": None,
@@ -273,6 +280,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "active_increment": active_increment,
                 "active_plan": manifest.get("active_plan"),
                 "active_task": manifest.get("active_task"),
+                "active_tasks": manifest.get("active_tasks", []),
                 "delivery_model": manifest.get("delivery_governance", {}).get(
                     "model"
                 ),
@@ -285,7 +293,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "warnings": list(dict.fromkeys(report.warnings)),
                 "diagnostic_summary": _diagnostic_summary(report.diagnostics),
                 "meaning": (
-                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.2 y esto no demuestra suficiencia semántica."
+                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.3 y esto no demuestra suficiencia semántica."
                     if compatibility_mode
                     else "El índice y los Markdown cumplen el contrato estructural estricto; esto no demuestra que la definición sea suficiente."
                 ),
@@ -302,7 +310,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "meaning": (
                     "Es un dato legado no revalidado; no actúa como puerta."
                     if isinstance(persisted_readiness, dict)
-                    else "Los contratos 1.1 y 1.2 no persisten readiness: la puerta se calcula sobre los Markdown activos cuando se solicita."
+                    else "Los contratos actuales no persisten readiness: cada dimensión se calcula sobre los Markdown activos cuando se solicita."
                 ),
             },
             "next_decision": next_decision,
@@ -387,6 +395,28 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 else "El preflight estructural detecta vacíos antes de ejecutar la evaluación completa de readiness."
             ),
         }
+        if schema_version in {"1.2", "1.3"}:
+            planning = assess_planning(root, manifest, active_increment)
+            delivery = validate_delivery_contract(root, manifest)
+            response["planning_snapshot"] = {
+                "status": planning["status"],
+                "integrity": planning["integrity"],
+                "target": planning["target"],
+                "policy": planning["policy"],
+                "unassigned_items": planning["coverage"]["unassigned_items"],
+                "incomplete_tasks": planning["tasks"]["incomplete"],
+                "next_tasks": next_tasks(delivery, planning),
+                "next_action": planning["next_action"],
+                "meaning": (
+                    "El objetivo está completamente descompuesto y confirmado. Esto sigue siendo distinto del readiness de una tarea y de la autorización humana."
+                    if planning["status"] == "complete"
+                    else "La especificación puede estar cerrada y una tarea puede estar ready, pero la planificación integral todavía no está acreditada."
+                ),
+            }
+            if planning["status"] != "complete":
+                response["missing_or_limits"].append(
+                    "La planificación integral está " + planning["status"] + "; revise los huecos concretos de planning_snapshot."
+                )
 
     options = [
         _option(
@@ -400,6 +430,35 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 f"Evaluar readiness de {active_increment}",
                 "Realiza una evaluación de solo lectura y no autoriza implementación.",
             )
+        )
+        planning_snapshot = response.get("planning_snapshot", {})
+        if planning_snapshot.get("status") not in {"complete", "not-assessed"}:
+            options.insert(
+                0,
+                _option(
+                    f"Completar la planificación integral de {planning_snapshot.get('target', {}).get('id', active_increment)} (recomendado)",
+                    "Propone la descomposición completa, solicita confirmación humana y valida cobertura y dependencias antes de implementar.",
+                ),
+            )
+            options.append(
+                _option(
+                    "Elegir planificación incremental",
+                    "Requiere una ADR humana explícita; mantiene visible que la release completa sigue parcial.",
+                )
+            )
+            options.append(
+                _option(
+                    "Pausar y conservar el estado",
+                    "No materializa propuestas ni inicia implementación; el repositorio conserva el diagnóstico y, si existe una ejecución, su checkpoint versionado.",
+                )
+            )
+    if manifest.get("executions"):
+        options.insert(
+            0,
+            _option(
+                "Reanudar desde el checkpoint",
+                "Valida revisión, archivos, fingerprints y autorización antes de recomendar continuar, reconciliar o replanificar.",
+            ),
         )
     if route == "adopt-existing" and manifest.get("adoption", {}).get("status") != "materialized":
         options = [

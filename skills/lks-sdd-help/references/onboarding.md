@@ -31,7 +31,7 @@ Una idea breve no se convierte automáticamente en un producto genérico. La def
 
 La cobertura se muestra por dimensiones: suficiente para avanzar en un alcance, requiere profundización, desconocida o no aplicable con motivo. El resumen destaca bloqueos y la siguiente decisión y ofrece más detalle bajo petición. Que los documentos sean estructuralmente válidos no significa que la definición sea suficiente.
 
-Readiness conserva tres resultados: `specification_readiness` para la definición funcional, `delivery_readiness` para gobierno/plan/release/tareas y `automation_support` para perfiles, locks y gates. Una especificación puede estar lista con entrega o automatización bloqueada; se mantiene la decisión tecnológica sin seleccionar otro perfil por defecto.
+Readiness conserva resultados separados: especificación, automatización, completitud integral del plan, readiness de la porción, autorización, implementación, verificación y entrega. Una especificación y `TASK-001` pueden estar listas mientras la release sigue parcialmente planificada. El resumen muestra huecos concretos y recomienda completar el plan, sin seleccionar otro perfil por defecto.
 
 ## 7. Diseño de interfaz
 
@@ -39,19 +39,19 @@ Cuando existe frontend, primero se describen pantallas, flujos, estados, diálog
 
 ## 8. Cómo se organiza la entrega
 
-Antes de implementar se confirma si el producto trabaja como release acotada, evolución continua o mantenimiento. Esa decisión incluye versionado, Git/ramas, entornos, pipeline, promoción, despliegue y recuperación. El trabajo se organiza en un plan y una release, con un tablero breve y una ficha independiente por tarea. Un cambio posterior se registra con fecha efectiva; no invalida ni borra el historial anterior.
+Antes de implementar se confirma si el producto trabaja como release acotada, evolución continua o mantenimiento. Esa decisión incluye versionado, Git/ramas, entornos, pipeline, promoción, despliegue y recuperación. Tras cerrar la especificación se propone el plan integral, una persona confirma la descomposición y el motor comprueba que cada elemento activo, aceptación y prueba tenga tarea responsable, definición ejecutable, dependencias acíclicas y punto de integración. Un cambio posterior se registra; no borra el historial.
 
 La arquitectura puede contener varias unidades desplegables. Cada unidad selecciona un perfil de referencia exacto. Las capabilities permiten reutilizar gates, pero solo la composición completa certificada puede anunciar soporte automático.
 
 ## 9. Cuándo aparece el código
 
-La definición y readiness no generan código. Un resultado `ready` tampoco autoriza implementación: la selección TASK y sus bindings solo se preparan mediante preview revisado y autorización explícita. La verificación puede planificarse durante `in-progress`, pero no ejecuta ni registra evidencia hasta `implementation.status=completed`. Después distingue checks superados, fallidos y no ejecutados.
+La definición y readiness no generan código. La planificación confirmada tampoco autoriza implementación: `AUTH-###` limita release, tareas y huellas. El apply inicial crea `EXEC-###` y `CKPT-###`; los checkpoints permiten reanudar desde el repositorio, pero no son commits ni evidencia. La verificación distingue código escrito, revisado y realmente comprobado, y conserva checks fallidos o no ejecutados.
 
 La trazabilidad previa a implementar llega hasta `TEST-###`; después de ejecutar, la fase de verificación exige también `EVID-###` aplicable. Si no hay requisitos confirmados para el alcance, la comprobación no puede superar la puerta por estar vacía.
 
 ## 10. Versiones y compatibilidad
 
-Los proyectos nuevos usan método 1.2.0 y esquema 1.2. Los proyectos 1.0/1.1 continúan validándose en compatibilidad y no se migran al actualizar. La migración es explícita, reversible y de un salto. El paso a 1.2 añade estructura pendiente sin inventar gobierno, tareas, perfiles ni evidencia. El apply exige backup externo, autorización y hash coincidente.
+Los proyectos nuevos usan método 1.3.0 y esquema 1.3. Los proyectos 1.0/1.1/1.2 continúan validándose en compatibilidad y no se migran al actualizar. La migración es explícita, reversible y de un salto. El paso 1.2 → 1.3 añade estructura pendiente sin inventar tareas, cobertura completa, autorización, avance o evidencia. El apply exige backup externo, autorización y hash coincidente.
 
 ## 11. Primer paso a elegir
 

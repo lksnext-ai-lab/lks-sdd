@@ -22,11 +22,13 @@ PROJECT_SCHEMAS = {
     "1.0": PLUGIN_ROOT / "schemas" / "project.schema.json",
     "1.1": PLUGIN_ROOT / "schemas" / "project-1.1.schema.json",
     "1.2": PLUGIN_ROOT / "schemas" / "project-1.2.schema.json",
+    "1.3": PLUGIN_ROOT / "schemas" / "project-1.3.schema.json",
 }
 FRONTMATTER_SCHEMAS = {
     "1.0": PLUGIN_ROOT / "schemas" / "frontmatter.schema.json",
     "1.1": PLUGIN_ROOT / "schemas" / "frontmatter-1.1.schema.json",
     "1.2": PLUGIN_ROOT / "schemas" / "frontmatter-1.2.schema.json",
+    "1.3": PLUGIN_ROOT / "schemas" / "frontmatter-1.3.schema.json",
 }
 CATALOGS = json.loads(
     (PLUGIN_ROOT / "schemas" / "catalogs.json").read_text(encoding="utf-8")
@@ -76,6 +78,10 @@ CORE_ARTIFACTS = {
         "docs/lks-sdd/04-delivery/tasks.md",
         "development-task-board",
     ),
+    "ART-PLANNING": (
+        "docs/lks-sdd/04-delivery/planning-coverage.md",
+        "planning-coverage",
+    ),
     "ART-RISK": (
         "docs/lks-sdd/04-delivery/risks-dependencies.md",
         "risks-dependencies",
@@ -99,6 +105,7 @@ V12_CORE_ARTIFACTS = {
     "ART-TEST-STRATEGY",
     "ART-DEPLOYMENT",
 }
+V13_CORE_ARTIFACTS = {"ART-PLANNING"}
 ADOPTION_ARTIFACTS = {
     "ART-ADOPT-SCOPE": (
         "docs/lks-sdd/07-adoption/inspection-scope.md",
@@ -562,16 +569,16 @@ def document_table_contract(
     """Resolve one declared table contract for schema-aware parsing."""
     artifact = DOCUMENT_CONTRACTS.get("artifacts", {}).get(artifact_id, {})
     contracts = artifact.get("tables", [])
-    explicit = any(
-        schema_version in contract.get("schemas", []) for contract in contracts
-    )
-    effective_schema = (
-        schema_version
-        if explicit
-        else DOCUMENT_CONTRACTS.get("schema_inheritance", {}).get(
-            schema_version, schema_version
-        )
-    )
+    effective_schema = schema_version
+    inheritance = DOCUMENT_CONTRACTS.get("schema_inheritance", {})
+    visited: set[str] = set()
+    while not any(
+        effective_schema in contract.get("schemas", []) for contract in contracts
+    ):
+        if effective_schema in visited or effective_schema not in inheritance:
+            break
+        visited.add(effective_schema)
+        effective_schema = inheritance[effective_schema]
     for contract in contracts:
         if (
             effective_schema in contract.get("schemas", [])
@@ -1712,7 +1719,7 @@ def load_project_manifest(
     schema_path = PROJECT_SCHEMAS.get(schema_version)
     if schema_path is None:
         return data, [
-            f"project.schema_version={schema_version!r} no está soportado; use 1.0, 1.1 o 1.2."
+            f"project.schema_version={schema_version!r} no está soportado; use 1.0, 1.1, 1.2 o 1.3."
         ]
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -1837,16 +1844,16 @@ def validate_project(
                 artifact_id, {}
             )
             contracts = artifact_contract.get("tables", [])
-            explicit = any(
-                schema_version in item.get("schemas", []) for item in contracts
-            )
-            effective_schema = (
-                schema_version
-                if explicit
-                else DOCUMENT_CONTRACTS.get("schema_inheritance", {}).get(
-                    schema_version, schema_version
-                )
-            )
+            effective_schema = schema_version
+            inheritance = DOCUMENT_CONTRACTS.get("schema_inheritance", {})
+            visited: set[str] = set()
+            while not any(
+                effective_schema in item.get("schemas", []) for item in contracts
+            ):
+                if effective_schema in visited or effective_schema not in inheritance:
+                    break
+                visited.add(effective_schema)
+                effective_schema = inheritance[effective_schema]
             required_header_sets = [
                 tuple(item.get("headers", []))
                 for item in contracts
@@ -2689,7 +2696,9 @@ def validate_project(
         report.errors.append(f"{relative}: referencia sin definición: {reference}")
 
     for artifact_id, (expected_path, _) in CORE_ARTIFACTS.items():
-        if artifact_id in V12_CORE_ARTIFACTS and schema_version != "1.2":
+        if artifact_id in V12_CORE_ARTIFACTS and schema_version not in {"1.2", "1.3"}:
+            continue
+        if artifact_id in V13_CORE_ARTIFACTS and schema_version != "1.3":
             continue
         entry = artifact_entries.get(artifact_id)
         if entry is None:
@@ -2773,7 +2782,7 @@ def validate_project(
             report.errors.append(
                 f"La decisión {selection_decision} no identifica el perfil seleccionado {selected_profile}."
             )
-    if schema_version == "1.2" and isinstance(technology, dict):
+    if schema_version in {"1.2", "1.3"} and isinstance(technology, dict):
         bindings = technology.get("profile_bindings", [])
         if bindings and technology.get("preferred_stack_assessed") is not True:
             report.errors.append(
@@ -2835,7 +2844,7 @@ def validate_project(
     elif "adoption" in manifest:
         report.warnings.append("La ruta new no necesita un bloque adoption.")
 
-    if schema_version == "1.2":
+    if schema_version in {"1.2", "1.3"}:
         from delivery_engine import validate_delivery_contract
 
         delivery = validate_delivery_contract(root, manifest)

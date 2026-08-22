@@ -40,6 +40,7 @@ from delivery_engine import (  # noqa: E402
     repository_revision,
     validate_delivery_contract,
 )
+from planning_engine import assess_authorization, assess_planning  # noqa: E402
 from profile_registry import load_profile_bundle  # noqa: E402
 
 EVIDENCE_RE = re.compile(r"^EVID-[0-9]{3}$")
@@ -747,10 +748,11 @@ def _run_v12(
     definitions: dict[str, dict[str, str]],
 ) -> tuple[int, dict[str, Any]]:
     # `run()` is also a supported internal test/integration seam.  Keep newly
-    # added 1.2 CLI options backwards-compatible for callers that construct an
+    # added CLI options backwards-compatible for callers that construct an
     # argparse.Namespace directly instead of going through `main()`.
     for name, default in (
         ("task", None),
+        ("execution_id", None),
         ("environment", "not-applicable"),
         ("delivery_evidence", None),
     ):
@@ -764,7 +766,73 @@ def _run_v12(
     manifest_path, loaded_manifest, initial_manifest = _load_manifest(root)
     if loaded_manifest != manifest:
         blockers.append("project.json cambió durante la validación inicial.")
-    implementation = manifest.get("implementation", {})
+    projected_implementation = manifest.get("implementation", {})
+    implementation = projected_implementation
+    selected_execution: dict[str, Any] | None = None
+    requested_tasks = list(dict.fromkeys(args.task or []))
+    if manifest.get("schema_version") == "1.3":
+        executions = [
+            item
+            for item in manifest.get("executions", [])
+            if isinstance(item, dict) and item.get("increment") == args.increment
+        ]
+        if args.execution_id is not None:
+            if not re.fullmatch(r"EXEC-[0-9]{3}", args.execution_id):
+                blockers.append("--execution-id debe usar EXEC-###.")
+                executions = []
+            else:
+                executions = [
+                    item
+                    for item in executions
+                    if item.get("execution_id") == args.execution_id
+                ]
+        elif requested_tasks:
+            executions = [
+                item
+                for item in executions
+                if set(requested_tasks) <= set(item.get("task_ids", []))
+            ]
+        else:
+            projected_tasks = set(projected_implementation.get("task_ids", []))
+            executions = [
+                item
+                for item in executions
+                if set(item.get("task_ids", [])) == projected_tasks
+            ]
+        if len(executions) != 1:
+            blockers.append(
+                "La verificación 1.3 necesita una única EXEC-###; use "
+                "--execution-id cuando la selección sea ambigua."
+            )
+        else:
+            selected_execution = executions[0]
+            # Without an explicit execution/task selector, `implementation`
+            # remains the canonical compatibility projection of the current
+            # slice.  An EXEC snapshot identifies and attributes that slice,
+            # but must not hide a later change to its current status, bindings
+            # or locks.  Explicit historical/parallel selections instead use
+            # the immutable execution context.
+            if args.execution_id is not None or requested_tasks:
+                execution_status = selected_execution.get("status")
+                implementation = {
+                    "status": (
+                        "completed"
+                        if execution_status in {"in-review", "completed"}
+                        else "in-progress"
+                        if execution_status == "in-progress"
+                        else "blocked"
+                    ),
+                    "increment": selected_execution.get("increment"),
+                    "task_ids": selected_execution.get("task_ids", []),
+                    "profile_bindings": selected_execution.get(
+                        "profile_bindings", []
+                    ),
+                    "locks": selected_execution.get("locks", []),
+                    "branch": selected_execution.get("branch"),
+                    "revision_start": selected_execution.get("revision_start"),
+                    "changed_paths": selected_execution.get("changed_paths", []),
+                    "evidence_ids": selected_execution.get("evidence_ids", []),
+                }
     if implementation.get("increment") != args.increment:
         blockers.append(
             "implementation.increment no coincide con el solicitado."
@@ -776,7 +844,6 @@ def _run_v12(
             "el plan admite además in-progress."
         )
     task_ids = list(implementation.get("task_ids", []))
-    requested_tasks = list(dict.fromkeys(args.task or []))
     if requested_tasks:
         missing = sorted(set(requested_tasks) - set(task_ids))
         if missing:
@@ -785,6 +852,23 @@ def _run_v12(
             )
         else:
             task_ids = requested_tasks
+    planning_state: dict[str, Any] | None = None
+    authorization_state: dict[str, Any] | None = None
+    if manifest.get("schema_version") == "1.3":
+        planning_state = assess_planning(root, manifest, args.increment)
+        authorization_state = assess_authorization(
+            manifest, planning_state, task_ids
+        )
+        if planning_state.get("status") == "stale" or planning_state.get(
+            "integrity"
+        ) != "valid":
+            blockers.append(
+                "La planificación cambió o es inválida; reconcilie antes de verificar."
+            )
+        if authorization_state.get("status") != "authorized":
+            blockers.append(
+                "La verificación no conserva una autorización vigente para las tareas."
+            )
     delivery = validate_delivery_contract(root, manifest)
     blockers.extend(delivery["errors"])
     for task_id in task_ids:
@@ -894,6 +978,13 @@ def _run_v12(
             "checks": [],
             "execution_ready": False,
             "profile_locks": lock_details,
+            "execution_id": (
+                selected_execution.get("execution_id")
+                if selected_execution is not None
+                else None
+            ),
+            "planning": planning_state,
+            "implementation_authorization": authorization_state,
         }
     if args.plan:
         execution_ready = implementation.get("status") == "completed"
@@ -914,6 +1005,13 @@ def _run_v12(
             "execution_ready": execution_ready,
             "profile_locks": lock_details,
             "revision": revision_before,
+            "execution_id": (
+                selected_execution.get("execution_id")
+                if selected_execution is not None
+                else None
+            ),
+            "planning": planning_state,
+            "implementation_authorization": authorization_state,
         }
     if not args.execute or not args.authorize:
         raise VerificationError(
@@ -1109,6 +1207,13 @@ def _run_v12(
         "build_id": build_id,
         "artifact_digests": artifact_digests,
         "environment": environment,
+        "planning": planning_state,
+        "implementation_authorization": authorization_state,
+        "execution_id": (
+            selected_execution.get("execution_id")
+            if selected_execution is not None
+            else None
+        ),
     }
     if not args.record_evidence:
         return (0 if classification != "not-verified" else 3), result
@@ -1134,6 +1239,11 @@ def _run_v12(
     evidence = {
         "schema_version": "1.2",
         "evidence_id": args.record_evidence,
+        **(
+            {"execution_id": selected_execution["execution_id"]}
+            if selected_execution is not None
+            else {}
+        ),
         "increment": args.increment,
         "task_ids": task_ids,
         "profile_bindings": [
@@ -1162,6 +1272,11 @@ def _run_v12(
     )
     manifest_new["verification"] = {
         "status": classification,
+        **(
+            {"execution_id": selected_execution["execution_id"]}
+            if selected_execution is not None
+            else {}
+        ),
         "increment": args.increment,
         "task_ids": task_ids,
         "revision": str(revision_after["revision"]),
@@ -1174,6 +1289,22 @@ def _run_v12(
         "evidence_ids": [args.record_evidence],
         "limitations": limitations,
     }
+    if manifest.get("schema_version") == "1.3":
+        for execution in manifest_new.get("executions", []):
+            if not isinstance(execution, dict):
+                continue
+            if (
+                selected_execution is not None
+                and execution.get("execution_id")
+                == selected_execution.get("execution_id")
+            ):
+                execution["last_observed_revision"] = str(
+                    revision_after["revision"]
+                )
+                execution["evidence_ids"] = sorted(
+                    set(execution.get("evidence_ids", []))
+                    | {args.record_evidence}
+                )
     if delivery_value is not None and not any(
         item.get("status") == "failed"
         for item in outcomes
@@ -1232,6 +1363,70 @@ def _run_v12(
     return (0 if classification != "not-verified" else 3), result
 
 
+def _transition_summary(result: dict[str, Any]) -> dict[str, Any]:
+    classification = str(result.get("classification", "not-verified"))
+    checks = [item for item in result.get("checks", []) if isinstance(item, dict)]
+    completed = [
+        str(item.get("name")) for item in checks if item.get("status") == "passed"
+    ]
+    pending = [
+        str(item.get("name"))
+        for item in checks
+        if item.get("status") in {"not-run", "skipped"}
+    ]
+    blocked = list(result.get("blockers", []))
+    blocked.extend(
+        str(item.get("name"))
+        for item in checks
+        if item.get("status") in {"failed", "blocked"}
+    )
+    if result.get("error"):
+        blocked.append(str(result["error"]))
+    planning = result.get("planning")
+    planning_incomplete = isinstance(planning, dict) and (
+        planning.get("status") != "complete"
+        or planning.get("integrity") != "valid"
+    )
+    if planning_incomplete:
+        pending.append(
+            f"planificación {planning.get('status', 'not-assessed')}/"
+            f"{planning.get('integrity', 'not-assessed')}"
+        )
+        unassigned = planning.get("coverage", {}).get("unassigned_items", [])
+        if unassigned:
+            pending.append("contrato sin tarea: " + ", ".join(unassigned))
+    if classification == "verified" and planning_incomplete:
+        next_step = (
+            "Conservar la evidencia de la porción y completar o reconciliar la "
+            "planificación antes de verificar conjuntamente o promover la release completa."
+        )
+        human_decision = (
+            "Confirmar la planificación restante; la verificación de esta porción no "
+            "autoriza ni completa la release."
+        )
+    elif classification == "verified":
+        next_step = "Revisar la evidencia conjunta y solicitar por separado la promoción o entrega del artefacto exacto."
+        human_decision = "Autorizar, diferir o rechazar la promoción del artefacto verificado."
+    elif classification == "verified-with-reservations":
+        next_step = "Resolver o aceptar explícitamente las reservas antes de cualquier promoción."
+        human_decision = "Aceptar las limitaciones documentadas o exigir nueva verificación."
+    elif classification == "not-run":
+        next_step = "Revisar el plan y ejecutar los gates solo con implementación completa y autorización vigente."
+        human_decision = "Autorizar o diferir la ejecución de la verificación."
+    else:
+        next_step = "Resolver checks fallidos, bloqueados o ausentes y repetir la verificación; no promover."
+        human_decision = "Decidir corrección, bloqueo o replanificación según la evidencia observada."
+    return {
+        "where_we_are": f"verification-{classification}",
+        "completed": completed,
+        "in_progress": [],
+        "pending": pending,
+        "blocked": list(dict.fromkeys(blocked)),
+        "next_step": next_step,
+        "human_decision": human_decision,
+    }
+
+
 def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     root = args.project_root.expanduser().resolve()
     if not root.is_dir():
@@ -1241,7 +1436,7 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     if manifest is None:
         blockers.append("Falta el índice LKS-SDD.")
         manifest = {}
-    if manifest.get("schema_version") == "1.2":
+    if manifest.get("schema_version") in {"1.2", "1.3"}:
         return _run_v12(
             args, root, report, manifest, definitions
         )
@@ -1504,6 +1699,10 @@ def main() -> int:
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--increment", required=True)
     parser.add_argument("--task", action="append")
+    parser.add_argument(
+        "--execution-id",
+        help="EXEC-### exacta; obligatoria cuando varias ejecuciones incluyen la misma selección.",
+    )
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--plan", action="store_true")
     mode.add_argument("--execute", action="store_true")
@@ -1537,6 +1736,7 @@ def main() -> int:
             2,
             {"classification": "not-verified", "error": str(exc), "checks": []},
         )
+    result["transition_summary"] = _transition_summary(result)
     if args.as_json:
         print(json.dumps(result, indent=2, ensure_ascii=True))
     else:

@@ -1,6 +1,6 @@
 interface:
   display_name: "Verificar LKS-SDD con Codex"
-  short_description: "Verifica tareas, perfiles y evidencia G3/G4"
-  default_prompt: "Usa $lks-sdd-verify para verificar con Codex las tareas implementadas, ejecutar sus gates y registrar evidencia exacta G3/G4."
+  short_description: "Verifica tareas y release con evidencia exacta"
+  default_prompt: "Usa $lks-sdd-verify para verificar tareas y el punto conjunto de release sin confundir código escrito con gates o evidencia superados."
 policy:
   allow_implicit_invocation: true

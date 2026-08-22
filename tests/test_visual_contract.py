@@ -17,6 +17,9 @@ from eval_support import (
     READINESS_SCRIPT,
     VERIFY_SCRIPT,
     _append_row,
+    authorize_implementation,
+    confirm_planning,
+    confirm_planning_change,
     initialize,
     materialize_ready_increment,
     run_json,
@@ -88,7 +91,7 @@ class VisualContractTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="lks-sdd-visual-")
         self.root = Path(self.temporary.name)
         initialize(self.root, "visual-contract")
-        materialize_ready_increment(self.root)
+        materialize_ready_increment(self.root, confirm_plan=False)
         self.docs = self.root / "docs" / "lks-sdd"
         manifest_path = self.root / ".lks-sdd" / "project.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -110,6 +113,21 @@ class VisualContractTests(unittest.TestCase):
             encoding="utf-8",
             newline="\n",
         )
+        task_detail = self.docs / "04-delivery" / "tasks" / "TASK-001.md"
+        task_detail.write_text(
+            task_detail.read_text(encoding="utf-8")
+            .replace(
+                "CAP-API-CONTRACT, CAP-OCI-RUNTIME",
+                "CAP-FRONTEND-QUALITY, CAP-STATIC-BUNDLE",
+            )
+            .replace(
+                "GATE-API-TEST, GATE-API-OPENAPI, GATE-OCI-BUILD",
+                "GATE-FRONTEND-TEST, GATE-FRONTEND-BUILD, GATE-BROWSER-SMOKE",
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
+        confirm_planning(self.root)
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -125,6 +143,8 @@ class VisualContractTests(unittest.TestCase):
         path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
     def _materialize_profile_lock(self, implementation_status: str = "in-progress") -> None:
+        confirm_planning(self.root)
+        authorize_implementation(self.root)
         _, preview = run_json(
             IMPLEMENT_SCRIPT,
             str(self.root),
@@ -220,6 +240,25 @@ class VisualContractTests(unittest.TestCase):
         self._replace_interface_row(
             "| INC-001 | applicable | UX-001, UX-002, UX-003 | new | VIS-001 | New user-facing screen and interaction |"
         )
+        planning_path = self.docs / "04-delivery" / "planning-coverage.md"
+        planning_path.write_text(
+            planning_path.read_text(encoding="utf-8").replace(
+                "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001 | TASK-001 |",
+                "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001, UX-001, UX-002, UX-003, VIS-001 | TASK-001 |",
+                1,
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
+        if state == "confirmed":
+            confirm_planning_change(
+                self.root,
+                change_id="PCH-001",
+                affected_contract="UX-001, UX-002, UX-003, VIS-001",
+                affected_tasks="TASK-001",
+                decision="ADR-001",
+                reason="Human-confirmed addition of the visual contract",
+            )
         return asset, digest
 
     def test_confirmed_visual_contract_is_ready_and_fingerprinted(self):
@@ -229,7 +268,9 @@ class VisualContractTests(unittest.TestCase):
             READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
         )
         self.assertTrue(validation["valid"])
-        self.assertEqual(readiness["status"], "ready")
+        self.assertEqual(
+            readiness["status"], "ready-for-implementation-authorization"
+        )
         self.assertEqual(readiness["interface_applicability"], "applicable")
         self.assertEqual(readiness["visual_prototypes"], ["VIS-001"])
         self.assertIn(asset.relative_to(self.root).as_posix(), readiness["checked_files"])
@@ -306,7 +347,7 @@ class VisualContractTests(unittest.TestCase):
         ):
             code, result = module.assess(self.root, "INC-001")
         self.assertEqual(code, 3)
-        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["status"], "specification-blocked")
         self.assertTrue(any("debe estar confirmed" in item for item in result["blockers"]))
 
     def test_implementation_fingerprint_covers_undeclared_files_in_source_tree(self):
@@ -447,10 +488,20 @@ class VisualContractTests(unittest.TestCase):
         self._replace_interface_row(
             "| INC-001 | applicable | UX-001, UX-002, UX-003 | reuse | VIS-001 | Reuse the confirmed hierarchy and component treatment without visual changes |"
         )
+        confirm_planning_change(
+            self.root,
+            change_id="PCH-002",
+            affected_contract="VIS-001",
+            affected_tasks="TASK-001",
+            decision="ADR-001",
+            reason="Human-confirmed reuse of the visual baseline",
+        )
         _, readiness = run_json(
             READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
         )
-        self.assertEqual(readiness["status"], "ready")
+        self.assertEqual(
+            readiness["status"], "ready-for-implementation-authorization"
+        )
         self.assertEqual(readiness["visual_mode"], "reuse")
 
         self._replace_interface_row(
@@ -464,19 +515,43 @@ class VisualContractTests(unittest.TestCase):
         asset, _ = self._materialize_visual_contract()
         ux_path = self.docs / "03-solution" / "ux-accessibility.md"
         lines = [
-            line
+            line.replace("| VIS-001 | confirmed |", "| VIS-001 | retired |", 1)
+            if line.startswith("| VIS-001 |")
+            else line
             for line in ux_path.read_text(encoding="utf-8").splitlines()
-            if not line.startswith("| VIS-001 |")
         ]
         ux_path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
         asset.unlink()
+        planning_path = self.docs / "04-delivery" / "planning-coverage.md"
+        planning_path.write_text(
+            planning_path.read_text(encoding="utf-8").replace(
+                ", UX-001, UX-002, UX-003, VIS-001 | TASK-001 |",
+                ", UX-001, UX-002, UX-003 | TASK-001 |",
+                1,
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
         self._replace_interface_row(
             "| INC-001 | applicable | UX-001, UX-002, UX-003 | none | not-applicable: behavior changes but composition and visual direction do not | No screen, pattern or visual treatment changes |"
         )
-        _, readiness = run_json(
-            READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
+        confirm_planning_change(
+            self.root,
+            change_id="PCH-002",
+            affected_contract="VIS-001",
+            affected_tasks="TASK-001",
+            decision="ADR-001",
+            reason="Human-confirmed removal of the visual asset from scope",
         )
-        self.assertEqual(readiness["status"], "ready")
+        _, readiness = run_json(
+            READINESS_SCRIPT,
+            str(self.root),
+            "--increment",
+            "INC-001",
+        )
+        self.assertEqual(
+            readiness["status"], "ready-for-implementation-authorization"
+        )
         self.assertEqual(readiness["visual_mode"], "none")
         self.assertEqual(readiness["visual_prototypes"], [])
         self._materialize_profile_lock()
@@ -547,9 +622,14 @@ class VisualContractTests(unittest.TestCase):
 
     def test_interface_not_applicable_with_reason_preserves_readiness(self):
         _, readiness = run_json(
-            READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
+            READINESS_SCRIPT,
+            str(self.root),
+            "--increment",
+            "INC-001",
         )
-        self.assertEqual(readiness["status"], "ready")
+        self.assertEqual(
+            readiness["status"], "ready-for-implementation-authorization"
+        )
         self.assertEqual(readiness["interface_applicability"], "not-applicable")
 
     def test_global_maturity_percentage_is_rejected(self):
@@ -565,6 +645,7 @@ class VisualContractTests(unittest.TestCase):
 
     def test_visual_asset_change_invalidates_implementation_preview(self):
         asset, old_digest = self._materialize_visual_contract()
+        authorize_implementation(self.root)
         _, preview = run_json(
             IMPLEMENT_SCRIPT,
             str(self.root),
@@ -581,9 +662,15 @@ class VisualContractTests(unittest.TestCase):
             newline="\n",
         )
         _, readiness = run_json(
-            READINESS_SCRIPT, str(self.root), "--increment", "INC-001"
+            READINESS_SCRIPT,
+            str(self.root),
+            "--increment",
+            "INC-001",
+            expected_codes={3},
         )
-        self.assertEqual(readiness["status"], "ready")
+        self.assertEqual(
+            readiness["status"], "reconciliation-required"
+        )
         code, result = run_json(
             IMPLEMENT_SCRIPT,
             str(self.root),
@@ -593,10 +680,13 @@ class VisualContractTests(unittest.TestCase):
             "--authorize",
             "--preview-hash",
             preview["preview_hash"],
-            expected_codes={2},
+            expected_codes={3},
         )
-        self.assertEqual(code, 2)
-        self.assertIn("preview hash", result["error"])
+        self.assertEqual(code, 3)
+        self.assertEqual(result["status"], "blocked")
+        self.assertTrue(
+            any("planificaci" in item.casefold() for item in result["blockers"])
+        )
         self.assertFalse((self.root / "apps").exists())
 
     def test_frontend_verification_cannot_pass_without_manual_visual_evidence(self):

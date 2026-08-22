@@ -129,7 +129,10 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
             },
         }
     )
-    for key in ("active_plan", "active_task", "delivery_governance"):
+    for key in (
+        "active_plan", "active_task", "active_tasks", "delivery_governance",
+        "planning", "authorizations", "executions",
+    ):
         manifest.pop(key, None)
     manifest["technology"].pop("profile_bindings", None)
     manifest["version_control"] = {
@@ -143,6 +146,7 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         "ART-TASKS",
         "ART-TEST-STRATEGY",
         "ART-DEPLOYMENT",
+        "ART-PLANNING",
     }
     manifest["artifacts"] = [
         item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -158,10 +162,10 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         relative = artifact["path"]
         path = root / relative
         content = path.read_text(encoding="utf-8")
-        content = content.replace('schema_version: "1.2"', 'schema_version: "1.0"')
-        content = content.replace('method_version: "1.2.0"', 'method_version: "1.0.0"')
+        content = content.replace('schema_version: "1.3"', 'schema_version: "1.0"')
+        content = content.replace('method_version: "1.3.0"', 'method_version: "1.0.0"')
         content = content.replace(
-            'created_with_plugin_version: "0.8.0"',
+            'created_with_plugin_version: "0.9.0"',
             'created_with_plugin_version: "0.6.1"',
         )
         content = content.replace(
@@ -343,7 +347,7 @@ class Schema11MigrationTests(unittest.TestCase):
                 expected_codes={3},
             )
             self.assertEqual(readiness_code, 3)
-            self.assertEqual(readiness["status"], "blocked")
+            self.assertEqual(readiness["status"], "specification-blocked")
             self.assertTrue(
                 any("pending" in blocker.casefold() for blocker in readiness["blockers"])
             )
@@ -439,8 +443,8 @@ class Schema11MigrationTests(unittest.TestCase):
             self.assertEqual(manifest_11["schema_version"], "1.1")
 
             # The helper starts from a current initializer. Remove the unindexed
-            # 1.2 files so this source accurately represents a real 1.1 project.
-            for _, relative in migration.V12_ARTIFACTS:
+            # 1.2/1.3 files so this source accurately represents a real 1.1 project.
+            for _, relative in (*migration.V12_ARTIFACTS, *migration.V13_ARTIFACTS):
                 candidate = root / relative
                 if candidate.exists():
                     candidate.unlink()
@@ -488,6 +492,104 @@ class Schema11MigrationTests(unittest.TestCase):
                 safe_root, rollback_plan, record_path, record
             )
             self.assertEqual(rolled_back["status"], "rolled-back")
+            restored = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(restored, snapshot)
+
+    def test_12_to_13_creates_partial_planning_without_authorization_and_rolls_back(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-migration-13-") as directory:
+            container = Path(directory)
+            root = container / "project"
+            root.mkdir()
+            _write_review_free_project(root)
+            safe_root = migration._safe_root(root)
+
+            plan_11 = migration._plan(safe_root, "1.1")
+            migration._apply(
+                safe_root,
+                plan_11,
+                container / "backup-11",
+                migration._preview(safe_root, plan_11)["preview_hash"],
+            )
+            for _, relative in (*migration.V12_ARTIFACTS, *migration.V13_ARTIFACTS):
+                candidate = root / relative
+                if candidate.exists():
+                    candidate.unlink()
+            task_directory = root / "docs/lks-sdd/04-delivery/tasks"
+            if task_directory.is_dir():
+                for task in task_directory.glob("TASK-*.md"):
+                    task.unlink()
+                task_directory.rmdir()
+
+            plan_12 = migration._plan(safe_root, "1.2")
+            migration._apply(
+                safe_root,
+                plan_12,
+                container / "backup-12",
+                migration._preview(safe_root, plan_12)["preview_hash"],
+            )
+            source_validation, _, _ = migration.validate_project(safe_root)
+            self.assertTrue(source_validation.valid, source_validation.errors)
+            snapshot = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+
+            plan_13 = migration._plan(safe_root, "1.3")
+            preview_13 = migration._preview(safe_root, plan_13)
+            self.assertEqual(plan_13.source_schema, "1.2")
+            self.assertEqual(plan_13.target_schema, "1.3")
+            self.assertEqual(plan_13.human_review_required, [])
+            created = [change for change in plan_13.changes if change.created]
+            self.assertEqual(
+                [change.path.relative_to(safe_root).as_posix() for change in created],
+                ["docs/lks-sdd/04-delivery/planning-coverage.md"],
+            )
+
+            backup_13 = container / "backup-13"
+            applied = migration._apply(
+                safe_root,
+                plan_13,
+                backup_13,
+                preview_13["preview_hash"],
+            )
+            self.assertTrue(applied["validated"])
+            migrated = json.loads(
+                (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(migrated["schema_version"], "1.3")
+            self.assertEqual(migrated["method_version"], "1.3.0")
+            self.assertEqual(migrated["plugin_version"], "0.9.0")
+            self.assertEqual(migrated["active_tasks"], [])
+            self.assertIsNone(migrated["planning"]["target_id"])
+            self.assertEqual(migrated["authorizations"], [])
+            self.assertEqual(migrated["executions"], [])
+            planning_text = (
+                root / "docs/lks-sdd/04-delivery/planning-coverage.md"
+            ).read_text(encoding="utf-8")
+            self.assertNotIn("| REL-001 | release | proposed |", planning_text)
+
+            readiness_code, readiness = run_json(
+                READINESS_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                expected_codes={3},
+            )
+            self.assertEqual(readiness_code, 3)
+            self.assertFalse(readiness["implementation_authorized"])
+            self.assertNotEqual(readiness["status"], "ready-to-implement")
+
+            rollback_plan, record_path, record = migration._plan_rollback(
+                safe_root, backup_13
+            )
+            migration._apply_rollback(
+                safe_root, rollback_plan, record_path, record
+            )
             restored = {
                 path.relative_to(root).as_posix(): path.read_bytes()
                 for path in root.rglob("*")

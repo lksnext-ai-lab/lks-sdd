@@ -92,7 +92,7 @@ class QualityHarnessTests(unittest.TestCase):
     def test_fixture_manifest_is_complete_and_hash_locked(self):
         result = validate_fixture_manifest()
         self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["fixture_count"], 6)
+        self.assertEqual(result["fixture_count"], 7)
 
     def test_fixture_hash_drift_is_reported(self):
         manifest = copy.deepcopy(_load_json(FIXTURE_MANIFEST_PATH))

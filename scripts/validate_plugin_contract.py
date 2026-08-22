@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.8/method-contract 1.2 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.9/method-contract 1.3 invariants."""
 
 from __future__ import annotations
 
@@ -29,6 +29,7 @@ CANONICAL_HASHES = {
     "LKS-SDD_extension_definicion_visual_v0.1.md": "ABA2B063A31192D5971CE9DC05323405BF7655737076AC924011E77E2C15ACA3",
     "LKS-SDD_extension_contrato_documental_v1.1.md": "84CEAA4C5243B2942CAA0EDE9288173A603E12640645C6D1E0C2915DED3B0C7D",
     "LKS-SDD_extension_gobierno_entrega_perfiles_tareas_v1.2.md": "45EB724665ACC88913775EC56A9F0D4DD2F07579D7E6674C8E479A2D29790C53",
+    "LKS-SDD_extension_planificacion_continuidad_v1.3.md": "1CE7721E3B75DF475572DDEEB451243B13EC5D1F0FCDEA0E3780E16327263942",
 }
 REQUIRED_ROOT_FILES = {
     ".gitattributes",
@@ -49,6 +50,7 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.6-DEFINITION-UX-COVERAGE.md",
     "docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md",
     "docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md",
+    "docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
     "docs/VALIDATION.md",
@@ -70,11 +72,15 @@ REQUIRED_ROOT_FILES = {
     "scripts/profile_registry.py",
     "scripts/delivery_engine.py",
     "scripts/manage_tasks.py",
+    "scripts/planning_engine.py",
+    "scripts/manage_planning.py",
+    "scripts/manage_continuity.py",
     "scripts/update_profile_locks.py",
     "quality/catalog.json",
     "quality/corpora/activation.json",
     "quality/corpora/definition-v0.6.0.json",
     "quality/corpora/definition-v0.8.0.json",
+    "quality/corpora/definition-v0.9.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
@@ -90,6 +96,8 @@ REQUIRED_ROOT_FILES = {
     "schemas/frontmatter-1.1.schema.json",
     "schemas/project-1.2.schema.json",
     "schemas/frontmatter-1.2.schema.json",
+    "schemas/project-1.3.schema.json",
+    "schemas/frontmatter-1.3.schema.json",
     "schemas/profile-catalog.schema.json",
     "schemas/profile-driver.schema.json",
     "schemas/profile-certification.schema.json",
@@ -121,6 +129,7 @@ REQUIRED_SKILL_RESOURCES = {
         "references/project-lifecycle.md",
         "references/capabilities-and-limits.md",
         "references/product-reality.md",
+        "references/transition-summaries.md",
         "references/onboarding.md",
         "references/work-codex-guide.md",
         "references/examples.md",
@@ -179,6 +188,8 @@ REQUIRED_CONDITIONAL_TEMPLATES = {
     "04-delivery/plans.md",
     "04-delivery/tasks.md",
     "04-delivery/task-detail.md",
+    "04-delivery/planning-coverage.md",
+    "04-delivery/checkpoint.md",
     "05-quality/test-strategy.md",
     "06-operation/deployment.md",
     "06-operation/observability.md",
@@ -206,6 +217,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
 RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/build_candidate_package.py": {"subprocess"},
     "scripts/delivery_engine.py": {"subprocess"},
+    "scripts/manage_continuity.py": {"subprocess"},
     "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
     "scripts/run_quality_harness.py": {"subprocess"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess", "urllib"},
@@ -479,10 +491,21 @@ def validate(root: Path) -> list[str]:
             "RabbitMQ",
             "Kafka",
         ),
+        "specs/canonical/LKS-SDD_extension_planificacion_continuidad_v1.3.md": (
+            "completitud de planificación",
+            "planning-required",
+            "complete-before-implementation",
+            "incremental-authorized",
+            "checkpoints",
+            "cancelled",
+        ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
             CANONICAL_HASHES[
                 "LKS-SDD_extension_gobierno_entrega_perfiles_tareas_v1.2.md"
+            ],
+            CANONICAL_HASHES[
+                "LKS-SDD_extension_planificacion_continuidad_v1.3.md"
             ],
         ),
         "scripts/run_quality_harness.py": (
@@ -523,6 +546,8 @@ def validate(root: Path) -> list[str]:
         "frontmatter-1.1.schema.json",
         "project-1.2.schema.json",
         "frontmatter-1.2.schema.json",
+        "project-1.3.schema.json",
+        "frontmatter-1.3.schema.json",
         "profile-catalog.schema.json",
         "profile-driver.schema.json",
         "profile-certification.schema.json",
@@ -692,6 +717,8 @@ def validate(root: Path) -> list[str]:
             "migrate",
             "client-view",
             "tasks",
+            "planning",
+            "continuity",
             "profiles",
         ):
             if f'"{command}"' not in cli_text:
@@ -769,6 +796,36 @@ def validate(root: Path) -> list[str]:
             )
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         errors.append("project-1.2.schema.json no expone el contrato esperado.")
+
+    try:
+        project_13 = json.loads(
+            (root / "schemas" / "project-1.3.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        required_13 = set(project_13["required"])
+        properties_13 = project_13["properties"]
+        if properties_13["schema_version"].get("const") != "1.3":
+            errors.append("project-1.3.schema.json debe fijar schema_version 1.3.")
+        if properties_13["method_version"].get("const") != "1.3.0":
+            errors.append("project-1.3.schema.json debe fijar method_version 1.3.0.")
+        expected_13 = {
+            "active_tasks", "planning", "authorizations", "executions",
+            "last_verified_revision",
+        }
+        if not expected_13 <= required_13:
+            errors.append(
+                "El índice 1.3 debe exigir planificación, autorizaciones, ejecuciones y tareas activas."
+            )
+        planning_required = set(properties_13["planning"].get("required", []))
+        if not {
+            "policy", "specification_fingerprint", "planning_fingerprint",
+        } <= planning_required:
+            errors.append("El índice 1.3 no fija los fingerprints separados.")
+        if {"open_blockers", "readiness"} & (required_13 | set(properties_13)):
+            errors.append("El índice 1.3 no debe persistir readiness derivado.")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("project-1.3.schema.json no expone el contrato esperado.")
 
     try:
         quality_report = json.loads(

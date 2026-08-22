@@ -339,19 +339,19 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
     missing = sorted(required - set(value))
     if missing:
         raise ContractEngineError(f"Catálogo incompleto; faltan {missing}.")
-    if value.get("catalog_version") != "1.2":
+    if value.get("catalog_version") != "1.3":
         raise ContractEngineError(
-            "El catálogo documental debe usar catalog_version 1.2."
+            "El catálogo documental debe usar catalog_version 1.3."
         )
     supported = value.get("supported_project_schemas")
-    if not isinstance(supported, list) or set(supported) != {"1.0", "1.1", "1.2"}:
+    if not isinstance(supported, list) or set(supported) != {"1.0", "1.1", "1.2", "1.3"}:
         raise ContractEngineError(
-            "El catálogo debe declarar soporte explícito 1.0, 1.1 y 1.2."
+            "El catálogo debe declarar soporte explícito 1.0, 1.1, 1.2 y 1.3."
         )
     inheritance = value.get("schema_inheritance")
-    if inheritance != {"1.2": "1.1"}:
+    if inheritance != {"1.2": "1.1", "1.3": "1.2"}:
         raise ContractEngineError(
-            "schema_inheritance debe declarar únicamente 1.2 -> 1.1."
+            "schema_inheritance debe declarar 1.2 -> 1.1 y 1.3 -> 1.2."
         )
     prefixes = value.get("identifier_prefixes")
     if (
@@ -483,18 +483,18 @@ def load_registry(
     }
     artifacts: dict[str, ArtifactContract] = {}
     for artifact_id, raw_artifact in value["artifacts"].items():
-        explicit_schema = any(
-            schema_version in raw_table.get("schemas", [])
+        table_schema = schema_version
+        inheritance = value.get("schema_inheritance", {})
+        visited_schemas: set[str] = set()
+        while not any(
+            table_schema in raw_table.get("schemas", [])
             for raw_table in raw_artifact["tables"]
             if isinstance(raw_table, dict)
-        )
-        table_schema = (
-            schema_version
-            if explicit_schema
-            else value.get("schema_inheritance", {}).get(
-                schema_version, schema_version
-            )
-        )
+        ):
+            if table_schema in visited_schemas or table_schema not in inheritance:
+                break
+            visited_schemas.add(table_schema)
+            table_schema = inheritance[table_schema]
         tables: list[TableContract] = []
         for raw_table in raw_artifact["tables"]:
             if table_schema not in raw_table["schemas"]:
@@ -1809,7 +1809,7 @@ def _active_payload(
     }
     technology = model.manifest.get("technology")
     if (
-        str(model.manifest.get("schema_version")) == "1.2"
+        str(model.manifest.get("schema_version")) in {"1.2", "1.3"}
         and isinstance(technology, dict)
     ):
         for binding in technology.get("profile_bindings", []):

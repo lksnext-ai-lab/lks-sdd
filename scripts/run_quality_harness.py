@@ -20,7 +20,7 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
-DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.8.0.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.9.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
 DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.6.1.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
@@ -326,8 +326,8 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             raise HarnessError(
                 f"{case_id} no puede declarar evidencia antes de su ejecución controlada."
             )
-    if extension_ids != {f"FX-{index:02d}" for index in range(20, 28)}:
-        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-27.")
+    if extension_ids != {f"FX-{index:02d}" for index in range(20, 36)}:
+        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-35.")
     if "definition-conversation" not in channels["candidate"].get("optional", []):
         raise HarnessError(
             "Candidate debe mostrar definition-conversation como evidencia opcional."

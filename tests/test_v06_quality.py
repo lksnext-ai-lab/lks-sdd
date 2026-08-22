@@ -32,12 +32,12 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["mode"], "semantic")
         self.assertEqual(fx01["evidence"], [])
 
-    def test_definition_cases_are_versioned_for_v08_and_not_run(self) -> None:
-        self.assertEqual(self.corpus["plugin_version"], "0.8.0")
-        self.assertEqual(self.corpus["corpus_id"], "lks-sdd-definition-ux-es-0.8.0")
+    def test_definition_cases_are_versioned_for_v09_and_not_run(self) -> None:
+        self.assertEqual(self.corpus["plugin_version"], "0.9.0")
+        self.assertEqual(self.corpus["corpus_id"], "lks-sdd-definition-ux-es-0.9.0")
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
-            {f"FX-{index:02d}" for index in range(20, 28)},
+            {f"FX-{index:02d}" for index in range(20, 36)},
         )
         self.assertEqual(
             {case["id"] for case in self.corpus["cases"]},

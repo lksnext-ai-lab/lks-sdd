@@ -1,6 +1,6 @@
 # Rúbrica de readiness por incremento
 
-La evaluación produce un estado combinado `ready`, `ready-with-non-blocking-pending` o `blocked`, y explica por separado `specification_readiness` y `automation_support`. No usa puntuaciones opacas, no selecciona una pila y no autoriza implementación.
+La evaluación no reduce el proyecto a un `ready` ambiguo. Explica simultáneamente `specification_readiness`, `automation_support`, `planning_completeness`, `selected_slice_readiness`, autorización, implementación, verificación y entrega. Su acción superior es `specification-required`, `planning-required`, `slice-required`, `automation-required`, `ready-for-implementation-authorization`, `ready-to-implement` o un bloqueo explicado. No usa puntuaciones opacas, no selecciona una pila y no autoriza implementación.
 
 ## Preparación de la especificación
 
@@ -26,9 +26,9 @@ La evaluación produce un estado combinado `ready`, `ready-with-non-blocking-pen
 
 Un punto explícitamente no bloqueante, con impacto y alcance independientes, puede producir `ready-with-non-blocking-pending`. La ausencia de evidencia no se presume no bloqueante.
 
-## Preparación de entrega y tareas
+## Preparación de entrega y porción seleccionada
 
-En esquema 1.2, `delivery_readiness` bloquea G2 si falta alguno de estos elementos:
+En esquemas 1.2 y 1.3, la preparación de la porción bloquea G2 si falta alguno de estos elementos:
 
 - un `CHG-###` vigente y `confirmed` que cierre modelo de entrega, versionado, ramas o su no aplicabilidad, promoción, despliegue, recuperación y trigger de revisión;
 - al menos un `ENV-###` confirmado cuando el gobierno está confirmado;
@@ -37,7 +37,31 @@ En esquema 1.2, `delivery_readiness` bloquea G2 si falta alguno de estos element
 - una selección no vacía de `TASK-###` en `ready`, con ficha ejecutable completa, dependencias resueltas, owner, aceptación y gates;
 - una `UNIT-###` y un `BIND-###` confirmados por tarea.
 
-El gate evalúa la selección de tareas solicitada o, si no se indica, la tarea activa o las tareas `ready`. Las tareas de backlog independientes no bloquean esa selección. El tablero y las fichas deben concordar; ciclos, referencias ausentes, progreso incoherente o un bloqueo sin problema abierto invalidan el contrato.
+El gate evalúa la selección solicitada o, si no se indica, las tareas activas o `ready`. El backlog independiente no bloquea esa selección, pero sí puede demostrar que la release aún no está completamente planificada. El tablero y las fichas deben concordar; ciclos, referencias ausentes, progreso incoherente o un bloqueo sin problema abierto invalidan el contrato. Una dependencia TASK solo está resuelta en `done`; `cancelled` exige reconciliar el grafo.
+
+## Completitud e integridad de planificación
+
+`planning_completeness` usa `not-started`, `partial`, `complete` y `stale`. `planning_integrity` usa `valid` o `invalid`. Una selección TASK puede estar `ready` mientras la planificación total permanece `partial`; ambos hechos deben mostrarse juntos.
+
+Una planificación 1.3 es `complete` únicamente cuando:
+
+- el objetivo, incremento, release y política están declarados;
+- cada elemento activo aplicable del incremento tiene una única tarea primaria y, si procede, contribuyentes delimitados;
+- requisitos, criterios de aceptación y pruebas aparecen también en la definición ejecutable responsable;
+- todas las tareas registradas tienen objetivo, alcance incluido/excluido, entregables, unidad/binding, gates, dependencias, paralelización, riesgos/bloqueos, rol, revisión, DoD y evidencia exigida;
+- release, tablero, fichas y mapa de cobertura concuerdan;
+- el grafo no contiene ciclos, referencias ausentes ni dependencias canceladas tratadas como resueltas;
+- existen raíces ejecutables, fronteras paralelas y una responsabilidad explícita de integración/verificación conjunta;
+- no existen huecos ni dos propietarios primarios contradictorios;
+- las huellas de especificación y planificación confirmadas coinciden con el contenido actual.
+
+La salida enumera IDs sin propietario, tareas incompletas, solapamientos, dependencias, orden topológico y fronteras. Sin duraciones confirmadas informa `critical_path: undetermined`; no inventa esfuerzo, fechas, velocidad o capacidad. En 1.2 la cobertura puede derivarse para diagnóstico, pero nunca se confirma como completa sin migrar a 1.3 y materializar el mapa.
+
+## Autorización
+
+Una planificación `complete` permite pedir autorización, no implementar. `ready-for-implementation-authorization` exige además una porción `ready` y automatización soportada. `ready-to-implement` solo aparece cuando un `AUTH-###` autorizado coincide exactamente en incremento, release, tareas, política y ambas huellas vigentes. Un cambio aplicable vuelve esa autorización `stale`; la evaluación no la actualiza ni la sustituye.
+
+La política recomendada es `complete-before-implementation`. Una planificación `partial` solo puede autorizar una porción si existe una ADR humana `incremental-authorized`; el resumen debe seguir mostrando que la release completa no está planificada.
 
 ## Soporte de automatización
 
@@ -53,4 +77,4 @@ El validador comprueba estructura, estados, identificadores y referencias. La sk
 
 `checked_files`, `active_contract_fingerprint`, `profile_lock` y `document_fingerprint` son parte del resultado contractual. La huella activa representa únicamente los Markdown, relaciones, lock exacto y assets confirmados que alimentan el incremento; la huella documental también detecta cambios históricos. Un cambio de input activo invalida el preview de implementación. Una edición exclusivamente histórica sigue siendo visible para auditoría sin convertirse por ello en alcance implementable.
 
-Los proyectos 1.0 y 1.1 se evalúan en compatibilidad y conservan sus reglas históricas. Llegar a 1.2 requiere saltos explícitos `1.0 → 1.1 → 1.2`; readiness nunca migra ni reescribe documentos.
+Los proyectos 1.0, 1.1 y 1.2 se evalúan en compatibilidad y conservan sus reglas históricas. Llegar a 1.3 requiere saltos explícitos `1.0 → 1.1 → 1.2 → 1.3`; readiness nunca migra ni reescribe documentos.

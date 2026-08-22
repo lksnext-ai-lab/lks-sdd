@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-STATUS
 artifact_type: project-status
-schema_version: "1.2"
-method_version: "1.2.0"
-created_with_plugin_version: "0.8.0"
+schema_version: "1.3"
+method_version: "1.3.0"
+created_with_plugin_version: "0.9.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -40,9 +40,9 @@ last_updated: "{{DATE}}"
 | Arquitectura y desplegables | unknown | project | No se han identificado unidades desplegables | Límites de runtime, datos, interfaces y perfiles por unidad | Impide resolver composición y gates |
 | Entrega | unknown | project | No hay incremento activo | Alcance vertical, dependencias y riesgos | Impide evaluar readiness |
 | Gobierno de entrega | unknown | project | Modelo, versionado, ramas y promoción pendientes | Confirmar modelo de entrega, Git, entornos, despliegue y recuperación | Bloquea G2 |
-| Planificación y tareas | unknown | project | PLAN-001 y REL-001 son propuestas iniciales | Definir tareas independientes, dependencias, responsables y gates | Impide planificar y seguir la ejecución |
+| Planificación y tareas | unknown | project | PLAN-001 y REL-001 son propuestas iniciales; la cobertura integral no está confirmada | Definir propiedad de todo el contrato activo, tareas ejecutables, dependencias, revisión conjunta, responsables y gates | Impide afirmar que la release está completamente planificada |
 | Operación | unknown | project | Aplicabilidad no confirmada | Despliegue, observabilidad y continuidad | Puede dejar requisitos operativos sin tratar |
 
 Estados admitidos: `unknown`, `partial`, `sufficient` o `not-applicable: motivo`. No calcule un porcentaje global; cada estado se refiere al alcance indicado.
 
-La inicialización no confirma decisiones ni autoriza generación de código.
+La inicialización no confirma decisiones ni autoriza generación de código. Una tarea `ready` y una planificación `complete` son estados distintos y deben mostrarse simultáneamente.

@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.8.0
+# Arquitectura y alcance de la versión 0.9.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.8.0 conserva las seis skills y añade una capa transversal de gobierno de entrega, planificación profesional y arquitectura multiperfil. El contrato activo para proyectos nuevos es `method_version: 1.2.0` y `schema_version: 1.2`. Los contratos 1.0 y 1.1 continúan validándose en compatibilidad y solo evolucionan mediante migraciones explícitas de un salto.
+La versión 0.9.0 conserva las seis skills y añade a la arquitectura multiperfil de 0.8 una capa transversal de cobertura integral, autorización delimitada y continuidad reanudable. El contrato activo para proyectos nuevos es `method_version: 1.3.0` y `schema_version: 1.3`. Los contratos 1.0, 1.1 y 1.2 continúan validándose en compatibilidad y solo evolucionan mediante migraciones explícitas de un salto.
 
 ## Capas del producto
 
@@ -13,9 +13,10 @@ La versión 0.8.0 conserva las seis skills y añade una capa transversal de gobi
 | Método y contrato | Estados, identificadores, tablas, trazabilidad, gates y reglas de cambio | `specs/canonical/`, `schemas/`, `scripts/contract_engine.py` |
 | Definición y adopción | Descubrir intención o reconciliar una implementación existente sin inventar decisiones | `skills/lks-sdd-define/`, `skills/lks-sdd-adopt-existing/` |
 | Gobierno de entrega | Modelo de evolución, versionado, Git, CI/CD, entornos, promoción, despliegue y recuperación | `delivery-governance.md`, `deployment.md`, `scripts/delivery_engine.py` |
-| Planificación | Horizontes `PLAN-###`, entregas `REL-###`, unidades `UNIT-###` y tareas `TASK-###` | `plans.md`, `tasks.md`, `task-detail.md`, `scripts/manage_tasks.py` |
+| Planificación | Horizontes, releases, tareas, cobertura primaria/contribuyente, DAG, huecos e integración conjunta | `plans.md`, `planning-coverage.md`, `tasks.md`, `scripts/planning_engine.py` |
 | Arquitectura multiperfil | Familias, capabilities internas, perfiles cerrados, bindings, locks y certificaciones | `profiles/catalog.json`, `profiles/*`, `scripts/profile_registry.py` |
-| Ejecución | Readiness, preparación aditiva, implementación acotada y rollback | `lks-sdd-assess-readiness`, `lks-sdd-implement` |
+| Ejecución | Readiness por porción, autorización persistida, preparación aditiva, implementación acotada y rollback | `lks-sdd-assess-readiness`, `lks-sdd-implement`, `scripts/manage_planning.py` |
+| Continuidad | Ejecución durable, checkpoints observables y reconciliación al reanudar | `EXEC-###`, `CKPT-###`, `scripts/manage_continuity.py` |
 | Evidencia | Gates G3/G4, revisión Git, árbol, build, artefactos, entorno y autorización | `lks-sdd-verify`, `scripts/delivery_engine.py` |
 | Calidad y distribución | Tests, evals, candidate/stable, piloto y bundle reproducible | `tests/`, `quality/`, `pilot/`, `distribution/` |
 
@@ -31,7 +32,7 @@ Cada proyecto debe confirmar antes de G2 uno de estos modelos, sin convertirlo e
 
 El mismo contrato documenta versionado de producto, política de compatibilidad, estrategia Git, protección y revisión de ramas, CI/CD, entornos, promoción, despliegue, migraciones, observabilidad y recuperación. Un cambio de modelo durante la vida del proyecto se registra como `CHG-###` con origen, impacto, transición, fecha efectiva y decisión; no reescribe la historia ni invalida automáticamente evidencias anteriores.
 
-## Planificación y seguimiento
+## Planificación, autorización y seguimiento
 
 La estructura `PLAN-### → REL-### → TASK-###` evita tanto un backlog plano como tablas interminables. Cada `PLAN` representa un horizonte —normalmente una versión mayor, etapa o ventana de mantenimiento— y contiene releases manejables. El tablero de tareas ofrece lectura visual mediante símbolos y estados, mientras cada tarea mantiene su definición independiente con:
 
@@ -44,6 +45,12 @@ La estructura `PLAN-### → REL-### → TASK-###` evita tanto un backlog plano c
 
 Las transiciones se validan mediante una máquina de estados y se aplican con preview, hash de autorización y escritura atómica. `done` no se infiere de una casilla: exige criterios, gates y evidencias verificables. El tablero es una vista canónica de seguimiento; el detalle de tarea conserva la información necesaria para ejecutar y auditar el trabajo.
 
+El motor 1.3 evalúa dos ejes simultáneos: una selección puede tener `TASK-###: ready` mientras la planificación de su incremento o release sigue `partial`. `ART-PLANNING` asigna cada elemento activo a una tarea primaria, permite contribuyentes sin duplicar responsabilidad y detecta requisitos, criterios y pruebas sin propietario, definiciones incompletas, cobertura incoherente, ciclos y dependencias canceladas. Solo declara `complete` cuando la cobertura e integridad son válidas y sus huellas han sido confirmadas por una persona.
+
+La implementación requiere además un `AUTH-###` vigente, ligado a incremento, release, selección TASK, política y huellas. La política recomendada es `complete-before-implementation`; `incremental-authorized` necesita una decisión humana expresa y conserva `partial` visible. Ni readiness ni confirmación del plan autorizan por sí solos cambios de código.
+
+Al comenzar se registra un `EXEC-###` y un `CKPT-###` inicial. Los checkpoints posteriores conservan tarea activa, rama y revisión observadas, archivos modificados, entregables terminados y parciales, aceptación, checks, evidencias, problemas, decisiones y siguiente acción segura. Al reanudar se compara repositorio y checkpoint; una divergencia conduce a reconciliar o replanificar y nunca convierte código parcial o pruebas no ejecutadas en trabajo terminado.
+
 ## Arquitectura multiperfil
 
 El catálogo usa cuatro niveles deliberadamente distintos:
@@ -55,7 +62,7 @@ El catálogo usa cuatro niveles deliberadamente distintos:
 
 Un perfil solo se presenta como `supported` cuando su lifecycle es `active` y existe una certificación completa que coincide exactamente con los hashes actuales de descriptor, capabilities, scaffold, driver, composición, gates y motor de certificación. Un lock aporta identidad y reproducibilidad; la evidencia del gate de composición demuestra que esa mezcla concreta fue probada. Si cualquiera de esos bytes cambia, el soporte deja de ser válido hasta volver a certificar.
 
-El catálogo 0.8.0 incluye diez perfiles en seis familias:
+El catálogo 0.9.0 conserva diez perfiles en seis familias:
 
 | Perfil | Arquitectura | Estado de producto |
 |---|---|---|
@@ -88,4 +95,4 @@ La implementación no añade MCP, conectores, hooks, apps ni agentes ejecutables
 
 ## Evolución posterior
 
-La versión SemVer `0.8.0` no equivale a M6 ni a una política corporativa aprobada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado. Los cambios del propio método seguirán siendo aditivos y migrables, con trazabilidad de transición.
+La versión SemVer `0.9.0` no equivale a M6 ni a una política corporativa aprobada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado. Los cambios del propio método seguirán siendo aditivos y migrables, con trazabilidad de transición.

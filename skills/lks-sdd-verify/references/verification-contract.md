@@ -20,11 +20,13 @@ La clasificación técnica no aprueba producción, excepción, entrega, riesgo r
 
 ## Puerta de implementación
 
-El plan solo se calcula si `.lks-sdd/project.json` contiene `implementation` para el mismo `INC-###`, una selección `task_ids` perteneciente a ese incremento, `profile_bindings` existentes y sus locks exactos, con estado `in-progress` o `completed`. `in-progress` permite anticipar checks, pero declara que la ejecución todavía no está habilitada.
+En 1.3 el plan se liga a una única `EXEC-###` del mismo `INC-###`, a sus `task_ids`, `profile_bindings` y locks exactos. Use `--execution-id` cuando varias ejecuciones puedan incluir la selección; el runner no elige una de forma ambigua. La proyección `implementation` se conserva por compatibilidad, pero no sustituye el historial de ejecuciones. En 1.2 se mantiene esa proyección como fuente operativa. Un estado `in-progress` permite anticipar checks, pero declara que la ejecución todavía no está habilitada.
 
 Ejecutar cualquier check o registrar un `EVID-###` exige que ese mismo registro mantenga `implementation.status=completed`. Si falta `implementation`, el incremento no coincide, el perfil es incoherente o el estado es `not-started`, `in-progress` o `blocked`, el runner falla cerrado antes de invocar herramientas, crear evidencia o modificar trazabilidad e índice. Un plan, una autorización o unos checks potencialmente exitosos no sustituyen esta puerta.
 
 Después de ejecutar y antes de escribir, el runner recarga `project.json` y revalida estado `completed`, incremento, tareas, bindings, todos los locks, revisión/árbol del repositorio y contrato activo contra la instantánea inicial. Si algo cambió, no crea `EVID-###` ni modifica trazabilidad o índice; la mutación externa se conserva y debe repetirse la verificación.
+
+En 1.3 también exige que las huellas de especificación y planificación sigan vigentes, que la autorización cubra exactamente las tareas ejecutadas y que cualquier `CKPT-###` divergente haya sido reconciliado. Un checkpoint puede acreditar que se ejecutó un comando solo si contiene su resultado observado; nunca eleva por sí mismo un check a `passed`.
 
 ## Fases de trazabilidad
 
@@ -52,9 +54,11 @@ La verificación 1.2 exige cada `.lks-sdd/profiles/BIND-###.lock.json` como arch
 
 La evidencia G4 se aporta desde un JSON local del proyecto y cumple `schemas/delivery-evidence.schema.json`. Debe declarar `schema_version: 1.0`, `REL-###`, `ENV-###`, un commit o fingerprint de workspace, `tree_id`, `build-sha256`, los mismos digests calculados y objetos `promotion`, `smoke`, `observability` y `recovery` con `status`, instante UTC y referencia verificable. `authorization` añade la autoridad responsable. La release debe contener exactamente las tareas verificadas y el entorno debe estar confirmado. El plugin valida la evidencia; no ejecuta ni autoriza merge, promoción o despliegue.
 
+Cuando todas las tareas registradas de una release están `done`, aún se exige el punto de integración/verificación conjunta definido por el plan y que la cobertura continúe `complete`. Terminar todas las tareas conocidas no oculta alcance sin propietario ni autoriza promoción.
+
 Use el dispatcher instalado y declare la fase de trazabilidad de forma explícita cuando la inferencia automática no sea apropiada:
 
 ```powershell
 python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase verification --json
-python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --plan
+python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --execution-id EXEC-001 --plan
 ```

@@ -3,7 +3,13 @@ from __future__ import annotations
 import unittest
 
 import test_visual_contract as visual_contract
-from eval_support import READINESS_SCRIPT, _append_row, _replace_row, run_json
+from eval_support import (
+    READINESS_SCRIPT,
+    _append_row,
+    _replace_row,
+    confirm_planning_change,
+    run_json,
+)
 
 
 VALIDATE_SCRIPT = visual_contract.VALIDATE_SCRIPT
@@ -148,7 +154,25 @@ class VisualContractAdversarialTests(unittest.TestCase):
             "| INC-001 | applicable | UX-001, UX-002, UX-003 | reuse | "
             "VIS-001 | Reuse the confirmed visual ADR from INC-000 |"
         )
+        planning_path = self.docs / "04-delivery/planning-coverage.md"
+        planning_path.write_text(
+            planning_path.read_text(encoding="utf-8").replace(
+                ", UX-001, UX-002, UX-003, VIS-001 | TASK-001 |",
+                ", UX-001, UX-002, UX-003, UX-010, UX-011, VIS-001 | TASK-001 |",
+                1,
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
         self._assert_project_valid()
+        confirm_planning_change(
+            self.root,
+            change_id="PCH-002",
+            affected_contract="UX-010, UX-011, VIS-001",
+            affected_tasks="TASK-001",
+            decision="ADR-001",
+            reason="Human-confirmed reuse of the historical visual baseline",
+        )
 
         code, result = run_json(
             READINESS_SCRIPT,
@@ -159,7 +183,11 @@ class VisualContractAdversarialTests(unittest.TestCase):
         )
 
         self.assertEqual(code, 0, result.get("blockers", []))
-        self.assertEqual(result["status"], "ready", result.get("blockers", []))
+        self.assertEqual(
+            result["status"],
+            "ready-for-implementation-authorization",
+            result.get("blockers", []),
+        )
         self.assertEqual(result["visual_mode"], "reuse")
         self.assertEqual(result["visual_prototypes"], ["VIS-001"])
 

@@ -18,11 +18,15 @@ Clasificar cada afirmación como hecho, objetivo, requisito, restricción, propu
 
 Cada dimensión se marca `unknown`, `partial`, `sufficient` o `not-applicable: motivo`. `Sufficient` significa suficiente para el alcance o siguiente incremento indicado, no terminado ni aprobado globalmente. No usar porcentajes globales de madurez.
 
-En proyectos nuevos, escriba el contrato 1.2 (`method_version: 1.2.0`, `schema_version: 1.2`) y use las tablas, estados y relaciones declarados para cada artefacto. Los proyectos 1.0 y 1.1 se leen en compatibilidad; la conversación de definición no los migra de forma implícita.
+En proyectos nuevos, escriba el contrato 1.3 (`method_version: 1.3.0`, `schema_version: 1.3`) y use las tablas, estados y relaciones declarados para cada artefacto. Los proyectos 1.0, 1.1 y 1.2 se leen en compatibilidad; la conversación de definición no los migra de forma implícita.
 
 Antes de G2, la definición incluye tres capas inseparables del producto: arquitectura por `UNIT-###` y `BIND-###`, gobierno de entrega versionado por `CHG-###`, y planificación ejecutable `PLAN-###` → `REL-###` → `TASK-###`. El modelo de entrega se elige entre `bounded-release`, `continuous-evolution` y `maintenance-stream`; cualquier cambio posterior conserva la decisión anterior y declara fecha efectiva, impacto, transición y trigger de revisión.
 
 Cada tarea mantiene una fila breve para seguimiento visual y una ficha independiente con definición ejecutable, dependencias, gates, estado, salud, progreso, bloqueos, revisión, build, artefacto, entorno, evidencia e historial. Una tabla por horizonte mayor evita que el tablero se convierta en un registro inmanejable.
+
+La cobertura completa es una dimensión distinta del readiness de una tarea. `ART-PLANNING` declara el objetivo, política, ownership primario y contribuyente de cada elemento activo, confirmaciones, autorizaciones y cambios. Un plan solo queda `complete` después de validar cobertura, definiciones ejecutables, coherencia release/TASK, DAG acíclico, fronteras paralelas e integración conjunta, y de confirmar humanamente sus huellas. Sin duraciones confirmadas se describe el orden estructural, no un camino crítico inventado.
+
+Al cerrar suficientemente una especificación, el handoff muestra de forma automática: completado; estado separado de especificación, arquitectura/automatización, planificación, porción, implementación, verificación y entrega; trabajo sin tarea; recomendación; y decisión humana. Si el plan es parcial, la opción recomendada es completar la descomposición. Trabajar por porciones exige una ADR explícita `incremental-authorized` y mantiene la incompletitud visible.
 
 ## Resumen de definición
 

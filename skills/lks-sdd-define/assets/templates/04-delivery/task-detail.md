@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-{{TASK_ID}}
 artifact_type: development-task
-schema_version: "1.2"
-method_version: "1.2.0"
-created_with_plugin_version: "0.8.0"
+schema_version: "1.3"
+method_version: "1.3.0"
+created_with_plugin_version: "0.9.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -30,6 +30,18 @@ last_updated: "{{DATE}}"
 |---|---|---|---|---|---|---|---|
 | pending | pending | pending | pending | pending | pending | pending | not-applicable |
 
+## Plan de ejecución verificable
+
+| Tests | Decisions and constraints | Risks and blockers | Responsible role | Review entry conditions | Definition of done | Required evidence | Integration points | Parallel constraints |
+|---|---|---|---|---|---|---|---|---|
+| pending | pending | pending | pending-assignment | pending | pending | pending | pending | pending |
+
+## Entregables
+
+| Deliverable | State | Acceptance | Tests | Evidence | Notes |
+|---|---|---|---|---|---|
+| pending | pending | pending | pending | pending | pending |
+
 ## Ejecución y seguimiento
 
 | Workflow state | Health | Progress | Owner | Branch | Revision start | Revision verified | Build | Environment | Updated |
@@ -46,9 +58,15 @@ last_updated: "{{DATE}}"
 | Acceptance | Gate | Result | Evidence | Revision | Artifact digest | Environment |
 |---|---|---|---|---|---|---|
 
+## Continuidad
+
+| Definition status | Current checkpoint | Authorization | Authorization scope | Specification fingerprint | Planning fingerprint | Next safe action |
+|---|---|---|---|---|---|---|
+| incomplete | none | none | none | pending | pending | complete task definition |
+
 ## Historial de cambios
 
 | Date | From | To | Reason | Actor or authority | Evidence |
 |---|---|---|---|---|---|
 
-La tarea no está lista hasta que su aceptación, dependencias, perfil/lock y gates sean resolubles. `done` exige evidencia ligada a la revisión y al artefacto realmente verificados.
+La tarea no está lista hasta que su aceptación, pruebas, dependencias, perfil/lock, gates, revisión, definición de terminado y evidencia sean resolubles. `done` exige evidencia ligada a la revisión y al artefacto realmente verificados. El porcentaje es secundario: la reanudación usa entregables, aceptación, checks y checkpoint concretos.

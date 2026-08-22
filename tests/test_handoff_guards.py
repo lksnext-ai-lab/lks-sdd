@@ -16,6 +16,7 @@ from eval_support import (
     READINESS_SCRIPT,
     VALIDATE_SCRIPT,
     VERIFY_SCRIPT,
+    authorize_implementation,
     initialize,
     materialize_ready_increment,
     run_json,
@@ -55,7 +56,10 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
             },
         }
     )
-    for key in ("active_plan", "active_task", "delivery_governance"):
+    for key in (
+        "active_plan", "active_task", "active_tasks", "delivery_governance",
+        "planning", "authorizations", "executions",
+    ):
         manifest.pop(key, None)
     manifest["technology"].pop("profile_bindings", None)
     manifest["version_control"] = {
@@ -69,6 +73,7 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
         "ART-TASKS",
         "ART-TEST-STRATEGY",
         "ART-DEPLOYMENT",
+        "ART-PLANNING",
     }
     manifest["artifacts"] = [
         item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -82,8 +87,8 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
         path = root / entry["path"]
         text = (
             path.read_text(encoding="utf-8")
-            .replace('schema_version: "1.2"', 'schema_version: "1.0"', 1)
-            .replace('method_version: "1.2.0"', 'method_version: "1.0.0"', 1)
+            .replace('schema_version: "1.3"', 'schema_version: "1.0"', 1)
+            .replace('method_version: "1.3.0"', 'method_version: "1.0.0"', 1)
             .replace(
                 f'created_with_plugin_version: "{current_version}"',
                 'created_with_plugin_version: "0.6.1"',
@@ -132,6 +137,7 @@ def _load_verification_module():
 
 
 def _prepare_increment(root: Path) -> None:
+    authorize_implementation(root)
     _, preview = run_json(
         IMPLEMENT_SCRIPT,
         str(root),
@@ -351,7 +357,9 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
                 READINESS_SCRIPT, str(root), "--increment", "INC-001"
             )
             self.assertEqual(code, 0, before)
-            self.assertEqual(before["status"], "ready")
+            self.assertEqual(
+                before["status"], "ready-for-implementation-authorization"
+            )
             self.assertEqual(
                 before["profile_locks"][0]["expected_sha256"], expected_hash
             )
@@ -386,7 +394,7 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
                 expected_codes={3},
             )
             self.assertEqual(readiness_code, 3, readiness)
-            self.assertEqual(readiness["status"], "blocked")
+            self.assertEqual(readiness["status"], "automation-blocked")
             self.assertTrue(
                 any(
                     "BIND-001" in item and "lock" in item.casefold()
@@ -420,6 +428,7 @@ class ConsumerProfileLockGuardsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-lock-flow-") as temporary:
             root = Path(temporary)
             _ready_project(root)
+            authorize_implementation(root)
 
             verify_code, verification = run_json(
                 VERIFY_SCRIPT,
@@ -660,7 +669,7 @@ class HandoffContractDocumentationTests(unittest.TestCase):
         self.assertIn("puede no existir", implementation)
         self.assertIn("idéntico byte a byte", readiness)
         self.assertIn("copia byte a byte", implementation)
-        self.assertIn("código, documentación, pruebas y handoff", implementation)
+        self.assertIn("checkpoint durable", implementation)
         self.assertIn("lista no vacía de checks", verification)
         self.assertIn("todos ellos en `passed`", verification)
         self.assertIn("Ausencia, `{}`, edición o enlace", verification)

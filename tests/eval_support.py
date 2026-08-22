@@ -48,6 +48,7 @@ MATERIALIZE_ADOPTION_SCRIPT = (
     / "materialize_adoption.py"
 )
 MIGRATE_SCRIPT = PLUGIN_ROOT / "scripts" / "migrate_project.py"
+PLANNING_SCRIPT = PLUGIN_ROOT / "scripts" / "manage_planning.py"
 CLIENT_VIEW_SCRIPT = PLUGIN_ROOT / "scripts" / "render_client_view.py"
 VALIDATE_SPEC_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_spec.py"
 VALIDATE_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_project.py"
@@ -131,7 +132,7 @@ def _replace_row(path: Path, row_id: str, row: str) -> None:
     raise AssertionError(f"Row not found in {path}: {row_id}")
 
 
-def materialize_ready_increment(root: Path) -> None:
+def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> None:
     docs = root / "docs" / "lks-sdd"
     manifest_path = root / ".lks-sdd" / "project.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -141,7 +142,8 @@ def materialize_ready_increment(root: Path) -> None:
             "gate": "G2",
             "active_increment": "INC-001",
             "active_plan": "PLAN-001",
-            "active_task": "TASK-001",
+            "active_task": None,
+            "active_tasks": [],
             "delivery_governance": {
                 "state": "confirmed",
                 "model": "continuous-evolution",
@@ -275,6 +277,17 @@ def materialize_ready_increment(root: Path) -> None:
         "REL-001",
         "| REL-001 | active | 0.1.0 | PLAN-001 | 2026-08-19 | continuous stream | ENV-001 | TASK-001 | pending | pending | pending: G3/G4 not executed |",
     )
+    planning = docs / "04-delivery" / "planning-coverage.md"
+    _replace_row(
+        planning,
+        "REL-001",
+        "| REL-001 | release | proposed | Deliver INC-001 with verifiable evidence | INC-001 | complete-before-implementation | not-applicable: method default | TASK-001 | scope, contract or dependency change |",
+    )
+    _append_row(
+        planning,
+        "| Target | Increment | Contract items",
+        "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001 | TASK-001 | not-applicable: single-task release | Implement and jointly verify the complete synthetic increment | All active items are owned by the only executable task |",
+    )
     tasks = docs / "04-delivery" / "tasks.md"
     _append_row(
         tasks,
@@ -302,8 +315,17 @@ def materialize_ready_increment(root: Path) -> None:
         "| pending | pending | pending | pending | pending | pending | pending | not-applicable |",
         "| Implement the confirmed acknowledgement behavior | UNIT-001 API behavior and tests | Reporting and administration | FR-001 | AC-001 | CAP-API-CONTRACT, CAP-OCI-RUNTIME | GATE-API-TEST, GATE-API-OPENAPI, GATE-OCI-BUILD | not-applicable |",
     ).replace(
+        "| pending | pending | pending | pending-assignment | pending | pending | pending | pending | pending |",
+        "| TEST-001 | ADR-001, ADR-002 and fixture constraints | not-applicable: no known synthetic risk | fixture-owner | Code and TEST-001 complete | AC-001 passed with required gates | EVID-001 tied to revision and artifact | TASK-001 performs joint release integration | not-applicable: single-task release |",
+    ).replace(
+        "| pending | pending | pending | pending | pending | pending |",
+        "| Acknowledgement behavior and tests | pending | AC-001 | TEST-001 | EVID-001 | Single release deliverable |",
+    ).replace(
         "| backlog | unknown | 0 | pending-assignment | pending | pending | pending | pending | pending | 2026-08-19 |",
         "| ready | on-track | 0 | fixture-owner | pending | pending | pending | pending | ENV-001 | 2026-08-19 |",
+    ).replace(
+        "| incomplete | none | none | none | pending | pending | complete task definition |",
+        "| executable | none | none | none | pending | pending | begin TASK-001 after authorization |",
     )
     (task_directory / "TASK-001.md").write_text(
         task_text, encoding="utf-8", newline="\n"
@@ -313,6 +335,121 @@ def materialize_ready_increment(root: Path) -> None:
         "| Environment | State | Role",
         "| ENV-001 | confirmed | CI verification | UNIT-001 | immutable OCI digest | environment variables without secrets | replace and smoke | restore previous digest | health and structured logs | FR-001 |",
     )
+
+    if not confirm_plan:
+        return
+
+    confirm_planning(root)
+
+
+def confirm_planning(root: Path, *, change_date: str = "2026-08-19") -> dict[str, Any]:
+    """Persist the fixture's complete planning fingerprints after human review."""
+    _, preview = run_json(
+        PLANNING_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "confirm",
+        "--date",
+        change_date,
+        "--actor-role",
+        "fixture-authority",
+        "--preview",
+    )
+    _, applied = run_json(
+        PLANNING_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "confirm",
+        "--date",
+        change_date,
+        "--actor-role",
+        "fixture-authority",
+        "--apply",
+        "--authorize",
+        "--preview-hash",
+        preview["preview_hash"],
+    )
+    return applied
+
+
+def confirm_planning_change(
+    root: Path,
+    *,
+    change_id: str,
+    affected_contract: str,
+    affected_tasks: str,
+    decision: str,
+    reason: str,
+    classification: str = "new-scope",
+    change_date: str = "2026-08-20",
+) -> dict[str, Any]:
+    """Record an exact confirmed PCH before reconfirming a stale fixture plan."""
+    code, planning = run_json(
+        PLANNING_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "assess",
+        expected_codes={3},
+    )
+    if code != 3 or not planning["change_impact"]["requires_change_record"]:
+        raise AssertionError("The fixture plan is not awaiting an exact PCH record.")
+    previous = planning["stored_fingerprints"]["planning"]
+    current = planning["planning_fingerprint"]
+    if not previous or previous == current:
+        raise AssertionError("The fixture PCH requires distinct planning fingerprints.")
+    _append_row(
+        root / "docs/lks-sdd/04-delivery/planning-coverage.md",
+        "| ID | State | Classification",
+        f"| {change_id} | confirmed | {classification} | {affected_contract} | "
+        f"{affected_tasks} | {previous} | {current} | {decision} | {reason} |",
+    )
+    return confirm_planning(root, change_date=change_date)
+
+
+def authorize_implementation(
+    root: Path,
+    *,
+    task_ids: tuple[str, ...] = ("TASK-001",),
+    authorization_id: str = "AUTH-001",
+    decision: str = "ADR-002",
+    change_date: str = "2026-08-19",
+) -> dict[str, Any]:
+    """Persist a human-role authorization for an already confirmed fixture plan."""
+    common = [
+        str(root),
+        "--increment",
+        "INC-001",
+        "authorize",
+        "--authorization-id",
+        authorization_id,
+    ]
+    for task_id in task_ids:
+        common.extend(["--task", task_id])
+    common.extend(
+        [
+            "--date",
+            change_date,
+            "--actor-role",
+            "fixture-authority",
+            "--decision",
+            decision,
+            "--constraints",
+            "Only the selected executable task definitions are authorized.",
+        ]
+    )
+    _, preview = run_json(PLANNING_SCRIPT, *common, "--preview")
+    _, applied = run_json(
+        PLANNING_SCRIPT,
+        *common,
+        "--apply",
+        "--authorize",
+        "--preview-hash",
+        preview["preview_hash"],
+    )
+    return applied
 
 
 def run_new_project(root: Path) -> dict[str, Any]:
@@ -329,10 +466,10 @@ def run_new_project(root: Path) -> dict[str, Any]:
         [
             before == after_dry_run,
             dry_run["changed"] is False,
-            len(created["created"]) == 21,
+            len(created["created"]) == 22,
             resumed["would_change"] is False,
             validation["valid"] is True,
-            ready["status"] == "ready",
+            ready["status"] == "ready-for-implementation-authorization",
             ready["implementation_authorized"] is False,
         ]
     )
@@ -358,7 +495,7 @@ def run_insufficient_information(root: Path) -> dict[str, Any]:
     passed = all(
         [
             code == 3,
-            result["status"] == "blocked",
+            result["status"] == "specification-blocked",
             bool(result["blockers"]),
             before == after,
             result["implementation_authorized"] is False,
@@ -436,7 +573,7 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
     passed = all(
         [
             code == 3,
-            result["status"] == "blocked",
+            result["status"] == "specification-blocked",
             blocker,
             after_manifest["technology"]["selected_profile"] is None,
             after_manifest["technology"]["selection_decision"] is None,
@@ -500,7 +637,7 @@ def run_scoped_blocker(root: Path) -> dict[str, Any]:
     )
     passed = all(
         [
-            result["status"] == "ready-with-non-blocking-pending",
+            result["status"] == "ready-for-implementation-authorization",
             any("OPEN-002" in item for item in result["non_blocking_pending"]),
             not result["blockers"],
             result["implementation_authorized"] is False,

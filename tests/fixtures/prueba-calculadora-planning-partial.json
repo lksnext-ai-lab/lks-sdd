@@ -1,0 +1,30 @@
+{
+  "id": "FX-M9-PRUEBA-CALCULADORA-PARTIAL",
+  "classification": "synthetic-regression-derived-from-real-product-case",
+  "source_case": "prueba-calculadora with LKS-SDD 0.8.0 and contract 1.2",
+  "increment": "INC-001",
+  "release": "REL-001",
+  "selected_task": "TASK-001",
+  "selected_scope": "technical foundation and classic calculator",
+  "unassigned_requirements": [
+    {"id": "FR-002", "acceptance": "AC-002", "test": "TEST-002", "capability": "complete navigation"},
+    {"id": "FR-003", "acceptance": "AC-003", "test": "TEST-003", "capability": "four families and 28 calculator sheets"},
+    {"id": "FR-004", "acceptance": "AC-004", "test": "TEST-004", "capability": "unit conversion"},
+    {"id": "FR-005", "acceptance": "AC-005", "test": "TEST-005", "capability": "currency conversion"},
+    {"id": "FR-006", "acceptance": "AC-006", "test": "TEST-006", "capability": "six languages"},
+    {"id": "FR-007", "acceptance": "AC-007", "test": "TEST-007", "capability": "configuration"},
+    {"id": "FR-008", "acceptance": "AC-008", "test": "TEST-008", "capability": "history"},
+    {"id": "FR-009", "acceptance": "AC-009", "test": "TEST-009", "capability": "privacy controls"},
+    {"id": "FR-010", "acceptance": "AC-010", "test": "TEST-010", "capability": "local recovery"},
+    {"id": "FR-011", "acceptance": "AC-011", "test": "TEST-011", "capability": "integral quality"},
+    {"id": "FR-012", "acceptance": "AC-012", "test": "TEST-012", "capability": "cross-browser compatibility"}
+  ],
+  "expected": {
+    "specification_readiness": "ready",
+    "automation_support": "supported",
+    "selected_task_readiness": "ready",
+    "planning_completeness": "partial",
+    "implementation": "not-started",
+    "recommended_action": "planning-required"
+  }
+}

@@ -12,6 +12,8 @@ from eval_support import (
     VALIDATE_SCRIPT,
     VERIFY_SCRIPT,
     _append_row,
+    authorize_implementation,
+    confirm_planning,
     initialize,
     materialize_ready_increment,
     run_alternative_stack,
@@ -86,6 +88,7 @@ class WorkflowTests(unittest.TestCase):
             root = Path(directory)
             initialize(root, "stale-implementation-preview")
             materialize_ready_increment(root)
+            authorize_implementation(root)
             _, preview = run_json(
                 IMPLEMENT_SCRIPT,
                 str(root),
@@ -122,6 +125,7 @@ class WorkflowTests(unittest.TestCase):
             root = Path(directory)
             initialize(root, "implementation-ready")
             materialize_ready_increment(root)
+            authorize_implementation(root)
             before = tree_digest(root)
             _, preview = run_json(
                 IMPLEMENT_SCRIPT,
@@ -158,6 +162,10 @@ class WorkflowTests(unittest.TestCase):
                 "--plan",
             )
             self.assertEqual(plan["classification"], "not-run")
+            self.assertEqual(
+                plan["transition_summary"]["where_we_are"],
+                "verification-not-run",
+            )
             self.assertTrue(
                 all(check["status"] == "not-run" for check in plan["checks"])
             )
@@ -290,7 +298,9 @@ class WorkflowTests(unittest.TestCase):
                 READINESS_SCRIPT, str(root), "--increment", "INC-001"
             )
             self.assertEqual(code, 0)
-            self.assertEqual(result["status"], "ready-with-non-blocking-pending")
+            self.assertEqual(
+                result["status"], "ready-for-implementation-authorization"
+            )
             self.assertFalse(result["implementation_authorized"])
             self.assertEqual(before, tree_digest(root))
 
@@ -388,7 +398,7 @@ class WorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
             initialize(root, "business-requirement")
-            materialize_ready_increment(root)
+            materialize_ready_increment(root, confirm_plan=False)
             docs = root / "docs" / "lks-sdd"
             for relative in (
                 "02-requirements/functional-requirements.md",
@@ -396,6 +406,8 @@ class WorkflowTests(unittest.TestCase):
                 "03-solution/solution-overview.md",
                 "03-solution/architecture.md",
                 "04-delivery/increments.md",
+                "04-delivery/planning-coverage.md",
+                "04-delivery/tasks/TASK-001.md",
                 "05-quality/traceability.md",
                 "06-operation/deployment.md",
             ):
@@ -406,13 +418,17 @@ class WorkflowTests(unittest.TestCase):
                     newline="\n",
                 )
 
+            confirm_planning(root)
+
             before = tree_digest(root)
             code, result = run_json(
                 READINESS_SCRIPT, str(root), "--increment", "INC-001"
             )
 
             self.assertEqual(code, 0)
-            self.assertEqual(result["status"], "ready")
+            self.assertEqual(
+                result["status"], "ready-for-implementation-authorization"
+            )
             self.assertEqual(result["specification_readiness"]["status"], "ready")
             trace_code, traceability = run_json(
                 TRACEABILITY_SCRIPT,

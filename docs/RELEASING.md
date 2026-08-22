@@ -31,8 +31,8 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "0.8.0"
-$releaseDate = "2026-08-21"
+$releaseVersion = "0.9.0"
+$releaseDate = "2026-08-22"
 $releaseTag = "v$releaseVersion"
 
 git status --short --branch
@@ -118,7 +118,7 @@ Cada nota incluye como mínimo:
 - resultados de tests, evals y canales que siguen `not-run`;
 - vulnerabilidades conocidas y otras limitaciones;
 - instrucciones de actualización;
-- migración o declaración explícita de que no se requiere; si `human_review_required` contiene entradas en 1.0 → 1.1, las notas deben indicar que la aplicación queda siempre bloqueada antes de escribir hasta resolver cada entrada en el origen y repetir el preview con lista vacía. La `Identity` agregada se traslada aparte a tres dominios `pending`: no bloquea la escritura de ese salto, pero sí readiness hasta su resolución. El salto 1.1 → 1.2 crea gobierno, bindings, planes y tareas pendientes sin inferir decisiones;
+- migración o declaración explícita de que no se requiere; si `human_review_required` contiene entradas en 1.0 → 1.1, las notas deben indicar que la aplicación queda siempre bloqueada antes de escribir hasta resolver cada entrada en el origen y repetir el preview con lista vacía. La `Identity` agregada se traslada aparte a tres dominios `pending`: no bloquea la escritura de ese salto, pero sí readiness hasta su resolución. El salto 1.1 → 1.2 crea gobierno, bindings, planes y tareas pendientes; 1.2 → 1.3 añade cobertura, autorización y continuidad vacías sin inferir decisiones o avance;
 - rollback;
 - periodo o estado de soporte;
 - responsables confirmados o, si todavía no existen, el pendiente explícito.

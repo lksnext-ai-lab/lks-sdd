@@ -8,7 +8,7 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.8.0` conserva M0–M5 y las seis skills: ayuda, definición, adopción, readiness, implementación y verificación. Añade el contrato 1.2 de gobierno de entrega, arquitectura multiperfil y planificación/seguimiento profesional. Los proyectos nuevos usan `method_version: 1.2.0` y `schema_version: 1.2`; 1.0 y 1.1 permanecen validables en compatibilidad y solo cambian mediante migraciones explícitas de un salto. La release continúa como candidate: los canales humanos y de piloto no ejecutados siguen `not-run`; M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes ejecutables.
+La versión `0.9.0` conserva M0–M5 y las seis skills: ayuda, definición, adopción, readiness, implementación y verificación. El contrato 1.3 separa el cierre de especificación, la completitud de planificación, el readiness de una porción y su autorización; además registra ejecuciones y checkpoints reanudables en el repositorio. Los proyectos nuevos usan `method_version: 1.3.0` y `schema_version: 1.3`; 1.0, 1.1 y 1.2 permanecen validables en compatibilidad y solo cambian mediante migraciones explícitas de un salto. La release continúa como candidate: los canales humanos y de piloto no ejecutados siguen `not-run`; M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes ejecutables.
 
 ## Principios operativos
 
@@ -19,7 +19,10 @@ La versión `0.8.0` conserva M0–M5 y las seis skills: ayuda, definición, adop
 - Los bloques de definición se resumen como suficientes, parciales, desconocidos, no aplicables o bloqueados, sin porcentajes de madurez engañosos.
 - Ninguna tecnología se selecciona automáticamente. Familias y capabilities son reutilizables, pero solo un perfil de referencia cerrado, certificado y ligado a una unidad desplegable puede declararse soportado.
 - Antes de G2 se confirma el modelo de entrega (`bounded-release`, `continuous-evolution` o `maintenance-stream`), versionado, Git/ramas, entornos, CI/CD, promoción, despliegue y recuperación. Los cambios posteriores se registran, no reescriben el historial.
-- El trabajo se planifica como `PLAN-###` → `REL-###` → `TASK-###`; el tablero facilita el seguimiento visual y cada tarea conserva una definición independiente y verificable.
+- El trabajo se planifica como `PLAN-###` → `REL-###` → `TASK-###`; `ART-PLANNING` demuestra qué alcance, aceptación y pruebas pertenecen a cada tarea. Una tarea `ready` no implica que toda la release esté planificada.
+- Al cerrar una especificación, LKS-SDD muestra una transición orientada a acción: completado, estado separado de cada fase, huecos de planificación, siguiente paso y decisión humana necesaria. El camino recomendado es confirmar la planificación integral antes de implementar.
+- La planificación `partial` solo habilita una porción mediante una política incremental confirmada y una autorización humana ligada a huellas vigentes. Una propuesta de tareas nunca se convierte por sí sola en decisión.
+- `AUTH-###`, `EXEC-###` y `CKPT-###` conservan en el repositorio la autorización, la ejecución y el estado observable para pausar o reanudar sin depender del chat. Código escrito y código verificado siguen siendo hechos distintos.
 - ImageGen se usa solo con un brief visual suficiente y capacidad disponible; una imagen propuesta no equivale a diseño confirmado ni sustituye requisitos o accesibilidad.
 - La baseline normativa incluida es candidata. Sus `MUST`, `SHOULD` y `MAY` no equivalen a política corporativa aprobada.
 - Una consulta de ayuda no modifica archivos. Una evaluación de readiness no autoriza implementación.
@@ -32,15 +35,15 @@ La versión `0.8.0` conserva M0–M5 y las seis skills: ayuda, definición, adop
 - `.codex-plugin/plugin.json`: manifiesto del plugin.
 - `skills/`: seis workflows de producto descubribles: ayuda, definición, adopción, readiness, implementación y verificación.
 - `profiles/`: catálogo de familias/capabilities, perfiles cerrados, drivers, scaffolds, locks y certificaciones exactas.
-- `schemas/`: contratos 1.0/1.1/1.2 del índice, front matter, documentos, perfiles, drivers, locks y certificaciones.
-- `scripts/`: validación, trazabilidad, gobierno de entrega, tablero TASK, registro multiperfil, gates, migración y vistas derivadas.
+- `schemas/`: contratos 1.0/1.1/1.2/1.3 del índice, front matter, documentos, perfiles, drivers, locks y certificaciones.
+- `scripts/`: validación, trazabilidad, gobierno de entrega, cobertura de planificación, autorización, tablero TASK, continuidad, registro multiperfil, gates, migración y vistas derivadas.
 - `templates/client/`: plantilla profesional para borradores derivados, nunca fuente canónica.
-- `specs/canonical/`: tres fuentes originales preservadas por hash y tres extensiones aditivas: definición visual 0.6, contrato/handoff 1.1 y gobierno/entrega/perfiles/tareas 1.2.
+- `specs/canonical/`: tres fuentes originales preservadas por hash y cuatro extensiones aditivas: definición visual 0.6, contrato/handoff 1.1, gobierno/entrega/perfiles/tareas 1.2 y planificación/continuidad 1.3.
 - `tests/`: fixtures declarativos y evals deterministas de invariantes.
 - `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
 - `pilot/`: ejemplo bloqueado, plan y rollback para el piloto controlado M5.
 - `distribution/`: plantilla estándar del marketplace de desarrollo generado externamente.
-- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.8.0, M0–M5 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.9.0, M0–M5 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: fotografía histórica del primer perfil H0, implementación y verificación en 0.2.0.
@@ -50,6 +53,7 @@ La versión `0.8.0` conserva M0–M5 y las seis skills: ayuda, definición, adop
 - `docs/V0.6-DEFINITION-UX-COVERAGE.md`: cobertura de la evolución compatible de entrevista, estado de definición y diseño visual.
 - `docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md`: cobertura del contrato documental 1.1, compatibilidad 1.0 y handoff por incremento.
 - `docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md`: cobertura de gobierno, planificación TASK, perfiles exactos, gates y evidencia de entrega.
+- `docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md`: cobertura de planificación integral, autorización delimitada, checkpoints y reanudación.
 - `docs/QUALITY-HARNESS.md`: ejecución, evidencia y semántica de las puertas candidate/stable.
 - `docs/DISTRIBUTION.md`: empaquetado, instalación controlada y retirada.
 - `docs/RELEASING.md`: política de versiones, etiquetas y releases técnicas de GitHub.
@@ -63,8 +67,10 @@ Para operar sobre un proyecto consumidor, resuelva `<plugin-root>` como la carpe
 ```powershell
 python "<plugin-root>/scripts/lks_sdd.py" validate-project "<project-root>"
 python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase preimplementation
+python "<plugin-root>/scripts/lks_sdd.py" planning "<project-root>" --increment INC-001 assess
+python "<plugin-root>/scripts/lks_sdd.py" continuity "<project-root>" resume
 ```
 
-Use `--phase verification` cuando deba exigir `EVID-###` ejecutada. Las migraciones son explícitas y de un salto. `1.0 → 1.1` conserva su cierre seguro ante `human_review_required`; `1.1 → 1.2` crea gobierno, arquitectura, planes y tareas como pendientes sin inventar decisiones. Cada apply exige backup externo, hash de autorización y validación posterior. Actualizar el plugin no migra proyectos.
+Use `--phase verification` cuando deba exigir `EVID-###` ejecutada. Las migraciones son explícitas y de un salto. `1.0 → 1.1` conserva su cierre seguro ante `human_review_required`; `1.1 → 1.2` crea gobierno, arquitectura, planes y tareas como pendientes; `1.2 → 1.3` añade cobertura, autorización y continuidad vacías sin inventar decisiones, tareas, avance o evidencia. Cada apply exige backup externo, hash de autorización y validación posterior. Actualizar el plugin no migra proyectos.
 
 Este repositorio publica releases técnicas y genera un marketplace candidate para evaluación controlada, pero no instala globalmente el plugin ni representa una distribución corporativa estable. La licencia definitiva, los responsables nominales, el SLA y la promoción a stable requieren decisiones separadas. `LICENSE.md` registra esta restricción sin inventar una licencia y `CONTRIBUTING.md` define el contrato de cambio.
