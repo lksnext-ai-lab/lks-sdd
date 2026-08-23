@@ -150,7 +150,7 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
         text = text.replace('schema_version: "1.3"', 'schema_version: "1.1"', 1)
         text = text.replace('method_version: "1.3.0"', 'method_version: "1.1.0"', 1)
         text = text.replace(
-            'created_with_plugin_version: "0.9.0"',
+            'created_with_plugin_version: "0.9.1"',
             'created_with_plugin_version: "0.7.0"',
             1,
         )
@@ -190,7 +190,7 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
             ).replace(
                 'method_version: "1.3.0"', 'method_version: "1.1.0"', 1
             ).replace(
-                'created_with_plugin_version: "0.9.0"',
+                'created_with_plugin_version: "0.9.1"',
                 'created_with_plugin_version: "0.7.0"',
                 1,
             )

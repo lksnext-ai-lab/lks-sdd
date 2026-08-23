@@ -1,13 +1,14 @@
 {
   "name": "lks-sdd",
-  "version": "0.9.0",
-  "description": "Plugin para Codex que aplica SDD trazable con planificación integral, autorización delimitada, ejecución reanudable y verificación reproducible.",
+  "version": "0.9.1",
+  "description": "Plugin Spec-anchored para Codex que mantiene especificaciones confiables y trazables durante la definición, adopción, implementación y verificación.",
   "author": {
     "name": "LKS"
   },
   "keywords": [
     "sdd",
     "specification-driven-development",
+    "spec-anchored",
     "codex",
     "web-development",
     "governance"
@@ -15,8 +16,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "LKS-SDD para Codex",
-    "shortDescription": "Desarrollo SDD trazable con Codex",
-    "longDescription": "Plugin de desarrollo SDD para Codex que permite definir y adoptar proyectos, separar cierre de especificación, completitud de planificación y readiness de tareas, confirmar cobertura integral, seleccionar perfiles certificados por unidad desplegable, registrar autorizaciones delimitadas y ejecutar, pausar, reanudar y verificar tareas con checkpoints, locks, gates y evidencias ligadas a revisión y artefacto. No declara compatibilidad equivalente con otros asistentes.",
+    "shortDescription": "Desarrollo Spec-anchored con Codex",
+    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones versionadas y confiables que evolucionan con el código, permiten contrastar alcance y aceptación con el cliente y actúan como contrato para planificar, implementar y verificar. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente, separando lo observado de la intención confirmada. No trata la especificación como generador automático de todo el código ni declara compatibilidad equivalente con otros asistentes.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [
@@ -25,13 +26,13 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Explícame cómo usar LKS-SDD con Codex sin modificar archivos.",
+      "Explícame el enfoque Spec-anchored de LKS-SDD con Codex sin modificar archivos.",
       "Ayúdame en Codex a descubrir y definir esta aplicación sin presuponer su dominio ni generar código.",
       "Muéstrame la cobertura de la definición y, si hay frontend, guía el diseño y prototipado visual.",
       "Ayúdame a definir el modelo de entrega, las ramas, los entornos y un tablero de tareas para este horizonte.",
       "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
       "Muéstrame los perfiles activos y candidatos aplicables a cada unidad desplegable.",
-      "Adopta con Codex este repositorio existente mediante un preflight de solo lectura.",
+      "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",
       "Implementa con Codex la siguiente tarea autorizada y deja checkpoints reanudables.",
       "Reanuda con Codex la ejecución autorizada desde su último checkpoint.",
       "Verifica con Codex las tareas implementadas sin confundir código escrito con evidencia superada."

@@ -2,7 +2,7 @@
 
 ## Decisión de producto
 
-LKS-SDD 0.9.0 es un plugin SDD para Codex. Codex es el entorno objetivo y el único soportado contractualmente. El manifiesto, el descubrimiento de skills, los prompts, los permisos y los workflows se diseñan y evalúan en ese contexto.
+LKS-SDD 0.9.1 es un plugin Spec-anchored de SDD para Codex. Codex es el entorno objetivo y el único soportado contractualmente. El manifiesto, el descubrimiento de skills, los prompts, los permisos y los workflows se diseñan y evalúan en ese contexto.
 
 | Entorno | Estado | Alcance |
 |---|---|---|
@@ -18,7 +18,7 @@ Los Markdown, JSON Schema y scripts Python pueden ser técnicamente reutilizable
 
 | Proyecto consumidor | Validación | Evolución |
 |---|---|---|
-| Nuevo con LKS-SDD 0.9.0 | Método `1.3.0`, esquema `1.3` | Formato activo con cobertura integral, autorización y continuidad reanudable. |
+| Nuevo con LKS-SDD 0.9.1 | Método `1.3.0`, esquema `1.3` | Formato activo con cobertura integral, autorización y continuidad reanudable. |
 | Existente 1.2 | Compatible sin escritura automática | Su cobertura se deriva conservadoramente; migración explícita `1.2 → 1.3` para nuevas ejecuciones durables. |
 | Existente 1.1 | Compatible sin escritura automática | Migración explícita `1.1 → 1.2`; después, en otra operación, `1.2 → 1.3`. |
 | Existente 1.0 | Compatible con reglas legacy y avisos | Ruta explícita `1.0 → 1.1 → 1.2 → 1.3`, una operación por salto. |

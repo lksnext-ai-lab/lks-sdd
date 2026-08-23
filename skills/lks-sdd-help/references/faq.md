@@ -1,5 +1,15 @@
 # Preguntas frecuentes
 
+## ¿LKS-SDD es Spec-first, Spec-anchored o Spec-as-source?
+
+Es **Spec-anchored**. La especificación no solo prepara el inicio: permanece versionada junto al código y conserva el contrato vigente durante definición, planificación, implementación y verificación. Si cambia el comportamiento, se revisan los artefactos afectados y una divergencia invalida las huellas o autorizaciones correspondientes hasta reconciliarla.
+
+No es Spec-as-source. Codex puede generar o modificar código a partir de una especificación confirmada, pero LKS-SDD permite edición directa del código y exige revisión, gates y evidencia antes de declarar conformidad.
+
+## ¿Qué aporta este enfoque en una empresa de servicios?
+
+Permite mantener una documentación confiable y comprensible para contrastar alcance, reglas y aceptación con el cliente sin exigir que todo el desarrollo se genere mecánicamente. En proyectos existentes, la adopción parte del código para documentar el `as-is`, pero separa los hechos observados de las inferencias y de la intención que debe confirmar el cliente o el rol competente. Los borradores para cliente son vistas derivadas y revisables; la fuente canónica continúa en el repositorio.
+
 ## ¿SDD significa escribir mucha documentación?
 
 No. El detalle se ajusta al riesgo y al siguiente incremento. El objetivo es no perder decisiones, criterios y trazabilidad necesarios, no maximizar páginas.
@@ -32,9 +42,9 @@ No. LKS-SDD muestra por separado especificación, automatización, cobertura int
 
 `planning_completeness: complete` exige que todo el alcance activo, criterios y pruebas tengan tarea responsable, todas las fichas sean ejecutables, release/tablero/cobertura concuerden, el DAG no tenga ciclos y exista integración conjunta. La salida enumera cualquier hueco concreto. No se calcula a partir de un porcentaje ni de que exista una tarea lista.
 
-## ¿Actualizar a 0.9.0 cambia mis documentos anteriores?
+## ¿Actualizar a 0.9.1 cambia mis documentos anteriores?
 
-No. Los proyectos 1.0, 1.1 y 1.2 siguen validándose en compatibilidad. Llegar a 1.3 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.2 → 1.3 añade cobertura, autorización y continuidad vacías; no interpreta el proyecto anterior como plan completo o aprobación.
+No. El parche 0.9.1 conserva el método 1.3 y no requiere migración desde 0.9.0. Los proyectos 1.0, 1.1 y 1.2 siguen validándose en compatibilidad. Llegar a 1.3 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.2 → 1.3 añade cobertura, autorización y continuidad vacías; no interpreta el proyecto anterior como plan completo o aprobación.
 
 ## ¿Qué permite reanudar sin recordar el chat?
 
@@ -46,7 +56,7 @@ El repositorio conserva la ejecución y su último `CKPT-###`: tareas, rama/revi
 
 ## ¿Puedo usar LKS-SDD con un repositorio existente?
 
-Sí. `lks-sdd-adopt-existing` realiza primero un inventario estático de solo lectura y externo al repositorio. La materialización solo continúa tras reconciliación, confirmación, baseline vigente, preview y autorización, y únicamente añade documentación LKS-SDD.
+Sí. Es la ruta de entrada Spec-anchored para sistemas sin especificaciones confiables. `lks-sdd-adopt-existing` realiza primero un inventario estático de solo lectura y externo al repositorio. Después separa lo observado en el código de la intención confirmada y las contradicciones. La materialización solo continúa tras reconciliación, confirmación, baseline vigente, preview y autorización, y únicamente añade documentación LKS-SDD.
 
 ## ¿Funciona igual en GitHub Copilot o Claude?
 

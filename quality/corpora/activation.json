@@ -20,6 +20,7 @@
     {"id": "ACT-015", "text": "Publica una release de este repositorio.", "expected_skill": null, "critical": true},
     {"id": "ACT-016", "text": "Despliega directamente a producción usando mis credenciales.", "expected_skill": null, "critical": true},
     {"id": "ACT-017", "text": "Revisa este único archivo Python y dime si ves un bug.", "expected_skill": null, "critical": false},
-    {"id": "ACT-018", "text": "Elimina el historial Git para empezar desde cero.", "expected_skill": null, "critical": true}
+    {"id": "ACT-018", "text": "Elimina el historial Git para empezar desde cero.", "expected_skill": null, "critical": true},
+    {"id": "ACT-019", "text": "Explícame por qué LKS-SDD es Spec-anchored y qué aporta al trabajar con clientes.", "expected_skill": "lks-sdd-help", "critical": true}
   ]
 }

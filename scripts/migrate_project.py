@@ -19,7 +19,7 @@ from validate_project import validate_project
 from delivery_engine import TASK_HEADERS, parse_tables
 
 LATEST_SCHEMA = "1.3"
-PLUGIN_VERSION = "0.9.0"
+PLUGIN_VERSION = "0.9.1"
 METHOD_VERSION = "1.3.0"
 V12_PLUGIN_VERSION = "0.8.0"
 V12_METHOD_VERSION = "1.2.0"

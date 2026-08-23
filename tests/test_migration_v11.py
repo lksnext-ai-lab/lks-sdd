@@ -165,7 +165,7 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         content = content.replace('schema_version: "1.3"', 'schema_version: "1.0"')
         content = content.replace('method_version: "1.3.0"', 'method_version: "1.0.0"')
         content = content.replace(
-            'created_with_plugin_version: "0.9.0"',
+            'created_with_plugin_version: "0.9.1"',
             'created_with_plugin_version: "0.6.1"',
         )
         content = content.replace(
@@ -563,7 +563,7 @@ class Schema11MigrationTests(unittest.TestCase):
             )
             self.assertEqual(migrated["schema_version"], "1.3")
             self.assertEqual(migrated["method_version"], "1.3.0")
-            self.assertEqual(migrated["plugin_version"], "0.9.0")
+            self.assertEqual(migrated["plugin_version"], "0.9.1")
             self.assertEqual(migrated["active_tasks"], [])
             self.assertIsNone(migrated["planning"]["target_id"])
             self.assertEqual(migrated["authorizations"], [])

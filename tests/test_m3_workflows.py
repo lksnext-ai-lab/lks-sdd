@@ -425,7 +425,7 @@ class M3WorkflowTests(unittest.TestCase):
                     .replace('schema_version: "1.3"', 'schema_version: "1.0"')
                     .replace('method_version: "1.3.0"', 'method_version: "1.0.0"')
                     .replace(
-                        'created_with_plugin_version: "0.9.0"',
+                        'created_with_plugin_version: "0.9.1"',
                         'created_with_plugin_version: "0.6.1"',
                     )
                     .replace(

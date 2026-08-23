@@ -1,6 +1,6 @@
 # LKS-SDD para Codex
 
-LKS-SDD es un plugin corporativo para desarrollar aplicaciones web con Codex mediante Specification-Driven Development (SDD). El plugin contiene el método, las plantillas, las reglas, los validadores y la ayuda; Codex los aplica sobre el repositorio de cada aplicación, que conserva su propia documentación, código, evidencias y estado.
+LKS-SDD es un plugin corporativo **Spec-anchored** para desarrollar aplicaciones web con Codex mediante Specification-Driven Development (SDD). El plugin contiene el método, las plantillas, las reglas, los validadores y la ayuda; Codex los aplica sobre el repositorio de cada aplicación, que conserva su propia documentación, código, evidencias y estado.
 
 ## Entorno objetivo y compatibilidad
 
@@ -8,11 +8,33 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.9.0` conserva M0–M5 y las seis skills: ayuda, definición, adopción, readiness, implementación y verificación. El contrato 1.3 separa el cierre de especificación, la completitud de planificación, el readiness de una porción y su autorización; además registra ejecuciones y checkpoints reanudables en el repositorio. Los proyectos nuevos usan `method_version: 1.3.0` y `schema_version: 1.3`; 1.0, 1.1 y 1.2 permanecen validables en compatibilidad y solo cambian mediante migraciones explícitas de un salto. La release continúa como candidate: los canales humanos y de piloto no ejecutados siguen `not-run`; M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes ejecutables.
+La versión `0.9.1` conserva M0–M5, el método 1.3 y las seis skills: ayuda, definición, adopción, readiness, implementación y verificación. Explicita el posicionamiento Spec-anchored sin cambiar el contrato de los proyectos consumidores. El contrato 1.3 separa el cierre de especificación, la completitud de planificación, el readiness de una porción y su autorización; además registra ejecuciones y checkpoints reanudables en el repositorio. Los proyectos nuevos usan `method_version: 1.3.0` y `schema_version: 1.3`; 1.0, 1.1 y 1.2 permanecen validables en compatibilidad y solo cambian mediante migraciones explícitas de un salto. La release continúa como candidate: los canales humanos y de piloto no ejecutados siguen `not-run`; M6 y la promoción a `stable` permanecen pendientes. El plugin no contiene MCP, conectores, hooks, apps ni agentes ejecutables.
+
+## Posicionamiento Spec-anchored
+
+LKS-SDD no utiliza la especificación como un encargo inicial que se descarta al comenzar a programar. La mantiene como un contrato vivo, versionado y verificable durante todo el ciclo de vida. Cuando cambia el comportamiento acordado, deben revisarse la especificación aplicable, la planificación, el código y las evidencias afectadas; si divergen, la discrepancia se hace visible y se reconcilia antes de continuar con una autorización obsoleta.
+
+Este enfoque ocupa deliberadamente un punto intermedio:
+
+| Enfoque | Papel de la especificación | Relación con el código |
+|---|---|---|
+| Spec-first | Aclara el inicio del desarrollo | Puede quedar como antecedente y perder vigencia |
+| **Spec-anchored — LKS-SDD** | Permanece como documentación confiable y contrato contrastable | Especificación y código evolucionan con trazabilidad, gates y evidencia |
+| Spec-as-source | Describe de forma ejecutable el sistema | El código se genera principalmente desde la especificación |
+
+LKS-SDD no es Spec-as-source: permite trabajar directamente sobre el código y no presupone que toda la solución pueda generarse mecánicamente. Sí permite generar o modificar código desde una especificación confirmada, pero el resultado solo se considera conforme después de revisarlo y verificarlo.
+
+La misma ancla sirve en dos sentidos:
+
+- En una aplicación nueva, la intención acordada se convierte en especificación antes de autorizar la implementación.
+- En un repositorio existente sin especificaciones, la adopción reconstruye una baseline documental a partir de hechos observables del código y los reconcilia con la intención confirmada. El código aporta evidencia del `as-is`; no decide por sí solo qué comportamiento es correcto o deseado.
+
+Para una empresa de servicios, esta continuidad permite desarrollar con agilidad sin perder un artefacto comprensible que pueda contrastarse con el cliente. Los borradores para cliente se derivan únicamente de información confirmada y clasificada para ese uso, conservan procedencia y requieren revisión humana; no sustituyen el contrato canónico del repositorio.
 
 ## Principios operativos
 
 - Los Markdown versionados de cada aplicación son la fuente de verdad; `.lks-sdd/project.json` es solo el índice operativo.
+- La especificación permanece vigente después de implementar: un cambio funcional revisa el contrato y la deriva entre documentación, código o evidencia exige reconciliación explícita.
 - LKS-SDD propone, pregunta y explica. La persona usuaria decide y confirma.
 - Una idea breve no se interpreta como un producto genérico: primero se aclaran dominio, usuarios, propósito y contexto mediante preguntas de alto impacto.
 - Hechos, inferencias, propuestas, decisiones y pendientes se conservan como tipos distintos.
@@ -43,7 +65,7 @@ La versión `0.9.0` conserva M0–M5 y las seis skills: ayuda, definición, adop
 - `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
 - `pilot/`: ejemplo bloqueado, plan y rollback para el piloto controlado M5.
 - `distribution/`: plantilla estándar del marketplace de desarrollo generado externamente.
-- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.9.0, M0–M5 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.9.1, M0–M5 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: fotografía histórica del primer perfil H0, implementación y verificación en 0.2.0.

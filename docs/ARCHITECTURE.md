@@ -1,10 +1,21 @@
-# Arquitectura y alcance de la versión 0.9.0
+# Arquitectura y alcance de la versión 0.9.1
 
 ## Decisión de producto
 
-LKS-SDD es un plugin skills-only para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
+LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.9.0 conserva las seis skills y añade a la arquitectura multiperfil de 0.8 una capa transversal de cobertura integral, autorización delimitada y continuidad reanudable. El contrato activo para proyectos nuevos es `method_version: 1.3.0` y `schema_version: 1.3`. Los contratos 1.0, 1.1 y 1.2 continúan validándose en compatibilidad y solo evolucionan mediante migraciones explícitas de un salto.
+La versión 0.9.1 conserva las seis skills, la arquitectura multiperfil y la capa transversal de cobertura integral, autorización delimitada y continuidad reanudable de 0.9.0. Explicita el posicionamiento Spec-anchored sin cambiar el método ni el esquema. El contrato activo para proyectos nuevos es `method_version: 1.3.0` y `schema_version: 1.3`. Los contratos 1.0, 1.1 y 1.2 continúan validándose en compatibilidad y solo evolucionan mediante migraciones explícitas de un salto.
+
+## Ancla documental y flujos de entrada
+
+La especificación no es un documento de arranque ni una transcripción exhaustiva del código. Es el contrato comprensible contra el que se comparan intención, implementación y evidencia mientras el producto evoluciona. LKS-SDD permite editar código directamente, pero una modificación funcional que afecte al contrato obliga a actualizar o reconciliar los artefactos afectados y a renovar las huellas y autorizaciones que hayan quedado obsoletas.
+
+| Ruta | Evidencia inicial | Construcción del ancla | Límite de autoridad |
+|---|---|---|---|
+| Aplicación nueva | Necesidad, restricciones y decisiones confirmadas | Definición versionada antes de planificar e implementar | Una propuesta no se convierte en decisión sin confirmación |
+| Repositorio existente | Código, configuración y estructura observables mediante inspección estática | Baseline `as-is`, reconciliación con intención confirmada y contrato evolutivo | El código demuestra lo que existe, no lo que el cliente desea o aprueba |
+
+Las vistas para cliente son artefactos derivados del contrato confirmado, con procedencia, clasificación y revisión humana. Facilitan contrastar alcance, reglas y aceptación sin crear otra fuente de verdad. La implementación puede generarse o modificarse con ayuda de Codex a partir del contrato, pero LKS-SDD no es Spec-as-source: el código no se considera correcto por haber sido generado y la especificación no sustituye la verificación.
 
 ## Capas del producto
 
@@ -62,7 +73,7 @@ El catálogo usa cuatro niveles deliberadamente distintos:
 
 Un perfil solo se presenta como `supported` cuando su lifecycle es `active` y existe una certificación completa que coincide exactamente con los hashes actuales de descriptor, capabilities, scaffold, driver, composición, gates y motor de certificación. Un lock aporta identidad y reproducibilidad; la evidencia del gate de composición demuestra que esa mezcla concreta fue probada. Si cualquiera de esos bytes cambia, el soporte deja de ser válido hasta volver a certificar.
 
-El catálogo 0.9.0 conserva diez perfiles en seis familias:
+El catálogo 0.9.1 conserva diez perfiles en seis familias:
 
 | Perfil | Arquitectura | Estado de producto |
 |---|---|---|
@@ -95,4 +106,4 @@ La implementación no añade MCP, conectores, hooks, apps ni agentes ejecutables
 
 ## Evolución posterior
 
-La versión SemVer `0.9.0` no equivale a M6 ni a una política corporativa aprobada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado. Los cambios del propio método seguirán siendo aditivos y migrables, con trazabilidad de transición.
+La versión SemVer `0.9.1` no equivale a M6 ni a una política corporativa aprobada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado. Los cambios del propio método seguirán siendo aditivos y migrables, con trazabilidad de transición.

@@ -43,4 +43,4 @@ Una ejecución crea un checkpoint inicial y lo actualiza al empezar, terminar o 
 
 ## Evolución del contrato
 
-Las rutas nuevas y adopciones materializadas con 0.9.0 usan método 1.3.0 y esquema 1.3. Los proyectos 1.0/1.1/1.2 continúan en compatibilidad. Cada salto es explícito y reversible. `1.2 → 1.3` crea cobertura, autorización y continuidad como pendientes/vacías; no confirma decisiones, tareas, perfiles, ejecución ni evidencias.
+Las rutas nuevas y adopciones materializadas con 0.9.1 usan método 1.3.0 y esquema 1.3. Los proyectos 1.0/1.1/1.2 continúan en compatibilidad. Cada salto es explícito y reversible. `1.2 → 1.3` crea cobertura, autorización y continuidad como pendientes/vacías; no confirma decisiones, tareas, perfiles, ejecución ni evidencias.

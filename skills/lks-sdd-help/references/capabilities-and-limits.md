@@ -1,16 +1,17 @@
-# Capacidades y límites de LKS-SDD 0.9.0
+# Capacidades y límites de LKS-SDD 0.9.1
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
 ## Disponibles
 
 - Explicar el método, ofrecer onboarding y orientar desde el estado de un proyecto sin modificarlo.
+- Mantener una especificación Spec-anchored como contrato versionado que evoluciona con el código y hace visible la deriva que debe reconciliarse.
 - Inicializar de forma aditiva la documentación de una aplicación nueva autorizada.
 - Encuadrar ideas ambiguas sin presuponer el dominio y mantener especificaciones profesionales separando propuestas de decisiones.
 - Mostrar snapshots compactos de cobertura al completar bloques relevantes, sin sustituir readiness ni usar porcentajes engañosos.
 - Definir pantallas, flujos, estados e interacción cuando existe frontend.
 - Generar con ImageGen entre una y tres propuestas para un frontend nuevo o cambio visual material cuando el brief sea suficiente y la capacidad esté disponible; conservar validación, estado y activos trazables. Si no está disponible, declarar el fallback y el pendiente.
-- Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización documental autorizada.
+- Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización autorizada de una baseline documental, sin tratar el código observado como intención aprobada.
 - Inicializar proyectos nuevos con método 1.3.0 y esquema 1.3, y validar proyectos 1.0/1.1/1.2 en compatibilidad sin reescribirlos.
 - Definir y evolucionar `bounded-release`, `continuous-evolution` o `maintenance-stream`, incluyendo SemVer u otra política confirmada, Git/ramas, entornos, CI/CD, promoción inmutable, despliegue, recuperación y revisiones `CHG-###`.
 - Gestionar planes, releases y tareas mediante `PLAN/REL/TASK`, un mapa de cobertura primaria/contribuyente, fichas ejecutables, estados, salud, progreso, dependencias, bloqueos, evidencias e historial.
@@ -24,7 +25,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Distinguir la huella documental completa de la huella del contrato activo, conservando historial sin convertir elementos rechazados, sustituidos o retirados en inputs de implementación.
 - Preparar de forma genérica y collision-safe cada perfil exacto activo de una selección TASK, copiando locks por binding mediante preview y autorización.
 - Verificar gates componibles G2/G3 y evidencia G4 contra commit/árbol/build/digests/entorno exactos, sin desplegar ni autorizar una entrega.
-- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0, 1.0 → 1.1, 1.1 → 1.2 o 1.2 → 1.3 de un solo salto y generar borradores cliente controlados.
+- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0, 1.0 → 1.1, 1.1 → 1.2 o 1.2 → 1.3 de un solo salto y generar borradores cliente controlados desde información confirmada, con procedencia y aprobación pendiente.
 - Ejecutar el harness candidate M4, comparar releases y conservar como `not-run` la evidencia aún no aportada.
 - Generar un bundle candidate de marketplace y preparar un piloto saneado que permanece bloqueado hasta completar su configuración externa.
 
@@ -36,6 +37,8 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Declarar completa una release a partir de una tarea lista, autorizar por inferencia, inventar tareas, estimaciones, fechas, avance o evidencia.
 - Crear commits, pushes, merges o despliegues como efecto de un checkpoint.
 - Normalizar o modernizar código existente durante la adopción.
+- Inferir desde el código existente que su comportamiento es correcto, deseado o aprobado por el cliente.
+- Tratar la especificación como generador automático de todo el código o considerar conforme un resultado solo porque fue generado desde ella.
 - Instalar automáticamente el bundle, desplegar, acceder a producción o aprobar excepciones.
 - Presentar la infraestructura M5 como un piloto ya ejecutado o una decisión `go` sin resultados reales.
 - Presentar canales opcionales candidate `not-run` o pruebas `skipped` como superados, o promover a stable sin los ocho canales requeridos.

@@ -5,7 +5,7 @@ description: "Adopt an existing software system into LKS-SDD with Codex by stati
 
 # Adoptar una aplicación existente
 
-Usa este workflow exclusivamente para incorporar un repositorio con aplicación preexistente. Mantén separados lo observado (`as-is`), las inferencias, la intención confirmada (`to-be`), las contradicciones y los desconocidos.
+Usa este workflow exclusivamente para incorporar un repositorio con aplicación preexistente. Es la ruta de entrada Spec-anchored cuando no existe una especificación confiable: construye una baseline documental desde evidencia estática del código sin convertir la implementación observada en intención aprobada. Mantén separados lo observado (`as-is`), las inferencias, la intención confirmada (`to-be`), las contradicciones y los desconocidos.
 
 ## Secuencia obligatoria
 

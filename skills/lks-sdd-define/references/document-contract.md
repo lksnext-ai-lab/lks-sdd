@@ -2,7 +2,7 @@
 
 Cada Markdown canónico empieza con front matter validable: `artifact_id`, `artifact_type`, `schema_version`, `method_version`, `created_with_plugin_version`, `project_id`, `baseline_id`, `status`, `classification`, `audience`, `owners`, `source_of_truth` y `last_updated`.
 
-Las inicializaciones nuevas de LKS-SDD 0.9.0 usan `method_version: 1.3.0` y `schema_version: 1.3`. Los documentos 1.0, 1.1 y 1.2 siguen siendo validables en compatibilidad; no se actualizan al instalar el plugin. Las migraciones son explícitas, reversibles y de un solo salto (`1.0 → 1.1 → 1.2 → 1.3`). El salto 1.2 → 1.3 conserva el cuerpo humano, añade cobertura y definición ejecutable como pendientes, e inicializa autorizaciones y ejecuciones vacías: nunca infiere tareas, confirmación, avance, checkpoints o evidencia.
+Las inicializaciones nuevas de LKS-SDD 0.9.1 usan `method_version: 1.3.0` y `schema_version: 1.3`. Los documentos 1.0, 1.1 y 1.2 siguen siendo validables en compatibilidad; no se actualizan al instalar el plugin. Las migraciones son explícitas, reversibles y de un solo salto (`1.0 → 1.1 → 1.2 → 1.3`). El salto 1.2 → 1.3 conserva el cuerpo humano, añade cobertura y definición ejecutable como pendientes, e inicializa autorizaciones y ejecuciones vacías: nunca infiere tareas, confirmación, avance, checkpoints o evidencia.
 
 El núcleo se materializa bajo `docs/lks-sdd/`:
 

@@ -4,6 +4,8 @@
 
 Clasificar cada afirmación como hecho, objetivo, requisito, restricción, propuesta, decisión, supuesto, punto abierto, riesgo o evidencia. Registrar fuente y vigencia cuando importen. Una inferencia conserva su etiqueta y confianza; una propuesta requiere confirmación explícita para convertirse en decisión.
 
+LKS-SDD es Spec-anchored: la especificación confirmada continúa vigente después de generar o modificar código. Un cambio funcional debe actualizar o reconciliar el contrato afectado antes o junto con la implementación; las huellas, planificación y autorizaciones obsoletas no se reutilizan. El código generado desde una especificación sigue necesitando revisión y verificación.
+
 ## Conversación adaptativa
 
 1. Leer el estado versionado.

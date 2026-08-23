@@ -16,7 +16,7 @@ El calendario se adapta al incremento; no se fuerza un proyecto a finalizar para
 
 ## Puerta de inicio
 
-Antes de cambiar el estado externo a `running`, `scripts/manage_pilot.py validate-config` debe devolver `ready`. Esto exige muestra, aliases, responsables, soporte, canal confidencial de seguridad, paquete 0.9.0 candidate con checksum, rollback a 0.8.0 confirmado y restricciones de privacidad. El archivo de ejemplo permanece deliberadamente `blocked`.
+Antes de cambiar el estado externo a `running`, `scripts/manage_pilot.py validate-config` debe devolver `ready`. Esto exige muestra, aliases, responsables, soporte, canal confidencial de seguridad, paquete 0.9.1 candidate con checksum, rollback a 0.9.0 confirmado y restricciones de privacidad. El archivo de ejemplo permanece deliberadamente `blocked`.
 
 ## Evidencia
 

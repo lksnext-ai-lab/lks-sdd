@@ -367,6 +367,14 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 f"El campo {field} debe identificar Codex como entorno del plugin."
             )
+    manifest_positioning = (
+        manifest.get("description", ""),
+        interface.get("longDescription", "") if isinstance(interface, dict) else "",
+    )
+    if any("spec-anchored" not in value.casefold() for value in manifest_positioning):
+        errors.append(
+            "La descripción y longDescription deben presentar LKS-SDD como Spec-anchored."
+        )
     if "codex" not in manifest.get("keywords", []):
         errors.append("El manifest debe incluir la keyword codex.")
     for unsupported in ("apps", "mcpServers", "hooks"):
@@ -409,7 +417,14 @@ def validate(root: Path) -> list[str]:
                 )
 
     positioning_markers = {
-        "README.md": ("Codex", "GitHub Copilot", "Claude", "ImageGen"),
+        "README.md": (
+            "Codex",
+            "GitHub Copilot",
+            "Claude",
+            "ImageGen",
+            "Spec-anchored",
+            "Spec-as-source",
+        ),
         "docs/COMPATIBILITY.md": (
             "Codex",
             "ChatGPT Work",
@@ -417,7 +432,24 @@ def validate(root: Path) -> list[str]:
             "Claude",
             "ImageGen",
         ),
-        "docs/ARCHITECTURE.md": ("Codex", "ImageGen", "not-run"),
+        "docs/ARCHITECTURE.md": (
+            "Codex",
+            "ImageGen",
+            "not-run",
+            "Spec-anchored",
+            "Spec-as-source",
+        ),
+        "skills/lks-sdd-help/references/sdd-concepts.md": (
+            "Spec-first",
+            "Spec-anchored",
+            "Spec-as-source",
+            "Baseline adoptada",
+        ),
+        "skills/lks-sdd-help/references/faq.md": (
+            "Spec-anchored",
+            "empresa de servicios",
+            "repositorio existente",
+        ),
         "docs/V0.6-DEFINITION-UX-COVERAGE.md": (
             "FX-01",
             "FX-20",

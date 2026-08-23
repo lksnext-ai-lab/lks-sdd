@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.1 — 2026-08-23 — posicionamiento Spec-anchored
+
+- Explicita LKS-SDD como metodología Spec-anchored: la especificación permanece como contrato vivo, versionado y confiable durante definición, planificación, implementación y verificación.
+- Diferencia de forma didáctica Spec-first, Spec-anchored y Spec-as-source, sin presentar la generación de código como prueba de conformidad.
+- Refuerza la adopción de repositorios existentes como construcción de una baseline documental desde evidencia del `as-is`, separada de la intención y aceptación que requieren confirmación humana.
+- Explica el valor para empresas de servicios: documentación contrastable con el cliente y vistas derivadas con procedencia, clasificación y revisión, sin crear otra fuente canónica.
+- Actualiza manifiesto, ayuda, onboarding, FAQ, arquitectura, capacidades, metadatos de interfaz y el caso de activación `ACT-019`; mantiene las seis skills, el método 1.3, el esquema 1.3 y los perfiles sin cambios funcionales.
+- No requiere migración de proyectos consumidores y conserva la release como candidate; los canales humanos, semánticos y de piloto no ejecutados permanecen `not-run`.
+
 ## 0.9.0 — 2026-08-22 — planificación integral y continuidad autónoma
 
 - Añade el contrato de método 1.3 y separa explícitamente readiness de especificación, soporte de automatización, completitud e integridad de planificación, readiness de la porción seleccionada, implementación, verificación y entrega.

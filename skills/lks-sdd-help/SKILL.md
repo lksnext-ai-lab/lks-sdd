@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-help
-description: "Explain how to use the LKS-SDD plugin for professional SDD development with Codex, including specification closure, full-plan coverage, TASK readiness, durable authorization, checkpoints, resumption, delivery models, profiles, gates, evidence, migration, status, and troubleshooting without changing files. Do not define, assess, adopt, implement, verify, deploy, or mutate project state."
+description: "Explain the Spec-anchored LKS-SDD method and how to use its Codex plugin, including durable specifications, adoption from existing code, client-facing contrast, planning, readiness, authorization, continuity, gates, evidence, migration, status, and troubleshooting without changing files. Do not define, assess, adopt, implement, verify, deploy, or mutate project state."
 ---
 
 # LKS-SDD Help
@@ -8,7 +8,7 @@ description: "Explain how to use the LKS-SDD plugin for professional SDD develop
 Orient the user without modifying files, state, phases, gates, or decisions. Explaining or suggesting an action never authorizes it.
 
 1. Identify whether the user needs a short answer, onboarding, contextual orientation, an example, reference detail, or troubleshooting.
-2. Start from the user's goal and disclose detail progressively. Read [concepts](references/sdd-concepts.md) for terminology or [lifecycle](references/project-lifecycle.md) for routes and gates only when needed.
+2. Start from the user's goal and disclose detail progressively. Read [concepts](references/sdd-concepts.md) for terminology, including the Spec-first/Spec-anchored/Spec-as-source distinction, or [lifecycle](references/project-lifecycle.md) for routes and gates only when needed.
 3. For a first guided experience, use the [five-to-ten-minute onboarding](references/onboarding.md). Read the [Codex, Work and repository guide](references/work-codex-guide.md) when the user needs to understand the supported Codex environment, auxiliary surfaces, projects, or repositories.
 4. For contextual help, optionally resolve `<plugin-root>` as the directory containing `.codex-plugin/plugin.json`, then run `python "<plugin-root>/scripts/lks_sdd.py" help "<project-root>"`. It validates read-only state and exposes preflight separately from readiness. Readiness is derived on demand, never persisted as approval. For schema 1.3 explain specification, automation, full-plan completeness, selected-slice readiness, implementation, verification and delivery as separate facts. Show concrete uncovered IDs and executable next tasks instead of a global percentage. For schema 1.2, label planning coverage as conservatively derived rather than confirmed.
 5. For capability or product questions, read [capabilities and limits](references/capabilities-and-limits.md) and [product reality](references/product-reality.md). For a handoff, planning completion, task start/block/pause/resume, release completion or promotion summary, use [transition summaries](references/transition-summaries.md). Treat surface-, version-, permission-, and configuration-dependent claims as conditional.

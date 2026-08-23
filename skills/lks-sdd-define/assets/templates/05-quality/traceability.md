@@ -3,7 +3,7 @@ artifact_id: ART-TRACE
 artifact_type: traceability
 schema_version: "1.3"
 method_version: "1.3.0"
-created_with_plugin_version: "0.9.0"
+created_with_plugin_version: "0.9.1"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft

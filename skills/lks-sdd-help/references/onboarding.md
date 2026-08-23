@@ -4,9 +4,11 @@
 
 Generar código antes de aclarar el objetivo, el alcance y la aceptación crea velocidad aparente y retrabajo real. SDD mantiene especificaciones versionadas y comprobables para que lo acordado, lo implementado y lo demostrado puedan compararse.
 
+LKS-SDD adopta un enfoque **Spec-anchored**: la especificación no se archiva cuando aparece el código, sino que permanece como documentación confiable y contrato vivo. Los cambios relevantes mantienen alineados contrato, planificación, código y evidencia; la deriva se reconcilia de forma explícita.
+
 ## 2. Qué añade LKS-SDD
 
-LKS-SDD empaqueta para Codex un método común, plantillas y validadores. El plugin no es la fuente de verdad de una aplicación: esa fuente permanece en los Markdown y evidencias de su repositorio.
+LKS-SDD empaqueta para Codex un método común, plantillas y validadores. El plugin no es la fuente de verdad de una aplicación: esa fuente permanece en los Markdown y evidencias de su repositorio. Codex puede generar o modificar código desde ese contrato, pero el código generado todavía debe revisarse y verificarse.
 
 ## 3. Dónde se trabaja
 
@@ -18,8 +20,8 @@ Lea [Codex, Work y repositorios](work-codex-guide.md) para entender esta separac
 
 ## 4. Dos rutas
 
-- **Aplicación nueva:** definir, decidir, planificar un incremento y evaluar su readiness.
-- **Repositorio existente:** empezar con preflight e inspección estática de solo lectura; reconciliar lo observado con la intención confirmada antes de materializar documentación.
+- **Aplicación nueva:** definir, decidir, planificar un incremento y evaluar su readiness; después, implementar manteniendo vigente la especificación.
+- **Repositorio existente:** empezar con preflight e inspección estática de solo lectura; documentar el `as-is` y reconciliar lo observado con la intención confirmada antes de materializar una baseline. El código muestra lo que existe, no lo que debe aprobarse.
 
 ## 5. Cómo se decide
 

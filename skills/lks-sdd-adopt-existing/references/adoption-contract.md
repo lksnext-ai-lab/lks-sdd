@@ -1,6 +1,6 @@
 # Contrato de adopción
 
-El informe de `inspect_repository.py` es provisional y externo. Solo registra hechos estáticos, observaciones, inferencias explícitas y limitaciones; no ejecuta el sistema ni interpreta código como intención.
+El informe de `inspect_repository.py` es provisional y externo. Solo registra hechos estáticos, observaciones, inferencias explícitas y limitaciones; no ejecuta el sistema ni interpreta código como intención. Su finalidad es iniciar un ancla documental confiable para un sistema que carece de ella, no declarar que la implementación observada sea correcta o esté aceptada por el cliente.
 
 La decisión externa usa este contrato mínimo:
 
@@ -42,7 +42,7 @@ Estrategias válidas: `documentation`, `progressive-normalization` y `planned-mo
 
 Cualquier contradicción o desconocido con `blocking: true` impide materializar. La decisión confirma el hash exacto del informe: una edición posterior exige nueva confirmación.
 
-Una materialización nueva con LKS-SDD 0.9.0 crea método 1.3.0 y esquema 1.3 con los 21 artefactos obligatorios. El inventario observado puede proponer fronteras arquitectónicas, pero no confirma `UNIT-###`, `BIND-###`, modelo de entrega, Git, entornos, release, tareas o cobertura. `ART-GOVERNANCE`, `ART-PLANS`, `ART-PLANNING` y `ART-TASKS` nacen como propuesta/pendiente hasta una decisión humana. No se crean `AUTH-###`, `EXEC-###` o `CKPT-###` a partir de observaciones. La revisión Git observada queda en la evidencia de adopción; `last_verified_revision` permanece `null` porque inspección estática no es verificación.
+Una materialización nueva con LKS-SDD 0.9.1 crea método 1.3.0 y esquema 1.3 con los 21 artefactos obligatorios. El inventario observado puede proponer fronteras arquitectónicas, pero no confirma `UNIT-###`, `BIND-###`, modelo de entrega, Git, entornos, release, tareas o cobertura. `ART-GOVERNANCE`, `ART-PLANS`, `ART-PLANNING` y `ART-TASKS` nacen como propuesta/pendiente hasta una decisión humana. No se crean `AUTH-###`, `EXEC-###` o `CKPT-###` a partir de observaciones. La revisión Git observada queda en la evidencia de adopción; `last_verified_revision` permanece `null` porque inspección estática no es verificación.
 
 Los proyectos 1.0 y 1.1 siguen validándose en compatibilidad y no se reescriben por ayuda o actualización. La migración se realiza con previews separados `1.0 → 1.1` y `1.1 → 1.2`, backup externo y rollback. Toda entrada de `human_review_required` bloquea el primer salto antes de escribir. El segundo crea contrato de gobierno/tareas sin inventar confirmaciones ni reutilizar evidencia derivada.
 
