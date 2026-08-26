@@ -3,7 +3,7 @@ artifact_id: ART-TASKS
 artifact_type: development-task-board
 schema_version: "1.5"
 method_version: "1.5.0"
-created_with_plugin_version: "0.11.0"
+created_with_plugin_version: "0.12.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft

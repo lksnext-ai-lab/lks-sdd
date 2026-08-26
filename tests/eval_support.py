@@ -613,6 +613,8 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
     solution_text = (docs / "03-solution" / "solution-overview.md").read_text(
         encoding="utf-8"
     )
+    coverage = result.get("automation_coverage", {})
+    coverage_bindings = coverage.get("bindings", [])
     passed = all(
         [
             code == 3,
@@ -623,12 +625,19 @@ def run_alternative_stack(root: Path) -> dict[str, Any]:
             f"| {proposal['id']} | proposed |" in solution_text,
             before == tree_digest(root),
             result["implementation_authorized"] is False,
+            coverage.get("status") == "diagnostic-only",
+            coverage.get("does_not_authorize_implementation") is True,
+            len(coverage_bindings) == 1,
+            coverage_bindings[0].get("catalog_fit") == "not-catalogued",
         ]
     )
     return {
         "id": fixture["id"],
         "passed": passed,
-        "details": {"blockers": result["blockers"]},
+        "details": {
+            "blockers": result["blockers"],
+            "automation_coverage": coverage,
+        },
     }
 
 

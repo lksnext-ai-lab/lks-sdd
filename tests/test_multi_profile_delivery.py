@@ -23,6 +23,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from delivery_engine import load_delivery_evidence  # noqa: E402
 from profile_registry import load_catalog, resolve_profile  # noqa: E402
+from automation_coverage import describe_profile_coverage  # noqa: E402
 from run_reference_profile_gate import _dockerized  # noqa: E402
 
 
@@ -92,7 +93,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             if item["lifecycle"] == "candidate"
         }
         self.assertEqual(len(active), 6)
-        self.assertEqual(len(candidate), 4)
+        self.assertEqual(len(candidate), 6)
 
         for profile_id in sorted(active):
             with self.subTest(profile=profile_id):
@@ -118,7 +119,25 @@ class MultiProfileDeliveryTests(unittest.TestCase):
                 self.assertFalse(support.composition_certified)
                 self.assertFalse(support.implementable)
                 self.assertFalse(support.verifiable)
-                self.assertEqual(support.support_level, "H2")
+                expected_level = "H1" if "ENTRA" in profile_id else "H2"
+                self.assertEqual(support.support_level, expected_level)
+
+    def test_candidate_coverage_is_granular_but_never_supported(self) -> None:
+        coverage = describe_profile_coverage("API-FASTAPI-ENTRA-PG-OCI")
+        self.assertEqual(coverage["catalog_fit"], "candidate")
+        self.assertEqual(coverage["preparation"], "available")
+        self.assertEqual(coverage["implementation"], "candidate-not-certified")
+        self.assertEqual(coverage["local_verification"], "defined-not-certified")
+        self.assertEqual(coverage["external_interoperability"], "not-run")
+        self.assertEqual(coverage["delivery_evidence"], "not-run")
+        self.assertIn("CAP-ENTRA-CLAIMS", coverage["capabilities"]["declared"])
+        self.assertFalse(resolve_profile("API-FASTAPI-ENTRA-PG-OCI").implementable)
+
+    def test_uncatalogued_profile_has_no_automation_coverage(self) -> None:
+        coverage = describe_profile_coverage("API-FASTAPI-UNKNOWN")
+        self.assertEqual(coverage["catalog_fit"], "not-catalogued")
+        self.assertEqual(coverage["preparation"], "not-available")
+        self.assertEqual(coverage["implementation"], "not-available")
 
     def test_two_certified_bindings_prepare_one_task_slice_without_collisions(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-multiprofile-") as temporary:

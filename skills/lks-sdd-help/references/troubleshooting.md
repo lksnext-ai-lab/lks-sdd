@@ -26,6 +26,8 @@ Es un resultado válido, no una contradicción. Revise `planning ... assess --js
 
 ## El perfil aparece en el catálogo pero sigue `unsupported`
 
+Es correcto cuando `lifecycle=candidate`, el lock no está validado o la composición exacta no está certificada. Consulte `automation_coverage` para distinguir si existe preparación, gates locales, interoperabilidad externa o evidencia de entrega pendiente. No lo resuma como soporte parcial y no cambie el proveedor confirmado: `API-FASTAPI-ENTRA-PG-OCI` no puede satisfacerse con el perfil Keycloak activo.
+
 Estar catalogado o tener scaffold no basta. Compruebe lifecycle, `certification-evidence.json`, hashes de descriptor/driver/scaffold/motor, todos los gates de capacidad, gate de composición y lock consumidor del `BIND-###`. Un candidato permanece documentable y analizable, pero no implementable automáticamente.
 
 ## El tablero de tareas no valida
@@ -38,7 +40,7 @@ No repita el mismo comando con `--apply`: la operación se rechazará siempre an
 
 ## La trazabilidad pasa sin comprobar nada
 
-Eso no es válido en 0.11.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
+Eso no es válido en 0.12.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
 
 ## La ejecución de verificación se bloquea aunque el plan existe
 

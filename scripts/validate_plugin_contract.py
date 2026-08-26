@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.11/method-candidate 1.5 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.12/method-candidate 1.5 invariants."""
 
 from __future__ import annotations
 
@@ -53,6 +53,7 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md",
     "docs/V0.10-JIRA-ROVO-COVERAGE.md",
     "docs/V0.11-JIRA-MILESTONE-COVERAGE.md",
+    "docs/V0.12-ENTRA-PROFILE-COVERAGE.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -61,6 +62,7 @@ REQUIRED_ROOT_FILES = {
     "specs/SOURCES.md",
     "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
     "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
+    "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
@@ -77,6 +79,7 @@ REQUIRED_ROOT_FILES = {
     "scripts/contract_engine.py",
     "scripts/lks_sdd.py",
     "scripts/profile_registry.py",
+    "scripts/automation_coverage.py",
     "scripts/delivery_engine.py",
     "scripts/manage_tasks.py",
     "scripts/planning_engine.py",
@@ -95,11 +98,13 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.9.0.json",
     "quality/corpora/definition-v0.10.0.json",
     "quality/corpora/definition-v0.11.0.json",
+    "quality/corpora/definition-v0.12.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
     "quality/baselines/v0.6.1.json",
     "quality/baselines/v0.10.0.json",
+    "quality/baselines/v0.11.0.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
     "schemas/pilot-config.schema.json",
@@ -527,6 +532,13 @@ def validate(root: Path) -> list[str]:
             "not-run",
             "advisory",
         ),
+        "docs/V0.12-ENTRA-PROFILE-COVERAGE.md": (
+            "FX-52",
+            "FX-53",
+            "automation_coverage",
+            "Microsoft Entra",
+            "not-run",
+        ),
     }
     for relative, markers in positioning_markers.items():
         path = root / relative
@@ -618,6 +630,13 @@ def validate(root: Path) -> list[str]:
             "append-only",
             "not-run",
         ),
+        "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md": (
+            "propuesta candidate, no canónica",
+            "CAP-OIDC-DISCOVERY-JWKS",
+            "CAP-ENTRA-CLAIMS",
+            "automation_coverage",
+            "not-run",
+        ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
             CANONICAL_HASHES[
@@ -628,10 +647,11 @@ def validate(root: Path) -> list[str]:
             ],
             "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
             "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
+            "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md",
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.10.0.json"',
+            '"v0.11.0.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',
@@ -789,8 +809,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.10.0":
-            errors.append("El rollback del piloto 0.11.0 debe conservar 0.10.0.")
+        if rollback.get("previous_version") != "0.11.0":
+            errors.append("El rollback del piloto 0.12.0 debe conservar 0.11.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -808,8 +828,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.10.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.10.0.")
+        if schema_previous != "0.11.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.11.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -1185,6 +1205,26 @@ def validate(root: Path) -> list[str]:
             errors.append("La baseline v0.10.0 no coincide con la release publicada.")
     except (OSError, json.JSONDecodeError, TypeError):
         errors.append("quality/baselines/v0.10.0.json no es una baseline válida.")
+
+    try:
+        baseline_011 = json.loads(
+            (root / "quality" / "baselines" / "v0.11.0.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        metrics_011 = baseline_011.get("metrics", {})
+        if (
+            baseline_011.get("plugin_version") != "0.11.0"
+            or baseline_011.get("source_commit")
+            != "ace1d2e95f0f7267f99e9e64da23160abccf1cfb"
+            or metrics_011.get("unit_tests_total") != 237
+            or metrics_011.get("unit_tests_passed") != 236
+            or metrics_011.get("unit_tests_failed") != 0
+            or metrics_011.get("profile_complete_gate") != 1
+        ):
+            errors.append("La baseline v0.11.0 no coincide con la release publicada.")
+    except (OSError, json.JSONDecodeError, TypeError):
+        errors.append("quality/baselines/v0.11.0.json no es una baseline válida.")
 
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:

@@ -31,7 +31,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "0.11.0"
+$releaseVersion = "0.12.0"
 $releaseDate = "2026-08-26"
 $releaseTag = "v$releaseVersion"
 
@@ -123,6 +123,6 @@ Cada nota incluye como mínimo:
 - periodo o estado de soporte;
 - responsables confirmados o, si todavía no existen, el pendiente explícito.
 
-Para 0.11.0, las notas deben distinguir el modelo local validado de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Rovo/Jira real como `passed`; esa evidencia pertenece al canal humano/piloto y permanece `not-run` hasta una ejecución autorizada. Las propuestas 1.4/1.5 deben citarse como candidate no canónicas mientras no exista una decisión metodológica separada.
+Para 0.12.0, las notas deben distinguir el modelo local validado de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Rovo/Jira ni Microsoft Entra reales como `passed`; esa evidencia pertenece al canal humano/piloto o al gate externo exacto y permanece `not-run` hasta una ejecución autorizada. Las propuestas 1.4/1.5 deben citarse como candidate no canónicas mientras no exista una decisión metodológica separada.
 
 El validador contractual compara dinámicamente la versión del manifiesto con la primera entrada del changelog y `docs/releases/vX.Y.Z.md`. La etiqueta se comprueba únicamente al publicar, porque los commits intermedios no constituyen una release.

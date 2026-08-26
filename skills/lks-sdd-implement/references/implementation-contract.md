@@ -8,7 +8,7 @@
 - `AUTH-###` explícito, persistido y vigente para el mismo incremento, release, tareas, política y fingerprints;
 - gobierno de entrega confirmado, `PLAN-###`/`REL-###` aplicables y dependencias resueltas;
 - `UNIT-###` y `BIND-###` seleccionados mediante ADR confirmada;
-- `automation_support: supported` y lock exacto certificado para cada binding;
+- `automation_support: supported` y lock exacto certificado para cada binding; `automation_coverage` es informativo y nunca satisface este requisito;
 - baseline materializada y vigente cuando la ruta sea `adopt-existing`;
 - checkout y cambios locales inventariados antes de editar.
 - aplicabilidad de interfaz resuelta para incrementos 0.6+ y, cuando sea aplicable, contrato UX confirmado con prototipo visual validado o una no aplicabilidad visual motivada.
@@ -27,7 +27,7 @@ La preparación también incluye en el mismo preview las filas y fichas de las t
 
 Si ya existe una ejecución, `continuity ... resume` valida rama, revisión observada, estado del árbol, hashes de archivos, fingerprints y autorización. Solo `continue-recommended` permite seguir directamente; `reconcile-recommended` obliga a explicar y reconciliar la divergencia, y `replan-recommended` reabre la planificación afectada.
 
-Que `specification_readiness` sea favorable no basta si `delivery_readiness` o `automation_support` están bloqueados. Esta skill resuelve drivers por binding; no compone perfiles dinámicos, no sustituye una pila alternativa, no considera un candidato un defecto funcional y no selecciona un perfil automáticamente.
+Que `specification_readiness` sea favorable no basta si `delivery_readiness` o `automation_support` están bloqueados. Esta skill resuelve drivers por binding; no compone perfiles dinámicos, no sustituye una pila alternativa ni un proveedor de identidad como Entra por Keycloak, no considera un candidato un defecto funcional y no selecciona un perfil automáticamente.
 
 Para frontend, Codex implementa contra pantallas, flujos, interacciones, accesibilidad, dirección visual y `VIS-###` confirmados. Si la realidad técnica exige desviarse del contrato visual, detiene esa parte y solicita una decisión documentada; no convierte la desviación en aprobación implícita.
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.12.0 — 2026-08-26 — catálogo granular sin combinatoria abierta y perfiles Microsoft Entra
+
+- Añade cuatro capabilities de identidad reutilizables para discovery/JWKS, API bearer, SPA Authorization Code con PKCE y claims de Microsoft Entra, manteniendo el perfil exacto como única unidad seleccionable y certificable.
+- Incorpora `API-FASTAPI-ENTRA-PG-OCI` y `WEB-REACT-VITE-ENTRA-STATIC` como profiles candidate con descriptor, scaffold, driver, guide y lock `validated=false`; no crea un perfil de sistema ni sustituye Entra por Keycloak.
+- Añade `automation_coverage` como diagnóstico por binding de encaje, preparación, implementación, gates locales, interoperabilidad externa y evidencia de entrega, sin introducir `partially-supported` ni rebajar `automation_support`.
+- Implementa discovery OIDC mediante el `jwks_uri` declarado, validación de issuer/audience/tenant/scopes/app roles y 401/403 en la API; la SPA usa MSAL Browser con PKCE y sesión de navegador sin client secrets.
+- Mantiene método 1.5.0, schema 1.5, compatibilidad 1.0–1.5, seis perfiles active y sus certificaciones sin cambios. No requiere migración de proyectos consumidores.
+- Amplía las seis skills, evals, documentación y validaciones. Interoperabilidad real Entra, revisión humana, gates completos de los candidates y piloto permanecen `not-run`; la release sigue siendo candidate.
+
 ## 0.11.0 — 2026-08-26 — reporting Jira por hitos sin perder la experiencia local
 
 - Evoluciona el contrato candidate a método/esquema 1.5 y mantiene compatibles 1.0–1.4; la migración 1.4 → 1.5 es explícita, reversible y no ejecuta escrituras externas ni infiere workflow mappings.

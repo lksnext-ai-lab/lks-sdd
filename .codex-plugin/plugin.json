@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "0.11.0",
-  "description": "Plugin Spec-anchored para Codex con planificación profesional en Markdown y proyección o reporting de hitos opcional en Jira mediante un peer Rovo independiente.",
+  "version": "0.12.0",
+  "description": "Plugin Spec-anchored para Codex con planificación Markdown, perfiles exactos, cobertura de automatización y reporting Jira opcional.",
   "author": {
     "name": "LKS"
   },
@@ -12,6 +12,8 @@
     "codex",
     "jira",
     "task-tracking",
+    "microsoft-entra",
+    "oidc",
     "web-development",
     "governance"
   ],
@@ -19,7 +21,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo Spec-anchored con Codex",
-    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código y actúan como contrato para planificar, implementar y verificar. La experiencia local es completa. Opcionalmente, Jira puede recibir la proyección de tareas y comentarios de hitos con transiciones explícitamente mapeadas; Atlassian Rovo se instala y autoriza por separado. Jira nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente.",
+    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código y actúan como contrato para planificar, implementar y verificar. Los perfiles exactos conservan el soporte estricto y la cobertura granular explica preparación, gates y evidencia sin crear combinaciones implícitas ni sustituir proveedores de identidad. La experiencia local es completa. Opcionalmente, Jira puede recibir la proyección de tareas y comentarios de hitos con transiciones explícitamente mapeadas; Atlassian Rovo se instala y autoriza por separado. Jira nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [
@@ -37,6 +39,7 @@
       "Configura de forma opcional el reporting Jira por hitos y prepara un comentario o transición con una sola confirmación, sin escribir todavía.",
       "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
       "Muéstrame los perfiles activos y candidatos aplicables a cada unidad desplegable.",
+      "Explícame por binding la cobertura de automatización de esta arquitectura sin componer perfiles ni sustituir Microsoft Entra por Keycloak.",
       "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",
       "Implementa con Codex la siguiente tarea autorizada y deja checkpoints reanudables.",
       "Reanuda con Codex la ejecución autorizada desde su último checkpoint.",

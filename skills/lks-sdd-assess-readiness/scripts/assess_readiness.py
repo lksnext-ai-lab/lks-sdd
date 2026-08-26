@@ -27,6 +27,7 @@ from validate_project import (  # noqa: E402
     validate_project,
 )
 from profile_registry import resolve_profile  # noqa: E402
+from automation_coverage import describe_profile_coverage  # noqa: E402
 from delivery_engine import delivery_readiness, validate_delivery_contract  # noqa: E402
 from planning_engine import assess_authorization, assess_planning, next_tasks  # noqa: E402
 from task_tracking_engine import assess_tracking  # noqa: E402
@@ -636,6 +637,10 @@ def assess(
             "status": "not-assessed",
             "blockers": [],
         },
+        "automation_coverage": {
+            "status": "not-assessed",
+            "does_not_authorize_implementation": True,
+        },
         "scope": increment_id,
         "blockers": [],
         "non_blocking_pending": [],
@@ -755,6 +760,7 @@ def assess(
             if isinstance(item, dict)
         }
         binding_results: list[dict[str, Any]] = []
+        coverage_results: list[dict[str, Any]] = []
         automation_errors: list[str] = []
         for binding_id in delivery.get("binding_ids", []):
             binding = bindings.get(binding_id, {})
@@ -778,6 +784,14 @@ def assess(
             profile_errors.extend(lock_errors)
             profile_errors = list(dict.fromkeys(profile_errors))
             binding_supported = support.implementable and not profile_errors
+            coverage = describe_profile_coverage(profile_id)
+            coverage_results.append(
+                {
+                    "binding_id": binding_id,
+                    "unit_id": binding.get("unit_id"),
+                    **coverage,
+                }
+            )
             binding_results.append(
                 {
                     "binding_id": binding_id,
@@ -787,6 +801,7 @@ def assess(
                         "supported" if binding_supported else "unsupported"
                     ),
                     "lock": lock_details,
+                    "automation_coverage": coverage,
                     "blockers": profile_errors,
                 }
             )
@@ -808,6 +823,11 @@ def assess(
             "status": "supported" if supported else "unsupported",
             "bindings": binding_results,
             "blockers": list(dict.fromkeys(automation_errors)),
+        }
+        result["automation_coverage"] = {
+            "status": "diagnostic-only",
+            "bindings": coverage_results,
+            "does_not_authorize_implementation": True,
         }
     else:
         result["selected_portion_readiness"] = {
@@ -839,6 +859,10 @@ def assess(
                     "No hay un perfil tecnológico seleccionado mediante una decisión confirmada."
                 ],
             }
+            result["automation_coverage"] = {
+                "status": "selection-required",
+                "does_not_authorize_implementation": True,
+            }
         else:
             support = resolve_profile(selected_profile)
             automation_errors = list(support.errors)
@@ -868,6 +892,11 @@ def assess(
                         "pero no dispone de automatización validada."
                     ]
                 ),
+            }
+            result["automation_coverage"] = {
+                "status": "diagnostic-only",
+                **describe_profile_coverage(selected_profile),
+                "does_not_authorize_implementation": True,
             }
 
     increment = definitions.get(increment_id)

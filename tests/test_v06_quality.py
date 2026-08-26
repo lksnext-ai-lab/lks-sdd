@@ -32,23 +32,23 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["mode"], "semantic")
         self.assertEqual(fx01["evidence"], [])
 
-    def test_definition_cases_are_versioned_for_v011_and_not_run(self) -> None:
-        self.assertEqual(self.corpus["plugin_version"], "0.11.0")
+    def test_definition_cases_are_versioned_for_v012_and_not_run(self) -> None:
+        self.assertEqual(self.corpus["plugin_version"], "0.12.0")
         self.assertEqual(
-            self.corpus["corpus_id"], "lks-sdd-definition-jira-milestones-es-0.11.0"
+            self.corpus["corpus_id"], "lks-sdd-definition-automation-coverage-entra-es-0.12.0"
         )
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
-            {f"FX-{index:02d}" for index in range(20, 52)},
+            {f"FX-{index:02d}" for index in range(20, 54)},
         )
         self.assertEqual(
             {case["id"] for case in self.corpus["cases"]},
-            {"FX-01", "FX-20", "FX-21", "FX-36"},
+            {"FX-01", "FX-20", "FX-21", "FX-36", "FX-53"},
         )
         channel = evaluate_definition_conversation(self.corpus)
         self.assertEqual(channel["status"], "not-run")
         self.assertEqual(channel["observed"], 0)
-        self.assertEqual(channel["total"], 4)
+        self.assertEqual(channel["total"], 5)
 
     def test_definition_evidence_cannot_be_invented(self) -> None:
         changed = copy.deepcopy(self.corpus)
@@ -68,6 +68,8 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertFalse(_definition_corpus_matches_plugin_line("0.9.0", "0.10.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.11.0", "0.11.0"))
         self.assertFalse(_definition_corpus_matches_plugin_line("0.10.0", "0.11.0"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.12.0", "0.12.0"))
+        self.assertFalse(_definition_corpus_matches_plugin_line("0.11.0", "0.12.0"))
 
 
 if __name__ == "__main__":

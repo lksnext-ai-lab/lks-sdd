@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "plugin_version": "0.11.0",
+  "source_commit": "ace1d2e95f0f7267f99e9e64da23160abccf1cfb",
+  "recorded_on": "2026-08-26",
+  "channel": "candidate",
+  "metrics": {
+    "automated_catalog_cases": 40,
+    "automated_catalog_cases_failed": 0,
+    "automated_catalog_cases_incomplete": 0,
+    "automated_catalog_cases_passed": 40,
+    "automated_eval_cases": 5,
+    "automated_eval_pass_rate": 1.0,
+    "critical_failures": 0,
+    "profile_complete_gate": 1,
+    "profile_structure_gate": 1,
+    "unit_tests_executed": 236,
+    "unit_tests_failed": 0,
+    "unit_tests_passed": 236,
+    "unit_tests_skipped": 1,
+    "unit_tests_total": 237
+  },
+  "limitations": [
+    "Los canales semántico, humano y de piloto figuraron not-run.",
+    "La interoperabilidad Rovo/Jira real figuró not-run.",
+    "La baseline compara exclusivamente métricas candidate verificadas y reproducibles."
+  ]
+}

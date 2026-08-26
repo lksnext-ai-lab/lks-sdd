@@ -80,6 +80,7 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-48",
     "FX-49",
     "FX-50",
+    "FX-52",
 )
 EXPECTED_DETERMINISTIC_EVAL_IDS = {
     "FX-M1-ALTERNATIVE-STACK",
@@ -774,7 +775,7 @@ def _validated_quality_report(
         or len(catalog_ids) != len(set(catalog_ids))
         or len(extension_ids) != len(extension_cases)
         or not all(isinstance(case_id, str) for case_id in extension_ids)
-        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 52)}
+        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 54)}
         or len(extension_ids) != len(set(extension_ids))
     ):
         raise PackageError("El inventario comprometido de casos FX cambió.")

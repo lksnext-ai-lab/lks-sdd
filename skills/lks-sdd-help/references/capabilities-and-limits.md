@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.11.0
+# Capacidades y límites de LKS-SDD 0.12.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -26,6 +26,8 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Resolver arquitecturas multiunidad y multiperfil mediante `UNIT-###` y `BIND-###`, sin convertir familias o capabilities en composiciones homologadas.
 - Validar tablas, estados, propietarios de IDs, listas, rangos inclusivos `..`, relaciones y una matriz separada de datos, identidad, seguridad, privacidad e integraciones mediante un contrato declarativo común.
 - Evaluar readiness de un incremento con bloqueos explicables, separando `specification_readiness`, `automation_support`, `planning_completeness` y `selected_slice_readiness`.
+- Explicar `automation_coverage` por binding sin rebajar `automation_support`: capabilities granulares permiten localizar preparación, gates locales, interoperabilidad y evidencia pendientes, pero solo un perfil exacto active y certificado es implementable.
+- Documentar como candidates los perfiles exactos `API-FASTAPI-ENTRA-PG-OCI` y `WEB-REACT-VITE-ENTRA-STATIC`, manteniendo frontend/backend separados y sin sustituir Microsoft Entra por Keycloak.
 - Comprobar trazabilidad en fase `preimplementation` hasta pruebas planificadas y en fase `verification` hasta evidencia ejecutada; un alcance vacío falla de forma explícita. El preflight resuelve además las relaciones del contrato activo y queda incompleto ante destinos inexistentes, históricos o no confirmados, con diagnósticos `LKS-ACTIVE-*`; sigue siendo un handoff estructural y no una evaluación completa de readiness.
 - Distinguir la huella documental completa de la huella del contrato activo, conservando historial sin convertir elementos rechazados, sustituidos o retirados en inputs de implementación.
 - Preparar de forma genérica y collision-safe cada perfil exacto activo de una selección TASK, copiando locks por binding mediante preview y autorización.
