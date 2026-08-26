@@ -21,6 +21,7 @@ from validate_project import (  # noqa: E402
 from check_traceability import check as check_traceability  # noqa: E402
 from delivery_engine import validate_delivery_contract  # noqa: E402
 from planning_engine import assess_planning, next_tasks  # noqa: E402
+from task_tracking_engine import assess_tracking  # noqa: E402
 
 
 COVERAGE_HEADERS = (
@@ -100,6 +101,11 @@ def _base_response(root: Path, status: str, meaning: str) -> dict[str, Any]:
             "status": "not-assessed",
             "integrity": "not-assessed",
             "meaning": "No se ha evaluado la cobertura completa del objetivo.",
+        },
+        "task_tracking_snapshot": {
+            "status": "not-assessed",
+            "mode": None,
+            "meaning": "No se ha evaluado la gestión operativa de tareas.",
         },
         "blockers": [],
         "next_decision": None,
@@ -293,7 +299,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "warnings": list(dict.fromkeys(report.warnings)),
                 "diagnostic_summary": _diagnostic_summary(report.diagnostics),
                 "meaning": (
-                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.3 y esto no demuestra suficiencia semántica."
+                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.4 y esto no demuestra suficiencia semántica."
                     if compatibility_mode
                     else "El índice y los Markdown cumplen el contrato estructural estricto; esto no demuestra que la definición sea suficiente."
                 ),
@@ -395,7 +401,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 else "El preflight estructural detecta vacíos antes de ejecutar la evaluación completa de readiness."
             ),
         }
-        if schema_version in {"1.2", "1.3"}:
+        if schema_version in {"1.2", "1.3", "1.4"}:
             planning = assess_planning(root, manifest, active_increment)
             delivery = validate_delivery_contract(root, manifest)
             response["planning_snapshot"] = {
@@ -417,6 +423,24 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 response["missing_or_limits"].append(
                     "La planificación integral está " + planning["status"] + "; revise los huecos concretos de planning_snapshot."
                 )
+            if schema_version == "1.4":
+                increment_tasks = [
+                    task_id
+                    for task_id, row in delivery.get("tasks", {}).items()
+                    if row.get("Increment") == active_increment
+                ]
+                tracking = assess_tracking(root, manifest, increment_tasks)
+                response["task_tracking_snapshot"] = {
+                    "status": tracking["status"],
+                    "mode": tracking["mode"],
+                    "policy": tracking["policy"],
+                    "tasks": tracking["tasks"],
+                    "blockers": tracking["blockers"],
+                    "warnings": tracking["warnings"],
+                    "meaning": (
+                        "Jira es una proyección operativa opcional; Markdown conserva la autoridad contractual."
+                    ),
+                }
 
     options = [
         _option(

@@ -23,12 +23,14 @@ PROJECT_SCHEMAS = {
     "1.1": PLUGIN_ROOT / "schemas" / "project-1.1.schema.json",
     "1.2": PLUGIN_ROOT / "schemas" / "project-1.2.schema.json",
     "1.3": PLUGIN_ROOT / "schemas" / "project-1.3.schema.json",
+    "1.4": PLUGIN_ROOT / "schemas" / "project-1.4.schema.json",
 }
 FRONTMATTER_SCHEMAS = {
     "1.0": PLUGIN_ROOT / "schemas" / "frontmatter.schema.json",
     "1.1": PLUGIN_ROOT / "schemas" / "frontmatter-1.1.schema.json",
     "1.2": PLUGIN_ROOT / "schemas" / "frontmatter-1.2.schema.json",
     "1.3": PLUGIN_ROOT / "schemas" / "frontmatter-1.3.schema.json",
+    "1.4": PLUGIN_ROOT / "schemas" / "frontmatter-1.4.schema.json",
 }
 CATALOGS = json.loads(
     (PLUGIN_ROOT / "schemas" / "catalogs.json").read_text(encoding="utf-8")
@@ -36,11 +38,31 @@ CATALOGS = json.loads(
 DOCUMENT_CONTRACTS = json.loads(
     (PLUGIN_ROOT / "schemas" / "document-contracts.json").read_text(encoding="utf-8")
 )
-ID_PREFIX_PATTERN = "|".join(
-    re.escape(prefix) for prefix in CATALOGS["identifier_prefixes"]
+ALL_ID_PREFIXES = set(CATALOGS["identifier_prefixes"]) | set(
+    DOCUMENT_CONTRACTS["identifier_prefixes"]
 )
-ID_RE = re.compile(rf"\b(?:{ID_PREFIX_PATTERN})-[0-9]{{3}}\b")
+V14_ONLY_ID_PREFIXES = {"TRK", "SYNC"}
+
+
+def _id_re_for_schema(schema_version: str) -> re.Pattern[str]:
+    prefixes = set(ALL_ID_PREFIXES)
+    if schema_version != "1.4":
+        prefixes -= V14_ONLY_ID_PREFIXES
+    pattern = "|".join(re.escape(prefix) for prefix in sorted(prefixes))
+    return re.compile(rf"\b(?:{pattern})-[0-9]{{3}}\b")
+
+
+ID_RE = _id_re_for_schema("1.4")
 VALID_ELEMENT_STATES = set(CATALOGS["element_states"])
+V14_ONLY_ELEMENT_STATES = {
+    "unlinked",
+    "synced",
+    "out-of-sync",
+    "conflict",
+    "failed",
+    "reconciliation-required",
+    "recorded",
+}
 CORE_ARTIFACTS = {
     "ART-STATUS": ("docs/lks-sdd/00-control/project-status.md", "project-status"),
     "ART-SCOPE": ("docs/lks-sdd/00-control/scope-register.md", "scope-register"),
@@ -82,6 +104,10 @@ CORE_ARTIFACTS = {
         "docs/lks-sdd/04-delivery/planning-coverage.md",
         "planning-coverage",
     ),
+    "ART-TRACKING": (
+        "docs/lks-sdd/04-delivery/task-tracking.md",
+        "task-tracking",
+    ),
     "ART-RISK": (
         "docs/lks-sdd/04-delivery/risks-dependencies.md",
         "risks-dependencies",
@@ -106,6 +132,7 @@ V12_CORE_ARTIFACTS = {
     "ART-DEPLOYMENT",
 }
 V13_CORE_ARTIFACTS = {"ART-PLANNING"}
+V14_CORE_ARTIFACTS = {"ART-TRACKING"}
 ADOPTION_ARTIFACTS = {
     "ART-ADOPT-SCOPE": (
         "docs/lks-sdd/07-adoption/inspection-scope.md",
@@ -1719,7 +1746,7 @@ def load_project_manifest(
     schema_path = PROJECT_SCHEMAS.get(schema_version)
     if schema_path is None:
         return data, [
-            f"project.schema_version={schema_version!r} no está soportado; use 1.0, 1.1, 1.2 o 1.3."
+            f"project.schema_version={schema_version!r} no está soportado; use 1.0, 1.1, 1.2, 1.3 o 1.4."
         ]
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -1757,6 +1784,10 @@ def validate_project(
     definitions: dict[str, dict[str, str]] = {}
     references: list[tuple[str, str]] = []
     schema_version = str(manifest.get("schema_version", ""))
+    id_re = _id_re_for_schema(schema_version)
+    valid_element_states = set(VALID_ELEMENT_STATES)
+    if schema_version != "1.4":
+        valid_element_states -= V14_ONLY_ELEMENT_STATES
     frontmatter_schema = json.loads(
         FRONTMATTER_SCHEMAS[schema_version].read_text(encoding="utf-8")
     )
@@ -1878,7 +1909,7 @@ def validate_project(
             for row in table:
                 element_id = row.get(key_column) if key_column else None
                 if element_id:
-                    if not ID_RE.fullmatch(element_id):
+                    if not id_re.fullmatch(element_id):
                         report.errors.append(
                             f"{relative}: identificador inválido {element_id!r}."
                         )
@@ -1913,7 +1944,7 @@ def validate_project(
                         report.errors.append(
                             f"{relative}: estado {state!r} no admitido por la política {policy_name!r}."
                         )
-                elif state and state not in VALID_ELEMENT_STATES:
+                elif state and state not in valid_element_states:
                     report.errors.append(
                         f"{relative}: estado de elemento no admitido {state!r}."
                     )
@@ -1923,7 +1954,7 @@ def validate_project(
                     relation_columns = set(row) - {"ID"}
                 for column in relation_columns:
                     cell = row.get(column, "")
-                    references.extend((relative, item) for item in ID_RE.findall(cell))
+                    references.extend((relative, item) for item in id_re.findall(cell))
 
     manifest_v06_contract = plugin_version_at_least(
         manifest.get("plugin_version"), (0, 6, 0)
@@ -2076,7 +2107,7 @@ def validate_project(
                     )
                 visual_ids = [
                     item
-                    for item in ID_RE.findall(visual)
+                    for item in id_re.findall(visual)
                     if item.startswith("VIS-")
                 ]
                 if visual_mode == "pending" and visual.casefold() != "pending":
@@ -2106,7 +2137,7 @@ def validate_project(
                     none_disclosure = f"{visual} {reason}".casefold()
                     if (
                         visual_ids
-                        or any(item.startswith("VIS-") for item in ID_RE.findall(reason))
+                        or any(item.startswith("VIS-") for item in id_re.findall(reason))
                         or "reutil" in none_disclosure
                         or "reuse" in none_disclosure
                     ):
@@ -2216,7 +2247,7 @@ def validate_project(
                 for row in rows or []:
                     references_in_cell = [
                         item
-                        for item in ID_RE.findall(row.get("Screen", ""))
+                        for item in id_re.findall(row.get("Screen", ""))
                         if item.startswith("UX-")
                     ]
                     if len(references_in_cell) != 1:
@@ -2288,7 +2319,7 @@ def validate_project(
                             )
                     linked_screens = [
                         item
-                        for item in ID_RE.findall(row.get("Screens", ""))
+                        for item in id_re.findall(row.get("Screens", ""))
                         if item.startswith("UX-")
                     ]
                     if not linked_screens:
@@ -2310,7 +2341,7 @@ def validate_project(
                 contract_row = interface_by_increment[increment_id]
                 contract_ids = {
                     item
-                    for item in ID_RE.findall(contract_row.get("UX contract", ""))
+                    for item in id_re.findall(contract_row.get("UX contract", ""))
                     if item.startswith("UX-")
                 }
                 if not contract_ids:
@@ -2334,7 +2365,7 @@ def validate_project(
                 for flow_id in contract_flows:
                     covered_contract_screens.update(
                         item
-                        for item in ID_RE.findall(
+                        for item in id_re.findall(
                             definitions[flow_id].get("Screens", "")
                         )
                         if item in contract_screens
@@ -2370,7 +2401,7 @@ def validate_project(
                         )
                     direction_decisions = [
                         item
-                        for item in ID_RE.findall(row.get("Decision", ""))
+                        for item in id_re.findall(row.get("Decision", ""))
                         if item.startswith("ADR-")
                     ]
                     if not direction_decisions:
@@ -2469,7 +2500,7 @@ def validate_project(
                     report.errors.append(
                         f"{expected_ux_path}: {visual_id}: Viewport es obligatorio."
                     )
-                linked_ux = ID_RE.findall(row.get("Screens or flow", ""))
+                linked_ux = id_re.findall(row.get("Screens or flow", ""))
                 linked_ux = [item for item in linked_ux if item.startswith("UX-")]
                 if not linked_ux:
                     report.errors.append(
@@ -2477,7 +2508,7 @@ def validate_project(
                     )
                 linked_requirements = [
                     item
-                    for item in ID_RE.findall(row.get("Requirements", ""))
+                    for item in id_re.findall(row.get("Requirements", ""))
                     if item.startswith(("FR-", "NFR-", "TR-"))
                 ]
                 if not linked_requirements:
@@ -2539,7 +2570,7 @@ def validate_project(
                         )
                     decision_ids = [
                         item
-                        for item in ID_RE.findall(row.get("Decision", ""))
+                        for item in id_re.findall(row.get("Decision", ""))
                         if item.startswith("ADR-")
                     ]
                     if not decision_ids:
@@ -2568,7 +2599,7 @@ def validate_project(
                             )
                     increment_ids = [
                         item
-                        for item in ID_RE.findall(row.get("Increment", ""))
+                        for item in id_re.findall(row.get("Increment", ""))
                         if item.startswith("INC-")
                     ]
                     if not increment_ids:
@@ -2696,9 +2727,11 @@ def validate_project(
         report.errors.append(f"{relative}: referencia sin definición: {reference}")
 
     for artifact_id, (expected_path, _) in CORE_ARTIFACTS.items():
-        if artifact_id in V12_CORE_ARTIFACTS and schema_version not in {"1.2", "1.3"}:
+        if artifact_id in V12_CORE_ARTIFACTS and schema_version not in {"1.2", "1.3", "1.4"}:
             continue
-        if artifact_id in V13_CORE_ARTIFACTS and schema_version != "1.3":
+        if artifact_id in V13_CORE_ARTIFACTS and schema_version not in {"1.3", "1.4"}:
+            continue
+        if artifact_id in V14_CORE_ARTIFACTS and schema_version != "1.4":
             continue
         entry = artifact_entries.get(artifact_id)
         if entry is None:
@@ -2782,7 +2815,7 @@ def validate_project(
             report.errors.append(
                 f"La decisión {selection_decision} no identifica el perfil seleccionado {selected_profile}."
             )
-    if schema_version in {"1.2", "1.3"} and isinstance(technology, dict):
+    if schema_version in {"1.2", "1.3", "1.4"} and isinstance(technology, dict):
         bindings = technology.get("profile_bindings", [])
         if bindings and technology.get("preferred_stack_assessed") is not True:
             report.errors.append(
@@ -2844,7 +2877,7 @@ def validate_project(
     elif "adoption" in manifest:
         report.warnings.append("La ruta new no necesita un bloque adoption.")
 
-    if schema_version in {"1.2", "1.3"}:
+    if schema_version in {"1.2", "1.3", "1.4"}:
         from delivery_engine import validate_delivery_contract
 
         delivery = validate_delivery_contract(root, manifest)
@@ -2855,6 +2888,18 @@ def validate_project(
             f"Contrato de entrega: {item}" for item in delivery["warnings"]
         )
         report.checked_files.extend(delivery["checked_files"])
+
+    if schema_version == "1.4":
+        from task_tracking_engine import validate_tracking_contract
+
+        tracking = validate_tracking_contract(root, manifest)
+        report.errors.extend(
+            f"Contrato de tracking: {item}" for item in tracking["errors"]
+        )
+        report.warnings.extend(
+            f"Contrato de tracking: {item}" for item in tracking["warnings"]
+        )
+        report.checked_files.extend(tracking["checked_files"])
 
     contract_model = build_project_model(root)
     legacy_errors = list(report.errors)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create repository checkpoints and validate safe LKS-SDD 1.3 resumption."""
+"""Create repository checkpoints and validate safe LKS-SDD 1.3/1.4 resumption."""
 
 from __future__ import annotations
 
@@ -59,9 +59,21 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise ContinuityError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") != "1.3":
-        raise ContinuityError("Los checkpoints reanudables requieren schema 1.3.")
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4"}:
+        raise ContinuityError("Los checkpoints reanudables requieren schema 1.3 o 1.4.")
     return path, value, original
+
+
+def _validate_checkpoint_schema(
+    manifest_schema: str, checkpoint_schema: str | None
+) -> None:
+    allowed = {"1.3"} if manifest_schema == "1.3" else {"1.3", "1.4"}
+    if checkpoint_schema not in allowed:
+        expected = "1.3" if manifest_schema == "1.3" else "1.3 o 1.4"
+        raise ContinuityError(
+            "El checkpoint no usa un schema_version compatible con el proyecto: "
+            f"schema {manifest_schema} requiere checkpoint {expected}."
+        )
 
 
 def _safe_cell(label: str, value: str | None, *, default: str | None = None) -> str:
@@ -371,6 +383,27 @@ def _render_checkpoint(
         Path(__file__).resolve().parents[1]
         / "skills/lks-sdd-define/assets/templates/04-delivery/checkpoint.md"
     ).read_text(encoding="utf-8")
+    template = re.sub(
+        r'^schema_version: "[^"]+"$',
+        f'schema_version: "{manifest["schema_version"]}"',
+        template,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    template = re.sub(
+        r'^method_version: "[^"]+"$',
+        f'method_version: "{manifest["method_version"]}"',
+        template,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    template = re.sub(
+        r'^created_with_plugin_version: "[^"]+"$',
+        f'created_with_plugin_version: "{manifest["plugin_version"]}"',
+        template,
+        count=1,
+        flags=re.MULTILINE,
+    )
     task_ids = sorted(execution["task_ids"])
     deliverables, checks, issues, task_replacements = _task_snapshot(root, task_ids)
     change_date = _change_date(args.date)
@@ -611,8 +644,10 @@ def _resume(root: Path, manifest: dict[str, Any], args: argparse.Namespace) -> d
         raise ContinuityError("El checkpoint no conserva su artifact_id canónico.")
     if _frontmatter_scalar(text, "artifact_type") != "implementation-checkpoint":
         raise ContinuityError("El checkpoint no usa artifact_type implementation-checkpoint.")
-    if _frontmatter_scalar(text, "schema_version") != "1.3":
-        raise ContinuityError("El checkpoint no usa schema_version 1.3.")
+    _validate_checkpoint_schema(
+        str(manifest["schema_version"]),
+        _frontmatter_scalar(text, "schema_version"),
+    )
     tables = parse_tables(text)
     identity = _single_table_rows(tables, CHECKPOINT_IDENTITY_HEADERS)
     resume_rows = _single_table_rows(tables, CHECKPOINT_RESUME_HEADERS)

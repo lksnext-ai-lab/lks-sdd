@@ -250,7 +250,8 @@ class M3WorkflowTests(unittest.TestCase):
                 (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
             )
             self.assertEqual(manifest["adoption"]["status"], "materialized")
-            self.assertEqual(len(manifest["artifacts"]), 29)
+            self.assertEqual(len(manifest["artifacts"]), 30)
+            self.assertEqual(manifest["task_tracking"]["mode"], "pending")
             status_lines = (
                 root
                 / "docs"
@@ -393,7 +394,7 @@ class M3WorkflowTests(unittest.TestCase):
             )
             for key in (
                 "active_plan", "active_task", "active_tasks", "delivery_governance",
-                "planning", "authorizations", "executions",
+                "planning", "task_tracking", "authorizations", "executions",
             ):
                 manifest.pop(key, None)
             manifest["technology"].pop("profile_bindings", None)
@@ -409,6 +410,7 @@ class M3WorkflowTests(unittest.TestCase):
                 "ART-TEST-STRATEGY",
                 "ART-DEPLOYMENT",
                 "ART-PLANNING",
+                "ART-TRACKING",
             }
             manifest["artifacts"] = [
                 item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -422,10 +424,10 @@ class M3WorkflowTests(unittest.TestCase):
                 path = root / entry["path"]
                 text = (
                     path.read_text(encoding="utf-8")
-                    .replace('schema_version: "1.3"', 'schema_version: "1.0"')
-                    .replace('method_version: "1.3.0"', 'method_version: "1.0.0"')
+                    .replace('schema_version: "1.4"', 'schema_version: "1.0"')
+                    .replace('method_version: "1.4.0"', 'method_version: "1.0.0"')
                     .replace(
-                        'created_with_plugin_version: "0.9.1"',
+                        'created_with_plugin_version: "0.10.0"',
                         'created_with_plugin_version: "0.6.1"',
                     )
                     .replace(

@@ -18,6 +18,7 @@ from run_quality_harness import (  # noqa: E402
     DEFAULT_BASELINE_PATH,
     FIXTURE_MANIFEST_PATH,
     PILOT_SUMMARY_SCHEMA_PATH,
+    UNIT_TEST_TIMEOUT_SECONDS,
     _canonical_bytes,
     _load_json,
     _run_command,
@@ -92,7 +93,7 @@ class QualityHarnessTests(unittest.TestCase):
     def test_fixture_manifest_is_complete_and_hash_locked(self):
         result = validate_fixture_manifest()
         self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["fixture_count"], 7)
+        self.assertEqual(result["fixture_count"], 10)
 
     def test_fixture_hash_drift_is_reported(self):
         manifest = copy.deepcopy(_load_json(FIXTURE_MANIFEST_PATH))
@@ -529,9 +530,11 @@ class QualityHarnessTests(unittest.TestCase):
 
     def test_complete_profile_gate_names_the_representative_profile(self):
         commands: dict[str, list[str]] = {}
+        timeouts: dict[str, int] = {}
 
         def fake_run(check_id, command, json_output=False, timeout=600):
             commands[check_id] = command
+            timeouts[check_id] = timeout
             payload = (
                 {"results": []}
                 if check_id in {"unit-tests", "deterministic-evals"}
@@ -561,6 +564,8 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(
             command[profile_index + 1], "WEB-FASTAPI-REACT-KEYCLOAK-PG"
         )
+        self.assertEqual(timeouts["unit-tests"], UNIT_TEST_TIMEOUT_SECONDS)
+        self.assertGreaterEqual(UNIT_TEST_TIMEOUT_SECONDS, 1800)
 
     def test_dirty_source_fails_candidate_gate_without_running_real_suite(self):
         automated = (

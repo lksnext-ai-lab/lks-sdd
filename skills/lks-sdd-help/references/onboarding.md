@@ -53,7 +53,7 @@ La trazabilidad previa a implementar llega hasta `TEST-###`; después de ejecuta
 
 ## 10. Versiones y compatibilidad
 
-Los proyectos nuevos usan método 1.3.0 y esquema 1.3. Los proyectos 1.0/1.1/1.2 continúan validándose en compatibilidad y no se migran al actualizar. La migración es explícita, reversible y de un salto. El paso 1.2 → 1.3 añade estructura pendiente sin inventar tareas, cobertura completa, autorización, avance o evidencia. El apply exige backup externo, autorización y hash coincidente.
+Los proyectos nuevos usan método 1.4.0 y esquema 1.4. Los proyectos 1.0/1.1/1.2/1.3 continúan validándose en compatibilidad y no se migran al actualizar. La migración es explícita, reversible y de un salto. El paso histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1 y añade estructura pendiente sin inventar tareas, cobertura completa, autorización, avance o evidencia; 1.3 → 1.4 añade tracking pendiente sin ejecutar Rovo ni crear issues. El apply exige backup externo, autorización y hash coincidente.
 
 ## 11. Primer paso a elegir
 

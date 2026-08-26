@@ -21,6 +21,7 @@ COMMANDS = {
     "verify": "skills/lks-sdd-verify/scripts/run_verification.py",
     "tasks": "scripts/manage_tasks.py",
     "planning": "scripts/manage_planning.py",
+    "tracking": "scripts/manage_task_tracking.py",
     "continuity": "scripts/manage_continuity.py",
     "profiles": "scripts/validate_reference_profile.py",
     "validate-project": "scripts/validate_project.py",

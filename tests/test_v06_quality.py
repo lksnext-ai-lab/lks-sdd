@@ -32,21 +32,23 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["mode"], "semantic")
         self.assertEqual(fx01["evidence"], [])
 
-    def test_definition_cases_are_versioned_for_v09_and_not_run(self) -> None:
-        self.assertEqual(self.corpus["plugin_version"], "0.9.0")
-        self.assertEqual(self.corpus["corpus_id"], "lks-sdd-definition-ux-es-0.9.0")
+    def test_definition_cases_are_versioned_for_v010_and_not_run(self) -> None:
+        self.assertEqual(self.corpus["plugin_version"], "0.10.0")
+        self.assertEqual(
+            self.corpus["corpus_id"], "lks-sdd-definition-tracking-es-0.10.0"
+        )
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
-            {f"FX-{index:02d}" for index in range(20, 36)},
+            {f"FX-{index:02d}" for index in range(20, 46)},
         )
         self.assertEqual(
             {case["id"] for case in self.corpus["cases"]},
-            {"FX-01", "FX-20", "FX-21"},
+            {"FX-01", "FX-20", "FX-21", "FX-36"},
         )
         channel = evaluate_definition_conversation(self.corpus)
         self.assertEqual(channel["status"], "not-run")
         self.assertEqual(channel["observed"], 0)
-        self.assertEqual(channel["total"], 3)
+        self.assertEqual(channel["total"], 4)
 
     def test_definition_evidence_cannot_be_invented(self) -> None:
         changed = copy.deepcopy(self.corpus)
@@ -61,6 +63,9 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertFalse(_definition_corpus_matches_plugin_line("0.6.0", "0.7.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.7.0", "0.7.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.7.0", "0.7.1"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.10.0", "0.10.0"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.10.0", "0.10.1"))
+        self.assertFalse(_definition_corpus_matches_plugin_line("0.9.0", "0.10.0"))
 
 
 if __name__ == "__main__":

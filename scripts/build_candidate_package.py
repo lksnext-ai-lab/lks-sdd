@@ -68,6 +68,14 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-33",
     "FX-34",
     "FX-35",
+    "FX-37",
+    "FX-38",
+    "FX-39",
+    "FX-40",
+    "FX-41",
+    "FX-42",
+    "FX-43",
+    "FX-44",
 )
 EXPECTED_DETERMINISTIC_EVAL_IDS = {
     "FX-M1-ALTERNATIVE-STACK",
@@ -129,6 +137,16 @@ QUALITY_SCHEMA_KEYWORDS = {
 SEMVER_RE = re.compile(
     r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
 )
+
+
+def _definition_corpus_relative(plugin_version: str) -> str:
+    """Resolve the committed corpus for the plugin major/minor line."""
+
+    match = SEMVER_RE.fullmatch(plugin_version)
+    if match is None:
+        raise PackageError("No se puede resolver el corpus para una versión no SemVer.")
+    major, minor, _patch = match.groups()
+    return f"quality/corpora/definition-v{major}.{minor}.0.json"
 EXCLUDED_PARTS = {
     ".git",
     "__pycache__",
@@ -634,9 +652,12 @@ def _validated_quality_report(
     gate = report["gate"]
     catalog = _committed_json(committed_files, "quality/catalog.json")
     corpus = _committed_json(committed_files, "quality/corpora/activation.json")
-    definition_corpus = _committed_json(
-        committed_files, "quality/corpora/definition-v0.9.0.json"
-    )
+    definition_corpus_path = _definition_corpus_relative(plugin_version)
+    definition_corpus = _committed_json(committed_files, definition_corpus_path)
+    if definition_corpus.get("plugin_version") != f"{plugin_version.rsplit('.', 1)[0]}.0":
+        raise PackageError(
+            "El corpus de definición comprometido no corresponde a la línea minor empaquetada."
+        )
     fixture_manifest = _committed_json(
         committed_files, "quality/fixture-manifest.json"
     )
@@ -738,7 +759,7 @@ def _validated_quality_report(
         or len(catalog_ids) != len(set(catalog_ids))
         or len(extension_ids) != len(extension_cases)
         or not all(isinstance(case_id, str) for case_id in extension_ids)
-        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 36)}
+        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 46)}
         or len(extension_ids) != len(set(extension_ids))
     ):
         raise PackageError("El inventario comprometido de casos FX cambió.")

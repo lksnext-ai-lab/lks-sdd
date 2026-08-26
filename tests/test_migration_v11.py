@@ -131,7 +131,7 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
     )
     for key in (
         "active_plan", "active_task", "active_tasks", "delivery_governance",
-        "planning", "authorizations", "executions",
+        "planning", "task_tracking", "authorizations", "executions",
     ):
         manifest.pop(key, None)
     manifest["technology"].pop("profile_bindings", None)
@@ -147,6 +147,7 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         "ART-TEST-STRATEGY",
         "ART-DEPLOYMENT",
         "ART-PLANNING",
+        "ART-TRACKING",
     }
     manifest["artifacts"] = [
         item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -162,10 +163,10 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         relative = artifact["path"]
         path = root / relative
         content = path.read_text(encoding="utf-8")
-        content = content.replace('schema_version: "1.3"', 'schema_version: "1.0"')
-        content = content.replace('method_version: "1.3.0"', 'method_version: "1.0.0"')
+        content = content.replace('schema_version: "1.4"', 'schema_version: "1.0"')
+        content = content.replace('method_version: "1.4.0"', 'method_version: "1.0.0"')
         content = content.replace(
-            'created_with_plugin_version: "0.9.1"',
+            'created_with_plugin_version: "0.10.0"',
             'created_with_plugin_version: "0.6.1"',
         )
         content = content.replace(
@@ -418,6 +419,27 @@ class Schema11MigrationTests(unittest.TestCase):
         self.assertEqual(reviews, [])
         self.assertEqual(operations, ["frontmatter-schema-version"])
 
+    def test_10_rejects_states_introduced_only_for_tracking_14(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-compat-10-") as directory:
+            root = Path(directory)
+            _write_review_free_project(root)
+            requirements = (
+                root / "docs/lks-sdd/02-requirements/functional-requirements.md"
+            )
+            text = requirements.read_text(encoding="utf-8")
+            self.assertIn("| FR-001 | confirmed |", text)
+            requirements.write_text(
+                text.replace("| FR-001 | confirmed |", "| FR-001 | synced |", 1),
+                encoding="utf-8",
+                newline="\n",
+            )
+            report, _, _ = migration.validate_project(root)
+            self.assertFalse(report.valid)
+            self.assertTrue(
+                any("estado de elemento no admitido 'synced'" in item for item in report.errors),
+                report.errors,
+            )
+
     def test_11_to_12_creates_governance_and_rolls_back_created_artifacts(self):
         with tempfile.TemporaryDirectory(
             prefix="lks-sdd-migration-12-"
@@ -444,7 +466,11 @@ class Schema11MigrationTests(unittest.TestCase):
 
             # The helper starts from a current initializer. Remove the unindexed
             # 1.2/1.3 files so this source accurately represents a real 1.1 project.
-            for _, relative in (*migration.V12_ARTIFACTS, *migration.V13_ARTIFACTS):
+            for _, relative in (
+                *migration.V12_ARTIFACTS,
+                *migration.V13_ARTIFACTS,
+                *migration.V14_ARTIFACTS,
+            ):
                 candidate = root / relative
                 if candidate.exists():
                     candidate.unlink()
@@ -499,7 +525,7 @@ class Schema11MigrationTests(unittest.TestCase):
             }
             self.assertEqual(restored, snapshot)
 
-    def test_12_to_13_creates_partial_planning_without_authorization_and_rolls_back(self):
+    def test_12_to_13_and_13_to_14_are_conservative_and_reversible(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-migration-13-") as directory:
             container = Path(directory)
             root = container / "project"
@@ -514,7 +540,11 @@ class Schema11MigrationTests(unittest.TestCase):
                 container / "backup-11",
                 migration._preview(safe_root, plan_11)["preview_hash"],
             )
-            for _, relative in (*migration.V12_ARTIFACTS, *migration.V13_ARTIFACTS):
+            for _, relative in (
+                *migration.V12_ARTIFACTS,
+                *migration.V13_ARTIFACTS,
+                *migration.V14_ARTIFACTS,
+            ):
                 candidate = root / relative
                 if candidate.exists():
                     candidate.unlink()
@@ -584,6 +614,125 @@ class Schema11MigrationTests(unittest.TestCase):
             self.assertFalse(readiness["implementation_authorized"])
             self.assertNotEqual(readiness["status"], "ready-to-implement")
 
+            snapshot_13 = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            planning_before_14 = migrated["planning"]
+            authorizations_before_14 = migrated["authorizations"]
+            executions_before_14 = migrated["executions"]
+
+            blocked_manifest = json.loads(json.dumps(migrated))
+            blocked_manifest["executions"] = [
+                {"execution_id": "EXEC-777", "status": "paused"}
+            ]
+            (root / ".lks-sdd/project.json").write_text(
+                json.dumps(blocked_manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            with self.assertRaisesRegex(
+                migration.MigrationError, "ejecución reanudable activa"
+            ):
+                migration._plan(safe_root, "1.4")
+            (root / ".lks-sdd/project.json").write_text(
+                json.dumps(migrated, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+
+            historical_checkpoint = (
+                root / "docs/lks-sdd/04-delivery/checkpoints/CKPT-999.md"
+            )
+            historical_checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            historical_bytes = (
+                b'---\nartifact_id: "ART-CKPT-999"\n'
+                b'artifact_type: "implementation-checkpoint"\n'
+                b'schema_version: "1.3"\n---\n# historical checkpoint\n'
+            )
+            historical_checkpoint.write_bytes(historical_bytes)
+            snapshot_13[
+                historical_checkpoint.relative_to(root).as_posix()
+            ] = historical_bytes
+            plan_14 = migration._plan(safe_root, "1.4")
+            preview_14 = migration._preview(safe_root, plan_14)
+            self.assertEqual(plan_14.source_schema, "1.3")
+            self.assertEqual(plan_14.target_schema, "1.4")
+            self.assertEqual(plan_14.human_review_required, [])
+            created_14 = [change for change in plan_14.changes if change.created]
+            self.assertEqual(
+                [
+                    change.path.relative_to(safe_root).as_posix()
+                    for change in created_14
+                ],
+                ["docs/lks-sdd/04-delivery/task-tracking.md"],
+            )
+
+            backup_14 = container / "backup-14"
+            applied_14 = migration._apply(
+                safe_root,
+                plan_14,
+                backup_14,
+                preview_14["preview_hash"],
+            )
+            self.assertTrue(applied_14["validated"])
+            migrated_14 = json.loads(
+                (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(migrated_14["schema_version"], "1.4")
+            self.assertEqual(migrated_14["method_version"], "1.4.0")
+            self.assertEqual(migrated_14["plugin_version"], "0.10.0")
+            self.assertEqual(migrated_14["planning"], planning_before_14)
+            self.assertEqual(
+                migrated_14["authorizations"], authorizations_before_14
+            )
+            self.assertEqual(migrated_14["executions"], executions_before_14)
+            self.assertEqual(
+                migrated_14["task_tracking"],
+                {
+                    "source": "docs/lks-sdd/04-delivery/task-tracking.md",
+                    "binding_id": "TRK-001",
+                    "state": "proposed",
+                    "mode": "repository-only",
+                    "provider": None,
+                    "decision": None,
+                    "site": None,
+                    "project_key": None,
+                    "issue_type": None,
+                    "sync_policy": "not-required",
+                    "write_policy": "local-only",
+                    "projection_fingerprint": None,
+                    "sync_status": "not-required",
+                    "last_sync_on": None,
+                },
+            )
+            self.assertEqual(historical_checkpoint.read_bytes(), historical_bytes)
+            tracking_text = (
+                root / "docs/lks-sdd/04-delivery/task-tracking.md"
+            ).read_text(encoding="utf-8")
+            self.assertIn(
+                "| TRK-001 | proposed | repository-only | none | ", tracking_text
+            )
+            self.assertIn(
+                "| pending: migration-preserved from schema 1.3 |", tracking_text
+            )
+
+            rollback_14, record_path_14, record_14 = migration._plan_rollback(
+                safe_root, backup_14
+            )
+            migration._apply_rollback(
+                safe_root, rollback_14, record_path_14, record_14
+            )
+            restored_13 = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(restored_13, snapshot_13)
+            historical_checkpoint.unlink()
+            historical_checkpoint.parent.rmdir()
+
             rollback_plan, record_path, record = migration._plan_rollback(
                 safe_root, backup_13
             )
@@ -596,6 +745,68 @@ class Schema11MigrationTests(unittest.TestCase):
                 if path.is_file()
             }
             self.assertEqual(restored, snapshot)
+
+    def test_13_treats_v14_tracking_ids_as_plain_text_in_applicability_reasons(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-compat-13-") as directory:
+            root = Path(directory)
+            initialize(root, "tracking-identifiers-are-v14-only")
+            materialize_ready_increment(root, confirm_plan=False)
+            manifest_path = root / ".lks-sdd/project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest.update(
+                {
+                    "schema_version": "1.3",
+                    "method_version": "1.3.0",
+                    "plugin_version": "0.9.1",
+                }
+            )
+            manifest.pop("task_tracking", None)
+            manifest["artifacts"] = [
+                item
+                for item in manifest["artifacts"]
+                if item["id"] != "ART-TRACKING"
+            ]
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            (root / "docs/lks-sdd/04-delivery/task-tracking.md").unlink()
+            for markdown in (root / "docs/lks-sdd").rglob("*.md"):
+                text = markdown.read_text(encoding="utf-8")
+                markdown.write_text(
+                    text.replace('schema_version: "1.4"', 'schema_version: "1.3"')
+                    .replace('method_version: "1.4.0"', 'method_version: "1.3.0"')
+                    .replace(
+                        'created_with_plugin_version: "0.10.0"',
+                        'created_with_plugin_version: "0.9.1"',
+                    ),
+                    encoding="utf-8",
+                    newline="\n",
+                )
+            baseline, _, _ = migration.validate_project(root)
+            self.assertTrue(baseline.valid, baseline.errors)
+
+            tasks_path = root / "docs/lks-sdd/04-delivery/tasks.md"
+            tasks_text = tasks_path.read_text(encoding="utf-8")
+            tasks_path.write_text(
+                tasks_text.replace(
+                    "not-applicable: no prerequisite task",
+                    "not-applicable: external Jira labels TRK-999 and SYNC-999",
+                    1,
+                ),
+                encoding="utf-8",
+                newline="\n",
+            )
+            compatibility, _, _ = migration.validate_project(root)
+            self.assertTrue(compatibility.valid, compatibility.errors)
+            self.assertFalse(
+                any(
+                    token in error
+                    for error in compatibility.errors
+                    for token in ("TRK-999", "SYNC-999")
+                )
+            )
 
 
 if __name__ == "__main__":

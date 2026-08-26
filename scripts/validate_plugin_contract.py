@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.9/method-contract 1.3 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.10/method-candidate 1.4 invariants."""
 
 from __future__ import annotations
 
@@ -51,9 +51,14 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md",
     "docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md",
     "docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md",
+    "docs/V0.10-JIRA-ROVO-COVERAGE.md",
+    "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
+    "docs/RELEASING.md",
     "docs/VALIDATION.md",
+    "specs/SOURCES.md",
+    "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
@@ -74,6 +79,8 @@ REQUIRED_ROOT_FILES = {
     "scripts/manage_tasks.py",
     "scripts/planning_engine.py",
     "scripts/manage_planning.py",
+    "scripts/task_tracking_engine.py",
+    "scripts/manage_task_tracking.py",
     "scripts/manage_continuity.py",
     "scripts/update_profile_locks.py",
     "quality/catalog.json",
@@ -81,6 +88,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.6.0.json",
     "quality/corpora/definition-v0.8.0.json",
     "quality/corpora/definition-v0.9.0.json",
+    "quality/corpora/definition-v0.10.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
@@ -98,6 +106,8 @@ REQUIRED_ROOT_FILES = {
     "schemas/frontmatter-1.2.schema.json",
     "schemas/project-1.3.schema.json",
     "schemas/frontmatter-1.3.schema.json",
+    "schemas/project-1.4.schema.json",
+    "schemas/frontmatter-1.4.schema.json",
     "schemas/profile-catalog.schema.json",
     "schemas/profile-driver.schema.json",
     "schemas/profile-certification.schema.json",
@@ -111,6 +121,7 @@ REQUIRED_ROOT_FILES = {
     ".github/ISSUE_TEMPLATE/bug-report.yml",
     ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
     "templates/client/client-deliverable.md",
+    "tests/test_task_tracking_v14.py",
 }
 EXPECTED_GIT_ATTRIBUTES = (
     "* text=auto eol=lf",
@@ -132,6 +143,7 @@ REQUIRED_SKILL_RESOURCES = {
         "references/transition-summaries.md",
         "references/onboarding.md",
         "references/work-codex-guide.md",
+        "references/jira-companion.md",
         "references/examples.md",
         "references/faq.md",
         "references/troubleshooting.md",
@@ -146,28 +158,33 @@ REQUIRED_SKILL_RESOURCES = {
         "references/definition-coverage.md",
         "references/discovery-interview.md",
         "references/frontend-design.md",
+        "references/jira-planning-contract.md",
         "scripts/init_project.py",
         "agents/openai.yaml",
     },
     "lks-sdd-assess-readiness": {
         "references/readiness-rubric.md",
+        "references/jira-readiness-contract.md",
         "scripts/assess_readiness.py",
         "agents/openai.yaml",
     },
     "lks-sdd-implement": {
         "references/implementation-contract.md",
+        "references/jira-implementation-sync.md",
         "scripts/prepare_increment.py",
         "agents/openai.yaml",
     },
     "lks-sdd-verify": {
         "references/verification-contract.md",
         "references/client-view-rules.md",
+        "references/jira-verification-sync.md",
         "scripts/run_verification.py",
         "assets/delivery-evidence.example.json",
         "agents/openai.yaml",
     },
     "lks-sdd-adopt-existing": {
         "references/adoption-contract.md",
+        "references/jira-adoption-boundary.md",
         "scripts/adoption_common.py",
         "scripts/inspect_repository.py",
         "scripts/validate_adoption.py",
@@ -189,6 +206,7 @@ REQUIRED_CONDITIONAL_TEMPLATES = {
     "04-delivery/tasks.md",
     "04-delivery/task-detail.md",
     "04-delivery/planning-coverage.md",
+    "04-delivery/task-tracking.md",
     "04-delivery/checkpoint.md",
     "05-quality/test-strategy.md",
     "06-operation/deployment.md",
@@ -218,11 +236,33 @@ RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/build_candidate_package.py": {"subprocess"},
     "scripts/delivery_engine.py": {"subprocess"},
     "scripts/manage_continuity.py": {"subprocess"},
-    "scripts/run_reference_profile_gate.py": {"subprocess", "urllib"},
+    "scripts/manage_task_tracking.py": {"urllib.parse"},
+    "scripts/run_reference_profile_gate.py": {"subprocess"},
     "scripts/run_quality_harness.py": {"subprocess"},
-    "skills/lks-sdd-verify/scripts/run_verification.py": {"subprocess", "urllib"},
+    "scripts/task_tracking_engine.py": {"urllib.parse"},
+    "skills/lks-sdd-verify/scripts/run_verification.py": {
+        "subprocess",
+        "urllib.error",
+        "urllib.request",
+    },
     "skills/lks-sdd-adopt-existing/scripts/adoption_common.py": {"subprocess"},
 }
+
+
+def _forbidden_runtime_imports(relative: str, tree: ast.AST) -> set[str]:
+    imported_modules: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported_modules.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported_modules.add(node.module)
+    allowed = RUNTIME_IMPORT_ALLOWLIST.get(relative, set())
+    return {
+        module
+        for module in imported_modules
+        if module.split(".", 1)[0] in FORBIDDEN_RUNTIME_IMPORTS
+        and module not in allowed
+    }
 
 
 def sha256(path: Path) -> str:
@@ -424,6 +464,8 @@ def validate(root: Path) -> list[str]:
             "ImageGen",
             "Spec-anchored",
             "Spec-as-source",
+            "Atlassian Rovo",
+            "jira-hybrid",
         ),
         "docs/COMPATIBILITY.md": (
             "Codex",
@@ -431,6 +473,8 @@ def validate(root: Path) -> list[str]:
             "GitHub Copilot",
             "Claude",
             "ImageGen",
+            "Atlassian Rovo",
+            "not-run",
         ),
         "docs/ARCHITECTURE.md": (
             "Codex",
@@ -438,6 +482,8 @@ def validate(root: Path) -> list[str]:
             "not-run",
             "Spec-anchored",
             "Spec-as-source",
+            "ART-TRACKING",
+            "SYNC-###",
         ),
         "skills/lks-sdd-help/references/sdd-concepts.md": (
             "Spec-first",
@@ -455,6 +501,13 @@ def validate(root: Path) -> list[str]:
             "FX-20",
             "FX-21",
             "not-run",
+        ),
+        "docs/V0.10-JIRA-ROVO-COVERAGE.md": (
+            "FX-36",
+            "FX-45",
+            "Atlassian Rovo",
+            "not-run",
+            "Jira `Done`",
         ),
     }
     for relative, markers in positioning_markers.items():
@@ -531,6 +584,15 @@ def validate(root: Path) -> list[str]:
             "checkpoints",
             "cancelled",
         ),
+        "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md": (
+            "propuesta candidate, no canónica",
+            "repository-only",
+            "jira-hybrid",
+            "LKS-SDD-PROJECT: <project_id>; TASK: TASK-###",
+            "Atlassian Rovo",
+            "Jira `Done`",
+            "not-run",
+        ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
             CANONICAL_HASHES[
@@ -539,6 +601,8 @@ def validate(root: Path) -> list[str]:
             CANONICAL_HASHES[
                 "LKS-SDD_extension_planificacion_continuidad_v1.3.md"
             ],
+            "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
+            "no canónica",
         ),
         "scripts/run_quality_harness.py": (
             '"v0.6.1.json"',
@@ -580,6 +644,8 @@ def validate(root: Path) -> list[str]:
         "frontmatter-1.2.schema.json",
         "project-1.3.schema.json",
         "frontmatter-1.3.schema.json",
+        "project-1.4.schema.json",
+        "frontmatter-1.4.schema.json",
         "profile-catalog.schema.json",
         "profile-driver.schema.json",
         "profile-certification.schema.json",
@@ -695,6 +761,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
+        if rollback.get("previous_version") != "0.9.1":
+            errors.append("El rollback del piloto 0.10.0 debe conservar 0.9.1.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -705,10 +773,15 @@ def validate(root: Path) -> list[str]:
         schema_candidate = pilot_schema["properties"]["rollback"]["properties"][
             "candidate_version"
         ].get("const")
+        schema_previous = pilot_schema["properties"]["rollback"]["properties"][
+            "previous_version"
+        ].get("const")
         if plugin_version and schema_candidate != plugin_version:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
+        if schema_previous != "0.9.1":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.9.1.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -725,6 +798,7 @@ def validate(root: Path) -> list[str]:
             "tree_state",
             "baseline_sha256",
             "EXPECTED_BASELINE_COMMIT",
+            "_definition_corpus_relative",
         ):
             if marker not in package_text:
                 errors.append(
@@ -750,6 +824,7 @@ def validate(root: Path) -> list[str]:
             "client-view",
             "tasks",
             "planning",
+            "tracking",
             "continuity",
             "profiles",
         ):
@@ -860,6 +935,104 @@ def validate(root: Path) -> list[str]:
         errors.append("project-1.3.schema.json no expone el contrato esperado.")
 
     try:
+        project_14 = json.loads(
+            (root / "schemas" / "project-1.4.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        required_14 = set(project_14["required"])
+        properties_14 = project_14["properties"]
+        if properties_14["schema_version"].get("const") != "1.4":
+            errors.append("project-1.4.schema.json debe fijar schema_version 1.4.")
+        if properties_14["method_version"].get("const") != "1.4.0":
+            errors.append("project-1.4.schema.json debe fijar method_version 1.4.0.")
+        if "task_tracking" not in required_14:
+            errors.append("El índice 1.4 debe exigir task_tracking.")
+        tracking = properties_14["task_tracking"]
+        tracking_required = set(tracking.get("required", []))
+        expected_tracking = {
+            "source",
+            "binding_id",
+            "state",
+            "mode",
+            "provider",
+            "decision",
+            "site",
+            "project_key",
+            "issue_type",
+            "sync_policy",
+            "write_policy",
+            "projection_fingerprint",
+            "sync_status",
+            "last_sync_on",
+        }
+        if tracking_required != expected_tracking:
+            errors.append("task_tracking 1.4 no conserva el índice cerrado esperado.")
+        mode_enum = tracking["properties"]["mode"].get("enum")
+        if mode_enum != ["pending", "repository-only", "jira-hybrid"]:
+            errors.append("task_tracking.mode debe separar pending, repository-only y jira-hybrid.")
+        if {"open_blockers", "readiness"} & (required_14 | set(properties_14)):
+            errors.append("El índice 1.4 no debe persistir readiness derivado.")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("project-1.4.schema.json no expone el contrato esperado.")
+
+    try:
+        document_contracts = json.loads(
+            (root / "schemas" / "document-contracts.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        if document_contracts.get("catalog_version") != "1.4":
+            errors.append("document-contracts.json debe usar catalog_version 1.4.")
+        if document_contracts.get("supported_project_schemas") != [
+            "1.0", "1.1", "1.2", "1.3", "1.4"
+        ]:
+            errors.append("El catálogo documental debe conservar soporte 1.0 a 1.4.")
+        if document_contracts.get("schema_inheritance") != {
+            "1.2": "1.1",
+            "1.3": "1.2",
+            "1.4": "1.3",
+        }:
+            errors.append("La herencia documental debe fijar 1.4 → 1.3.")
+        prefixes = document_contracts.get("identifier_prefixes", [])
+        if not {"TRK", "SYNC"} <= set(prefixes):
+            errors.append("El catálogo 1.4 debe registrar TRK y SYNC.")
+        tracking_artifact = document_contracts["artifacts"]["ART-TRACKING"]
+        if (
+            tracking_artifact.get("artifact_type") != "task-tracking"
+            or tracking_artifact.get("path")
+            != "docs/lks-sdd/04-delivery/task-tracking.md"
+            or tracking_artifact.get("required_schemas") != ["1.4"]
+        ):
+            errors.append("ART-TRACKING no respeta el contrato documental 1.4.")
+        table_headers = {
+            table.get("id"): table.get("headers")
+            for table in tracking_artifact.get("tables", [])
+            if isinstance(table, dict)
+        }
+        expected_headers = {
+            "tracking.binding": [
+                "Binding", "State", "Mode", "Provider", "Site", "Project",
+                "Issue type", "Sync policy", "Write policy", "Decision",
+                "Last reviewed",
+            ],
+            "tracking.mapping": [
+                "Task", "State", "External ID", "External key", "URL",
+                "Projection fingerprint", "Remote status", "Last synced",
+                "Last operation", "Notes",
+            ],
+            "tracking.operations": [
+                "ID", "State", "Task", "Action", "Preview hash",
+                "Projection fingerprint", "Duplicate check", "Authorized by role", "Authorized on",
+                "External ID", "External key", "Recorded on", "Result", "Notes",
+            ],
+        }
+        if table_headers != expected_headers:
+            errors.append("ART-TRACKING debe conservar exactamente sus tres tablas cerradas.")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("document-contracts.json no expone ART-TRACKING 1.4.")
+
+    try:
         quality_report = json.loads(
             (root / "schemas" / "quality-report.schema.json").read_text(
                 encoding="utf-8"
@@ -958,18 +1131,8 @@ def validate(root: Path) -> list[str]:
         )
         if not is_runtime_script:
             continue
-        imported_roots: set[str] = set()
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                imported_roots.update(
-                    alias.name.split(".", 1)[0] for alias in node.names
-                )
-            elif isinstance(node, ast.ImportFrom) and node.module:
-                imported_roots.add(node.module.split(".", 1)[0])
         relative = script.relative_to(root).as_posix()
-        forbidden = imported_roots.intersection(FORBIDDEN_RUNTIME_IMPORTS).difference(
-            RUNTIME_IMPORT_ALLOWLIST.get(relative, set())
-        )
+        forbidden = _forbidden_runtime_imports(relative, tree)
         if forbidden:
             errors.append(
                 f"Script con import de red o ejecución externa no autorizado {relative}: {sorted(forbidden)}"

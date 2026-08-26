@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.9.1
+# Capacidades y límites de LKS-SDD 0.10.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -12,9 +12,12 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Definir pantallas, flujos, estados e interacción cuando existe frontend.
 - Generar con ImageGen entre una y tres propuestas para un frontend nuevo o cambio visual material cuando el brief sea suficiente y la capacidad esté disponible; conservar validación, estado y activos trazables. Si no está disponible, declarar el fallback y el pendiente.
 - Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización autorizada de una baseline documental, sin tratar el código observado como intención aprobada.
-- Inicializar proyectos nuevos con método 1.3.0 y esquema 1.3, y validar proyectos 1.0/1.1/1.2 en compatibilidad sin reescribirlos.
+- Inicializar proyectos nuevos con método 1.4.0 y esquema 1.4, y validar proyectos 1.0/1.1/1.2/1.3 en compatibilidad sin reescribirlos.
 - Definir y evolucionar `bounded-release`, `continuous-evolution` o `maintenance-stream`, incluyendo SemVer u otra política confirmada, Git/ramas, entornos, CI/CD, promoción inmutable, despliegue, recuperación y revisiones `CHG-###`.
 - Gestionar planes, releases y tareas mediante `PLAN/REL/TASK`, un mapa de cobertura primaria/contribuyente, fichas ejecutables, estados, salud, progreso, dependencias, bloqueos, evidencias e historial.
+- Exigir antes de confirmar el plan una decisión explícita entre tracking `repository-only` y `jira-hybrid`; una migración 1.3 conserva el modo local como propuesta pendiente de confirmación.
+- En modo `jira-hybrid`, conservar los Markdown como contrato autoritativo y proyectar tareas hacia Jira mediante un peer Atlassian Rovo instalado y autenticado por separado, con preflight de lectura, preview determinista, autorización explícita y recibos `SYNC-###`.
+- Bloquear reintentos ambiguos y separar el estado remoto del estado canónico: un issue en `Done` no cierra por sí solo una `TASK-###` local.
 - Distinguir cierre de especificación, soporte de automatización, completitud del plan, readiness de la porción, autorización, implementación, verificación y entrega en el mismo resumen.
 - Detectar alcance, aceptación y pruebas sin tarea, definiciones incompletas, solapamientos primarios, releases incoherentes, ciclos y dependencias canceladas.
 - Persistir `AUTH-###`, `EXEC-###` y `CKPT-###` para iniciar, pausar y reanudar una ejecución sin depender de la conversación.
@@ -25,7 +28,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Distinguir la huella documental completa de la huella del contrato activo, conservando historial sin convertir elementos rechazados, sustituidos o retirados en inputs de implementación.
 - Preparar de forma genérica y collision-safe cada perfil exacto activo de una selección TASK, copiando locks por binding mediante preview y autorización.
 - Verificar gates componibles G2/G3 y evidencia G4 contra commit/árbol/build/digests/entorno exactos, sin desplegar ni autorizar una entrega.
-- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0, 1.0 → 1.1, 1.1 → 1.2 o 1.2 → 1.3 de un solo salto y generar borradores cliente controlados desde información confirmada, con procedencia y aprobación pendiente.
+- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0, 1.0 → 1.1, 1.1 → 1.2, 1.2 → 1.3 o 1.3 → 1.4 de un solo salto y generar borradores cliente controlados desde información confirmada, con procedencia y aprobación pendiente.
 - Ejecutar el harness candidate M4, comparar releases y conservar como `not-run` la evidencia aún no aportada.
 - Generar un bundle candidate de marketplace y preparar un piloto saneado que permanece bloqueado hasta completar su configuración externa.
 
@@ -43,7 +46,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Presentar la infraestructura M5 como un piloto ya ejecutado o una decisión `go` sin resultados reales.
 - Presentar canales opcionales candidate `not-run` o pruebas `skipped` como superados, o promover a stable sin los ocho canales requeridos.
 - Presentar una imagen generada como diseño confirmado, código, prueba de accesibilidad o evidencia semántica/humana ejecutada.
-- Usar MCP, conectores, hooks, apps o agentes.
+- Incorporar o ejecutar directamente MCP, conectores, hooks, apps o agentes dentro del bundle. La interoperabilidad opcional con el peer Rovo no lo convierte en una dependencia embebida ni autoriza acceso remoto.
 - Ejecutar el plugin con soporte garantizado fuera de Codex.
 
 La baseline normativa es candidata. Puede orientar un piloto, pero no debe presentarse como política corporativa, certificación ni aprobación formal.

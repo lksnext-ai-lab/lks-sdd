@@ -21,6 +21,7 @@ from typing import Any, Iterable, Mapping, Sequence
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CATALOG = PLUGIN_ROOT / "schemas" / "document-contracts.json"
 ELEMENT_ID_RE = re.compile(r"^(?P<prefix>[A-Z][A-Z0-9]*)-(?P<number>[0-9]{3})$")
+V14_ONLY_IDENTIFIER_PREFIXES = frozenset({"TRK", "SYNC"})
 ARTIFACT_MARKER_RE = re.compile(r"\bART-[A-Z0-9-]+\b")
 MARKDOWN_IMAGE_RE = re.compile(r"^!\[[^\]]*\]\(([^)]+)\)$")
 EMPTY_REFERENCE_VALUES = {"", "none", "n/a"}
@@ -339,19 +340,21 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
     missing = sorted(required - set(value))
     if missing:
         raise ContractEngineError(f"Catálogo incompleto; faltan {missing}.")
-    if value.get("catalog_version") != "1.3":
+    if value.get("catalog_version") != "1.4":
         raise ContractEngineError(
-            "El catálogo documental debe usar catalog_version 1.3."
+            "El catálogo documental debe usar catalog_version 1.4."
         )
     supported = value.get("supported_project_schemas")
-    if not isinstance(supported, list) or set(supported) != {"1.0", "1.1", "1.2", "1.3"}:
+    if not isinstance(supported, list) or set(supported) != {
+        "1.0", "1.1", "1.2", "1.3", "1.4"
+    }:
         raise ContractEngineError(
-            "El catálogo debe declarar soporte explícito 1.0, 1.1, 1.2 y 1.3."
+            "El catálogo debe declarar soporte explícito 1.0, 1.1, 1.2, 1.3 y 1.4."
         )
     inheritance = value.get("schema_inheritance")
-    if inheritance != {"1.2": "1.1", "1.3": "1.2"}:
+    if inheritance != {"1.2": "1.1", "1.3": "1.2", "1.4": "1.3"}:
         raise ContractEngineError(
-            "schema_inheritance debe declarar 1.2 -> 1.1 y 1.3 -> 1.2."
+            "schema_inheritance debe declarar 1.2 -> 1.1, 1.3 -> 1.2 y 1.4 -> 1.3."
         )
     prefixes = value.get("identifier_prefixes")
     if (
@@ -570,10 +573,13 @@ def load_registry(
             or schema_version in raw_artifact.get("required_schemas", []),
             tables=tuple(tables),
         )
+    identifier_prefixes = set(value["identifier_prefixes"])
+    if schema_version != "1.4":
+        identifier_prefixes -= V14_ONLY_IDENTIFIER_PREFIXES
     return ContractRegistry(
         catalog_version=value["catalog_version"],
         schema_version=schema_version,
-        identifier_prefixes=frozenset(value["identifier_prefixes"]),
+        identifier_prefixes=frozenset(identifier_prefixes),
         max_range_size=int(value["reference_grammar"]["max_range_size"]),
         state_policies=policies,
         artifacts=artifacts,
@@ -1809,7 +1815,7 @@ def _active_payload(
     }
     technology = model.manifest.get("technology")
     if (
-        str(model.manifest.get("schema_version")) in {"1.2", "1.3"}
+        str(model.manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}
         and isinstance(technology, dict)
     ):
         for binding in technology.get("profile_bindings", []):

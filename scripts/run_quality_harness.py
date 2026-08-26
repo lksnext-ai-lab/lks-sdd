@@ -20,11 +20,12 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
-DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.9.0.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.10.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
 DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.6.1.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 PILOT_SUMMARY_SCHEMA_PATH = PLUGIN_ROOT / "schemas" / "pilot-summary.schema.json"
+UNIT_TEST_TIMEOUT_SECONDS = 1800
 ALLOWED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
@@ -326,8 +327,8 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             raise HarnessError(
                 f"{case_id} no puede declarar evidencia antes de su ejecución controlada."
             )
-    if extension_ids != {f"FX-{index:02d}" for index in range(20, 36)}:
-        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-35.")
+    if extension_ids != {f"FX-{index:02d}" for index in range(20, 46)}:
+        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-45.")
     if "definition-conversation" not in channels["candidate"].get("optional", []):
         raise HarnessError(
             "Candidate debe mostrar definition-conversation como evidencia opcional."
@@ -382,6 +383,20 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
     cases = corpus.get("cases")
     if not isinstance(cases, list):
         raise HarnessError("El corpus de definición debe declarar casos.")
+    corpus_version = corpus.get("plugin_version")
+    version_match = re.fullmatch(
+        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)",
+        corpus_version if isinstance(corpus_version, str) else "",
+    )
+    if version_match is None:
+        raise HarnessError("El corpus de definición no declara una versión válida.")
+    expected_ids = {"FX-01", "FX-20", "FX-21"}
+    if tuple(int(part) for part in version_match.groups()[:2]) >= (0, 10):
+        expected_ids.update(
+            case["id"]
+            for case in catalog["extension_cases"]
+            if case.get("mode") in {"semantic", "human"}
+        )
     ids: set[str] = set()
     allowed_dimensions = {
         "premise_control",
@@ -391,6 +406,8 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
         "visual_traceability",
         "human_validation",
         "information_protection",
+        "tracking_authority",
+        "degraded_mode_clarity",
     }
     for case in cases:
         if not isinstance(case, dict):
@@ -399,7 +416,7 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
         if (
             not isinstance(case_id, str)
             or case_id in ids
-            or case_id not in {"FX-01", "FX-20", "FX-21"}
+            or case_id not in expected_ids
         ):
             raise HarnessError(f"Caso de definición inválido o duplicado: {case_id!r}")
         ids.add(case_id)
@@ -414,14 +431,6 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
             raise HarnessError(
                 f"{case_id} contiene dimensiones de revisión desconocidas."
             )
-    expected_ids = {
-        "FX-01",
-        *[
-            case["id"]
-            for case in catalog["extension_cases"]
-            if case.get("mode") in {"semantic", "human"}
-        ],
-    }
     if ids != expected_ids:
         raise HarnessError(
             f"El corpus de definición no coincide con el catálogo: {sorted(ids ^ expected_ids)}"
@@ -1035,7 +1044,7 @@ def run_automated(
             "unit-tests",
             [sys.executable, "-X", "utf8", "tests/run_unit_tests.py"],
             True,
-            600,
+            UNIT_TEST_TIMEOUT_SECONDS,
         ),
         (
             "deterministic-evals",

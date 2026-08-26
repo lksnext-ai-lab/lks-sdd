@@ -1,9 +1,9 @@
 ---
 artifact_id: ART-SOLUTION
 artifact_type: solution-overview
-schema_version: "1.3"
-method_version: "1.3.0"
-created_with_plugin_version: "0.9.1"
+schema_version: "1.4"
+method_version: "1.4.0"
+created_with_plugin_version: "0.10.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -30,4 +30,4 @@ No se selecciona la pila preferente durante la inicialización.
 | ID | State | Decision | Requirements | Impact |
 |---|---|---|---|---|
 
-Una propuesta solo pasa a `decision` tras confirmación explícita.
+Una propuesta solo pasa a `confirmed` tras confirmación explícita.

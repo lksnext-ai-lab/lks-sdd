@@ -1,6 +1,6 @@
 interface:
   display_name: "LKS-SDD · Adoptar existente con Codex"
-  short_description: "Adopta sistemas existentes al contrato SDD 1.3"
-  default_prompt: "Usa $lks-sdd-adopt-existing para inspeccionar y adoptar este sistema en LKS-SDD 1.3 sin cambiar código ni inferir cobertura o decisiones."
+  short_description: "Adopta sistemas existentes al contrato SDD 1.4"
+  default_prompt: "Usa $lks-sdd-adopt-existing para inspeccionar y adoptar este sistema en LKS-SDD 1.4 sin cambiar código ni inferir cobertura o decisiones."
 policy:
   allow_implicit_invocation: true

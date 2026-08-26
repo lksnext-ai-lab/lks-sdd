@@ -162,6 +162,23 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
             },
         }
     )
+    if manifest.get("schema_version") == "1.4":
+        manifest["task_tracking"].update(
+            {
+                "state": "confirmed",
+                "mode": "repository-only",
+                "provider": None,
+                "decision": "ADR-900",
+                "site": None,
+                "project_key": None,
+                "issue_type": None,
+                "sync_policy": "not-required",
+                "write_policy": "local-only",
+                "projection_fingerprint": None,
+                "sync_status": "not-required",
+                "last_sync_on": None,
+            }
+        )
     manifest["technology"] = {
         "preferred_stack_assessed": True,
         "selected_profile": "API-FASTAPI-STATELESS-OCI",
@@ -184,6 +201,14 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
         encoding="utf-8",
         newline="\n",
     )
+
+    if manifest.get("schema_version") == "1.4":
+        tracking_path = docs / "04-delivery" / "task-tracking.md"
+        _replace_row(
+            tracking_path,
+            "TRK-001",
+            "| TRK-001 | confirmed | repository-only | none | not-applicable | not-applicable | not-applicable | not-required | local-only | ADR-900 | 2026-08-19 |",
+        )
 
     open_points = docs / "00-control" / "open-points.md"
     lines = [
@@ -212,6 +237,11 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
         docs / "03-solution" / "solution-overview.md",
         "| ID | State | Decision",
         "| ADR-002 | confirmed | Use continuous evolution, SemVer, immutable promotion and automated recovery for the synthetic fixture; version control is not applicable. | FR-001 | Governs CHG-001, PLAN-001 and ENV-001 |",
+    )
+    _append_row(
+        docs / "03-solution" / "solution-overview.md",
+        "| ID | State | Decision",
+        "| ADR-900 | confirmed | Select repository-only task tracking mode. |  | Governs TRK-001 and requires no external tracker |",
     )
     _append_row(
         docs / "04-delivery" / "increments.md",
@@ -466,7 +496,7 @@ def run_new_project(root: Path) -> dict[str, Any]:
         [
             before == after_dry_run,
             dry_run["changed"] is False,
-            len(created["created"]) == 22,
+            len(created["created"]) == 23,
             resumed["would_change"] is False,
             validation["valid"] is True,
             ready["status"] == "ready-for-implementation-authorization",

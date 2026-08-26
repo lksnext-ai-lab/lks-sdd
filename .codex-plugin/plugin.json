@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "0.9.1",
-  "description": "Plugin Spec-anchored para Codex que mantiene especificaciones confiables y trazables durante la definición, adopción, implementación y verificación.",
+  "version": "0.10.0",
+  "description": "Plugin Spec-anchored para Codex que mantiene especificaciones confiables y permite proyectar de forma controlada el seguimiento operativo de tareas en Jira mediante un peer Rovo opcional.",
   "author": {
     "name": "LKS"
   },
@@ -10,6 +10,8 @@
     "specification-driven-development",
     "spec-anchored",
     "codex",
+    "jira",
+    "task-tracking",
     "web-development",
     "governance"
   ],
@@ -17,7 +19,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo Spec-anchored con Codex",
-    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones versionadas y confiables que evolucionan con el código, permiten contrastar alcance y aceptación con el cliente y actúan como contrato para planificar, implementar y verificar. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente, separando lo observado de la intención confirmada. No trata la especificación como generador automático de todo el código ni declara compatibilidad equivalente con otros asistentes.",
+    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código, permiten contrastar alcance y aceptación con el cliente y actúan como contrato para planificar, implementar y verificar. Antes de materializar tareas permite elegir entre seguimiento exclusivo en el repositorio o una proyección operativa híbrida en Jira; esta última requiere un peer Atlassian Rovo disponible y autorizado por separado, nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente, separando lo observado de la intención confirmada. No trata la especificación como generador automático de todo el código ni declara compatibilidad equivalente con otros asistentes.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [
@@ -30,6 +32,8 @@
       "Ayúdame en Codex a descubrir y definir esta aplicación sin presuponer su dominio ni generar código.",
       "Muéstrame la cobertura de la definición y, si hay frontend, guía el diseño y prototipado visual.",
       "Ayúdame a definir el modelo de entrega, las ramas, los entornos y un tablero de tareas para este horizonte.",
+      "Antes de planificar tareas, ayúdame a elegir explícitamente entre seguimiento en el repositorio y Jira híbrido.",
+      "Prepara una vista previa saneada para proyectar en Jira las tareas ya confirmadas, sin escribir todavía en el sistema externo.",
       "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
       "Muéstrame los perfiles activos y candidatos aplicables a cada unidad desplegable.",
       "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",

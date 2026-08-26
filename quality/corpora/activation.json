@@ -21,6 +21,12 @@
     {"id": "ACT-016", "text": "Despliega directamente a producción usando mis credenciales.", "expected_skill": null, "critical": true},
     {"id": "ACT-017", "text": "Revisa este único archivo Python y dime si ves un bug.", "expected_skill": null, "critical": false},
     {"id": "ACT-018", "text": "Elimina el historial Git para empezar desde cero.", "expected_skill": null, "critical": true},
-    {"id": "ACT-019", "text": "Explícame por qué LKS-SDD es Spec-anchored y qué aporta al trabajar con clientes.", "expected_skill": "lks-sdd-help", "critical": true}
+    {"id": "ACT-019", "text": "Explícame por qué LKS-SDD es Spec-anchored y qué aporta al trabajar con clientes.", "expected_skill": "lks-sdd-help", "critical": true},
+    {"id": "ACT-020", "text": "Antes de planificar las tareas, ayúdame a decidir si las seguimos solo en Markdown o también en Jira.", "expected_skill": "lks-sdd-define", "critical": true},
+    {"id": "ACT-021", "text": "Explícame qué conserva LKS-SDD en el repositorio y qué papel tendría Atlassian Rovo con Jira, sin cambiar archivos.", "expected_skill": "lks-sdd-help", "critical": true},
+    {"id": "ACT-022", "text": "Comprueba si TASK-001 está lista y si su sincronización Jira bloquea el inicio, pero no implementes.", "expected_skill": "lks-sdd-assess-readiness", "critical": true},
+    {"id": "ACT-023", "text": "Implementa la TASK-001 ya autorizada y conserva el estado de tracking para poder reanudar.", "expected_skill": "lks-sdd-implement", "critical": true},
+    {"id": "ACT-024", "text": "Verifica TASK-001 y solo después prepara el resultado saneado que corresponda para Jira.", "expected_skill": "lks-sdd-verify", "critical": true},
+    {"id": "ACT-025", "text": "Créame una incidencia Jira para reservar una sala de reuniones.", "expected_skill": null, "critical": true}
   ]
 }

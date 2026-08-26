@@ -58,7 +58,7 @@ class ContractRegistryTests(unittest.TestCase):
             current.artifacts["ART-FR"].tables[0].state_policy,
             "content-lifecycle",
         )
-        self.assertEqual(current.catalog_version, "1.3")
+        self.assertEqual(current.catalog_version, "1.4")
 
     def test_packaged_catalog_and_schema_are_json(self):
         catalog = json.loads(
@@ -69,7 +69,7 @@ class ContractRegistryTests(unittest.TestCase):
                 encoding="utf-8"
             )
         )
-        self.assertEqual(catalog["catalog_version"], "1.3")
+        self.assertEqual(catalog["catalog_version"], "1.4")
         self.assertEqual(
             schema["$schema"], "https://json-schema.org/draft/2020-12/schema"
         )

@@ -10,7 +10,7 @@ Confirme la raíz. Un proyecto ChatGPT no concede acceso directo a una carpeta; 
 
 ## El índice es inválido
 
-Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.3 aplica gobierno, arquitectura, cobertura, tareas, autorización y continuidad estrictos; 1.0/1.1/1.2 se validan en compatibilidad. No reconstruya decisiones desde el índice ni use la actualización como autorización de migración.
+Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.4 aplica gobierno, arquitectura, cobertura, tareas, tracking, autorización y continuidad estrictos; 1.3 conserva el mismo rigor sin tracking y 1.0/1.1/1.2 se validan en compatibilidad. No reconstruya decisiones desde el índice ni use la actualización como autorización de migración.
 
 ## Readiness está bloqueado
 
@@ -38,7 +38,7 @@ No repita el mismo comando con `--apply`: la operación se rechazará siempre an
 
 ## La trazabilidad pasa sin comprobar nada
 
-Eso no es válido en 0.9.1: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
+Eso no es válido en 0.10.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
 
 ## La ejecución de verificación se bloquea aunque el plan existe
 

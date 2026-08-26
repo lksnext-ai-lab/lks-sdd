@@ -1,7 +1,7 @@
 {
-  "catalog_version": "1.3",
-  "supported_project_schemas": ["1.0", "1.1", "1.2", "1.3"],
-  "schema_inheritance": {"1.2": "1.1", "1.3": "1.2"},
+  "catalog_version": "1.4",
+  "supported_project_schemas": ["1.0", "1.1", "1.2", "1.3", "1.4"],
+  "schema_inheritance": {"1.2": "1.1", "1.3": "1.2", "1.4": "1.3"},
   "identifier_prefixes": [
     "OBJ",
     "STK",
@@ -36,7 +36,9 @@
     "PCH",
     "CKPT",
     "AUTH",
-    "EXEC"
+    "EXEC",
+    "TRK",
+    "SYNC"
   ],
   "reference_grammar": {
     "canonical_range": "..",
@@ -127,6 +129,27 @@
       "active": ["confirmed"],
       "pending": ["proposed"],
       "inactive": ["superseded", "retired"],
+      "legacy_classes": {}
+    },
+    "tracking-binding-lifecycle": {
+      "allowed": ["proposed", "confirmed"],
+      "active": ["confirmed"],
+      "pending": ["proposed"],
+      "inactive": [],
+      "legacy_classes": {}
+    },
+    "tracking-mapping-lifecycle": {
+      "allowed": ["unlinked", "pending", "synced", "out-of-sync", "conflict", "failed", "reconciliation-required"],
+      "active": ["synced"],
+      "pending": ["unlinked", "pending", "out-of-sync", "failed", "reconciliation-required"],
+      "inactive": ["conflict"],
+      "legacy_classes": {}
+    },
+    "tracking-operation-lifecycle": {
+      "allowed": ["authorized", "recorded", "failed", "conflict", "reconciliation-required"],
+      "active": ["recorded"],
+      "pending": ["authorized", "failed", "reconciliation-required"],
+      "inactive": ["conflict"],
       "legacy_classes": {}
     },
     "epistemic-adoption": {
@@ -757,6 +780,50 @@
             "Affected contract": {"targets": ["FR", "NFR", "TR", "BR", "AC", "TEST", "CON", "ADR", "INT", "DATA", "SEC", "PRIV", "UX", "VIS", "RISK", "DEP"], "min": 1, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
             "Affected tasks": {"targets": ["TASK"], "min": 1, "max": null, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
             "Decision": {"targets": ["ADR"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []}
+          }
+        }
+      ]
+    },
+    "ART-TRACKING": {
+      "artifact_type": "task-tracking",
+      "path": "docs/lks-sdd/04-delivery/task-tracking.md",
+      "required": false,
+      "required_schemas": ["1.4"],
+      "tables": [
+        {
+          "id": "tracking.binding",
+          "schemas": ["1.4"],
+          "headers": ["Binding", "State", "Mode", "Provider", "Site", "Project", "Issue type", "Sync policy", "Write policy", "Decision", "Last reviewed"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "Binding", "prefixes": ["TRK"]},
+          "state": {"column": "State", "policy": "tracking-binding-lifecycle"},
+          "relations": {
+            "Decision": {"targets": ["ADR"], "min": 0, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]}
+          }
+        },
+        {
+          "id": "tracking.mapping",
+          "schemas": ["1.4"],
+          "headers": ["Task", "State", "External ID", "External key", "URL", "Projection fingerprint", "Remote status", "Last synced", "Last operation", "Notes"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {"column": "State", "policy": "tracking-mapping-lifecycle"},
+          "relations": {
+            "Task": {"targets": ["TASK"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []},
+            "Last operation": {"targets": ["SYNC"], "min": 0, "max": 1, "active_input": false, "require_defined": true, "allow_empty": true, "allow_applicability": ["pending", "not-applicable"]}
+          }
+        },
+        {
+          "id": "tracking.operations",
+          "schemas": ["1.4"],
+          "headers": ["ID", "State", "Task", "Action", "Preview hash", "Projection fingerprint", "Duplicate check", "Authorized by role", "Authorized on", "External ID", "External key", "Recorded on", "Result", "Notes"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["SYNC"]},
+          "state": {"column": "State", "policy": "tracking-operation-lifecycle"},
+          "relations": {
+            "Task": {"targets": ["TASK"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []}
           }
         }
       ]

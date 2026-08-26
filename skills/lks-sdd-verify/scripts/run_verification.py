@@ -770,7 +770,7 @@ def _run_v12(
     implementation = projected_implementation
     selected_execution: dict[str, Any] | None = None
     requested_tasks = list(dict.fromkeys(args.task or []))
-    if manifest.get("schema_version") == "1.3":
+    if manifest.get("schema_version") in {"1.3", "1.4"}:
         executions = [
             item
             for item in manifest.get("executions", [])
@@ -854,7 +854,7 @@ def _run_v12(
             task_ids = requested_tasks
     planning_state: dict[str, Any] | None = None
     authorization_state: dict[str, Any] | None = None
-    if manifest.get("schema_version") == "1.3":
+    if manifest.get("schema_version") in {"1.3", "1.4"}:
         planning_state = assess_planning(root, manifest, args.increment)
         authorization_state = assess_authorization(
             manifest, planning_state, task_ids
@@ -1289,7 +1289,7 @@ def _run_v12(
         "evidence_ids": [args.record_evidence],
         "limitations": limitations,
     }
-    if manifest.get("schema_version") == "1.3":
+    if manifest.get("schema_version") in {"1.3", "1.4"}:
         for execution in manifest_new.get("executions", []):
             if not isinstance(execution, dict):
                 continue
@@ -1436,7 +1436,7 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     if manifest is None:
         blockers.append("Falta el índice LKS-SDD.")
         manifest = {}
-    if manifest.get("schema_version") in {"1.2", "1.3"}:
+    if manifest.get("schema_version") in {"1.2", "1.3", "1.4"}:
         return _run_v12(
             args, root, report, manifest, definitions
         )

@@ -117,7 +117,7 @@ def _binding_contracts(
     delivery: dict[str, Any],
 ) -> list[dict[str, Any]]:
     technology = manifest.get("technology", {})
-    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
+    if str(manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}:
         by_id = {
             item.get("binding_id"): item
             for item in technology.get("profile_bindings", [])
@@ -641,7 +641,7 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         root, args.increment, task_ids=requested_tasks or None
     )
     blockers = list(readiness.get("blockers", []))
-    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
+    if str(manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}:
         delivery = delivery_readiness(
             root,
             manifest,
@@ -661,9 +661,9 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     authorization = assess_authorization(
         manifest, planning, delivery.get("task_ids", [])
     )
-    if str(manifest.get("schema_version")) != "1.3":
+    if str(manifest.get("schema_version")) not in {"1.3", "1.4"}:
         blockers.append(
-            "La implementación nueva requiere migrar a schema 1.3 para registrar cobertura, autorización y checkpoint."
+            "La implementación nueva requiere migrar a schema 1.3 o 1.4 para registrar cobertura, autorización y checkpoint."
         )
     elif planning.get("status") != "complete" and not planning.get(
         "partial_implementation_policy_satisfied"
@@ -891,15 +891,15 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     manifest["phase"] = "implementation"
     manifest["gate"] = "G3"
     manifest["active_increment"] = args.increment
-    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
+    if str(manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}:
         active_task_ids = set(task_ids)
-        if str(manifest.get("schema_version")) == "1.3":
+        if str(manifest.get("schema_version")) in {"1.3", "1.4"}:
             active_task_ids.update(manifest.get("active_tasks", []))
             manifest["active_tasks"] = sorted(active_task_ids)
         manifest["active_task"] = (
             next(iter(active_task_ids)) if len(active_task_ids) == 1 else None
         )
-        if str(manifest.get("schema_version")) == "1.3":
+        if str(manifest.get("schema_version")) in {"1.3", "1.4"}:
             changed_paths = [
                 path.relative_to(root).as_posix() for path, _ in planned
             ] + [

@@ -29,6 +29,7 @@ from validate_project import (  # noqa: E402
 from profile_registry import resolve_profile  # noqa: E402
 from delivery_engine import delivery_readiness, validate_delivery_contract  # noqa: E402
 from planning_engine import assess_authorization, assess_planning, next_tasks  # noqa: E402
+from task_tracking_engine import assess_tracking  # noqa: E402
 from contract_engine import (  # noqa: E402
     RelationSpec,
     build_project_model,
@@ -122,7 +123,7 @@ def _assess_domains(
     increment: dict[str, str],
     result: dict[str, Any],
 ) -> None:
-    if manifest.get("schema_version") not in {"1.1", "1.2", "1.3"}:
+    if manifest.get("schema_version") not in {"1.1", "1.2", "1.3", "1.4"}:
         _domain_references(result, increment, definitions, "Data", "datos", {"DATA"})
         _domain_references(
             result,
@@ -501,9 +502,11 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
     }
     automation = result.get("automation_support", {})
     automation_blockers = list(dict.fromkeys(automation.get("blockers", [])))
+    tracking = result.get("task_tracking", {})
+    tracking_blockers = list(dict.fromkeys(tracking.get("blockers", [])))
     combined = specification_blockers + [
         f"Soporte de automatización: {item}" for item in automation_blockers
-    ]
+    ] + [f"Tracking operativo: {item}" for item in tracking_blockers]
     result["blockers"] = list(dict.fromkeys(combined))
     result["non_blocking_pending"] = pending
     delivery = result.get("delivery_readiness", {})
@@ -519,6 +522,7 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
         "planning_completeness": planning.get("status", "not-assessed"),
         "planning_integrity": planning.get("integrity", "not-assessed"),
         "selected_portion": delivery.get("status", "not-assessed"),
+        "task_tracking": tracking.get("status", "not-assessed"),
         "implementation": implementation,
         "verification": verification,
         "delivery": delivery_state,
@@ -529,6 +533,13 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
     elif automation_blockers:
         action = "automation-blocked"
         recommendation = "Resolver el soporte de automatización o cambiar una decisión técnica confirmada."
+    elif tracking.get("status") in {"decision-required", "invalid"}:
+        action = "tracking-decision-required" if tracking.get("status") == "decision-required" else "tracking-blocked"
+        recommendation = (
+            "Elegir y confirmar si las tareas se gestionarán solo en el repositorio o también en Jira."
+            if action == "tracking-decision-required"
+            else "Corregir el contrato de tracking operativo antes de continuar."
+        )
     elif planning.get("integrity") == "invalid":
         action = "replanning-required"
         recommendation = "Corregir incoherencias de cobertura o dependencias antes de implementar."
@@ -543,6 +554,17 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
     elif delivery.get("status") != "ready":
         action = "selected-portion-blocked"
         recommendation = "Seleccionar o completar una tarea ready con todas sus dependencias done."
+    elif tracking.get("status") not in {"not-assessed", "not-applicable", "not-required", "in-sync"}:
+        action = (
+            "tracking-reconciliation-required"
+            if tracking.get("status") == "reconciliation-required"
+            else "tracking-sync-required"
+        )
+        recommendation = (
+            "Reconciliar el resultado Jira incierto antes de reintentar cualquier creación."
+            if action == "tracking-reconciliation-required"
+            else "Previsualizar y, tras autorización separada, sincronizar en Jira las tareas seleccionadas."
+        )
     elif authorization.get("status") != "authorized":
         action = "ready-for-implementation-authorization"
         recommendation = "Revisar el plan y registrar una autorización humana delimitada por tareas y fingerprints."
@@ -557,6 +579,10 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
         if action == "planning-required"
         else "Autorizar o no la implementación de la porción indicada."
         if action == "ready-for-implementation-authorization"
+        else "Elegir el modo de tracking operativo y registrar la decisión."
+        if action == "tracking-decision-required"
+        else "Autorizar o no el preview Jira exacto; la autorización de implementación sigue separada."
+        if action == "tracking-sync-required"
         else "Resolver la reconciliación o replanificación propuesta."
         if action in {"reconciliation-required", "replanning-required"}
         else "Ninguna decisión humana nueva; conservar los límites de la autorización vigente."
@@ -572,6 +598,7 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
         "blocked": list(dict.fromkeys(
             specification_blockers
             + automation_blockers
+            + tracking_blockers
             + delivery.get("blockers", [])
             + planning.get("integrity_errors", [])
         )),
@@ -697,7 +724,7 @@ def assess(
         "active_tasks": list(manifest.get("active_tasks", [])) if isinstance(manifest.get("active_tasks", []), list) else [],
     }
 
-    if str(manifest.get("schema_version")) in {"1.2", "1.3"}:
+    if str(manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}:
         delivery = delivery_readiness(
             root, manifest, increment_id, task_ids=task_ids
         )
@@ -708,6 +735,9 @@ def assess(
         result["planning_completeness"] = planning
         result["implementation_authorization"] = assess_authorization(
             manifest, planning, delivery.get("task_ids", [])
+        )
+        result["task_tracking"] = assess_tracking(
+            root, manifest, delivery.get("task_ids", [])
         )
         delivery_contract = validate_delivery_contract(root, manifest)
         result["next_tasks"] = next_tasks(delivery_contract, planning)
@@ -790,7 +820,7 @@ def assess(
             "integrity": "not-assessed",
             "gaps": [{
                 "kind": "migration-required",
-                "items": ["schema 1.2 or 1.3"],
+                "items": ["schema 1.2, 1.3 or 1.4"],
                 "explanation": "La completitud de planificación requiere migrar el contrato de entrega.",
             }],
             "integrity_errors": [],
@@ -895,7 +925,7 @@ def assess(
     _assess_domains(
         root, manifest, definitions, increment_id, increment, result
     )
-    if manifest.get("schema_version") in {"1.1", "1.2", "1.3"}:
+    if manifest.get("schema_version") in {"1.1", "1.2", "1.3", "1.4"}:
         domain_body = _load_artifact_body(root, manifest, "ART-INCREMENTS")
         domain_rows = table_rows_for_headers(
             parse_markdown_table_blocks(domain_body), DOMAIN_CONTRACT_HEADERS

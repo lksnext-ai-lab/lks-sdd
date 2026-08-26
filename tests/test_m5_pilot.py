@@ -70,8 +70,8 @@ def _valid_config() -> dict:
             "security_url": "https://security.example.invalid/lks-sdd",
         },
         "rollback": {
-            "previous_version": "0.9.0",
-            "candidate_version": "0.9.1",
+            "previous_version": "0.9.1",
+            "candidate_version": "0.10.0",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },

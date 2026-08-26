@@ -19,8 +19,8 @@ El repositorio fija `eol=lf` para todo texto mediante `.gitattributes` y excluye
 El reporte publicable se genera desde un checkout dedicado, recién creado y sin archivos no versionados preexistentes, incluidos los ignorados. Desde la raíz del repositorio principal, una vez integrado y revisado el commit de release:
 
 ```powershell
-$releaseVersion = "0.9.1"
-$releaseDate = "2026-08-23"
+$releaseVersion = "0.10.0"
+$releaseDate = "2026-08-26"
 $sourceCommit = (git rev-parse HEAD).Trim()
 $artifactBase = Join-Path ([System.IO.Path]::GetTempPath()) "lks-sdd-$releaseVersion"
 $qualityReport = "$artifactBase-quality.json"
@@ -74,6 +74,8 @@ Publicar el ZIP de marketplace como asset de GitHub no actualiza una instalació
 3. Consultar `codex plugin marketplace --help` en la versión instalada. El CLI 0.125.0 comprobado para esta release admite `add`, `upgrade` y `remove`; no ofrece subcomandos CLI de instalación, reinstalación, activación o desactivación del plugin.
 4. Para un marketplace ya configurado, actualizar su fuente de forma controlada y ejecutar, si la versión instalada lo soporta, `codex plugin marketplace upgrade lks-sdd-development`. Para un alta inicial, usar `codex plugin marketplace add "RUTA_MARKETPLACE"` y completar la activación en la superficie de Codex disponible.
 5. Confirmar que Codex resuelve la nueva versión, reiniciar la aplicación y abrir una tarea nueva para cargar sus metadatos y skills.
+
+El bundle 0.10.0 continúa siendo `skills-only` y no instala Atlassian Rovo. Para usar `jira-hybrid`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. Esa preparación no forma parte del builder, no se expresa como dependencia dura del manifiesto y no puede darse por superada mediante un test sintético. Sin Rovo, `repository-only` sigue disponible y el modo híbrido informa estado degradado sin simular escrituras.
 
 No edite manualmente la caché como mecanismo de actualización. La instalación o activación modifica el entorno Codex del participante, no se automatiza desde este repositorio y requiere autorización separada de la publicación técnica.
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0 — 2026-08-26 — tracking operativo opcional con Jira y Rovo
+
+- Añade el contrato candidate de tracking operativo 1.4 sin modificar las siete fuentes canónicas vigentes: los Markdown del proyecto consumidor siguen siendo la autoridad semántica y `.lks-sdd/project.json` continúa como índice.
+- Pregunta, antes de materializar la planificación de tareas, si el proyecto usará `repository-only` o `jira-hybrid`; no incorpora un modo Jira-only ni convierte una integración externa en fuente de verdad alternativa.
+- Incorpora `ART-TRACKING`, registros `TRK-###` y operaciones `SYNC-###` para separar decisión de backend, políticas cerradas, bindings externos, vistas previas, recibos y reconciliación de la planificación canónica.
+- Mantiene las seis skills y el manifiesto `skills-only`. Atlassian Rovo es un peer opcional, instalado y autorizado por separado; el bundle no contiene MCP, cliente Jira, credenciales, hooks, apps ni agentes ejecutables.
+- Hace fail-closed las escrituras remotas: una vista previa local no acredita ejecución externa, un resultado incierto no permite reintento ciego y `Done` en Jira nunca autoriza, verifica ni cierra una `TASK-###`.
+- Conserva compatibilidad de lectura y validación con 1.0–1.3. La migración 1.3 → 1.4 es explícita, reversible y no crea issues, no inventa decisiones humanas y mantiene congelado el contrato histórico 1.2 → 1.3 en plugin 0.9.1/método 1.3.0.
+- Amplía corpus, casos de calidad y cobertura contractual para selección de modo, prevención de duplicados mediante correlación/recibos, degradación, privacidad, conflictos y conservación de autoridad. Las conversaciones humanas y la interoperabilidad real Rovo/Jira permanecen `not-run` en esta candidate.
+- Actualiza manifiesto, ayuda de distribución, piloto bloqueado y notas de release a 0.10.0 sin publicar, instalar, activar ni promover el plugin a `stable`.
+
 ## 0.9.1 — 2026-08-23 — posicionamiento Spec-anchored
 
 - Explicita LKS-SDD como metodología Spec-anchored: la especificación permanece como contrato vivo, versionado y confiable durante definición, planificación, implementación y verificación.

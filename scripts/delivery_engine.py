@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and summarize the LKS-SDD 1.2/1.3 delivery and task contract."""
+"""Validate and summarize the LKS-SDD 1.2/1.3/1.4 delivery contract."""
 
 from __future__ import annotations
 
@@ -412,7 +412,7 @@ def _validate_task_detail(
             resolved[name] = []
         else:
             resolved[name] = matches[0]
-    if schema_version == "1.3":
+    if schema_version in {"1.3", "1.4"}:
         for name, headers in TASK_DETAIL_HEADERS_V13.items():
             matches = [rows for actual, rows in tables if actual == headers]
             if len(matches) != 1:
@@ -470,10 +470,10 @@ def _validate_task_detail(
                 + ", ".join(missing)
                 + "."
             )
-            (execution_blockers if schema_version == "1.3" else errors).append(
+            (execution_blockers if schema_version in {"1.3", "1.4"} else errors).append(
                 message
             )
-    if schema_version == "1.3":
+    if schema_version in {"1.3", "1.4"}:
         plan_rows = resolved.get("plan", [])
         continuity_rows = resolved.get("continuity", [])
         if len(plan_rows) != 1:
@@ -587,7 +587,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     """Validate delivery governance, plans, releases, tasks and task details."""
 
     schema_version = str(manifest.get("schema_version"))
-    if schema_version not in {"1.2", "1.3"}:
+    if schema_version not in {"1.2", "1.3", "1.4"}:
         return {
             "errors": [],
             "warnings": [],
@@ -798,7 +798,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
                     f"{task_id}: no puede estar ready mientras {dependency} no esté done."
                 )
 
-    if schema_version == "1.3":
+    if schema_version in {"1.3", "1.4"}:
         indexed_active = set(manifest.get("active_tasks", []))
         observed_active = {
             task_id
@@ -918,12 +918,12 @@ def delivery_readiness(
     result = validate_delivery_contract(root, manifest)
     blockers = list(result["errors"])
     warnings = list(result["warnings"])
-    if str(manifest.get("schema_version")) not in {"1.2", "1.3"}:
+    if str(manifest.get("schema_version")) not in {"1.2", "1.3", "1.4"}:
         return {
             "status": "not-applicable",
             "blockers": [],
             "warnings": [
-                "El contrato PLAN/TASK y el gobierno de entrega requieren schema 1.2 o 1.3."
+                "El contrato PLAN/TASK y el gobierno de entrega requieren schema 1.2, 1.3 o 1.4."
             ],
             "task_ids": [],
             "binding_ids": [],

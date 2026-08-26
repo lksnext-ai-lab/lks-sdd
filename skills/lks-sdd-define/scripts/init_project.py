@@ -11,9 +11,9 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "0.9.1"
-METHOD_VERSION = "1.3.0"
-SCHEMA_VERSION = "1.3"
+PLUGIN_VERSION = "0.10.0"
+METHOD_VERSION = "1.4.0"
+SCHEMA_VERSION = "1.4"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 CODE_EXTENSIONS = {
@@ -72,6 +72,7 @@ ARTIFACTS = [
     ("ART-PLANS", "04-delivery/plans.md"),
     ("ART-TASKS", "04-delivery/tasks.md"),
     ("ART-PLANNING", "04-delivery/planning-coverage.md"),
+    ("ART-TRACKING", "04-delivery/task-tracking.md"),
     ("ART-RISK", "04-delivery/risks-dependencies.md"),
     ("ART-QUALITY", "05-quality/quality-strategy.md"),
     ("ART-TEST-STRATEGY", "05-quality/test-strategy.md"),
@@ -225,6 +226,22 @@ def build_manifest(
             "confirmed_by_role": None,
             "confirmed_on": None,
             "last_change": None,
+        },
+        "task_tracking": {
+            "source": "docs/lks-sdd/04-delivery/task-tracking.md",
+            "binding_id": "TRK-001",
+            "state": "proposed",
+            "mode": "pending",
+            "provider": None,
+            "decision": None,
+            "site": None,
+            "project_key": None,
+            "issue_type": None,
+            "sync_policy": "pending",
+            "write_policy": "pending",
+            "projection_fingerprint": None,
+            "sync_status": "decision-required",
+            "last_sync_on": None,
         },
         "authorizations": [],
         "executions": [],

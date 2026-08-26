@@ -119,7 +119,7 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
     )
     for key in (
         "active_plan", "active_task", "active_tasks", "delivery_governance",
-        "planning", "authorizations", "executions",
+        "planning", "task_tracking", "authorizations", "executions",
     ):
         manifest.pop(key, None)
     manifest["technology"].pop("profile_bindings", None)
@@ -135,6 +135,7 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
         "ART-TEST-STRATEGY",
         "ART-DEPLOYMENT",
         "ART-PLANNING",
+        "ART-TRACKING",
     }
     manifest["artifacts"] = [
         item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -147,10 +148,10 @@ def _downgrade_initialized_project_to_11(root: Path) -> None:
     for artifact in manifest["artifacts"]:
         path = root / artifact["path"]
         text = path.read_text(encoding="utf-8")
-        text = text.replace('schema_version: "1.3"', 'schema_version: "1.1"', 1)
-        text = text.replace('method_version: "1.3.0"', 'method_version: "1.1.0"', 1)
+        text = text.replace('schema_version: "1.4"', 'schema_version: "1.1"', 1)
+        text = text.replace('method_version: "1.4.0"', 'method_version: "1.1.0"', 1)
         text = text.replace(
-            'created_with_plugin_version: "0.9.1"',
+            'created_with_plugin_version: "0.10.0"',
             'created_with_plugin_version: "0.7.0"',
             1,
         )
@@ -186,11 +187,11 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
         )
         if manifest.get("schema_version") == "1.1":
             rendered = rendered.replace(
-                'schema_version: "1.3"', 'schema_version: "1.1"', 1
+                'schema_version: "1.4"', 'schema_version: "1.1"', 1
             ).replace(
-                'method_version: "1.3.0"', 'method_version: "1.1.0"', 1
+                'method_version: "1.4.0"', 'method_version: "1.1.0"', 1
             ).replace(
-                'created_with_plugin_version: "0.9.1"',
+                'created_with_plugin_version: "0.10.0"',
                 'created_with_plugin_version: "0.7.0"',
                 1,
             )

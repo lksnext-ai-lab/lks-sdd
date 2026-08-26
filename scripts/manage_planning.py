@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assess, confirm and authorize LKS-SDD 1.3 implementation planning."""
+"""Assess, confirm and authorize LKS-SDD 1.3/1.4 implementation planning."""
 
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ from planning_engine import (
     next_tasks,
 )
 from validate_project import validate_project
+from task_tracking_engine import assess_tracking
 
 
 class PlanningCommandError(ValueError):
@@ -36,8 +37,10 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise PlanningCommandError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") != "1.3":
-        raise PlanningCommandError("La gestión integral de planificación requiere schema 1.3.")
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4"}:
+        raise PlanningCommandError(
+            "La gestión integral de planificación requiere schema 1.3 o 1.4."
+        )
     return path, value, original
 
 
@@ -166,6 +169,24 @@ def _apply_atomic(paths: list[Path], originals: list[bytes], replacements: list[
 def _confirm(
     root: Path, manifest: dict[str, Any], args: argparse.Namespace
 ) -> tuple[Path, bytes, bytes, dict[str, Any], dict[str, Any]]:
+    if manifest.get("schema_version") == "1.4":
+        from task_tracking_engine import validate_tracking_contract
+
+        tracking = validate_tracking_contract(root, manifest)
+        if tracking.get("mode") == "pending":
+            raise PlanningCommandError(
+                "Antes de confirmar la planificación debe elegir repository-only o jira-hybrid."
+            )
+        if tracking.get("errors"):
+            raise PlanningCommandError(
+                "El contrato de tracking debe ser válido antes de confirmar la "
+                "planificación: " + "; ".join(tracking["errors"])
+            )
+        if tracking.get("binding", {}).get("State") != "confirmed":
+            raise PlanningCommandError(
+                "Antes de confirmar la planificación debe confirmar explícitamente "
+                "repository-only o jira-hybrid mediante una decisión ADR."
+            )
     planning = assess_planning(root, manifest, args.increment, release=args.release)
     remaining = [gap for gap in planning["gaps"] if gap.get("kind") != "human-confirmation"]
     incremental = planning.get("policy") == "incremental-authorized"
@@ -240,6 +261,24 @@ def _confirm(
             default=manifest_new["planning"].get("last_change"),
         ),
     })
+    tracking_invalidated = False
+    if manifest.get("schema_version") == "1.4":
+        previous_planning = manifest.get("planning", {})
+        fingerprints_changed = (
+            previous_planning.get("specification_fingerprint")
+            != planning["specification_fingerprint"]
+            or previous_planning.get("planning_fingerprint")
+            != planning["planning_fingerprint"]
+        )
+        tracking_index = manifest_new.get("task_tracking", {})
+        if (
+            fingerprints_changed
+            and tracking_index.get("mode") == "jira-hybrid"
+            and tracking_index.get("sync_status") == "in-sync"
+        ):
+            tracking_index["projection_fingerprint"] = None
+            tracking_index["sync_status"] = "out-of-sync"
+            tracking_invalidated = True
     payload = {
         "operation": "confirm-planning", "target": target_id,
         "actor_role": _safe_cell("--actor-role", args.actor_role),
@@ -248,6 +287,7 @@ def _confirm(
         "planning_status": "partial" if remaining else "complete",
         "specification_fingerprint": planning["specification_fingerprint"],
         "planning_fingerprint": planning["planning_fingerprint"],
+        "tracking_invalidated": tracking_invalidated,
     }
     return planning_path, original, updated.encode("utf-8"), manifest_new, payload
 
@@ -268,6 +308,13 @@ def _authorize(
     delivery = delivery_readiness(root, manifest, args.increment, task_ids=tasks)
     if delivery["status"] != "ready":
         raise PlanningCommandError("La porción seleccionada no está ready: " + "; ".join(delivery["blockers"]))
+    if manifest.get("schema_version") == "1.4":
+        tracking = assess_tracking(root, manifest, tasks)
+        if tracking.get("blockers"):
+            raise PlanningCommandError(
+                "El tracking operativo no permite autorizar todavía: "
+                + "; ".join(tracking["blockers"])
+            )
     if not re.fullmatch(r"AUTH-[0-9]{3}", args.authorization_id):
         raise PlanningCommandError("--authorization-id debe usar AUTH-###.")
     if not re.fullmatch(r"ADR-[0-9]{3}", args.decision):

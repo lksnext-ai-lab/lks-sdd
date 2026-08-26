@@ -58,7 +58,7 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
     )
     for key in (
         "active_plan", "active_task", "active_tasks", "delivery_governance",
-        "planning", "authorizations", "executions",
+        "planning", "task_tracking", "authorizations", "executions",
     ):
         manifest.pop(key, None)
     manifest["technology"].pop("profile_bindings", None)
@@ -74,6 +74,7 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
         "ART-TEST-STRATEGY",
         "ART-DEPLOYMENT",
         "ART-PLANNING",
+        "ART-TRACKING",
     }
     manifest["artifacts"] = [
         item for item in manifest["artifacts"] if item["id"] not in v12_only
@@ -87,8 +88,8 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
         path = root / entry["path"]
         text = (
             path.read_text(encoding="utf-8")
-            .replace('schema_version: "1.3"', 'schema_version: "1.0"', 1)
-            .replace('method_version: "1.3.0"', 'method_version: "1.0.0"', 1)
+            .replace('schema_version: "1.4"', 'schema_version: "1.0"', 1)
+            .replace('method_version: "1.4.0"', 'method_version: "1.0.0"', 1)
             .replace(
                 f'created_with_plugin_version: "{current_version}"',
                 'created_with_plugin_version: "0.6.1"',
@@ -136,6 +137,23 @@ def _load_verification_module():
     return module
 
 
+def _load_continuity_module():
+    script = PLUGIN_ROOT / "scripts" / "manage_continuity.py"
+    spec = importlib.util.spec_from_file_location(
+        "lks_sdd_handoff_continuity", script
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    scripts_path = str(PLUGIN_ROOT / "scripts")
+    sys.path.insert(0, scripts_path)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.path.remove(scripts_path)
+    return module
+
+
 def _prepare_increment(root: Path) -> None:
     authorize_implementation(root)
     _, preview = run_json(
@@ -157,6 +175,67 @@ def _prepare_increment(root: Path) -> None:
     )
     if applied["status"] != "prepared":
         raise AssertionError(applied)
+
+
+class ContinuityCheckpointSchemaGuardsTests(unittest.TestCase):
+    def test_checkpoint_schema_compatibility_is_directional(self) -> None:
+        module = _load_continuity_module()
+
+        for manifest_schema, checkpoint_schema in (
+            ("1.3", "1.3"),
+            ("1.4", "1.3"),
+            ("1.4", "1.4"),
+        ):
+            with self.subTest(
+                manifest_schema=manifest_schema,
+                checkpoint_schema=checkpoint_schema,
+            ):
+                module._validate_checkpoint_schema(
+                    manifest_schema, checkpoint_schema
+                )
+
+        with self.assertRaises(module.ContinuityError) as raised:
+            module._validate_checkpoint_schema("1.3", "1.4")
+
+        self.assertIn("schema 1.3 requiere checkpoint 1.3", str(raised.exception))
+
+    def test_schema_13_resume_rejects_a_schema_14_checkpoint(self) -> None:
+        module = _load_continuity_module()
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-ckpt-schema-") as temporary:
+            root = Path(temporary).resolve()
+            checkpoint = (
+                root
+                / "docs/lks-sdd/04-delivery/checkpoints/CKPT-001.md"
+            )
+            checkpoint.parent.mkdir(parents=True)
+            checkpoint.write_text(
+                "---\n"
+                'artifact_id: "ART-CKPT-001"\n'
+                'artifact_type: "implementation-checkpoint"\n'
+                'schema_version: "1.4"\n'
+                "---\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            manifest = {
+                "schema_version": "1.3",
+                "executions": [
+                    {
+                        "execution_id": "EXEC-001",
+                        "latest_checkpoint": (
+                            "docs/lks-sdd/04-delivery/checkpoints/CKPT-001.md"
+                        ),
+                    }
+                ],
+            }
+            args = argparse.Namespace(execution_id="EXEC-001")
+
+            with self.assertRaises(module.ContinuityError) as raised:
+                module._resume(root, manifest, args)
+
+            self.assertIn(
+                "schema 1.3 requiere checkpoint 1.3", str(raised.exception)
+            )
 
 
 def _link_evidence(root: Path, evidence_id: str = "EVID-001") -> Path:

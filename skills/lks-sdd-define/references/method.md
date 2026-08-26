@@ -20,7 +20,7 @@ LKS-SDD es Spec-anchored: la especificación confirmada continúa vigente despu�
 
 Cada dimensión se marca `unknown`, `partial`, `sufficient` o `not-applicable: motivo`. `Sufficient` significa suficiente para el alcance o siguiente incremento indicado, no terminado ni aprobado globalmente. No usar porcentajes globales de madurez.
 
-En proyectos nuevos, escriba el contrato 1.3 (`method_version: 1.3.0`, `schema_version: 1.3`) y use las tablas, estados y relaciones declarados para cada artefacto. Los proyectos 1.0, 1.1 y 1.2 se leen en compatibilidad; la conversación de definición no los migra de forma implícita.
+En proyectos nuevos, escriba el contrato 1.4 (`method_version: 1.4.0`, `schema_version: 1.4`) y use las tablas, estados y relaciones declarados para cada artefacto. Los proyectos 1.0, 1.1, 1.2 y 1.3 se leen en compatibilidad; la conversación de definición no los migra de forma implícita. Antes de confirmar el primer plan, resuelva el único binding de tracking del proyecto; una decisión confirmada se reutiliza en todos sus horizontes hasta una reconsideración explícita.
 
 Antes de G2, la definición incluye tres capas inseparables del producto: arquitectura por `UNIT-###` y `BIND-###`, gobierno de entrega versionado por `CHG-###`, y planificación ejecutable `PLAN-###` → `REL-###` → `TASK-###`. El modelo de entrega se elige entre `bounded-release`, `continuous-evolution` y `maintenance-stream`; cualquier cambio posterior conserva la decisión anterior y declara fecha efectiva, impacto, transición y trigger de revisión.
 

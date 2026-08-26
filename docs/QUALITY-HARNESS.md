@@ -2,17 +2,17 @@
 
 ## Propósito
 
-El harness integra el catálogo base FX-01–FX-19, la extensión visual v0.6 FX-20–FX-21, la extensión automatizada v0.8 FX-22–FX-27 y planificación/continuidad v0.9 FX-28–FX-35. En 0.9.0 cubre además el caso real de planificación parcial, cobertura integral, autorización, checkpoints, cambio de alcance, dependencias canceladas, camino crítico indeterminado y migración conservadora 1.2 → 1.3. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
+El harness integra el catálogo base FX-01–FX-19, la extensión visual v0.6 FX-20–FX-21, la extensión automatizada v0.8 FX-22–FX-27, planificación/continuidad v0.9 FX-28–FX-35 y tracking operativo v0.10 FX-36–FX-45. En 0.10.0 cubre además la elección `repository-only`/`jira-hybrid`, intención y recibos durables, reconciliación, aislamiento de autoridad, privacidad, readiness independiente y migración conservadora 1.3 → 1.4. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01 requiere entrevista adaptativa y deja de atribuirse al eval automatizado de readiness, que solo demuestra bloqueo ante información insuficiente. FX-20 cubre el snapshot de definición y FX-21 el ciclo visual con ImageGen. FX-22–FX-35 son pruebas deterministas, no sustituyen aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.9.0.json` como corpus vigente de conversación; contiene entradas y rúbrica, no resultados. Los corpus anteriores permanecen históricos y nunca se reutilizan para acreditar otra línea minor.
+FX-01 requiere entrevista adaptativa y deja de atribuirse al eval automatizado de readiness, que solo demuestra bloqueo ante información insuficiente. FX-20 cubre el snapshot de definición y FX-21 el ciclo visual con ImageGen. FX-22–FX-35 y FX-37–FX-44 son pruebas deterministas; FX-36 conserva evaluación conversacional `not-run` y FX-45 la interoperabilidad real Rovo/Jira como piloto `not-run`. Ninguna sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.10.0.json` como corpus vigente de conversación; contiene entradas y rúbrica, no resultados. `definition-v0.9.0.json` y los corpus anteriores permanecen históricos y nunca se reutilizan para acreditar otra línea minor.
 
 ## Canales de evidencia
 
-- `automated`: contratos 0.8/1.2 y 0.9/1.3, inventario y certificaciones exactas de perfiles active, pruebas unitarias y evals deterministas.
+- `automated`: contratos 0.8/1.2, 0.9/1.3 y 0.10/1.4, inventario y certificaciones exactas de perfiles active, pruebas unitarias y evals deterministas.
 - `fixture-integrity`: inventario completo, JSON válido y hash exacto de cada fixture sintético.
 - `profile-complete`: reejecución integral en Docker de un perfil representativo. La puerta contractual valida además que todos los perfiles active conserven una certificación completa ligada a sus bytes exactos.
 - `regression`: comparación de métricas comunes con una baseline versionada.
-- `definition-conversation`: evaluación semántica y humana de FX-01, FX-20 y FX-21; el harness actual la mantiene siempre `not-run` porque todavía no existe un contrato ni importador de resultados ejecutados para este canal.
+- `definition-conversation`: evaluación semántica y humana de FX-01, FX-20, FX-21 y FX-36; el harness actual la mantiene siempre `not-run` porque todavía no existe un contrato ni importador de resultados ejecutados para este canal.
 - `activation`: resultados observados en sesiones controladas de Codex contra el corpus etiquetado.
 - `document-review`: rúbrica humana de diez dimensiones, de 1 a 5.
 - `pilot`: resultados agregados y saneados del piloto M5.

@@ -1,0 +1,12 @@
+{
+  "id": "FX-M10-TRACKING-CHOICE",
+  "description": "Elección sintética del backend de tracking antes de materializar tareas.",
+  "project_id": "fixture-tracking-choice",
+  "allowed_modes": ["repository-only", "jira-hybrid"],
+  "assertions": [
+    "pending_requires_human_choice",
+    "repository_only_requires_no_external_service",
+    "jira_hybrid_keeps_markdown_authority",
+    "choice_does_not_authorize_implementation"
+  ]
+}
