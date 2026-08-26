@@ -2,15 +2,15 @@
 
 ## Propósito
 
-El harness integra el catálogo base FX-01–FX-19, la extensión visual v0.6 FX-20–FX-21, la extensión automatizada v0.8 FX-22–FX-27, planificación/continuidad v0.9 FX-28–FX-35 y tracking operativo v0.10 FX-36–FX-45. En 0.10.0 cubre además la elección `repository-only`/`jira-hybrid`, intención y recibos durables, reconciliación, aislamiento de autoridad, privacidad, readiness independiente y migración conservadora 1.3 → 1.4. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
+El harness integra FX-01–FX-45 históricos y el reporting Jira v0.11 FX-46–FX-51. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only y migración 1.4 → 1.5. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01 requiere entrevista adaptativa y deja de atribuirse al eval automatizado de readiness, que solo demuestra bloqueo ante información insuficiente. FX-20 cubre el snapshot de definición y FX-21 el ciclo visual con ImageGen. FX-22–FX-35 y FX-37–FX-44 son pruebas deterministas; FX-36 conserva evaluación conversacional `not-run` y FX-45 la interoperabilidad real Rovo/Jira como piloto `not-run`. Ninguna sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.10.0.json` como corpus vigente de conversación; contiene entradas y rúbrica, no resultados. `definition-v0.9.0.json` y los corpus anteriores permanecen históricos y nunca se reutilizan para acreditar otra línea minor.
+FX-01, FX-20, FX-21 y FX-36 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.11.0.json` como corpus vigente; los anteriores son históricos.
 
 ## Canales de evidencia
 
 - `automated`: contratos 0.8/1.2, 0.9/1.3 y 0.10/1.4, inventario y certificaciones exactas de perfiles active, pruebas unitarias y evals deterministas.
 - `fixture-integrity`: inventario completo, JSON válido y hash exacto de cada fixture sintético.
-- `profile-complete`: reejecución integral en Docker de un perfil representativo. La puerta contractual valida además que todos los perfiles active conserven una certificación completa ligada a sus bytes exactos.
+- `profile-complete`: acreditación de todos los perfiles active. `reuse` valida sus certificaciones exactas, hashes y antigüedad máxima sin repetir Docker; `execute` reejecuta el perfil representativo en Docker. Una deriva o certificación caducada hace fallar `reuse` y exige recertificación, nunca un pase degradado.
 - `regression`: comparación de métricas comunes con una baseline versionada.
 - `definition-conversation`: evaluación semántica y humana de FX-01, FX-20, FX-21 y FX-36; el harness actual la mantiene siempre `not-run` porque todavía no existe un contrato ni importador de resultados ejecutados para este canal.
 - `activation`: resultados observados en sesiones controladas de Codex contra el corpus etiquetado.
@@ -27,10 +27,19 @@ La puerta publicable de candidate se ejecuta desde la raíz de un checkout dedic
 $pluginRoot = Resolve-Path "."
 $reportPath = Join-Path (Resolve-Path "..") "quality-report.json"
 python (Join-Path $pluginRoot "scripts\validate_fixture_manifest.py") $pluginRoot
-python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.6.1.json") --include-complete-profile --output $reportPath
+python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.10.0.json") --profile-mode reuse --output $reportPath
 ```
 
-Sin `--include-complete-profile`, la puerta candidate queda `incomplete`. El reporte mantiene el esquema 1.1 porque este cambio no rompe su formato; registra el commit `HEAD` y si el árbol estaba `clean` o `dirty`. El hash de baseline se calcula sobre su JSON canónico para no depender de finales de línea. El reporte no sobrescribe una salida existente salvo con `--force`; el reemplazo es atómico. Un reporte `dirty` mantiene valor diagnóstico, pero añade un bloqueo explícito, deja el gate en `failed`, devuelve código `2` y no es admisible para construir una release.
+`--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte mantiene el esquema 1.1, registra `HEAD` y árbol `clean/dirty`, no sobrescribe salvo `--force` y falla si la fuente inicial no coincide exactamente con Git.
+
+Para feedback cotidiano use una vía focalizada que no pretende ser evidencia de release:
+
+```powershell
+python scripts\run_fast_validation.py --focus jira-reporting
+python scripts\run_fast_validation.py --focus migration
+```
+
+Esta vía evita reconstruir todos los fixtures históricos y no ejecuta Docker. La release sigue exigiendo una única suite integral desde checkout limpio, evals y el canal de perfiles. Así se elimina repetición de bajo valor durante el desarrollo sin reducir la cobertura de publicación.
 
 La vinculación de fuente se captura antes de lanzar validadores, tests o el perfil Docker. No confía únicamente en `git status`: exige que las entradas de `HEAD` y del índice coincidan en ruta, modo, tipo y objeto, calcula contra cada archivo real el objeto Git esperado y rechaza estados no consolidados, archivos ausentes, enlaces no admisibles, gitlinks y cambios ocultos mediante `assume-unchanged` o `skip-worktree`. También enumera todos los archivos no versionados sin aplicar exclusiones, por lo que cualquier archivo preexistente —incluido uno oculto por `.gitignore` o `.git/info/exclude`— deja la fuente `dirty`.
 

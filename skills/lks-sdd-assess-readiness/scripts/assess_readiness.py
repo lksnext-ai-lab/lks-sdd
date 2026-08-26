@@ -123,7 +123,7 @@ def _assess_domains(
     increment: dict[str, str],
     result: dict[str, Any],
 ) -> None:
-    if manifest.get("schema_version") not in {"1.1", "1.2", "1.3", "1.4"}:
+    if manifest.get("schema_version") not in {"1.1", "1.2", "1.3", "1.4", "1.5"}:
         _domain_references(result, increment, definitions, "Data", "datos", {"DATA"})
         _domain_references(
             result,
@@ -724,7 +724,7 @@ def assess(
         "active_tasks": list(manifest.get("active_tasks", [])) if isinstance(manifest.get("active_tasks", []), list) else [],
     }
 
-    if str(manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}:
+    if str(manifest.get("schema_version")) in {"1.2", "1.3", "1.4", "1.5"}:
         delivery = delivery_readiness(
             root, manifest, increment_id, task_ids=task_ids
         )
@@ -925,7 +925,7 @@ def assess(
     _assess_domains(
         root, manifest, definitions, increment_id, increment, result
     )
-    if manifest.get("schema_version") in {"1.1", "1.2", "1.3", "1.4"}:
+    if manifest.get("schema_version") in {"1.1", "1.2", "1.3", "1.4", "1.5"}:
         domain_body = _load_artifact_body(root, manifest, "ART-INCREMENTS")
         domain_rows = table_rows_for_headers(
             parse_markdown_table_blocks(domain_body), DOMAIN_CONTRACT_HEADERS

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.11.0 — 2026-08-26 — reporting Jira por hitos sin perder la experiencia local
+
+- Evoluciona el contrato candidate a método/esquema 1.5 y mantiene compatibles 1.0–1.4; la migración 1.4 → 1.5 es explícita, reversible y no ejecuta escrituras externas ni infiere workflow mappings.
+- Mantiene `repository-only` como una experiencia completa sin prompts Atlassian. En `jira-hybrid`, separa `projection-only` de `milestone-reporting` y ofrece coordinación `advisory` o `required-before-execution`.
+- Añade hitos de implementación y verificación (`started`, progreso, bloqueo, reanudación, revisión, verificación pendiente/fallida y `done`) derivados únicamente de `TASK/EXEC/CKPT/PROB/EVID` durables.
+- Genera comentarios saneados e idempotentes y transiciones opcionales solo mediante status IDs confirmados y transition IDs observados; una confirmación cubre el preview y cada operación conserva un recibo `SYNC-###` independiente.
+- Añade pausa/reanudación controlada, estado de reporting separado, resultados `failed/conflict/uncertain` y reconciliación append-only sin reintentos ciegos ni cambios de autoridad.
+- Conserva el bundle skills-only y el peer Atlassian Rovo opcional: no incluye MCP, cliente Jira, credenciales, hooks, apps ni agentes ejecutables.
+- Optimiza el Quality Gate: el ciclo de desarrollo dispone de una vía rápida focalizada y el candidate puede reutilizar certificaciones exactas y vigentes; Docker completo sigue siendo obligatorio ante deriva, caducidad o ejecución explícita.
+- Amplía pruebas, corpus, cobertura, documentación y notas de release. La interoperabilidad real Rovo/Jira, las conversaciones humanas y el piloto permanecen `not-run`; la release sigue siendo candidate.
+
 ## 0.10.0 — 2026-08-26 — tracking operativo opcional con Jira y Rovo
 
 - Añade el contrato candidate de tracking operativo 1.4 sin modificar las siete fuentes canónicas vigentes: los Markdown del proyecto consumidor siguen siendo la autoridad semántica y `.lks-sdd/project.json` continúa como índice.

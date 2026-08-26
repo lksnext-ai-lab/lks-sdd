@@ -88,8 +88,8 @@ def _downgrade_ready_project_to_legacy(root: Path) -> None:
         path = root / entry["path"]
         text = (
             path.read_text(encoding="utf-8")
-            .replace('schema_version: "1.4"', 'schema_version: "1.0"', 1)
-            .replace('method_version: "1.4.0"', 'method_version: "1.0.0"', 1)
+            .replace('schema_version: "1.5"', 'schema_version: "1.0"', 1)
+            .replace('method_version: "1.5.0"', 'method_version: "1.0.0"', 1)
             .replace(
                 f'created_with_plugin_version: "{current_version}"',
                 'created_with_plugin_version: "0.6.1"',

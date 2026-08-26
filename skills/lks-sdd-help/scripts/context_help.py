@@ -299,7 +299,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 "warnings": list(dict.fromkeys(report.warnings)),
                 "diagnostic_summary": _diagnostic_summary(report.diagnostics),
                 "meaning": (
-                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.4 y esto no demuestra suficiencia semántica."
+                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.5 y esto no demuestra suficiencia semántica."
                     if compatibility_mode
                     else "El índice y los Markdown cumplen el contrato estructural estricto; esto no demuestra que la definición sea suficiente."
                 ),
@@ -401,7 +401,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 else "El preflight estructural detecta vacíos antes de ejecutar la evaluación completa de readiness."
             ),
         }
-        if schema_version in {"1.2", "1.3", "1.4"}:
+        if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
             planning = assess_planning(root, manifest, active_increment)
             delivery = validate_delivery_contract(root, manifest)
             response["planning_snapshot"] = {
@@ -423,7 +423,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 response["missing_or_limits"].append(
                     "La planificación integral está " + planning["status"] + "; revise los huecos concretos de planning_snapshot."
                 )
-            if schema_version == "1.4":
+            if schema_version in {"1.4", "1.5"}:
                 increment_tasks = [
                     task_id
                     for task_id, row in delivery.get("tasks", {}).items()

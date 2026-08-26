@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.4",
+  "schema_version": "1.5",
   "document_states": ["draft", "proposed", "confirmed", "superseded", "retired"],
   "element_states": [
     "draft",
@@ -85,6 +85,7 @@
     "AUTH",
     "EXEC",
     "TRK",
-    "SYNC"
+    "SYNC",
+    "RPT"
   ]
 }

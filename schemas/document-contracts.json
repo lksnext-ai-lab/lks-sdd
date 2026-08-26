@@ -1,7 +1,7 @@
 {
-  "catalog_version": "1.4",
-  "supported_project_schemas": ["1.0", "1.1", "1.2", "1.3", "1.4"],
-  "schema_inheritance": {"1.2": "1.1", "1.3": "1.2", "1.4": "1.3"},
+  "catalog_version": "1.5",
+  "supported_project_schemas": ["1.0", "1.1", "1.2", "1.3", "1.4", "1.5"],
+  "schema_inheritance": {"1.2": "1.1", "1.3": "1.2", "1.4": "1.3", "1.5": "1.4"},
   "identifier_prefixes": [
     "OBJ",
     "STK",
@@ -38,7 +38,8 @@
     "AUTH",
     "EXEC",
     "TRK",
-    "SYNC"
+    "SYNC",
+    "RPT"
   ],
   "reference_grammar": {
     "canonical_range": "..",
@@ -150,6 +151,13 @@
       "active": ["recorded"],
       "pending": ["authorized", "failed", "reconciliation-required"],
       "inactive": ["conflict"],
+      "legacy_classes": {}
+    },
+    "reporting-policy-lifecycle": {
+      "allowed": ["proposed", "confirmed", "paused"],
+      "active": ["confirmed", "paused"],
+      "pending": ["proposed"],
+      "inactive": [],
       "legacy_classes": {}
     },
     "epistemic-adoption": {
@@ -788,11 +796,11 @@
       "artifact_type": "task-tracking",
       "path": "docs/lks-sdd/04-delivery/task-tracking.md",
       "required": false,
-      "required_schemas": ["1.4"],
+      "required_schemas": ["1.4", "1.5"],
       "tables": [
         {
           "id": "tracking.binding",
-          "schemas": ["1.4"],
+          "schemas": ["1.4", "1.5"],
           "headers": ["Binding", "State", "Mode", "Provider", "Site", "Project", "Issue type", "Sync policy", "Write policy", "Decision", "Last reviewed"],
           "min_occurs": 1,
           "max_occurs": 1,
@@ -804,7 +812,7 @@
         },
         {
           "id": "tracking.mapping",
-          "schemas": ["1.4"],
+          "schemas": ["1.4", "1.5"],
           "headers": ["Task", "State", "External ID", "External key", "URL", "Projection fingerprint", "Remote status", "Last synced", "Last operation", "Notes"],
           "min_occurs": 1,
           "max_occurs": 1,
@@ -816,8 +824,43 @@
         },
         {
           "id": "tracking.operations",
-          "schemas": ["1.4"],
+          "schemas": ["1.4", "1.5"],
           "headers": ["ID", "State", "Task", "Action", "Preview hash", "Projection fingerprint", "Duplicate check", "Authorized by role", "Authorized on", "External ID", "External key", "Recorded on", "Result", "Notes"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "ID", "prefixes": ["SYNC"]},
+          "state": {"column": "State", "policy": "tracking-operation-lifecycle"},
+          "relations": {
+            "Task": {"targets": ["TASK"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []}
+          }
+        },
+        {
+          "id": "tracking.reporting-policy",
+          "schemas": ["1.5"],
+          "headers": ["Reporting", "State", "Scope", "Coordination gate", "Comment policy", "Decision", "Last reviewed"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {"column": "Reporting", "prefixes": ["RPT"]},
+          "state": {"column": "State", "policy": "reporting-policy-lifecycle"},
+          "relations": {
+            "Decision": {"targets": ["ADR"], "min": 0, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": ["pending"]}
+          }
+        },
+        {
+          "id": "tracking.workflow-mapping",
+          "schemas": ["1.5"],
+          "headers": ["Local state", "State", "Jira status ID", "Jira status name", "Decision", "Last reviewed"],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {"column": "State", "policy": "tracking-binding-lifecycle"},
+          "relations": {
+            "Decision": {"targets": ["ADR"], "min": 1, "max": 1, "active_input": false, "require_defined": true, "allow_empty": false, "allow_applicability": []}
+          }
+        },
+        {
+          "id": "tracking.milestone-operations",
+          "schemas": ["1.5"],
+          "headers": ["ID", "State", "Task", "Source ref", "Event kind", "Action", "Event hash", "Preview hash", "Duplicate check", "Authorized by role", "Authorized on", "External ID", "External key", "Recorded on", "Result", "Notes"],
           "min_occurs": 1,
           "max_occurs": 1,
           "key": {"column": "ID", "prefixes": ["SYNC"]},

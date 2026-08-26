@@ -18,9 +18,11 @@ from typing import Any
 from validate_project import validate_project
 from delivery_engine import TASK_HEADERS, parse_tables
 
-LATEST_SCHEMA = "1.4"
-PLUGIN_VERSION = "0.10.0"
-METHOD_VERSION = "1.4.0"
+LATEST_SCHEMA = "1.5"
+PLUGIN_VERSION = "0.11.0"
+METHOD_VERSION = "1.5.0"
+V14_PLUGIN_VERSION = "0.10.0"
+V14_METHOD_VERSION = "1.4.0"
 V13_PLUGIN_VERSION = "0.9.1"
 V13_METHOD_VERSION = "1.3.0"
 V12_PLUGIN_VERSION = "0.8.0"
@@ -30,7 +32,7 @@ V11_METHOD_VERSION = "1.1.0"
 RECORD_NAME = "migration-record.json"
 SUPPORTED_MIGRATIONS = {
     ("0.9", "1.0"), ("1.0", "1.1"), ("1.1", "1.2"), ("1.2", "1.3"),
-    ("1.3", "1.4")
+    ("1.3", "1.4"), ("1.4", "1.5")
 }
 
 V12_ARTIFACTS = (
@@ -761,11 +763,88 @@ def _migrate_markdown_13_to_14(
     if not _frontmatter_value(lines, start, end, "artifact_type"):
         raise MigrationError(f"{relative}: artifact_type ausente en front matter.")
     _set_frontmatter_value(lines, start, end, "schema_version", "1.4", relative)
+    _set_frontmatter_value(
+        lines, start, end, "method_version", V14_METHOD_VERSION, relative
+    )
+    _set_frontmatter_value(
+        lines, start, end, "created_with_plugin_version", V14_PLUGIN_VERSION, relative
+    )
+    return "".join(lines).encode("utf-8"), [], ["frontmatter-contract-1.4"]
+
+
+def _migrate_markdown_14_to_15(
+    content: bytes, relative: str
+) -> tuple[bytes, list[dict[str, str]], list[str]]:
+    """Add Jira milestone reporting policy without inferring external writes."""
+
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise MigrationError(f"Markdown no UTF-8: {relative}") from exc
+    lines = text.splitlines(keepends=True)
+    start, end = _frontmatter_bounds(lines, relative)
+    if _frontmatter_value(lines, start, end, "schema_version") != "1.4":
+        raise MigrationError(
+            f"{relative}: se esperaba schema_version 1.4 en front matter."
+        )
+    _set_frontmatter_value(lines, start, end, "schema_version", "1.5", relative)
     _set_frontmatter_value(lines, start, end, "method_version", METHOD_VERSION, relative)
     _set_frontmatter_value(
         lines, start, end, "created_with_plugin_version", PLUGIN_VERSION, relative
     )
-    return "".join(lines).encode("utf-8"), [], ["frontmatter-contract-1.4"]
+    migrated = "".join(lines)
+    operations = ["frontmatter-contract-1.5"]
+    if relative == "docs/lks-sdd/04-delivery/task-tracking.md":
+        tables = parse_tables(migrated)
+        binding_headers = (
+            "Binding", "State", "Mode", "Provider", "Site", "Project",
+            "Issue type", "Sync policy", "Write policy", "Decision", "Last reviewed",
+        )
+        binding_rows = [rows for headers, rows in tables if headers == binding_headers]
+        if len(binding_rows) != 1 or len(binding_rows[0]) != 1:
+            raise MigrationError("ART-TRACKING 1.4 no contiene un binding único.")
+        binding = binding_rows[0][0]
+        mode = binding.get("Mode", "pending")
+        decision = binding.get("Decision", "pending: reporting scope not selected")
+        reviewed = binding.get("Last reviewed", datetime.now(UTC).date().isoformat())
+        if mode == "repository-only":
+            reporting = (
+                f"| RPT-001 | confirmed | not-applicable | not-required | "
+                f"not-applicable | {decision} | {reviewed} |"
+            )
+        elif mode == "jira-hybrid":
+            reporting = (
+                f"| RPT-001 | confirmed | projection-only | "
+                f"{binding.get('Sync policy', 'required-before-execution')} | "
+                f"not-applicable | {decision} | {reviewed} |"
+            )
+        else:
+            reporting = (
+                f"| RPT-001 | proposed | pending | pending | pending | "
+                f"pending: reporting scope not selected | {reviewed} |"
+            )
+        newline = "\r\n" if "\r\n" in migrated else "\n"
+        additions = [
+            "## Reporting policy",
+            "",
+            "| Reporting | State | Scope | Coordination gate | Comment policy | Decision | Last reviewed |",
+            "|---|---|---|---|---|---|---|",
+            reporting,
+            "",
+            "## Workflow mapping",
+            "",
+            "| Local state | State | Jira status ID | Jira status name | Decision | Last reviewed |",
+            "|---|---|---|---|---|---|",
+            "",
+            "## Milestone operations",
+            "",
+            "| ID | State | Task | Source ref | Event kind | Action | Event hash | Preview hash | Duplicate check | Authorized by role | Authorized on | External ID | External key | Recorded on | Result | Notes |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+            "",
+        ]
+        migrated = migrated.rstrip("\r\n") + newline * 2 + newline.join(additions)
+        operations.append("jira-reporting-policy-defaulted-without-write")
+    return migrated.encode("utf-8"), [], operations
 
 
 def _render_v12_template(
@@ -875,6 +954,36 @@ def _render_v14_template(
     if not template.is_file():
         raise MigrationError(f"Falta la plantilla 1.4 empaquetada: {template_relative}")
     text = template.read_text(encoding="utf-8")
+    text = re.sub(
+        r'^schema_version: "[0-9.]+"$',
+        'schema_version: "1.4"',
+        text,
+        flags=re.MULTILINE,
+    )
+    text = re.sub(
+        r'^method_version: "[0-9.]+"$',
+        f'method_version: "{V14_METHOD_VERSION}"',
+        text,
+        flags=re.MULTILINE,
+    )
+    text = re.sub(
+        r'^created_with_plugin_version: "[0-9A-Za-z.-]+"$',
+        f'created_with_plugin_version: "{V14_PLUGIN_VERSION}"',
+        text,
+        flags=re.MULTILINE,
+    )
+    text = re.sub(
+        r"\n## Reporting policy\n.*?(?=\n## Mapping\n)",
+        "\n",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\n## Milestone operations\n.*\Z",
+        "\n",
+        text,
+        flags=re.DOTALL,
+    )
     replacements = {
         "{{PROJECT_ID}}": project_id,
         "{{BASELINE_ID}}": baseline_id,
@@ -947,8 +1056,12 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
             after, artifact_reviews, operations = _migrate_markdown_12_to_13(
                 before, relative
             )
-        else:
+        elif (source_schema, target_schema) == ("1.3", "1.4"):
             after, artifact_reviews, operations = _migrate_markdown_13_to_14(
+                before, relative
+            )
+        else:
+            after, artifact_reviews, operations = _migrate_markdown_14_to_15(
                 before, relative
             )
         reviews.extend(artifact_reviews)
@@ -1146,6 +1259,70 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
                     changes.append(
                         PlannedChange(dynamic_path, before, after, operations)
                     )
+    if (source_schema, target_schema) == ("1.4", "1.5"):
+        nonterminal_executions = [
+            item.get("execution_id", "EXEC-unknown")
+            for item in manifest.get("executions", [])
+            if isinstance(item, dict)
+            and item.get("status")
+            in {"in-progress", "in-review", "paused", "blocked"}
+        ]
+        if nonterminal_executions:
+            raise MigrationError(
+                "La migración 1.4 -> 1.5 no altera una ejecución reanudable activa. "
+                "Cierre o cancele primero: "
+                + ", ".join(sorted(str(item) for item in nonterminal_executions))
+                + "."
+            )
+        tracking_entry = next(
+            (
+                item
+                for item in artifacts
+                if isinstance(item, dict) and item.get("id") == "ART-TRACKING"
+            ),
+            None,
+        )
+        if not isinstance(tracking_entry, dict):
+            raise MigrationError("schema 1.4 exige ART-TRACKING antes de migrar.")
+        tracking_path = _safe_artifact(root, str(tracking_entry["path"]))
+        operation_headers = (
+            "ID", "State", "Task", "Action", "Preview hash",
+            "Projection fingerprint", "Duplicate check", "Authorized by role",
+            "Authorized on", "External ID", "External key", "Recorded on",
+            "Result", "Notes",
+        )
+        unresolved = [
+            row.get("ID", "SYNC-unknown")
+            for headers, rows in parse_tables(tracking_path.read_text(encoding="utf-8"))
+            if headers == operation_headers
+            for row in rows
+            if row.get("State") in {
+                "authorized",
+                "conflict",
+                "reconciliation-required",
+            }
+        ]
+        if unresolved:
+            raise MigrationError(
+                "La migración 1.4 -> 1.5 exige cerrar o reconciliar primero: "
+                + ", ".join(sorted(str(item) for item in unresolved))
+                + "."
+            )
+        task_folder = root / "docs/lks-sdd/04-delivery/tasks"
+        if task_folder.is_dir() and not _is_link_like(task_folder):
+            for task_path in sorted(task_folder.glob("TASK-[0-9][0-9][0-9].md")):
+                relative = _relative_path(root, task_path).as_posix()
+                if relative in seen or _is_link_like(task_path):
+                    continue
+                before = task_path.read_bytes()
+                after, task_reviews, operations = _migrate_markdown_14_to_15(
+                    before, relative
+                )
+                reviews.extend(task_reviews)
+                if before != after:
+                    changes.append(
+                        PlannedChange(task_path, before, after, operations)
+                    )
     manifest["schema_version"] = target_schema
     manifest_operations = ["operational-index-version"]
     if target_schema == "1.1":
@@ -1251,8 +1428,8 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
             ]
         )
     if target_schema == "1.4":
-        manifest["method_version"] = METHOD_VERSION
-        manifest["plugin_version"] = PLUGIN_VERSION
+        manifest["method_version"] = V14_METHOD_VERSION
+        manifest["plugin_version"] = V14_PLUGIN_VERSION
         manifest["task_tracking"] = {
             "source": "docs/lks-sdd/04-delivery/task-tracking.md",
             "binding_id": "TRK-001",
@@ -1274,6 +1451,45 @@ def _plan(root: Path, target_schema: str = LATEST_SCHEMA) -> MigrationPlan:
                 "task-tracking-created-repository-only",
                 "external-provider-not-inferred",
                 "authorizations-and-executions-preserved",
+            ]
+        )
+    if target_schema == "1.5":
+        manifest["method_version"] = METHOD_VERSION
+        manifest["plugin_version"] = PLUGIN_VERSION
+        tracking = manifest.get("task_tracking")
+        if not isinstance(tracking, dict):
+            raise MigrationError("project.json 1.4 no contiene task_tracking.")
+        mode = tracking.get("mode")
+        if mode == "pending":
+            tracking.update(
+                reporting_scope="pending",
+                coordination_gate="pending",
+                reporting_status="decision-required",
+                last_reported_on=None,
+            )
+        elif mode == "repository-only":
+            tracking.update(
+                reporting_scope="not-applicable",
+                coordination_gate="not-required",
+                reporting_status="not-required",
+                last_reported_on=None,
+            )
+        elif mode == "jira-hybrid":
+            tracking.update(
+                reporting_scope="projection-only",
+                coordination_gate=tracking.get(
+                    "sync_policy", "required-before-execution"
+                ),
+                reporting_status="not-required",
+                last_reported_on=None,
+            )
+        else:
+            raise MigrationError(f"Modo de tracking 1.4 inválido: {mode!r}.")
+        manifest_operations.extend(
+            [
+                "jira-reporting-defaulted-without-external-write",
+                "workflow-mapping-not-inferred",
+                "historical-tracking-receipts-preserved",
             ]
         )
     manifest_after = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode(
@@ -1640,7 +1856,7 @@ def main() -> int:
     parser.add_argument("--rollback", type=Path)
     parser.add_argument(
         "--target-schema",
-        choices=("1.0", "1.1", "1.2", "1.3", "1.4"),
+        choices=("1.0", "1.1", "1.2", "1.3", "1.4", "1.5"),
         default=LATEST_SCHEMA,
     )
     parser.add_argument("--backup-dir", type=Path)

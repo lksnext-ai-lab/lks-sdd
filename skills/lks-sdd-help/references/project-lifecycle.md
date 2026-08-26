@@ -43,4 +43,4 @@ Una ejecución crea un checkpoint inicial y lo actualiza al empezar, terminar o 
 
 ## Evolución del contrato
 
-Las rutas nuevas y adopciones materializadas con 0.10.0 usan método 1.4.0 y esquema 1.4. Los proyectos 1.0/1.1/1.2/1.3 continúan en compatibilidad. Cada salto es explícito y reversible. El renderer histórico `1.2 → 1.3` conserva método 1.3.0/plugin 0.9.1 y crea cobertura, autorización y continuidad como pendientes/vacías; `1.3 → 1.4` añade tracking pendiente sin consultar Jira ni confirmar decisiones, tareas, perfiles, ejecución o evidencias.
+Las rutas nuevas y adopciones materializadas con 0.11.0 usan método 1.5.0 y esquema 1.5. Los proyectos 1.0/1.1/1.2/1.3/1.4 continúan en compatibilidad. Cada salto es explícito y reversible. El renderer histórico `1.2 → 1.3` conserva método 1.3.0/plugin 0.9.1; `1.3 → 1.4` añade tracking pendiente; `1.4 → 1.5` añade la política de reporting sin consultar Jira, inferir workflow, publicar comentarios o transicionar tareas.

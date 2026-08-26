@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manage LKS-SDD 1.4 task tracking without performing network operations."""
+"""Manage LKS-SDD 1.4/1.5 task tracking without network operations."""
 
 from __future__ import annotations
 
@@ -15,10 +15,14 @@ from typing import Any
 from urllib.parse import urlparse
 
 from delivery_engine import validate_delivery_contract
+from jira_reporting_engine import build_milestone_preview
 from task_tracking_engine import (
     BINDING_HEADERS,
     MAPPING_HEADERS,
     OPERATION_HEADERS,
+    REPORTING_HEADERS,
+    WORKFLOW_HEADERS,
+    MILESTONE_OPERATION_HEADERS,
     PERSONAL_DATA_RE,
     SENSITIVE_VALUE_RE,
     TrackingContractError,
@@ -63,8 +67,11 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         manifest = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise TrackingCommandError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(manifest, dict) or manifest.get("schema_version") != "1.4":
-        raise TrackingCommandError("La gestión de tracking requiere schema 1.4.")
+    if not isinstance(manifest, dict) or manifest.get("schema_version") not in {
+        "1.4",
+        "1.5",
+    }:
+        raise TrackingCommandError("La gestión de tracking requiere schema 1.4 o 1.5.")
     return path, manifest, original
 
 
@@ -294,6 +301,7 @@ def _configuration_replacement(
         )
     ]
     durable_state = bool(durable_mappings or contract["operations"])
+    coordination_gate = "not-required"
     if args.mode == "repository-only":
         if durable_state and contract["binding"].get("Mode") != "repository-only":
             raise TrackingCommandError(
@@ -351,6 +359,12 @@ def _configuration_replacement(
                 "mappings durables; 0.10 no ofrece detach/rebind y exige preservar "
                 "este binding o iniciar un nuevo contrato de proyecto."
             )
+        coordination_gate = (
+            getattr(args, "coordination_gate", None)
+            or "required-before-execution"
+        )
+        if manifest.get("schema_version") == "1.4":
+            coordination_gate = "required-before-execution"
         row = {
             "State": "confirmed",
             "Mode": "jira-hybrid",
@@ -358,7 +372,7 @@ def _configuration_replacement(
             "Site": site,
             "Project": project,
             "Issue type": issue_type,
-            "Sync policy": "required-before-execution",
+            "Sync policy": coordination_gate,
             "Write policy": "preview-and-confirm",
             "Decision": decision,
             "Last reviewed": change_date,
@@ -371,7 +385,7 @@ def _configuration_replacement(
             "site": site,
             "project_key": project,
             "issue_type": issue_type,
-            "sync_policy": "required-before-execution",
+            "sync_policy": coordination_gate,
             "write_policy": "preview-and-confirm",
             "projection_fingerprint": None,
             "sync_status": "pending",
@@ -386,6 +400,49 @@ def _configuration_replacement(
             ):
                 index_updates[field] = current_index.get(field)
     updated_text = _replace_row(contract["text"], BINDING_HEADERS, binding_id, row)
+    if manifest.get("schema_version") == "1.5":
+        reporting_scope = (
+            "not-applicable"
+            if args.mode == "repository-only"
+            else getattr(args, "reporting_scope", None) or "projection-only"
+        )
+        reporting_state = "confirmed"
+        reporting_row = {
+            "State": reporting_state,
+            "Scope": reporting_scope,
+            "Coordination gate": (
+                "not-required"
+                if args.mode == "repository-only"
+                else coordination_gate
+            ),
+            "Comment policy": (
+                "milestones-only"
+                if reporting_scope == "milestone-reporting"
+                else "not-applicable"
+            ),
+            "Decision": decision,
+            "Last reviewed": change_date,
+        }
+        updated_text = _replace_row(
+            updated_text,
+            REPORTING_HEADERS,
+            contract["reporting"].get("Reporting", "RPT-001"),
+            reporting_row,
+        )
+        index_updates.update(
+            reporting_scope=reporting_scope,
+            coordination_gate=(
+                "not-required"
+                if args.mode == "repository-only"
+                else coordination_gate
+            ),
+            reporting_status=(
+                "not-required"
+                if reporting_scope in {"not-applicable", "projection-only"}
+                else "ready"
+            ),
+            last_reported_on=None,
+        )
     updated_text = _frontmatter_date(updated_text, change_date)
     updated_manifest = json.loads(json.dumps(manifest))
     task_tracking = updated_manifest.get("task_tracking")
@@ -404,6 +461,8 @@ def _configuration_replacement(
         "jira_target": None
         if args.mode == "repository-only"
         else {"site": args.site, "project": args.project, "issue_type": args.issue_type},
+        "reporting_scope": index_updates.get("reporting_scope"),
+        "coordination_gate": index_updates.get("coordination_gate"),
     }
     return contract["path"], contract["text"].encode("utf-8"), updated_text.encode(
         "utf-8"
@@ -1250,6 +1309,465 @@ def reconcile_result(root: Path, args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _next_shared_sync_id(contract: dict[str, Any]) -> str:
+    numbers = [
+        int(match.group(1))
+        for row in [
+            *contract.get("operations", []),
+            *contract.get("milestone_operations", []),
+        ]
+        if (match := re.fullmatch(r"SYNC-([0-9]{3})", row.get("ID", "")))
+    ]
+    number = max(numbers, default=0) + 1
+    if number > 999:
+        raise TrackingCommandError("Se agotó el espacio SYNC-###.")
+    return f"SYNC-{number:03d}"
+
+
+def _reporting_status(
+    reporting: dict[str, str], operations: list[dict[str, str]]
+) -> str:
+    if reporting.get("Scope") != "milestone-reporting":
+        return "not-required"
+    if reporting.get("State") == "paused":
+        return "paused"
+    latest: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for row in operations:
+        latest[
+            (
+                row.get("Task", ""),
+                row.get("Source ref", ""),
+                row.get("Event kind", ""),
+                row.get("Action", ""),
+            )
+        ] = row
+    states = {row.get("State", "") for row in latest.values()}
+    if states.intersection({"conflict", "reconciliation-required"}):
+        return "reconciliation-required"
+    if "failed" in states:
+        return "failed"
+    if "authorized" in states:
+        return "pending"
+    return "ready"
+
+
+def configure_workflow(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    manifest_path, manifest, manifest_original = _load_manifest(root)
+    if manifest.get("schema_version") != "1.5":
+        raise TrackingCommandError("configure-workflow exige schema 1.5.")
+    contract = load_tracking_contract(root, manifest)
+    if (
+        contract["binding"].get("Mode") != "jira-hybrid"
+        or contract["reporting"].get("Scope") != "milestone-reporting"
+    ):
+        raise TrackingCommandError(
+            "configure-workflow exige jira-hybrid con milestone-reporting."
+        )
+    local_state = _safe_cell("--local-state", args.local_state)
+    status_id = _safe_cell("--jira-status-id", args.jira_status_id)
+    if not re.fullmatch(r"[1-9][0-9]{0,30}", status_id):
+        raise TrackingCommandError("--jira-status-id debe ser numérico.")
+    status_name = _safe_cell("--jira-status-name", args.jira_status_name)
+    decision = _safe_cell("--decision", args.decision)
+    try:
+        require_confirmed_tracking_decision(root, decision, "jira-hybrid")
+    except TrackingContractError as exc:
+        raise TrackingCommandError(str(exc)) from exc
+    change_date = _iso_date(args.date)
+    values = {
+        "State": "confirmed",
+        "Jira status ID": status_id,
+        "Jira status name": status_name,
+        "Decision": decision,
+        "Last reviewed": change_date,
+    }
+    existing = contract["workflow"].get(local_state)
+    if existing:
+        updated_text = _replace_row(
+            contract["text"], WORKFLOW_HEADERS, local_state, values
+        )
+    else:
+        updated_text = _append_row(
+            contract["text"],
+            WORKFLOW_HEADERS,
+            [local_state] + [values[item] for item in WORKFLOW_HEADERS[1:]],
+        )
+    updated_text = _frontmatter_date(updated_text, change_date)
+    payload = {
+        "action": "configure-jira-workflow",
+        "local_state": local_state,
+        "jira_status_id": status_id,
+        "jira_status_name": status_name,
+        "decision": decision,
+        "date": change_date,
+    }
+    replacement = updated_text.encode("utf-8")
+    original = contract["text"].encode("utf-8")
+    mutation_hash = _mutation_hash([original], [replacement], payload)
+    result = {**payload, "mutation_hash": mutation_hash, "applied": False}
+    if args.apply:
+        if args.authorize != mutation_hash:
+            raise TrackingCommandError(
+                "--apply exige --authorize con el mutation_hash exacto."
+            )
+        _apply_and_validate(root, [contract["path"]], [original], [replacement])
+        result["applied"] = True
+    return result
+
+
+def set_reporting_state(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    manifest_path, manifest, manifest_original = _load_manifest(root)
+    if manifest.get("schema_version") != "1.5":
+        raise TrackingCommandError("pause-reporting/resume-reporting exige schema 1.5.")
+    contract = load_tracking_contract(root, manifest)
+    reporting = contract["reporting"]
+    if reporting.get("Scope") != "milestone-reporting":
+        raise TrackingCommandError("El proyecto no tiene milestone-reporting habilitado.")
+    if any(
+        row.get("State") == "authorized"
+        for row in contract["milestone_operations"]
+    ):
+        raise TrackingCommandError(
+            "Cierre o reconcilie las acciones Jira autorizadas antes de cambiar la pausa."
+        )
+    requested = "paused" if args.command == "pause-reporting" else "confirmed"
+    change_date = _iso_date(args.date)
+    updated_text = _replace_row(
+        contract["text"],
+        REPORTING_HEADERS,
+        reporting["Reporting"],
+        {"State": requested, "Last reviewed": change_date},
+    )
+    updated_text = _frontmatter_date(updated_text, change_date)
+    updated_manifest = json.loads(json.dumps(manifest))
+    updated_manifest["task_tracking"]["reporting_status"] = (
+        "paused"
+        if requested == "paused"
+        else _reporting_status(
+            {**reporting, "State": requested},
+            contract["milestone_operations"],
+        )
+    )
+    payload = {
+        "action": args.command,
+        "reporting_id": reporting["Reporting"],
+        "state": requested,
+        "date": change_date,
+    }
+    replacements = [
+        _manifest_bytes(updated_manifest),
+        updated_text.encode("utf-8"),
+    ]
+    originals = [manifest_original, contract["text"].encode("utf-8")]
+    mutation_hash = _mutation_hash(originals, replacements, payload)
+    result = {**payload, "mutation_hash": mutation_hash, "applied": False}
+    if args.apply:
+        if args.authorize != mutation_hash:
+            raise TrackingCommandError(
+                "--apply exige --authorize con el mutation_hash exacto."
+            )
+        _apply_and_validate(
+            root,
+            [manifest_path, contract["path"]],
+            originals,
+            replacements,
+        )
+        result["applied"] = True
+    return result
+
+
+def _event_preview(root: Path, manifest: dict[str, Any], args: argparse.Namespace) -> dict[str, Any]:
+    return build_milestone_preview(
+        root,
+        manifest,
+        task_id=args.task,
+        source_ref=args.source_ref,
+        event_kind=args.event_kind,
+        observed_status_id=getattr(args, "observed_status_id", None),
+        transition_id=getattr(args, "transition_id", None),
+    )
+
+
+def authorize_event(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    if not args.apply:
+        raise TrackingCommandError("authorize-event exige --apply.")
+    manifest_path, manifest, manifest_original = _load_manifest(root)
+    contract = load_tracking_contract(root, manifest)
+    preview = _event_preview(root, manifest, args)
+    if preview["preview_hash"] != args.preview_hash:
+        raise TrackingCommandError(
+            "El preview cambió; repita la lectura Jira y confirme el hash nuevo."
+        )
+    dispositions = {
+        item.get("disposition") for item in preview["operations"]
+    }
+    if dispositions != {"write"}:
+        raise TrackingCommandError(
+            "El hito no admite otra escritura: " + ", ".join(sorted(dispositions))
+        )
+    if args.comment_check != "no-match":
+        raise TrackingCommandError(
+            "Una autorización de comentario exige búsqueda exacta del marker sin coincidencias."
+        )
+    authorized_on = _iso_date(args.authorized_on)
+    authorized_by_role = _safe_cell(
+        "--authorized-by-role", args.authorized_by_role
+    )
+    updated_text = contract["text"]
+    sync_ids: list[str] = []
+    numeric = int(_next_shared_sync_id(contract).removeprefix("SYNC-"))
+    for offset, operation in enumerate(preview["operations"]):
+        sync_id = f"SYNC-{numeric + offset:03d}"
+        if numeric + offset > 999:
+            raise TrackingCommandError("Se agotó el espacio SYNC-###.")
+        sync_ids.append(sync_id)
+        duplicate_check = (
+            "no-match" if operation["action"] == "comment" else "matched"
+        )
+        note = (
+            f"event-marker={preview['event_marker']}"
+            if operation["action"] == "comment"
+            else f"target-status-id={operation['payload']['target_status_id']}"
+        )
+        updated_text = _append_row(
+            updated_text,
+            MILESTONE_OPERATION_HEADERS,
+            [
+                sync_id,
+                "authorized",
+                args.task,
+                args.source_ref,
+                args.event_kind,
+                operation["action"],
+                operation["event_hash"],
+                preview["preview_hash"],
+                duplicate_check,
+                authorized_by_role,
+                authorized_on,
+                str(operation["external_id"]),
+                str(operation["external_key"]),
+                authorized_on,
+                "pending",
+                note,
+            ],
+        )
+    updated_text = _frontmatter_date(updated_text, authorized_on)
+    updated_manifest = json.loads(json.dumps(manifest))
+    updated_manifest["task_tracking"]["reporting_status"] = "pending"
+    _apply_and_validate(
+        root,
+        [manifest_path, contract["path"]],
+        [manifest_original, contract["text"].encode("utf-8")],
+        [_manifest_bytes(updated_manifest), updated_text.encode("utf-8")],
+    )
+    return {
+        "applied": True,
+        "preview_hash": preview["preview_hash"],
+        "event_hash": preview["operations"][0]["event_hash"],
+        "sync_ids": sync_ids,
+        "external_write_authorized": True,
+        "operations": [
+            {**operation, "sync_id": sync_id}
+            for operation, sync_id in zip(preview["operations"], sync_ids, strict=True)
+        ],
+    }
+
+
+def _milestone_by_id(contract: dict[str, Any], sync_id: str) -> dict[str, str]:
+    matches = [
+        row
+        for row in contract["milestone_operations"]
+        if row.get("ID") == sync_id
+    ]
+    if len(matches) != 1:
+        raise TrackingCommandError(f"No existe un único recibo de hito {sync_id}.")
+    return matches[0]
+
+
+def _event_marker(manifest: dict[str, Any], receipt: dict[str, str]) -> str:
+    return (
+        f"LKS-SDD-EVENT: {manifest.get('project_id')}; {receipt['Task']}; "
+        f"{receipt['Source ref']}; {receipt['Event kind']}; "
+        f"{receipt['Event hash'][:16]}"
+    )
+
+
+def record_event_result(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    if not args.apply:
+        raise TrackingCommandError("record-event-result exige --apply.")
+    manifest_path, manifest, manifest_original = _load_manifest(root)
+    contract = load_tracking_contract(root, manifest)
+    receipt = _milestone_by_id(contract, args.sync_id)
+    if receipt.get("State") != "authorized" or receipt.get("Result") != "pending":
+        raise TrackingCommandError(f"{args.sync_id} no está authorized/pending.")
+    change_date = _iso_date(args.date)
+    if change_date < receipt.get("Authorized on", ""):
+        raise TrackingCommandError("--date no puede preceder a la autorización.")
+    if args.result == "succeeded":
+        external_id = _safe_cell("--external-id", args.external_id or "")
+        external_key = _safe_cell("--external-key", args.external_key or "")
+        if external_id != receipt.get("External ID") or external_key != receipt.get(
+            "External key"
+        ):
+            raise TrackingCommandError(
+                "La identidad Jira observada no coincide con el recibo autorizado."
+            )
+        if receipt.get("Action") == "comment":
+            marker = _safe_cell(
+                "--observed-event-marker", args.observed_event_marker or ""
+            )
+            if marker != _event_marker(manifest, receipt):
+                raise TrackingCommandError(
+                    "El marker observado no coincide con el hito autorizado."
+                )
+        else:
+            observed = _safe_cell(
+                "--observed-status-id", args.observed_status_id or ""
+            )
+            target = receipt.get("Notes", "").removeprefix("target-status-id=")
+            if observed != target or not re.fullmatch(r"[1-9][0-9]{0,30}", target):
+                raise TrackingCommandError(
+                    "El estado Jira observado no coincide con la transición autorizada."
+                )
+    state = {
+        "succeeded": "recorded",
+        "failed": "failed",
+        "conflict": "conflict",
+        "uncertain": "reconciliation-required",
+    }[args.result]
+    updated_text = _replace_row(
+        contract["text"],
+        MILESTONE_OPERATION_HEADERS,
+        args.sync_id,
+        {"State": state, "Recorded on": change_date, "Result": args.result},
+    )
+    updated_text = _frontmatter_date(updated_text, change_date)
+    rows = [
+        {**row, **(
+            {"State": state, "Recorded on": change_date, "Result": args.result}
+            if row.get("ID") == args.sync_id
+            else {}
+        )}
+        for row in contract["milestone_operations"]
+    ]
+    updated_manifest = json.loads(json.dumps(manifest))
+    updated_manifest["task_tracking"].update(
+        reporting_status=_reporting_status(contract["reporting"], rows),
+        last_reported_on=max(
+            row.get("Recorded on", "")
+            for row in rows
+            if row.get("State") != "authorized"
+        ),
+    )
+    _apply_and_validate(
+        root,
+        [manifest_path, contract["path"]],
+        [manifest_original, contract["text"].encode("utf-8")],
+        [_manifest_bytes(updated_manifest), updated_text.encode("utf-8")],
+    )
+    return {
+        "applied": True,
+        "sync_id": args.sync_id,
+        "task": receipt["Task"],
+        "action": receipt["Action"],
+        "result": args.result,
+        "reporting_status": updated_manifest["task_tracking"]["reporting_status"],
+    }
+
+
+def reconcile_event(root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    if not args.apply:
+        raise TrackingCommandError("reconcile-event exige --apply.")
+    manifest_path, manifest, manifest_original = _load_manifest(root)
+    contract = load_tracking_contract(root, manifest)
+    anchor = _milestone_by_id(contract, args.anchor_sync_id)
+    if anchor.get("State") not in {"conflict", "reconciliation-required"}:
+        raise TrackingCommandError(
+            "El ancla debe ser un resultado conflict o reconciliation-required."
+        )
+    authorized_on = _iso_date(args.authorized_on)
+    change_date = _iso_date(args.date)
+    if authorized_on > change_date:
+        raise TrackingCommandError("--authorized-on no puede ser posterior a --date.")
+    role = _safe_cell("--authorized-by-role", args.authorized_by_role)
+    if args.result == "succeeded":
+        if anchor.get("Action") == "comment":
+            if _safe_cell(
+                "--observed-event-marker", args.observed_event_marker or ""
+            ) != _event_marker(manifest, anchor):
+                raise TrackingCommandError("El marker reconciliado no coincide.")
+        else:
+            target = anchor.get("Notes", "").removeprefix("target-status-id=")
+            if _safe_cell(
+                "--observed-status-id", args.observed_status_id or ""
+            ) != target:
+                raise TrackingCommandError("El estado reconciliado no coincide.")
+    sync_id = _next_shared_sync_id(contract)
+    state = {
+        "succeeded": "recorded",
+        "failed": "failed",
+        "conflict": "conflict",
+        "uncertain": "reconciliation-required",
+    }[args.result]
+    updated_text = _append_row(
+        contract["text"],
+        MILESTONE_OPERATION_HEADERS,
+        [
+            sync_id,
+            state,
+            anchor["Task"],
+            anchor["Source ref"],
+            anchor["Event kind"],
+            anchor["Action"],
+            anchor["Event hash"],
+            anchor["Preview hash"],
+            (
+                "matched"
+                if anchor["Action"] == "transition" or args.result == "succeeded"
+                else "no-match"
+                if args.result == "failed"
+                else args.result
+            ),
+            role,
+            authorized_on,
+            anchor["External ID"],
+            anchor["External key"],
+            change_date,
+            args.result,
+            f"reconciles={args.anchor_sync_id};{anchor['Notes']}",
+        ],
+    )
+    updated_text = _frontmatter_date(updated_text, change_date)
+    rows = [
+        *contract["milestone_operations"],
+        {
+            **anchor,
+            "ID": sync_id,
+            "State": state,
+            "Result": args.result,
+            "Recorded on": change_date,
+        },
+    ]
+    updated_manifest = json.loads(json.dumps(manifest))
+    updated_manifest["task_tracking"].update(
+        reporting_status=_reporting_status(contract["reporting"], rows),
+        last_reported_on=change_date,
+    )
+    _apply_and_validate(
+        root,
+        [manifest_path, contract["path"]],
+        [manifest_original, contract["text"].encode("utf-8")],
+        [_manifest_bytes(updated_manifest), updated_text.encode("utf-8")],
+    )
+    return {
+        "applied": True,
+        "sync_id": sync_id,
+        "anchor_sync_id": args.anchor_sync_id,
+        "result": args.result,
+        "reporting_status": updated_manifest["task_tracking"]["reporting_status"],
+    }
+
+
 def _print(result: dict[str, Any], as_json: bool) -> None:
     if as_json:
         print(json.dumps(result, indent=2, ensure_ascii=False))
@@ -1284,6 +1802,16 @@ def main() -> int:
     configure_parser.add_argument("--site")
     configure_parser.add_argument("--project")
     configure_parser.add_argument("--issue-type")
+    configure_parser.add_argument(
+        "--reporting-scope",
+        choices=("projection-only", "milestone-reporting"),
+        default="projection-only",
+    )
+    configure_parser.add_argument(
+        "--coordination-gate",
+        choices=("advisory", "required-before-execution"),
+        default="advisory",
+    )
     configure_parser.add_argument("--apply", action="store_true")
     configure_parser.add_argument("--authorize")
     configure_parser.add_argument("--json", action="store_true", dest="as_json")
@@ -1343,6 +1871,97 @@ def main() -> int:
     reconcile_parser.add_argument("--apply", action="store_true")
     reconcile_parser.add_argument("--json", action="store_true", dest="as_json")
 
+    workflow_parser = subparsers.add_parser("configure-workflow")
+    workflow_parser.add_argument("project_root", type=Path)
+    workflow_parser.add_argument(
+        "--local-state",
+        required=True,
+        choices=("in-progress", "blocked", "in-review", "done"),
+    )
+    workflow_parser.add_argument("--jira-status-id", required=True)
+    workflow_parser.add_argument("--jira-status-name", required=True)
+    workflow_parser.add_argument("--decision", required=True)
+    workflow_parser.add_argument("--date", required=True)
+    workflow_parser.add_argument("--apply", action="store_true")
+    workflow_parser.add_argument("--authorize")
+    workflow_parser.add_argument("--json", action="store_true", dest="as_json")
+
+    for command in ("pause-reporting", "resume-reporting"):
+        state_parser = subparsers.add_parser(command)
+        state_parser.add_argument("project_root", type=Path)
+        state_parser.add_argument("--date", required=True)
+        state_parser.add_argument("--apply", action="store_true")
+        state_parser.add_argument("--authorize")
+        state_parser.add_argument("--json", action="store_true", dest="as_json")
+
+    event_preview_parser = subparsers.add_parser("preview-event")
+    event_preview_parser.add_argument("project_root", type=Path)
+    event_preview_parser.add_argument("--task", required=True)
+    event_preview_parser.add_argument("--source-ref", required=True)
+    event_preview_parser.add_argument(
+        "--event-kind",
+        required=True,
+        choices=(
+            "started",
+            "progress",
+            "blocked",
+            "resumed",
+            "in-review",
+            "verification-pending",
+            "verification-failed",
+            "done",
+        ),
+    )
+    event_preview_parser.add_argument("--observed-status-id")
+    event_preview_parser.add_argument("--transition-id")
+    event_preview_parser.add_argument("--json", action="store_true", dest="as_json")
+
+    event_authorize_parser = subparsers.add_parser("authorize-event")
+    event_authorize_parser.add_argument("project_root", type=Path)
+    event_authorize_parser.add_argument("--task", required=True)
+    event_authorize_parser.add_argument("--source-ref", required=True)
+    event_authorize_parser.add_argument(
+        "--event-kind", required=True, choices=event_preview_parser._option_string_actions["--event-kind"].choices
+    )
+    event_authorize_parser.add_argument("--observed-status-id")
+    event_authorize_parser.add_argument("--transition-id")
+    event_authorize_parser.add_argument("--preview-hash", required=True)
+    event_authorize_parser.add_argument("--authorized-by-role", required=True)
+    event_authorize_parser.add_argument("--authorized-on", required=True)
+    event_authorize_parser.add_argument(
+        "--comment-check", required=True, choices=("no-match", "matched")
+    )
+    event_authorize_parser.add_argument("--apply", action="store_true")
+    event_authorize_parser.add_argument("--json", action="store_true", dest="as_json")
+
+    event_record_parser = subparsers.add_parser("record-event-result")
+    event_record_parser.add_argument("project_root", type=Path)
+    event_record_parser.add_argument("--sync-id", required=True)
+    event_record_parser.add_argument(
+        "--result", required=True, choices=("succeeded", "failed", "conflict", "uncertain")
+    )
+    event_record_parser.add_argument("--external-id")
+    event_record_parser.add_argument("--external-key")
+    event_record_parser.add_argument("--observed-event-marker")
+    event_record_parser.add_argument("--observed-status-id")
+    event_record_parser.add_argument("--date", required=True)
+    event_record_parser.add_argument("--apply", action="store_true")
+    event_record_parser.add_argument("--json", action="store_true", dest="as_json")
+
+    event_reconcile_parser = subparsers.add_parser("reconcile-event")
+    event_reconcile_parser.add_argument("project_root", type=Path)
+    event_reconcile_parser.add_argument("--anchor-sync-id", required=True)
+    event_reconcile_parser.add_argument(
+        "--result", required=True, choices=("succeeded", "failed", "conflict", "uncertain")
+    )
+    event_reconcile_parser.add_argument("--authorized-by-role", required=True)
+    event_reconcile_parser.add_argument("--authorized-on", required=True)
+    event_reconcile_parser.add_argument("--observed-event-marker")
+    event_reconcile_parser.add_argument("--observed-status-id")
+    event_reconcile_parser.add_argument("--date", required=True)
+    event_reconcile_parser.add_argument("--apply", action="store_true")
+    event_reconcile_parser.add_argument("--json", action="store_true", dest="as_json")
+
     args = parser.parse_args()
     root = args.project_root.expanduser().resolve()
     try:
@@ -1362,8 +1981,21 @@ def main() -> int:
             result = authorize_sync(root, args)
         elif args.command == "record-result":
             result = record_result(root, args)
-        else:
+        elif args.command == "reconcile-result":
             result = reconcile_result(root, args)
+        elif args.command == "configure-workflow":
+            result = configure_workflow(root, args)
+        elif args.command in {"pause-reporting", "resume-reporting"}:
+            result = set_reporting_state(root, args)
+        elif args.command == "preview-event":
+            _, manifest, _ = _load_manifest(root)
+            result = _event_preview(root, manifest, args)
+        elif args.command == "authorize-event":
+            result = authorize_event(root, args)
+        elif args.command == "record-event-result":
+            result = record_event_result(root, args)
+        else:
+            result = reconcile_event(root, args)
     except (TrackingCommandError, TrackingContractError, OSError) as exc:
         if args.as_json:
             print(

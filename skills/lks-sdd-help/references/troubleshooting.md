@@ -38,7 +38,7 @@ No repita el mismo comando con `--apply`: la operación se rechazará siempre an
 
 ## La trazabilidad pasa sin comprobar nada
 
-Eso no es válido en 0.10.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
+Eso no es válido en 0.11.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
 
 ## La ejecución de verificación se bloquea aunque el plan existe
 

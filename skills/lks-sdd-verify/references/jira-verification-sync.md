@@ -1,37 +1,30 @@
-# Sincronización Jira después de verificar
+# Reporting Jira después de verificar
 
-La evidencia LKS-SDD se produce y valida localmente. Jira solo puede reflejar un resultado que ya sea durable en el contrato canónico.
+La verificación y su evidencia se producen localmente. Jira solo refleja un resultado ya durable; nunca demuestra que un gate se ejecutó ni autoriza `done`.
+
+## Hitos de verificación
+
+Con `jira-hybrid` y `RPT-###` en `milestone-reporting`:
+
+| Event kind | Condición local | Fuente |
+|---|---|---|
+| `verification-pending` | TASK `in-review`; verificación aún pendiente | `CKPT-###` |
+| `verification-failed` | TASK `in-review`; evidencia ejecutada no supera gates | `EVID-###` |
+| `done` | TASK `done`; manifest `verification.status=verified` para la TASK | el `EVID-###` exacto |
+
+`not-run`, `blocked`, `not-verified`, evidencia incompleta o `verified-with-reservations` nunca se convierten en una transición Jira a Done-equivalente. Un Jira ya marcado Done tampoco permite fabricar evidencia local.
 
 ## Secuencia obligatoria
 
-1. Planifica y ejecuta los gates aplicables sin usar Jira como evidencia.
-2. Registra el resultado, `EVID-###` cuando proceda, y el checkpoint canónico.
-3. Determina el estado local permitido por la evidencia ejecutada.
-4. Solo después ejecuta `preview-sync` para una única `--task` y comprueba si los campos gobernados necesitan un `update` Jira.
-5. Con lectura Rovo autorizada, exige que identidad y marker coincidan (`duplicate-check=matched`).
-6. Persiste `authorize-sync --apply` para el hash exacto antes de escribir; después ejecuta únicamente ese update.
-7. Relee el work item y cierra el recibo por `record-result --sync-id`. Un éxito exige marker y fingerprint observados, y no cambia la evidencia ni la TASK canónica.
+1. Ejecuta y registra primero los gates, `EVID-###`, checkpoint y transición TASK canónicos.
+2. Mantén la proyección de campos gobernados por su flujo separado si ha cambiado.
+3. Genera `preview-event` para una sola TASK y fuente exacta. `done` falla cerrado si el manifest no enlaza la evidencia verified.
+4. Con lectura Rovo autorizada, verifica identidad, ausencia del marker exacto y, si hay mapping de workflow, status ID actual y transition ID disponible.
+5. Presenta comentario y transición opcional como una unidad. Una confirmación del `preview_hash` es suficiente para el hito, pero `authorize-event` registra un `SYNC-###` por operación antes de cualquier escritura.
+6. Ejecuta las operaciones mediante Rovo, relee Jira y cierra cada recibo de forma independiente con `record-event-result`.
 
-Una autorización de verificación o promoción no autoriza Jira.
-
-## Reglas de estado
-
-- `not-run`, `failed`, `blocked`, `not-verified` o evidencia incompleta nunca permiten una transición Jira a Done o equivalente.
-- `verified-with-reservations` no se convierte automáticamente en Done.
-- Solo una `TASK-###` local que pueda pasar legítimamente a `done`, con evidencia exacta y vigente, sería elegible para proyectarse a un estado Jira equivalente.
-- Un Jira ya marcado Done no prueba verificación ni permite fabricar `EVID-###`.
-- La verificación conjunta de release y la promoción siguen siendo decisiones distintas del estado de sus work items.
-
-El contrato local inicial no genera ni registra previews de transición. Aunque una tarea sea elegible, no transiciones Jira a Done desde esta skill mientras la versión instalada no pueda previsualizar la transición exacta y conservar su recibo durable. No asumas nombres o IDs de workflow.
-
-## Comentarios y datos
-
-El contrato inicial tampoco registra comentarios. No los publiques hasta que exista soporte de preview y recibo para esa operación. Cuando una versión posterior lo soporte y el usuario lo solicite, resume el resultado y enlaza únicamente referencias aprobadas; no copies logs completos, secretos, datos personales, rutas locales sensibles ni artefactos inaccesibles para el destinatario.
-
-No registres worklogs, reasignes usuarios, borres, archives ni modifiques campos fuera del mapping.
+Los comentarios son resúmenes saneados: no copies logs, secretos, datos personales, rutas absolutas o artefactos inaccesibles. No registres worklogs, no reasignes, no borres y no archives.
 
 ## Fallo externo
 
-Un fallo, timeout o permiso denegado en Jira no invalida gates ejecutados, evidencia, fingerprint ni estado local. Cierra el `sync_id` como `failed`, `conflict` o `uncertain`. Ante un resultado incierto/conflictivo, no repitas la operación; realiza una lectura Rovo autorizada y registra `reconcile-result --anchor-sync-id <Last-operation-cerrado>`. Un éxito exige marker exacto y una huella igual al ancla o al plan actual; un cambio de key conserva el mismo `external_id` y el prefijo del proyecto confirmado. Si coincide con el ancla pero no con el plan actual, queda `out-of-sync`; si no puede determinarse, conserva el bloqueo. Reconciliar no habilita cambiar/abandonar el binding durable y 0.10.0 no ofrece `detach`/`rebind`.
-
-No proyectes fichas `confidential`/`restricted`, secretos o datos personales detectables, ni persistas URLs con credenciales, query o fragmento.
+Un fallo Jira no invalida gates, fingerprints, evidencia o TASK local. Registra `failed`, `conflict` o `uncertain` según el hecho observado. No repitas un resultado incierto: realiza una lectura autorizada y usa `reconcile-event --anchor-sync-id`; la resolución queda como un nuevo recibo append-only. Con gate `advisory`, entrega la verificación local y señala la degradación. Con gate `required-before-execution`, aplica únicamente la coordinación previamente confirmada sin reescribir la evidencia.

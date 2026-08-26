@@ -24,6 +24,7 @@ PROJECT_SCHEMAS = {
     "1.2": PLUGIN_ROOT / "schemas" / "project-1.2.schema.json",
     "1.3": PLUGIN_ROOT / "schemas" / "project-1.3.schema.json",
     "1.4": PLUGIN_ROOT / "schemas" / "project-1.4.schema.json",
+    "1.5": PLUGIN_ROOT / "schemas" / "project-1.5.schema.json",
 }
 FRONTMATTER_SCHEMAS = {
     "1.0": PLUGIN_ROOT / "schemas" / "frontmatter.schema.json",
@@ -31,6 +32,7 @@ FRONTMATTER_SCHEMAS = {
     "1.2": PLUGIN_ROOT / "schemas" / "frontmatter-1.2.schema.json",
     "1.3": PLUGIN_ROOT / "schemas" / "frontmatter-1.3.schema.json",
     "1.4": PLUGIN_ROOT / "schemas" / "frontmatter-1.4.schema.json",
+    "1.5": PLUGIN_ROOT / "schemas" / "frontmatter-1.5.schema.json",
 }
 CATALOGS = json.loads(
     (PLUGIN_ROOT / "schemas" / "catalogs.json").read_text(encoding="utf-8")
@@ -41,18 +43,21 @@ DOCUMENT_CONTRACTS = json.loads(
 ALL_ID_PREFIXES = set(CATALOGS["identifier_prefixes"]) | set(
     DOCUMENT_CONTRACTS["identifier_prefixes"]
 )
-V14_ONLY_ID_PREFIXES = {"TRK", "SYNC"}
+TRACKING_ID_PREFIXES = {"TRK", "SYNC"}
+V15_ONLY_ID_PREFIXES = {"RPT"}
 
 
 def _id_re_for_schema(schema_version: str) -> re.Pattern[str]:
     prefixes = set(ALL_ID_PREFIXES)
-    if schema_version != "1.4":
-        prefixes -= V14_ONLY_ID_PREFIXES
+    if schema_version not in {"1.4", "1.5"}:
+        prefixes -= TRACKING_ID_PREFIXES
+    if schema_version != "1.5":
+        prefixes -= V15_ONLY_ID_PREFIXES
     pattern = "|".join(re.escape(prefix) for prefix in sorted(prefixes))
     return re.compile(rf"\b(?:{pattern})-[0-9]{{3}}\b")
 
 
-ID_RE = _id_re_for_schema("1.4")
+ID_RE = _id_re_for_schema("1.5")
 VALID_ELEMENT_STATES = set(CATALOGS["element_states"])
 V14_ONLY_ELEMENT_STATES = {
     "unlinked",
@@ -1746,7 +1751,7 @@ def load_project_manifest(
     schema_path = PROJECT_SCHEMAS.get(schema_version)
     if schema_path is None:
         return data, [
-            f"project.schema_version={schema_version!r} no está soportado; use 1.0, 1.1, 1.2, 1.3 o 1.4."
+            f"project.schema_version={schema_version!r} no está soportado; use 1.0 a 1.5."
         ]
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -1786,7 +1791,7 @@ def validate_project(
     schema_version = str(manifest.get("schema_version", ""))
     id_re = _id_re_for_schema(schema_version)
     valid_element_states = set(VALID_ELEMENT_STATES)
-    if schema_version != "1.4":
+    if schema_version not in {"1.4", "1.5"}:
         valid_element_states -= V14_ONLY_ELEMENT_STATES
     frontmatter_schema = json.loads(
         FRONTMATTER_SCHEMAS[schema_version].read_text(encoding="utf-8")
@@ -2727,11 +2732,11 @@ def validate_project(
         report.errors.append(f"{relative}: referencia sin definición: {reference}")
 
     for artifact_id, (expected_path, _) in CORE_ARTIFACTS.items():
-        if artifact_id in V12_CORE_ARTIFACTS and schema_version not in {"1.2", "1.3", "1.4"}:
+        if artifact_id in V12_CORE_ARTIFACTS and schema_version not in {"1.2", "1.3", "1.4", "1.5"}:
             continue
-        if artifact_id in V13_CORE_ARTIFACTS and schema_version not in {"1.3", "1.4"}:
+        if artifact_id in V13_CORE_ARTIFACTS and schema_version not in {"1.3", "1.4", "1.5"}:
             continue
-        if artifact_id in V14_CORE_ARTIFACTS and schema_version != "1.4":
+        if artifact_id in V14_CORE_ARTIFACTS and schema_version not in {"1.4", "1.5"}:
             continue
         entry = artifact_entries.get(artifact_id)
         if entry is None:
@@ -2815,7 +2820,7 @@ def validate_project(
             report.errors.append(
                 f"La decisión {selection_decision} no identifica el perfil seleccionado {selected_profile}."
             )
-    if schema_version in {"1.2", "1.3", "1.4"} and isinstance(technology, dict):
+    if schema_version in {"1.2", "1.3", "1.4", "1.5"} and isinstance(technology, dict):
         bindings = technology.get("profile_bindings", [])
         if bindings and technology.get("preferred_stack_assessed") is not True:
             report.errors.append(
@@ -2877,7 +2882,7 @@ def validate_project(
     elif "adoption" in manifest:
         report.warnings.append("La ruta new no necesita un bloque adoption.")
 
-    if schema_version in {"1.2", "1.3", "1.4"}:
+    if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
         from delivery_engine import validate_delivery_contract
 
         delivery = validate_delivery_contract(root, manifest)
@@ -2889,7 +2894,7 @@ def validate_project(
         )
         report.checked_files.extend(delivery["checked_files"])
 
-    if schema_version == "1.4":
+    if schema_version in {"1.4", "1.5"}:
         from task_tracking_engine import validate_tracking_contract
 
         tracking = validate_tracking_contract(root, manifest)

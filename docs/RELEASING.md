@@ -31,7 +31,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "0.10.0"
+$releaseVersion = "0.11.0"
 $releaseDate = "2026-08-26"
 $releaseTag = "v$releaseVersion"
 
@@ -118,11 +118,11 @@ Cada nota incluye como mínimo:
 - resultados de tests, evals y canales que siguen `not-run`;
 - vulnerabilidades conocidas y otras limitaciones;
 - instrucciones de actualización;
-- migración o declaración explícita de que no se requiere; si `human_review_required` contiene entradas en 1.0 → 1.1, las notas deben indicar que la aplicación queda siempre bloqueada antes de escribir hasta resolver cada entrada en el origen y repetir el preview con lista vacía. La `Identity` agregada se traslada aparte a tres dominios `pending`: no bloquea la escritura de ese salto, pero sí readiness hasta su resolución. El salto 1.1 → 1.2 crea gobierno, bindings, planes y tareas pendientes; 1.2 → 1.3 añade cobertura, autorización y continuidad vacías sin inferir decisiones o avance; 1.3 → 1.4 añade tracking sin crear issues, consultar Rovo ni inventar confirmación, y conserva congelada la salida histórica 1.2 → 1.3;
+- migración o declaración explícita de que no se requiere; preserve las reglas históricas 1.0 → 1.4. El salto 1.4 → 1.5 añade reporting con defaults conservadores, sin consultar Rovo, inferir workflow o publicar comentarios/transiciones, y conserva congeladas las salidas históricas;
 - rollback;
 - periodo o estado de soporte;
 - responsables confirmados o, si todavía no existen, el pendiente explícito.
 
-Para 0.10.0, las notas deben distinguir además el modelo local validado de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Rovo/Jira real como `passed`; esa evidencia pertenece al canal humano/piloto y permanece `not-run` hasta una ejecución autorizada. La propuesta 1.4 debe citarse como candidate no canónica mientras no exista una decisión metodológica separada.
+Para 0.11.0, las notas deben distinguir el modelo local validado de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Rovo/Jira real como `passed`; esa evidencia pertenece al canal humano/piloto y permanece `not-run` hasta una ejecución autorizada. Las propuestas 1.4/1.5 deben citarse como candidate no canónicas mientras no exista una decisión metodológica separada.
 
 El validador contractual compara dinámicamente la versión del manifiesto con la primera entrada del changelog y `docs/releases/vX.Y.Z.md`. La etiqueta se comprueba únicamente al publicar, porque los commits intermedios no constituyen una release.

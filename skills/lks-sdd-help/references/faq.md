@@ -42,9 +42,9 @@ No. LKS-SDD muestra por separado especificación, automatización, cobertura int
 
 `planning_completeness: complete` exige que todo el alcance activo, criterios y pruebas tengan tarea responsable, todas las fichas sean ejecutables, release/tablero/cobertura concuerden, el DAG no tenga ciclos y exista integración conjunta. La salida enumera cualquier hueco concreto. No se calcula a partir de un porcentaje ni de que exista una tarea lista.
 
-## ¿Actualizar a 0.10.0 cambia mis documentos anteriores?
+## ¿Actualizar a 0.11.0 cambia mis documentos anteriores?
 
-No. LKS-SDD 0.10.0 usa método 1.4.0 y esquema 1.4 para proyectos nuevos, pero no migra proyectos existentes al actualizar el plugin. Los proyectos 1.0, 1.1, 1.2 y 1.3 siguen validándose en compatibilidad. Llegar a 1.4 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto histórico 1.2 → 1.3 sigue fijado a método 1.3.0/plugin 0.9.1; 1.3 → 1.4 añade tracking pendiente sin consultar Jira, crear issues ni interpretar el proyecto anterior como aprobación.
+No. LKS-SDD 0.11.0 usa método 1.5.0 y esquema 1.5 para proyectos nuevos, pero no migra proyectos existentes al actualizar el plugin. Los proyectos 1.0–1.4 siguen validándose en compatibilidad. Llegar a 1.5 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.4 → 1.5 conserva `repository-only` como no aplicable y un Jira existente como `projection-only`; no infiere reporting, workflow mappings, comentarios ni transiciones.
 
 ## ¿Qué permite reanudar sin recordar el chat?
 
@@ -64,4 +64,4 @@ No se garantiza. LKS-SDD se implementa y soporta como plugin para Codex. Los doc
 
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 
-El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir contenido humano. En 1.3 y 1.4, readiness y cobertura se derivan al consultar; el índice solo conserva referencias y huellas confirmadas, no una aprobación implícita.
+El Markdown canónico. `.lks-sdd/project.json` es un índice que debe corregirse de forma explícita, sin reescribir contenido humano. En 1.3, 1.4 y 1.5, readiness y cobertura se derivan al consultar; el índice solo conserva referencias, huellas y estados operativos resumidos, no una aprobación implícita.

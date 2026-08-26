@@ -424,10 +424,10 @@ class M3WorkflowTests(unittest.TestCase):
                 path = root / entry["path"]
                 text = (
                     path.read_text(encoding="utf-8")
-                    .replace('schema_version: "1.4"', 'schema_version: "1.0"')
-                    .replace('method_version: "1.4.0"', 'method_version: "1.0.0"')
+                    .replace('schema_version: "1.5"', 'schema_version: "1.0"')
+                    .replace('method_version: "1.5.0"', 'method_version: "1.0.0"')
                     .replace(
-                        'created_with_plugin_version: "0.10.0"',
+                        'created_with_plugin_version: "0.11.0"',
                         'created_with_plugin_version: "0.6.1"',
                     )
                     .replace(

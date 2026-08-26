@@ -21,7 +21,8 @@ from typing import Any, Iterable, Mapping, Sequence
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CATALOG = PLUGIN_ROOT / "schemas" / "document-contracts.json"
 ELEMENT_ID_RE = re.compile(r"^(?P<prefix>[A-Z][A-Z0-9]*)-(?P<number>[0-9]{3})$")
-V14_ONLY_IDENTIFIER_PREFIXES = frozenset({"TRK", "SYNC"})
+TRACKING_IDENTIFIER_PREFIXES = frozenset({"TRK", "SYNC"})
+V15_ONLY_IDENTIFIER_PREFIXES = frozenset({"RPT"})
 ARTIFACT_MARKER_RE = re.compile(r"\bART-[A-Z0-9-]+\b")
 MARKDOWN_IMAGE_RE = re.compile(r"^!\[[^\]]*\]\(([^)]+)\)$")
 EMPTY_REFERENCE_VALUES = {"", "none", "n/a"}
@@ -340,21 +341,26 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
     missing = sorted(required - set(value))
     if missing:
         raise ContractEngineError(f"Catálogo incompleto; faltan {missing}.")
-    if value.get("catalog_version") != "1.4":
+    if value.get("catalog_version") != "1.5":
         raise ContractEngineError(
-            "El catálogo documental debe usar catalog_version 1.4."
+            "El catálogo documental debe usar catalog_version 1.5."
         )
     supported = value.get("supported_project_schemas")
     if not isinstance(supported, list) or set(supported) != {
-        "1.0", "1.1", "1.2", "1.3", "1.4"
+        "1.0", "1.1", "1.2", "1.3", "1.4", "1.5"
     }:
         raise ContractEngineError(
-            "El catálogo debe declarar soporte explícito 1.0, 1.1, 1.2, 1.3 y 1.4."
+            "El catálogo debe declarar soporte explícito 1.0 a 1.5."
         )
     inheritance = value.get("schema_inheritance")
-    if inheritance != {"1.2": "1.1", "1.3": "1.2", "1.4": "1.3"}:
+    if inheritance != {
+        "1.2": "1.1",
+        "1.3": "1.2",
+        "1.4": "1.3",
+        "1.5": "1.4",
+    }:
         raise ContractEngineError(
-            "schema_inheritance debe declarar 1.2 -> 1.1, 1.3 -> 1.2 y 1.4 -> 1.3."
+            "schema_inheritance debe declarar la cadena 1.2 -> 1.1 hasta 1.5 -> 1.4."
         )
     prefixes = value.get("identifier_prefixes")
     if (
@@ -574,8 +580,10 @@ def load_registry(
             tables=tuple(tables),
         )
     identifier_prefixes = set(value["identifier_prefixes"])
-    if schema_version != "1.4":
-        identifier_prefixes -= V14_ONLY_IDENTIFIER_PREFIXES
+    if schema_version not in {"1.4", "1.5"}:
+        identifier_prefixes -= TRACKING_IDENTIFIER_PREFIXES
+    if schema_version != "1.5":
+        identifier_prefixes -= V15_ONLY_IDENTIFIER_PREFIXES
     return ContractRegistry(
         catalog_version=value["catalog_version"],
         schema_version=schema_version,
@@ -1815,7 +1823,7 @@ def _active_payload(
     }
     technology = model.manifest.get("technology")
     if (
-        str(model.manifest.get("schema_version")) in {"1.2", "1.3", "1.4"}
+        str(model.manifest.get("schema_version")) in {"1.2", "1.3", "1.4", "1.5"}
         and isinstance(technology, dict)
     ):
         for binding in technology.get("profile_bindings", []):

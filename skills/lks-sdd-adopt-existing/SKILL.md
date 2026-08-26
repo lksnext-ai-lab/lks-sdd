@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-adopt-existing
-description: "Adopt an existing software system into LKS-SDD with Codex by statically inspecting repositories and deployable boundaries, reconciling observed implementation with confirmed intent, detecting drift, and materializing an additive schema 1.4 baseline whose delivery, planning coverage, task-tracking mode and profile bindings remain proposed or pending human confirmation, without changing code or behavior."
+description: "Adopt an existing software system into LKS-SDD with Codex by statically inspecting repositories and deployable boundaries, reconciling observed implementation with confirmed intent, detecting drift, and materializing an additive schema 1.5 baseline whose delivery, planning coverage, task-tracking and optional Jira-reporting choices and profile bindings remain proposed or pending human confirmation, without changing code or behavior."
 ---
 
 # Adoptar una aplicación existente
@@ -16,7 +16,7 @@ Usa este workflow exclusivamente para incorporar un repositorio con aplicación 
 5. Ejecuta `python "<plugin-root>/scripts/lks_sdd.py" adopt-validate "<project-root>" ...`. Si la baseline está `stale`, repite el inventario y la reconciliación afectada.
 6. Ejecuta `python "<plugin-root>/scripts/lks_sdd.py" adopt-materialize "<project-root>" ... --dry-run`, presenta rutas, colisiones y `preview_hash`, y espera autorización explícita.
 7. Solo entonces repite el mismo comando con `--apply --authorize --preview-hash <hash>`.
-8. Valida el proyecto materializado. La baseline 1.4 conserva la revisión observada en evidencia de adopción, pero deja `last_verified_revision: null`; inspección no equivale a verificación. El gobierno, unidades/bindings, `ART-PLANNING` y `ART-TRACKING` nacen como propuestas o pendientes. No inventes un modo de tracking, binding Jira, tareas, cobertura completa, una política incremental, autorización, ejecución, checkpoint, recibo de sincronización ni evidencia. Después, las nuevas necesidades vuelven a definición y readiness; ningún cambio funcional pertenece a esta skill.
+8. Valida el proyecto materializado. La baseline 1.5 conserva la revisión observada en evidencia de adopción, pero deja `last_verified_revision: null`; inspección no equivale a verificación. El gobierno, unidades/bindings, `ART-PLANNING` y `ART-TRACKING` nacen como propuestas o pendientes. No inventes un modo de tracking, binding Jira, alcance de reporting, workflow mapping, tareas, cobertura completa, una política incremental, autorización, ejecución, checkpoint, recibo de sincronización ni evidencia. Después, las nuevas necesidades vuelven a definición y readiness; ningún cambio funcional pertenece a esta skill.
 
 ## Límites no negociables
 

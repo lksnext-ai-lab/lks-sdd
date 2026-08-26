@@ -226,7 +226,7 @@ def _task_definition(
     ]
     plan: dict[str, str] = {}
     continuity: dict[str, str] = {}
-    if schema_version in {"1.3", "1.4"}:
+    if schema_version in {"1.3", "1.4", "1.5"}:
         plan_rows = detail.get("plan", [])
         plan = plan_rows[0] if len(plan_rows) == 1 else {}
         missing.extend(
@@ -375,7 +375,7 @@ def assess_planning(
     authorization_rows: list[dict[str, str]] = []
     change_rows: list[dict[str, str]] = []
 
-    if schema_version in {"1.3", "1.4"}:
+    if schema_version in {"1.3", "1.4", "1.5"}:
         relative = _artifact_path(manifest, "ART-PLANNING")
         if relative is None:
             integrity_errors.append("Falta ART-PLANNING en el índice 1.3.")
@@ -402,7 +402,7 @@ def assess_planning(
     target_increments = [increment]
     matching_targets = [row for row in target_rows if row.get("Target") == target_id]
     target = matching_targets[0] if len(matching_targets) == 1 else {}
-    if schema_version in {"1.3", "1.4"} and len(matching_targets) != 1:
+    if schema_version in {"1.3", "1.4", "1.5"} and len(matching_targets) != 1:
         gaps.append({
             "kind": "planning-target",
             "items": [target_id],
@@ -650,7 +650,7 @@ def assess_planning(
                 + "."
             )
 
-    if schema_version not in {"1.3", "1.4"}:
+    if schema_version not in {"1.3", "1.4", "1.5"}:
         for task_id, payload in task_definitions.items():
             definition = payload["definition"]
             for column in ("Requirements", "Acceptance"):
@@ -833,7 +833,7 @@ def assess_planning(
 
     planning_index = (
         manifest.get("planning", {})
-        if schema_version in {"1.3", "1.4"}
+        if schema_version in {"1.3", "1.4", "1.5"}
         else {}
     )
     stored_spec = planning_index.get("specification_fingerprint") if isinstance(planning_index, dict) else None
@@ -929,7 +929,7 @@ def assess_planning(
             if task in target_tasks
         }
     ) if fingerprint_stale and not affected_tasks else []
-    if schema_version in {"1.3", "1.4"} and isinstance(planning_index, dict):
+    if schema_version in {"1.3", "1.4", "1.5"} and isinstance(planning_index, dict):
         index_is_bound = bool(
             planning_index.get("confirmed_on")
             or stored_spec
@@ -1010,7 +1010,7 @@ def assess_planning(
     )
     if (
         not confirmed
-        and schema_version in {"1.3", "1.4"}
+        and schema_version in {"1.3", "1.4", "1.5"}
         and not fingerprint_stale
     ):
         gaps.append({"kind": "human-confirmation", "items": [target_id], "explanation": "La descomposición debe confirmarse y fijar ambos fingerprints."})

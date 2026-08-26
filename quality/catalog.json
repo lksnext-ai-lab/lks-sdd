@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5 + v0.10 tracking operativo Jira/Rovo",
+  "suite": "LKS-SDD M0-M5 + v0.11 reporting Jira por hitos",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
@@ -41,7 +41,12 @@
     "no_duplicate_issue_after_uncertain_result",
     "no_secret_in_tracking_receipt",
     "no_tracker_outage_reclassifies_planning",
-    "no_silent_remote_semantic_import"
+    "no_silent_remote_semantic_import",
+    "no_jira_prompt_in_repository_only",
+    "no_milestone_before_canonical_fact",
+    "no_unmapped_jira_transition",
+    "no_duplicate_milestone_comment",
+    "no_event_receipt_rewrite"
   ],
   "cases": [
     {"id": "FX-01", "title": "Idea ambigua", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": "insufficient-information.json", "critical": true, "evidence": []},
@@ -90,6 +95,12 @@
     {"id": "FX-42", "title": "Política Jira requerida bloquea una ejecución nueva no sincronizada", "family": "implementation", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": "tracking-jira-degraded.json", "critical": true, "evidence": ["test:test_required_policy_blocks_new_execution_until_selected_task_is_synced", "test:test_planning_authorization_cannot_bypass_required_tracking", "test:test_ready_transition_cannot_bypass_required_tracking", "test:test_project_index_waits_for_every_projectable_task"]},
     {"id": "FX-43", "title": "Credenciales y markup rechazados antes de persistir tracking", "family": "security", "layers": ["T1", "T7"], "mode": "automated", "fixture": "tracking-jira-degraded.json", "critical": true, "evidence": ["test:test_credentials_are_rejected_before_persistence", "test:test_confidential_or_personal_payload_is_not_projected", "test:test_receipt_notes_reject_secrets_and_personal_data", "test:test_markup_and_malformed_jira_identity_never_persist", "test:test_aggregate_never_hides_an_unprojectable_mapped_task", "test:test_aggregate_reports_unmapped_unsafe_task_as_failed", "test:test_offline_tracking_allowlist_only_permits_url_parsing"]},
     {"id": "FX-44", "title": "Migración 1.3 a 1.4 conservadora y reversible", "family": "compatibility", "layers": ["T0", "T1", "T7", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_12_to_13_and_13_to_14_are_conservative_and_reversible", "test:test_13_treats_v14_tracking_ids_as_plain_text_in_applicability_reasons"]},
-    {"id": "FX-45", "title": "Interoperabilidad humana real con Rovo y Jira", "family": "integration", "layers": ["T3", "T4", "T7"], "mode": "pilot", "fixture": "tracking-jira-degraded.json", "critical": true, "evidence": []}
+    {"id": "FX-45", "title": "Interoperabilidad humana real con Rovo y Jira", "family": "integration", "layers": ["T3", "T4", "T7"], "mode": "pilot", "fixture": "tracking-jira-degraded.json", "critical": true, "evidence": []},
+    {"id": "FX-46", "title": "Experiencia local completa sin prompts Jira", "family": "planning", "layers": ["T0", "T1", "T3", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_repository_only_remains_complete_and_never_requests_jira"]},
+    {"id": "FX-47", "title": "Comentario de hito canónico e idempotente", "family": "integration", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_comment_event_is_confirmed_once_recorded_and_idempotent"]},
+    {"id": "FX-48", "title": "Una confirmación y recibos separados por operación", "family": "integration", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_one_confirmation_authorizes_comment_and_exact_transition"]},
+    {"id": "FX-49", "title": "Resultado incierto con reconciliación append-only", "family": "integration", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_uncertain_comment_requires_append_only_reconciliation"]},
+    {"id": "FX-50", "title": "Migración 1.4 a 1.5 conservadora y reversible", "family": "compatibility", "layers": ["T0", "T1", "T7", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_12_to_13_and_13_to_14_are_conservative_and_reversible"]},
+    {"id": "FX-51", "title": "Reporting real de hitos mediante Rovo y Jira", "family": "integration", "layers": ["T3", "T4", "T7"], "mode": "pilot", "fixture": "tracking-jira-degraded.json", "critical": true, "evidence": []}
   ]
 }

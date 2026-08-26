@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "0.10.0",
-  "description": "Plugin Spec-anchored para Codex que mantiene especificaciones confiables y permite proyectar de forma controlada el seguimiento operativo de tareas en Jira mediante un peer Rovo opcional.",
+  "version": "0.11.0",
+  "description": "Plugin Spec-anchored para Codex con planificación profesional en Markdown y proyección o reporting de hitos opcional en Jira mediante un peer Rovo independiente.",
   "author": {
     "name": "LKS"
   },
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo Spec-anchored con Codex",
-    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código, permiten contrastar alcance y aceptación con el cliente y actúan como contrato para planificar, implementar y verificar. Antes de materializar tareas permite elegir entre seguimiento exclusivo en el repositorio o una proyección operativa híbrida en Jira; esta última requiere un peer Atlassian Rovo disponible y autorizado por separado, nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente, separando lo observado de la intención confirmada. No trata la especificación como generador automático de todo el código ni declara compatibilidad equivalente con otros asistentes.",
+    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código y actúan como contrato para planificar, implementar y verificar. La experiencia local es completa. Opcionalmente, Jira puede recibir la proyección de tareas y comentarios de hitos con transiciones explícitamente mapeadas; Atlassian Rovo se instala y autoriza por separado. Jira nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [
@@ -34,6 +34,7 @@
       "Ayúdame a definir el modelo de entrega, las ramas, los entornos y un tablero de tareas para este horizonte.",
       "Antes de planificar tareas, ayúdame a elegir explícitamente entre seguimiento en el repositorio y Jira híbrido.",
       "Prepara una vista previa saneada para proyectar en Jira las tareas ya confirmadas, sin escribir todavía en el sistema externo.",
+      "Configura de forma opcional el reporting Jira por hitos y prepara un comentario o transición con una sola confirmación, sin escribir todavía.",
       "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
       "Muéstrame los perfiles activos y candidatos aplicables a cada unidad desplegable.",
       "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",

@@ -37,7 +37,7 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise PlanningCommandError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4", "1.5"}:
         raise PlanningCommandError(
             "La gestión integral de planificación requiere schema 1.3 o 1.4."
         )
@@ -169,7 +169,7 @@ def _apply_atomic(paths: list[Path], originals: list[bytes], replacements: list[
 def _confirm(
     root: Path, manifest: dict[str, Any], args: argparse.Namespace
 ) -> tuple[Path, bytes, bytes, dict[str, Any], dict[str, Any]]:
-    if manifest.get("schema_version") == "1.4":
+    if manifest.get("schema_version") in {"1.4", "1.5"}:
         from task_tracking_engine import validate_tracking_contract
 
         tracking = validate_tracking_contract(root, manifest)
@@ -262,7 +262,7 @@ def _confirm(
         ),
     })
     tracking_invalidated = False
-    if manifest.get("schema_version") == "1.4":
+    if manifest.get("schema_version") in {"1.4", "1.5"}:
         previous_planning = manifest.get("planning", {})
         fingerprints_changed = (
             previous_planning.get("specification_fingerprint")
@@ -308,7 +308,7 @@ def _authorize(
     delivery = delivery_readiness(root, manifest, args.increment, task_ids=tasks)
     if delivery["status"] != "ready":
         raise PlanningCommandError("La porción seleccionada no está ready: " + "; ".join(delivery["blockers"]))
-    if manifest.get("schema_version") == "1.4":
+    if manifest.get("schema_version") in {"1.4", "1.5"}:
         tracking = assess_tracking(root, manifest, tasks)
         if tracking.get("blockers"):
             raise PlanningCommandError(

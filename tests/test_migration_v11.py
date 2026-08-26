@@ -163,10 +163,10 @@ def _write_review_free_project(root: Path) -> dict[str, Path]:
         relative = artifact["path"]
         path = root / relative
         content = path.read_text(encoding="utf-8")
-        content = content.replace('schema_version: "1.4"', 'schema_version: "1.0"')
-        content = content.replace('method_version: "1.4.0"', 'method_version: "1.0.0"')
+        content = content.replace('schema_version: "1.5"', 'schema_version: "1.0"')
+        content = content.replace('method_version: "1.5.0"', 'method_version: "1.0.0"')
         content = content.replace(
-            'created_with_plugin_version: "0.10.0"',
+            'created_with_plugin_version: "0.11.0"',
             'created_with_plugin_version: "0.6.1"',
         )
         content = content.replace(
@@ -718,6 +718,59 @@ class Schema11MigrationTests(unittest.TestCase):
                 "| pending: migration-preserved from schema 1.3 |", tracking_text
             )
 
+            snapshot_14 = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            plan_15 = migration._plan(safe_root, "1.5")
+            preview_15 = migration._preview(safe_root, plan_15)
+            self.assertEqual(plan_15.source_schema, "1.4")
+            self.assertEqual(plan_15.target_schema, "1.5")
+            self.assertEqual(plan_15.human_review_required, [])
+            backup_15 = container / "backup-15"
+            applied_15 = migration._apply(
+                safe_root,
+                plan_15,
+                backup_15,
+                preview_15["preview_hash"],
+            )
+            self.assertTrue(applied_15["validated"])
+            migrated_15 = json.loads(
+                (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(migrated_15["schema_version"], "1.5")
+            self.assertEqual(migrated_15["method_version"], "1.5.0")
+            self.assertEqual(migrated_15["plugin_version"], "0.11.0")
+            self.assertEqual(
+                migrated_15["task_tracking"]["reporting_scope"],
+                "not-applicable",
+            )
+            self.assertEqual(
+                migrated_15["task_tracking"]["reporting_status"],
+                "not-required",
+            )
+            self.assertEqual(historical_checkpoint.read_bytes(), historical_bytes)
+            tracking_15 = (
+                root / "docs/lks-sdd/04-delivery/task-tracking.md"
+            ).read_text(encoding="utf-8")
+            self.assertIn("## Reporting policy", tracking_15)
+            self.assertIn("| RPT-001 | confirmed | not-applicable |", tracking_15)
+            self.assertIn("## Milestone operations", tracking_15)
+
+            rollback_15, record_path_15, record_15 = migration._plan_rollback(
+                safe_root, backup_15
+            )
+            migration._apply_rollback(
+                safe_root, rollback_15, record_path_15, record_15
+            )
+            restored_14 = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(restored_14, snapshot_14)
+
             rollback_14, record_path_14, record_14 = migration._plan_rollback(
                 safe_root, backup_14
             )
@@ -775,10 +828,10 @@ class Schema11MigrationTests(unittest.TestCase):
             for markdown in (root / "docs/lks-sdd").rglob("*.md"):
                 text = markdown.read_text(encoding="utf-8")
                 markdown.write_text(
-                    text.replace('schema_version: "1.4"', 'schema_version: "1.3"')
-                    .replace('method_version: "1.4.0"', 'method_version: "1.3.0"')
+                    text.replace('schema_version: "1.5"', 'schema_version: "1.3"')
+                    .replace('method_version: "1.5.0"', 'method_version: "1.3.0"')
                     .replace(
-                        'created_with_plugin_version: "0.10.0"',
+                        'created_with_plugin_version: "0.11.0"',
                         'created_with_plugin_version: "0.9.1"',
                     ),
                     encoding="utf-8",

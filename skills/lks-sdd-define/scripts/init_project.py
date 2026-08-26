@@ -11,9 +11,9 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "0.10.0"
-METHOD_VERSION = "1.4.0"
-SCHEMA_VERSION = "1.4"
+PLUGIN_VERSION = "0.11.0"
+METHOD_VERSION = "1.5.0"
+SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"
 PROJECT_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 CODE_EXTENSIONS = {
@@ -239,6 +239,10 @@ def build_manifest(
             "issue_type": None,
             "sync_policy": "pending",
             "write_policy": "pending",
+            "reporting_scope": "pending",
+            "coordination_gate": "pending",
+            "reporting_status": "decision-required",
+            "last_reported_on": None,
             "projection_fingerprint": None,
             "sync_status": "decision-required",
             "last_sync_on": None,

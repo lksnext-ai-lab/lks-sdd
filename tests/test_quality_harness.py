@@ -211,11 +211,11 @@ class QualityHarnessTests(unittest.TestCase):
 
     def test_default_baseline_is_the_last_published_release(self):
         baseline = _load_json(DEFAULT_BASELINE_PATH)
-        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.6.1.json")
-        self.assertEqual(baseline["plugin_version"], "0.6.1")
+        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.10.0.json")
+        self.assertEqual(baseline["plugin_version"], "0.10.0")
         self.assertEqual(
             baseline["source_commit"],
-            "7318ccc337570e296bffda68a8e49724bed94c99",
+            "9e8d6ed2a22073d11a50b303db884b9938e4e2c1",
         )
         self.assertEqual(
             {
@@ -228,8 +228,8 @@ class QualityHarnessTests(unittest.TestCase):
                 )
             },
             {
-                "unit_tests_total": 81,
-                "unit_tests_passed": 80,
+                "unit_tests_total": 231,
+                "unit_tests_passed": 230,
                 "unit_tests_skipped": 1,
                 "unit_tests_failed": 0,
             },
@@ -566,6 +566,40 @@ class QualityHarnessTests(unittest.TestCase):
         )
         self.assertEqual(timeouts["unit-tests"], UNIT_TEST_TIMEOUT_SECONDS)
         self.assertGreaterEqual(UNIT_TEST_TIMEOUT_SECONDS, 1800)
+
+    def test_reuse_profile_mode_checks_exact_certifications_without_docker(self):
+        commands: dict[str, list[str]] = {}
+
+        def fake_run(check_id, command, json_output=False, timeout=600):
+            commands[check_id] = command
+            payload = (
+                {"results": []}
+                if check_id in {"unit-tests", "deterministic-evals"}
+                else {"complete_gate": True, "passed": True}
+                if check_id == "reference-profile-complete"
+                else None
+            )
+            return (
+                {
+                    "id": check_id,
+                    "status": "passed",
+                    "critical": True,
+                    "summary": "exit=0",
+                },
+                payload,
+                "",
+            )
+
+        with patch(
+            "run_quality_harness.validate_fixture_manifest",
+            return_value={"status": "passed", "fixture_count": 6, "errors": []},
+        ), patch("run_quality_harness._run_command", side_effect=fake_run):
+            run_automated(self.catalog, "reuse", "2026-08-26")
+
+        command = commands["reference-profile-complete"]
+        self.assertIn("scripts/verify_profile_certifications.py", command)
+        self.assertIn("--max-age-days", command)
+        self.assertNotIn("--containers", command)
 
     def test_dirty_source_fails_candidate_gate_without_running_real_suite(self):
         automated = (

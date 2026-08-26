@@ -59,7 +59,7 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise TaskManagementError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.2", "1.3", "1.4"}:
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.2", "1.3", "1.4", "1.5"}:
         raise TaskManagementError("La gestión PLAN/TASK requiere schema 1.2, 1.3 o 1.4.")
     return path, value, original
 
@@ -159,7 +159,7 @@ def _default_tracking(
     *,
     schema_version: str,
 ) -> tuple[str, int]:
-    if schema_version in {"1.3", "1.4"}:
+    if schema_version in {"1.3", "1.4", "1.5"}:
         if target == "done":
             return "on-track", 100
         if target == "blocked":
@@ -370,7 +370,7 @@ def _transition(
         raise TaskManagementError(f"No existe {args.task}.")
     planning_snapshot = (
         assess_planning(root, manifest, row["Increment"], release=row["Release"])
-        if manifest.get("schema_version") in {"1.3", "1.4"}
+        if manifest.get("schema_version") in {"1.3", "1.4", "1.5"}
         else None
     )
     current = row["Workflow state"]
@@ -395,7 +395,7 @@ def _transition(
                 + ". cancelled no equivale a resuelta."
             )
     if (
-        manifest.get("schema_version") in {"1.3", "1.4"}
+        manifest.get("schema_version") in {"1.3", "1.4", "1.5"}
         and args.to_state in {"ready", "in-progress", "in-review", "done"}
         and args.task not in planning_snapshot.get("tasks", {}).get(
             "executable", []
@@ -417,7 +417,7 @@ def _transition(
             + "."
         )
     if (
-        manifest.get("schema_version") in {"1.3", "1.4"}
+        manifest.get("schema_version") in {"1.3", "1.4", "1.5"}
         and args.to_state in {"in-progress", "in-review", "done"}
     ):
         current_authorization = assess_authorization(
@@ -446,7 +446,7 @@ def _transition(
                 "La ejecución activa no está ligada a la autorización vigente."
             )
     if (
-        manifest.get("schema_version") == "1.4"
+        manifest.get("schema_version") in {"1.4", "1.5"}
         and current == "ready"
         and args.to_state == "in-progress"
     ):
@@ -467,7 +467,7 @@ def _transition(
             raise TaskManagementError(
                 "Reabrir done exige --classification original-contract-failure y --change-id PCH-###."
             )
-        if manifest.get("schema_version") not in {"1.3", "1.4"}:
+        if manifest.get("schema_version") not in {"1.3", "1.4", "1.5"}:
             raise TaskManagementError("La reapertura controlada requiere schema 1.3 o 1.4.")
         planning = assess_planning(root, manifest, row["Increment"], release=row["Release"])
         matching_changes = [
@@ -573,7 +573,7 @@ def _transition(
                 + ", ".join(missing_gates)
                 + "."
             )
-        if manifest.get("schema_version") in {"1.3", "1.4"}:
+        if manifest.get("schema_version") in {"1.3", "1.4", "1.5"}:
             _require_verified_done_evidence(
                 root,
                 manifest,
@@ -712,7 +712,7 @@ def _transition(
             r"\bAC-[0-9]{3}\b", definition.get("Acceptance", "")
         ) or [definition.get("Acceptance", "confirmed acceptance")]
         test_ids = []
-        if manifest.get("schema_version") in {"1.3", "1.4"}:
+        if manifest.get("schema_version") in {"1.3", "1.4", "1.5"}:
             plan = _single_detail_row(
                 detail_text, TASK_DETAIL_HEADERS_V13["plan"]
             )
@@ -734,7 +734,7 @@ def _transition(
                 ],
             )
     if (
-        manifest.get("schema_version") in {"1.3", "1.4"}
+        manifest.get("schema_version") in {"1.3", "1.4", "1.5"}
         and current == "done"
         and args.to_state == "backlog"
     ):
@@ -765,7 +765,7 @@ def _transition(
         updated_manifest["active_task"] = args.task
     elif updated_manifest.get("active_task") == args.task:
         updated_manifest["active_task"] = None
-    if manifest.get("schema_version") in {"1.3", "1.4"}:
+    if manifest.get("schema_version") in {"1.3", "1.4", "1.5"}:
         active_tasks = set(updated_manifest.get("active_tasks", []))
         if args.to_state in {"in-progress", "in-review", "blocked"}:
             active_tasks.add(args.task)
@@ -946,10 +946,10 @@ def _transition(
         "evidence": evidence,
         "planning_status": planning_status,
         "planning_integrity": planning_integrity,
-        "checkpoint_required": manifest.get("schema_version") in {"1.3", "1.4"},
+        "checkpoint_required": manifest.get("schema_version") in {"1.3", "1.4", "1.5"},
         "next_command": (
             "continuity checkpoint"
-            if manifest.get("schema_version") in {"1.3", "1.4"}
+            if manifest.get("schema_version") in {"1.3", "1.4", "1.5"}
             else None
         ),
         "transition_summary": {

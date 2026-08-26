@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "corpus_id": "lks-sdd-definition-jira-milestones-es-0.11.0",
+  "plugin_version": "0.11.0",
+  "language": "es",
+  "execution_status": "not-run",
+  "evaluation": {
+    "kind": "controlled-codex-conversation",
+    "required_review": ["semantic", "human"],
+    "score_scale": {"minimum": 1, "maximum": 5, "target": 4},
+    "dimensions": [
+      "premise_control",
+      "question_relevance",
+      "coverage_clarity",
+      "interaction_completeness",
+      "visual_traceability",
+      "human_validation",
+      "information_protection",
+      "tracking_authority",
+      "degraded_mode_clarity",
+      "milestone_experience"
+    ]
+  },
+  "cases": [
+    {
+      "id": "FX-01",
+      "title": "Idea ambigua sin dominio presupuesto",
+      "input": "Quiero hacer una calculadora.",
+      "expected": [
+        "No documenta una calculadora genérica como intención confirmada.",
+        "Distingue como hipótesis varias interpretaciones de dominio plausibles.",
+        "Formula entre una y tres preguntas de mayor impacto y permite respuesta libre.",
+        "Prioriza problema, usuario, contexto y resultado antes que tecnología o funciones detalladas.",
+        "No genera código ni afirma readiness."
+      ],
+      "forbidden": [
+        "Seleccionar silenciosamente un dominio o una pila.",
+        "Convertir opciones ofrecidas en decisiones.",
+        "Presentar el fixture automatizado de readiness como evidencia conversacional."
+      ],
+      "review_dimensions": ["premise_control", "question_relevance", "information_protection"]
+    },
+    {
+      "id": "FX-20",
+      "title": "Snapshot comprensible de cobertura",
+      "input": "Hemos aclarado usuarios, alcance y funciones principales. ¿Cómo va la definición?",
+      "expected": [
+        "Muestra fase y alcance evaluado.",
+        "Separa bloques suficientes, parciales, desconocidos, no aplicables y bloqueados cuando proceda.",
+        "No usa un porcentaje global de madurez.",
+        "Diferencia el snapshot de una evaluación de readiness.",
+        "Ofrece siguiente paso y detalle bajo petición."
+      ],
+      "forbidden": [
+        "Marcar el proyecto entero como listo por tener algunos bloques suficientes.",
+        "Ocultar pendientes independientes.",
+        "Usar solo color o iconos sin etiquetas textuales."
+      ],
+      "review_dimensions": ["coverage_clarity", "question_relevance", "human_validation"]
+    },
+    {
+      "id": "FX-21",
+      "title": "Ciclo visual trazable con ImageGen",
+      "input": "La aplicación tendrá frontend y ya hemos acordado usuarios, pantallas, acciones, estados, marca y dispositivo. Propón y valida la línea visual.",
+      "expected": [
+        "Comprueba que el brief visual es suficiente para el alcance solicitado.",
+        "Con ImageGen disponible genera entre una y tres propuestas PNG o JPG para comparación.",
+        "Mantiene cada propuesta como proposal hasta confirmación humana explícita.",
+        "Registra ruta, relaciones, estado, alcance, procedencia y SHA-256 del activo confirmado.",
+        "Mantiene requisitos, responsive, interacción y accesibilidad en Markdown.",
+        "Si ImageGen no está disponible, declara la limitación y deja el canal o punto como not-run o pendiente."
+      ],
+      "forbidden": [
+        "Usar datos reales, secretos o contenido de cliente no autorizado.",
+        "Presentar una imagen como código, prueba de accesibilidad o aprobación.",
+        "Crear un archivo ficticio o afirmar una ejecución no realizada."
+      ],
+      "review_dimensions": ["interaction_completeness", "visual_traceability", "human_validation", "information_protection"]
+    },
+    {
+      "id": "FX-36",
+      "title": "Elección de tracking y reporting comprensible",
+      "input": "La especificación está cerrada. Planifica las tareas y dime cómo se mantendrá informado Jira durante la implementación.",
+      "expected": [
+        "Antes de materializar tareas pregunta repository-only o jira-hybrid y presenta la opción local como completa.",
+        "Si se elige Jira, pregunta por separado projection-only o milestone-reporting y por el gate de coordinación.",
+        "Recomienda advisory cuando se busca visibilidad sin bloquear el trabajo local y explica el tradeoff.",
+        "Explica que los hitos nacen de hechos canónicos y que una confirmación del preview crea recibos separados por operación.",
+        "Presenta Rovo como peer opcional y no escribe ni conecta sin autorización."
+      ],
+      "forbidden": [
+        "Proponer Jira-only como fuente de verdad.",
+        "Pedir conexión Atlassian si se elige repository-only.",
+        "Prometer comentarios para cada archivo, comando o mensaje.",
+        "Inferir transiciones por nombres de estados.",
+        "Presentar Jira Done como verificación o cierre LKS-SDD."
+      ],
+      "review_dimensions": ["question_relevance", "human_validation", "tracking_authority", "degraded_mode_clarity", "milestone_experience", "information_protection"]
+    }
+  ],
+  "evidence": [],
+  "limitations": [
+    "El corpus y la rúbrica están versionados, pero no contienen resultados de sesiones.",
+    "La release candidate no interpreta execution_status=not-run como passed.",
+    "La evaluación visual exige revisión humana además de cualquier análisis semántico.",
+    "La interoperabilidad real Rovo/Jira y el reporting de hitos pertenecen al piloto y permanecen not-run."
+  ]
+}

@@ -1,9 +1,9 @@
 ---
 artifact_id: "ART-TRACKING"
 artifact_type: "task-tracking"
-schema_version: "1.4"
-method_version: "1.4.0"
-created_with_plugin_version: "0.10.0"
+schema_version: "1.5"
+method_version: "1.5.0"
+created_with_plugin_version: "0.11.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: proposed
@@ -28,6 +28,17 @@ Markdown conserva la autoridad sobre PLAN, REL, TASK, AUTH, EXEC y CKPT. Este ar
 |---|---|---|---|---|---|---|---|---|---|---|
 | TRK-001 | proposed | pending | pending | pending | pending | pending | pending | pending | pending: tracking mode not selected | {{DATE}} |
 
+## Reporting policy
+
+| Reporting | State | Scope | Coordination gate | Comment policy | Decision | Last reviewed |
+|---|---|---|---|---|---|---|
+| RPT-001 | proposed | pending | pending | pending | pending: reporting scope not selected | {{DATE}} |
+
+## Workflow mapping
+
+| Local state | State | Jira status ID | Jira status name | Decision | Last reviewed |
+|---|---|---|---|---|---|
+
 ## Mapping
 
 | Task | State | External ID | External key | URL | Projection fingerprint | Remote status | Last synced | Last operation | Notes |
@@ -37,3 +48,8 @@ Markdown conserva la autoridad sobre PLAN, REL, TASK, AUTH, EXEC y CKPT. Este ar
 
 | ID | State | Task | Action | Preview hash | Projection fingerprint | Duplicate check | Authorized by role | Authorized on | External ID | External key | Recorded on | Result | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+
+## Milestone operations
+
+| ID | State | Task | Source ref | Event kind | Action | Event hash | Preview hash | Duplicate check | Authorized by role | Authorized on | External ID | External key | Recorded on | Result | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|

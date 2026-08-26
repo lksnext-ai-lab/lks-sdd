@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.10/method-candidate 1.4 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.11/method-candidate 1.5 invariants."""
 
 from __future__ import annotations
 
@@ -52,6 +52,7 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md",
     "docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md",
     "docs/V0.10-JIRA-ROVO-COVERAGE.md",
+    "docs/V0.11-JIRA-MILESTONE-COVERAGE.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -59,6 +60,7 @@ REQUIRED_ROOT_FILES = {
     "docs/VALIDATION.md",
     "specs/SOURCES.md",
     "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
+    "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
     "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
@@ -81,6 +83,9 @@ REQUIRED_ROOT_FILES = {
     "scripts/manage_planning.py",
     "scripts/task_tracking_engine.py",
     "scripts/manage_task_tracking.py",
+    "scripts/jira_reporting_engine.py",
+    "scripts/run_fast_validation.py",
+    "scripts/verify_profile_certifications.py",
     "scripts/manage_continuity.py",
     "scripts/update_profile_locks.py",
     "quality/catalog.json",
@@ -89,10 +94,12 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.8.0.json",
     "quality/corpora/definition-v0.9.0.json",
     "quality/corpora/definition-v0.10.0.json",
+    "quality/corpora/definition-v0.11.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
     "quality/baselines/v0.6.1.json",
+    "quality/baselines/v0.10.0.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
     "schemas/pilot-config.schema.json",
@@ -108,6 +115,8 @@ REQUIRED_ROOT_FILES = {
     "schemas/frontmatter-1.3.schema.json",
     "schemas/project-1.4.schema.json",
     "schemas/frontmatter-1.4.schema.json",
+    "schemas/project-1.5.schema.json",
+    "schemas/frontmatter-1.5.schema.json",
     "schemas/profile-catalog.schema.json",
     "schemas/profile-driver.schema.json",
     "schemas/profile-certification.schema.json",
@@ -122,6 +131,7 @@ REQUIRED_ROOT_FILES = {
     ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
     "templates/client/client-deliverable.md",
     "tests/test_task_tracking_v14.py",
+    "tests/test_jira_reporting_v15.py",
 }
 EXPECTED_GIT_ATTRIBUTES = (
     "* text=auto eol=lf",
@@ -239,6 +249,7 @@ RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/manage_task_tracking.py": {"urllib.parse"},
     "scripts/run_reference_profile_gate.py": {"subprocess"},
     "scripts/run_quality_harness.py": {"subprocess"},
+    "scripts/run_fast_validation.py": {"subprocess"},
     "scripts/task_tracking_engine.py": {"urllib.parse"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {
         "subprocess",
@@ -509,6 +520,13 @@ def validate(root: Path) -> list[str]:
             "not-run",
             "Jira `Done`",
         ),
+        "docs/V0.11-JIRA-MILESTONE-COVERAGE.md": (
+            "FX-46",
+            "FX-51",
+            "milestone-reporting",
+            "not-run",
+            "advisory",
+        ),
     }
     for relative, markers in positioning_markers.items():
         path = root / relative
@@ -593,6 +611,13 @@ def validate(root: Path) -> list[str]:
             "Jira `Done`",
             "not-run",
         ),
+        "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md": (
+            "propuesta candidate, no canónica",
+            "milestone-reporting",
+            "preview-event",
+            "append-only",
+            "not-run",
+        ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
             CANONICAL_HASHES[
@@ -602,10 +627,11 @@ def validate(root: Path) -> list[str]:
                 "LKS-SDD_extension_planificacion_continuidad_v1.3.md"
             ],
             "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
+            "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.6.1.json"',
+            '"v0.10.0.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',
@@ -646,6 +672,8 @@ def validate(root: Path) -> list[str]:
         "frontmatter-1.3.schema.json",
         "project-1.4.schema.json",
         "frontmatter-1.4.schema.json",
+        "project-1.5.schema.json",
+        "frontmatter-1.5.schema.json",
         "profile-catalog.schema.json",
         "profile-driver.schema.json",
         "profile-certification.schema.json",
@@ -761,8 +789,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.9.1":
-            errors.append("El rollback del piloto 0.10.0 debe conservar 0.9.1.")
+        if rollback.get("previous_version") != "0.10.0":
+            errors.append("El rollback del piloto 0.11.0 debe conservar 0.10.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -780,8 +808,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.9.1":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.9.1.")
+        if schema_previous != "0.10.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.10.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -797,7 +825,8 @@ def validate(root: Path) -> list[str]:
             "QUALITY_REPORT_NAME",
             "tree_state",
             "baseline_sha256",
-            "EXPECTED_BASELINE_COMMIT",
+            "baseline_version",
+            "baseline_relative",
             "_definition_corpus_relative",
         ):
             if marker not in package_text:
@@ -977,34 +1006,72 @@ def validate(root: Path) -> list[str]:
         errors.append("project-1.4.schema.json no expone el contrato esperado.")
 
     try:
+        project_15 = json.loads(
+            (root / "schemas" / "project-1.5.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        required_15 = set(project_15["required"])
+        properties_15 = project_15["properties"]
+        if properties_15["schema_version"].get("const") != "1.5":
+            errors.append("project-1.5.schema.json debe fijar schema_version 1.5.")
+        if properties_15["method_version"].get("const") != "1.5.0":
+            errors.append("project-1.5.schema.json debe fijar method_version 1.5.0.")
+        if "task_tracking" not in required_15:
+            errors.append("El índice 1.5 debe exigir task_tracking.")
+        tracking_15 = properties_15["task_tracking"]
+        expected_tracking_15 = {
+            "source", "binding_id", "state", "mode", "provider", "decision",
+            "site", "project_key", "issue_type", "sync_policy", "write_policy",
+            "reporting_scope", "coordination_gate", "reporting_status",
+            "last_reported_on", "projection_fingerprint", "sync_status",
+            "last_sync_on",
+        }
+        if set(tracking_15.get("required", [])) != expected_tracking_15:
+            errors.append("task_tracking 1.5 no conserva el índice cerrado esperado.")
+        if tracking_15["properties"]["reporting_scope"].get("enum") != [
+            "pending", "not-applicable", "projection-only", "milestone-reporting"
+        ]:
+            errors.append("El índice 1.5 no fija los scopes de reporting esperados.")
+        if "advisory" not in tracking_15["properties"]["coordination_gate"].get(
+            "enum", []
+        ):
+            errors.append("El índice 1.5 debe admitir coordination gate advisory.")
+        if {"open_blockers", "readiness"} & (required_15 | set(properties_15)):
+            errors.append("El índice 1.5 no debe persistir readiness derivado.")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError):
+        errors.append("project-1.5.schema.json no expone el contrato esperado.")
+
+    try:
         document_contracts = json.loads(
             (root / "schemas" / "document-contracts.json").read_text(
                 encoding="utf-8"
             )
         )
-        if document_contracts.get("catalog_version") != "1.4":
-            errors.append("document-contracts.json debe usar catalog_version 1.4.")
+        if document_contracts.get("catalog_version") != "1.5":
+            errors.append("document-contracts.json debe usar catalog_version 1.5.")
         if document_contracts.get("supported_project_schemas") != [
-            "1.0", "1.1", "1.2", "1.3", "1.4"
+            "1.0", "1.1", "1.2", "1.3", "1.4", "1.5"
         ]:
-            errors.append("El catálogo documental debe conservar soporte 1.0 a 1.4.")
+            errors.append("El catálogo documental debe conservar soporte 1.0 a 1.5.")
         if document_contracts.get("schema_inheritance") != {
             "1.2": "1.1",
             "1.3": "1.2",
             "1.4": "1.3",
+            "1.5": "1.4",
         }:
-            errors.append("La herencia documental debe fijar 1.4 → 1.3.")
+            errors.append("La herencia documental debe fijar 1.5 → 1.4.")
         prefixes = document_contracts.get("identifier_prefixes", [])
-        if not {"TRK", "SYNC"} <= set(prefixes):
-            errors.append("El catálogo 1.4 debe registrar TRK y SYNC.")
+        if not {"TRK", "RPT", "SYNC"} <= set(prefixes):
+            errors.append("El catálogo 1.5 debe registrar TRK, RPT y SYNC.")
         tracking_artifact = document_contracts["artifacts"]["ART-TRACKING"]
         if (
             tracking_artifact.get("artifact_type") != "task-tracking"
             or tracking_artifact.get("path")
             != "docs/lks-sdd/04-delivery/task-tracking.md"
-            or tracking_artifact.get("required_schemas") != ["1.4"]
+            or tracking_artifact.get("required_schemas") != ["1.4", "1.5"]
         ):
-            errors.append("ART-TRACKING no respeta el contrato documental 1.4.")
+            errors.append("ART-TRACKING no respeta el contrato documental 1.4/1.5.")
         table_headers = {
             table.get("id"): table.get("headers")
             for table in tracking_artifact.get("tables", [])
@@ -1026,11 +1093,25 @@ def validate(root: Path) -> list[str]:
                 "Projection fingerprint", "Duplicate check", "Authorized by role", "Authorized on",
                 "External ID", "External key", "Recorded on", "Result", "Notes",
             ],
+            "tracking.reporting-policy": [
+                "Reporting", "State", "Scope", "Coordination gate",
+                "Comment policy", "Decision", "Last reviewed",
+            ],
+            "tracking.workflow-mapping": [
+                "Local state", "State", "Jira status ID", "Jira status name",
+                "Decision", "Last reviewed",
+            ],
+            "tracking.milestone-operations": [
+                "ID", "State", "Task", "Source ref", "Event kind", "Action",
+                "Event hash", "Preview hash", "Duplicate check",
+                "Authorized by role", "Authorized on", "External ID",
+                "External key", "Recorded on", "Result", "Notes",
+            ],
         }
         if table_headers != expected_headers:
-            errors.append("ART-TRACKING debe conservar exactamente sus tres tablas cerradas.")
+            errors.append("ART-TRACKING debe conservar exactamente sus seis tablas cerradas.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("document-contracts.json no expone ART-TRACKING 1.4.")
+        errors.append("document-contracts.json no expone ART-TRACKING 1.4/1.5.")
 
     try:
         quality_report = json.loads(
@@ -1084,6 +1165,26 @@ def validate(root: Path) -> list[str]:
             errors.append("La baseline v0.6.1 no coincide con la release publicada.")
     except (OSError, json.JSONDecodeError, TypeError):
         errors.append("quality/baselines/v0.6.1.json no es una baseline válida.")
+
+    try:
+        baseline_010 = json.loads(
+            (root / "quality" / "baselines" / "v0.10.0.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        metrics_010 = baseline_010.get("metrics", {})
+        if (
+            baseline_010.get("plugin_version") != "0.10.0"
+            or baseline_010.get("source_commit")
+            != "9e8d6ed2a22073d11a50b303db884b9938e4e2c1"
+            or metrics_010.get("unit_tests_total") != 231
+            or metrics_010.get("unit_tests_passed") != 230
+            or metrics_010.get("unit_tests_failed") != 0
+            or metrics_010.get("profile_complete_gate") != 1
+        ):
+            errors.append("La baseline v0.10.0 no coincide con la release publicada.")
+    except (OSError, json.JSONDecodeError, TypeError):
+        errors.append("quality/baselines/v0.10.0.json no es una baseline válida.")
 
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:

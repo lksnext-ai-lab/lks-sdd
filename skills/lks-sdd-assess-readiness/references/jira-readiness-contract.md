@@ -14,7 +14,7 @@ El modo previamente confirmado no es por sí solo autorización para leer datos 
 
 ## Resultado separado
 
-Reporta `task_tracking` con el estado local 1.4 aplicable:
+Reporta `task_tracking` con el estado local aplicable:
 
 - `decision-required`: el modo sigue pendiente;
 - `not-assessed`: el plan local de la selección no está confirmado, íntegro y vigente, por lo que todavía no existe una proyección evaluable;
@@ -27,13 +27,15 @@ Reporta `task_tracking` con el estado local 1.4 aplicable:
 
 Añade por separado `degraded` o `unavailable` como diagnóstico de la conexión viva cuando corresponda; no lo confundas con el estado offline del contrato. Incluye tareas afectadas, alcance de la lectura, hora de observación si está disponible y limitaciones. No copies descripciones completas, secretos, datos personales ni URLs con query. Las fichas `confidential`/`restricted` no son proyectables.
 
+En schema 1.5 reporta además `jira_reporting`: `not-required`, `decision-required`, `ready`, `paused`, `pending`, `failed` o `reconciliation-required`. Incluye `reporting_scope` y `coordination_gate`. Esta dimensión describe visibilidad y entrega de operaciones externas, no avance de implementación.
+
 ## Relación con G2
 
 - Jira nunca demuestra cierre de especificación, cobertura completa, resolución de dependencias, autorización, implementación o verificación.
 - Un work item en Done no convierte una `TASK-###` local en `done`.
 - Un recibo `SYNC-###` succeeded o un cambio de key observado dentro del prefijo confirmado tampoco modifica la TASK, AUTH, evidencia o dependencias canónicas.
 - Un Jira inaccesible no invalida fingerprints, evidencia o autorizaciones locales ya válidas.
-- Con `Sync policy=required-before-execution`, una tarea seleccionada que no esté `in-sync` bloquea su preparación para ejecución; el binding 1.4 hace esa política explícita.
+- Con `Coordination gate=required-before-execution`, una tarea seleccionada que no esté `in-sync` o tenga una operación obligatoria pendiente bloquea su preparación para ejecución. Con `advisory`, informa la degradación sin bloquear una slice local válida.
 - Incluso cuando bloquea esa política operativa, conserva y reporta por separado el resultado de todos los demás ejes.
 
-Esta skill no crea, edita, enlaza, comenta, asigna ni transiciona Jira. Ante drift, devuelve el menor paso de lectura y `reconcile-result` necesario, sin ejecutarlo. No presenta la reconciliación como permiso para abandonar/cambiar un binding durable: 0.10.0 no ofrece `detach`/`rebind`.
+Esta skill no crea, edita, enlaza, comenta, asigna ni transiciona Jira. Ante drift, devuelve el menor paso de lectura y `reconcile-result` o `reconcile-event` necesario, sin ejecutarlo. No presenta la reconciliación como permiso para abandonar/cambiar un binding durable: 0.11.0 no ofrece `detach`/`rebind`.

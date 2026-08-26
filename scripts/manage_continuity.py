@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create repository checkpoints and validate safe LKS-SDD 1.3/1.4 resumption."""
+"""Create repository checkpoints and validate safe LKS-SDD 1.3-1.5 resumption."""
 
 from __future__ import annotations
 
@@ -59,17 +59,21 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise ContinuityError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4"}:
-        raise ContinuityError("Los checkpoints reanudables requieren schema 1.3 o 1.4.")
+    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4", "1.5"}:
+        raise ContinuityError("Los checkpoints reanudables requieren schema 1.3, 1.4 o 1.5.")
     return path, value, original
 
 
 def _validate_checkpoint_schema(
     manifest_schema: str, checkpoint_schema: str | None
 ) -> None:
-    allowed = {"1.3"} if manifest_schema == "1.3" else {"1.3", "1.4"}
+    allowed = {
+        "1.3": {"1.3"},
+        "1.4": {"1.3", "1.4"},
+        "1.5": {"1.3", "1.4", "1.5"},
+    }.get(manifest_schema, set())
     if checkpoint_schema not in allowed:
-        expected = "1.3" if manifest_schema == "1.3" else "1.3 o 1.4"
+        expected = ", ".join(sorted(allowed))
         raise ContinuityError(
             "El checkpoint no usa un schema_version compatible con el proyecto: "
             f"schema {manifest_schema} requiere checkpoint {expected}."

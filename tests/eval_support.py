@@ -162,7 +162,7 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
             },
         }
     )
-    if manifest.get("schema_version") == "1.4":
+    if manifest.get("schema_version") in {"1.4", "1.5"}:
         manifest["task_tracking"].update(
             {
                 "state": "confirmed",
@@ -179,6 +179,13 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
                 "last_sync_on": None,
             }
         )
+        if manifest.get("schema_version") == "1.5":
+            manifest["task_tracking"].update(
+                reporting_scope="not-applicable",
+                coordination_gate="not-required",
+                reporting_status="not-required",
+                last_reported_on=None,
+            )
     manifest["technology"] = {
         "preferred_stack_assessed": True,
         "selected_profile": "API-FASTAPI-STATELESS-OCI",
@@ -202,13 +209,19 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
         newline="\n",
     )
 
-    if manifest.get("schema_version") == "1.4":
+    if manifest.get("schema_version") in {"1.4", "1.5"}:
         tracking_path = docs / "04-delivery" / "task-tracking.md"
         _replace_row(
             tracking_path,
             "TRK-001",
             "| TRK-001 | confirmed | repository-only | none | not-applicable | not-applicable | not-applicable | not-required | local-only | ADR-900 | 2026-08-19 |",
         )
+        if manifest.get("schema_version") == "1.5":
+            _replace_row(
+                tracking_path,
+                "RPT-001",
+                "| RPT-001 | confirmed | not-applicable | not-required | not-applicable | ADR-900 | 2026-08-19 |",
+            )
 
     open_points = docs / "00-control" / "open-points.md"
     lines = [

@@ -224,9 +224,9 @@ class DefinitionExperienceTests(unittest.TestCase):
                 artifact_path = root / artifact["path"]
                 artifact_text = artifact_path.read_text(encoding="utf-8")
                 artifact_text = artifact_text.replace(
-                    'schema_version: "1.4"', 'schema_version: "1.0"', 1
+                    'schema_version: "1.5"', 'schema_version: "1.0"', 1
                 ).replace(
-                    'method_version: "1.4.0"', 'method_version: "1.0.0"', 1
+                    'method_version: "1.5.0"', 'method_version: "1.0.0"', 1
                 ).replace(
                     f'created_with_plugin_version: "{current_version}"',
                     'created_with_plugin_version: "0.5.0"',

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and project the optional LKS-SDD 1.4 Jira task tracker.
+"""Validate and project the optional LKS-SDD 1.4/1.5 Jira task tracker.
 
 This module is deliberately offline.  It prepares deterministic operations and
 assesses durable receipts; a skill may hand an authorized preview to the
@@ -63,11 +63,78 @@ OPERATION_HEADERS = (
     "Result",
     "Notes",
 )
+REPORTING_HEADERS = (
+    "Reporting",
+    "State",
+    "Scope",
+    "Coordination gate",
+    "Comment policy",
+    "Decision",
+    "Last reviewed",
+)
+WORKFLOW_HEADERS = (
+    "Local state",
+    "State",
+    "Jira status ID",
+    "Jira status name",
+    "Decision",
+    "Last reviewed",
+)
+MILESTONE_OPERATION_HEADERS = (
+    "ID",
+    "State",
+    "Task",
+    "Source ref",
+    "Event kind",
+    "Action",
+    "Event hash",
+    "Preview hash",
+    "Duplicate check",
+    "Authorized by role",
+    "Authorized on",
+    "External ID",
+    "External key",
+    "Recorded on",
+    "Result",
+    "Notes",
+)
 
 MODES = {"pending", "repository-only", "jira-hybrid"}
 BINDING_STATES = {"proposed", "confirmed"}
-SYNC_POLICIES = {"pending", "not-required", "required-before-execution"}
+SYNC_POLICIES = {
+    "pending",
+    "not-required",
+    "advisory",
+    "required-before-execution",
+}
 WRITE_POLICIES = {"pending", "local-only", "preview-and-confirm"}
+REPORTING_STATES = {"proposed", "confirmed", "paused"}
+REPORTING_SCOPES = {
+    "pending",
+    "not-applicable",
+    "projection-only",
+    "milestone-reporting",
+}
+COORDINATION_GATES = {
+    "pending",
+    "not-required",
+    "advisory",
+    "required-before-execution",
+}
+COMMENT_POLICIES = {"pending", "not-applicable", "milestones-only"}
+LOCAL_WORKFLOW_STATES = {"in-progress", "blocked", "in-review", "done"}
+WORKFLOW_MAPPING_STATES = {"proposed", "confirmed"}
+MILESTONE_EVENT_KINDS = {
+    "started",
+    "progress",
+    "blocked",
+    "resumed",
+    "in-review",
+    "verification-pending",
+    "verification-failed",
+    "done",
+}
+MILESTONE_ACTIONS = {"comment", "transition"}
 MAPPING_STATES = {
     "unlinked",
     "pending",
@@ -104,6 +171,8 @@ SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 TASK_RE = re.compile(r"^TASK-[0-9]{3}$")
 ADR_RE = re.compile(r"^ADR-[0-9]{3}$")
 SYNC_RE = re.compile(r"^SYNC-[0-9]{3}$")
+RPT_RE = re.compile(r"^RPT-[0-9]{3}$")
+SOURCE_REF_RE = re.compile(r"^(?:TASK|EXEC|CKPT|EVID|PROB)-[0-9]{3}$")
 PROJECT_KEY_RE = re.compile(r"^[A-Z][A-Z0-9]+$")
 EXTERNAL_ID_RE = re.compile(r"^[1-9][0-9]{0,30}$")
 SENSITIVE_MARKERS = (
@@ -317,7 +386,7 @@ def _tracking_frontmatter(text: str, manifest: dict[str, Any]) -> dict[str, str]
     expected = {
         "artifact_id": "ART-TRACKING",
         "artifact_type": "task-tracking",
-        "schema_version": "1.4",
+        "schema_version": str(manifest.get("schema_version", "")),
         "method_version": str(manifest.get("method_version", "")),
         "created_with_plugin_version": str(manifest.get("plugin_version", "")),
         "project_id": str(manifest.get("project_id", "")),
@@ -413,8 +482,9 @@ def load_tracking_contract(
 ) -> dict[str, Any]:
     """Read the tracker tables without mutating the consumer project."""
 
-    if str(manifest.get("schema_version")) != "1.4":
-        raise TrackingContractError("El tracking operativo requiere schema 1.4.")
+    schema_version = str(manifest.get("schema_version"))
+    if schema_version not in {"1.4", "1.5"}:
+        raise TrackingContractError("El tracking operativo requiere schema 1.4 o 1.5.")
     path = _safe_tracking_file(root, manifest)
     try:
         text = path.read_text(encoding="utf-8")
@@ -425,8 +495,17 @@ def load_tracking_contract(
     bindings = _table(tables, BINDING_HEADERS)
     mappings = _table(tables, MAPPING_HEADERS)
     operations = _table(tables, OPERATION_HEADERS)
+    reporting_rows: list[dict[str, str]] = []
+    workflow_rows: list[dict[str, str]] = []
+    milestone_operations: list[dict[str, str]] = []
+    if schema_version == "1.5":
+        reporting_rows = _table(tables, REPORTING_HEADERS)
+        workflow_rows = _table(tables, WORKFLOW_HEADERS)
+        milestone_operations = _table(tables, MILESTONE_OPERATION_HEADERS)
     if len(bindings) != 1:
         raise TrackingContractError("ART-TRACKING necesita un único binding activo.")
+    if schema_version == "1.5" and len(reporting_rows) != 1:
+        raise TrackingContractError("ART-TRACKING necesita una única reporting policy.")
     return {
         "path": path,
         "text": text,
@@ -435,7 +514,309 @@ def load_tracking_contract(
         "mappings": {row.get("Task", ""): row for row in mappings},
         "mapping_rows": mappings,
         "operations": operations,
+        "reporting": reporting_rows[0] if reporting_rows else {},
+        "workflow_rows": workflow_rows,
+        "workflow": {
+            row.get("Local state", ""): row for row in workflow_rows
+        },
+        "milestone_operations": milestone_operations,
     }
+
+
+def _confirmed_decision(root: Path, decision: str, purpose: str) -> str | None:
+    """Return an error unless an ADR is confirmed and names the governed purpose."""
+
+    if not ADR_RE.fullmatch(decision):
+        return f"{purpose} exige una decisión ADR-###."
+    model = build_project_model(root)
+    row = model.nodes.get(decision)
+    if row is None or row.state != "confirmed":
+        return f"{purpose} exige que {decision} exista y esté confirmed."
+    narrative = " ".join(str(value) for value in row.cells.values()).casefold()
+    if "jira" not in narrative:
+        return f"{decision} debe documentar explícitamente la decisión Jira de {purpose}."
+    return None
+
+
+def _validate_reporting_contract(
+    root: Path,
+    manifest: dict[str, Any],
+    contract: dict[str, Any],
+    result: dict[str, Any],
+) -> None:
+    """Validate optional milestone reporting without importing Jira as authority."""
+
+    reporting = contract["reporting"]
+    workflow_rows = contract["workflow_rows"]
+    milestone_operations = contract["milestone_operations"]
+    binding = contract["binding"]
+    mode = binding.get("Mode", "")
+    index = manifest.get("task_tracking", {})
+
+    if not RPT_RE.fullmatch(reporting.get("Reporting", "")):
+        result["errors"].append("Reporting debe usar RPT-###.")
+    if reporting.get("State") not in REPORTING_STATES:
+        result["errors"].append("State de Reporting no es válida.")
+    if reporting.get("Scope") not in REPORTING_SCOPES:
+        result["errors"].append("Scope de Reporting no es válido.")
+    if reporting.get("Coordination gate") not in COORDINATION_GATES:
+        result["errors"].append("Coordination gate no es válido.")
+    if reporting.get("Comment policy") not in COMMENT_POLICIES:
+        result["errors"].append("Comment policy no es válida.")
+    if not _valid_date(reporting.get("Last reviewed", "")):
+        result["errors"].append("Last reviewed de Reporting debe usar AAAA-MM-DD.")
+    if any(
+        _looks_sensitive(reporting.get(column, ""))
+        or PERSONAL_DATA_RE.search(reporting.get(column, ""))
+        or unsafe_persisted_text(reporting.get(column, ""))
+        for column in REPORTING_HEADERS
+    ):
+        result["errors"].append(
+            "Reporting contiene secretos, datos personales o markup no persistible."
+        )
+
+    scope = reporting.get("Scope", "")
+    if mode == "pending":
+        expected = {
+            "State": "proposed",
+            "Scope": "pending",
+            "Coordination gate": "pending",
+            "Comment policy": "pending",
+        }
+    elif mode == "repository-only":
+        expected = {
+            "State": "confirmed",
+            "Scope": "not-applicable",
+            "Coordination gate": "not-required",
+            "Comment policy": "not-applicable",
+        }
+    elif scope == "projection-only":
+        expected = {
+            "State": "confirmed",
+            "Coordination gate": binding.get("Sync policy", ""),
+            "Comment policy": "not-applicable",
+        }
+    else:
+        expected = {
+            "Comment policy": "milestones-only",
+        }
+        if reporting.get("State") not in {"confirmed", "paused"}:
+            result["errors"].append(
+                "milestone-reporting exige Reporting confirmed o paused."
+            )
+        if reporting.get("Coordination gate") not in {
+            "advisory",
+            "required-before-execution",
+        }:
+            result["errors"].append(
+                "milestone-reporting exige un Coordination gate explícito."
+            )
+    for column, wanted in expected.items():
+        if reporting.get(column) != wanted:
+            result["errors"].append(
+                f"{mode}/{scope} exige Reporting.{column}={wanted!r}."
+            )
+    if scope == "milestone-reporting":
+        decision_error = _confirmed_decision(
+            root, reporting.get("Decision", ""), "milestone-reporting"
+        )
+        if decision_error:
+            result["errors"].append(decision_error)
+    elif mode == "repository-only" and reporting.get("Decision") != binding.get(
+        "Decision"
+    ):
+        result["errors"].append(
+            "repository-only debe reutilizar la decisión confirmada del binding."
+        )
+    elif mode == "pending" and not reporting.get("Decision", "").startswith(
+        "pending"
+    ):
+        result["errors"].append("Reporting pending no puede inventar una decisión.")
+    elif scope == "projection-only" and reporting.get("Decision") != binding.get(
+        "Decision"
+    ):
+        result["errors"].append(
+            "projection-only debe reutilizar la decisión confirmada del binding."
+        )
+
+    if mode in {"pending", "repository-only"} or scope != "milestone-reporting":
+        if workflow_rows or milestone_operations:
+            result["errors"].append(
+                f"{mode}/{scope} exige Workflow mapping y Milestone operations vacíos."
+            )
+
+    seen_states: set[str] = set()
+    for row in workflow_rows:
+        local_state = row.get("Local state", "")
+        if local_state not in LOCAL_WORKFLOW_STATES:
+            result["errors"].append(
+                f"Workflow mapping contiene estado local inválido: {local_state!r}."
+            )
+        elif local_state in seen_states:
+            result["errors"].append(
+                f"Workflow mapping duplicado para {local_state}."
+            )
+        seen_states.add(local_state)
+        if row.get("State") not in WORKFLOW_MAPPING_STATES:
+            result["errors"].append(
+                f"{local_state}: State del workflow mapping no es válida."
+            )
+        if not EXTERNAL_ID_RE.fullmatch(row.get("Jira status ID", "")):
+            result["errors"].append(
+                f"{local_state}: Jira status ID debe ser numérico y observado."
+            )
+        if row.get("Jira status name", "") in IDENTITY_PLACEHOLDERS:
+            result["errors"].append(
+                f"{local_state}: falta Jira status name observado."
+            )
+        if not _valid_date(row.get("Last reviewed", "")):
+            result["errors"].append(f"{local_state}: Last reviewed inválido.")
+        if any(
+            _looks_sensitive(row.get(column, ""))
+            or PERSONAL_DATA_RE.search(row.get(column, ""))
+            or unsafe_persisted_text(row.get(column, ""))
+            for column in WORKFLOW_HEADERS
+        ):
+            result["errors"].append(
+                f"{local_state}: el workflow mapping contiene texto no persistible."
+            )
+        if row.get("State") == "confirmed":
+            decision_error = _confirmed_decision(
+                root, row.get("Decision", ""), f"workflow {local_state}"
+            )
+            if decision_error:
+                result["errors"].append(decision_error)
+
+    projection_ids = {
+        row.get("ID", "") for row in contract["operations"]
+    }
+    milestone_ids: set[str] = set()
+    pending_keys: set[tuple[str, str, str, str]] = set()
+    last_number = 0
+    for row in milestone_operations:
+        operation_id = row.get("ID", "")
+        match = re.fullmatch(r"SYNC-([0-9]{3})", operation_id)
+        if match is None:
+            result["errors"].append(f"Milestone operation inválida: {operation_id!r}.")
+        else:
+            number = int(match.group(1))
+            if operation_id in projection_ids or operation_id in milestone_ids:
+                result["errors"].append(f"SYNC duplicado entre ledgers: {operation_id}.")
+            if number <= last_number:
+                result["errors"].append(
+                    "Milestone operations debe conservar orden SYNC-### creciente."
+                )
+            milestone_ids.add(operation_id)
+            last_number = max(last_number, number)
+        if row.get("State") not in OPERATION_STATES:
+            result["errors"].append(f"{operation_id}: State inválido.")
+        if row.get("Result") not in OPERATION_RESULTS:
+            result["errors"].append(f"{operation_id}: Result inválido.")
+        expected_result = OPERATION_STATE_RESULT.get(row.get("State", ""))
+        if expected_result and row.get("Result") != expected_result:
+            result["errors"].append(
+                f"{operation_id}: State exige Result={expected_result}."
+            )
+        if not TASK_RE.fullmatch(row.get("Task", "")):
+            result["errors"].append(f"{operation_id}: Task inválida.")
+        if not SOURCE_REF_RE.fullmatch(row.get("Source ref", "")):
+            result["errors"].append(f"{operation_id}: Source ref inválida.")
+        if row.get("Event kind") not in MILESTONE_EVENT_KINDS:
+            result["errors"].append(f"{operation_id}: Event kind inválido.")
+        if row.get("Action") not in MILESTONE_ACTIONS:
+            result["errors"].append(f"{operation_id}: Action inválida.")
+        for column in ("Event hash", "Preview hash"):
+            if not SHA256_RE.fullmatch(row.get(column, "")):
+                result["errors"].append(f"{operation_id}: {column} inválido.")
+        expected_duplicate = "matched" if row.get("Action") == "transition" else None
+        if expected_duplicate and row.get("Duplicate check") != expected_duplicate:
+            result["errors"].append(
+                f"{operation_id}: transition exige Duplicate check=matched."
+            )
+        if row.get("Duplicate check") not in DUPLICATE_CHECK_RESULTS:
+            result["errors"].append(f"{operation_id}: Duplicate check inválido.")
+        if row.get("Authorized by role", "") in IDENTITY_PLACEHOLDERS:
+            result["errors"].append(f"{operation_id}: falta Authorized by role.")
+        for column in ("Authorized on", "Recorded on"):
+            if not _valid_date(row.get(column, "")):
+                result["errors"].append(f"{operation_id}: {column} inválido.")
+        if any(
+            _looks_sensitive(row.get(column, ""))
+            or PERSONAL_DATA_RE.search(row.get(column, ""))
+            or unsafe_persisted_text(row.get(column, ""))
+            for column in MILESTONE_OPERATION_HEADERS
+        ):
+            result["errors"].append(
+                f"{operation_id}: el recibo de hito contiene texto no persistible."
+            )
+        if row.get("State") == "authorized":
+            key = (
+                row.get("Task", ""),
+                row.get("Source ref", ""),
+                row.get("Event kind", ""),
+                row.get("Action", ""),
+            )
+            if key in pending_keys:
+                result["errors"].append(
+                    f"{operation_id}: existe otra acción autorizada pendiente para el mismo hito."
+                )
+            pending_keys.add(key)
+
+    if isinstance(index, dict):
+        comparisons = {
+            "reporting_scope": reporting.get("Scope"),
+            "coordination_gate": reporting.get("Coordination gate"),
+        }
+        for key, wanted in comparisons.items():
+            if index.get(key) != wanted:
+                result["errors"].append(
+                    f"task_tracking.{key} diverge de Reporting."
+                )
+        closed_dates = [
+            row.get("Recorded on", "")
+            for row in milestone_operations
+            if row.get("State") != "authorized"
+            and _valid_date(row.get("Recorded on", ""))
+        ]
+        expected_last = max(closed_dates) if closed_dates else None
+        if index.get("last_reported_on") != expected_last:
+            result["errors"].append(
+                "task_tracking.last_reported_on no resume Milestone operations."
+            )
+        latest_milestones: dict[
+            tuple[str, str, str, str], dict[str, str]
+        ] = {}
+        for row in milestone_operations:
+            latest_milestones[
+                (
+                    row.get("Task", ""),
+                    row.get("Source ref", ""),
+                    row.get("Event kind", ""),
+                    row.get("Action", ""),
+                )
+            ] = row
+        operation_states = {
+            row.get("State", "") for row in latest_milestones.values()
+        }
+        expected_status = (
+            "decision-required"
+            if mode == "pending"
+            else "not-required"
+            if mode == "repository-only" or scope == "projection-only"
+            else "paused"
+            if reporting.get("State") == "paused"
+            else "reconciliation-required"
+            if operation_states.intersection({"conflict", "reconciliation-required"})
+            else "failed"
+            if "failed" in operation_states
+            else "pending"
+            if "authorized" in operation_states
+            else "ready"
+        )
+        if index.get("reporting_status") != expected_status:
+            result["errors"].append(
+                "task_tracking.reporting_status no resume la política y los recibos de hitos."
+            )
 
 
 def validate_tracking_contract(
@@ -453,7 +834,8 @@ def validate_tracking_contract(
         "mappings": {},
         "operations": [],
     }
-    if str(manifest.get("schema_version")) != "1.4":
+    schema_version = str(manifest.get("schema_version"))
+    if schema_version not in {"1.4", "1.5"}:
         return result
     try:
         contract = load_tracking_contract(root, manifest)
@@ -467,6 +849,11 @@ def validate_tracking_contract(
     mappings = contract["mappings"]
     operations = contract["operations"]
     result.update(binding=binding, mappings=mappings, operations=operations)
+    result.update(
+        reporting=contract.get("reporting", {}),
+        workflow=contract.get("workflow", {}),
+        milestone_operations=contract.get("milestone_operations", []),
+    )
     mode = binding.get("Mode", "")
     result["mode"] = mode
 
@@ -494,6 +881,8 @@ def validate_tracking_contract(
         result["errors"].append(f"Modo de tracking inválido: {mode!r}.")
     if binding.get("Sync policy") not in SYNC_POLICIES:
         result["errors"].append("Sync policy del binding no es válida.")
+    if schema_version == "1.4" and binding.get("Sync policy") == "advisory":
+        result["errors"].append("schema 1.4 no admite Sync policy=advisory.")
     if binding.get("Write policy") not in WRITE_POLICIES:
         result["errors"].append("Write policy del binding no es válida.")
     if not _valid_date(binding.get("Last reviewed", "")):
@@ -538,9 +927,10 @@ def validate_tracking_contract(
     else:
         expected = {
             "Provider": "atlassian-rovo",
-            "Sync policy": "required-before-execution",
             "Write policy": "preview-and-confirm",
         }
+        if schema_version == "1.4":
+            expected["Sync policy"] = "required-before-execution"
         if not binding.get("Site") or binding.get("Site") == "pending":
             result["errors"].append("jira-hybrid necesita un sitio confirmado.")
         elif not _valid_https_url(binding["Site"]):
@@ -597,6 +987,9 @@ def validate_tracking_contract(
                 result["errors"].append(
                     f"task_tracking.{key} diverge de ART-TRACKING."
                 )
+
+    if schema_version == "1.5":
+        _validate_reporting_contract(root, manifest, contract, result)
 
     task_ids: set[str] = set()
     external_ids: set[str] = set()
@@ -745,7 +1138,7 @@ def validate_tracking_contract(
         action = row.get("Action")
         if action not in {"create", "update", "reconcile"}:
             result["errors"].append(
-                f"{operation_id}: Action solo admite create, update o reconcile en 0.10.0."
+                f"{operation_id}: la proyección solo admite create, update o reconcile."
             )
         operation_result = row.get("Result")
         if operation_result not in OPERATION_RESULTS:
@@ -1394,7 +1787,7 @@ def assess_tracking(
         "tasks": {},
         "checked_files": validation["checked_files"],
     }
-    if str(manifest.get("schema_version")) != "1.4" or validation["errors"]:
+    if str(manifest.get("schema_version")) not in {"1.4", "1.5"} or validation["errors"]:
         return result
     if validation["mode"] == "pending":
         result["blockers"].append(
@@ -1457,6 +1850,10 @@ __all__ = [
     "DUPLICATE_CHECK_RESULTS",
     "MAPPING_HEADERS",
     "OPERATION_HEADERS",
+    "REPORTING_HEADERS",
+    "WORKFLOW_HEADERS",
+    "MILESTONE_OPERATION_HEADERS",
+    "MILESTONE_EVENT_KINDS",
     "OPERATION_RESULTS",
     "PERSONAL_DATA_RE",
     "SENSITIVE_VALUE_RE",

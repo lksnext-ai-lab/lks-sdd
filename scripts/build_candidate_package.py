@@ -19,7 +19,6 @@ from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_REPORT_NAME = "quality-report.json"
-EXPECTED_BASELINE_COMMIT = "7318ccc337570e296bffda68a8e49724bed94c99"
 EXPECTED_CANDIDATE_CHECKS = {
     "fixture-integrity",
     "plugin-contract",
@@ -76,6 +75,11 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-42",
     "FX-43",
     "FX-44",
+    "FX-46",
+    "FX-47",
+    "FX-48",
+    "FX-49",
+    "FX-50",
 )
 EXPECTED_DETERMINISTIC_EVAL_IDS = {
     "FX-M1-ALTERNATIVE-STACK",
@@ -661,14 +665,25 @@ def _validated_quality_report(
     fixture_manifest = _committed_json(
         committed_files, "quality/fixture-manifest.json"
     )
-    baseline = _committed_json(
-        committed_files, "quality/baselines/v0.6.1.json"
+    comparison_input = report.get("comparison")
+    baseline_version = (
+        comparison_input.get("baseline_version")
+        if isinstance(comparison_input, dict)
+        else None
     )
-    if (
-        baseline.get("plugin_version") != "0.6.1"
-        or baseline.get("source_commit") != EXPECTED_BASELINE_COMMIT
+    if not isinstance(baseline_version, str) or not SEMVER_RE.fullmatch(
+        baseline_version
     ):
-        raise PackageError("La baseline comprometida no es la release v0.6.1 esperada.")
+        raise PackageError("El reporte no identifica una baseline SemVer válida.")
+    baseline_relative = f"quality/baselines/v{baseline_version}.json"
+    baseline = _committed_json(committed_files, baseline_relative)
+    if (
+        baseline.get("plugin_version") != baseline_version
+        or baseline.get("source_commit") != comparison_input.get("baseline_commit")
+    ):
+        raise PackageError(
+            "La baseline comprometida no coincide con la release comparada."
+        )
     deterministic_eval_count = _validate_fixture_attestation(
         fixture_manifest, committed_files
     )
@@ -759,7 +774,7 @@ def _validated_quality_report(
         or len(catalog_ids) != len(set(catalog_ids))
         or len(extension_ids) != len(extension_cases)
         or not all(isinstance(case_id, str) for case_id in extension_ids)
-        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 46)}
+        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 52)}
         or len(extension_ids) != len(set(extension_ids))
     ):
         raise PackageError("El inventario comprometido de casos FX cambió.")
@@ -858,7 +873,14 @@ def _validated_quality_report(
         raise PackageError("Los totales del canal automated no son consistentes.")
     if channels.get("fixture-integrity") != check_by_id["fixture-integrity"]:
         raise PackageError("El canal fixture-integrity no coincide con su check.")
-    if channels.get("profile-complete") != {"status": "passed"}:
+    profile_channel = channels.get("profile-complete")
+    if (
+        not isinstance(profile_channel, dict)
+        or profile_channel.get("status") != "passed"
+        or set(profile_channel) - {"status", "evidence_mode"}
+        or profile_channel.get("evidence_mode", "execute")
+        not in {"reuse", "execute"}
+    ):
         raise PackageError("El canal profile-complete no quedó superado.")
     if channels.get("regression") != {"status": "passed"}:
         raise PackageError("El canal regression no quedó superado.")
@@ -922,7 +944,7 @@ def _validated_quality_report(
     expected_comparison = _expected_comparison(metrics, baseline)
     if comparison != expected_comparison or comparison.get("status") != "passed":
         raise PackageError(
-            "El reporte no acredita una comparación reproducible con v0.6.1."
+            f"El reporte no acredita una comparación reproducible con v{baseline_version}."
         )
     if gate != {
         "status": "passed",

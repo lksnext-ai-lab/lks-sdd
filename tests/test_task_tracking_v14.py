@@ -74,6 +74,8 @@ def _configure(
     mode: str,
     *,
     decision: str = "ADR-900",
+    reporting_scope: str = "projection-only",
+    coordination_gate: str = "required-before-execution",
 ) -> dict:
     if decision in {"ADR-001", "ADR-002"}:
         decision = "ADR-901" if mode == "jira-hybrid" else "ADR-900"
@@ -97,6 +99,10 @@ def _configure(
                 "SYN",
                 "--issue-type",
                 "Synthetic Work Item",
+                "--reporting-scope",
+                reporting_scope,
+                "--coordination-gate",
+                coordination_gate,
             ]
         )
     _, preview = run_json(TRACKING_SCRIPT, *arguments)
@@ -506,7 +512,7 @@ class TaskTrackingV14Tests(unittest.TestCase):
             initialize(root, "tracking-choice")
             manifest = _manifest(root)
 
-            self.assertEqual(manifest["schema_version"], "1.4")
+            self.assertEqual(manifest["schema_version"], "1.5")
             self.assertEqual(manifest["task_tracking"]["mode"], "pending")
             tracking = validate_tracking_contract(root, manifest)
             self.assertEqual(tracking["status"], "decision-required")
@@ -627,7 +633,7 @@ class TaskTrackingV14Tests(unittest.TestCase):
             tracking_path = root / "docs/lks-sdd/04-delivery/task-tracking.md"
             tracking_path.write_text(
                 tracking_path.read_text(encoding="utf-8").replace(
-                    'schema_version: "1.4"', 'schema_version: "1.3"', 1
+                    'schema_version: "1.5"', 'schema_version: "1.3"', 1
                 ),
                 encoding="utf-8",
                 newline="\n",
@@ -756,6 +762,11 @@ class TaskTrackingV14Tests(unittest.TestCase):
                 "TRK-001",
                 "| TRK-001 | proposed | repository-only | none | not-applicable | not-applicable | not-applicable | not-required | local-only | pending: migration-preserved from schema 1.3 | 2026-08-25 |",
             )
+            _replace_row(
+                root / "docs/lks-sdd/04-delivery/task-tracking.md",
+                "RPT-001",
+                "| RPT-001 | confirmed | not-applicable | not-required | not-applicable | pending: migration-preserved from schema 1.3 | 2026-08-25 |",
+            )
             report, _, _ = validate_project(root)
             self.assertTrue(report.valid, report.errors)
             _, payload = run_json(
@@ -808,6 +819,11 @@ class TaskTrackingV14Tests(unittest.TestCase):
                 root / "docs/lks-sdd/04-delivery/task-tracking.md",
                 "TRK-001",
                 "| TRK-001 | proposed | repository-only | none | not-applicable | not-applicable | not-applicable | not-required | local-only | pending: migration-preserved from schema 1.3 | 2026-08-25 |",
+            )
+            _replace_row(
+                root / "docs/lks-sdd/04-delivery/task-tracking.md",
+                "RPT-001",
+                "| RPT-001 | confirmed | not-applicable | not-required | not-applicable | pending: migration-preserved from schema 1.3 | 2026-08-25 |",
             )
 
             report, _, _ = validate_project(root)

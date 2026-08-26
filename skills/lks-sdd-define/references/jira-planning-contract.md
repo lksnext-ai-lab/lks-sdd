@@ -12,6 +12,13 @@ Antes de crear el primer plan de tareas del proyecto, confirma una de estas opci
 
 Registra la decisión mediante un `ADR-###` confirmado que nombre expresamente `tracking` y el modo exacto `repository-only` o `jira-hybrid`; una ADR confirmada sobre arquitectura, entrega u otro asunto no sirve como sustituto semántico. Configura el único binding `TRK-###` de proyecto en `ART-TRACKING` con preview, `mutation_hash` y apply autorizado. Reutiliza esa elección en todos los horizontes del proyecto hasta que la persona pida reconsiderarla explícitamente; no crees un binding por plan, release o incremento. `.lks-sdd/project.json` indexa ese contrato; no debe recibir credenciales ni convertirse en la fuente sustantiva del binding.
 
+Si se confirma `jira-hybrid`, separa otras dos decisiones de producto:
+
+- `projection-only` o `milestone-reporting`;
+- `Coordination gate=advisory` o `required-before-execution`.
+
+Recomienda `milestone-reporting` con `advisory` para equipos que quieren visibilidad sin hacer depender el trabajo local de Atlassian. Usa `required-before-execution` solo cuando el gobierno del equipo lo exija. Registra la política como `RPT-###`. `repository-only` deja scope `not-applicable`, gate `not-required` y no solicita Rovo.
+
 La elección de `jira-hybrid` no autoriza llamadas externas. Pide autorización específica antes del preflight de solo lectura y otra autorización después de mostrar cada preview de escritura.
 
 ## Preflight de solo lectura
@@ -28,9 +35,9 @@ Con autorización de lectura vigente:
 
 No selecciones automáticamente el primer sitio, proyecto, tipo, campo, usuario, estado o enlace. No consultes identidad ni busques account IDs salvo que el usuario haya pedido expresamente una asignación concreta.
 
-Presenta como binding propuesto: sitio, clave de proyecto, tipo de work item, `Sync policy=required-before-execution` y `Write policy=preview-and-confirm`. Confírmalo localmente mediante el hash exacto antes de cualquier escritura Jira. Si el proyecto necesita varios tipos o una correspondencia de workflow que el binding 1.4 no expresa, déjalo como limitación y no inventes una configuración paralela. Desde que exista cualquier external ID o recibo `SYNC-###`, 0.10.0 bloquea abandonar Jira o cambiar site, proyecto o tipo; no ofrece `detach`/`rebind`, tampoco después de reconciliar.
+Presenta como binding propuesto: sitio, clave de proyecto, tipo de work item, la coordinación ya elegida y `Write policy=preview-and-confirm`. Confírmalo localmente mediante el hash exacto antes de cualquier escritura Jira. Si se habilitan transiciones, lee los status IDs y transiciones del workflow real; configura cada estado local con `configure-workflow` y un `ADR-###` confirmado. Nunca infieras IDs por nombres. Desde que exista cualquier external ID o recibo `SYNC-###`, 0.11.0 bloquea abandonar Jira o cambiar site, proyecto o tipo; no ofrece `detach`/`rebind`, tampoco después de reconciliar.
 
-La clave de proyecto debe coincidir con Jira Cloud: al menos 2 caracteres, inicio en mayúscula y solo mayúsculas o números. No normalices silenciosamente una entrada inválida y confirma mediante Rovo que existe y es accesible. Si Jira renombra el space/proyecto o mueve el work item y cambia el prefijo de su key, 0.10.0 lo trata como conflicto o reconciliación pendiente; no puede actualizar el binding ni aceptar ese rekey como si siguiera en el proyecto confirmado.
+La clave de proyecto debe coincidir con Jira Cloud: al menos 2 caracteres, inicio en mayúscula y solo mayúsculas o números. No normalices silenciosamente una entrada inválida y confirma mediante Rovo que existe y es accesible. Si Jira renombra el space/proyecto o mueve el work item y cambia el prefijo de su key, 0.11.0 lo trata como conflicto o reconciliación pendiente; no puede actualizar el binding ni aceptar ese rekey como si siguiera en el proyecto confirmado.
 
 ## Materialización local primero
 
@@ -79,3 +86,16 @@ Procesa una tarea cada vez:
 Si una creación o actualización puede haber ocurrido pero el resultado es incierto, no la repitas a ciegas. Cierra el `sync_id` como `uncertain` y realiza únicamente una lectura Rovo autorizada. `reconcile-result --anchor-sync-id <Last-operation-cerrado>` registra esa observación como un nuevo `SYNC-###` de acción `reconcile`; puede resolver `uncertain`/`conflict` o un cambio de key si conserva el mismo `external_id`, el prefijo del proyecto confirmado y el marker. No exige que el plan siga proyectable: una huella igual al ancla pero distinta de la proyección actual deja el mapping `out-of-sync`. No ejecuta un write ni habilita cambiar/abandonar el binding. Ante cualquier ambigüedad, conserva `conflict` o `uncertain`.
 
 No borres, archives, reasignes, añadas worklogs ni sobrescribas campos no gobernados. Un fallo o recibo Jira no altera la validez del plan Markdown ya confirmado ni cambia el estado canónico de la TASK.
+
+## Preparación del reporting de hitos
+
+Si `RPT-###` confirma `milestone-reporting`, deja explícita la política antes de implementar:
+
+- eventos admitidos: start, progreso significativo, bloqueo, reanudación, in-review, verificación pendiente/fallida y done verificado;
+- comentarios saneados y breves, sin logs, chat, secretos, PII, rutas absolutas ni worklogs;
+- una confirmación humana por preview de hito;
+- un recibo `SYNC-###` separado por comentario o transición;
+- `pause-reporting`/`resume-reporting` controlados y reconciliación append-only;
+- proyección de campos y reporting de hitos como flujos independientes.
+
+No publiques un hito durante definición. Esta fase solo configura el contrato local y, con autorizaciones externas separadas, materializa la proyección inicial de las TASK.

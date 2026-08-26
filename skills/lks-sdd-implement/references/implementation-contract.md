@@ -4,7 +4,7 @@
 
 - índice y Markdown válidos;
 - incremento `INC-###` confirmado y selección no vacía de `TASK-###` ready, con `specification_readiness` y preparación de la porción favorables;
-- esquema 1.4 actual o 1.3 compatible, planificación `complete` o política `incremental-authorized` confirmada, y cobertura/integridad coherentes;
+- esquema 1.5 actual o 1.3/1.4 compatible, planificación `complete` o política `incremental-authorized` confirmada, y cobertura/integridad coherentes;
 - `AUTH-###` explícito, persistido y vigente para el mismo incremento, release, tareas, política y fingerprints;
 - gobierno de entrega confirmado, `PLAN-###`/`REL-###` aplicables y dependencias resueltas;
 - `UNIT-###` y `BIND-###` seleccionados mediante ADR confirmada;

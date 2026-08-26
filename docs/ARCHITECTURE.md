@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.10.0
+# Arquitectura y alcance de la versión 0.11.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.10.0 conserva las seis skills, la arquitectura multiperfil y la cobertura, autorización y continuidad del método 1.3. Añade la implementación candidate de la propuesta 1.4 para elegir el backend de seguimiento y proyectar opcionalmente tareas en Jira. El contrato activo para proyectos nuevos es `method_version: 1.4.0` y `schema_version: 1.4`; 1.0–1.3 continúan validándose y solo evolucionan mediante migraciones explícitas de un salto. La propuesta metodológica permanece en `specs/proposed/`: no altera los hashes ni el estado de las siete fuentes canónicas.
+La versión 0.11.0 conserva las seis skills, la arquitectura multiperfil y el tracking de 1.4. Añade la propuesta candidate 1.5 para informar hitos de implementación y verificación en Jira sin degradar la experiencia local. El contrato activo para proyectos nuevos es `method_version: 1.5.0` y `schema_version: 1.5`; 1.0–1.4 continúan validándose y solo evolucionan mediante migraciones explícitas de un salto. Las propuestas metodológicas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
 
 ## Ancla documental y flujos de entrada
 
@@ -57,7 +57,7 @@ La estructura `PLAN-### → REL-### → TASK-###` evita tanto un backlog plano c
 
 Las transiciones se validan mediante una máquina de estados y se aplican con preview, hash de autorización y escritura atómica. `done` no se infiere de una casilla: exige criterios, gates y evidencias verificables. El tablero es una vista canónica de seguimiento; el detalle de tarea conserva la información necesaria para ejecutar y auditar el trabajo.
 
-El motor heredado de 1.3 evalúa dos ejes simultáneos: una selección puede tener `TASK-###: ready` mientras la planificación de su incremento o release sigue `partial`. `ART-PLANNING` asigna cada elemento activo a una tarea primaria, permite contribuyentes sin duplicar responsabilidad y detecta requisitos, criterios y pruebas sin propietario, definiciones incompletas, cobertura incoherente, ciclos y dependencias canceladas. El contrato 1.4 conserva estas reglas y añade un eje independiente de tracking; nunca deriva completitud de Jira.
+El motor heredado de 1.3 evalúa dos ejes simultáneos: una selección puede tener `TASK-###: ready` mientras la planificación de su incremento o release sigue `partial`. `ART-PLANNING` asigna cada elemento activo a una tarea primaria, permite contribuyentes sin duplicar responsabilidad y detecta requisitos, criterios y pruebas sin propietario, definiciones incompletas, cobertura incoherente, ciclos y dependencias canceladas. Los contratos 1.4 y 1.5 conservan estas reglas y añaden ejes independientes de tracking y reporting; nunca derivan completitud de Jira.
 
 La implementación requiere además un `AUTH-###` vigente, ligado a incremento, release, selección TASK, política y huellas. La política recomendada es `complete-before-implementation`; `incremental-authorized` necesita una decisión humana expresa y conserva `partial` visible. Ni readiness ni confirmación del plan autorizan por sí solos cambios de código.
 
@@ -72,7 +72,7 @@ Antes de materializar tareas 1.4 se registra una decisión `TRK-###`:
 | `repository-only` | Markdown LKS-SDD | Ninguna | Operación completa en local |
 | `jira-hybrid` | Markdown LKS-SDD; Jira como proyección operacional | Peer Atlassian Rovo autorizado por separado | Conserva intención y estado local; no simula escritura remota |
 
-`ART-TRACKING` contiene tres tablas cerradas: configuración y políticas del binding, mappings `TASK-### ↔ external_id` y recibos `SYNC-###`. La autoridad por campo está fijada por contrato, no por una matriz editable. `external_id` identifica el remoto; la key y URL Jira son atributos observados que solo pueden actualizarse dentro del proyecto y prefijo confirmados. Una key conservada en el historial no puede reutilizarse después con otra TASK o `external_id`, aunque el mapping vigente ya muestre una key posterior. Un cambio de prefijo por rename o movimiento queda fuera de soporte y falla de forma cerrada. Los campos operativos —assignee, sprint, posición o estado observado— no cambian `planning_fingerprint` ni invalidan AUTH. Un cambio remoto semántico se registra como conflicto o propuesta de cambio, nunca como actualización canónica automática. El mapping de workflows Jira no está automatizado en 0.10.0 y cualquier traducción no exacta falla de forma cerrada.
+`ART-TRACKING` contiene el binding y sus mappings/recibos de proyección. En 1.5 añade `RPT-###`, mappings explícitos de estados locales a Jira status IDs y recibos de hitos. La autoridad por campo está fijada por contrato, no por una matriz editable. `external_id` identifica el remoto; key y URL son atributos observados dentro del proyecto confirmado. Los campos operativos no cambian `planning_fingerprint` ni invalidan AUTH. Un cambio remoto semántico se registra como conflicto, nunca como actualización canónica. El workflow solo se traduce mediante IDs confirmados y transiciones observadas; cualquier mapping ambiguo falla cerrado.
 
 Las operaciones externas usan `SYNC-###`: intención determinista, preview saneado, autorización del hash exacto, ejecución por el peer y acuse local. `succeeded`, `failed`, `conflict` y `uncertain` son resultados distintos. Un timeout no autoriza repetir una creación hasta consultar y reconciliar el remoto. `Done` en Jira no produce `TASK: done`, `EVID-###`, G3 ni G4.
 
@@ -89,7 +89,7 @@ El catálogo usa cuatro niveles deliberadamente distintos:
 
 Un perfil solo se presenta como `supported` cuando su lifecycle es `active` y existe una certificación completa que coincide exactamente con los hashes actuales de descriptor, capabilities, scaffold, driver, composición, gates y motor de certificación. Un lock aporta identidad y reproducibilidad; la evidencia del gate de composición demuestra que esa mezcla concreta fue probada. Si cualquiera de esos bytes cambia, el soporte deja de ser válido hasta volver a certificar.
 
-El catálogo 0.10.0 conserva diez perfiles en seis familias; esta evolución no modifica sus bytes, locks ni certificaciones:
+El catálogo 0.11.0 conserva diez perfiles en seis familias; esta evolución no modifica sus bytes, locks ni certificaciones:
 
 | Perfil | Arquitectura | Estado de producto |
 |---|---|---|
@@ -122,4 +122,4 @@ La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps 
 
 ## Evolución posterior
 
-La versión SemVer `0.10.0` y el schema candidate 1.4 no equivalen a M6, a interoperabilidad Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de la propuesta 1.4 requiere una decisión metodológica separada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `0.11.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La siguiente evolución de perfiles debe partir de demanda real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.

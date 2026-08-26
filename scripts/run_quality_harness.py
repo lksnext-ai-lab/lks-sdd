@@ -20,9 +20,9 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
-DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.10.0.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.11.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
-DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.6.1.json"
+DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.10.0.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 PILOT_SUMMARY_SCHEMA_PATH = PLUGIN_ROOT / "schemas" / "pilot-summary.schema.json"
 UNIT_TEST_TIMEOUT_SECONDS = 1800
@@ -327,8 +327,8 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             raise HarnessError(
                 f"{case_id} no puede declarar evidencia antes de su ejecución controlada."
             )
-    if extension_ids != {f"FX-{index:02d}" for index in range(20, 46)}:
-        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-45.")
+    if extension_ids != {f"FX-{index:02d}" for index in range(20, 52)}:
+        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-51.")
     if "definition-conversation" not in channels["candidate"].get("optional", []):
         raise HarnessError(
             "Candidate debe mostrar definition-conversation como evidencia opcional."
@@ -408,6 +408,7 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
         "information_protection",
         "tracking_authority",
         "degraded_mode_clarity",
+        "milestone_experience",
     }
     for case in cases:
         if not isinstance(case, dict):
@@ -999,13 +1000,15 @@ def _unit_test_metrics(payload: dict[str, Any] | None) -> dict[str, int]:
 
 
 def run_automated(
-    catalog: dict[str, Any], include_complete_profile: bool
+    catalog: dict[str, Any], profile_mode: str | bool, evaluated_on: str = "2026-08-26"
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, float | int],
     list[str],
     dict[str, Any],
 ]:
+    if isinstance(profile_mode, bool):
+        profile_mode = "execute" if profile_mode else "not-run"
     checks: list[dict[str, Any]] = []
     metrics: dict[str, float | int] = {}
     critical_failures: list[str] = []
@@ -1053,7 +1056,26 @@ def run_automated(
             600,
         ),
     ]
-    if include_complete_profile:
+    if profile_mode == "reuse":
+        commands.append(
+            (
+                "reference-profile-complete",
+                [
+                    sys.executable,
+                    "-X",
+                    "utf8",
+                    "scripts/verify_profile_certifications.py",
+                    "--date",
+                    evaluated_on,
+                    "--max-age-days",
+                    "90",
+                    "--json",
+                ],
+                True,
+                120,
+            )
+        )
+    elif profile_mode == "execute":
         commands.append(
             (
                 "reference-profile-complete",
@@ -1417,8 +1439,10 @@ def build_report(
     observations_path: Path | None,
     pilot_summary_path: Path | None,
     baseline_path: Path,
-    include_complete_profile: bool,
+    profile_mode: str | bool,
 ) -> dict[str, Any]:
+    if isinstance(profile_mode, bool):
+        profile_mode = "execute" if profile_mode else "not-run"
     # Capture the source boundary before launching any child validator, test or
     # profile gate. This prevents an ignored file from influencing checks and
     # only afterwards being misreported as part of a clean starting tree.
@@ -1443,7 +1467,7 @@ def build_report(
     if pilot_summary_path is not None:
         pilot_summary = validate_pilot_summary(_load_json(pilot_summary_path))
     checks, metrics, critical_failures, automated_evidence = run_automated(
-        catalog, include_complete_profile
+        catalog, profile_mode, evaluated_on
     )
     activation, activation_metrics, activation_critical = evaluate_activation(
         corpus, observations, catalog["thresholds"]
@@ -1484,7 +1508,8 @@ def build_report(
                     if check["id"] == "reference-profile-complete"
                 ),
                 "not-run",
-            )
+            ),
+            "evidence_mode": profile_mode,
         },
         "regression": {"status": comparison["status"]},
         "definition-conversation": evaluate_definition_conversation(definition_corpus),
@@ -1586,13 +1611,34 @@ def main() -> int:
     parser.add_argument("--observations", type=Path)
     parser.add_argument("--pilot-summary", type=Path)
     parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE_PATH)
-    parser.add_argument("--include-complete-profile", action="store_true")
+    parser.add_argument(
+        "--profile-mode",
+        choices=("not-run", "reuse", "execute"),
+        default="not-run",
+        help=(
+            "not-run omite el canal, reuse acredita certificaciones exactas vigentes "
+            "y execute vuelve a ejecutar el perfil Docker completo."
+        ),
+    )
+    parser.add_argument(
+        "--include-complete-profile",
+        action="store_true",
+        help="Alias heredado de --profile-mode execute.",
+    )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", args.evaluated_on):
         print("ERROR: --date debe usar YYYY-MM-DD.", file=sys.stderr)
         return 2
+    if args.include_complete_profile and args.profile_mode not in {"not-run", "execute"}:
+        print(
+            "ERROR: --include-complete-profile no es compatible con "
+            "--profile-mode reuse.",
+            file=sys.stderr,
+        )
+        return 2
+    profile_mode = "execute" if args.include_complete_profile else args.profile_mode
     try:
         report = build_report(
             args.evaluated_on,
@@ -1600,7 +1646,7 @@ def main() -> int:
             args.observations,
             args.pilot_summary,
             args.baseline.expanduser().resolve(),
-            args.include_complete_profile,
+            profile_mode,
         )
         if args.output:
             _atomic_write(args.output, report, args.force)
