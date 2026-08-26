@@ -133,6 +133,32 @@ class QualityHarnessTests(unittest.TestCase):
             check["summary"], "exit=2; failed=frontend-tests(exit=1)"
         )
 
+    def test_failed_unit_result_names_are_visible_in_check_summary(self):
+        payload = {
+            "passed": False,
+            "results": [
+                {"name": "test_first", "status": "failed"},
+                {"name": "test_second", "status": "failed"},
+                {"name": "test_ok", "status": "passed"},
+            ],
+        }
+        completed = subprocess.CompletedProcess(
+            args=["synthetic"],
+            returncode=1,
+            stdout=json.dumps(payload),
+            stderr="",
+        )
+        with patch("run_quality_harness.subprocess.run", return_value=completed):
+            check, parsed, _ = _run_command(
+                "unit-tests",
+                ["synthetic"],
+                json_output=True,
+            )
+
+        self.assertEqual(parsed, payload)
+        self.assertEqual(check["status"], "failed")
+        self.assertEqual(check["summary"], "exit=1; failed=test_first,test_second")
+
     def test_perfect_activation_and_document_observations_pass(self):
         observations = validate_observations(self._observations(), self.corpus)
         activation, metrics, critical = evaluate_activation(

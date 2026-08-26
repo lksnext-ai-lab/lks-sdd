@@ -797,6 +797,18 @@ def _run_command(
                 for check in failed_checks[:3]
             )
             summary = f"{summary}; failed={failures}"
+        else:
+            failed_results = [
+                result
+                for result in payload.get("results", [])
+                if isinstance(result, dict) and result.get("status") == "failed"
+            ]
+            if failed_results:
+                failures = ",".join(
+                    str(result.get("name") or result.get("id") or "unknown")
+                    for result in failed_results[:3]
+                )
+                summary = f"{summary}; failed={failures}"
     return (
         {
             "id": check_id,
