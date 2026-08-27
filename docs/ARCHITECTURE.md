@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.12.0
+# Arquitectura y alcance de la versión 0.13.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.12.0 conserva las seis skills, la arquitectura multiperfil y los contratos 1.4/1.5 de tracking y reporting. Añade una propuesta candidate para granularidad explicable del catálogo y dos perfiles exactos Microsoft Entra sin composición dinámica. El contrato activo para proyectos nuevos continúa en `method_version: 1.5.0` y `schema_version: 1.5`; 1.0–1.5 siguen validándose y esta actualización no requiere migración. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
+La versión 0.13.0 conserva las seis skills, la arquitectura multiperfil y los contratos 1.4/1.5 de tracking y reporting. Añade dos perfiles OIDC simulados exactos y certificados exclusivamente para entornos no productivos; los perfiles Microsoft Entra siguen candidate y no existe composición dinámica. El contrato activo para proyectos nuevos continúa en `method_version: 1.5.0` y `schema_version: 1.5`; 1.0–1.5 siguen validándose y esta actualización no requiere migración. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
 
 ## Ancla documental y flujos de entrada
 
@@ -89,7 +89,7 @@ El catálogo usa cuatro niveles deliberadamente distintos:
 
 Un perfil solo se presenta como `supported` cuando su lifecycle es `active` y existe una certificación completa que coincide exactamente con los hashes actuales de descriptor, capabilities, scaffold, driver, composición, gates y motor de certificación. Un lock aporta identidad y reproducibilidad; la evidencia del gate de composición demuestra que esa mezcla concreta fue probada. Si cualquiera de esos bytes cambia, el soporte deja de ser válido hasta volver a certificar. `automation_coverage` explica dimensiones disponibles o pendientes, pero no introduce soporte parcial ni cambia esta puerta.
 
-El catálogo 0.12.0 contiene doce perfiles en seis familias: conserva seis active sin modificar sus bytes, locks ni certificaciones, y añade dos candidates Entra a los cuatro candidates anteriores:
+La versión 0.13.0 contiene catorce perfiles en seis familias: conserva los perfiles existentes, añade dos perfiles OIDC simulados `active` para uso no productivo y mantiene los dos perfiles Entra como `candidate` junto a los cuatro candidates anteriores:
 
 | Perfil | Arquitectura | Estado de producto |
 |---|---|---|
@@ -97,7 +97,9 @@ El catálogo 0.12.0 contiene doce perfiles en seis familias: conserva seis activ
 | `WEB-ANGULAR-STATIC` | SPA Angular estática | active; requiere certificación exacta vigente |
 | `API-FASTAPI-STATELESS-OCI` | API-only sin estado en OCI | active; requiere certificación exacta vigente |
 | `API-FASTAPI-KEYCLOAK-PG-OCI` | API-only con OIDC y PostgreSQL | active; requiere certificación exacta vigente |
+| `API-FASTAPI-SIMULATED-OIDC-PG-OCI` | API-only FastAPI con OIDC simulado, PostgreSQL y OCI | active; solo no productivo, certificación exacta vigente |
 | `API-FASTAPI-ENTRA-PG-OCI` | API-only FastAPI con Microsoft Entra, PostgreSQL y OCI | candidate; cobertura local definida, no soportado aún |
+| `WEB-REACT-VITE-SIMULATED-OIDC-STATIC` | SPA React/Vite estática con OIDC simulado y PKCE | active; solo no productivo, certificación exacta vigente |
 | `WEB-REACT-VITE-ENTRA-STATIC` | SPA React/Vite estática con Microsoft Entra y PKCE | candidate; cobertura local definida, no soportado aún |
 | `WEB-NEXTJS-SSR-NODE` | SSR/hidratación con Next.js | active; requiere certificación exacta vigente |
 | `WEB-FASTAPI-REACT-KEYCLOAK-PG` | Sistema web React, API, OIDC y PostgreSQL | active; requiere certificación exacta vigente |
@@ -107,6 +109,8 @@ El catálogo 0.12.0 contiene doce perfiles en seis familias: conserva seis activ
 | `STR-PYTHON-KAFKA-PROCESSOR-OCI` | Procesador event-driven Kafka | candidate; documentable, no soportado aún |
 
 Los perfiles candidate contienen contrato, scaffold, locks y gates diseñados, pero no se promocionan a active ni a `supported` sin ejecutar y registrar su gate completo. Los candidates Entra mantienen además la interoperabilidad real `not-run`: metadata, claims y PKCE sintéticos no prueban un tenant, registros de aplicación, consent, conditional access o renovación reales. Esta distinción evita prometer soporte por el mero hecho de que una tecnología figure en el catálogo.
+
+Los perfiles OIDC simulados modelan el límite de confianza y el flujo Authorization Code con PKCE S256 mediante un emisor efímero controlado, discovery/JWKS, tokens RS256 y claims sintéticos estables. Solo aceptan una allowlist explícita de entornos no productivos y el issuer dedicado `/__test__/oidc`; HTTP queda en loopback y HTTPS habilita topologías browser-reachable de integración o aceptación-preproducción. Producción, ausencia o etiquetas desconocidas fallan de forma cerrada. Su certificación demuestra el contrato local no productivo y cada binding por separado, no la interoperabilidad de Microsoft Entra, la composición frontend/backend ni la equivalencia operacional con un proveedor externo.
 
 ## Gates y evidencia
 
@@ -124,4 +128,4 @@ La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps 
 
 ## Evolución posterior
 
-La versión SemVer `0.12.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `0.13.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.

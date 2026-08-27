@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.13.0 — 2026-08-27 — perfiles OIDC simulados certificados para desarrollo no productivo
+
+- Añade `API-FASTAPI-SIMULATED-OIDC-PG-OCI` y `WEB-REACT-VITE-SIMULATED-OIDC-STATIC` como perfiles `active` exactos para el piloto GPX con identidad OIDC simulada y controlada.
+- Implementa discovery, JWKS, tokens RS256, Authorization Code con PKCE S256, sesión de navegador, autenticación/autorización y gates de integración sin depender de un tenant externo.
+- Ambos perfiles exigen un entorno no productivo explícito, un issuer dedicado `/__test__/oidc`, IDs sintéticos estables y fallan de forma cerrada en producción o ante configuración ambigua.
+- No acreditan interoperabilidad con Microsoft Entra; los perfiles Entra existentes conservan su estado `candidate`, `unsupported` y `external_interoperability: not-run`.
+- Regenera locks y certificaciones exactas de los gates completos sobre los bytes definitivos. La release sigue siendo candidate y no promueve M6, `stable` ni política corporativa.
+
 ## 0.12.0 — 2026-08-26 — catálogo granular sin combinatoria abierta y perfiles Microsoft Entra
 
 - Añade cuatro capabilities de identidad reutilizables para discovery/JWKS, API bearer, SPA Authorization Code con PKCE y claims de Microsoft Entra, manteniendo el perfil exacto como única unidad seleccionable y certificable.

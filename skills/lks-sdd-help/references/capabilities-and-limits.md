@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.12.0
+# Capacidades y límites de LKS-SDD 0.13.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -12,7 +12,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Definir pantallas, flujos, estados e interacción cuando existe frontend.
 - Generar con ImageGen entre una y tres propuestas para un frontend nuevo o cambio visual material cuando el brief sea suficiente y la capacidad esté disponible; conservar validación, estado y activos trazables. Si no está disponible, declarar el fallback y el pendiente.
 - Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización autorizada de una baseline documental, sin tratar el código observado como intención aprobada.
-- Inicializar proyectos nuevos con método 1.5.0 y esquema 1.5, y validar proyectos 1.0/1.1/1.2/1.3/1.4 en compatibilidad sin reescribirlos.
+- Inicializar proyectos nuevos con método 1.5.0 y esquema 1.5, y validar proyectos 1.0/1.1/1.2/1.3/1.4/1.5 en compatibilidad sin reescribirlos.
 - Definir y evolucionar `bounded-release`, `continuous-evolution` o `maintenance-stream`, incluyendo SemVer u otra política confirmada, Git/ramas, entornos, CI/CD, promoción inmutable, despliegue, recuperación y revisiones `CHG-###`.
 - Gestionar planes, releases y tareas mediante `PLAN/REL/TASK`, un mapa de cobertura primaria/contribuyente, fichas ejecutables, estados, salud, progreso, dependencias, bloqueos, evidencias e historial.
 - Exigir antes de confirmar el plan una decisión explícita entre tracking `repository-only` y `jira-hybrid`; la opción local conserva una experiencia completa y no solicita Atlassian.
@@ -28,6 +28,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Evaluar readiness de un incremento con bloqueos explicables, separando `specification_readiness`, `automation_support`, `planning_completeness` y `selected_slice_readiness`.
 - Explicar `automation_coverage` por binding sin rebajar `automation_support`: capabilities granulares permiten localizar preparación, gates locales, interoperabilidad y evidencia pendientes, pero solo un perfil exacto active y certificado es implementable.
 - Documentar como candidates los perfiles exactos `API-FASTAPI-ENTRA-PG-OCI` y `WEB-REACT-VITE-ENTRA-STATIC`, manteniendo frontend/backend separados y sin sustituir Microsoft Entra por Keycloak.
+- Implementar en desarrollo, CI, integración y aceptación-preproducción mediante los perfiles exactos `API-FASTAPI-SIMULATED-OIDC-PG-OCI` y `WEB-REACT-VITE-SIMULATED-OIDC-STATIC`, con bindings separados, certificación exacta, interoperabilidad externa `not-applicable` y bloqueo fail-closed en producción. No acreditan ni sustituyen Microsoft Entra.
 - Comprobar trazabilidad en fase `preimplementation` hasta pruebas planificadas y en fase `verification` hasta evidencia ejecutada; un alcance vacío falla de forma explícita. El preflight resuelve además las relaciones del contrato activo y queda incompleto ante destinos inexistentes, históricos o no confirmados, con diagnósticos `LKS-ACTIVE-*`; sigue siendo un handoff estructural y no una evaluación completa de readiness.
 - Distinguir la huella documental completa de la huella del contrato activo, conservando historial sin convertir elementos rechazados, sustituidos o retirados en inputs de implementación.
 - Preparar de forma genérica y collision-safe cada perfil exacto activo de una selección TASK, copiando locks por binding mediante preview y autorización.

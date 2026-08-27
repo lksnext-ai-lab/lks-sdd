@@ -1,0 +1,76 @@
+{
+  "schema_version": "2.0",
+  "id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+  "version": "1.0.0",
+  "family_id": "FAM-API-SERVICE",
+  "profile_scope": "deployable",
+  "lifecycle": "active",
+  "support_level": "H1",
+  "default_rigor": "P1",
+  "summary": "Non-production FastAPI API with a controlled OIDC identity double, PostgreSQL migrations and digest-pinned OCI delivery.",
+  "units": [{"role": "api", "runtime": "Python ASGI with PostgreSQL and a non-production OIDC double", "default_path": "."}],
+  "dimensions": {
+    "frontend": [],
+    "backend": [
+      {"name": "Python", "version_range": "3.14.x", "required": true},
+      {"name": "FastAPI", "version_range": "0.141.x", "required": true},
+      {"name": "SQLAlchemy", "version_range": "2.0.x", "required": true},
+      {"name": "Alembic", "version_range": "1.19.x", "required": true}
+    ],
+    "data": [{"name": "PostgreSQL", "version_range": "18.x", "required": true}],
+    "identity": [{"name": "controlled OIDC identity double", "version_range": "profile contract 1.0", "required": true}],
+    "integration": [{"name": "OpenAPI", "version_range": "3.1.x", "required": true}],
+    "delivery": [{"name": "OCI image", "version_range": "digest-pinned base", "required": true}],
+    "testing": [{"name": "pytest", "version_range": "9.1.x", "required": true}],
+    "observability": [{"name": "health, readiness, identity failures and structured logs", "version_range": "profile contract 1.0", "required": true}]
+  },
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY", "CAP-API-CONTRACT", "CAP-IDENTITY-OIDC-SIMULATED",
+    "CAP-OIDC-DISCOVERY-JWKS", "CAP-OIDC-API-BEARER", "CAP-DATA-POSTGRES",
+    "CAP-OCI-RUNTIME", "CAP-DELIVERY-EVIDENCE"
+  ],
+  "excluded_capabilities": ["CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE", "CAP-BROWSER-PLAYWRIGHT", "CAP-IDENTITY-OIDC", "CAP-OIDC-SPA-PKCE", "CAP-ENTRA-CLAIMS", "CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "capability_bindings": [
+    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD copy driver", "version_range": "1.0.0"},
+    {"capability_id": "CAP-API-CONTRACT", "provider": "FastAPI and pytest", "version_range": "0.141 / 9.1"},
+    {"capability_id": "CAP-IDENTITY-OIDC-SIMULATED", "provider": "controlled non-production OIDC double", "version_range": "1.0.0"},
+    {"capability_id": "CAP-OIDC-DISCOVERY-JWKS", "provider": "local discovery document and ephemeral RSA JWKS", "version_range": "OIDC Discovery 1.0 / PyJWT 2.13"},
+    {"capability_id": "CAP-OIDC-API-BEARER", "provider": "FastAPI HTTPBearer and explicit authorization", "version_range": "0.141"},
+    {"capability_id": "CAP-DATA-POSTGRES", "provider": "PostgreSQL, SQLAlchemy and Alembic", "version_range": "18 / 2.0 / 1.19"},
+    {"capability_id": "CAP-OCI-RUNTIME", "provider": "Docker Compose or compatible OCI engine", "version_range": "OCI 1.x"},
+    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+  ],
+  "compatibility_rules": [
+    "This profile is restricted to development, CI, integration and acceptance-preproduction with synthetic identities.",
+    "The API and readiness fail closed unless APP_ENV names an explicitly allowed non-production environment; this profile can never satisfy a production Microsoft Entra binding.",
+    "The double exposes discovery, JWKS and token endpoints only under the dedicated /__test__/oidc issuer; HTTP is loopback-only, remote acceptance-preproduction requires HTTPS, and a fresh RSA key is created at process start.",
+    "Tokens require exact issuer, audience, tenant, expiry and scope or role checks before local authorization.",
+    "Synthetic subject and object identifiers are stable test inputs; email and display name are never identity keys.",
+    "Every database change requires a migration and rollback, restore or forward-fix analysis; OCI promotion uses an immutable digest."
+  ],
+  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-SCAFFOLD-INTEGRITY", "GATE-API-LOCK", "GATE-API-LINT", "GATE-API-TYPECHECK", "GATE-API-TEST", "GATE-API-OPENAPI",
+      "GATE-OIDC-CONTRACT", "GATE-OIDC-DISCOVERY", "GATE-OIDC-JWKS", "GATE-OIDC-API-AUTHN", "GATE-OIDC-API-AUTHZ",
+      "GATE-OIDC-SIMULATED-SAFETY", "GATE-OIDC-SIMULATED-INTEGRATION", "GATE-DATA-MIGRATION", "GATE-DATA-INTEGRATION",
+      "GATE-OCI-BUILD", "GATE-OCI-SMOKE", "GATE-DELIVERY-EVIDENCE"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG"
+  },
+  "certification": {
+    "technical_gate": "passed",
+    "composition_gate": "passed",
+    "e2e_eval": "passed",
+    "human_review": "not-applicable",
+    "pilot": "not-applicable",
+    "validated_at": "2026-08-27",
+    "review_due": "2026-11-25",
+    "evidence": [
+      "python scripts/validate_reference_profile.py --profile API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+      "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-SIMULATED-OIDC-PG-OCI --runtime docker --containers",
+      "tests/test_multi_profile_delivery.py"
+    ]
+  },
+  "owner": "LKS-SDD maintainers"
+}

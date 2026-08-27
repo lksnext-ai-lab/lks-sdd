@@ -16,7 +16,7 @@ El calendario se adapta al incremento; no se fuerza un proyecto a finalizar para
 
 ## Puerta de inicio
 
-Antes de cambiar el estado externo a `running`, `scripts/manage_pilot.py validate-config` debe devolver `ready`. Esto exige muestra, aliases, responsables, soporte, canal confidencial de seguridad, paquete 0.12.0 candidate con checksum, rollback a 0.11.0 confirmado y restricciones de privacidad. Si se prueba `jira-hybrid`, `milestone-reporting` o interoperabilidad Entra, las conexiones, tenant, registros y permisos se confirman fuera del repositorio y no se copian a la configuración. El archivo de ejemplo permanece deliberadamente `prepared` pero no `running` hasta completar personas, proyectos y aprobaciones.
+Antes de cambiar el estado externo a `running`, `scripts/manage_pilot.py validate-config` debe devolver `ready`. Esto exige muestra, aliases, responsables, soporte, canal confidencial de seguridad, paquete 0.13.0 candidate con checksum, rollback a 0.12.0 confirmado y restricciones de privacidad. Si se prueba `jira-hybrid`, `milestone-reporting` o interoperabilidad Entra, las conexiones, tenant, registros y permisos se confirman fuera del repositorio y no se copian a la configuración. El archivo de ejemplo permanece deliberadamente `prepared` pero no `running` hasta completar personas, proyectos y aprobaciones.
 
 ## Evidencia
 

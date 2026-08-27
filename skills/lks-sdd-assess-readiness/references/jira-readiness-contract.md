@@ -38,4 +38,4 @@ En schema 1.5 reporta además `jira_reporting`: `not-required`, `decision-requir
 - Con `Coordination gate=required-before-execution`, una tarea seleccionada que no esté `in-sync` o tenga una operación obligatoria pendiente bloquea su preparación para ejecución. Con `advisory`, informa la degradación sin bloquear una slice local válida.
 - Incluso cuando bloquea esa política operativa, conserva y reporta por separado el resultado de todos los demás ejes.
 
-Esta skill no crea, edita, enlaza, comenta, asigna ni transiciona Jira. Ante drift, devuelve el menor paso de lectura y `reconcile-result` o `reconcile-event` necesario, sin ejecutarlo. No presenta la reconciliación como permiso para abandonar/cambiar un binding durable: 0.12.0 no ofrece `detach`/`rebind`.
+Esta skill no crea, edita, enlaza, comenta, asigna ni transiciona Jira. Ante drift, devuelve el menor paso de lectura y `reconcile-result` o `reconcile-event` necesario, sin ejecutarlo. No presenta la reconciliación como permiso para abandonar/cambiar un binding durable: 0.13.0 no ofrece `detach`/`rebind`.

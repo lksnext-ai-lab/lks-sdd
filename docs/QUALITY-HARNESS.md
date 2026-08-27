@@ -2,9 +2,9 @@
 
 ## Propósito
 
-El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51 y la cobertura granular Entra v0.12 FX-52–FX-53. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, migración 1.4 → 1.5 y la separación entre cobertura diagnóstica y soporte estricto. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
+El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51, la cobertura granular Entra v0.12 FX-52–FX-53 y los perfiles OIDC simulados v0.13 en FX-54. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, migración 1.4 → 1.5 y la separación entre cobertura diagnóstica y soporte estricto. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Ninguna prueba offline sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.12.0.json` como corpus vigente; los anteriores son históricos.
+FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.13.0.json` como corpus vigente; los anteriores son históricos.
 
 ## Canales de evidencia
 
@@ -27,7 +27,7 @@ La puerta publicable de candidate se ejecuta desde la raíz de un checkout dedic
 $pluginRoot = Resolve-Path "."
 $reportPath = Join-Path (Resolve-Path "..") "quality-report.json"
 python (Join-Path $pluginRoot "scripts\validate_fixture_manifest.py") $pluginRoot
-python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.11.0.json") --profile-mode reuse --output $reportPath
+python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.12.0.json") --profile-mode reuse --output $reportPath
 ```
 
 `--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte mantiene el esquema 1.1, registra `HEAD` y árbol `clean/dirty`, no sobrescribe salvo `--force` y falla si la fuente inicial no coincide exactamente con Git.

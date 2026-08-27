@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+  "profile_version": "1.0.0",
+  "certified_at": "2026-08-27",
+  "runtime": "docker",
+  "containers_executed": true,
+  "complete_gate": true,
+  "passed": true,
+  "profile_sha256": "ebd379aa22b116fa0ca149657b3ceff72949aba7e12f3b3c41daf6384d7f4fbf",
+  "driver_sha256": "2d39e4e2a0b41719794a73ccaa9841cda262d02ec61b70af77d6bc12bbe07d3d",
+  "scaffold_sha256": "2af461578ac77bc2b8e6c42f9ba8330391b57f88747a198ace915f5c688a9fbd",
+  "composition_digest": "d592a00ba01e7cdd9bbb1a1e9e96cde3b4478c48b0a43688936f867af4870427",
+  "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
+  "checks": [
+    {
+      "gate_id": "GATE-API-LINT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-LOCK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-OPENAPI",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-TEST",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-TYPECHECK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DATA-INTEGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DATA-MIGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OCI-BUILD",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OCI-SMOKE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-API-AUTHN",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-API-AUTHZ",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-CONTRACT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-DISCOVERY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-JWKS",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SIMULATED-INTEGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SIMULATED-SAFETY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "status": "passed"
+    }
+  ],
+  "result_sha256": "10830220812b7c79978316a5a58cb13b008731055e018aa623b33c48c0b99a9a",
+  "command": "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-SIMULATED-OIDC-PG-OCI --runtime docker --containers --record-certification"
+}

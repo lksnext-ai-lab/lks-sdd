@@ -92,7 +92,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             for item in catalog["profiles"]
             if item["lifecycle"] == "candidate"
         }
-        self.assertEqual(len(active), 6)
+        self.assertEqual(len(active), 8)
         self.assertEqual(len(candidate), 6)
 
         for profile_id in sorted(active):
@@ -132,6 +132,23 @@ class MultiProfileDeliveryTests(unittest.TestCase):
         self.assertEqual(coverage["delivery_evidence"], "not-run")
         self.assertIn("CAP-ENTRA-CLAIMS", coverage["capabilities"]["declared"])
         self.assertFalse(resolve_profile("API-FASTAPI-ENTRA-PG-OCI").implementable)
+
+    def test_simulated_oidc_profiles_are_exactly_supported_but_non_productive(self) -> None:
+        for profile_id in (
+            "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+            "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+        ):
+            with self.subTest(profile=profile_id):
+                support = resolve_profile(profile_id)
+                coverage = describe_profile_coverage(profile_id)
+                self.assertTrue(support.implementable)
+                self.assertTrue(support.verifiable)
+                self.assertEqual(coverage["catalog_fit"], "exact")
+                self.assertEqual(coverage["external_interoperability"], "not-applicable")
+                self.assertIn(
+                    "CAP-IDENTITY-OIDC-SIMULATED",
+                    coverage["capabilities"]["declared"],
+                )
 
     def test_uncatalogued_profile_has_no_automation_coverage(self) -> None:
         coverage = describe_profile_coverage("API-FASTAPI-UNKNOWN")

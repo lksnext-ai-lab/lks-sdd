@@ -30,7 +30,7 @@ No confunda la instalación del plugin con el proyecto consumidor:
 
 El patrón portable es `python "<plugin-root>/scripts/lks_sdd.py" <comando> "<project-root>"`. El dispatcher ofrece `help`, `define`, adopción, readiness, `planning`, `tracking`, implementación, `continuity`, verificación, `tasks`, `profiles`, validación, trazabilidad, migración y vistas cliente; cada operación conserva sus flags y autorizaciones.
 
-Los proyectos nuevos materializados por 0.12.0 usan método 1.5.0 y esquema 1.5. Los proyectos 1.0/1.1/1.2/1.3/1.4 siguen en compatibilidad y se migran mediante saltos explícitos. El renderer histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1; 1.3 → 1.4 añade tracking pendiente; 1.4 → 1.5 añade reporting opcional sin inferir confirmaciones, mappings, avance, evidencia o escrituras Jira.
+Los proyectos nuevos materializados por 0.13.0 usan método 1.5.0 y esquema 1.5. Los proyectos 1.0/1.1/1.2/1.3/1.4/1.5 siguen en compatibilidad y se migran mediante saltos explícitos. El renderer histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1; 1.3 → 1.4 añade tracking pendiente; 1.4 → 1.5 añade reporting opcional sin inferir confirmaciones, mappings, avance, evidencia o escrituras Jira.
 
 Los prototipos visuales generados en una superficie sin acceso a la raíz no se consideran assets locales por aparecer en el chat. Deben transferirse explícitamente a `docs/lks-sdd/03-solution/ui-prototypes/`, comprobar formato, dimensiones y SHA-256, enlazarse desde `ART-UX` y conservarse como `proposal` hasta validación humana. Si la transferencia no se ha realizado, el estado es `pending`.
 

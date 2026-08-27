@@ -237,11 +237,11 @@ class QualityHarnessTests(unittest.TestCase):
 
     def test_default_baseline_is_the_last_published_release(self):
         baseline = _load_json(DEFAULT_BASELINE_PATH)
-        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.11.0.json")
-        self.assertEqual(baseline["plugin_version"], "0.11.0")
+        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.12.0.json")
+        self.assertEqual(baseline["plugin_version"], "0.12.0")
         self.assertEqual(
             baseline["source_commit"],
-            "ace1d2e95f0f7267f99e9e64da23160abccf1cfb",
+            "64d83cd1389e765521c698a35df90da61428d870",
         )
         self.assertEqual(
             {
@@ -254,8 +254,8 @@ class QualityHarnessTests(unittest.TestCase):
                 )
             },
             {
-                "unit_tests_total": 237,
-                "unit_tests_passed": 236,
+                "unit_tests_total": 239,
+                "unit_tests_passed": 238,
                 "unit_tests_skipped": 1,
                 "unit_tests_failed": 0,
             },

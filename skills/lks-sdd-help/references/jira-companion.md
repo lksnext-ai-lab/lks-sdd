@@ -45,7 +45,7 @@ Si Jira no puede usarse, distingue sin inventar:
 - proyección parcial o resultado externo incierto;
 - cambio remoto que requiere reconciliación.
 
-Antes de que exista un mapping o recibo durable, ofrece confirmar `repository-only`, completar la configuración del compañero por separado o pausar. Si ya existe cualquier identidad externa o `SYNC-###`, 0.12.0 obliga a conservar el binding Jira o pausar: no ofrece `detach`/`rebind`, y una reconciliación posterior no habilita cambiar de modo o destino. No cambies de modo silenciosamente.
+Antes de que exista un mapping o recibo durable, ofrece confirmar `repository-only`, completar la configuración del compañero por separado o pausar. Si ya existe cualquier identidad externa o `SYNC-###`, 0.13.0 obliga a conservar el binding Jira o pausar: no ofrece `detach`/`rebind`, y una reconciliación posterior no habilita cambiar de modo o destino. No cambies de modo silenciosamente.
 
 ## Límites
 

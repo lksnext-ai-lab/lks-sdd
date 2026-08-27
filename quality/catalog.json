@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5 + v0.12 catálogo granular y perfiles Microsoft Entra",
+  "suite": "LKS-SDD M0-M5 + v0.13 perfiles OIDC simulados no productivos",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
@@ -105,6 +105,7 @@
     {"id": "FX-50", "title": "Migración 1.4 a 1.5 conservadora y reversible", "family": "compatibility", "layers": ["T0", "T1", "T7", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_12_to_13_and_13_to_14_are_conservative_and_reversible"]},
     {"id": "FX-51", "title": "Reporting real de hitos mediante Rovo y Jira", "family": "integration", "layers": ["T3", "T4", "T7"], "mode": "pilot", "fixture": "tracking-jira-degraded.json", "critical": true, "evidence": []},
     {"id": "FX-52", "title": "Cobertura granular sin soporte implícito", "family": "compatibility", "layers": ["T0", "T1", "T3", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_candidate_coverage_is_granular_but_never_supported", "test:test_uncatalogued_profile_has_no_automation_coverage"]},
-    {"id": "FX-53", "title": "Entra preservado sin combinatoria dinámica ni fallback Keycloak", "family": "definition", "layers": ["T3", "T4", "T8"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []}
+    {"id": "FX-53", "title": "Entra preservado sin combinatoria dinámica ni fallback Keycloak", "family": "definition", "layers": ["T3", "T4", "T8"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-54", "title": "OIDC simulado soportado, no productivo y sin interoperabilidad externa inferida", "family": "security", "layers": ["T0", "T1", "T3", "T8"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_simulated_oidc_profiles_are_exactly_supported_but_non_productive"]}
   ]
 }

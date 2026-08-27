@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+  "profile_version": "1.0.0",
+  "certified_at": "2026-08-27",
+  "runtime": "docker",
+  "containers_executed": true,
+  "complete_gate": true,
+  "passed": true,
+  "profile_sha256": "fcfd9eb0c9783402c6b1d6c6dde8e0c8153e59095e772aeb76db75ccadc3aba9",
+  "driver_sha256": "d951963bf0d38fe0abdbcbb0775c82b4675651e3da90ccaeedd7c9b2e25f5498",
+  "scaffold_sha256": "a8b80956c19a1e8ef8b5de20d6aa49aac19730f833d1c119f288468f4a844c26",
+  "composition_digest": "918d1bd32bcc038e6ac33b06245ca74ee180a3faa18329a9775c97227dab44f9",
+  "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
+  "checks": [
+    {
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-BROWSER-SMOKE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-COMPOSE-REACT-SIMULATED-OIDC-STATIC",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-BUILD",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LINT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LOCK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TEST",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TYPECHECK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-CONTRACT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SIMULATED-INTEGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SIMULATED-SAFETY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SPA-PKCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SPA-SESSION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-STATIC-OUTPUT",
+      "status": "passed"
+    }
+  ],
+  "result_sha256": "7cf9c9f49ecc03ea18e9b53539512ce3e1319770cb2c358bbb35e9440dc62a2f",
+  "command": "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-SIMULATED-OIDC-STATIC --runtime docker --containers --record-certification"
+}

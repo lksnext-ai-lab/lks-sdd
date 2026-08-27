@@ -32,14 +32,14 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["mode"], "semantic")
         self.assertEqual(fx01["evidence"], [])
 
-    def test_definition_cases_are_versioned_for_v012_and_not_run(self) -> None:
-        self.assertEqual(self.corpus["plugin_version"], "0.12.0")
+    def test_definition_cases_are_versioned_for_v013_and_not_run(self) -> None:
+        self.assertEqual(self.corpus["plugin_version"], "0.13.0")
         self.assertEqual(
-            self.corpus["corpus_id"], "lks-sdd-definition-automation-coverage-entra-es-0.12.0"
+            self.corpus["corpus_id"], "lks-sdd-definition-simulated-oidc-es-0.13.0"
         )
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
-            {f"FX-{index:02d}" for index in range(20, 54)},
+            {f"FX-{index:02d}" for index in range(20, 55)},
         )
         self.assertEqual(
             {case["id"] for case in self.corpus["cases"]},
@@ -70,6 +70,8 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertFalse(_definition_corpus_matches_plugin_line("0.10.0", "0.11.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.12.0", "0.12.0"))
         self.assertFalse(_definition_corpus_matches_plugin_line("0.11.0", "0.12.0"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.13.0", "0.13.0"))
+        self.assertFalse(_definition_corpus_matches_plugin_line("0.12.0", "0.13.0"))
 
 
 if __name__ == "__main__":
