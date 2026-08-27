@@ -2,7 +2,7 @@
 
 ## Decisión de producto
 
-LKS-SDD 0.13.0 es un plugin Spec-anchored de SDD para Codex. Codex es el entorno objetivo y el único soportado contractualmente. El manifiesto, el descubrimiento de skills, los prompts, los permisos y los workflows se diseñan y evalúan en ese contexto. Atlassian Rovo puede actuar como peer opcional para Jira, pero no es un runtime alternativo ni forma parte del bundle.
+LKS-SDD 0.14.0 es un plugin Spec-anchored de SDD para Codex. Codex es el entorno objetivo y el único soportado contractualmente. El manifiesto, el descubrimiento de skills, los prompts, los permisos y los workflows se diseñan y evalúan en ese contexto. Atlassian Rovo puede actuar como peer opcional para Jira, pero no es un runtime alternativo ni forma parte del bundle.
 
 | Entorno | Estado | Alcance |
 |---|---|---|
@@ -18,7 +18,7 @@ Los Markdown, JSON Schema y scripts Python pueden ser técnicamente reutilizable
 
 | Proyecto consumidor | Validación | Evolución |
 |---|---|---|
-| Nuevo con LKS-SDD 0.13.0 | Método candidate `1.5.0`, esquema `1.5` | Conserva reporting Jira opcional y añade perfiles OIDC simulados no productivos sin cambiar el schema. |
+| Nuevo con LKS-SDD 0.14.0 | Método candidate `1.5.0`, esquema `1.5` | Conserva reporting Jira opcional, verificación incremental task-aware y perfiles OIDC simulados no productivos sin cambiar el schema del proyecto. |
 | Existente 1.4 | Compatible sin escritura automática | Continúa operable; migración explícita `1.4 → 1.5` para adoptar reporting, con scope conservador y sin mappings inferidos. |
 | Existente 1.3 | Compatible sin escritura automática | Continúa operable; migración explícita `1.3 → 1.4` para adoptar el artefacto de tracking. |
 | Existente 1.2 | Compatible sin escritura automática | Su cobertura se deriva conservadoramente; migración explícita `1.2 → 1.3` para nuevas ejecuciones durables. |
@@ -27,6 +27,8 @@ Los Markdown, JSON Schema y scripts Python pueden ser técnicamente reutilizable
 | Existente 0.9 | Sin salto directo | Ruta histórica `0.9 → 1.0`, un salto autorizado cada vez. |
 
 La actualización del plugin no migra proyectos consumidores. Cada aplicación de migración exige preview, hash coincidente, backup externo, autorización expresa y validación posterior. `1.0 → 1.1` mantiene el bloqueo por `human_review_required`; `1.1 → 1.2` materializa gobierno; `1.2 → 1.3` añade cobertura y continuidad; `1.3 → 1.4` añade tracking; `1.4 → 1.5` añade reporting. Este último conserva `repository-only` como no aplicable y Jira como `projection-only`, no infiere mappings ni escrituras y rechaza ejecuciones o recibos no resueltos. Los checkpoints históricos conservan sus bytes y schema original.
+
+La evidencia de entrega G4 evoluciona de `schema_version: 1.0` a `1.1` sin invalidar evidencias completas 1.0 existentes. La versión 1.1 añade `evidence_state`, `technical_run_id` y `tree_sha256`: una plantilla `draft` es un artefacto intermedio explícito y no supera G4; solo una evidencia `complete`, ligada al mismo build, revisión, árbol y digests, puede finalizarlo. No se migra ni reescribe evidencia histórica automáticamente.
 
 La migración conserva el `Workflow state` histórico de cada tarea. Si una tarea 1.2 figuraba `ready` pero no contiene los nuevos campos ejecutables, el tablero seguirá mostrando ese hecho y `Definition status` quedará `incomplete`; el readiness derivado de la porción será `blocked` hasta completar y confirmar la definición. No se degrada el pasado ni se presenta el estado legado como autorización vigente.
 
@@ -74,7 +76,7 @@ ImageGen puede utilizarse cuando Codex lo expone, existe frontend o cambio visua
 
 ## Jira y Atlassian Rovo
 
-| Capacidad | Estado 0.13.0 candidate |
+| Capacidad | Estado 0.14.0 candidate |
 |---|---|
 | `repository-only` | Soportada sin dependencia externa |
 | Modelo local de `jira-hybrid`, previews y acuses | Implementado y validable con datos sintéticos |
@@ -90,7 +92,7 @@ ImageGen puede utilizarse cuando Codex lo expone, existe frontend o cambio visua
 
 El manifiesto no declara una dependencia dura porque no se ha validado una sintaxis oficial de dependencia entre plugins para esta release. Ausencia, permisos insuficientes o error de Rovo producen un estado degradado visible; nunca un éxito simulado. Un plan local no confirmado deja el eje de tracking `not-assessed`; Jira no puede suplir esa confirmación. Cada preview abarca una única TASK. Para `create`, la búsqueda Rovo del marcador debe acreditar `no-match`; para `update`, la identidad y el marcador deben acreditar `matched`. `authorize-sync` persiste el recibo antes del write; un éxito de `record-result` exige observar el marcador exacto y la huella proyectada, y ningún recibo cambia el estado canónico de la TASK.
 
-La candidate 0.13.0 no ofrece `detach` ni `rebind`: cuando existen mappings o recibos durables, no permite abandonar Jira ni cambiar site, proyecto o tipo. Reconciliar `uncertain`, `conflict` o una key modificada dentro del prefijo confirmado no elimina esa restricción. Un cambio de prefijo por rename o movimiento queda fuera de soporte y mantiene conflicto o reconciliación pendiente. Las proyecciones `confidential`/`restricted`, con secretos o datos personales detectables se bloquean; site y URL deben ser HTTPS sin credenciales, query ni fragmento. Véase `docs/JIRA-ROVO-INTEGRATION.md`.
+La candidate 0.14.0 no ofrece `detach` ni `rebind`: cuando existen mappings o recibos durables, no permite abandonar Jira ni cambiar site, proyecto o tipo. Reconciliar `uncertain`, `conflict` o una key modificada dentro del prefijo confirmado no elimina esa restricción. Un cambio de prefijo por rename o movimiento queda fuera de soporte y mantiene conflicto o reconciliación pendiente. Las proyecciones `confidential`/`restricted`, con secretos o datos personales detectables se bloquean; site y URL deben ser HTTPS sin credenciales, query ni fragmento. Véase `docs/JIRA-ROVO-INTEGRATION.md`.
 
 ## Regla para futuras integraciones
 

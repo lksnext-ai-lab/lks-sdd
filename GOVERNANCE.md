@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.13.0` es una release candidate técnica para Codex que conserva M0–M5 y el contrato 1.5. Añade dos perfiles OIDC simulados exactos, active y certificados exclusivamente para entornos no productivos. Los perfiles Microsoft Entra permanecen `candidate`, `unsupported` y con interoperabilidad real `not-run`; la identidad simulada no los sustituye ni satisface producción. El piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una publicación técnica en GitHub no implica distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y las extensiones de `specs/proposed/` conservan su estado no canónico.
+La versión `0.14.0` es una release candidate técnica para Codex que conserva M0–M5 y el contrato 1.5. Añade dos perfiles OIDC simulados exactos, active y certificados exclusivamente para entornos no productivos. Los perfiles Microsoft Entra permanecen `candidate`, `unsupported` y con interoperabilidad real `not-run`; la identidad simulada no los sustituye ni satisface producción. El piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una publicación técnica en GitHub no implica distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y las extensiones de `specs/proposed/` conservan su estado no canónico.
 
 ## Autoridad y decisiones
 

@@ -1,6 +1,6 @@
 # Reporting Jira después de verificar
 
-La verificación y su evidencia se producen localmente. Jira solo refleja un resultado ya durable; nunca demuestra que un gate se ejecutó ni autoriza `done`.
+La verificación y su evidencia se producen localmente. Jira solo refleja un resultado ya durable; nunca demuestra que un gate se ejecutó ni autoriza `done`. Los lectores de CKPT parsean YAML y su identidad TASK/EXEC; no dependen de comillas literales. Los eventos bloqueados solo aceptan un PROB abierto de la misma TASK.
 
 ## Hitos de verificación
 

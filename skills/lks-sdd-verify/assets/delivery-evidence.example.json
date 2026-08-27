@@ -1,9 +1,12 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
+  "evidence_state": "complete",
+  "technical_run_id": "run-sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
   "release": "REL-001",
   "environment": "ENV-002",
   "revision": "workspace-sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "tree_id": "workspace:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "tree_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "build_id": "build-sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
   "artifact_digests": [
     "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"

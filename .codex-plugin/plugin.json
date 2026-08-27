@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "0.13.0",
-  "description": "Plugin Spec-anchored para Codex con planificación Markdown, perfiles exactos, cobertura de automatización y reporting Jira opcional.",
+  "version": "0.14.0",
+  "description": "Plugin Spec-anchored para Codex con slices incrementales, builds reproducibles, perfiles exactos y reporting Jira opcional.",
   "author": {
     "name": "LKS"
   },
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo Spec-anchored con Codex",
-    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código y actúan como contrato para planificar, implementar y verificar. Los perfiles exactos conservan el soporte estricto y la cobertura granular explica preparación, gates y evidencia sin crear combinaciones implícitas ni sustituir proveedores de identidad. Incluye perfiles OIDC simulados certificados y exclusivamente no productivos para frontend y backend independientes; no acreditan Microsoft Entra ni pueden activarse fuera de entornos permitidos. La experiencia local es completa. Opcionalmente, Jira puede recibir la proyección de tareas y comentarios de hitos con transiciones explícitamente mapeadas; Atlassian Rovo se instala y autoriza por separado. Jira nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente.",
+    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene en cada repositorio especificaciones Markdown versionadas y confiables que evolucionan con el código y actúan como contrato para planificar, implementar y verificar. La verificación incremental selecciona únicamente los bindings y gates de las TASK solicitadas, conserva la revisión visual obligatoria cuando el slice o la release entregan interfaz y registra la no aplicabilidad con una razón determinista. La identidad estable del build queda separada de la ejecución diagnóstica y del cierre G4, que se materializa en dos fases sin circularidad. Los perfiles exactos conservan el soporte estricto y la cobertura granular explica preparación, gates y evidencia sin crear combinaciones implícitas ni sustituir proveedores de identidad. Incluye perfiles OIDC simulados certificados y exclusivamente no productivos para frontend y backend independientes; no acreditan Microsoft Entra ni pueden activarse fuera de entornos permitidos. La experiencia local es completa. Opcionalmente, Jira puede recibir la proyección de tareas y comentarios de hitos con transiciones explícitamente mapeadas; CKPT y PROB se validan semánticamente y Atlassian Rovo se instala y autoriza por separado. Jira nunca sustituye la autoridad del repositorio ni convierte el estado remoto en autorización o evidencia. Sirve tanto para definir aplicaciones nuevas como para construir una baseline documental desde código existente.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [

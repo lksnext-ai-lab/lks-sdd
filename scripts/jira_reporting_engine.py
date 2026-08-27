@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from delivery_engine import validate_delivery_contract
+from delivery_engine import parse_tables, validate_delivery_contract
 from task_tracking_engine import (
     MILESTONE_EVENT_KINDS,
     PERSONAL_DATA_RE,
@@ -21,6 +21,7 @@ from task_tracking_engine import (
     TrackingContractError,
     load_tracking_contract,
 )
+from validate_project import parse_frontmatter
 
 
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
@@ -47,6 +48,11 @@ EXPECTED_TASK_STATES = {
     "verification-failed": {"in-review"},
     "done": {"done"},
 }
+CHECKPOINT_IDENTITY_HEADERS = (
+    "Checkpoint", "Execution", "State", "Tasks", "Increment", "Release",
+    "Authorization", "Branch", "Revision start", "Last observed revision",
+    "Tree state", "Specification fingerprint", "Planning fingerprint", "Updated",
+)
 
 
 def _canonical_hash(value: Any) -> str:
@@ -63,6 +69,65 @@ def _single(details: dict[str, Any], key: str) -> dict[str, str]:
 
 def _meaningful(value: str | None) -> bool:
     return bool(value and value not in {"pending", "none", "not-applicable", "unknown"})
+
+
+def _is_link_like(path: Path) -> bool:
+    return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
+
+
+def _checkpoint_source_matches(
+    root: Path,
+    manifest: dict[str, Any],
+    task_id: str,
+    checkpoint_id: str,
+) -> bool:
+    """Validate a canonical CKPT semantically, never by YAML spelling."""
+
+    relative = Path("docs/lks-sdd/04-delivery/checkpoints") / f"{checkpoint_id}.md"
+    path = root / relative
+    current = root
+    for part in relative.parts:
+        current = current / part
+        if _is_link_like(current):
+            return False
+    try:
+        if not path.is_file() or path.resolve().parent != (
+            root / "docs/lks-sdd/04-delivery/checkpoints"
+        ).resolve():
+            return False
+        text = path.read_text(encoding="utf-8")
+        metadata, body = parse_frontmatter(text)
+    except (OSError, UnicodeError, ValueError):
+        return False
+    frontmatter_text = text.split("---", 2)[1]
+    for key in ("artifact_id", "artifact_type", "schema_version"):
+        if len(re.findall(rf"(?m)^{re.escape(key)}\s*:", frontmatter_text)) != 1:
+            return False
+    if metadata.get("artifact_id") != f"ART-{checkpoint_id}":
+        return False
+    if metadata.get("artifact_type") != "implementation-checkpoint":
+        return False
+    matching_tables = [
+        rows for headers, rows in parse_tables(body)
+        if headers == CHECKPOINT_IDENTITY_HEADERS
+    ]
+    if len(matching_tables) != 1 or len(matching_tables[0]) != 1:
+        return False
+    identity = matching_tables[0][0]
+    if identity.get("Checkpoint") != checkpoint_id:
+        return False
+    tasks = set(re.findall(r"\bTASK-[0-9]{3}\b", identity.get("Tasks", "")))
+    execution_id = identity.get("Execution", "")
+    if task_id not in tasks or not re.fullmatch(r"EXEC-[0-9]{3}", execution_id):
+        return False
+    execution_matches = [
+        item for item in manifest.get("executions", [])
+        if isinstance(item, dict)
+        and item.get("execution_id") == execution_id
+        and task_id in item.get("task_ids", [])
+        and set(item.get("task_ids", [])) == tasks
+    ]
+    return len(execution_matches) == 1
 
 
 def _source_exists(
@@ -86,15 +151,7 @@ def _source_exists(
             if isinstance(item, dict)
         )
     if kind == "CKPT":
-        relative = f"docs/lks-sdd/04-delivery/checkpoints/{source_ref}.md"
-        path = root / relative
-        if not path.is_file() or path.is_symlink():
-            return False
-        try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeError):
-            return False
-        return task_id in text and f'artifact_id: "ART-{source_ref}"' in text
+        return _checkpoint_source_matches(root, manifest, task_id, source_ref)
     if kind == "EVID":
         path = root / "docs" / "lks-sdd" / "evidence" / f"{source_ref}.json"
         if not path.is_file() or path.is_symlink():
@@ -108,9 +165,17 @@ def _source_exists(
             and evidence.get("evidence_id") == source_ref
             and task_id in evidence.get("task_ids", [])
         )
+    identities = details.get("identity", [])
+    if (
+        not isinstance(identities, list)
+        or len(identities) != 1
+        or identities[0].get("Task") != task_id
+    ):
+        return False
     return any(
         row.get("ID") == source_ref
-        for row in details.get("problems", [])
+        and row.get("State") in {"open", "mitigating"}
+        for row in details.get("problems", details.get("issues", []))
         if isinstance(row, dict)
     )
 

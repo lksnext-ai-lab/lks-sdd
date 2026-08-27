@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.13.0
+# Arquitectura y alcance de la versión 0.14.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.13.0 conserva las seis skills, la arquitectura multiperfil y los contratos 1.4/1.5 de tracking y reporting. Añade dos perfiles OIDC simulados exactos y certificados exclusivamente para entornos no productivos; los perfiles Microsoft Entra siguen candidate y no existe composición dinámica. El contrato activo para proyectos nuevos continúa en `method_version: 1.5.0` y `schema_version: 1.5`; 1.0–1.5 siguen validándose y esta actualización no requiere migración. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
+La versión 0.14.0 conserva las seis skills, la arquitectura multiperfil y los contratos 1.4/1.5 de tracking y reporting. La orquestación de verificación pasa a ser estrictamente task-aware: solo selecciona bindings y gates de las TASK solicitadas, calcula la aplicabilidad visual sobre ese slice y mantiene la revisión visual completa para una release que entregue interfaz. Separa también la identidad estable del build, la identidad de la ejecución diagnóstica y la evidencia de entrega G4; esta última se materializa y completa después de conocer revisión, árbol, build y digests. CKPT y PROB se interpretan por su estructura canónica, no por coincidencias textuales. El contrato activo para proyectos nuevos continúa en `method_version: 1.5.0` y `schema_version: 1.5`; 1.0–1.5 siguen validándose y esta actualización no requiere migración. Los perfiles OIDC simulados siguen siendo exclusivamente no productivos, los perfiles Microsoft Entra siguen candidate y no existe composición dinámica. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
 
 ## Ancla documental y flujos de entrada
 
@@ -89,7 +89,7 @@ El catálogo usa cuatro niveles deliberadamente distintos:
 
 Un perfil solo se presenta como `supported` cuando su lifecycle es `active` y existe una certificación completa que coincide exactamente con los hashes actuales de descriptor, capabilities, scaffold, driver, composición, gates y motor de certificación. Un lock aporta identidad y reproducibilidad; la evidencia del gate de composición demuestra que esa mezcla concreta fue probada. Si cualquiera de esos bytes cambia, el soporte deja de ser válido hasta volver a certificar. `automation_coverage` explica dimensiones disponibles o pendientes, pero no introduce soporte parcial ni cambia esta puerta.
 
-La versión 0.13.0 contiene catorce perfiles en seis familias: conserva los perfiles existentes, añade dos perfiles OIDC simulados `active` para uso no productivo y mantiene los dos perfiles Entra como `candidate` junto a los cuatro candidates anteriores:
+La versión 0.14.0 contiene catorce perfiles en seis familias: conserva los perfiles existentes, añade dos perfiles OIDC simulados `active` para uso no productivo y mantiene los dos perfiles Entra como `candidate` junto a los cuatro candidates anteriores:
 
 | Perfil | Arquitectura | Estado de producto |
 |---|---|---|
@@ -128,4 +128,4 @@ La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps 
 
 ## Evolución posterior
 
-La versión SemVer `0.13.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `0.14.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.

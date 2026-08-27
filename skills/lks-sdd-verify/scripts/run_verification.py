@@ -308,6 +308,137 @@ def _interface_is_applicable(
     return applicability == "applicable"
 
 
+def _visual_applicability(
+    root: Path,
+    manifest: dict[str, Any],
+    increment: str,
+    task_ids: list[str],
+    delivery: dict[str, Any],
+) -> dict[str, Any]:
+    """Derive visual review applicability from the exact selected TASK slice."""
+
+    triggers: list[str] = []
+    inspected: list[str] = []
+    selected_releases = {
+        delivery.get("tasks", {}).get(task_id, {}).get("Release")
+        for task_id in task_ids
+    }
+    selected_releases.discard(None)
+    release_scope = False
+    if len(selected_releases) == 1:
+        release_id = next(iter(selected_releases))
+        release_tasks = {
+            candidate_id
+            for candidate_id, row in delivery.get("tasks", {}).items()
+            if row.get("Release") == release_id
+        }
+        release_scope = bool(release_tasks) and set(task_ids) == release_tasks
+
+    for task_id in sorted(task_ids):
+        task = delivery.get("tasks", {}).get(task_id, {})
+        details = delivery.get("task_details", {}).get(task_id, {})
+        definition_rows = details.get("definition", [])
+        definition = definition_rows[0] if len(definition_rows) == 1 else {}
+        unit = delivery.get("units", {}).get(task.get("Unit"), {})
+        binding = delivery.get("bindings", {}).get(task.get("Profile binding"), {})
+        textual_fields = {
+            "in-scope": definition.get("In scope", ""),
+            "out-of-scope": definition.get("Out of scope", ""),
+            "requirements": definition.get("Requirements", ""),
+            "acceptance": definition.get("Acceptance", ""),
+            "capabilities": definition.get("Required capabilities", ""),
+            "gates": definition.get("Technical gates", ""),
+            "unit": " ".join(
+                str(unit.get(key, ""))
+                for key in ("Component", "Responsibility", "Runtime boundary", "Interfaces")
+            ),
+        }
+        joined = " ".join(textual_fields.values())
+        refs = sorted(set(re.findall(r"\b(?:UX|VIS)-[0-9]{3}\b", joined)))
+        if refs:
+            triggers.append(f"{task_id}:refs={','.join(refs)}")
+        contract_ids = re.findall(
+            r"\b(?:CAP|GATE)-[A-Z0-9-]{3,80}\b",
+            " ".join([textual_fields["capabilities"], textual_fields["gates"]]),
+        )
+        direct_frontend = sorted(
+            {
+                item
+                for item in contract_ids
+                if {"FRONTEND", "BROWSER", "UI"} & set(item.split("-"))
+            }
+        )
+        if direct_frontend:
+            triggers.append(
+                f"{task_id}:frontend-contract={','.join(direct_frontend)}"
+            )
+        in_scope_text = textual_fields["in-scope"].casefold()
+        backend_only = bool(
+            re.search(
+                r"\b(?:backend|api|worker|consumer|processor|database)\b",
+                in_scope_text,
+            )
+        ) and not bool(
+            re.search(
+                r"\b(?:frontend|browser|interfaz|interface|ui|spa|screen)\b",
+                in_scope_text,
+            )
+        )
+        unit_text = textual_fields["unit"].casefold()
+        if not backend_only and re.search(
+            r"\b(?:frontend|browser|interfaz|interface|client-side|spa)\b", unit_text
+        ):
+            triggers.append(f"{task_id}:unit={task.get('Unit')}")
+        profile_id = str(binding.get("profile_id", ""))
+        if not backend_only and profile_id:
+            bundle = load_profile_bundle(profile_id)
+            roles = {
+                str(item.get("role", "")).casefold()
+                for item in bundle.profile.get("units", [])
+                if isinstance(item, dict)
+            }
+            if "frontend" in roles and "backend" not in roles:
+                triggers.append(f"{task_id}:profile={profile_id}")
+        inspected.append(task_id)
+
+    if triggers:
+        return {
+            "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
+            "status": "applicable",
+            "scope": "release" if release_scope else "task-slice",
+            "task_ids": sorted(task_ids),
+            "reason": "selected-task-interface-signals:" + ";".join(sorted(set(triggers))),
+        }
+    if release_scope and _interface_is_applicable(root, manifest, increment):
+        return {
+            "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
+            "status": "applicable",
+            "scope": "release",
+            "task_ids": sorted(task_ids),
+            "reason": f"release-{next(iter(selected_releases))}-delivers-interface",
+        }
+    return {
+        "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
+        "status": "not-applicable",
+        "scope": "task-slice",
+        "task_ids": sorted(task_ids),
+        "reason": "selected-tasks-have-no-ux-vis-frontend-browser-or-interface-unit-signals:"
+        + ",".join(inspected),
+    }
+
+
+def _binding_ids_for_tasks(
+    task_ids: list[str], delivery: dict[str, Any]
+) -> list[str]:
+    return sorted(
+        {
+            str(delivery.get("tasks", {}).get(task_id, {}).get("Profile binding"))
+            for task_id in task_ids
+            if delivery.get("tasks", {}).get(task_id, {}).get("Profile binding")
+        }
+    )
+
+
 def _resolve_visual_evidence_path(root: Path, requested: Path) -> Path:
     candidate = requested if requested.is_absolute() else root / requested
     try:
@@ -674,6 +805,7 @@ def _tree_digest(path: Path) -> str:
         "test-results",
         "playwright-report",
     }
+    ignored_relative = {"docs/lks-sdd"}
     if path.is_file():
         return hashlib.sha256(path.read_bytes()).hexdigest()
     entries: list[Path] = []
@@ -683,6 +815,8 @@ def _tree_digest(path: Path) -> str:
             directory
             for directory in directories
             if directory not in ignored
+            and (current_path / directory).relative_to(path).as_posix()
+            not in ignored_relative
             and not (current_path / directory).is_symlink()
         )
         entries.extend(
@@ -740,6 +874,153 @@ def _artifact_digests(
     return list(dict.fromkeys(values))
 
 
+def _canonical_hash_payload(value: Any) -> bytes:
+    """Serialize hash material with deterministic mapping and collection order."""
+
+    def normalize(item: Any) -> Any:
+        if isinstance(item, dict):
+            return {key: normalize(item[key]) for key in sorted(item)}
+        if isinstance(item, (list, tuple, set)):
+            normalized = [normalize(child) for child in item]
+            return sorted(
+                normalized,
+                key=lambda child: json.dumps(
+                    child, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+                ),
+            )
+        if isinstance(item, Path):
+            return item.as_posix()
+        return item
+
+    return json.dumps(
+        normalize(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+
+
+def _build_identity_material(
+    revision: dict[str, Any],
+    lock_details: list[dict[str, str | None]],
+    bindings: list[dict[str, Any]],
+    artifact_digests: list[str],
+) -> dict[str, Any]:
+    """Select only stable build inputs; execution diagnostics are deliberately absent."""
+
+    stable_locks = [
+        {
+            key: value
+            for key, value in details.items()
+            if key in {"binding_id", "profile_id", "profile_version", "sha256"}
+        }
+        for details in lock_details
+    ]
+    stable_bindings = []
+    for binding in bindings:
+        profile_id = str(binding.get("profile_id", ""))
+        bundle = load_profile_bundle(profile_id)
+        stable_bindings.append(
+            {
+                "binding_id": binding.get("binding_id"),
+                "unit_id": binding.get("unit_id"),
+                "unit_path": str(binding.get("unit_path", ".")).replace("\\", "/"),
+                "profile_id": profile_id,
+                "profile_version": bundle.profile.get("version"),
+                "profile_scope": binding.get("profile_scope"),
+                "selection_decision": binding.get("selection_decision"),
+            }
+        )
+    return {
+        "identity_contract": "lks-sdd-build-1.0",
+        "revision": revision.get("revision"),
+        "tree_id": revision.get("tree_id"),
+        "tree_sha256": revision.get("tree_sha256"),
+        "locks": stable_locks,
+        "profile_bindings": stable_bindings,
+        "artifact_digests": sorted(set(artifact_digests)),
+    }
+
+
+def _verification_run_id(outcomes: list[dict[str, Any]], compose_project: str) -> str:
+    material = {
+        "identity_contract": "lks-sdd-verification-run-1.0",
+        "time_ns": time.time_ns(),
+        "pid": os.getpid(),
+        "compose_project": compose_project,
+        "outcomes": outcomes,
+    }
+    return "run-sha256:" + hashlib.sha256(_canonical_hash_payload(material)).hexdigest()
+
+
+def _build_id(build_material: dict[str, Any]) -> str:
+    return "build-sha256:" + hashlib.sha256(
+        _canonical_hash_payload(build_material)
+    ).hexdigest()
+
+
+def _has_unallowed_dirty_paths(
+    revision: dict[str, Any], allowed_relative_paths: set[str]
+) -> bool:
+    if revision.get("kind") != "git" or not revision.get("dirty"):
+        return False
+    return bool(set(revision.get("dirty_paths", [])) - allowed_relative_paths)
+
+
+def _delivery_template(
+    *,
+    release: str,
+    environment: str,
+    revision: dict[str, Any],
+    build_id: str,
+    artifact_digests: list[str],
+    technical_run_id: str,
+) -> dict[str, Any]:
+    pending_check = {
+        "status": "pending",
+        "recorded_at": "pending",
+        "reference": "pending: replace with immutable evidence reference",
+    }
+    return {
+        "schema_version": "1.1",
+        "evidence_state": "draft",
+        "technical_run_id": technical_run_id,
+        "release": release,
+        "environment": environment,
+        "revision": revision["revision"],
+        "tree_id": revision["tree_id"],
+        "tree_sha256": revision["tree_sha256"],
+        "build_id": build_id,
+        "artifact_digests": sorted(set(artifact_digests)),
+        "promotion": dict(pending_check),
+        "smoke": dict(pending_check),
+        "observability": dict(pending_check),
+        "recovery": dict(pending_check),
+        "authorization": {
+            **pending_check,
+            "authority": "pending: record the exact release authority",
+        },
+    }
+
+
+def _materialize_delivery_template(root: Path, requested: Path, value: dict[str, Any]) -> str:
+    candidate = requested if requested.is_absolute() else root / requested
+    _assert_safe_path(root, candidate)
+    relative = candidate.absolute().relative_to(root).as_posix()
+    if not re.fullmatch(r"docs/lks-sdd/evidence/delivery/[A-Za-z0-9._-]+\.json", relative):
+        raise VerificationError(
+            "La plantilla G4 debe estar bajo docs/lks-sdd/evidence/delivery/ y usar .json."
+        )
+    if candidate.exists():
+        raise VerificationError(f"La plantilla G4 ya existe: {relative}.")
+    candidate.parent.mkdir(parents=True, exist_ok=True)
+    _assert_safe_path(root, candidate.parent)
+    content = (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    try:
+        with candidate.open("xb") as stream:
+            stream.write(content)
+    except OSError as exc:
+        raise VerificationError(f"No se puede materializar la plantilla G4: {exc}") from exc
+    return relative
+
+
 def _run_v12(
     args: argparse.Namespace,
     root: Path,
@@ -755,6 +1036,7 @@ def _run_v12(
         ("execution_id", None),
         ("environment", "not-applicable"),
         ("delivery_evidence", None),
+        ("materialize_delivery_template", None),
     ):
         if not hasattr(args, name):
             setattr(args, name, default)
@@ -890,7 +1172,19 @@ def _run_v12(
         for item in implementation.get("locks", [])
         if isinstance(item, dict)
     }
-    for binding_id in implementation.get("profile_bindings", []):
+    selected_binding_ids = _binding_ids_for_tasks(task_ids, delivery)
+    execution_binding_ids = set(implementation.get("profile_bindings", []))
+    for binding_id in sorted(execution_binding_ids):
+        if binding_id not in bindings_by_id:
+            blockers.append(f"Binding de implementación inexistente: {binding_id}.")
+    missing_selected_bindings = sorted(set(selected_binding_ids) - execution_binding_ids)
+    if missing_selected_bindings:
+        blockers.append(
+            "Los bindings de las tareas seleccionadas no pertenecen a la ejecución: "
+            + ", ".join(missing_selected_bindings)
+            + "."
+        )
+    for binding_id in selected_binding_ids:
         binding = bindings_by_id.get(binding_id)
         if binding is None:
             blockers.append(f"Binding de implementación inexistente: {binding_id}.")
@@ -920,7 +1214,14 @@ def _run_v12(
     )
     blockers.extend(contract_errors)
     revision_before = repository_revision(root)
-    if not args.plan and revision_before["kind"] == "git" and revision_before["dirty"]:
+    allowed_dirty_paths: set[str] = set()
+    if args.delivery_evidence is not None:
+        candidate = args.delivery_evidence if args.delivery_evidence.is_absolute() else root / args.delivery_evidence
+        try:
+            allowed_dirty_paths.add(candidate.absolute().relative_to(root).as_posix())
+        except ValueError:
+            pass
+    if not args.plan and _has_unallowed_dirty_paths(revision_before, allowed_dirty_paths):
         blockers.append(
             "No se puede atribuir verificación a un Git con cambios sin confirmar."
         )
@@ -946,11 +1247,19 @@ def _run_v12(
         }
         for item in profile_checks
     ]
+    visual_applicability: dict[str, Any] = {
+        "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
+        "status": "not-assessed",
+        "scope": "task-slice",
+        "task_ids": sorted(task_ids),
+        "reason": "verification-contract-invalid",
+    }
     visual_required = False
     if not blockers:
-        visual_required = _interface_is_applicable(
-            root, manifest, args.increment
+        visual_applicability = _visual_applicability(
+            root, manifest, args.increment, task_ids, delivery
         )
+        visual_required = visual_applicability["status"] == "applicable"
     if args.visual_evidence is not None and not visual_required:
         blockers.append(
             "Se aportó evidencia visual para un incremento sin interfaz applicable."
@@ -985,6 +1294,7 @@ def _run_v12(
             ),
             "planning": planning_state,
             "implementation_authorization": authorization_state,
+            "gate_applicability": [visual_applicability],
         }
     if args.plan:
         execution_ready = implementation.get("status") == "completed"
@@ -1012,6 +1322,7 @@ def _run_v12(
             ),
             "planning": planning_state,
             "implementation_authorization": authorization_state,
+            "gate_applicability": [visual_applicability],
         }
     if not args.execute or not args.authorize:
         raise VerificationError(
@@ -1019,9 +1330,7 @@ def _run_v12(
         )
 
     env = os.environ.copy()
-    env["COMPOSE_PROJECT_NAME"] = (
-        f"lkssddverify{os.getpid()}"
-    )
+    env["COMPOSE_PROJECT_NAME"] = f"lkssddverify{os.getpid()}"
     outcomes: list[dict[str, Any]] = []
     try:
         for check in profile_checks:
@@ -1127,7 +1436,7 @@ def _run_v12(
         or revision_after["tree"] != revision_before["tree"]
         or (
             revision_after["kind"] == "git"
-            and revision_after["dirty"]
+            and _has_unallowed_dirty_paths(revision_after, allowed_dirty_paths)
         )
     ):
         required_failures.append(
@@ -1144,22 +1453,11 @@ def _run_v12(
     )
     tree_id = str(revision_after["tree_id"])
     tree_sha256 = str(revision_after["tree_sha256"])
-    build_material = {
-        "revision": revision_after["revision"],
-        "tree_id": tree_id,
-        "tree_sha256": tree_sha256,
-        "locks": lock_details,
-        "checks": outcomes,
-        "artifacts": artifact_digests,
-    }
-    build_id = "build-sha256:" + hashlib.sha256(
-        json.dumps(
-            build_material,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-        ).encode("utf-8")
-    ).hexdigest()
+    build_material = _build_identity_material(
+        revision_after, lock_details, bindings, artifact_digests
+    )
+    build_id = _build_id(build_material)
+    verification_run_id = _verification_run_id(outcomes, env["COMPOSE_PROJECT_NAME"])
     if delivery_value is not None:
         delivery_mismatches: list[str] = []
         if delivery_value.get("revision") != revision_after["revision"]:
@@ -1169,6 +1467,12 @@ def _run_v12(
         if delivery_value.get("tree_id") != tree_id:
             delivery_mismatches.append(
                 "delivery.tree_id no coincide con el árbol verificado"
+            )
+        if delivery_value.get("schema_version") == "1.1" and delivery_value.get(
+            "tree_sha256"
+        ) != tree_sha256:
+            delivery_mismatches.append(
+                "delivery.tree_sha256 no coincide con el árbol verificado"
             )
         if delivery_value.get("build_id") != build_id:
             delivery_mismatches.append(
@@ -1205,16 +1509,51 @@ def _run_v12(
         "tree_id": tree_id,
         "tree_sha256": tree_sha256,
         "build_id": build_id,
+        "build_identity_material": build_material,
+        "verification_run_id": verification_run_id,
         "artifact_digests": artifact_digests,
         "environment": environment,
         "planning": planning_state,
         "implementation_authorization": authorization_state,
+        "gate_applicability": [visual_applicability],
         "execution_id": (
             selected_execution.get("execution_id")
             if selected_execution is not None
             else None
         ),
     }
+    if args.materialize_delivery_template is not None:
+        if delivery_value is not None:
+            raise VerificationError(
+                "No combine --materialize-delivery-template con --delivery-evidence."
+            )
+        if classification == "not-verified":
+            raise VerificationError(
+                "No se materializa G4 porque la verificación técnica no está superada."
+            )
+        if not re.fullmatch(r"ENV-[0-9]{3}", args.environment):
+            raise VerificationError(
+                "Materializar G4 requiere --environment ENV-###."
+            )
+        release_ids = {
+            delivery["tasks"][task_id].get("Release")
+            for task_id in task_ids
+            if task_id in delivery["tasks"]
+        }
+        if len(release_ids) != 1:
+            raise VerificationError("La plantilla G4 requiere una única REL-###.")
+        result["delivery_template"] = _materialize_delivery_template(
+            root,
+            args.materialize_delivery_template,
+            _delivery_template(
+                release=str(next(iter(release_ids))),
+                environment=args.environment,
+                revision=revision_after,
+                build_id=build_id,
+                artifact_digests=artifact_digests,
+                technical_run_id=verification_run_id,
+            ),
+        )
     if not args.record_evidence:
         return (0 if classification != "not-verified" else 3), result
     if not EVIDENCE_RE.fullmatch(args.record_evidence):
@@ -1255,6 +1594,8 @@ def _run_v12(
         "tree_id": tree_id,
         "tree_sha256": tree_sha256,
         "build_id": build_id,
+        "verification_run_id": verification_run_id,
+        "build_identity_material": build_material,
         "artifact_digests": artifact_digests,
         "environment": environment,
         "classification": classification,
@@ -1262,6 +1603,7 @@ def _run_v12(
             {item["gate_id"] for item in outcomes if item.get("gate_id")}
         ),
         "checks": outcomes,
+        "gate_applicability": [visual_applicability],
         "limitations": limitations,
     }
     manifest_new = json.loads(json.dumps(manifest))
@@ -1717,6 +2059,14 @@ def main() -> int:
         "--delivery-evidence",
         type=Path,
         help="JSON G4 con promoción, despliegue, smoke, observabilidad y recovery.",
+    )
+    parser.add_argument(
+        "--materialize-delivery-template",
+        type=Path,
+        help=(
+            "Crea tras G3 una plantilla G4 1.1 ligada al build bajo "
+            "docs/lks-sdd/evidence/delivery/, sin declarar sus checks como passed."
+        ),
     )
     parser.add_argument(
         "--visual-evidence",

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.14.0 — 2026-08-27 — verificación incremental, build reproducible y continuidad Jira
+
+- Calcula `visual-browser-review` sobre la selección exacta de `TASK-###`: una porción backend sin interfaz registra una no aplicabilidad determinista, mientras cualquier referencia UX/VIS, capability frontend/browser, unidad de interfaz, slice mixto o verificación conjunta de una release con interfaz mantiene el gate obligatorio.
+- Limita los gates de perfiles a los bindings de las tareas seleccionadas y conserva el resto de tareas del incremento fuera de la ejecución incremental.
+- Separa `build_id` estable de `verification_run_id`: el build deriva solo de revisión, árbol, locks, perfiles/bindings y digests canónicos; duraciones, timestamps, logs, PID y nombres Docker permanecen en la evidencia de ejecución sin afectar la identidad.
+- Añade evidencia de entrega G4 1.1 compatible con lectura 1.0 y el flujo `--materialize-delivery-template`: G3 produce el build y una plantilla `draft`; G4 solo finaliza con revisión, árbol, build, digests y evidencia `passed` coincidentes.
+- Valida CKPT mediante frontmatter y tablas semánticas, aceptando YAML equivalente entrecomillado o no, y rechazando rutas no canónicas, enlaces, identidades ambiguas, otra TASK u otra ejecución.
+- Normaliza internamente problemas TASK como `problems` con alias compatible `issues`; el `PROB-###` creado al transicionar a `blocked` es consumible inmediatamente por checkpoints y reporting Jira, pero uno resuelto, ajeno o inexistente se rechaza.
+- Mantiene Jira como proyección outbound gobernada: preview, lectura/marker, autorización exacta, escritura, relectura y recibo append-only; un fallo remoto no altera el estado canónico local y no se amplían las operaciones permitidas.
+- Conserva método/esquema de proyecto 1.5 y compatibilidad 1.0–1.5. No migra proyectos consumidores ni modifica las siete fuentes de `specs/canonical/`.
+
 ## 0.13.0 — 2026-08-27 — perfiles OIDC simulados certificados para desarrollo no productivo
 
 - Añade `API-FASTAPI-SIMULATED-OIDC-PG-OCI` y `WEB-REACT-VITE-SIMULATED-OIDC-STATIC` como perfiles `active` exactos para el piloto GPX con identidad OIDC simulada y controlada.

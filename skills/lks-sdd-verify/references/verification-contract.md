@@ -34,9 +34,9 @@ Antes de implementar, `preimplementation` exige una cadena no vacía de requisit
 
 El contrato activo excluye referencias rechazadas, sustituidas o retiradas como inputs de ejecución, aunque sus filas sigan conservadas para historial. La ausencia de `EVID-###` en preimplementación no es éxito de verificación; significa que la evidencia todavía debe producirse.
 
-## Revisión visual y de interacción
+## Revisión visual y de interacción por slice
 
-Un incremento 0.6+ con interfaz aplicable no puede quedar `verified` solo con lint, tests o build. Requiere una revisión manual en navegador de las pantallas y flujos afectados contra los `UX-###` y `VIS-###` confirmados. Sin evidencia explícita, `visual-browser-review` queda `not-run` y la clasificación es `not-verified`.
+La aplicabilidad se calcula sobre las TASK seleccionadas, no sobre todo el incremento. El cálculo inspecciona su unidad, binding exacto, alcance y exclusiones, referencias `UX-###`/`VIS-###`, capabilities y gates frontend/browser. Si alguna TASK entrega interfaz, el slice mixto y la verificación conjunta de la release exigen revisión manual en navegador; sin evidencia, `visual-browser-review` queda `not-run` y la clasificación es `not-verified`. Una TASK backend sin interfaz, UX, VIS ni capacidades frontend/browser registra `not-applicable` con razón determinista fuera de `checks`; no crea fallo, reserva ni check no ejecutado. Una referencia UX/VIS o capability frontend/browser impide declarar no aplicabilidad.
 
 El argumento `--visual-evidence` acepta un JSON 1.1 local bajo `docs/lks-sdd/evidence/visual/`. Sus claves exactas son `schema_version`, `increment`, `status`, `review_type`, `reviewed_at`, `reviewer`, `human_validation`, `baseline`, `coverage`, `screenshots`, `checks` y `limitations`. `reviewed_at` es ISO-8601 con zona horaria y, al ejecutar, no puede tener más de siete días. `reviewer` conserva rol y alias no identificativo.
 
@@ -46,13 +46,15 @@ La evidencia canónica registra el SHA-256 del JSON, baseline, árbol de fuentes
 
 ## Gates componibles y evidencia mínima
 
-Por cada binding se ejecutan los gates obligatorios de sus capacidades y el gate de composición exacta. G2 demuestra que el contrato es preparable; G3 ejecuta calidad, build, pruebas e integración aplicables; G4 consume evidencia estructurada de promoción/despliegue. Un gate de capacidad no certifica una mezcla tecnológica distinta y un lock no sustituye el gate de composición.
+Por cada binding perteneciente a las TASK seleccionadas se ejecutan los gates obligatorios de sus capacidades y el gate de composición exacta. Los bindings de tareas futuras o fuera del slice no se ejecutan. G2 demuestra que el contrato es preparable; G3 ejecuta calidad, build, pruebas e integración aplicables; G4 consume evidencia estructurada de promoción/despliegue. Un gate de capacidad no certifica una mezcla tecnológica distinta y un lock no sustituye el gate de composición.
 
 La evidencia registra identificador, revisión de commit o workspace, rama, `tree_id` exacto, SHA-256 del listado del árbol, build determinista, incremento, tareas, bindings y locks, digests inmutables de artefactos, entorno, gates, resultados, limitaciones y relaciones con criterios/pruebas. No copia tokens, contraseñas, datos personales, imágenes, volcados completos ni logs productivos; para capturas conserva solo ruta y hash.
 
 La verificación 1.2 exige cada `.lks-sdd/profiles/BIND-###.lock.json` como archivo regular idéntico al lock certificado empaquetado. Ausencia, `{}`, edición o enlace bloquean incluso `--plan`; así plan, ejecución y evidencia pertenecen a las mismas composiciones que fijó `active_contract_fingerprint` y materializó `prepare`.
 
-La evidencia G4 se aporta desde un JSON local del proyecto y cumple `schemas/delivery-evidence.schema.json`. Debe declarar `schema_version: 1.0`, `REL-###`, `ENV-###`, un commit o fingerprint de workspace, `tree_id`, `build-sha256`, los mismos digests calculados y objetos `promotion`, `smoke`, `observability` y `recovery` con `status`, instante UTC y referencia verificable. `authorization` añade la autoridad responsable. La release debe contener exactamente las tareas verificadas y el entorno debe estar confirmado. El plugin valida la evidencia; no ejecuta ni autoriza merge, promoción o despliegue.
+`build_id` usa el contrato canónico `lks-sdd-build-1.0`: revisión, `tree_id`, `tree_sha256`, locks exactos, bindings/perfiles/versiones y digests de artefactos ordenados de forma estable. Excluye resultados, duraciones, timestamps, stdout/stderr, PID, rutas temporales y nombres Compose. `verification_run_id` identifica aparte cada ejecución y los diagnósticos completos permanecen en `checks`.
+
+La evidencia G4 1.1 se materializa después de G3 con `--materialize-delivery-template`; nace `draft`, con `technical_run_id`, `REL-###`, `ENV-###`, revisión, árbol, build y digests ya conocidos, y todos los objetos humanos/operativos en `pending`. Tras completar promoción, smoke, observabilidad, recovery y autorización real, se cambia a `evidence_state: complete` y cada evidencia a `passed` con instante UTC y referencia verificable. La finalización mediante `--delivery-evidence` repite los gates técnicos actualmente; el mismo material debe reproducir exactamente el build ID y no puede cambiar revisión, tree ID/SHA o artefactos. El runner falla cerrado ante cualquier divergencia. La evidencia completa 1.0 sigue aceptándose por compatibilidad, aunque nuevas plantillas usan 1.1. El plugin no ejecuta ni autoriza merge, promoción o despliegue.
 
 Cuando todas las tareas registradas de una release están `done`, aún se exige el punto de integración/verificación conjunta definido por el plan y que la cobertura continúe `complete`. Terminar todas las tareas conocidas no oculta alcance sin propietario ni autoriza promoción.
 

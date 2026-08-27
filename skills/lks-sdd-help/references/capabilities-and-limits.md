@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.13.0
+# Capacidades y límites de LKS-SDD 0.14.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 

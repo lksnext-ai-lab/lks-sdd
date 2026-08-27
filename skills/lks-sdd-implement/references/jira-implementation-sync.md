@@ -11,6 +11,8 @@ Aplica solo cuando `ART-TRACKING` confirma `jira-hybrid`. Markdown, `AUTH-###`, 
 
 ## Hitos de implementación
 
+Un `CKPT-###` se valida semánticamente: ruta canónica, archivo regular sin symlink/junction, frontmatter YAML con `artifact_id` y `artifact_type`, y una identidad única cuya TASK y EXEC coinciden con el índice. Las formas YAML equivalentes con o sin comillas son iguales. Un evento `blocked` exige el `PROB-###` abierto de esa misma TASK; el problema creado por `tasks transition --to blocked` queda disponible inmediatamente, pero `resolved`, otra TASK o una identidad inexistente fallan cerrado.
+
 Publica únicamente eventos significativos ya durables:
 
 | Event kind | Estado local requerido | Fuente canónica habitual |

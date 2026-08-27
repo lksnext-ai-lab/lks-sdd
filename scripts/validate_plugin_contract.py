@@ -55,7 +55,8 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.11-JIRA-MILESTONE-COVERAGE.md",
     "docs/V0.12-ENTRA-PROFILE-COVERAGE.md",
     "docs/V0.13-SIMULATED-OIDC-PROFILES.md",
-    "docs/releases/v0.13.0.md",
+    "docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md",
+    "docs/releases/v0.14.0.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -101,7 +102,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.10.0.json",
     "quality/corpora/definition-v0.11.0.json",
     "quality/corpora/definition-v0.12.0.json",
-    "quality/corpora/definition-v0.13.0.json",
+    "quality/corpora/definition-v0.14.0.json",
     "quality/fixture-manifest.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
@@ -109,6 +110,7 @@ REQUIRED_ROOT_FILES = {
     "quality/baselines/v0.10.0.json",
     "quality/baselines/v0.11.0.json",
     "quality/baselines/v0.12.0.json",
+    "quality/baselines/v0.13.0.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
     "schemas/pilot-config.schema.json",
@@ -663,7 +665,7 @@ def validate(root: Path) -> list[str]:
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.12.0.json"',
+            '"v0.13.0.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',
@@ -821,8 +823,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.12.0":
-            errors.append("El rollback del piloto 0.13.0 debe conservar 0.12.0.")
+        if rollback.get("previous_version") != "0.13.0":
+            errors.append("El rollback del piloto 0.14.0 debe conservar 0.13.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -840,8 +842,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.12.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.12.0.")
+        if schema_previous != "0.13.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.13.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -1259,6 +1261,28 @@ def validate(root: Path) -> list[str]:
             errors.append("La baseline v0.12.0 no coincide con la release publicada.")
     except (OSError, json.JSONDecodeError, TypeError):
         errors.append("quality/baselines/v0.12.0.json no es una baseline válida.")
+
+    try:
+        baseline_013 = json.loads(
+            (root / "quality" / "baselines" / "v0.13.0.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        metrics_013 = baseline_013.get("metrics", {})
+        if (
+            baseline_013.get("plugin_version") != "0.13.0"
+            or baseline_013.get("source_commit")
+            != "accb675d7fb66ebf19e151064acc88ae9d4a8c44"
+            or metrics_013.get("automated_catalog_cases") != 42
+            or metrics_013.get("unit_tests_total") != 240
+            or metrics_013.get("unit_tests_passed") != 239
+            or metrics_013.get("unit_tests_skipped") != 1
+            or metrics_013.get("unit_tests_failed") != 0
+            or metrics_013.get("profile_complete_gate") != 1
+        ):
+            errors.append("La baseline v0.13.0 no coincide con la release publicada.")
+    except (OSError, json.JSONDecodeError, TypeError):
+        errors.append("quality/baselines/v0.13.0.json no es una baseline válida.")
 
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:

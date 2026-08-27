@@ -48,6 +48,8 @@ El índice conserva ejecución y tarea como `in-progress` mientras quede trabajo
 
 Antes de una pausa o fin de sesión, y al terminar o bloquear una tarea, se crea un checkpoint mediante preview/hash/apply. El checkpoint no sustituye commits ni evidencia y conserva `not-run` como tal. Una nueva sesión debe leerlo antes de tocar código. Los cambios de alcance o requisitos se registran como `PCH-###`, invalidan las huellas afectadas y reabren solo lo necesario; el historial anterior no se reescribe.
 
+El modelo interno canónico expone los bloqueos como `problems`; `issues` se conserva como alias de lectura para proyectos 1.5 existentes. La transición a `blocked` crea un `PROB-###` abierto y relacionado con la TASK. Continuidad y reporting Jira solo aceptan problemas abiertos o en mitigación de esa misma TASK. Los CKPT se localizan únicamente en su ruta canónica, sin enlaces, y su frontmatter YAML se parsea semánticamente: las cadenas equivalentes entrecomilladas o sin comillas tienen el mismo significado, mientras una identidad, TASK o ejecución ambigua se rechaza.
+
 La invocación portable resuelve el dispatcher desde la instalación del plugin, no desde el proyecto consumidor:
 
 ```powershell

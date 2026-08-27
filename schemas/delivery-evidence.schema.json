@@ -1,35 +1,74 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://lks.invalid/lks-sdd/schemas/delivery-evidence-1.0.json",
+  "$id": "https://lks.invalid/lks-sdd/schemas/delivery-evidence-compatible-1.1.json",
   "title": "LKS-SDD G4 delivery evidence",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "schema_version", "release", "environment", "revision", "tree_id",
-    "build_id", "artifact_digests", "promotion", "smoke",
-    "observability", "recovery", "authorization"
+  "description": "Compatible union of complete legacy 1.0 evidence and two-phase 1.1 evidence.",
+  "oneOf": [
+    {"$ref": "#/$defs/legacyEvidence"},
+    {"$ref": "#/$defs/currentEvidence"}
   ],
-  "properties": {
-    "schema_version": {"const": "1.0"},
+  "$defs": {
+    "legacyEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "release", "environment", "revision", "tree_id",
+        "build_id", "artifact_digests", "promotion", "smoke",
+        "observability", "recovery", "authorization"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.0"},
+        "release": {"$ref": "#/$defs/release"},
+        "environment": {"$ref": "#/$defs/environment"},
+        "revision": {"$ref": "#/$defs/revision"},
+        "tree_id": {"$ref": "#/$defs/treeId"},
+        "build_id": {"$ref": "#/$defs/buildId"},
+        "artifact_digests": {"$ref": "#/$defs/artifactDigests"},
+        "promotion": {"$ref": "#/$defs/completeCheckEvidence"},
+        "smoke": {"$ref": "#/$defs/completeCheckEvidence"},
+        "observability": {"$ref": "#/$defs/completeCheckEvidence"},
+        "recovery": {"$ref": "#/$defs/completeCheckEvidence"},
+        "authorization": {"$ref": "#/$defs/completeAuthorizationEvidence"}
+      }
+    },
+    "currentEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "evidence_state", "technical_run_id", "release", "environment",
+        "revision", "tree_id", "tree_sha256", "build_id", "artifact_digests",
+        "promotion", "smoke", "observability", "recovery", "authorization"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.1"},
+        "evidence_state": {"enum": ["draft", "complete"]},
+        "technical_run_id": {"type": "string", "pattern": "^run-sha256:[a-f0-9]{64}$"},
+        "release": {"$ref": "#/$defs/release"},
+        "environment": {"$ref": "#/$defs/environment"},
+        "revision": {"$ref": "#/$defs/revision"},
+        "tree_id": {"$ref": "#/$defs/treeId"},
+        "tree_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "build_id": {"$ref": "#/$defs/buildId"},
+        "artifact_digests": {"$ref": "#/$defs/artifactDigests"},
+        "promotion": {"$ref": "#/$defs/currentCheckEvidence"},
+        "smoke": {"$ref": "#/$defs/currentCheckEvidence"},
+        "observability": {"$ref": "#/$defs/currentCheckEvidence"},
+        "recovery": {"$ref": "#/$defs/currentCheckEvidence"},
+        "authorization": {"$ref": "#/$defs/currentAuthorizationEvidence"}
+      }
+    },
     "release": {"type": "string", "pattern": "^REL-[0-9]{3}$"},
     "environment": {"type": "string", "pattern": "^ENV-[0-9]{3}$"},
     "revision": {"type": "string", "pattern": "^(?:[a-f0-9]{40,64}|workspace-sha256:[a-f0-9]{64})$"},
-    "tree_id": {"type": "string", "pattern": "^(?:[a-f0-9]{40,64}|workspace:[a-f0-9]{64})$"},
-    "build_id": {"type": "string", "pattern": "^build-sha256:[a-f0-9]{64}$"},
-    "artifact_digests": {
+    "treeId": {"type": "string", "pattern": "^(?:[a-f0-9]{40,64}|workspace:[a-f0-9]{64})$"},
+    "buildId": {"type": "string", "pattern": "^build-sha256:[a-f0-9]{64}$"},
+    "artifactDigests": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
       "items": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
     },
-    "promotion": {"$ref": "#/$defs/checkEvidence"},
-    "smoke": {"$ref": "#/$defs/checkEvidence"},
-    "observability": {"$ref": "#/$defs/checkEvidence"},
-    "recovery": {"$ref": "#/$defs/checkEvidence"},
-    "authorization": {"$ref": "#/$defs/authorizationEvidence"}
-  },
-  "$defs": {
-    "checkEvidence": {
+    "completeCheckEvidence": {
       "type": "object",
       "additionalProperties": false,
       "required": ["status", "recorded_at", "reference"],
@@ -39,13 +78,34 @@
         "reference": {"type": "string", "minLength": 1, "maxLength": 500}
       }
     },
-    "authorizationEvidence": {
+    "completeAuthorizationEvidence": {
       "type": "object",
       "additionalProperties": false,
       "required": ["status", "recorded_at", "reference", "authority"],
       "properties": {
         "status": {"const": "passed"},
         "recorded_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "reference": {"type": "string", "minLength": 1, "maxLength": 500},
+        "authority": {"type": "string", "minLength": 1, "maxLength": 200}
+      }
+    },
+    "currentCheckEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "recorded_at", "reference"],
+      "properties": {
+        "status": {"enum": ["pending", "passed"]},
+        "recorded_at": {"type": "string", "pattern": "^(?:pending|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)$"},
+        "reference": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    },
+    "currentAuthorizationEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "recorded_at", "reference", "authority"],
+      "properties": {
+        "status": {"enum": ["pending", "passed"]},
+        "recorded_at": {"type": "string", "pattern": "^(?:pending|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)$"},
         "reference": {"type": "string", "minLength": 1, "maxLength": 500},
         "authority": {"type": "string", "minLength": 1, "maxLength": 200}
       }

@@ -601,7 +601,7 @@ def _transition(
             )
         open_issues = [
             item.get("ID", "PROB")
-            for item in detail_contract.get("issues", [])
+            for item in detail_contract.get("problems", detail_contract.get("issues", []))
             if item.get("State") in {"open", "blocked"}
         ]
         if open_issues:

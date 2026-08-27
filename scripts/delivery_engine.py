@@ -499,7 +499,10 @@ def _validate_task_detail(
                 execution_blockers.append(
                     f"{task_id}: {row['Workflow state']} exige Definition status=executable."
                 )
+    # `problems` is the canonical internal name.  Keep the historical
+    # `issues` key as a read-compatible alias for schema 1.2-1.5 callers.
     issues = resolved.get("issues", [])
+    resolved["problems"] = issues
     issue_ids: set[str] = set()
     for issue in issues:
         issue_id = issue.get("ID", "")
@@ -1095,6 +1098,13 @@ def repository_revision(
             ).stdout
         except (OSError, subprocess.CalledProcessError) as exc:
             raise DeliveryContractError(f"No se puede obtener la revisión Git: {exc}") from exc
+        status_entries = [line for line in status.splitlines() if line]
+        dirty_paths = []
+        for entry in status_entries:
+            candidate = entry[3:] if len(entry) >= 4 else entry
+            if " -> " in candidate:
+                candidate = candidate.split(" -> ", 1)[1]
+            dirty_paths.append(candidate.strip('"').replace("\\", "/"))
         return {
             "kind": "git",
             "revision": revision,
@@ -1103,6 +1113,7 @@ def repository_revision(
             "tree_id": tree,
             "tree_sha256": hashlib.sha256(tree_listing).hexdigest(),
             "dirty": bool(status),
+            "dirty_paths": sorted(dirty_paths),
         }
 
     digest = hashlib.sha256()
@@ -1153,6 +1164,7 @@ def repository_revision(
         "tree_id": f"workspace:{value}",
         "tree_sha256": value,
         "dirty": False,
+        "dirty_paths": [],
     }
 
 
@@ -1195,11 +1207,26 @@ def load_delivery_evidence(path: Path) -> tuple[dict[str, Any], list[str]]:
     missing = sorted(required - set(value))
     if missing:
         errors.append(f"Evidencia de entrega incompleta; faltan {missing}.")
-    unknown = sorted(set(value) - required)
+    schema_version = value.get("schema_version")
+    v11_fields = {"tree_sha256", "evidence_state", "technical_run_id"}
+    allowed = required | (v11_fields if schema_version == "1.1" else set())
+    unknown = sorted(set(value) - allowed)
     if unknown:
         errors.append(f"Evidencia de entrega contiene campos no admitidos: {unknown}.")
-    if value.get("schema_version") != "1.0":
-        errors.append("schema_version de evidencia de entrega debe ser 1.0.")
+    if schema_version not in {"1.0", "1.1"}:
+        errors.append("schema_version de evidencia de entrega debe ser 1.0 o 1.1.")
+    if schema_version == "1.1":
+        missing_v11 = sorted(v11_fields - set(value))
+        if missing_v11:
+            errors.append(f"Evidencia 1.1 incompleta; faltan {missing_v11}.")
+        if value.get("evidence_state") != "complete":
+            errors.append("evidence_state debe ser complete para finalizar G4.")
+        if not SHA256_RE.fullmatch(str(value.get("tree_sha256", ""))):
+            errors.append("tree_sha256 debe contener 64 hex canónicos.")
+        if not re.fullmatch(
+            r"run-sha256:[a-f0-9]{64}", str(value.get("technical_run_id", ""))
+        ):
+            errors.append("technical_run_id debe usar run-sha256:<64-hex>.")
     if not re.fullmatch(r"REL-[0-9]{3}", str(value.get("release", ""))):
         errors.append("release debe ser REL-###.")
     if not re.fullmatch(r"ENV-[0-9]{3}", str(value.get("environment", ""))):
