@@ -12,20 +12,39 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import date
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
+
+# The harness must not make its own clean checkout dirty before preflight, and
+# every child validator/test inherits the same no-bytecode rule.
+sys.dont_write_bytecode = True
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+
+from quality_execution import (
+    load_performance_policy,
+    performance_assessment,
+    run_managed_command,
+    runner_fingerprint,
+)
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 QUALITY_ROOT = PLUGIN_ROOT / "quality"
 CATALOG_PATH = QUALITY_ROOT / "catalog.json"
 CORPUS_PATH = QUALITY_ROOT / "corpora" / "activation.json"
-DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.14.0.json"
+DEFINITION_CORPUS_PATH = QUALITY_ROOT / "corpora" / "definition-v0.15.0.json"
 FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
-DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.13.0.json"
+DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.14.2.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 PILOT_SUMMARY_SCHEMA_PATH = PLUGIN_ROOT / "schemas" / "pilot-summary.schema.json"
-UNIT_TEST_TIMEOUT_SECONDS = 1800
+UNIT_TEST_TIMEOUT_SECONDS = 900
+SUITE_TIMEOUT_SECONDS = {
+    "fast": 120,
+    "integration": 480,
+    "package": 240,
+    "profile": 180,
+}
 ALLOWED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
@@ -763,15 +782,11 @@ def evaluate_pilot(summary: dict[str, Any] | None) -> dict[str, Any]:
 def _run_command(
     check_id: str, command: list[str], json_output: bool = False, timeout: int = 600
 ) -> tuple[dict[str, Any], Any | None, str]:
-    process = subprocess.run(
+    process = run_managed_command(
         command,
         cwd=PLUGIN_ROOT,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
         timeout=timeout,
+        label=check_id,
     )
     combined = f"{process.stdout}\n{process.stderr}".strip()
     payload: Any | None = None
@@ -781,8 +796,10 @@ def _run_command(
             payload = json.loads(process.stdout)
         except json.JSONDecodeError as exc:
             parse_error = f"salida JSON inválida: {exc}"
-    passed = process.returncode == 0 and not parse_error
-    summary = "exit=0" if passed else f"exit={process.returncode}"
+    passed = process.returncode == 0 and not process.timed_out and not parse_error
+    summary = "exit=0" if passed else (
+        f"timeout={timeout}s" if process.timed_out else f"exit={process.returncode}"
+    )
     if parse_error:
         summary = f"{summary}; {parse_error}"
     elif not passed and isinstance(payload, dict):
@@ -815,6 +832,11 @@ def _run_command(
             "status": "passed" if passed else "failed",
             "critical": True,
             "summary": summary,
+            "duration_seconds": process.duration_seconds,
+            "timeout_seconds": timeout,
+            "termination": process.termination,
+            "process_cleanup": process.process_cleanup,
+            "reproduce": " ".join(command),
         },
         payload,
         combined,
@@ -1011,6 +1033,36 @@ def _unit_test_metrics(payload: dict[str, Any] | None) -> dict[str, int]:
     }
 
 
+def _merge_unit_payloads(payloads: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not payloads:
+        return None
+    results = [
+        result
+        for payload in payloads
+        for result in payload.get("results", [])
+        if isinstance(result, dict)
+    ]
+    ids = [str(result.get("id")) for result in results]
+    if len(ids) != len(set(ids)):
+        raise HarnessError("Las suites unitarias produjeron resultados duplicados.")
+    return {
+        "schema_version": "1.0",
+        "suite": "LKS-SDD unittest",
+        "selected_suite": "all",
+        "passed": all(payload.get("passed") is True for payload in payloads),
+        "duration_seconds": round(
+            sum(float(payload.get("duration_seconds", 0)) for payload in payloads), 3
+        ),
+        "counts": {
+            "total": len(results),
+            "passed": sum(result.get("status") == "passed" for result in results),
+            "skipped": sum(result.get("status") == "skipped" for result in results),
+            "failed": sum(result.get("status") == "failed" for result in results),
+        },
+        "results": sorted(results, key=lambda item: str(item.get("id"))),
+    }
+
+
 def run_automated(
     catalog: dict[str, Any], profile_mode: str | bool, evaluated_on: str = "2026-08-26"
 ) -> tuple[
@@ -1024,6 +1076,7 @@ def run_automated(
     checks: list[dict[str, Any]] = []
     metrics: dict[str, float | int] = {}
     critical_failures: list[str] = []
+    fixture_started = time.monotonic()
     fixture_result = validate_fixture_manifest()
     checks.append(
         {
@@ -1031,6 +1084,11 @@ def run_automated(
             "status": fixture_result["status"],
             "critical": True,
             "summary": f"fixtures={fixture_result['fixture_count']}",
+            "duration_seconds": round(time.monotonic() - fixture_started, 3),
+            "timeout_seconds": None,
+            "termination": "normal",
+            "process_cleanup": "not-required",
+            "reproduce": f"{sys.executable} scripts/validate_fixture_manifest.py .",
         }
     )
     if fixture_result["errors"]:
@@ -1055,12 +1113,22 @@ def run_automated(
             False,
             120,
         ),
-        (
-            "unit-tests",
-            [sys.executable, "-X", "utf8", "tests/run_unit_tests.py"],
-            True,
-            UNIT_TEST_TIMEOUT_SECONDS,
-        ),
+        *[
+            (
+                f"unit-tests-{suite}",
+                [
+                    sys.executable,
+                    "-X",
+                    "utf8",
+                    "tests/run_unit_tests.py",
+                    "--suite",
+                    suite,
+                ],
+                True,
+                SUITE_TIMEOUT_SECONDS[suite],
+            )
+            for suite in ("fast", "integration", "package", "profile")
+        ],
         (
             "deterministic-evals",
             [sys.executable, "-X", "utf8", "tests/run_evals.py"],
@@ -1107,22 +1175,21 @@ def run_automated(
                 1800,
             )
         )
-    unit_payload: dict[str, Any] | None = None
+    unit_payloads: list[dict[str, Any]] = []
     eval_payload: dict[str, Any] | None = None
     profile_payload: dict[str, Any] | None = None
     for check_id, command, json_output, timeout in commands:
         check, payload, _output = _run_command(check_id, command, json_output, timeout)
         checks.append(check)
-        if check_id == "unit-tests" and isinstance(payload, dict):
-            unit_payload = payload
-            metrics.update(_unit_test_metrics(payload))
+        if check_id.startswith("unit-tests-") and isinstance(payload, dict):
+            unit_payloads.append(payload)
         elif check_id == "deterministic-evals" and isinstance(payload, dict):
             eval_payload = payload
         elif check_id == "reference-profile-complete" and isinstance(payload, dict):
             profile_payload = payload
         if check["status"] != "passed":
             critical_failures.append(f"{check_id}: {check['summary']}")
-            continue
+            break
         if check_id == "reference-profile-structure":
             metrics["profile_structure_gate"] = 1
         elif check_id == "deterministic-evals" and isinstance(payload, dict):
@@ -1146,6 +1213,8 @@ def run_automated(
                 critical_failures.append(
                     "El gate completo del perfil no quedó acreditado."
                 )
+    unit_payload = _merge_unit_payloads(unit_payloads)
+    metrics.update(_unit_test_metrics(unit_payload))
     automated_evidence = evaluate_automated_evidence(
         catalog, unit_payload, eval_payload, profile_payload
     )
@@ -1452,13 +1521,20 @@ def build_report(
     pilot_summary_path: Path | None,
     baseline_path: Path,
     profile_mode: str | bool,
+    rerun_reason: str | None = None,
 ) -> dict[str, Any]:
+    execution_started = time.monotonic()
     if isinstance(profile_mode, bool):
         profile_mode = "execute" if profile_mode else "not-run"
     # Capture the source boundary before launching any child validator, test or
     # profile gate. This prevents an ignored file from influencing checks and
     # only afterwards being misreported as part of a clean starting tree.
     source = repository_binding()
+    if source["tree_state"] != "clean":
+        raise HarnessError(
+            "Preflight detenido: el checkout inicial no coincide íntegramente con "
+            "HEAD (source.tree_state=dirty); no se ha lanzado la suite automatizada."
+        )
     catalog = validate_catalog(_load_json(CATALOG_PATH))
     corpus = validate_corpus(_load_json(CORPUS_PATH))
     definition_corpus = validate_definition_corpus(
@@ -1481,6 +1557,36 @@ def build_report(
     checks, metrics, critical_failures, automated_evidence = run_automated(
         catalog, profile_mode, evaluated_on
     )
+    suite_actual = {
+        check["id"].removeprefix("unit-tests-"): float(
+            check.get("duration_seconds", 0)
+        )
+        for check in checks
+        if check["id"].startswith("unit-tests-")
+    }
+    candidate_duration = sum(
+        float(check.get("duration_seconds", 0))
+        for check in checks
+        if not (
+            profile_mode == "execute" and check["id"] == "reference-profile-complete"
+        )
+    )
+    performance_actual = {**suite_actual, "candidate": round(candidate_duration, 3)}
+    if profile_mode == "execute":
+        profile_check = next(
+            (check for check in checks if check["id"] == "reference-profile-complete"),
+            None,
+        )
+        if profile_check is not None:
+            performance_actual["profile_execute"] = float(
+                profile_check.get("duration_seconds", 0)
+            )
+    performance_policy = load_performance_policy()
+    fingerprint = runner_fingerprint()
+    performance = performance_assessment(
+        performance_actual, performance_policy, fingerprint
+    )
+    critical_failures.extend(performance["regressions"])
     activation, activation_metrics, activation_critical = evaluate_activation(
         corpus, observations, catalog["thresholds"]
     )
@@ -1531,11 +1637,7 @@ def build_report(
     }
     required = catalog["channels"][channel]["required"]
     blockers = list(critical_failures)
-    if source["tree_state"] != "clean":
-        blockers.append(
-            "Fuente no publicable: el checkout inicial no coincide íntegramente "
-            "con HEAD (source.tree_state=dirty)."
-        )
+    blockers.extend(f"Rendimiento: {item}" for item in performance["regressions"])
     if comparison["regressions"]:
         blockers.extend(f"Regresión: {item}" for item in comparison["regressions"])
     missing_evidence = [
@@ -1559,7 +1661,7 @@ def build_report(
     else:
         gate_status = "passed"
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "suite": catalog["suite"],
         "plugin_version": manifest.get("version"),
         "evaluated_on": evaluated_on,
@@ -1579,8 +1681,18 @@ def build_report(
             if pilot_summary_path
             else None,
             "baseline_sha256": _sha256_bytes(_canonical_bytes(baseline)),
+            "performance_policy_sha256": _sha256_bytes(
+                _canonical_bytes(performance_policy)
+            ),
         },
         "checks": checks,
+        "execution": {
+            "runner_fingerprint": fingerprint,
+            "profile_mode": profile_mode,
+            "duration_seconds": round(time.monotonic() - execution_started, 3),
+            "rerun_reason": rerun_reason,
+        },
+        "performance": performance,
         "channels": channels,
         "metrics": dict(sorted(metrics.items())),
         "critical_failures": sorted(critical_failures),
@@ -1594,12 +1706,17 @@ def build_report(
     }
 
 
-def _atomic_write(path: Path, value: dict[str, Any], force: bool) -> None:
+def _validate_output_destination(path: Path, force: bool) -> Path:
     destination = path.expanduser().resolve()
     if destination.exists() and not force:
         raise HarnessError(
             f"El reporte ya existe; use --force para reemplazarlo: {destination}"
         )
+    return destination
+
+
+def _atomic_write(path: Path, value: dict[str, Any], force: bool) -> None:
+    destination = _validate_output_destination(path, force)
     destination.parent.mkdir(parents=True, exist_ok=True)
     content = json.dumps(value, indent=2, ensure_ascii=False) + "\n"
     handle, temporary_name = tempfile.mkstemp(
@@ -1615,6 +1732,9 @@ def _atomic_write(path: Path, value: dict[str, Any], force: bool) -> None:
 
 
 def main() -> int:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="strict")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--channel", choices=("candidate", "stable"), default="candidate"
@@ -1639,6 +1759,8 @@ def main() -> int:
     )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--rerun-reason")
+    parser.add_argument("--preflight-only", action="store_true")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", args.evaluated_on):
         print("ERROR: --date debe usar YYYY-MM-DD.", file=sys.stderr)
@@ -1651,7 +1773,39 @@ def main() -> int:
         )
         return 2
     profile_mode = "execute" if args.include_complete_profile else args.profile_mode
+    if args.force and not args.rerun_reason:
+        print(
+            "ERROR: --force requiere --rerun-reason para evitar repeticiones opacas.",
+            file=sys.stderr,
+        )
+        return 2
     try:
+        if args.preflight_only:
+            source = repository_binding()
+            if source["tree_state"] != "clean":
+                raise HarnessError(
+                    "Preflight detenido: source.tree_state=dirty; no se ejecutarán tests."
+                )
+            validate_catalog(_load_json(CATALOG_PATH))
+            load_performance_policy()
+            print(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "status": "passed",
+                        "source": source,
+                        "profile_mode": profile_mode,
+                        "tests_started": False,
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 0
+        if args.output:
+            # Output collisions are parameter errors and must fail before the
+            # first costly check, not after the candidate has already run.
+            _validate_output_destination(args.output, args.force)
         report = build_report(
             args.evaluated_on,
             args.channel,
@@ -1659,6 +1813,7 @@ def main() -> int:
             args.pilot_summary,
             args.baseline.expanduser().resolve(),
             profile_mode,
+            args.rerun_reason,
         )
         if args.output:
             _atomic_write(args.output, report, args.force)

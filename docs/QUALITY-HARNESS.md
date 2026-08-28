@@ -2,9 +2,9 @@
 
 ## Propósito
 
-El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51, la cobertura granular Entra v0.12 FX-52–FX-53, los perfiles OIDC simulados v0.13 en FX-54 y la verificación incremental reproducible v0.14 en FX-55. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, migración 1.4 → 1.5, aplicabilidad visual por slice, build estable, G4 no circular y CKPT/PROB consumibles. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
+El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51, la cobertura granular Entra v0.12 FX-52–FX-53, los perfiles OIDC simulados v0.13 en FX-54 y la verificación incremental reproducible v0.14 en FX-55. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, rechazo sin mutación de schemas de proyecto anteriores a 1.5, aplicabilidad visual por tarea, build estable, G4 no circular y CKPT/PROB consumibles. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.14.0.json` como corpus vigente; los anteriores son históricos.
+FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.15.0.json` como corpus vigente; los anteriores son históricos.
 
 ## Canales de evidencia
 
@@ -27,19 +27,29 @@ La puerta publicable de candidate se ejecuta desde la raíz de un checkout dedic
 $pluginRoot = Resolve-Path "."
 $reportPath = Join-Path (Resolve-Path "..") "quality-report.json"
 python (Join-Path $pluginRoot "scripts\validate_fixture_manifest.py") $pluginRoot
-python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.13.0.json") --profile-mode reuse --output $reportPath
+python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.14.2.json") --profile-mode reuse --output $reportPath
 ```
 
-`--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte mantiene el esquema 1.1, registra `HEAD` y árbol `clean/dirty`, no sobrescribe salvo `--force` y falla si la fuente inicial no coincide exactamente con Git.
+`--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte usa el esquema 1.2, conserva 1.1 como contrato histórico, registra `HEAD`, ejecución y rendimiento, y falla en preflight si la fuente inicial no coincide exactamente con Git. Una ruta de salida ya existente se rechaza antes de lanzar tests; `--force` requiere `--rerun-reason` y esa razón queda registrada en `execution.rerun_reason`.
 
 Para feedback cotidiano use una vía focalizada que no pretende ser evidencia de release:
 
 ```powershell
 python scripts\run_fast_validation.py --focus jira-reporting
-python scripts\run_fast_validation.py --focus migration
+python scripts\run_fast_validation.py --focus compatibility
+python scripts\run_fast_validation.py --changed-from origin/main
 ```
 
-Esta vía evita reconstruir todos los fixtures históricos y no ejecuta Docker. La release sigue exigiendo una única suite integral desde checkout limpio, evals y el canal de perfiles. Así se elimina repetición de bajo valor durante el desarrollo sin reducir la cobertura de publicación.
+Esta vía ejecuta siempre contratos y `fast`, añade solo los módulos afectados conocidos y cae en `integration` ante una ruta nueva. No ejecuta Docker ni acredita una release. La release ejecuta `fast`, `integration`, `package` y `profile` exactamente una vez desde checkout limpio, además de evals; `--profile-mode reuse` comprueba certificaciones exactas y `execute` reserva su fase Docker independiente. El proceso publica heartbeats cada 30 segundos, limita cada módulo y mata su árbol completo al agotar el tiempo.
+
+Los presupuestos comprometidos están en `quality/performance-policy.json`: 120/480/240/180 segundos para `fast`, `integration`, `package` y `profile`, 900 para candidate sin Docker `execute` y 1800 para ese perfil. Un límite absoluto siempre bloquea. La comparación relativa solo se aplica cuando coincide el fingerprint no personal del runner; una diferencia de entorno queda visible y no se presenta como comparación superada. La baseline no se actualiza automáticamente.
+
+Para actualizarla se necesitan exactamente tres resultados `--suite all` pasados, funcionalmente idénticos y producidos por el mismo fingerprint desde un checkout limpio. Primero revise el preview y después repita con `--apply`; la razón y el commit quedan en el diff:
+
+```powershell
+python scripts\update_performance_baseline.py --result run-1.json --result run-2.json --result run-3.json --reason "Baseline medida para la release 0.15.0"
+python scripts\update_performance_baseline.py --result run-1.json --result run-2.json --result run-3.json --reason "Baseline medida para la release 0.15.0" --apply
+```
 
 La vinculación de fuente se captura antes de lanzar validadores, tests o el perfil Docker. No confía únicamente en `git status`: exige que las entradas de `HEAD` y del índice coincidan en ruta, modo, tipo y objeto, calcula contra cada archivo real el objeto Git esperado y rechaza estados no consolidados, archivos ausentes, enlaces no admisibles, gitlinks y cambios ocultos mediante `assume-unchanged` o `skip-worktree`. También enumera todos los archivos no versionados sin aplicar exclusiones, por lo que cualquier archivo preexistente —incluido uno oculto por `.gitignore` o `.git/info/exclude`— deja la fuente `dirty`.
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -13,7 +14,12 @@ from unittest.mock import patch
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-from build_candidate_package import PackageError, SECRET_PATTERNS, build  # noqa: E402
+from build_candidate_package import (  # noqa: E402
+    PackageError,
+    SECRET_PATTERNS,
+    _expected_deterministic_eval_count,
+    build,
+)
 import run_quality_harness as quality_harness  # noqa: E402
 from manage_pilot import (  # noqa: E402
     PilotError,
@@ -70,8 +76,8 @@ def _valid_config() -> dict:
             "security_url": "https://security.example.invalid/lks-sdd",
         },
         "rollback": {
-            "previous_version": "0.13.0",
-            "candidate_version": "0.14.2",
+            "previous_version": "0.14.2",
+            "candidate_version": "0.15.0",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },
@@ -95,7 +101,11 @@ def _git(root: Path, *args: str) -> str:
     return completed.stdout.strip()
 
 
-def _package_repository(root: Path) -> str:
+_PACKAGE_TEMPLATE_DIRECTORY: tempfile.TemporaryDirectory[str] | None = None
+_PACKAGE_TEMPLATE_ROOT: Path | None = None
+
+
+def _create_package_repository(root: Path) -> str:
     marketplace = {
         "name": "lks-sdd-development",
         "interface": {"displayName": "LKS-SDD Development"},
@@ -134,6 +144,8 @@ def _package_repository(root: Path) -> str:
         "quality/corpora/activation.json",
         "quality/corpora/definition-v0.9.0.json",
         "quality/fixture-manifest.json",
+        "quality/performance-policy.json",
+        "schemas/quality-report-1.1.schema.json",
         "schemas/quality-report.schema.json",
     ]
     for relative in committed_quality_files:
@@ -154,6 +166,19 @@ def _package_repository(root: Path) -> str:
     _git(root, "config", "commit.gpgsign", "false")
     _git(root, "add", ".")
     _git(root, "commit", "--quiet", "-m", "test: package fixture")
+    return _git(root, "rev-parse", "HEAD")
+
+
+def _package_repository(root: Path) -> str:
+    global _PACKAGE_TEMPLATE_DIRECTORY, _PACKAGE_TEMPLATE_ROOT
+    if _PACKAGE_TEMPLATE_ROOT is None:
+        _PACKAGE_TEMPLATE_DIRECTORY = tempfile.TemporaryDirectory(
+            prefix="lks-sdd-package-template-"
+        )
+        _PACKAGE_TEMPLATE_ROOT = Path(_PACKAGE_TEMPLATE_DIRECTORY.name) / "source"
+        _PACKAGE_TEMPLATE_ROOT.mkdir()
+        _create_package_repository(_PACKAGE_TEMPLATE_ROOT)
+    shutil.copytree(_PACKAGE_TEMPLATE_ROOT, root, dirs_exist_ok=True, copy_function=shutil.copy2)
     return _git(root, "rev-parse", "HEAD")
 
 
@@ -259,8 +284,18 @@ def _harness_quality_report(
 
     def executed_check(check_id, _command, _json_output=False, _timeout=600):
         payload = None
-        if check_id == "unit-tests":
-            payload = {"passed": True, "results": unit_results}
+        if check_id == "unit-tests-fast":
+            payload = {
+                "passed": True,
+                "duration_seconds": 0.1,
+                "results": unit_results,
+            }
+        elif check_id in {
+            "unit-tests-integration",
+            "unit-tests-package",
+            "unit-tests-profile",
+        }:
+            payload = {"passed": True, "duration_seconds": 0.1, "results": []}
         elif check_id == "deterministic-evals":
             payload = {"passed": True, "results": eval_results}
         elif check_id == "reference-profile-complete":
@@ -271,6 +306,11 @@ def _harness_quality_report(
                 "status": "passed",
                 "critical": True,
                 "summary": "exit=0",
+                "duration_seconds": 0.1,
+                "timeout_seconds": _timeout,
+                "termination": "normal",
+                "process_cleanup": "not-required",
+                "reproduce": "synthetic",
             },
             payload,
             "",
@@ -287,6 +327,12 @@ def _harness_quality_report(
     }
     with patch.multiple(quality_harness, **patched_paths), patch.object(
         quality_harness, "_run_command", side_effect=executed_check
+    ), patch.object(
+        quality_harness,
+        "load_performance_policy",
+        return_value=json.loads(
+            (source_root / "quality/performance-policy.json").read_text(encoding="utf-8")
+        ),
     ):
         report = quality_harness.build_report(
             "2026-08-20",
@@ -355,6 +401,21 @@ def _quality_report() -> dict:
 
 
 class M5PilotTests(unittest.TestCase):
+    def test_candidate_builder_counts_the_v015_product_eval(self):
+        committed = {
+            "tests/eval_support.py": (
+                b'{"id": "experience-management-comprehension-v015"}'
+            )
+        }
+        self.assertEqual(
+            _expected_deterministic_eval_count("0.15.0", 5, committed), 6
+        )
+        self.assertEqual(
+            _expected_deterministic_eval_count("0.14.2", 5, committed), 5
+        )
+        with self.assertRaisesRegex(PackageError, "evals de producto"):
+            _expected_deterministic_eval_count("0.15.0", 5, {})
+
     def test_secret_scanner_distinguishes_task_labels_from_openai_keys(self):
         benign = b"task-definitions-marked-incomplete"
         synthetic_key = b"credential=" + b"sk-" + (b"x" * 24)
@@ -533,7 +594,21 @@ class M5PilotTests(unittest.TestCase):
                 marketplace = json.loads(
                     archive.read(".agents/plugins/marketplace.json").decode("utf-8")
                 )
+                integrity = json.loads(
+                    archive.read("plugins/lks-sdd/package-integrity.json")
+                )
+                integrity_contents = {
+                    item["path"]: archive.read(
+                        f"plugins/lks-sdd/{item['path']}"
+                    )
+                    for item in integrity["files"]
+                }
             self.assertIn("plugins/lks-sdd/.codex-plugin/plugin.json", names)
+            self.assertEqual(integrity["plugin_version"], "0.9.0")
+            self.assertTrue(integrity["files"])
+            for item in integrity["files"]:
+                packaged = integrity_contents[item["path"]]
+                self.assertEqual(hashlib.sha256(packaged).hexdigest(), item["sha256"])
             self.assertNotIn("plugins/lks-sdd/.git/config", names)
             self.assertEqual(
                 marketplace["plugins"][0]["source"]["path"],
@@ -550,7 +625,7 @@ class M5PilotTests(unittest.TestCase):
             forged = _forged_release_quality_report(
                 root / "forged.json", source_root, source_commit
             )
-            with self.assertRaisesRegex(PackageError, "inputs comprometidos"):
+            with self.assertRaisesRegex(PackageError, "evidencia histórica"):
                 build(
                     root / "forged-output",
                     "2026-08-20",
@@ -648,10 +723,14 @@ class M5PilotTests(unittest.TestCase):
             with self.assertRaisesRegex(PackageError, "--quality-report"):
                 build(root / "missing-report", "2026-08-20", source_commit, source_root)
 
-            dirty_report = _harness_quality_report(
+            authentic_report = _harness_quality_report(
                 root / "quality-report.json", source_root, source_commit
             )
-            dirty_payload = json.loads(dirty_report.read_text(encoding="utf-8"))
+            authentic_payload = json.loads(
+                authentic_report.read_text(encoding="utf-8")
+            )
+            dirty_report = root / "dirty-quality-report.json"
+            dirty_payload = json.loads(json.dumps(authentic_payload))
             dirty_payload["source"]["tree_state"] = "dirty"
             dirty_report.write_text(
                 json.dumps(dirty_payload, indent=2) + "\n", encoding="utf-8"
@@ -665,12 +744,8 @@ class M5PilotTests(unittest.TestCase):
                     dirty_report,
                 )
 
-            mismatched_report = _harness_quality_report(
-                root / "quality-report.json", source_root, source_commit
-            )
-            mismatched_payload = json.loads(
-                mismatched_report.read_text(encoding="utf-8")
-            )
+            mismatched_report = root / "mismatched-quality-report.json"
+            mismatched_payload = json.loads(json.dumps(authentic_payload))
             mismatched_payload["source"]["commit"] = "f" * 40
             mismatched_report.write_text(
                 json.dumps(mismatched_payload, indent=2) + "\n", encoding="utf-8"
@@ -684,10 +759,8 @@ class M5PilotTests(unittest.TestCase):
                     mismatched_report,
                 )
 
-            failed_report = _harness_quality_report(
-                root / "quality-report.json", source_root, source_commit
-            )
-            failed_payload = json.loads(failed_report.read_text(encoding="utf-8"))
+            failed_report = root / "failed-quality-report.json"
+            failed_payload = json.loads(json.dumps(authentic_payload))
             failed_payload["gate"] = {
                 "status": "failed",
                 "eligible": False,

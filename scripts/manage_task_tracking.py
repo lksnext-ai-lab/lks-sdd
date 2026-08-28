@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manage LKS-SDD 1.4/1.5 task tracking without network operations."""
+"""Manage LKS-SDD 1.5 task tracking without network operations."""
 
 from __future__ import annotations
 
@@ -67,11 +67,8 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         manifest = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise TrackingCommandError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(manifest, dict) or manifest.get("schema_version") not in {
-        "1.4",
-        "1.5",
-    }:
-        raise TrackingCommandError("La gestión de tracking requiere schema 1.4 o 1.5.")
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != "1.5":
+        raise TrackingCommandError("La gestión de tracking de 0.15 requiere schema 1.5.")
     return path, manifest, original
 
 

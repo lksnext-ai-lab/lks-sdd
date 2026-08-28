@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.15.0 — 2026-08-29 — experiencia ágil y harness de calidad
+
+- Añade status management/developer/audit, fast path `work` compuesto y transaccional, `doctor --quick`, lifecycle vigente de problemas, instrumentación local y una reducción medida del 60 % de comandos administrativos.
+- Separa `verification_subject` de la revisión administrativa para reutilizar gates solo con identidad técnica/contractual idéntica; cualquier ambigüedad o cambio técnico invalida de forma segura.
+- Comparte el parser canónico de listas/rangos entre checker y actualizador y completa evidencia 1.2 single/multiprofile con validación CLI y rollback posterior a escritura.
+- Clasifica todos los módulos de tests exactamente una vez en `fast`, `integration`, `package` o `profile`; `all` conserva la ejecución integral sin duplicados y el CLI sin argumentos sigue siendo compatible.
+- Añade progreso por stderr, tiempos por test y módulo, selección focalizada y por cambios, límites por fase y terminación del árbol completo de procesos cuando expira un timeout.
+- Hace que el harness falle antes de lanzar tests si el checkout está sucio, evita sobrescrituras opacas sin una razón de rerun y separa la certificación Docker del presupuesto ordinario candidate.
+- Evoluciona el quality report a 1.2 con telemetría diagnóstica y presupuestos bloqueantes; conserva el schema 1.1 para validar evidencia histórica sin permitir que sustituya el reporte 1.2 de una release nueva.
+- Introduce GitHub Actions escalonado para PR, `main` y tags, sin secretos ni publicación automática, y mantiene todos los canales semánticos, humanos, Entra y Rovo/Jira no ejecutados en su estado real.
+- Conserva `method_version: 1.5.0` y `schema_version: 1.5` como único contrato operativo; elimina schemas y migradores públicos pre-1.5 sin reescribir la procedencia `plugin_version` ni la evidencia histórica.
+
 ## 0.14.2 — 2026-08-28 — evidencia autoconsumible y registro transaccional
 
 - Hace canónica la identidad de perfil del EVID 1.2: una ejecución con un solo binding registra arriba su `profile_id` y `profile_version` exactos; una ejecución multiperfil omite ese resumen y conserva la identidad completa en `profile_bindings`, `profile_locks` y `build_identity_material`.

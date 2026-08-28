@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,6 +25,7 @@ from eval_support import (  # noqa: E402
     _append_row,
     _replace_row,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
 )
@@ -40,6 +42,8 @@ TASK_SCRIPT = PLUGIN_ROOT / "scripts" / "manage_tasks.py"
 CALCULATOR_FIXTURE = (
     PLUGIN_ROOT / "tests" / "fixtures" / "prueba-calculadora-planning-partial.json"
 )
+_PARALLEL_TEMPLATE_DIRECTORY: tempfile.TemporaryDirectory[str] | None = None
+_PARALLEL_TEMPLATE_ROOT: Path | None = None
 
 
 def _replace_first_table_row(path: Path, header: str, row: str) -> None:
@@ -250,9 +254,8 @@ def _add_calculator_scope(root: Path) -> dict:
     return fixture
 
 
-def _materialize_parallel_complete_plan(root: Path) -> dict:
-    initialize(root, "parallel-plan")
-    materialize_ready_increment(root, confirm_plan=False)
+def _build_parallel_complete_plan(root: Path) -> dict:
+    materialize_ready_project(root, "parallel-plan", confirm_plan=False)
     docs = root / "docs/lks-sdd"
     _append_row(
         docs / "02-requirements/functional-requirements.md",
@@ -361,6 +364,33 @@ def _materialize_parallel_complete_plan(root: Path) -> dict:
     return assess_planning(root, manifest, "INC-001")
 
 
+def _materialize_parallel_complete_plan(root: Path) -> dict:
+    """Clone the expensive immutable three-task plan for each isolated test."""
+    global _PARALLEL_TEMPLATE_DIRECTORY
+    global _PARALLEL_TEMPLATE_ROOT
+    if any(root.iterdir()):
+        raise AssertionError("parallel plan fixture requires an empty root")
+    if _PARALLEL_TEMPLATE_ROOT is None:
+        _PARALLEL_TEMPLATE_DIRECTORY = tempfile.TemporaryDirectory(
+            prefix="lks-sdd-parallel-template-"
+        )
+        _PARALLEL_TEMPLATE_ROOT = (
+            Path(_PARALLEL_TEMPLATE_DIRECTORY.name) / "project"
+        )
+        _PARALLEL_TEMPLATE_ROOT.mkdir()
+        _build_parallel_complete_plan(_PARALLEL_TEMPLATE_ROOT)
+    shutil.copytree(
+        _PARALLEL_TEMPLATE_ROOT,
+        root,
+        dirs_exist_ok=True,
+        copy_function=shutil.copy2,
+    )
+    manifest = json.loads(
+        (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
+    )
+    return assess_planning(root, manifest, "INC-001")
+
+
 def _git_commit(root: Path) -> None:
     commands = (
         ["git", "init", "-b", "main"],
@@ -454,8 +484,9 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_calculator_release_remains_partial_when_only_task_001_is_ready(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-calculator-partial-") as directory:
             root = Path(directory)
-            initialize(root, "prueba-calculadora-regression")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(
+                root, "prueba-calculadora-regression", confirm_plan=False
+            )
             fixture = _add_calculator_scope(root)
             manifest = json.loads(
                 (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
@@ -504,8 +535,9 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_incremental_policy_authorizes_only_the_explicit_ready_slice(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-incremental-policy-") as directory:
             root = Path(directory)
-            initialize(root, "incremental-policy")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(
+                root, "incremental-policy", confirm_plan=False
+            )
             _add_calculator_scope(root)
             docs = root / "docs/lks-sdd"
             _append_row(
@@ -843,8 +875,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_migrated_ready_task_keeps_workflow_but_loses_executable_readiness(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-migrated-ready-") as directory:
             root = Path(directory)
-            initialize(root, "migrated-ready")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "migrated-ready")
             detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             _replace_first_table_row(
                 detail_path,
@@ -874,8 +905,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_explanatory_pending_placeholder_is_not_executable_content(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-pending-placeholder-") as directory:
             root = Path(directory)
-            initialize(root, "pending-placeholder")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "pending-placeholder")
             detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             text = detail_path.read_text(encoding="utf-8")
             detail_path.write_text(
@@ -901,8 +931,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_task_capabilities_and_gates_must_belong_to_its_binding(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-task-gates-") as directory:
             root = Path(directory)
-            initialize(root, "task-gates")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "task-gates")
             detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             text = detail_path.read_text(encoding="utf-8")
             detail_path.write_text(
@@ -927,8 +956,9 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_plan_is_partial_when_binding_contract_cannot_be_loaded(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-missing-profile-") as directory:
             root = Path(directory)
-            initialize(root, "missing-profile-contract")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(
+                root, "missing-profile-contract", confirm_plan=False
+            )
             manifest_path = root / ".lks-sdd/project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["technology"]["profile_bindings"][0]["profile_id"] = (
@@ -1140,8 +1170,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_scope_change_stales_planning_and_authorization(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-scope-change-") as directory:
             root = Path(directory)
-            initialize(root, "scope-change")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "scope-change")
             _authorize(root, "TASK-001")
             requirement = root / "docs/lks-sdd/02-requirements/functional-requirements.md"
             requirement.write_text(
@@ -1211,8 +1240,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_proposed_change_does_not_become_confirmed_impact(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-proposed-change-") as directory:
             root = Path(directory)
-            initialize(root, "proposed-change")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "proposed-change")
             requirement = root / "docs/lks-sdd/02-requirements/functional-requirements.md"
             requirement.write_text(
                 requirement.read_text(encoding="utf-8").replace(
@@ -1282,8 +1310,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_planning_change_rejects_unknown_classification_and_bad_hashes(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-invalid-change-") as directory:
             root = Path(directory)
-            initialize(root, "invalid-change")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "invalid-change")
             _append_row(
                 root / "docs/lks-sdd/04-delivery/planning-coverage.md",
                 "| ID | State | Classification",
@@ -1305,8 +1332,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_authorization_rejects_a_proposed_decision(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-proposed-auth-") as directory:
             root = Path(directory)
-            initialize(root, "proposed-authorization")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "proposed-authorization")
             _append_row(
                 root / "docs/lks-sdd/03-solution/solution-overview.md",
                 "| ID | State | Decision",
@@ -1339,8 +1365,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_plan_change_stales_authorization_without_operational_noise(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-plan-change-") as directory:
             root = Path(directory)
-            initialize(root, "plan-change")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "plan-change")
             _authorize(root, "TASK-001")
             _replace_row(
                 root / "docs/lks-sdd/04-delivery/plans.md",
@@ -1359,8 +1384,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_authorization_constraints_cannot_diverge_from_canonical_markdown(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-auth-constraints-") as directory:
             root = Path(directory)
-            initialize(root, "authorization-constraints")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "authorization-constraints")
             _authorize(root, "TASK-001")
             planning_path = root / "docs/lks-sdd/04-delivery/planning-coverage.md"
             text = planning_path.read_text(encoding="utf-8")
@@ -1446,8 +1470,7 @@ class PlanningContinuityV13Tests(unittest.TestCase):
     def test_release_objective_with_unassigned_scope_is_partial(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-release-gap-") as directory:
             root = Path(directory)
-            initialize(root, "release-gap")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(root, "release-gap", confirm_plan=False)
             _add_calculator_scope(root)
             manifest = json.loads(
                 (root / ".lks-sdd/project.json").read_text(encoding="utf-8")

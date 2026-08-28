@@ -3,7 +3,7 @@ artifact_id: ART-TRACE
 artifact_type: traceability
 schema_version: "1.5"
 method_version: "1.5.0"
-created_with_plugin_version: "0.14.2"
+created_with_plugin_version: "0.15.0"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: draft
@@ -21,4 +21,4 @@ last_updated: "{{DATE}}"
 | Requirement | Acceptance | Decision | Increment | Test | Evidence |
 |---|---|---|---|---|---|
 
-Readiness exige la cadena hasta `Test`. `Evidence` puede quedar vacío —también si contiene solo espacios— hasta la verificación, sin normalizar previamente la celda, pero nunca se marca como obtenida sin una comprobación real.
+Readiness exige la cadena hasta `Test`. `Evidence` puede quedar vacío hasta la verificación, pero nunca se marca como obtenida sin una comprobación real.

@@ -2,7 +2,7 @@
 
 ## Estado de este incremento
 
-La versión `0.14.2` es una release candidate técnica para Codex que conserva M0–M5 y el contrato 1.5. Añade dos perfiles OIDC simulados exactos, active y certificados exclusivamente para entornos no productivos. Los perfiles Microsoft Entra permanecen `candidate`, `unsupported` y con interoperabilidad real `not-run`; la identidad simulada no los sustituye ni satisface producción. El piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una publicación técnica en GitHub no implica distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y las extensiones de `specs/proposed/` conservan su estado no canónico.
+La versión `0.15.0` es una release candidate técnica para Codex que conserva M0–M5 y el contrato 1.5. Añade dos perfiles OIDC simulados exactos, active y certificados exclusivamente para entornos no productivos. Los perfiles Microsoft Entra permanecen `candidate`, `unsupported` y con interoperabilidad real `not-run`; la identidad simulada no los sustituye ni satisface producción. El piloto real no ha comenzado: no existen en el repositorio participantes, proyectos, responsables, canal confidencial ni resultados. La versión SemVer no completa M6. Una publicación técnica en GitHub no implica distribución corporativa estable, soporte oficial ni aprobación como política corporativa. La baseline normativa y las extensiones de `specs/proposed/` conservan su estado no canónico.
 
 ## Autoridad y decisiones
 
@@ -16,7 +16,7 @@ La extensión visual permite usar ImageGen de forma condicional cuando esa capac
 
 Todo cambio del método debe documentar motivación, alcance, compatibilidad, impacto, decisión explícita, validaciones y migración o incompatibilidad. Una extensión se incorpora como fuente aditiva versionada y preserva las fuentes anteriores; una diferencia de implementación se corrige sin reescribir el contrato. Las versiones del plugin, método, esquema, perfiles y hitos evolucionan por separado. Las migraciones nunca reescriben silenciosamente contenido adaptado por los equipos.
 
-Los proyectos nuevos de esta release usan método 1.5.0 y esquema 1.5. Los proyectos 1.0–1.4 continúan validándose en modo de compatibilidad: actualizar el plugin no los migra ni confirma decisiones. Cada migración es de un salto, con dry-run, backup externo, hash coincidente, autorización expresa, validación posterior y rollback propio; no se encadenan cambios de esquema bajo una sola autorización.
+Los proyectos de esta release usan método 1.5.0 y esquema 1.5 como único contrato operativo. Los proyectos 1.0–1.4 se rechazan sin escritura y 0.15 no distribuye migradores. Actualizar el plugin no reescribe `plugin_version`, Markdown ni evidencias; cualquier evolución futura de contrato debe decidir explícitamente compatibilidad o incompatibilidad antes de implementarse.
 
 La autoridad para considerar suficiente una especificación se separa de la capacidad técnica del plugin para automatizar una pila. `specification_readiness` puede ser favorable mientras `automation_support` bloquea la implementación; ninguna de las dos selecciona tecnología ni autoriza escribir código. `automation_coverage` solo explica qué partes están preparadas o pendientes: no crea soporte parcial, no compone capabilities y no permite sustituir Entra por Keycloak.
 

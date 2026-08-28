@@ -77,4 +77,4 @@ El validador comprueba estructura, estados, identificadores y referencias. La sk
 
 `checked_files`, `active_contract_fingerprint`, `profile_lock` y `document_fingerprint` son parte del resultado contractual. La huella activa representa únicamente los Markdown, relaciones, lock exacto y assets confirmados que alimentan el incremento; la huella documental también detecta cambios históricos. Un cambio de input activo invalida el preview de implementación. Una edición exclusivamente histórica sigue siendo visible para auditoría sin convertirse por ello en alcance implementable.
 
-Los proyectos 1.0, 1.1, 1.2 y 1.3 se evalúan en compatibilidad y conservan sus reglas históricas. Llegar al contrato actual 1.4 requiere saltos explícitos `1.0 → 1.1 → 1.2 → 1.3 → 1.4`; readiness nunca migra ni reescribe documentos. El salto histórico 1.2 → 1.3 sigue fijado a método 1.3.0/plugin 0.9.1.
+Readiness 0.15 evalúa únicamente proyectos schema 1.5/método 1.5.0. Un contrato anterior se informa como incompatible y no se migra ni reescribe durante la evaluación.

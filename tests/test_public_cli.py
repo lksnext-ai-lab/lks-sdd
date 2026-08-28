@@ -47,8 +47,10 @@ class PublicCliTests(unittest.TestCase):
             "validate-project",
             "validate-spec",
             "traceability",
-            "migrate",
             "client-view",
+            "status",
+            "work",
+            "doctor",
         }
         with tempfile.TemporaryDirectory(prefix="lks-sdd-cli-") as temporary:
             consumer = Path(temporary)

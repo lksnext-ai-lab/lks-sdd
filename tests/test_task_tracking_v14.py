@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import ast
 import json
+import shutil
 import sys
 import tempfile
 import unittest
+from argparse import Namespace
 from pathlib import Path
 
 
@@ -21,11 +23,17 @@ from eval_support import (  # noqa: E402
     confirm_planning,
     confirm_planning_change,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
 )
 from planning_engine import assess_planning  # noqa: E402
-from manage_task_tracking import _aggregate_sync_state  # noqa: E402
+from manage_task_tracking import (  # noqa: E402
+    _aggregate_sync_state,
+    authorize_sync,
+    configure,
+    record_result,
+)
 from task_tracking_engine import (  # noqa: E402
     BINDING_HEADERS,
     MAPPING_HEADERS,
@@ -49,6 +57,10 @@ READINESS_SCRIPT = (
     / "scripts"
     / "assess_readiness.py"
 )
+
+_PARALLEL_JIRA_TEMPLATE_DIRECTORY: tempfile.TemporaryDirectory[str] | None = None
+_PARALLEL_JIRA_TEMPLATE_ROOT: Path | None = None
+_PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT: Path | None = None
 
 
 def _manifest(root: Path) -> dict:
@@ -80,40 +92,22 @@ def _configure(
     if decision in {"ADR-001", "ADR-002"}:
         decision = "ADR-901" if mode == "jira-hybrid" else "ADR-900"
     _ensure_decision(root, decision, mode)
-    arguments = [
-        "configure",
-        str(root),
-        "--mode",
-        mode,
-        "--decision",
-        decision,
-        "--date",
-        "2026-08-25",
-    ]
-    if mode == "jira-hybrid":
-        arguments.extend(
-            [
-                "--site",
-                "https://jira.example.invalid",
-                "--project",
-                "SYN",
-                "--issue-type",
-                "Synthetic Work Item",
-                "--reporting-scope",
-                reporting_scope,
-                "--coordination-gate",
-                coordination_gate,
-            ]
-        )
-    _, preview = run_json(TRACKING_SCRIPT, *arguments)
-    _, applied = run_json(
-        TRACKING_SCRIPT,
-        *arguments,
-        "--apply",
-        "--authorize",
-        preview["mutation_hash"],
+    args = Namespace(
+        mode=mode,
+        decision=decision,
+        date="2026-08-25",
+        site="https://jira.example.invalid" if mode == "jira-hybrid" else None,
+        project="SYN" if mode == "jira-hybrid" else None,
+        issue_type="Synthetic Work Item" if mode == "jira-hybrid" else None,
+        reporting_scope=reporting_scope,
+        coordination_gate=coordination_gate,
+        apply=False,
+        authorize=None,
     )
-    return applied
+    preview = configure(root, args)
+    args.apply = True
+    args.authorize = preview["mutation_hash"]
+    return configure(root, args)
 
 
 def _record(
@@ -128,57 +122,46 @@ def _record(
 ) -> dict:
     task_id = preview["operations"][0]["task_id"]
     authorized = _authorize(root, preview, task=task_id)
-    arguments = [
-        "record-result",
-        str(root),
-        "--sync-id",
-        authorized["sync_id"],
-        "--result",
-        result,
-        "--remote-status",
-        remote_status,
-        "--observed-projection-fingerprint",
-        preview["operations"][0]["payload"]["projection_fingerprint"],
-        "--observed-correlation-marker",
-        preview["operations"][0]["correlation_marker"],
-        "--date",
-        change_date,
-        "--apply",
-    ]
-    if external_id:
-        arguments.extend(["--external-id", external_id])
-    if external_key:
-        arguments.extend(["--external-key", external_key])
-    if external_key:
-        arguments.extend(
-            [
-                "--url",
-                f"https://jira.example.invalid/browse/{external_key}",
-            ]
-        )
-    _, payload = run_json(TRACKING_SCRIPT, *arguments)
-    return payload
+    return record_result(
+        root,
+        Namespace(
+            sync_id=authorized["sync_id"],
+            result=result,
+            remote_status=remote_status,
+            observed_projection_fingerprint=preview["operations"][0]["payload"][
+                "projection_fingerprint"
+            ],
+            observed_correlation_marker=preview["operations"][0][
+                "correlation_marker"
+            ],
+            date=change_date,
+            apply=True,
+            external_id=external_id,
+            external_key=external_key,
+            url=(
+                f"https://jira.example.invalid/browse/{external_key}"
+                if external_key
+                else None
+            ),
+            notes=None,
+        ),
+    )
 
 
 def _authorize(root: Path, preview: dict, *, task: str = "TASK-001") -> dict:
     action = preview["operations"][0]["action"]
-    _, payload = run_json(
-        TRACKING_SCRIPT,
-        "authorize-sync",
-        str(root),
-        "--task",
-        task,
-        "--preview-hash",
-        preview["preview_hash"],
-        "--authorized-by-role",
-        "synthetic-release-owner",
-        "--authorized-on",
-        "2026-08-25",
-        "--duplicate-check",
-        "no-match" if action == "create" else "matched",
-        "--apply",
+    return authorize_sync(
+        root,
+        Namespace(
+            task=task,
+            preview_hash=preview["preview_hash"],
+            authorized_by_role="synthetic-release-owner",
+            authorized_on="2026-08-25",
+            duplicate_check="no-match" if action == "create" else "matched",
+            notes=None,
+            apply=True,
+        ),
     )
-    return payload
 
 
 def _reconcile(
@@ -239,6 +222,63 @@ def _confirm_plan(root: Path) -> dict:
     return confirm_planning(root, change_date="2026-08-25")
 
 
+def _materialize_parallel_jira_project(root: Path, *, synced: bool = False) -> None:
+    """Clone one immutable three-TASK Jira fixture without replaying its setup."""
+
+    global _PARALLEL_JIRA_TEMPLATE_DIRECTORY
+    global _PARALLEL_JIRA_TEMPLATE_ROOT
+    global _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT
+    if any(root.iterdir()):
+        raise AssertionError("parallel Jira fixture requires an empty root")
+    if _PARALLEL_JIRA_TEMPLATE_ROOT is None:
+        from test_planning_continuity_v13 import (
+            _materialize_parallel_complete_plan,
+        )
+
+        _PARALLEL_JIRA_TEMPLATE_DIRECTORY = tempfile.TemporaryDirectory(
+            prefix="lks-sdd-parallel-jira-templates-"
+        )
+        template_parent = Path(_PARALLEL_JIRA_TEMPLATE_DIRECTORY.name)
+        _PARALLEL_JIRA_TEMPLATE_ROOT = template_parent / "configured"
+        _PARALLEL_JIRA_TEMPLATE_ROOT.mkdir()
+        _materialize_parallel_complete_plan(_PARALLEL_JIRA_TEMPLATE_ROOT)
+        _configure(_PARALLEL_JIRA_TEMPLATE_ROOT, "jira-hybrid", decision="ADR-001")
+    if synced and _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT is None:
+        assert _PARALLEL_JIRA_TEMPLATE_DIRECTORY is not None
+        _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT = (
+            Path(_PARALLEL_JIRA_TEMPLATE_DIRECTORY.name) / "synced"
+        )
+        shutil.copytree(
+            _PARALLEL_JIRA_TEMPLATE_ROOT,
+            _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT,
+            copy_function=shutil.copy2,
+        )
+        for task_id, external_id, external_key in (
+            ("TASK-001", "10701", "SYN-701"),
+            ("TASK-002", "10702", "SYN-702"),
+            ("TASK-003", "10703", "SYN-703"),
+        ):
+            preview = build_projection_preview(
+                _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT,
+                _manifest(_PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT),
+                [task_id],
+            )
+            _record(
+                _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT,
+                preview,
+                result="succeeded",
+                external_id=external_id,
+                external_key=external_key,
+            )
+    source = (
+        _PARALLEL_JIRA_SYNCED_TEMPLATE_ROOT
+        if synced
+        else _PARALLEL_JIRA_TEMPLATE_ROOT
+    )
+    assert source is not None
+    shutil.copytree(source, root, dirs_exist_ok=True, copy_function=shutil.copy2)
+
+
 class TaskTrackingV14Tests(unittest.TestCase):
     def test_aggregate_index_stays_pending_until_every_task_is_synced(self) -> None:
         operations = [
@@ -274,14 +314,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
         self.assertIsNone(fingerprint)
 
     def test_project_index_waits_for_every_projectable_task(self) -> None:
-        from test_planning_continuity_v13 import (
-            _materialize_parallel_complete_plan,
-        )
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            _materialize_parallel_complete_plan(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            _materialize_parallel_jira_project(root)
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -297,27 +332,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
             )
 
     def test_project_index_keeps_other_task_drift_visible(self) -> None:
-        from test_planning_continuity_v13 import (
-            _materialize_parallel_complete_plan,
-        )
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            _materialize_parallel_complete_plan(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
-            for task_id, external_id, external_key in (
-                ("TASK-001", "10601", "SYN-601"),
-                ("TASK-002", "10602", "SYN-602"),
-                ("TASK-003", "10603", "SYN-603"),
-            ):
-                preview = build_projection_preview(root, _manifest(root), [task_id])
-                _record(
-                    root,
-                    preview,
-                    result="succeeded",
-                    external_id=external_id,
-                    external_key=external_key,
-                )
+            _materialize_parallel_jira_project(root, synced=True)
             self.assertEqual(
                 _manifest(root)["task_tracking"]["sync_status"], "in-sync"
             )
@@ -363,8 +380,8 @@ class TaskTrackingV14Tests(unittest.TestCase):
                 root,
                 second_update,
                 result="succeeded",
-                external_id="10602",
-                external_key="SYN-602",
+                external_id="10702",
+                external_key="SYN-702",
                 change_date="2026-08-26",
             )
             manifest = _manifest(root)
@@ -382,27 +399,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
             )
 
     def test_aggregate_never_hides_an_unprojectable_mapped_task(self) -> None:
-        from test_planning_continuity_v13 import (
-            _materialize_parallel_complete_plan,
-        )
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            _materialize_parallel_complete_plan(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
-            for task_id, external_id, external_key in (
-                ("TASK-001", "10701", "SYN-701"),
-                ("TASK-002", "10702", "SYN-702"),
-                ("TASK-003", "10703", "SYN-703"),
-            ):
-                preview = build_projection_preview(root, _manifest(root), [task_id])
-                _record(
-                    root,
-                    preview,
-                    result="succeeded",
-                    external_id=external_id,
-                    external_key=external_key,
-                )
+            _materialize_parallel_jira_project(root, synced=True)
 
             first = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             first.write_text(
@@ -458,14 +457,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
             )
 
     def test_aggregate_reports_unmapped_unsafe_task_as_failed(self) -> None:
-        from test_planning_continuity_v13 import (
-            _materialize_parallel_complete_plan,
-        )
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            _materialize_parallel_complete_plan(root)
-            _configure(root, "jira-hybrid", decision="ADR-901")
+            _materialize_parallel_jira_project(root)
             unsafe = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             unsafe.write_text(
                 unsafe.read_text(encoding="utf-8").replace(
@@ -574,9 +568,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_project_index_cannot_hide_synced_ledger_as_pending(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-index-summary")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-index-summary", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -683,8 +677,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_planning_confirmation_is_rejected_while_choice_is_pending(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "pending-before-plan")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(
+                root, "pending-before-plan", confirm_plan=False
+            )
             manifest_path = root / ".lks-sdd/project.json"
             manifest = _manifest(root)
             manifest["task_tracking"].update(
@@ -732,8 +727,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_migrated_repository_mode_needs_explicit_confirmation_before_plan(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "migrated-tracking-choice")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(
+                root, "migrated-tracking-choice", confirm_plan=False
+            )
             manifest_path = root / ".lks-sdd/project.json"
             manifest = _manifest(root)
             manifest["task_tracking"].update(
@@ -788,8 +784,7 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_migrated_repository_mode_blocks_preserved_authorization(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "migrated-authorized-tracking-choice")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "migrated-authorized-tracking-choice")
             authorize_implementation(root)
 
             manifest_path = root / ".lks-sdd/project.json"
@@ -858,9 +853,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_jira_preview_is_deterministic_and_receipt_makes_it_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-projection")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-projection", tracking_mode="jira-hybrid"
+            )
 
             first = build_projection_preview(root, _manifest(root), ["TASK-001"])
             second = build_projection_preview(root, _manifest(root), ["TASK-001"])
@@ -900,9 +895,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
             for project_id in ("shared-jira-alpha", "shared-jira-beta"):
                 root = container / project_id
                 root.mkdir()
-                initialize(root, project_id)
-                materialize_ready_increment(root)
-                _configure(root, "jira-hybrid", decision="ADR-001")
+                materialize_ready_project(
+                    root, project_id, tracking_mode="jira-hybrid"
+                )
                 preview = build_projection_preview(
                     root, _manifest(root), ["TASK-001"]
                 )
@@ -917,9 +912,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_uncertain_create_fails_closed_and_cannot_duplicate(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-uncertain")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-uncertain", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
 
             receipt = _record(root, preview, result="uncertain")
@@ -947,9 +942,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_conflict_blocks_new_writes_until_reconciliation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-conflict")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-conflict", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
 
             receipt = _record(
@@ -970,9 +965,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_failed_update_keeps_last_observed_fingerprint_out_of_sync(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-failed-update")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-failed-update", tracking_mode="jira-hybrid"
+            )
             initial = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1029,9 +1024,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_reconciliation_after_plan_drift_preserves_remote_fact(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-reconcile-drift")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-reconcile-drift", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(root, preview, result="uncertain")
             contract = validate_tracking_contract(root, _manifest(root))
@@ -1084,9 +1079,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_visible_key_can_change_but_external_id_is_immutable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-rekey")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-rekey", tracking_mode="jira-hybrid"
+            )
             create = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1168,14 +1163,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
             )
 
     def test_historical_jira_key_cannot_be_reused_by_another_task(self) -> None:
-        from test_planning_continuity_v13 import (
-            _materialize_parallel_complete_plan,
-        )
-
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            _materialize_parallel_complete_plan(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            _materialize_parallel_jira_project(root)
 
             first = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
@@ -1258,9 +1248,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_project_key_prefix_change_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-prefix-guard")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-prefix-guard", tracking_mode="jira-hybrid"
+            )
             create = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1312,9 +1302,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_reconciliation_mapping_cannot_rewrite_receipt_identity(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-reconciliation-identity")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-reconciliation-identity", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1345,9 +1335,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_mapping_cannot_rewind_past_latest_uncertain_receipt(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-history-rewind")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-history-rewind", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1394,9 +1384,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_durable_mapping_blocks_a_silent_jira_target_change(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-target-guard")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-target-guard", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1435,9 +1425,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_same_jira_binding_reconfirmation_preserves_sync_summary(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-binding-reconfirm")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-901")
+            materialize_ready_project(
+                root, "jira-binding-reconfirm", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1485,9 +1475,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_remote_done_does_not_close_the_canonical_task(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-done-boundary")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-done-boundary", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -1515,8 +1505,7 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_tracker_receipts_do_not_change_planning_fingerprint(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-fingerprint")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "jira-fingerprint")
             before = assess_planning(root, _manifest(root), "INC-001")
             self.assertEqual(before["status"], "complete")
             _configure(root, "jira-hybrid", decision="ADR-001")
@@ -1540,9 +1529,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_required_policy_blocks_new_execution_until_selected_task_is_synced(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-readiness")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "jira-readiness", tracking_mode="jira-hybrid"
+            )
 
             code, readiness = run_json(
                 READINESS_SCRIPT,
@@ -1580,9 +1569,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_planning_authorization_cannot_bypass_required_tracking(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-authorization-guard")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-901")
+            materialize_ready_project(
+                root, "jira-authorization-guard", tracking_mode="jira-hybrid"
+            )
             planning_path = root / "docs/lks-sdd/04-delivery/planning-coverage.md"
             manifest_path = root / ".lks-sdd/project.json"
             before = (planning_path.read_bytes(), manifest_path.read_bytes())
@@ -1615,8 +1604,7 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_ready_transition_cannot_bypass_required_tracking(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "jira-transition-guard")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "jira-transition-guard")
             authorize_implementation(root)
             _, implementation_preview = run_json(
                 IMPLEMENT_SCRIPT,
@@ -1835,9 +1823,12 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_unconfirmed_plan_does_not_make_tracking_contract_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "planning-axis")
-            materialize_ready_increment(root, confirm_plan=False)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root,
+                "planning-axis",
+                confirm_plan=False,
+                tracking_mode="jira-hybrid",
+            )
             manifest = _manifest(root)
             assessed = assess_tracking(root, manifest, ["TASK-001"])
             self.assertEqual(assessed["status"], "not-assessed")
@@ -1849,9 +1840,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_empty_selection_never_expands_to_all_tasks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "empty-tracking-selection")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "empty-tracking-selection", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), [])
             self.assertEqual(preview["operations"], [])
             assessed = assess_tracking(root, _manifest(root), [])
@@ -1860,9 +1851,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_authorization_persists_intent_and_requires_duplicate_search(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "durable-tracking-intent")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "durable-tracking-intent", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             tracking_path = root / "docs/lks-sdd/04-delivery/task-tracking.md"
             before = tracking_path.read_bytes()
@@ -1901,9 +1892,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_result_after_local_drift_closes_receipt_as_out_of_sync(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-drift-recovery")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-drift-recovery", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             authorized = _authorize(root, preview)
             detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
@@ -1948,9 +1939,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_observed_fingerprint_and_exact_issue_url_are_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-untrusted-result")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-untrusted-result", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             authorized = _authorize(root, preview)
             manifest_path = root / ".lks-sdd/project.json"
@@ -2002,9 +1993,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_update_success_requires_freshly_observed_identity_and_url(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-update-observation")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-update-observation", tracking_mode="jira-hybrid"
+            )
             initial = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -2062,9 +2053,12 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_confidential_or_personal_payload_is_not_projected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "confidential-tracking-payload")
-            materialize_ready_increment(root, confirm_plan=False)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root,
+                "confidential-tracking-payload",
+                confirm_plan=False,
+                tracking_mode="jira-hybrid",
+            )
             detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             detail_path.write_text(
                 detail_path.read_text(encoding="utf-8").replace(
@@ -2083,9 +2077,12 @@ class TaskTrackingV14Tests(unittest.TestCase):
         ):
             with tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
-                initialize(root, "invalid-classification-payload")
-                materialize_ready_increment(root, confirm_plan=False)
-                _configure(root, "jira-hybrid", decision="ADR-001")
+                materialize_ready_project(
+                    root,
+                    "invalid-classification-payload",
+                    confirm_plan=False,
+                    tracking_mode="jira-hybrid",
+                )
                 detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
                 detail_path.write_text(
                     detail_path.read_text(encoding="utf-8").replace(
@@ -2106,9 +2103,12 @@ class TaskTrackingV14Tests(unittest.TestCase):
         ):
             with tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
-                initialize(root, "sensitive-marker-payload")
-                materialize_ready_increment(root, confirm_plan=False)
-                _configure(root, "jira-hybrid", decision="ADR-001")
+                materialize_ready_project(
+                    root,
+                    "sensitive-marker-payload",
+                    confirm_plan=False,
+                    tracking_mode="jira-hybrid",
+                )
                 detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
                 detail_path.write_text(
                     detail_path.read_text(encoding="utf-8").replace(
@@ -2132,9 +2132,12 @@ class TaskTrackingV14Tests(unittest.TestCase):
         ):
             with tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
-                initialize(root, "frontmatter-classification-guard")
-                materialize_ready_increment(root, confirm_plan=False)
-                _configure(root, "jira-hybrid", decision="ADR-001")
+                materialize_ready_project(
+                    root,
+                    "frontmatter-classification-guard",
+                    confirm_plan=False,
+                    tracking_mode="jira-hybrid",
+                )
                 detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
                 task_text = detail_path.read_text(encoding="utf-8").replace(
                     "classification: internal", replacement, 1
@@ -2153,9 +2156,12 @@ class TaskTrackingV14Tests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "personal-tracking-payload")
-            materialize_ready_increment(root, confirm_plan=False)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root,
+                "personal-tracking-payload",
+                confirm_plan=False,
+                tracking_mode="jira-hybrid",
+            )
             detail_path = root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             detail_path.write_text(
                 detail_path.read_text(encoding="utf-8").replace(
@@ -2173,9 +2179,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_receipt_notes_reject_secrets_and_personal_data(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-receipt-privacy")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-receipt-privacy", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             tracking_path = root / "docs/lks-sdd/04-delivery/task-tracking.md"
             before = tracking_path.read_bytes()
@@ -2205,9 +2211,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_markup_and_malformed_jira_identity_never_persist(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-markup-guard")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-markup-guard", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             authorized = _authorize(root, preview)
             manifest_path = root / ".lks-sdd/project.json"
@@ -2321,9 +2327,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_synced_mapping_without_receipt_is_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-receipt-coherence")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-receipt-coherence", tracking_mode="jira-hybrid"
+            )
             _append_row(
                 root / "docs/lks-sdd/04-delivery/task-tracking.md",
                 "| Task | State | External ID | External key | URL | Projection fingerprint | Remote status | Last synced | Last operation | Notes |",
@@ -2340,9 +2346,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_synced_mapping_requires_observed_url_and_sync_date(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-complete-provenance")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-complete-provenance", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(
                 root,
@@ -2392,9 +2398,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-out-of-sync-provenance")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-out-of-sync-provenance", tracking_mode="jira-hybrid"
+            )
             _append_row(
                 root / "docs/lks-sdd/04-delivery/task-tracking.md",
                 mapping_header,
@@ -2409,9 +2415,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-unlinked-provenance")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-unlinked-provenance", tracking_mode="jira-hybrid"
+            )
             _append_row(
                 root / "docs/lks-sdd/04-delivery/task-tracking.md",
                 mapping_header,
@@ -2424,9 +2430,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-standalone-receipt")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-standalone-receipt", tracking_mode="jira-hybrid"
+            )
             _append_row(
                 root / "docs/lks-sdd/04-delivery/task-tracking.md",
                 "| ID | State | Task | Action | Preview hash | Projection fingerprint | Duplicate check | Authorized by role | Authorized on | External ID | External key | Recorded on | Result | Notes |",
@@ -2443,9 +2449,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-failed-anchor")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-failed-anchor", tracking_mode="jira-hybrid"
+            )
             preview = build_projection_preview(root, _manifest(root), ["TASK-001"])
             _record(root, preview, result="failed")
             _replace_row(
@@ -2477,9 +2483,9 @@ class TaskTrackingV14Tests(unittest.TestCase):
     def test_preview_cli_rejects_multiple_tasks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "tracking-single-preview")
-            materialize_ready_increment(root)
-            _configure(root, "jira-hybrid", decision="ADR-001")
+            materialize_ready_project(
+                root, "tracking-single-preview", tracking_mode="jira-hybrid"
+            )
             _, rejected = run_json(
                 TRACKING_SCRIPT,
                 "preview-sync",
@@ -2491,6 +2497,22 @@ class TaskTrackingV14Tests(unittest.TestCase):
                 expected_codes={2},
             )
             self.assertIn("exactamente un único", rejected["error"])
+
+
+TASK_TRACKING_SHARD_BOUNDARY = 4
+
+
+def load_tests(
+    loader: unittest.TestLoader,
+    standard_tests: unittest.TestSuite,
+    pattern: str | None,
+) -> unittest.TestSuite:
+    """Keep the first deterministic shard below the integration module budget."""
+    del standard_tests, pattern
+    names = loader.getTestCaseNames(TaskTrackingV14Tests)
+    return unittest.TestSuite(
+        TaskTrackingV14Tests(name) for name in names[:TASK_TRACKING_SHARD_BOUNDARY]
+    )
 
 if __name__ == "__main__":
     unittest.main()

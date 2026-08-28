@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create repository checkpoints and validate safe LKS-SDD 1.3-1.5 resumption."""
+"""Create repository checkpoints and validate safe LKS-SDD 1.5 resumption."""
 
 from __future__ import annotations
 
@@ -59,8 +59,8 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise ContinuityError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4", "1.5"}:
-        raise ContinuityError("Los checkpoints reanudables requieren schema 1.3, 1.4 o 1.5.")
+    if not isinstance(value, dict) or value.get("schema_version") != "1.5":
+        raise ContinuityError("Los checkpoints reanudables de 0.15 requieren schema 1.5.")
     return path, value, original
 
 
@@ -277,17 +277,23 @@ def _file_rows(
 
 
 def _task_snapshot(
-    root: Path, task_ids: list[str]
+    root: Path,
+    task_ids: list[str],
+    *,
+    source_overrides: dict[str, bytes] | None = None,
 ) -> tuple[str, str, str, list[tuple[Path, bytes, bytes]]]:
     deliverables: list[str] = []
     checks: list[str] = []
     issues: list[str] = []
     replacements: list[tuple[Path, bytes, bytes]] = []
+    sources = source_overrides or {}
     for task_id in task_ids:
         path = root / f"docs/lks-sdd/04-delivery/tasks/{task_id}.md"
         try:
             original = path.read_bytes()
-            text = original.decode("utf-8")
+            relative = path.relative_to(root).as_posix()
+            source = sources.get(relative, original)
+            text = source.decode("utf-8")
         except (OSError, UnicodeError) as exc:
             raise ContinuityError(f"No se puede leer {task_id}: {exc}") from exc
         for row in _table_rows(text, TASK_DETAIL_HEADERS_V13["deliverables"]):
@@ -359,12 +365,12 @@ def _task_snapshot(
         for row in _table_rows(text, TASK_DETAIL_HEADERS["issues"]):
             issues.append(
                 "| " + " | ".join([
-                    row.get("ID", "pending"), row.get("State", "open"), "task-problem",
+                    row.get("ID", "pending"), row.get("State", "active"), "task-problem",
                     row.get("Description", "pending"), row.get("Resolution condition", "pending"),
                     row.get("Owner", "pending-assignment"), row.get("Evidence", "pending"),
                 ]) + " |"
             )
-        replacements.append((path, original, original))
+        replacements.append((path, original, source))
     return (
         "\n".join(deliverables) or "| not-applicable | none | pending | pending | pending | no deliverable rows |",
         "\n".join(checks) or "| not-applicable | pending | check | not-run | pending | pending | no validation observed |",
@@ -382,6 +388,10 @@ def _render_checkpoint(
     planning: dict[str, Any],
     authorization: dict[str, Any],
     revision: dict[str, Any],
+    *,
+    task_source_overrides: dict[str, bytes] | None = None,
+    projected_delivery: dict[str, Any] | None = None,
+    extra_replacement_bytes: dict[str, bytes] | None = None,
 ) -> tuple[bytes, list[str], list[tuple[Path, bytes, bytes]]]:
     template = (
         Path(__file__).resolve().parents[1]
@@ -409,9 +419,13 @@ def _render_checkpoint(
         flags=re.MULTILINE,
     )
     task_ids = sorted(execution["task_ids"])
-    deliverables, checks, issues, task_replacements = _task_snapshot(root, task_ids)
+    deliverables, checks, issues, task_replacements = _task_snapshot(
+        root,
+        task_ids,
+        source_overrides=task_source_overrides,
+    )
     change_date = _change_date(args.date)
-    delivery = validate_delivery_contract(root, manifest)
+    delivery = projected_delivery or validate_delivery_contract(root, manifest)
     safe_independent = sorted(
         set(next_tasks(delivery, planning).get("ready", [])) - set(task_ids)
     )
@@ -434,17 +448,18 @@ def _render_checkpoint(
         "Next safe action": _safe_cell("--next-action", args.next_action),
     }
     updated_replacements: list[tuple[Path, bytes, bytes]] = []
-    for path, original, _ in task_replacements:
-        text = original.decode("utf-8")
+    for path, original, source in task_replacements:
+        text = source.decode("utf-8")
         updated = _replace_single_row(
             text, TASK_DETAIL_HEADERS_V13["continuity"], continuity_updates
         )
         updated = _frontmatter_date(updated, change_date)
         updated_replacements.append((path, original, updated.encode("utf-8")))
-    replacement_bytes = {
+    replacement_bytes = dict(extra_replacement_bytes or {})
+    replacement_bytes.update({
         path.relative_to(root).as_posix(): replacement
         for path, _, replacement in updated_replacements
-    }
+    })
     file_rows, changed_paths = _file_rows(
         root,
         task_ids,

@@ -665,7 +665,7 @@ class JiraCanonicalSourceRegressionTests(unittest.TestCase):
             self.assertFalse(_source_exists(root, manifest, "TASK-001", "PROB-001", details))
             self.assertFalse(_source_exists(root, manifest, "TASK-002", "PROB-001", {
                 "identity": [{"Task": "TASK-001"}],
-                "problems": [{"ID": "PROB-001", "State": "open"}],
+                "problems": [{"ID": "PROB-001", "State": "active"}],
             }))
             self.assertFalse(_source_exists(root, manifest, "TASK-001", "PROB-999", details))
 
@@ -1183,6 +1183,43 @@ class ExistingSchema15CompatibilityTests(unittest.TestCase):
             self.assertEqual(delivery["errors"], [])
             task = delivery["task_details"]["TASK-001"]
             self.assertEqual(task["problems"], task["issues"])
+
+
+INCREMENTAL_VERIFICATION_CLASSES = (
+    DeterministicBuildIdentityTests,
+    EmptyTraceabilityEvidenceRegressionTests,
+    EvidenceContractV0142RegressionTests,
+    ExistingSchema15CompatibilityTests,
+    G4TemplateContractTests,
+    JiraCanonicalSourceRegressionTests,
+    SliceVisualApplicabilityTests,
+)
+INCREMENTAL_VERIFICATION_SHARD_BOUNDARY = 6
+INCREMENTAL_VERIFICATION_SECOND_BOUNDARY = 12
+INCREMENTAL_VERIFICATION_THIRD_BOUNDARY = 18
+
+
+def incremental_verification_tests(
+    loader: unittest.TestLoader,
+) -> list[unittest.TestCase]:
+    """Return every incremental verification case in deterministic order."""
+    return [
+        test_class(name)
+        for test_class in INCREMENTAL_VERIFICATION_CLASSES
+        for name in loader.getTestCaseNames(test_class)
+    ]
+
+
+def load_tests(
+    loader: unittest.TestLoader,
+    standard_tests: unittest.TestSuite,
+    pattern: str | None,
+) -> unittest.TestSuite:
+    """Keep the first deterministic shard below the profile tier budget."""
+    del standard_tests, pattern
+    return unittest.TestSuite(
+        incremental_verification_tests(loader)[:INCREMENTAL_VERIFICATION_SHARD_BOUNDARY]
+    )
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from eval_support import (
     authorize_implementation,
     confirm_planning,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
 )
@@ -159,8 +160,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
     def test_two_certified_bindings_prepare_one_task_slice_without_collisions(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-multiprofile-") as temporary:
             root = Path(temporary)
-            initialize(root, "multi-profile")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(root, "multi-profile", confirm_plan=False)
             docs = root / "docs" / "lks-sdd"
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

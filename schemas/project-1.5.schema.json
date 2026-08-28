@@ -955,6 +955,17 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "verification_subject_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reuse_attestation": {
+          "type": "object"
+        },
+        "reused_evidence_id": {
+          "type": "string",
+          "pattern": "^EVID-[0-9]{3}$"
         }
       }
     },

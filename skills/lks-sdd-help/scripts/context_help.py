@@ -132,7 +132,7 @@ def _read_definition_status(
 ) -> tuple[dict[str, Any], str | None]:
     coverage: dict[str, Any] = {
         "available": False,
-        "source": "legacy-fallback",
+        "source": "not-assessed",
         "items": [],
         "sufficient": [],
         "needs_depth": [],
@@ -243,7 +243,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
         response["missing_or_limits"] = report.errors or ["No se pudo leer el índice operativo."]
         response["structural_validity"] = {
             "status": "invalid",
-            "mode": "compatibility" if manifest and manifest.get("schema_version") == "1.0" else "strict",
+            "mode": "strict",
             "checked_files": len(report.checked_files),
             "warnings": list(dict.fromkeys(report.warnings)),
             "diagnostic_summary": _diagnostic_summary(report.diagnostics),
@@ -268,7 +268,6 @@ def load_state(project_root: Path) -> dict[str, Any]:
     )
     active_increment = manifest.get("active_increment")
     schema_version = str(manifest.get("schema_version", ""))
-    compatibility_mode = schema_version in {"1.0", "1.1"}
     definition_coverage, next_decision = _read_definition_status(root, manifest)
     response = _base_response(
         root,
@@ -294,15 +293,11 @@ def load_state(project_root: Path) -> dict[str, Any]:
             },
             "structural_validity": {
                 "status": "valid",
-                "mode": "compatibility" if compatibility_mode else "strict",
+                "mode": "strict",
                 "checked_files": max(len(report.checked_files) - 1, 0),
                 "warnings": list(dict.fromkeys(report.warnings)),
                 "diagnostic_summary": _diagnostic_summary(report.diagnostics),
-                "meaning": (
-                    f"El índice y los Markdown son válidos en compatibilidad {schema_version}; los avisos señalan diferencias con el contrato activo 1.5 y esto no demuestra suficiencia semántica."
-                    if compatibility_mode
-                    else "El índice y los Markdown cumplen el contrato estructural estricto; esto no demuestra que la definición sea suficiente."
-                ),
+                "meaning": "El índice y los Markdown cumplen el contrato estructural estricto 1.5; esto no demuestra que la definición sea suficiente.",
             },
             "definition_coverage": definition_coverage,
             "readiness_snapshot": {
@@ -401,7 +396,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 else "El preflight estructural detecta vacíos antes de ejecutar la evaluación completa de readiness."
             ),
         }
-        if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
+        if schema_version == "1.5":
             planning = assess_planning(root, manifest, active_increment)
             delivery = validate_delivery_contract(root, manifest)
             response["planning_snapshot"] = {
@@ -423,7 +418,7 @@ def load_state(project_root: Path) -> dict[str, Any]:
                 response["missing_or_limits"].append(
                     "La planificación integral está " + planning["status"] + "; revise los huecos concretos de planning_snapshot."
                 )
-            if schema_version in {"1.4", "1.5"}:
+            if schema_version == "1.5":
                 increment_tasks = [
                     task_id
                     for task_id, row in delivery.get("tasks", {}).items()

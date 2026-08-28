@@ -9,6 +9,7 @@ import re
 from typing import Any, Iterable
 
 from profile_registry import load_profile_bundle
+from contract_engine import expand_reference_ids
 
 
 VISUAL_GATE_ID = "GATE-VISUAL-BROWSER-REVIEW"
@@ -16,34 +17,24 @@ REQUIREMENT_RE = re.compile(r"\b(?:FR|NFR|TR|BR)-[0-9]{3}\b")
 
 
 def _canonical_payload(value: Any) -> bytes:
-    return json.dumps(
-        value,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-    ).encode("utf-8")
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
 
 
-def selected_task_requirements(
-    task_ids: Iterable[str], delivery: dict[str, Any]
-) -> set[str]:
-    """Return requirements explicitly assigned to the exact TASK selection."""
-
+def selected_task_requirements(task_ids: Iterable[str], delivery: dict[str, Any]) -> set[str]:
     result: set[str] = set()
     for task_id in task_ids:
         details = delivery.get("task_details", {}).get(task_id, {})
-        definition_rows = details.get("definition", [])
-        if len(definition_rows) != 1:
-            continue
-        result.update(REQUIREMENT_RE.findall(definition_rows[0].get("Requirements", "")))
+        rows = details.get("definition", [])
+        if len(rows) == 1:
+            result.update(
+                expand_reference_ids(
+                    rows[0].get("Requirements", ""), {"FR", "NFR", "TR", "BR"}
+                )
+            )
     return result
 
 
-def canonical_top_level_profile_identity(
-    material_bindings: Iterable[dict[str, Any]],
-) -> dict[str, str]:
-    """Emit the top-level pair only when the selected identity is singular."""
-
+def canonical_top_level_profile_identity(material_bindings: Iterable[dict[str, Any]]) -> dict[str, str]:
     selected = list(material_bindings)
     if len(selected) != 1:
         return {}
@@ -55,30 +46,21 @@ def canonical_top_level_profile_identity(
 
 
 def _release_scope(task_ids: list[str], delivery: dict[str, Any]) -> tuple[bool, str | None]:
-    releases = {
-        delivery.get("tasks", {}).get(task_id, {}).get("Release")
-        for task_id in task_ids
-    }
+    releases = {delivery.get("tasks", {}).get(task_id, {}).get("Release") for task_id in task_ids}
     releases.discard(None)
     if len(releases) != 1:
         return False, None
     release_id = str(next(iter(releases)))
     release_tasks = {
-        candidate_id
-        for candidate_id, row in delivery.get("tasks", {}).items()
+        candidate_id for candidate_id, row in delivery.get("tasks", {}).items()
         if row.get("Release") == release_id
     }
     return bool(release_tasks) and set(task_ids) == release_tasks, release_id
 
 
 def visual_gate_applicability(
-    task_ids: Iterable[str],
-    delivery: dict[str, Any],
-    *,
-    release_interface_applicable: bool = False,
+    task_ids: Iterable[str], delivery: dict[str, Any], *, release_interface_applicable: bool = False
 ) -> dict[str, Any]:
-    """Derive the visual gate only from the exact TASK slice and release boundary."""
-
     selected = sorted(set(task_ids))
     release_scope, release_id = _release_scope(selected, delivery)
     triggers: list[str] = []
@@ -86,61 +68,35 @@ def visual_gate_applicability(
     for task_id in selected:
         task = delivery.get("tasks", {}).get(task_id, {})
         details = delivery.get("task_details", {}).get(task_id, {})
-        definition_rows = details.get("definition", [])
-        definition = definition_rows[0] if len(definition_rows) == 1 else {}
+        rows = details.get("definition", [])
+        definition = rows[0] if len(rows) == 1 else {}
         unit = delivery.get("units", {}).get(task.get("Unit"), {})
         binding = delivery.get("bindings", {}).get(task.get("Profile binding"), {})
-        textual_fields = {
+        fields = {
             "in-scope": definition.get("In scope", ""),
             "out-of-scope": definition.get("Out of scope", ""),
             "requirements": definition.get("Requirements", ""),
             "acceptance": definition.get("Acceptance", ""),
             "capabilities": definition.get("Required capabilities", ""),
             "gates": definition.get("Technical gates", ""),
-            "unit": " ".join(
-                str(unit.get(key, ""))
-                for key in (
-                    "Component",
-                    "Responsibility",
-                    "Runtime boundary",
-                    "Interfaces",
-                )
-            ),
+            "unit": " ".join(str(unit.get(key, "")) for key in ("Component", "Responsibility", "Runtime boundary", "Interfaces")),
         }
-        joined = " ".join(textual_fields.values())
+        joined = " ".join(fields.values())
         refs = sorted(set(re.findall(r"\b(?:UX|VIS)-[0-9]{3}\b", joined)))
         if refs:
             triggers.append(f"{task_id}:refs={','.join(refs)}")
         contract_ids = re.findall(
             r"\b(?:CAP|GATE)-[A-Z0-9-]{3,80}\b",
-            " ".join([textual_fields["capabilities"], textual_fields["gates"]]),
+            " ".join([fields["capabilities"], fields["gates"]]),
         )
-        direct_frontend = sorted(
-            {
-                item
-                for item in contract_ids
-                if {"FRONTEND", "BROWSER", "UI"} & set(item.split("-"))
-            }
-        )
+        direct_frontend = sorted({item for item in contract_ids if {"FRONTEND", "BROWSER", "UI"} & set(item.split("-"))})
         if direct_frontend:
             triggers.append(f"{task_id}:frontend-contract={','.join(direct_frontend)}")
-        in_scope_text = textual_fields["in-scope"].casefold()
-        backend_only = bool(
-            re.search(
-                r"\b(?:backend|api|worker|consumer|processor|database)\b",
-                in_scope_text,
-            )
-        ) and not bool(
-            re.search(
-                r"\b(?:frontend|browser|interfaz|interface|ui|spa|screen)\b",
-                in_scope_text,
-            )
+        in_scope = fields["in-scope"].casefold()
+        backend_only = bool(re.search(r"\b(?:backend|api|worker|consumer|processor|database)\b", in_scope)) and not bool(
+            re.search(r"\b(?:frontend|browser|interfaz|interface|ui|spa|screen)\b", in_scope)
         )
-        unit_text = textual_fields["unit"].casefold()
-        if not backend_only and re.search(
-            r"\b(?:frontend|browser|interfaz|interface|client-side|spa)\b",
-            unit_text,
-        ):
+        if not backend_only and re.search(r"\b(?:frontend|browser|interfaz|interface|client-side|spa)\b", fields["unit"].casefold()):
             triggers.append(f"{task_id}:unit={task.get('Unit')}")
         profile_id = str(binding.get("profile_id", ""))
         if not backend_only and profile_id:
@@ -156,49 +112,31 @@ def visual_gate_applicability(
             if "frontend" in roles and "backend" not in roles:
                 triggers.append(f"{task_id}:profile={profile_id}")
         inspected.append(task_id)
-
     if triggers:
         return {
             "gate_id": VISUAL_GATE_ID,
             "status": "applicable",
             "scope": "release" if release_scope else "task-slice",
             "task_ids": selected,
-            "reason": "selected-task-interface-signals:"
-            + ";".join(sorted(set(triggers))),
+            "reason": "selected-task-interface-signals:" + ";".join(sorted(set(triggers))),
         }
     if release_scope and release_interface_applicable:
         return {
-            "gate_id": VISUAL_GATE_ID,
-            "status": "applicable",
-            "scope": "release",
-            "task_ids": selected,
-            "reason": f"release-{release_id}-delivers-interface",
+            "gate_id": VISUAL_GATE_ID, "status": "applicable", "scope": "release",
+            "task_ids": selected, "reason": f"release-{release_id}-delivers-interface",
         }
     return {
         "gate_id": VISUAL_GATE_ID,
         "status": "not-applicable",
         "scope": "task-slice",
         "task_ids": selected,
-        "reason": (
-            "selected-tasks-have-no-ux-vis-frontend-browser-or-interface-unit-signals:"
-            + ",".join(inspected)
-        ),
+        "reason": "selected-tasks-have-no-ux-vis-frontend-browser-or-interface-unit-signals:" + ",".join(inspected),
     }
 
 
 def evidence_profile_identity_errors(
-    evidence: dict[str, Any],
-    manifest: dict[str, Any],
-    *,
-    require_canonical_single: bool = False,
+    evidence: dict[str, Any], manifest: dict[str, Any], *, require_canonical_single: bool = False
 ) -> list[str]:
-    """Validate top-level, binding, lock and build identity as one contract.
-
-    Evidence schema 1.2 remains readable when legacy top-level identity is null or
-    absent, but only if the binding identity is otherwise exact and unambiguous.
-    New single-binding evidence must use the canonical top-level pair.
-    """
-
     errors: list[str] = []
     binding_ids = evidence.get("profile_bindings")
     if binding_ids is None and evidence.get("schema_version") in {None, "1.2"}:
@@ -207,16 +145,14 @@ def evidence_profile_identity_errors(
         if not isinstance(top_id, str) or not top_id or not isinstance(top_version, str) or not top_version:
             return ["la evidencia 1.2 heredada necesita profile_id y profile_version"]
         matching = [
-            item
-            for item in manifest.get("technology", {}).get("profile_bindings", [])
+            item for item in manifest.get("technology", {}).get("profile_bindings", [])
             if isinstance(item, dict) and item.get("profile_id") == top_id
         ]
         if not matching and manifest.get("technology", {}).get("selected_profile") != top_id:
             return ["profile_id heredado no pertenece al contrato tecnológico"]
         return []
     if (
-        not isinstance(binding_ids, list)
-        or not binding_ids
+        not isinstance(binding_ids, list) or not binding_ids
         or not all(isinstance(item, str) and re.fullmatch(r"BIND-[0-9]{3}", item) for item in binding_ids)
         or len(set(binding_ids)) != len(binding_ids)
     ):
@@ -229,7 +165,6 @@ def evidence_profile_identity_errors(
     }
     if selected - set(manifest_bindings):
         errors.append("profile_bindings referencia bindings inexistentes")
-
     material = evidence.get("build_identity_material")
     if not isinstance(material, dict):
         return errors + ["build_identity_material es obligatorio"]
@@ -268,7 +203,6 @@ def evidence_profile_identity_errors(
     ):
         if set(values) != selected:
             errors.append(f"{label} no coincide con profile_bindings")
-
     identities: dict[str, tuple[str, str]] = {}
     for binding_id in sorted(selected):
         manifest_binding = manifest_bindings.get(binding_id, {})
@@ -289,11 +223,11 @@ def evidence_profile_identity_errors(
         for label, lock in (("profile_locks", declared_lock), ("build_identity_material.locks", built_lock)):
             if lock.get("profile_id") != profile_id:
                 errors.append(f"{binding_id}: {label} diverge del profile_id del binding")
-            lock_version = lock.get("profile_version")
-            if lock_version is None:
+            version = lock.get("profile_version")
+            if version is None:
                 if require_canonical_single:
                     errors.append(f"{binding_id}: {label} no declara profile_version")
-            elif lock_version != profile_version:
+            elif version != profile_version:
                 errors.append(f"{binding_id}: {label} diverge de profile_version")
         if declared_lock.get("sha256") != built_lock.get("sha256"):
             errors.append(f"{binding_id}: el digest del lock diverge del build")
@@ -303,7 +237,6 @@ def evidence_profile_identity_errors(
             expected_version = None
         if expected_version is not None and profile_version != expected_version:
             errors.append(f"{binding_id}: profile_version diverge del perfil publicado")
-
     top_id = evidence.get("profile_id")
     top_version = evidence.get("profile_version")
     top_missing = top_id is None and top_version is None
@@ -318,7 +251,6 @@ def evidence_profile_identity_errors(
             errors.append("profile_id/profile_version superiores divergen del binding seleccionado")
     elif not top_missing and (top_id, top_version) not in set(identities.values()):
         errors.append("la identidad superior heredada no pertenece a los bindings seleccionados")
-
     declared_build_id = evidence.get("build_id")
     if isinstance(declared_build_id, str) and declared_build_id.startswith("build-sha256:"):
         computed = "build-sha256:" + hashlib.sha256(_canonical_payload(material)).hexdigest()
@@ -327,34 +259,22 @@ def evidence_profile_identity_errors(
     return errors
 
 
-def evidence_gate_applicability_errors(
-    evidence: dict[str, Any], expected: dict[str, Any]
-) -> list[str]:
-    """Require one exact, deterministic applicability decision for the visual gate."""
-
+def evidence_gate_applicability_errors(evidence: dict[str, Any], expected: dict[str, Any]) -> list[str]:
     values = evidence.get("gate_applicability")
     if not isinstance(values, list):
         return ["gate_applicability debe ser una lista"]
-    visual = [
-        item
-        for item in values
-        if isinstance(item, dict) and item.get("gate_id") == VISUAL_GATE_ID
-    ]
+    visual = [item for item in values if isinstance(item, dict) and item.get("gate_id") == VISUAL_GATE_ID]
     if len(visual) != 1:
         return ["gate_applicability debe declarar exactamente una decisión visual"]
     if visual[0] != expected:
         return ["gate_applicability visual no coincide con el TASK slice"]
     checks = evidence.get("checks")
     visual_checks = [
-        item
-        for item in checks
+        item for item in checks
         if isinstance(item, dict) and item.get("name") == "visual-browser-review"
     ] if isinstance(checks, list) else []
     classification = evidence.get("classification")
-    if expected.get("status") == "applicable" and classification in {
-        "verified",
-        "verified-with-reservations",
-    }:
+    if expected.get("status") == "applicable" and classification in {"verified", "verified-with-reservations"}:
         if len(visual_checks) != 1 or visual_checks[0].get("status") != "passed":
             return ["un TASK slice visual requiere exactamente una revisión ejecutada y passed"]
     if expected.get("status") == "not-applicable" and visual_checks:

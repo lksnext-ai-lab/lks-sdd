@@ -17,6 +17,7 @@ from eval_support import (  # noqa: E402
     _append_row,
     authorize_implementation,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
 )
@@ -180,8 +181,7 @@ class TaskManagementV12Tests(unittest.TestCase):
     def test_execution_transition_requires_current_authorization(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-task-auth-") as directory:
             root = Path(directory)
-            initialize(root, "task-auth")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "task-auth")
 
             rejected = _run(
                 root,
@@ -206,8 +206,7 @@ class TaskManagementV12Tests(unittest.TestCase):
     def test_professional_transition_flow_records_blocker_and_done_evidence(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-task-v12-") as directory:
             root = Path(directory)
-            initialize(root, "task-flow")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "task-flow")
             authorize_implementation(root)
             _start_implementation(root)
 
@@ -231,7 +230,7 @@ class TaskManagementV12Tests(unittest.TestCase):
             detail = (
                 root / "docs/lks-sdd/04-delivery/tasks/TASK-001.md"
             ).read_text(encoding="utf-8")
-            self.assertIn("| PROB-001 | open |", detail)
+            self.assertIn("| PROB-001 | active |", detail)
             self.assertIn("External synthetic dependency unavailable", detail)
 
             _transition(root, "in-progress", "--progress", "50")
@@ -372,7 +371,7 @@ class TaskManagementV12Tests(unittest.TestCase):
             self.assertIn("problemas abiertos", open_problem["error"])
             _replace_task_row(
                 root,
-                "| PROB-001 | open |",
+                "| PROB-001 | active |",
                 "| PROB-001 | resolved | External synthetic dependency unavailable | Synthetic fixture validation | fixture-authority | Resolve blocker and record evidence | EVID-001 |",
             )
             applied = _transition(
@@ -423,8 +422,7 @@ class TaskManagementV12Tests(unittest.TestCase):
     def test_invalid_transition_and_table_injection_leave_files_unchanged(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-task-guard-") as directory:
             root = Path(directory)
-            initialize(root, "task-guard")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "task-guard")
             authorize_implementation(root)
             _start_implementation(root)
             _transition(
@@ -495,8 +493,7 @@ class TaskManagementV12Tests(unittest.TestCase):
     def test_done_reopens_only_for_an_exact_confirmed_original_contract_failure(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-task-reopen-") as directory:
             root = Path(directory)
-            initialize(root, "task-reopen")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "task-reopen")
             authorize_implementation(root)
             _start_implementation(root)
             _transition(root, "in-review")

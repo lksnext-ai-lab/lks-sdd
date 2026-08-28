@@ -18,6 +18,7 @@ from eval_support import (
     VERIFY_SCRIPT,
     authorize_implementation,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
     tree_digest,
@@ -35,95 +36,7 @@ PACKAGED_LOCK = (
 
 
 def _ready_project(root: Path) -> None:
-    initialize(root, "handoff-guards")
-    materialize_ready_increment(root)
-
-
-def _downgrade_ready_project_to_legacy(root: Path) -> None:
-    manifest_path = root / ".lks-sdd/project.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    current_version = manifest["plugin_version"]
-    manifest.update(
-        {
-            "schema_version": "1.0",
-            "method_version": "1.0.0",
-            "plugin_version": "0.6.1",
-            "open_blockers": [],
-            "readiness": {
-                "status": "not-assessed",
-                "assessed_increment": None,
-                "assessed_at": None,
-            },
-        }
-    )
-    for key in (
-        "active_plan", "active_task", "active_tasks", "delivery_governance",
-        "planning", "task_tracking", "authorizations", "executions",
-    ):
-        manifest.pop(key, None)
-    manifest["technology"].pop("profile_bindings", None)
-    manifest["version_control"] = {
-        "type": manifest["version_control"]["type"],
-        "origin": manifest["version_control"]["origin"],
-    }
-    v12_only = {
-        "ART-ARCH",
-        "ART-GOVERNANCE",
-        "ART-PLANS",
-        "ART-TASKS",
-        "ART-TEST-STRATEGY",
-        "ART-DEPLOYMENT",
-        "ART-PLANNING",
-        "ART-TRACKING",
-    }
-    manifest["artifacts"] = [
-        item for item in manifest["artifacts"] if item["id"] not in v12_only
-    ]
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-    for entry in manifest["artifacts"]:
-        path = root / entry["path"]
-        text = (
-            path.read_text(encoding="utf-8")
-            .replace('schema_version: "1.5"', 'schema_version: "1.0"', 1)
-            .replace('method_version: "1.5.0"', 'method_version: "1.0.0"', 1)
-            .replace(
-                f'created_with_plugin_version: "{current_version}"',
-                'created_with_plugin_version: "0.6.1"',
-                1,
-            )
-        )
-        if entry["id"] == "ART-INCREMENTS":
-            if "## Aplicabilidad por dominio" in text:
-                domain_start = text.index("## Aplicabilidad por dominio")
-                interface_start = text.index(
-                    "## Aplicabilidad de interfaz y contrato visual"
-                )
-                text = text[:domain_start] + text[interface_start:]
-            text = text.replace(
-                "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
-                "|---|---|---|---|---|---|---|---|",
-                "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
-                "|---|---|---|---|---|---|---|---|---|---|---|",
-                1,
-            ).replace(
-                "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | TEST-001 |",
-                "| INC-001 | confirmed | Submit and acknowledge one request | Reporting and administration | FR-001 | AC-001 | ADR-001 | not-applicable: no persistence | not-applicable: no identity | not-applicable: no integration | TEST-001 |",
-                1,
-            )
-        for source, replacement in {
-            "PLAN-001": "delivery horizon",
-            "REL-001": "release horizon",
-            "CHG-001": "governance transition",
-            "ENV-001": "verification environment",
-            "BIND-001": "technology binding",
-            "UNIT-001": "deployable unit",
-        }.items():
-            text = text.replace(source, replacement)
-        path.write_text(text, encoding="utf-8", newline="\n")
+    materialize_ready_project(root, "handoff-guards")
 
 
 def _load_verification_module():
@@ -287,11 +200,30 @@ def _write_evidence(
 
 
 class VerificationEvidenceGuardsTests(unittest.TestCase):
-    def test_preimplementation_keeps_valid_legacy_happy_path_clear(self) -> None:
+    def test_preimplementation_accepts_historical_materialization_provenance(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-trace-legacy-") as temporary:
             root = Path(temporary)
             _ready_project(root)
-            _downgrade_ready_project_to_legacy(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["plugin_version"] = "0.12.0"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            for artifact in manifest["artifacts"]:
+                artifact_path = root / artifact["path"]
+                text = artifact_path.read_text(encoding="utf-8")
+                artifact_path.write_text(
+                    text.replace(
+                        'created_with_plugin_version: "0.15.0"',
+                        'created_with_plugin_version: "0.12.0"',
+                        1,
+                    ),
+                    encoding="utf-8",
+                    newline="\n",
+                )
             before = tree_digest(root)
 
             validation_code, validation = run_json(VALIDATE_SCRIPT, str(root))
@@ -753,7 +685,5 @@ class HandoffContractDocumentationTests(unittest.TestCase):
         self.assertIn("todos ellos en `passed`", verification)
         self.assertIn("Ausencia, `{}`, edición o enlace", verification)
         self.assertIn("implementation.status=completed", verification)
-
-
 if __name__ == "__main__":
     unittest.main()

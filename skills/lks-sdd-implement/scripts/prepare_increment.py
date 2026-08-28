@@ -661,9 +661,9 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
     authorization = assess_authorization(
         manifest, planning, delivery.get("task_ids", [])
     )
-    if str(manifest.get("schema_version")) not in {"1.3", "1.4", "1.5"}:
+    if str(manifest.get("schema_version")) != "1.5":
         blockers.append(
-            "La implementación nueva requiere migrar a schema 1.3 o 1.4 para registrar cobertura, autorización y checkpoint."
+            "La implementación de 0.15 requiere schema 1.5; el runtime no migra proyectos."
         )
     elif planning.get("status") != "complete" and not planning.get(
         "partial_implementation_policy_satisfied"

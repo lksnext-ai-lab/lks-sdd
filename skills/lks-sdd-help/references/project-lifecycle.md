@@ -43,4 +43,4 @@ Una ejecución crea un checkpoint inicial y lo actualiza al empezar, terminar o 
 
 ## Evolución del contrato
 
-Las rutas nuevas y adopciones materializadas con 0.14.2 usan método 1.5.0 y esquema 1.5. Los proyectos 1.0/1.1/1.2/1.3/1.4/1.5 continúan en compatibilidad. Cada salto es explícito y reversible. El renderer histórico `1.2 → 1.3` conserva método 1.3.0/plugin 0.9.1; `1.3 → 1.4` añade tracking pendiente; `1.4 → 1.5` añade la política de reporting sin consultar Jira, inferir workflow, publicar comentarios o transicionar tareas.
+Las rutas nuevas y adopciones materializadas con 0.15.0 usan método 1.5.0 y esquema 1.5. Es el único contrato de proyecto aceptado. Actualizar el runtime no reescribe el proyecto ni su `plugin_version` de procedencia; un contrato anterior falla cerrado y requiere una normalización deliberada fuera del plugin 0.15.

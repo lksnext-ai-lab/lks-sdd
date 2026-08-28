@@ -15,6 +15,7 @@ from eval_support import (
     authorize_implementation,
     confirm_planning,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_alternative_stack,
     run_help,
@@ -86,8 +87,7 @@ class WorkflowTests(unittest.TestCase):
     def test_implementation_preview_blocks_a_changed_manifest(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            initialize(root, "stale-implementation-preview")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "stale-implementation-preview")
             authorize_implementation(root)
             _, preview = run_json(
                 IMPLEMENT_SCRIPT,
@@ -123,8 +123,7 @@ class WorkflowTests(unittest.TestCase):
     def test_implementation_preview_apply_and_verification_plan(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            initialize(root, "implementation-ready")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "implementation-ready")
             authorize_implementation(root)
             before = tree_digest(root)
             _, preview = run_json(
@@ -280,8 +279,7 @@ class WorkflowTests(unittest.TestCase):
     def test_unrelated_blocker_does_not_block_active_increment(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            initialize(root, "scoped-blocker")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "scoped-blocker")
             _append_row(
                 root / "docs" / "lks-sdd" / "04-delivery" / "increments.md",
                 "| ID | State | In scope",
@@ -324,8 +322,7 @@ class WorkflowTests(unittest.TestCase):
     def test_readiness_requires_reason_for_domain_non_applicability(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            initialize(root, "domain-applicability")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "domain-applicability")
             increments_path = (
                 root / "docs" / "lks-sdd" / "04-delivery" / "increments.md"
             )
@@ -356,8 +353,7 @@ class WorkflowTests(unittest.TestCase):
     def test_readiness_exposes_structured_diagnostics_on_invalid_contract(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            initialize(root, "readiness-diagnostics")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "readiness-diagnostics")
             increments_path = (
                 root / "docs" / "lks-sdd" / "04-delivery" / "increments.md"
             )
@@ -397,8 +393,9 @@ class WorkflowTests(unittest.TestCase):
     def test_readiness_accepts_business_requirements_in_contract_relations(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-test-") as directory:
             root = Path(directory)
-            initialize(root, "business-requirement")
-            materialize_ready_increment(root, confirm_plan=False)
+            materialize_ready_project(
+                root, "business-requirement", confirm_plan=False
+            )
             docs = root / "docs" / "lks-sdd"
             for relative in (
                 "02-requirements/functional-requirements.md",

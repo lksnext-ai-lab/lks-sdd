@@ -133,11 +133,8 @@ class StatePolicy:
     active: frozenset[str]
     pending: frozenset[str]
     inactive: frozenset[str]
-    legacy_classes: Mapping[str, str]
-
     def allowed_for(self, schema_version: str) -> frozenset[str]:
-        if schema_version == "1.0":
-            return self.allowed | frozenset(self.legacy_classes)
+        del schema_version
         return self.allowed
 
     def classify(self, value: str, schema_version: str) -> str:
@@ -147,8 +144,7 @@ class StatePolicy:
             return "pending"
         if value in self.inactive:
             return "inactive"
-        if schema_version == "1.0" and value in self.legacy_classes:
-            return self.legacy_classes[value]
+        del schema_version
         return "invalid"
 
 
@@ -162,7 +158,6 @@ class RelationSpec:
     require_defined: bool = True
     allow_empty: bool = False
     allow_applicability: frozenset[str] = frozenset()
-    allow_legacy_artifact_marker: bool = False
     targets_by_column: str | None = None
     targets_by_value: Mapping[str, frozenset[str]] = field(default_factory=dict)
 
@@ -355,11 +350,9 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
             "El catálogo documental debe usar catalog_version 1.5."
         )
     supported = value.get("supported_project_schemas")
-    if not isinstance(supported, list) or set(supported) != {
-        "1.0", "1.1", "1.2", "1.3", "1.4", "1.5"
-    }:
+    if supported != ["1.5"]:
         raise ContractEngineError(
-            "El catálogo debe declarar soporte explícito 1.0 a 1.5."
+            "El catálogo 0.15 debe declarar únicamente schema 1.5 como soportado."
         )
     inheritance = value.get("schema_inheritance")
     if inheritance != {
@@ -400,11 +393,6 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
             raise ContractEngineError(
                 f"La política {name} tiene clasificaciones de estado solapadas."
             )
-        legacy = raw.get("legacy_classes", {})
-        if not isinstance(legacy, dict) or any(
-            item not in {"active", "pending", "inactive"} for item in legacy.values()
-        ):
-            raise ContractEngineError(f"legacy_classes inválido en {name}.")
     artifacts = value.get("artifacts")
     if not isinstance(artifacts, dict) or not artifacts:
         raise ContractEngineError("El catálogo no declara artefactos.")
@@ -432,7 +420,8 @@ def _validate_catalog(value: Mapping[str, Any]) -> None:
                 or len(headers) != len(set(headers))
             ):
                 raise ContractEngineError(f"Cabeceras inválidas en {table_id}.")
-            if not isinstance(schemas, list) or not set(schemas) <= set(supported):
+            contract_fragments = {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}
+            if not isinstance(schemas, list) or not set(schemas) <= contract_fragments:
                 raise ContractEngineError(f"Schemas inválidos en {table_id}.")
             key = table.get("key")
             if key:
@@ -495,7 +484,6 @@ def load_registry(
             active=frozenset(raw["active"]),
             pending=frozenset(raw["pending"]),
             inactive=frozenset(raw["inactive"]),
-            legacy_classes=dict(raw.get("legacy_classes", {})),
         )
         for name, raw in value["state_policies"].items()
     }
@@ -530,9 +518,6 @@ def load_registry(
                     allow_empty=bool(raw_relation.get("allow_empty", False)),
                     allow_applicability=frozenset(
                         raw_relation.get("allow_applicability", [])
-                    ),
-                    allow_legacy_artifact_marker=bool(
-                        raw_relation.get("allow_legacy_artifact_marker", False)
                     ),
                     targets_by_column=raw_targets_by.get("column"),
                     targets_by_value={
@@ -650,13 +635,12 @@ def parse_reference_cell(
 ) -> ReferenceResult:
     """Parse one declared relation cell without accepting partial ranges.
 
-    ``strict`` accepts single IDs, comma/semicolon lists, and inclusive ``..``
-    ranges. ``compat`` additionally accepts the legacy Spanish ``a`` range and
-    old ``ART-*`` markers, but always emits a migration warning.
+    The parser accepts single IDs, comma/semicolon lists and inclusive ``..``
+    ranges. Obsolete aliases and implicit artifact markers fail closed.
     """
 
-    if mode not in {"strict", "compat"}:
-        raise ValueError("mode debe ser 'strict' o 'compat'.")
+    if mode != "strict":
+        raise ValueError("mode debe ser 'strict'.")
     raw = _clean_reference_text(value or "")
     lowered = raw.casefold()
     diagnostics: list[Diagnostic] = []
@@ -718,55 +702,28 @@ def parse_reference_cell(
 
     artifact_markers = ARTIFACT_MARKER_RE.findall(raw)
     if artifact_markers:
-        if mode == "compat" and relation.allow_legacy_artifact_marker:
-            raw = ARTIFACT_MARKER_RE.sub(" ", raw).strip()
-            diagnostics.append(
-                _diagnostic(
-                    "LKS-REF-LEGACY-ARTIFACT-MARKER",
-                    "Se ignoró un marcador ART-* heredado; no expande elementos implícitamente.",
-                    location=location,
-                    severity="warning",
-                    observed=artifact_markers,
-                    remediation="Elimine ART-* y enumere únicamente los IDs activos.",
-                )
+        diagnostics.append(
+            _diagnostic(
+                "LKS-REF-ARTIFACT-MARKER",
+                "Una relación activa no admite referencias ART-*.",
+                location=location,
+                observed=artifact_markers,
+                remediation="Enumere IDs de fila concretos o un rango canónico resuelto.",
             )
-        else:
-            diagnostics.append(
-                _diagnostic(
-                    "LKS-REF-ARTIFACT-MARKER",
-                    "Una relación activa no admite referencias ART-*.",
-                    location=location,
-                    observed=artifact_markers,
-                    remediation="Enumere IDs de fila concretos o un rango canónico resuelto.",
-                )
-            )
+        )
 
-    # 1.0 projects often separated IDs only with spaces. Accept this only in
-    # compatibility mode and normalize it to the declared list grammar.
     id_pattern = r"[A-Z][A-Z0-9]*-[0-9]{3}"
     whitespace_list = re.fullmatch(rf"\s*{id_pattern}(?:\s+{id_pattern})+\s*", raw)
     if whitespace_list:
-        if mode == "compat":
-            raw = ", ".join(re.findall(id_pattern, raw))
-            diagnostics.append(
-                _diagnostic(
-                    "LKS-REF-LEGACY-WHITESPACE-LIST",
-                    "Se normalizó una lista heredada separada solo por espacios.",
-                    location=location,
-                    severity="warning",
-                    remediation="Separe IDs con coma o punto y coma.",
-                )
+        diagnostics.append(
+            _diagnostic(
+                "LKS-REF-LIST-SEPARATOR",
+                "Las listas de referencias deben usar coma o punto y coma.",
+                location=location,
+                observed=value,
+                remediation="Use `FR-001, FR-002`.",
             )
-        else:
-            diagnostics.append(
-                _diagnostic(
-                    "LKS-REF-LIST-SEPARATOR",
-                    "Las listas de referencias deben usar coma o punto y coma.",
-                    location=location,
-                    observed=value,
-                    remediation="Use `FR-001, FR-002`.",
-                )
-            )
+        )
 
     parts = [item.strip() for item in re.split(r"[;,]", raw) if item.strip()]
     if not parts and not diagnostics:
@@ -784,34 +741,6 @@ def parse_reference_cell(
     syntax = "canonical"
     for part in parts:
         canonical_match = re.fullmatch(rf"({id_pattern})\s*\.\.\s*({id_pattern})", part)
-        legacy_match = re.fullmatch(
-            rf"({id_pattern})\s+a\s+({id_pattern})", part, re.IGNORECASE
-        )
-        if legacy_match:
-            if mode != "compat":
-                diagnostics.append(
-                    _diagnostic(
-                        "LKS-REF-LEGACY-RANGE",
-                        "El rango heredado con `a` no es válido en schema 1.1.",
-                        location=location,
-                        observed=part,
-                        expected="PREFIX-001..PREFIX-999",
-                        remediation="Sustituya `a` por el operador inclusivo `..`.",
-                    )
-                )
-                continue
-            canonical_match = legacy_match
-            syntax = "legacy"
-            diagnostics.append(
-                _diagnostic(
-                    "LKS-REF-LEGACY-RANGE",
-                    "Se expandió un rango heredado con `a`.",
-                    location=location,
-                    severity="warning",
-                    observed=part,
-                    remediation="Migre el rango al formato inclusivo `..`.",
-                )
-            )
         if canonical_match:
             start_text, end_text = canonical_match.groups()
             start = _parse_element_id(start_text)
@@ -974,6 +903,23 @@ def parse_reference_cell(
         syntax,
         deduplicate_diagnostics(diagnostics),
     )
+
+
+def expand_reference_ids(value: str, prefixes: Iterable[str]) -> set[str]:
+    """Expand IDs, lists and inclusive ranges through the canonical parser."""
+
+    relation = RelationSpec(
+        column="reference",
+        targets=frozenset(prefixes),
+        minimum=0,
+        maximum=None,
+        active_input=False,
+        require_defined=False,
+        allow_empty=True,
+        allow_applicability=frozenset({"pending", "not-applicable"}),
+    )
+    result = parse_reference_cell(value or "", relation)
+    return set(result.references) if result.valid else set()
 
 
 def _parse_scalar(value: str) -> Any:
@@ -1554,7 +1500,7 @@ def build_project_model(
                 row.cells.get(column, ""),
                 relation,
                 nodes if relation.require_defined else None,
-                mode="compat" if schema_version == "1.0" else "strict",
+                mode="strict",
                 location=location,
                 max_range_size=registry.max_range_size,
             )
@@ -2123,8 +2069,8 @@ def resolve_active_increment(model: ProjectModel, increment: str) -> ActiveContr
     )
 
 
-def legacy_messages(diagnostics: Iterable[Diagnostic]) -> dict[str, list[str]]:
-    """Provide backward-compatible string views without losing typed output."""
+def diagnostic_messages(diagnostics: Iterable[Diagnostic]) -> dict[str, list[str]]:
+    """Project typed diagnostics into the public string-message views."""
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -2176,7 +2122,7 @@ __all__ = [
     "build_project_model",
     "deduplicate_diagnostics",
     "document_fingerprint",
-    "legacy_messages",
+    "diagnostic_messages",
     "load_registry",
     "parse_reference_cell",
     "resolve_active_increment",

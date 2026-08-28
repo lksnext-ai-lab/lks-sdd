@@ -59,8 +59,8 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise TaskManagementError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.2", "1.3", "1.4", "1.5"}:
-        raise TaskManagementError("La gestión PLAN/TASK requiere schema 1.2, 1.3 o 1.4.")
+    if not isinstance(value, dict) or value.get("schema_version") != "1.5":
+        raise TaskManagementError("La gestión PLAN/TASK de 0.15 requiere schema 1.5.")
     return path, value, original
 
 
@@ -262,7 +262,7 @@ def _require_verified_done_evidence(
     verification = manifest.get("verification")
     if not isinstance(verification, dict) or verification.get("status") != "verified":
         raise TaskManagementError(
-            "done en schema 1.3/1.4 exige una verificación canónica con status=verified."
+            "done en schema 1.5 exige una verificación canónica con status=verified."
         )
     if verification.get("increment") != row.get("Increment"):
         raise TaskManagementError("La verificación no pertenece al incremento de la tarea.")
@@ -468,7 +468,7 @@ def _transition(
                 "Reabrir done exige --classification original-contract-failure y --change-id PCH-###."
             )
         if manifest.get("schema_version") not in {"1.3", "1.4", "1.5"}:
-            raise TaskManagementError("La reapertura controlada requiere schema 1.3 o 1.4.")
+            raise TaskManagementError("La reapertura controlada requiere schema 1.5.")
         planning = assess_planning(root, manifest, row["Increment"], release=row["Release"])
         matching_changes = [
             item
@@ -523,6 +523,9 @@ def _transition(
     if args.to_state == "blocked" and not blocker_text:
         raise TaskManagementError("blocked requiere --blocker.")
     if args.to_state == "done":
+        auto_verified_deliverables = bool(
+            getattr(args, "auto_verified_deliverables", False)
+        )
         if not (
             evidence
             and revision
@@ -593,7 +596,9 @@ def _transition(
             if item.get("State") not in {"done", "verified"}
             or not _observed_evidence(item.get("Evidence"))
         ]
-        if not deliverables or unfinished_deliverables:
+        if not deliverables or (
+            unfinished_deliverables and not auto_verified_deliverables
+        ):
             raise TaskManagementError(
                 "done exige todos los entregables terminados y con evidencia: "
                 + ", ".join(unfinished_deliverables or ["no deliverables declared"])
@@ -602,7 +607,7 @@ def _transition(
         open_issues = [
             item.get("ID", "PROB")
             for item in detail_contract.get("problems", detail_contract.get("issues", []))
-            if item.get("State") in {"open", "blocked"}
+            if item.get("State") == "active"
         ]
         if open_issues:
             raise TaskManagementError(
@@ -673,6 +678,18 @@ def _transition(
             "Updated": transition_date,
         },
     )
+    if args.to_state == "done" and bool(
+        getattr(args, "auto_verified_deliverables", False)
+    ):
+        for deliverable in validated.get("task_details", {}).get(
+            args.task, {}
+        ).get("deliverables", []):
+            detail_text = _replace_table_row(
+                detail_text,
+                TASK_DETAIL_HEADERS_V13["deliverables"],
+                deliverable["Deliverable"],
+                {"State": "verified", "Evidence": evidence},
+            )
     history = TASK_DETAIL_HEADERS["history"]
     detail_text = _append_table_row(
         detail_text,
@@ -696,7 +713,7 @@ def _transition(
             TASK_DETAIL_HEADERS["issues"],
             [
                 _next_problem_id(detail_text),
-                "open",
+                "active",
                 blocker_text,
                 reason,
                 actor,

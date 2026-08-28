@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "0.14.2",
-  "description": "Plugin Spec-anchored para Codex con slices incrementales, builds reproducibles, perfiles exactos y reporting Jira opcional.",
+  "version": "0.15.0",
+  "description": "Plugin Spec-anchored para Codex con estado management, fast path de tareas, verificación incremental segura, perfiles exactos y Jira opcional.",
   "author": {
     "name": "LKS"
   },

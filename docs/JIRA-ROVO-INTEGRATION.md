@@ -26,7 +26,7 @@ Markdown versionado del proyecto
 
 LKS-SDD permanece `skills-only`. Atlassian Rovo conserva su propia instalación, conexión, autenticación, permisos y ciclo de actualización. La ausencia del compañero no impide usar LKS-SDD en `repository-only`.
 
-No existe fallback silencioso: si un proyecto había elegido `jira-hybrid` y Rovo no está disponible, se conserva ese binding y el usuario debe completar la configuración del peer o pausar el reporting. Con gate `advisory`, el trabajo local válido continúa y la degradación queda visible. Antes del primer mapping durable todavía puede confirmarse otra configuración mediante el workflow local; desde que existe un external ID o cualquier recibo `SYNC-###`, 0.14.2 no permite abandonar Jira ni cambiar site, proyecto o tipo, porque no ofrece `detach`/`rebind`.
+No existe fallback silencioso: si un proyecto había elegido `jira-hybrid` y Rovo no está disponible, se conserva ese binding y el usuario debe completar la configuración del peer o pausar el reporting. Con gate `advisory`, el trabajo local válido continúa y la degradación queda visible. Antes del primer mapping durable todavía puede confirmarse otra configuración mediante el workflow local; desde que existe un external ID o cualquier recibo `SYNC-###`, 0.15.0 no permite abandonar Jira ni cambiar site, proyecto o tipo, porque no ofrece `detach`/`rebind`.
 
 ## Modos
 
@@ -120,7 +120,7 @@ El resumen usa `[TASK-###]` como prefijo y la descripción incluye objetivo, alc
 
 ## Flujo de reporting por hitos
 
-Los `source-ref` locales se validan por estructura y relación, no por coincidencias de texto. Un CKPT debe ser un archivo canónico sin enlaces, con frontmatter YAML semánticamente válido y una única identidad TASK/EXEC coincidente. El PROB de un evento `blocked` debe estar `open` o `mitigating` dentro de la ficha de esa TASK; uno resuelto, ajeno o inexistente se rechaza. El formato generado sin comillas y su variante YAML entrecomillada son equivalentes.
+Los `source-ref` locales se validan por estructura y relación, no por coincidencias de texto. Un CKPT debe ser un archivo canónico sin enlaces, con frontmatter YAML semánticamente válido y una única identidad TASK/EXEC coincidente. El PROB de un evento `blocked` debe estar `active` dentro de la ficha de esa TASK; uno resuelto, sustituido, histórico, ajeno o inexistente se rechaza. El formato generado sin comillas y su variante YAML entrecomillada son equivalentes.
 
 1. La implementación o verificación persiste primero el estado TASK y su `EXEC/CKPT/PROB/EVID`.
 2. `preview-event` genera para una sola TASK un comentario saneado y una transición opcional. Los eventos soportados son `started`, `progress`, `blocked`, `resumed`, `in-review`, `verification-pending`, `verification-failed` y `done`.
@@ -155,7 +155,7 @@ No se realizan borrados, archivados, asignaciones, worklogs ni escrituras masiva
 
 Los cambios remotos nunca actualizan automáticamente el contrato local. Un cambio Jira en un campo gobernado se reporta como drift y requiere reconciliación. Los campos no gobernados se conservan.
 
-Un binding con mappings o recibos durables no puede cambiar ni abandonar site, proyecto, tipo de issue o modo. La candidate 0.14.2 no implementa `detach`/`rebind`; reconciliar la procedencia o cerrar un `uncertain` no habilita después ese cambio. Una key observada solo puede actualizarse si conserva el prefijo del proyecto confirmado y queda reservada por el historial. Un rename o movimiento de proyecto queda fuera de soporte. El `projection_fingerprint` solo se materializa cuando todas las tareas proyectables están `in-sync`; el reporting conserva un estado separado `not-required`, `decision-required`, `ready`, `paused`, `pending`, `failed` o `reconciliation-required`.
+Un binding con mappings o recibos durables no puede cambiar ni abandonar site, proyecto, tipo de issue o modo. La candidate 0.15.0 no implementa `detach`/`rebind`; reconciliar la procedencia o cerrar un `uncertain` no habilita después ese cambio. Una key observada solo puede actualizarse si conserva el prefijo del proyecto confirmado y queda reservada por el historial. Un rename o movimiento de proyecto queda fuera de soporte. El `projection_fingerprint` solo se materializa cuando todas las tareas proyectables están `in-sync`; el reporting conserva un estado separado `not-required`, `decision-required`, `ready`, `paused`, `pending`, `failed` o `reconciliation-required`.
 
 `reconcile-result` no ejecuta una escritura: registra una lectura Rovo expresamente autorizada sobre una TASK cuyo mapping ya requiere observación. Usa `--anchor-sync-id`, que debe ser su `Last operation`, pertenecer a la misma TASK y estar cerrado; no depende de un preview actual y por eso conserva continuidad aunque el plan haya derivado. Puede resolver `uncertain`/`conflict` o registrar un cambio de key únicamente cuando el mismo `external_id`, el prefijo del proyecto confirmado y el marker exacto mantienen la identidad. Un resultado `succeeded` exige `LKS-SDD-PROJECT: <project_id>; TASK: TASK-###` y una huella observada igual a la del recibo ancla o a la proyección local actual. El namespace del proyecto evita colisiones cuando varios proyectos LKS comparten un proyecto Jira. Si coincide con el ancla pero no con la huella actual, el hecho remoto se conserva y el mapping queda `out-of-sync`; una huella ajena a ambas se registra como `conflict` o `uncertain`.
 
@@ -187,6 +187,8 @@ Los hitos usan el mismo principio. `record-event-result uncertain` bloquea el re
 - Separar permisos de lectura, búsqueda y escritura; una conexión existente no demuestra que una operación esté permitida.
 
 ## Compatibilidad y límites conocidos
+
+La experiencia 0.15 presenta una sincronización de hito como una única operación visible. Internamente conserva lectura fresca, comprobación de duplicado, preview, autorización cuando sea necesaria, escritura por el peer, relectura, recibo y reconciliación. Una política confirmada de sitio, proyecto, tareas, hitos, operación, clasificación y duración evita confirmaciones mecánicas repetidas; sin ella se pide una sola decisión para el evento completo. Los status/transition IDs siguen siendo observados, nunca inferidos por nombres.
 
 - Alcance inicial: Jira Cloud mediante Atlassian Rovo.
 - Jira Data Center no está declarado como soportado.

@@ -10,12 +10,12 @@ import os
 import re
 import sys
 import zlib
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from contract_engine import Diagnostic, build_project_model, legacy_messages
+from contract_engine import build_project_model, diagnostic_messages
 from evidence_contract import (
     evidence_gate_applicability_errors,
     evidence_profile_identity_errors,
@@ -24,19 +24,9 @@ from evidence_contract import (
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_SCHEMAS = {
-    "1.0": PLUGIN_ROOT / "schemas" / "project.schema.json",
-    "1.1": PLUGIN_ROOT / "schemas" / "project-1.1.schema.json",
-    "1.2": PLUGIN_ROOT / "schemas" / "project-1.2.schema.json",
-    "1.3": PLUGIN_ROOT / "schemas" / "project-1.3.schema.json",
-    "1.4": PLUGIN_ROOT / "schemas" / "project-1.4.schema.json",
     "1.5": PLUGIN_ROOT / "schemas" / "project-1.5.schema.json",
 }
 FRONTMATTER_SCHEMAS = {
-    "1.0": PLUGIN_ROOT / "schemas" / "frontmatter.schema.json",
-    "1.1": PLUGIN_ROOT / "schemas" / "frontmatter-1.1.schema.json",
-    "1.2": PLUGIN_ROOT / "schemas" / "frontmatter-1.2.schema.json",
-    "1.3": PLUGIN_ROOT / "schemas" / "frontmatter-1.3.schema.json",
-    "1.4": PLUGIN_ROOT / "schemas" / "frontmatter-1.4.schema.json",
     "1.5": PLUGIN_ROOT / "schemas" / "frontmatter-1.5.schema.json",
 }
 CATALOGS = json.loads(
@@ -64,15 +54,6 @@ def _id_re_for_schema(schema_version: str) -> re.Pattern[str]:
 
 ID_RE = _id_re_for_schema("1.5")
 VALID_ELEMENT_STATES = set(CATALOGS["element_states"])
-V14_ONLY_ELEMENT_STATES = {
-    "unlinked",
-    "synced",
-    "out-of-sync",
-    "conflict",
-    "failed",
-    "reconciliation-required",
-    "recorded",
-}
 CORE_ARTIFACTS = {
     "ART-STATUS": ("docs/lks-sdd/00-control/project-status.md", "project-status"),
     "ART-SCOPE": ("docs/lks-sdd/00-control/scope-register.md", "scope-register"),
@@ -364,24 +345,6 @@ class ValidationReport:
             "checked_files": self.checked_files,
             "diagnostics": self.diagnostics,
         }
-
-
-def _legacy_error_backing_diagnostic(
-    diagnostic: Diagnostic, legacy_errors: list[str]
-) -> int | None:
-    """Return the legacy error index that independently confirms a diagnostic."""
-
-    if diagnostic.code == "LKS-REF-UNDEFINED" and isinstance(
-        diagnostic.observed, str
-    ):
-        marker = f"referencia sin definición: {diagnostic.observed}"
-        for index, error in enumerate(legacy_errors):
-            if marker in error and (
-                diagnostic.location.path is None
-                or error.startswith(f"{diagnostic.location.path}:")
-            ):
-                return index
-    return None
 
 
 def _matches_type(value: Any, expected: str) -> bool:
@@ -1689,16 +1652,9 @@ def evidence_document_errors(value: Any, expected_id: str) -> list[str]:
         r"INC-[0-9]{3}", value.get("increment", "")
     ):
         errors.append("increment no usa INC-###")
-    if (
-        not isinstance(value.get("profile_id"), str)
-        or not value.get("profile_id", "").strip()
-    ):
-        errors.append("profile_id es obligatorio")
-    if (
-        not isinstance(value.get("profile_version"), str)
-        or not value.get("profile_version", "").strip()
-    ):
-        errors.append("profile_version es obligatorio")
+    # Evidence 1.2 predates the canonical top-level profile summary. Its
+    # identity is validated below from profile_bindings/build material, so the
+    # historical nullable fields must not be rejected before derivation.
     if value.get("revision") is not None and not isinstance(value.get("revision"), str):
         errors.append("revision debe ser texto o null")
     classification = value.get("classification")
@@ -1763,7 +1719,8 @@ def load_project_manifest(
     schema_path = PROJECT_SCHEMAS.get(schema_version)
     if schema_path is None:
         return data, [
-            f"project.schema_version={schema_version!r} no está soportado; use 1.0 a 1.5."
+            f"project.schema_version={schema_version!r} no está soportado por "
+            "LKS-SDD 0.15; se requiere schema 1.5 y method_version 1.5.0."
         ]
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -1803,26 +1760,9 @@ def validate_project(
     schema_version = str(manifest.get("schema_version", ""))
     id_re = _id_re_for_schema(schema_version)
     valid_element_states = set(VALID_ELEMENT_STATES)
-    if schema_version not in {"1.4", "1.5"}:
-        valid_element_states -= V14_ONLY_ELEMENT_STATES
     frontmatter_schema = json.loads(
         FRONTMATTER_SCHEMAS[schema_version].read_text(encoding="utf-8")
     )
-    if schema_version == "1.0":
-        report.warnings.append(
-            "Proyecto schema 1.0 validado en modo compatibilidad; prepare 1.1 "
-            "con `python \"<plugin-root>/scripts/lks_sdd.py\" migrate "
-            "\"<project-root>\" --target-schema 1.1 --dry-run`. Si "
-            "human_review_required no está vacío, resuelva las ambigüedades "
-            "en los Markdown 1.0 antes de aplicar; no se infieren confirmaciones."
-        )
-    elif schema_version == "1.1":
-        report.warnings.append(
-            "Proyecto schema 1.1 validado en modo compatible; la gobernanza de "
-            "entrega, perfiles por desplegable y PLAN/TASK requieren una migración "
-            "explícita 1.1 -> 1.2."
-        )
-
     for entry in artifacts if isinstance(artifacts, list) else []:
         if not isinstance(entry, dict):
             continue
@@ -2700,9 +2640,7 @@ def validate_project(
                 ):
                     evidence_errors.append("task_ids debe identificar el TASK slice")
                 elif delivery_contract is not None:
-                    unknown_tasks = sorted(
-                        set(task_ids) - set(delivery_contract.get("tasks", {}))
-                    )
+                    unknown_tasks = sorted(set(task_ids) - set(delivery_contract.get("tasks", {})))
                     wrong_increment = sorted(
                         task_id
                         for task_id in task_ids
@@ -2711,27 +2649,22 @@ def validate_project(
                     )
                     if unknown_tasks:
                         evidence_errors.append(
-                            "task_ids referencia tareas inexistentes: "
-                            + ", ".join(unknown_tasks)
+                            "task_ids referencia tareas inexistentes: " + ", ".join(unknown_tasks)
                         )
                     if wrong_increment:
                         evidence_errors.append(
-                            "task_ids contiene tareas de otro incremento: "
-                            + ", ".join(wrong_increment)
+                            "task_ids contiene tareas de otro incremento: " + ", ".join(wrong_increment)
                         )
                     if not unknown_tasks and not wrong_increment:
                         expected_applicability = visual_gate_applicability(
                             task_ids,
                             delivery_contract,
                             release_interface_applicable=(
-                                increments_v06_contract
-                                and applicability == "applicable"
+                                increments_v06_contract and applicability == "applicable"
                             ),
                         )
                         evidence_errors.extend(
-                            evidence_gate_applicability_errors(
-                                evidence, expected_applicability
-                            )
+                            evidence_gate_applicability_errors(evidence, expected_applicability)
                         )
                 for check in visual_checks:
                     if (
@@ -2955,53 +2888,13 @@ def validate_project(
         report.checked_files.extend(tracking["checked_files"])
 
     contract_model = build_project_model(root)
-    legacy_errors = list(report.errors)
-    backed_legacy_errors: set[int] = set()
-    contract_diagnostics: list[Diagnostic] = []
-    for item in contract_model.diagnostics:
-        if schema_version != "1.0" or item.severity != "error":
-            contract_diagnostics.append(item)
-            continue
-        legacy_error_index = _legacy_error_backing_diagnostic(item, legacy_errors)
-        if legacy_error_index is None:
-            contract_diagnostics.append(replace(item, severity="warning"))
-        else:
-            backed_legacy_errors.add(legacy_error_index)
-            contract_diagnostics.append(item)
+    contract_diagnostics = list(contract_model.diagnostics)
     report.diagnostics = [item.as_dict() for item in contract_diagnostics]
-    if schema_version == "1.0":
-        report.diagnostics.extend(
-            {
-                "code": "LKS-LEGACY-VALIDATION",
-                "severity": "error",
-                "stage": "structure",
-                "message": error,
-                "location": {},
-                "cause": "legacy-validator",
-            }
-            for index, error in enumerate(legacy_errors)
-            if index not in backed_legacy_errors
-        )
-        diagnostic_counts: dict[str, int] = {}
-        for item in contract_diagnostics:
-            if item.severity != "warning":
-                continue
-            diagnostic_counts[item.code] = diagnostic_counts.get(item.code, 0) + 1
-        compatibility_warnings = [
-            f"[{code}] Compatibilidad 1.0: {count} incidencia(s); "
-            "consulte diagnostics para ubicaciones y migre a 1.1 para aplicar "
-            "el contrato estricto."
-            for code, count in sorted(diagnostic_counts.items())
-        ]
-        report.warnings = list(
-            dict.fromkeys([*report.warnings, *compatibility_warnings])
-        )
-    else:
-        messages = legacy_messages(contract_diagnostics)
-        report.errors = list(dict.fromkeys([*report.errors, *messages["errors"]]))
-        report.warnings = list(
-            dict.fromkeys([*report.warnings, *messages["warnings"]])
-        )
+    messages = diagnostic_messages(contract_diagnostics)
+    report.errors = list(dict.fromkeys([*report.errors, *messages["errors"]]))
+    report.warnings = list(
+        dict.fromkeys([*report.warnings, *messages["warnings"]])
+    )
     report.checked_files = list(
         dict.fromkeys([*report.checked_files, *contract_model.checked_files])
     )

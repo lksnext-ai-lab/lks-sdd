@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.14.2` conserva M0–M5 y el contrato 1.5 como release candidate técnica para Codex. Mantiene 1.0–1.5 en compatibilidad, los perfiles Microsoft Entra como candidates y añade dos perfiles OIDC simulados active certificados exclusivamente para entornos no productivos, sin composición dinámica. Una contribución puede mejorar las seis skills, contratos, perfiles, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.14.2` no significa que M6, la publicación estable, la interoperabilidad real o el soporte corporativo estén completados o aprobados.
+La versión `0.15.0` conserva M0–M5 y el contrato 1.5 como release candidate técnica para Codex. Mantiene 1.0–1.5 en compatibilidad, los perfiles Microsoft Entra como candidates y añade dos perfiles OIDC simulados active certificados exclusivamente para entornos no productivos, sin composición dinámica. Una contribución puede mejorar las seis skills, contratos, perfiles, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.15.0` no significa que M6, la publicación estable, la interoperabilidad real o el soporte corporativo estén completados o aprobados.
 
 ## Contrato de cambio
 
@@ -18,7 +18,7 @@ La versión `0.14.2` conserva M0–M5 y el contrato 1.5 como release candidate t
 10. Mantener cualquier configuración y evidencia real del piloto fuera del repositorio; solo se versionan contratos, ejemplos vacíos y resultados agregados expresamente saneados.
 11. Cuando una evolución funcional amplíe el contrato, añadir una fuente versionada y su hash sin reescribir fuentes canónicas anteriores; cuando exista solo deriva, corregir implementación y evidencia.
 12. Mantener los activos visuales del proyecto consumidor ligados a Markdown canónico, con estado y procedencia; no tratar una generación de ImageGen como aprobación humana ni como prueba de accesibilidad.
-13. Mantener sincronizados `method_version: 1.5.0`, `schema_version: 1.5`, el catálogo declarativo, las plantillas y los diagnósticos para proyectos nuevos, sin retirar la validación compatible de 1.0–1.4.
+13. Mantener sincronizados `method_version: 1.5.0`, `schema_version: 1.5`, el catálogo declarativo, las plantillas y los diagnósticos; 0.15 no distribuye validación ni migradores de proyectos 1.0–1.4.
 14. Separar en contrato, ayuda y pruebas la preparación funcional de la especificación del soporte de automatización. Una limitación de perfil no debe degradar la suficiencia documental ni provocar una selección tecnológica automática.
 15. Probar la trazabilidad en `preimplementation` y `verification`: la primera termina en `TEST-###`; la segunda exige además una `EVID-###` ejecutada y aplicable. Un alcance vacío no puede superar ninguna fase.
 16. Ejecutar los comandos sobre proyectos consumidores mediante `python "<plugin-root>/scripts/lks_sdd.py" <comando> "<project-root>"`; `<plugin-root>` es la instalación que contiene el manifiesto, no el proyecto consumidor.

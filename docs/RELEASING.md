@@ -20,7 +20,7 @@ Antes de publicar una versión:
 1. Cerrar el alcance y actualizar versión, changelog, estado documental, ayudas y notas en `docs/releases/`.
 2. Ejecutar las validaciones de `docs/VALIDATION.md` y revisar el diff completo.
 3. Integrar el commit exacto en `main`, subirlo y comprobar que el árbol de trabajo está limpio y sin divergencia con `origin/main`.
-4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto, generar allí un reporte candidate 1.1 que atestigüe `HEAD`, índice y bytes reales sin ningún archivo no versionado preexistente —también los ignorados— y valide las certificaciones exactas de todos los perfiles active; generar dos veces los bundles con ese mismo reporte, verificar reproducibilidad, manifiesto y checksums, y mantenerlos fuera del árbol Git.
+4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto, superar primero `--preflight-only` y generar allí un reporte candidate 1.2 que atestigüe `HEAD`, índice, bytes reales y presupuestos sin ningún archivo no versionado preexistente —también los ignorados— y valide las certificaciones exactas de todos los perfiles active; generar dos veces los bundles con ese mismo reporte, verificar reproducibilidad, manifiesto y checksums, y mantenerlos fuera del árbol Git.
 5. Solo después de superar el harness limpio y el doble build, crear y subir una etiqueta anotada `vX.Y.Z` sobre ese commit.
 6. Crear la prerelease de GitHub desde la etiqueta remota existente, con las notas versionadas y los cinco assets candidate; verificar URL, commit, estado, cuerpo, hashes y descargas.
 
@@ -31,7 +31,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "0.14.2"
+$releaseVersion = "0.15.0"
 $releaseDate = "2026-08-28"
 $releaseTag = "v$releaseVersion"
 
@@ -118,11 +118,11 @@ Cada nota incluye como mínimo:
 - resultados de tests, evals y canales que siguen `not-run`;
 - vulnerabilidades conocidas y otras limitaciones;
 - instrucciones de actualización;
-- migración o declaración explícita de que no se requiere; preserve las reglas históricas 1.0 → 1.4. El salto 1.4 → 1.5 añade reporting con defaults conservadores, sin consultar Rovo, inferir workflow o publicar comentarios/transiciones, y conserva congeladas las salidas históricas;
+- declaración explícita de compatibilidad o incompatibilidad. Para 0.15, schema 1.5/método 1.5.0 es el único contrato de proyecto y no se distribuye migrador; la evidencia histórica compatible permanece inmutable;
 - rollback;
 - periodo o estado de soporte;
 - responsables confirmados o, si todavía no existen, el pendiente explícito.
 
-Para 0.14.2, las notas deben documentar además la aplicabilidad visual por slice, el material canónico del `build_id`, la separación de `verification_run_id` y el flujo G3 → plantilla G4 → evidencia completa. Deben declarar la compatibilidad de lectura de evidencia G4 1.0 y el carácter no aprobatorio de una plantilla 1.1 `draft`. También deben distinguir el OIDC simulado local de la interoperabilidad externa. Los perfiles simulados deben declarar `external_interoperability: not-applicable` y fallar cerrados en producción; no permiten declarar Microsoft Entra real como `passed`. Tampoco los tests sintéticos, previews y recibos permiten declarar Rovo/Jira real como `passed`: esa evidencia pertenece al canal humano/piloto o al gate externo exacto y permanece `not-run` hasta una ejecución autorizada. Las propuestas 1.4/1.5 deben citarse como candidate no canónicas mientras no exista una decisión metodológica separada.
+Para 0.15.0, las notas deben documentar los tiers, la selección por cambios, los presupuestos bloqueantes, el fail-fast y la compatibilidad histórica del quality report 1.1. También conservan los contratos 0.14: aplicabilidad visual por slice, material canónico del `build_id`, separación de `verification_run_id` y flujo G3 → plantilla G4 → evidencia completa. Deben distinguir el OIDC simulado local de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Microsoft Entra o Rovo/Jira real como `passed`; esa evidencia permanece `not-run` hasta una ejecución autorizada.
 
 El validador contractual compara dinámicamente la versión del manifiesto con la primera entrada del changelog y `docs/releases/vX.Y.Z.md`. La etiqueta se comprueba únicamente al publicar, porque los commits intermedios no constituyen una release.

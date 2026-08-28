@@ -16,7 +16,7 @@ from contract_engine import (  # noqa: E402
     active_contract_fingerprint,
     build_project_model,
     document_fingerprint,
-    legacy_messages,
+    diagnostic_messages,
     load_registry,
     parse_reference_cell,
     resolve_active_increment,
@@ -34,7 +34,7 @@ def _table(headers, rows):
     return "\n".join((header, separator, *values))
 
 
-def _artifact(artifact_id, artifact_type, tables, schema_version="1.1"):
+def _artifact(artifact_id, artifact_type, tables, schema_version="1.5"):
     frontmatter = (
         "---\n"
         f"artifact_id: {artifact_id}\n"
@@ -46,19 +46,19 @@ def _artifact(artifact_id, artifact_type, tables, schema_version="1.1"):
 
 
 class ContractRegistryTests(unittest.TestCase):
-    def test_registry_selects_schema_specific_contracts(self):
-        current = load_registry("1.1")
-        legacy = load_registry("1.0")
+    def test_registry_exposes_only_the_current_project_contract(self):
+        current = load_registry("1.5")
 
         constraints = current.artifacts["ART-CONSTRAINTS"].tables[0]
         self.assertEqual(constraints.key_prefixes, frozenset({"CON"}))
-        self.assertEqual(current.artifacts["ART-ARCH"].tables[0].headers[0], "Label")
-        self.assertEqual(legacy.artifacts["ART-ARCH"].tables[0].headers[0], "Reference")
+        self.assertEqual(current.artifacts["ART-ARCH"].tables[0].headers[0], "Unit")
         self.assertEqual(
             current.artifacts["ART-FR"].tables[0].state_policy,
             "content-lifecycle",
         )
         self.assertEqual(current.catalog_version, "1.5")
+        with self.assertRaises(ValueError):
+            load_registry("1.4")
 
     def test_packaged_catalog_and_schema_are_json(self):
         catalog = json.loads(
@@ -95,21 +95,6 @@ class ReferenceParserTests(unittest.TestCase):
         self.assertEqual(result.references, ("FR-001", "FR-002", "FR-003", "FR-005"))
         self.assertEqual(result.canonical, "FR-001..FR-003, FR-005")
 
-    def test_legacy_range_is_accepted_only_in_compatibility_mode(self):
-        strict = parse_reference_cell(
-            "FR-001 a FR-003", self.relation, self.known, mode="strict"
-        )
-        compat = parse_reference_cell(
-            "FR-001 a FR-003", self.relation, self.known, mode="compat"
-        )
-
-        self.assertFalse(strict.valid)
-        self.assertEqual(strict.references, ())
-        self.assertTrue(compat.valid)
-        self.assertEqual(compat.references, ("FR-001", "FR-002", "FR-003"))
-        warnings = [item for item in compat.diagnostics if item.severity == "warning"]
-        self.assertEqual([item.code for item in warnings], ["LKS-REF-LEGACY-RANGE"])
-
     def test_invalid_ranges_are_atomic(self):
         cases = (
             ("FR-003..FR-001", "LKS-REF-RANGE-ORDER", self.known),
@@ -122,15 +107,6 @@ class ReferenceParserTests(unittest.TestCase):
                 self.assertFalse(result.valid)
                 self.assertEqual(result.references, ())
                 self.assertIn(expected_code, _codes(result.diagnostics))
-
-    def test_legacy_whitespace_lists_warn_and_normalize(self):
-        result = parse_reference_cell(
-            "FR-001 FR-002", self.relation, self.known, mode="compat"
-        )
-
-        self.assertTrue(result.valid)
-        self.assertEqual(result.references, ("FR-001", "FR-002"))
-        self.assertIn("LKS-REF-LEGACY-WHITESPACE-LIST", _codes(result.diagnostics))
 
     def test_optional_cardinality_does_not_override_non_empty_contract(self):
         relation = RelationSpec(
@@ -160,7 +136,7 @@ class ReferenceParserTests(unittest.TestCase):
 
 
 class ProjectModelTests(unittest.TestCase):
-    def _write_project(self, root, artifacts, schema_version="1.1"):
+    def _write_project(self, root, artifacts, schema_version="1.5"):
         entries = []
         for artifact_id, artifact_type, relative, tables in artifacts:
             path = root / relative
@@ -172,7 +148,7 @@ class ProjectModelTests(unittest.TestCase):
             entries.append({"id": artifact_id, "path": relative, "required": True})
         manifest = {
             "project_id": "contract-engine-tests",
-            "method_version": "1.1",
+            "method_version": "1.5.0",
             "schema_version": schema_version,
             "route": "new-build",
             "baseline_id": "BASE-001",
@@ -751,8 +727,8 @@ class ProjectModelTests(unittest.TestCase):
         )
 
 
-class DiagnosticCompatibilityTests(unittest.TestCase):
-    def test_structured_diagnostics_have_deduplicated_legacy_views(self):
+class DiagnosticProjectionTests(unittest.TestCase):
+    def test_structured_diagnostics_have_deduplicated_message_views(self):
         diagnostic = Diagnostic(
             code="LKS-TEST",
             severity="error",
@@ -766,12 +742,12 @@ class DiagnosticCompatibilityTests(unittest.TestCase):
             ),
         )
 
-        legacy = legacy_messages((diagnostic, diagnostic))
+        projected = diagnostic_messages((diagnostic, diagnostic))
 
         self.assertEqual(diagnostic.as_dict()["location"]["row"], 9)
-        self.assertEqual(len(legacy["errors"]), 1)
-        self.assertEqual(legacy["errors"], legacy["blockers"])
-        self.assertEqual(legacy["warnings"], [])
+        self.assertEqual(len(projected["errors"]), 1)
+        self.assertEqual(projected["errors"], projected["blockers"])
+        self.assertEqual(projected["warnings"], [])
 
 
 if __name__ == "__main__":

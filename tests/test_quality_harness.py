@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -19,11 +20,14 @@ from run_quality_harness import (  # noqa: E402
     FIXTURE_MANIFEST_PATH,
     PILOT_SUMMARY_SCHEMA_PATH,
     UNIT_TEST_TIMEOUT_SECONDS,
+    SUITE_TIMEOUT_SECONDS,
+    HarnessError,
     _canonical_bytes,
     _load_json,
     _run_command,
     _sha256_bytes,
     _unit_test_metrics,
+    _validate_output_destination,
     build_report,
     compare_metrics,
     evaluate_activation,
@@ -39,6 +43,7 @@ from run_quality_harness import (  # noqa: E402
     validate_observations,
     validate_pilot_summary,
 )
+from quality_execution import ManagedCommandResult  # noqa: E402
 
 
 class QualityHarnessTests(unittest.TestCase):
@@ -120,7 +125,16 @@ class QualityHarnessTests(unittest.TestCase):
             stdout=json.dumps(payload),
             stderr="",
         )
-        with patch("run_quality_harness.subprocess.run", return_value=completed):
+        managed = ManagedCommandResult(
+            returncode=completed.returncode,
+            stdout=completed.stdout,
+            stderr=completed.stderr,
+            duration_seconds=0.1,
+            timed_out=False,
+            termination="normal",
+            process_cleanup="not-required",
+        )
+        with patch("run_quality_harness.run_managed_command", return_value=managed):
             check, parsed, _ = _run_command(
                 "reference-profile-complete",
                 ["synthetic"],
@@ -148,7 +162,16 @@ class QualityHarnessTests(unittest.TestCase):
             stdout=json.dumps(payload),
             stderr="",
         )
-        with patch("run_quality_harness.subprocess.run", return_value=completed):
+        managed = ManagedCommandResult(
+            returncode=completed.returncode,
+            stdout=completed.stdout,
+            stderr=completed.stderr,
+            duration_seconds=0.1,
+            timed_out=False,
+            termination="normal",
+            process_cleanup="not-required",
+        )
+        with patch("run_quality_harness.run_managed_command", return_value=managed):
             check, parsed, _ = _run_command(
                 "unit-tests",
                 ["synthetic"],
@@ -237,11 +260,11 @@ class QualityHarnessTests(unittest.TestCase):
 
     def test_default_baseline_is_the_last_published_release(self):
         baseline = _load_json(DEFAULT_BASELINE_PATH)
-        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.13.0.json")
-        self.assertEqual(baseline["plugin_version"], "0.13.0")
+        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.14.2.json")
+        self.assertEqual(baseline["plugin_version"], "0.14.2")
         self.assertEqual(
             baseline["source_commit"],
-            "accb675d7fb66ebf19e151064acc88ae9d4a8c44",
+            "a303370c2555236c1778f276e187a4bb3c1926f5",
         )
         self.assertEqual(
             {
@@ -254,8 +277,8 @@ class QualityHarnessTests(unittest.TestCase):
                 )
             },
             {
-                "unit_tests_total": 240,
-                "unit_tests_passed": 239,
+                "unit_tests_total": 263,
+                "unit_tests_passed": 262,
                 "unit_tests_skipped": 1,
                 "unit_tests_failed": 0,
             },
@@ -562,8 +585,8 @@ class QualityHarnessTests(unittest.TestCase):
             commands[check_id] = command
             timeouts[check_id] = timeout
             payload = (
-                {"results": []}
-                if check_id in {"unit-tests", "deterministic-evals"}
+                {"results": [], "passed": True, "duration_seconds": 0}
+                if check_id.startswith("unit-tests-") or check_id == "deterministic-evals"
                 else {"complete_gate": True, "passed": True, "checks": []}
                 if check_id == "reference-profile-complete"
                 else None
@@ -590,8 +613,11 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(
             command[profile_index + 1], "WEB-FASTAPI-REACT-KEYCLOAK-PG"
         )
-        self.assertEqual(timeouts["unit-tests"], UNIT_TEST_TIMEOUT_SECONDS)
-        self.assertGreaterEqual(UNIT_TEST_TIMEOUT_SECONDS, 1800)
+        self.assertEqual(
+            {name: timeouts[f"unit-tests-{name}"] for name in SUITE_TIMEOUT_SECONDS},
+            SUITE_TIMEOUT_SECONDS,
+        )
+        self.assertEqual(UNIT_TEST_TIMEOUT_SECONDS, 900)
 
     def test_reuse_profile_mode_checks_exact_certifications_without_docker(self):
         commands: dict[str, list[str]] = {}
@@ -599,8 +625,8 @@ class QualityHarnessTests(unittest.TestCase):
         def fake_run(check_id, command, json_output=False, timeout=600):
             commands[check_id] = command
             payload = (
-                {"results": []}
-                if check_id in {"unit-tests", "deterministic-evals"}
+                {"results": [], "passed": True, "duration_seconds": 0}
+                if check_id.startswith("unit-tests-") or check_id == "deterministic-evals"
                 else {"complete_gate": True, "passed": True}
                 if check_id == "reference-profile-complete"
                 else None
@@ -658,28 +684,36 @@ class QualityHarnessTests(unittest.TestCase):
                 "pending": [],
             },
         )
+        started = time.monotonic()
         with patch(
             "run_quality_harness.repository_binding",
             return_value={"commit": "c" * 40, "tree_state": "dirty"},
-        ), patch("run_quality_harness.run_automated", return_value=automated):
-            report = build_report(
-                "2026-08-20",
-                "candidate",
-                None,
-                None,
-                DEFAULT_BASELINE_PATH,
-                True,
-            )
+        ), patch("run_quality_harness.run_automated", return_value=automated) as run:
+            with self.assertRaisesRegex(HarnessError, "no se ha lanzado"):
+                build_report(
+                    "2026-08-20",
+                    "candidate",
+                    None,
+                    None,
+                    DEFAULT_BASELINE_PATH,
+                    True,
+                )
+        run.assert_not_called()
+        self.assertLess(time.monotonic() - started, 10)
 
-        self.assertEqual(report["source"]["tree_state"], "dirty")
-        self.assertEqual(report["gate"]["status"], "failed")
-        self.assertFalse(report["gate"]["eligible"])
-        self.assertTrue(
-            any(
-                "source.tree_state=dirty" in blocker
-                for blocker in report["gate"]["blockers"]
-            )
-        )
+    def test_existing_output_fails_before_building_report(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "existing.json"
+            output.write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(HarnessError, "ya existe"):
+                _validate_output_destination(output, False)
+            with patch.object(
+                sys,
+                "argv",
+                ["run_quality_harness.py", "--output", str(output)],
+            ), patch("run_quality_harness.build_report") as build:
+                self.assertEqual(main(), 2)
+            build.assert_not_called()
 
     def test_cli_returns_failure_for_dirty_source_gate(self):
         report = {
@@ -793,7 +827,15 @@ class QualityHarnessTests(unittest.TestCase):
 
     def test_quality_report_schema_requires_release_binding(self):
         schema = _load_json(PLUGIN_ROOT / "schemas" / "quality-report.schema.json")
-        self.assertEqual(schema["properties"]["schema_version"]["const"], "1.1")
+        self.assertEqual(schema["properties"]["schema_version"]["const"], "1.2")
+        self.assertIn("execution", schema["required"])
+        self.assertIn("performance", schema["required"])
+        historical = _load_json(
+            PLUGIN_ROOT / "schemas" / "quality-report-1.1.schema.json"
+        )
+        self.assertEqual(
+            historical["properties"]["schema_version"]["const"], "1.1"
+        )
         self.assertIn("source", schema["required"])
         source = schema["properties"]["source"]
         self.assertEqual(source["required"], ["commit", "tree_state"])

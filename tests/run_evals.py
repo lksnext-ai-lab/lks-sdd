@@ -12,25 +12,29 @@ from eval_support import (
     run_alternative_stack,
     run_help,
     run_insufficient_information,
+    run_management_comprehension,
     run_new_project,
     run_scoped_blocker,
 )
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     runners = [
         run_new_project,
         run_insufficient_information,
         run_alternative_stack,
         run_scoped_blocker,
         run_help,
+        run_management_comprehension,
     ]
     results = []
     for runner in runners:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-eval-") as directory:
             results.append(runner(Path(directory)))
     payload = {
-        "suite": "LKS-SDD M0-M1 deterministic invariants",
+        "suite": "LKS-SDD deterministic invariants and product comprehension",
         "passed": all(result["passed"] for result in results),
         "results": results,
     }

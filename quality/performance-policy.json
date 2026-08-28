@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "budgets_seconds": {
+    "fast": 120,
+    "integration": 480,
+    "package": 240,
+    "profile": 180,
+    "candidate": 900,
+    "profile_execute": 1800
+  },
+  "relative_regression_limit": 0.2,
+  "minimum_regression_seconds": 30,
+  "baseline": {
+    "version": "0.15.0-initial",
+    "reason": "Baseline inicial pendiente de tres ejecuciones limpias comparables de 0.15.0",
+    "runner_fingerprint": {
+      "os": "windows",
+      "architecture": "amd64",
+      "python": "3.14",
+      "implementation": "cpython",
+      "runner_class": "local"
+    },
+    "durations_seconds": {}
+  }
+}

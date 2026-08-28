@@ -21,6 +21,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from contract_engine import (  # noqa: E402
     build_project_model,
+    expand_reference_ids,
     is_pending_traceability_evidence,
     resolve_active_increment,
 )
@@ -55,6 +56,11 @@ from delivery_engine import (  # noqa: E402
 )
 from planning_engine import assess_authorization, assess_planning  # noqa: E402
 from profile_registry import load_profile_bundle  # noqa: E402
+from experience_engine import (  # noqa: E402
+    compare_subject,
+    is_administrative_path,
+    verification_subject,
+)
 
 EVIDENCE_RE = re.compile(r"^EVID-[0-9]{3}$")
 
@@ -329,6 +335,7 @@ def _visual_applicability(
     delivery: dict[str, Any],
 ) -> dict[str, Any]:
     """Derive visual review applicability from the exact selected TASK slice."""
+
     return visual_gate_applicability(
         task_ids,
         delivery,
@@ -562,6 +569,7 @@ def _updated_traceability(
     increment: str,
     evidence_id: str,
     requirement_ids: set[str] | None = None,
+    replace_evidence_ids: set[str] | None = None,
 ) -> tuple[bytes, bytes]:
     original = path.read_bytes()
     lines = original.decode("utf-8").splitlines()
@@ -573,9 +581,17 @@ def _updated_traceability(
             and cells[3] == increment
             and (
                 requirement_ids is None
-                or bool(set(re.findall(r"\b(?:FR|NFR|TR|BR)-[0-9]{3}\b", cells[0])) & requirement_ids)
+                or bool(
+                    expand_reference_ids(
+                        cells[0], {"FR", "NFR", "TR", "BR"}
+                    )
+                    & requirement_ids
+                )
             )
-            and is_pending_traceability_evidence(cells[5])
+            and (
+                is_pending_traceability_evidence(cells[5])
+                or cells[5] in (replace_evidence_ids or set())
+            )
         ):
             cells[5] = evidence_id
             lines[index] = "| " + " | ".join(cells) + " |"
@@ -879,7 +895,11 @@ def _has_unallowed_dirty_paths(
 ) -> bool:
     if revision.get("kind") != "git" or not revision.get("dirty"):
         return False
-    return bool(set(revision.get("dirty_paths", [])) - allowed_relative_paths)
+    return any(
+        path
+        for path in set(revision.get("dirty_paths", [])) - allowed_relative_paths
+        if not is_administrative_path(str(path))
+    )
 
 
 def _delivery_template(
@@ -955,6 +975,7 @@ def _run_v12(
         ("environment", "not-applicable"),
         ("delivery_evidence", None),
         ("materialize_delivery_template", None),
+        ("reuse_evidence", None),
     ):
         if not hasattr(args, name):
             setattr(args, name, default)
@@ -1135,6 +1156,54 @@ def _run_v12(
     )
     blockers.extend(contract_errors)
     revision_before = repository_revision(root)
+    # Verification planning/recording must remain read-only until the guarded
+    # transaction succeeds. Existing cache entries may be reused, but a miss
+    # cannot create an administrative file during a failed operation.
+    current_subject = verification_subject(root, persist_cache=False)
+    reuse_evidence: dict[str, Any] | None = None
+    reuse_comparison: dict[str, Any] | None = None
+    if args.reuse_evidence is not None:
+        if not EVIDENCE_RE.fullmatch(args.reuse_evidence):
+            raise VerificationError("--reuse-evidence debe usar EVID-###.")
+        previous_path = root / "docs/lks-sdd/evidence" / f"{args.reuse_evidence}.json"
+        if not previous_path.is_file():
+            raise VerificationError(f"No existe la evidencia a reutilizar: {previous_path}.")
+        try:
+            candidate = json.loads(previous_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise VerificationError(f"No se puede leer la evidencia reutilizable: {exc}") from exc
+        if not isinstance(candidate, dict):
+            raise VerificationError("La evidencia reutilizable no es un objeto JSON.")
+        reuse_errors = evidence_document_errors(candidate, args.reuse_evidence)
+        if reuse_errors:
+            raise VerificationError(
+                "La evidencia reutilizable no satisface el contrato: "
+                + "; ".join(reuse_errors)
+            )
+        if candidate.get("increment") != args.increment or set(candidate.get("task_ids", [])) != set(task_ids):
+            raise VerificationError(
+                "La evidencia reutilizable no corresponde al mismo incremento y TASK slice."
+            )
+        previous_subject = candidate.get("verification_subject")
+        if not isinstance(previous_subject, dict):
+            raise VerificationError(
+                "La evidencia no contiene verification_subject; vuelva a ejecutar los gates."
+            )
+        reuse_comparison = compare_subject(previous_subject, current_subject)
+        if reuse_comparison.get("reusable"):
+            reusable_checks = [
+                item
+                for item in candidate.get("checks", [])
+                if isinstance(item, dict)
+                and item.get("gate_id") != "GATE-DELIVERY-EVIDENCE"
+            ]
+            if (
+                candidate.get("classification")
+                in {"verified", "verified-with-reservations"}
+                and reusable_checks
+                and all(item.get("status") == "passed" for item in reusable_checks)
+            ):
+                reuse_evidence = candidate
     allowed_dirty_paths: set[str] = set()
     if args.delivery_evidence is not None:
         candidate = args.delivery_evidence if args.delivery_evidence.is_absolute() else root / args.delivery_evidence
@@ -1253,28 +1322,36 @@ def _run_v12(
     env = os.environ.copy()
     env["COMPOSE_PROJECT_NAME"] = f"lkssddverify{os.getpid()}"
     outcomes: list[dict[str, Any]] = []
-    try:
-        for check in profile_checks:
-            if check["requires_containers"] and not args.containers:
-                outcomes.append(
-                    {
-                        "name": check["name"],
-                        "gate_id": check["gate_id"],
-                        "binding_id": check["binding_id"],
-                        "status": "not-run",
-                        "reason": "container-authorization-missing",
-                    }
+    if reuse_evidence is not None:
+        outcomes = [
+            {**item, "reused_from": args.reuse_evidence}
+            for item in reuse_evidence.get("checks", [])
+            if isinstance(item, dict)
+            and item.get("gate_id") != "GATE-DELIVERY-EVIDENCE"
+        ]
+    else:
+        try:
+            for check in profile_checks:
+                if check["requires_containers"] and not args.containers:
+                    outcomes.append(
+                        {
+                            "name": check["name"],
+                            "gate_id": check["gate_id"],
+                            "binding_id": check["binding_id"],
+                            "status": "not-run",
+                            "reason": "container-authorization-missing",
+                        }
+                    )
+                    continue
+                outcomes.append(_execute_profile_command(check, env))
+        finally:
+            if args.containers:
+                outcomes.extend(
+                    _cleanup_profile_compositions(root, profile_checks, env)
                 )
-                continue
-            outcomes.append(_execute_profile_command(check, env))
-    finally:
-        if args.containers:
-            outcomes.extend(
-                _cleanup_profile_compositions(root, profile_checks, env)
-            )
 
     limitations: list[str] = []
-    if visual_required:
+    if visual_required and reuse_evidence is None:
         visual, visual_limitations = _visual_evidence_check(
             root,
             args.increment,
@@ -1286,7 +1363,7 @@ def _run_v12(
         outcomes.append(visual)
         limitations.extend(visual_limitations)
     delivery_value: dict[str, Any] | None = None
-    if args.delivery_evidence is not None:
+    if args.delivery_evidence is not None and reuse_evidence is None:
         candidate = (
             args.delivery_evidence
             if args.delivery_evidence.is_absolute()
@@ -1338,6 +1415,10 @@ def _run_v12(
         limitations.append(
             "G4 de promoción/despliegue no se evaluó; no se aportó --delivery-evidence."
         )
+    if reuse_evidence is not None:
+        limitations.append(
+            f"Gates técnicos reutilizados desde {args.reuse_evidence}; sujeto técnico y contrato sin cambios."
+        )
     required_failures = [
         item
         for item in outcomes
@@ -1369,16 +1450,23 @@ def _run_v12(
         classification = "verified-with-reservations"
     else:
         classification = "verified"
-    artifact_digests = _artifact_digests(
-        root, bindings, profile_checks
+    artifact_digests = (
+        list(reuse_evidence.get("artifact_digests", []))
+        if reuse_evidence is not None
+        else _artifact_digests(root, bindings, profile_checks)
     )
     tree_id = str(revision_after["tree_id"])
     tree_sha256 = str(revision_after["tree_sha256"])
-    build_material = _build_identity_material(
-        revision_after, lock_details, bindings, artifact_digests
-    )
-    build_id = _build_id(build_material)
-    verification_run_id = _verification_run_id(outcomes, env["COMPOSE_PROJECT_NAME"])
+    if reuse_evidence is not None:
+        build_material = dict(reuse_evidence.get("build_identity_material", {}))
+        build_id = str(reuse_evidence.get("build_id", ""))
+        verification_run_id = str(reuse_evidence.get("verification_run_id", ""))
+    else:
+        build_material = _build_identity_material(
+            revision_after, lock_details, bindings, artifact_digests
+        )
+        build_id = _build_id(build_material)
+        verification_run_id = _verification_run_id(outcomes, env["COMPOSE_PROJECT_NAME"])
     if delivery_value is not None:
         delivery_mismatches: list[str] = []
         if delivery_value.get("revision") != revision_after["revision"]:
@@ -1442,6 +1530,8 @@ def _run_v12(
             if selected_execution is not None
             else None
         ),
+        "verification_subject": current_subject,
+        "reuse_attestation": reuse_comparison if reuse_evidence is not None else None,
     }
     if args.materialize_delivery_template is not None:
         if delivery_value is not None:
@@ -1503,12 +1593,14 @@ def _run_v12(
         args.increment,
         args.record_evidence,
         selected_requirements,
+        {args.reuse_evidence} if reuse_evidence is not None else None,
     )
     selected_identities = [
         item
         for item in build_material.get("profile_bindings", [])
         if isinstance(item, dict)
-        and item.get("binding_id") in {binding["binding_id"] for binding in bindings}
+        and item.get("binding_id")
+        in {binding["binding_id"] for binding in bindings}
     ]
     evidence = {
         "schema_version": "1.2",
@@ -1540,6 +1632,15 @@ def _run_v12(
         "checks": outcomes,
         "gate_applicability": [visual_applicability],
         "limitations": limitations,
+        "verification_subject": current_subject,
+        **(
+            {
+                "reuse_attestation": reuse_comparison,
+                "reused_evidence_id": args.reuse_evidence,
+            }
+            if reuse_evidence is not None
+            else {}
+        ),
     }
     evidence.update(canonical_top_level_profile_identity(selected_identities))
     manifest_new = json.loads(json.dumps(manifest))
@@ -1566,6 +1667,15 @@ def _run_v12(
         "gate_ids": evidence["gate_ids"],
         "evidence_ids": [args.record_evidence],
         "limitations": limitations,
+        "verification_subject_hash": current_subject["verification_subject_hash"],
+        **(
+            {
+                "reuse_attestation": reuse_comparison,
+                "reused_evidence_id": args.reuse_evidence,
+            }
+            if reuse_evidence is not None
+            else {}
+        ),
     }
     if manifest.get("schema_version") in {"1.3", "1.4", "1.5"}:
         for execution in manifest_new.get("executions", []):
@@ -2044,6 +2154,13 @@ def main() -> int:
         ),
     )
     parser.add_argument("--record-evidence")
+    parser.add_argument(
+        "--reuse-evidence",
+        help=(
+            "EVID-### anterior con verification_subject; reutiliza solo checks passed "
+            "cuando el sujeto y el contrato siguen idénticos."
+        ),
+    )
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
     try:

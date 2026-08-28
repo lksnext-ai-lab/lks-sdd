@@ -74,24 +74,37 @@ class CheckoutPortabilityTests(unittest.TestCase):
             git_env["GIT_CONFIG_NOSYSTEM"] = "1"
             git_env["GIT_CONFIG_GLOBAL"] = str(isolated_config)
 
-            listed = self._git(
-                "ls-files",
-                "--cached",
-                "--others",
-                "--exclude-standard",
-                "-z",
-                cwd=PLUGIN_ROOT,
-                env=git_env,
-                text=False,
-            )
-            repository_paths = sorted(
-                {
-                    Path(os.fsdecode(raw_path))
-                    for raw_path in listed.stdout.split(b"\0")
-                    if raw_path
-                },
-                key=lambda path: path.as_posix(),
-            )
+            if (PLUGIN_ROOT / ".git").exists():
+                listed = self._git(
+                    "ls-files",
+                    "--cached",
+                    "--others",
+                    "--exclude-standard",
+                    "-z",
+                    cwd=PLUGIN_ROOT,
+                    env=git_env,
+                    text=False,
+                )
+                repository_paths = sorted(
+                    {
+                        Path(os.fsdecode(raw_path))
+                        for raw_path in listed.stdout.split(b"\0")
+                        if raw_path
+                        and (PLUGIN_ROOT / Path(os.fsdecode(raw_path))).is_file()
+                    },
+                    key=lambda path: path.as_posix(),
+                )
+            else:
+                repository_paths = sorted(
+                    (
+                        path.relative_to(PLUGIN_ROOT)
+                        for path in PLUGIN_ROOT.rglob("*")
+                        if path.is_file()
+                        and "__pycache__" not in path.parts
+                        and path.suffix != ".pyc"
+                    ),
+                    key=lambda path: path.as_posix(),
+                )
             self.assertIn(Path(".gitattributes"), repository_paths)
 
             source.mkdir()

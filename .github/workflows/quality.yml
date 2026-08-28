@@ -1,0 +1,103 @@
+name: quality
+
+env:
+  LKS_SDD_RUNNER_CLASS: github-windows-latest
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Fast and impacted validation
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python -X utf8 scripts/run_fast_validation.py --changed-from $env:BASE_SHA --json
+
+  main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Contract
+        run: python -X utf8 scripts/validate_plugin_contract.py .
+      - name: Integration suite
+        run: python -X utf8 tests/run_unit_tests.py --suite integration --json-out ${{ runner.temp }}\integration.json
+      - name: Installed-package suite
+        run: python -X utf8 tests/run_unit_tests.py --suite package --json-out ${{ runner.temp }}\package.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: main-quality-results
+          path: |
+            ${{ runner.temp }}\integration.json
+            ${{ runner.temp }}\package.json
+          retention-days: 30
+
+  release-candidate:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Clean preflight
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yyyy-MM-dd"
+          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --preflight-only
+      - name: Candidate harness
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yyyy-MM-dd"
+          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --baseline quality\baselines\v0.13.0.json --profile-mode reuse --output "$env:RUNNER_TEMP\quality-report.json"
+      - name: Reproducible double build and clean install
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $commit = (git rev-parse HEAD).Trim()
+          python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-a"
+          python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-b"
+          if (Compare-Object (Get-Content "$env:RUNNER_TEMP\candidate-a\SHA256SUMS") (Get-Content "$env:RUNNER_TEMP\candidate-b\SHA256SUMS")) { throw "Los builds no son reproducibles." }
+          $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
+          $install = "$env:RUNNER_TEMP\clean-install"
+          Expand-Archive "$env:RUNNER_TEMP\candidate-a\lks-sdd-plugin-v$version.zip" -DestinationPath $install
+          python -X utf8 "$install\lks-sdd\scripts\validate_plugin_contract.py" "$install\lks-sdd"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-candidate-evidence
+          path: |
+            ${{ runner.temp }}\quality-report.json
+            ${{ runner.temp }}\candidate-a
+          retention-days: 90

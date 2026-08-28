@@ -10,10 +10,9 @@ from pathlib import Path
 from typing import Any
 
 from contract_engine import (
-    RelationSpec,
     build_project_model,
+    expand_reference_ids,
     is_pending_traceability_evidence,
-    parse_reference_cell,
     resolve_active_increment,
 )
 from validate_project import (
@@ -26,19 +25,7 @@ from evidence_contract import selected_task_requirements
 
 
 def _ids(value: str, prefixes: set[str]) -> set[str]:
-    relation = RelationSpec(
-        column="traceability",
-        targets=frozenset(prefixes),
-        minimum=0,
-        maximum=None,
-        active_input=False,
-        require_defined=False,
-        allow_empty=True,
-        allow_applicability=frozenset({"pending", "not-applicable"}),
-        allow_legacy_artifact_marker=True,
-    )
-    result = parse_reference_cell(value or "", relation, mode="compat")
-    return set(result.references) if result.valid else set()
+    return expand_reference_ids(value, prefixes)
 
 
 def _resolved_phase(manifest: dict[str, Any], requested: str) -> str:
@@ -190,17 +177,11 @@ def check(
         if unknown:
             gap("TRACE-TASK-UNDEFINED", "TASK no definida: " + ", ".join(unknown))
         if wrong_increment:
-            gap(
-                "TRACE-TASK-SCOPE",
-                "TASK fuera del incremento solicitado: " + ", ".join(wrong_increment),
-            )
+            gap("TRACE-TASK-SCOPE", "TASK fuera del incremento solicitado: " + ", ".join(wrong_increment))
         if not unknown and not wrong_increment:
             scoped_requirements = selected_task_requirements(task_ids, delivery)
             if not scoped_requirements:
-                gap(
-                    "TRACE-TASK-EMPTY",
-                    "El TASK slice no enlaza requisitos trazables.",
-                )
+                gap("TRACE-TASK-EMPTY", "El TASK slice no enlaza requisitos trazables.")
     if increment is not None:
         increment_definition = definitions.get(increment)
         if (

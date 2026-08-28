@@ -175,166 +175,30 @@ class DefinitionExperienceTests(unittest.TestCase):
             self.assertIn("no se persiste", process.stdout)
             self.assertEqual(before, tree_digest(root))
 
-    def test_context_help_uses_conservative_legacy_fallback(self):
+    def test_unsupported_project_schema_is_rejected_without_mutation(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-definition-") as directory:
             root = Path(directory)
-            initialize(root, "legacy-coverage")
+            initialize(root, "unsupported-schema")
             manifest_path = root / ".lks-sdd" / "project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            current_version = manifest["plugin_version"]
-            manifest["method_version"] = "1.0.0"
-            manifest["schema_version"] = "1.0"
-            manifest["plugin_version"] = "0.5.0"
-            manifest["open_blockers"] = ["OPEN-001"]
-            manifest["readiness"] = {
-                "status": "not-assessed",
-                "assessed_increment": None,
-                "assessed_at": None,
-            }
-            for key in (
-                "active_plan", "active_task", "active_tasks", "delivery_governance",
-                "planning", "task_tracking", "authorizations", "executions",
-            ):
-                manifest.pop(key, None)
-            manifest["technology"].pop("profile_bindings", None)
-            manifest["version_control"] = {
-                "type": manifest["version_control"]["type"],
-                "origin": manifest["version_control"]["origin"],
-            }
-            v12_only = {
-                "ART-ARCH",
-                "ART-GOVERNANCE",
-                "ART-PLANS",
-                "ART-TASKS",
-                "ART-TEST-STRATEGY",
-                "ART-DEPLOYMENT",
-                "ART-PLANNING",
-                "ART-TRACKING",
-            }
-            manifest["artifacts"] = [
-                item for item in manifest["artifacts"] if item["id"] not in v12_only
-            ]
+            manifest["method_version"] = "1.4.0"
+            manifest["schema_version"] = "1.4"
             manifest_path.write_text(
                 json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8",
                 newline="\n",
             )
-            docs = root / "docs" / "lks-sdd"
-            for artifact in manifest["artifacts"]:
-                artifact_path = root / artifact["path"]
-                artifact_text = artifact_path.read_text(encoding="utf-8")
-                artifact_text = artifact_text.replace(
-                    'schema_version: "1.5"', 'schema_version: "1.0"', 1
-                ).replace(
-                    'method_version: "1.5.0"', 'method_version: "1.0.0"', 1
-                ).replace(
-                    f'created_with_plugin_version: "{current_version}"',
-                    'created_with_plugin_version: "0.5.0"',
-                    1,
-                )
-                artifact_path.write_text(
-                    artifact_text, encoding="utf-8", newline="\n"
-                )
-
-            increments_path = docs / "04-delivery" / "increments.md"
-            increments = increments_path.read_text(encoding="utf-8")
-            increments = increments.replace(
-                "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
-                "|---|---|---|---|---|---|---|---|",
-                "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
-                "|---|---|---|---|---|---|---|---|---|---|---|",
-                1,
-            )
-            increments_path.write_text(increments, encoding="utf-8", newline="\n")
-
-            status_path = docs / "00-control" / "project-status.md"
-            status = status_path.read_text(encoding="utf-8")
-            legacy_status = status.split(
-                "## Cobertura cualitativa para el siguiente paso", 1
-            )[0]
-            legacy_status += (
-                "La inicialización no confirma decisiones ni autoriza generación "
-                "de código.\n"
-            )
-            status_path.write_text(
-                legacy_status, encoding="utf-8", newline="\n"
-            )
-
             before = tree_digest(root)
-            _, validation = run_json(VALIDATE_SCRIPT, str(root))
-            _, result = run_json(HELP_SCRIPT, str(root))
-            after = tree_digest(root)
 
-            self.assertTrue(validation["valid"])
-            self.assertEqual(validation["errors"], [])
-            self.assertTrue(
-                any(
-                    "Compatibilidad 1.0" in warning
-                    for warning in validation["warnings"]
-                )
-            )
-            self.assertTrue(
-                all(
-                    item["severity"] != "error"
-                    for item in validation["diagnostics"]
-                )
-            )
-            structural = result["structural_validity"]
-            self.assertEqual(structural["status"], "valid")
-            self.assertEqual(structural["mode"], "compatibility")
-            self.assertEqual(structural["warnings"], validation["warnings"])
-            self.assertTrue(structural["diagnostic_summary"])
-            self.assertEqual(
-                sum(item["count"] for item in structural["diagnostic_summary"]),
-                len(validation["diagnostics"]),
-            )
-            coverage = result["definition_coverage"]
-            self.assertFalse(coverage["available"])
-            self.assertEqual(coverage["source"], "legacy-fallback")
-            self.assertIn("no permite inferir suficiencia", coverage["fallback_reason"])
-            self.assertTrue(
-                any(
-                    "no permite inferir suficiencia" in item
-                    for item in result["missing_or_limits"]
-                )
-            )
-            self.assertTrue(
-                any(
-                    "Compatibilidad 1.0" in item
-                    for item in result["missing_or_limits"]
-                )
-            )
-            self.assertNotIn(
-                "No hay bloqueos ni límites estructurales indexados.",
-                result["missing_or_limits"],
-            )
-            self.assertEqual(result["readiness_preflight"]["status"], "not-run")
-            self.assertEqual(before, after)
-
-            acceptance = docs / "02-requirements" / "acceptance-criteria.md"
-            _append_row(
-                acceptance,
-                "| ID | State | Condition",
-                "| AC-999 | draft | Detect an undefined legacy relation. | FR-999 | none |",
-            )
-            invalid_code, invalid = run_json(
+            code, validation = run_json(
                 VALIDATE_SCRIPT, str(root), expected_codes={2}
             )
-            self.assertEqual(invalid_code, 2, invalid)
-            self.assertTrue(
-                any(
-                    error.endswith("referencia sin definición: FR-999")
-                    for error in invalid["errors"]
-                )
-            )
-            self.assertTrue(
-                any(
-                    item["code"] == "LKS-REF-UNDEFINED"
-                    and item["severity"] == "error"
-                    and item.get("observed") == "FR-999"
-                    for item in invalid["diagnostics"]
-                )
-            )
+
+            self.assertEqual(code, 2)
+            self.assertFalse(validation["valid"])
+            self.assertEqual(validation["checked_files"], [".lks-sdd/project.json"])
+            self.assertTrue(any("se requiere schema 1.5" in item for item in validation["errors"]))
+            self.assertEqual(before, tree_digest(root))
 
 
 if __name__ == "__main__":

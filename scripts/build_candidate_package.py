@@ -23,7 +23,10 @@ EXPECTED_CANDIDATE_CHECKS = {
     "fixture-integrity",
     "plugin-contract",
     "reference-profile-structure",
-    "unit-tests",
+    "unit-tests-fast",
+    "unit-tests-integration",
+    "unit-tests-package",
+    "unit-tests-profile",
     "deterministic-evals",
     "reference-profile-complete",
 }
@@ -90,6 +93,9 @@ EXPECTED_DETERMINISTIC_EVAL_IDS = {
     "FX-M1-INSUFFICIENT",
     "FX-M1-NEW-PROJECT",
     "FX-M1-SCOPED-BLOCKER",
+}
+EXPECTED_V015_PRODUCT_EVAL_IDS = {
+    "experience-management-comprehension-v015",
 }
 EXPECTED_RELEASE_METRICS = {
     "automated_catalog_cases",
@@ -370,6 +376,29 @@ def _validate_fixture_attestation(
     return len(deterministic_eval_ids)
 
 
+def _expected_deterministic_eval_count(
+    plugin_version: str,
+    fixture_eval_count: int,
+    committed_files: dict[str, bytes],
+) -> int:
+    """Include deterministic product evals introduced outside fixture files."""
+    core_version = plugin_version.split("-", 1)[0]
+    version = tuple(int(part) for part in core_version.split("."))
+    if version < (0, 15, 0):
+        return fixture_eval_count
+    support = committed_files.get("tests/eval_support.py", b"")
+    missing = sorted(
+        eval_id
+        for eval_id in EXPECTED_V015_PRODUCT_EVAL_IDS
+        if f'"id": "{eval_id}"'.encode("utf-8") not in support
+    )
+    if missing:
+        raise PackageError(
+            f"Faltan evals de producto deterministas comprometidas: {missing}"
+        )
+    return fixture_eval_count + len(EXPECTED_V015_PRODUCT_EVAL_IDS)
+
+
 def _expected_comparison(
     metrics: dict[str, int | float], baseline: dict[str, Any]
 ) -> dict[str, Any]:
@@ -629,16 +658,27 @@ def _validated_quality_report(
     if len(content) > 10 * 1024 * 1024:
         raise PackageError("El reporte de calidad supera el límite de 10 MiB.")
     report = _load_json_bytes(content, str(report_path))
-    schema = _committed_json(committed_files, "schemas/quality-report.schema.json")
+    if not isinstance(report, dict):
+        raise PackageError("El reporte de calidad debe ser un objeto JSON.")
+    report_schema_version = report.get("schema_version")
+    schema_relative = (
+        "schemas/quality-report-1.1.schema.json"
+        if report_schema_version == "1.1"
+        else "schemas/quality-report.schema.json"
+    )
+    schema = _committed_json(committed_files, schema_relative)
     _assert_supported_quality_schema(schema)
     schema_errors = _quality_schema_errors(report, schema)
     if schema_errors:
         raise PackageError(
-            "El reporte no cumple schemas/quality-report.schema.json: "
+            f"El reporte no cumple {schema_relative}: "
             + " | ".join(schema_errors[:10])
         )
-    if not isinstance(report, dict):
-        raise PackageError("El reporte de calidad debe ser un objeto JSON.")
+    if report_schema_version != "1.2":
+        raise PackageError(
+            "Los reportes 1.1 se aceptan como evidencia histórica, pero una release "
+            "0.15.0 o posterior requiere quality report 1.2."
+        )
     if report.get("plugin_version") != plugin_version:
         raise PackageError(
             "El reporte de calidad no corresponde a la versión empaquetada."
@@ -680,6 +720,9 @@ def _validated_quality_report(
         raise PackageError("El reporte no identifica una baseline SemVer válida.")
     baseline_relative = f"quality/baselines/v{baseline_version}.json"
     baseline = _committed_json(committed_files, baseline_relative)
+    performance_policy = _committed_json(
+        committed_files, "quality/performance-policy.json"
+    )
     if (
         baseline.get("plugin_version") != baseline_version
         or baseline.get("source_commit") != comparison_input.get("baseline_commit")
@@ -687,8 +730,10 @@ def _validated_quality_report(
         raise PackageError(
             "La baseline comprometida no coincide con la release comparada."
         )
-    deterministic_eval_count = _validate_fixture_attestation(
-        fixture_manifest, committed_files
+    deterministic_eval_count = _expected_deterministic_eval_count(
+        plugin_version,
+        _validate_fixture_attestation(fixture_manifest, committed_files),
+        committed_files,
     )
     inputs = report["inputs"]
     expected_input_hashes = {
@@ -701,6 +746,9 @@ def _validated_quality_report(
             committed_files["quality/fixture-manifest.json"]
         ),
         "baseline_sha256": _sha256(_canonical_json_bytes(baseline)),
+        "performance_policy_sha256": _sha256(
+            _canonical_json_bytes(performance_policy)
+        ),
     }
     if any(
         inputs.get(name) != digest
@@ -754,8 +802,47 @@ def _validated_quality_report(
             check.get("status") != "passed"
             or check.get("critical") is not True
             or check.get("summary") != expected_summary
+            or not _matches_json_type(check.get("duration_seconds"), "number")
+            or check.get("termination") != "normal"
+            or check.get("process_cleanup") != "not-required"
         ):
             raise PackageError(f"El check candidate no acredita éxito: {check_id}")
+    execution = report.get("execution")
+    performance = report.get("performance")
+    if (
+        not isinstance(execution, dict)
+        or not isinstance(performance, dict)
+        or performance.get("status") != "passed"
+        or performance.get("regressions") != []
+    ):
+        raise PackageError("El reporte no acredita el presupuesto de rendimiento.")
+    comparisons = performance.get("comparisons")
+    if not isinstance(comparisons, list):
+        raise PackageError("El reporte no contiene comparaciones de rendimiento.")
+    actual_by_suite = {
+        item.get("suite"): item.get("actual_seconds")
+        for item in comparisons
+        if isinstance(item, dict)
+    }
+    for suite in ("fast", "integration", "package", "profile"):
+        check_duration = check_by_id[f"unit-tests-{suite}"]["duration_seconds"]
+        if actual_by_suite.get(suite) != check_duration:
+            raise PackageError(
+                f"La duración declarada de {suite} no coincide con su check."
+            )
+    expected_candidate_duration = round(
+        sum(
+            float(check["duration_seconds"])
+            for check in checks
+            if not (
+                execution.get("profile_mode") == "execute"
+                and check["id"] == "reference-profile-complete"
+            )
+        ),
+        3,
+    )
+    if actual_by_suite.get("candidate") != expected_candidate_duration:
+        raise PackageError("La duración candidate no coincide con sus checks.")
     channels = report["channels"]
     expected_channel_names = set(required_names) | set(optional_names)
     if set(channels) != expected_channel_names:
@@ -982,6 +1069,32 @@ def _zip_bytes(
             os.unlink(temporary_name)
 
 
+def _package_integrity_bytes(
+    files: list[tuple[str, bytes]], plugin_version: str, source_commit: str
+) -> bytes:
+    """Create the digest inventory consumed by ``doctor --quick``."""
+
+    runtime_prefixes = (".codex-plugin/", "profiles/", "schemas/", "scripts/", "skills/")
+    runtime_files = [
+        {
+            "path": relative,
+            "sha256": _sha256(content),
+            "size": len(content),
+        }
+        for relative, content in files
+        if relative == ".codex-plugin/plugin.json"
+        or relative.startswith(runtime_prefixes)
+    ]
+    return _canonical_json_bytes(
+        {
+            "schema_version": "1.0",
+            "plugin_version": plugin_version,
+            "source_commit": source_commit,
+            "files": runtime_files,
+        }
+    )
+
+
 def build(
     output: Path,
     build_date: str,
@@ -1021,13 +1134,18 @@ def build(
     )
     output = _safe_output(output, source_root)
     timestamp = (parsed_date.year, parsed_date.month, parsed_date.day, 0, 0, 0)
-    plugin_entries = [(f"lks-sdd/{relative}", content) for relative, content in files]
+    integrity_bytes = _package_integrity_bytes(files, plugin_version, source_commit)
+    plugin_entries = [
+        *[(f"lks-sdd/{relative}", content) for relative, content in files],
+        ("lks-sdd/package-integrity.json", integrity_bytes),
+    ]
     marketplace_bytes = (
         json.dumps(marketplace, indent=2, ensure_ascii=False) + "\n"
     ).encode("utf-8")
     marketplace_entries = [
         (".agents/plugins/marketplace.json", marketplace_bytes),
         *[(f"plugins/lks-sdd/{relative}", content) for relative, content in files],
+        ("plugins/lks-sdd/package-integrity.json", integrity_bytes),
     ]
     plugin_zip = _zip_bytes(plugin_entries, timestamp)
     marketplace_zip = _zip_bytes(marketplace_entries, timestamp)
@@ -1039,6 +1157,7 @@ def build(
         "source_commit": source_commit,
         "built_on": build_date,
         "source_file_count": len(files),
+        "package_integrity_sha256": _sha256(integrity_bytes),
         "source_files": [
             {"path": relative, "sha256": _sha256(content), "size": len(content)}
             for relative, content in files

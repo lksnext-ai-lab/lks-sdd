@@ -19,8 +19,8 @@
     "security_url": null
   },
   "rollback": {
-    "previous_version": "0.13.0",
-    "candidate_version": "0.14.2",
+    "previous_version": "0.14.2",
+    "candidate_version": "0.15.0",
     "package_sha256": null,
     "procedure_confirmed": false
   },

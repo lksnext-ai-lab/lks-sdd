@@ -12,10 +12,10 @@ from eval_support import (
     CLIENT_VIEW_SCRIPT,
     INSPECT_SCRIPT,
     MATERIALIZE_ADOPTION_SCRIPT,
-    MIGRATE_SCRIPT,
     VALIDATE_ADOPTION_SCRIPT,
     VALIDATE_SPEC_SCRIPT,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
     tree_digest,
@@ -371,188 +371,28 @@ class M3WorkflowTests(unittest.TestCase):
             self.assertEqual(collision.read_text(encoding="utf-8"), "human collision\n")
             self.assertFalse(result["changed"])
 
-    def test_schema_migration_preserves_human_body_and_rolls_back(self):
-        with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:
-            container = Path(directory)
-            root = container / "legacy"
-            root.mkdir()
-            initialize(root, "legacy-project")
-            manifest_path = root / ".lks-sdd" / "project.json"
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest.update(
-                {
-                    "schema_version": "1.0",
-                    "method_version": "1.0.0",
-                    "plugin_version": "0.6.1",
-                    "open_blockers": [],
-                    "readiness": {
-                        "status": "not-assessed",
-                        "assessed_increment": None,
-                        "assessed_at": None,
-                    },
-                }
-            )
-            for key in (
-                "active_plan", "active_task", "active_tasks", "delivery_governance",
-                "planning", "task_tracking", "authorizations", "executions",
-            ):
-                manifest.pop(key, None)
-            manifest["technology"].pop("profile_bindings", None)
-            manifest["version_control"] = {
-                "type": manifest["version_control"]["type"],
-                "origin": manifest["version_control"]["origin"],
-            }
-            v12_only = {
-                "ART-ARCH",
-                "ART-GOVERNANCE",
-                "ART-PLANS",
-                "ART-TASKS",
-                "ART-TEST-STRATEGY",
-                "ART-DEPLOYMENT",
-                "ART-PLANNING",
-                "ART-TRACKING",
-            }
-            manifest["artifacts"] = [
-                item for item in manifest["artifacts"] if item["id"] not in v12_only
-            ]
-            manifest_path.write_text(
-                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-                encoding="utf-8",
-                newline="\n",
-            )
-            for entry in manifest["artifacts"]:
-                path = root / entry["path"]
-                text = (
-                    path.read_text(encoding="utf-8")
-                    .replace('schema_version: "1.5"', 'schema_version: "1.0"')
-                    .replace('method_version: "1.5.0"', 'method_version: "1.0.0"')
-                    .replace(
-                        'created_with_plugin_version: "0.14.2"',
-                        'created_with_plugin_version: "0.6.1"',
-                    )
-                    .replace(
-                        "PLAN-001 y REL-001 son propuestas iniciales",
-                        "El horizonte y la release son propuestas iniciales",
-                    )
-                )
-                if entry["id"] == "ART-INCREMENTS":
-                    domain_start = text.index("## Aplicabilidad por dominio")
-                    interface_start = text.index(
-                        "## Aplicabilidad de interfaz y contrato visual"
-                    )
-                    text = text[:domain_start] + text[interface_start:]
-                    current_main = (
-                        "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests |\n"
-                        "|---|---|---|---|---|---|---|---|\n"
-                    )
-                    legacy_main = (
-                        "| ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Data | Identity | Integrations | Tests |\n"
-                        "|---|---|---|---|---|---|---|---|---|---|---|\n"
-                    )
-                    text = text.replace(current_main, legacy_main, 1)
-                if entry["id"] == "ART-SOLUTION":
-                    text = "\n".join(
-                        line for line in text.splitlines() if "| ADR-002 |" not in line
-                    ) + "\n"
-                    text = text.replace(
-                        "Select API-FASTAPI-STATELESS-OCI for UNIT-001.",
-                        "Select API-FASTAPI-STATELESS-OCI for the increment.",
-                    ).replace(
-                        "Limited to INC-001 and BIND-001",
-                        "Limited to INC-001",
-                    )
-                path.write_text(text, encoding="utf-8", newline="\n")
-            brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
-            brief.write_text(
-                brief.read_text(encoding="utf-8") + "\nHuman body marker.\n",
-                encoding="utf-8",
-            )
-            _, preview = run_json(
-                MIGRATE_SCRIPT,
-                str(root),
-                "--target-schema",
-                "1.1",
-                "--dry-run",
-            )
-            backup = container / "migration-backup"
-            _, applied = run_json(
-                MIGRATE_SCRIPT,
-                str(root),
-                "--apply",
-                "--target-schema",
-                "1.1",
-                "--authorize",
-                "--preview-hash",
-                preview["preview_hash"],
-                "--backup-dir",
-                str(backup),
-            )
-            self.assertEqual(applied["status"], "migrated")
-            self.assertIn("Human body marker.", brief.read_text(encoding="utf-8"))
-            self.assertEqual(
-                json.loads(manifest_path.read_text(encoding="utf-8"))["schema_version"],
-                "1.1",
-            )
-            _, current = run_json(
-                MIGRATE_SCRIPT,
-                str(root),
-                "--target-schema",
-                "1.1",
-                "--dry-run",
-            )
-            self.assertEqual(current["status"], "current")
-            backup_brief = (
-                backup
-                / "files"
-                / "docs"
-                / "lks-sdd"
-                / "01-context"
-                / "product-brief.md"
-            )
-            original_backup = backup_brief.read_bytes()
-            backup_brief.write_bytes(b"corrupt backup")
-            before_failed_rollback = tree_digest(root)
-            code, failed_rollback = run_json(
-                MIGRATE_SCRIPT,
-                str(root),
-                "--rollback",
-                str(backup),
-                "--dry-run",
-                expected_codes={2},
-            )
-            self.assertEqual(code, 2)
-            self.assertEqual(failed_rollback["status"], "error")
-            self.assertEqual(before_failed_rollback, tree_digest(root))
-            backup_brief.write_bytes(original_backup)
-            _, rollback_preview = run_json(
-                MIGRATE_SCRIPT,
-                str(root),
-                "--rollback",
-                str(backup),
-                "--dry-run",
-            )
-            _, rolled_back = run_json(
-                MIGRATE_SCRIPT,
-                str(root),
-                "--rollback",
-                str(backup),
-                "--apply",
-                "--authorize",
-                "--preview-hash",
-                rollback_preview["preview_hash"],
-            )
-            self.assertEqual(rolled_back["status"], "rolled-back")
-            self.assertEqual(
-                json.loads(manifest_path.read_text(encoding="utf-8"))["schema_version"],
-                "1.0",
-            )
-            self.assertIn("Human body marker.", brief.read_text(encoding="utf-8"))
+    def test_project_migration_runtime_is_not_shipped(self):
+        plugin_root = Path(__file__).resolve().parents[1]
+        self.assertFalse((plugin_root / "scripts" / "migrate_project.py").exists())
+        process = subprocess.run(
+            [
+                os.environ.get("PYTHON", "python"),
+                str(plugin_root / "scripts" / "lks_sdd.py"),
+                "--help",
+            ],
+            cwd=plugin_root,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertNotIn("migrate", process.stdout)
 
     def test_invalid_evidence_record_does_not_satisfy_the_contract(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:
             root = Path(directory)
-            initialize(root, "invalid-evidence")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "invalid-evidence")
             trace = root / "docs" / "lks-sdd" / "05-quality" / "traceability.md"
             trace.write_text(
                 trace.read_text(encoding="utf-8").replace(

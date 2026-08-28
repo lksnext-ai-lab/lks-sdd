@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.14.2
+# Capacidades y límites de LKS-SDD 0.15.0
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -12,7 +12,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Definir pantallas, flujos, estados e interacción cuando existe frontend.
 - Generar con ImageGen entre una y tres propuestas para un frontend nuevo o cambio visual material cuando el brief sea suficiente y la capacidad esté disponible; conservar validación, estado y activos trazables. Si no está disponible, declarar el fallback y el pendiente.
 - Adoptar aplicaciones existentes mediante inspección estática, reconciliación y materialización autorizada de una baseline documental, sin tratar el código observado como intención aprobada.
-- Inicializar proyectos nuevos con método 1.5.0 y esquema 1.5, y validar proyectos 1.0/1.1/1.2/1.3/1.4/1.5 en compatibilidad sin reescribirlos.
+- Inicializar y validar proyectos con método 1.5.0 y esquema 1.5; rechazar otros contratos sin reescribirlos y conservar `plugin_version` como procedencia de materialización.
 - Definir y evolucionar `bounded-release`, `continuous-evolution` o `maintenance-stream`, incluyendo SemVer u otra política confirmada, Git/ramas, entornos, CI/CD, promoción inmutable, despliegue, recuperación y revisiones `CHG-###`.
 - Gestionar planes, releases y tareas mediante `PLAN/REL/TASK`, un mapa de cobertura primaria/contribuyente, fichas ejecutables, estados, salud, progreso, dependencias, bloqueos, evidencias e historial.
 - Exigir antes de confirmar el plan una decisión explícita entre tracking `repository-only` y `jira-hybrid`; la opción local conserva una experiencia completa y no solicita Atlassian.
@@ -33,7 +33,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Distinguir la huella documental completa de la huella del contrato activo, conservando historial sin convertir elementos rechazados, sustituidos o retirados en inputs de implementación.
 - Preparar de forma genérica y collision-safe cada perfil exacto activo de una selección TASK, copiando locks por binding mediante preview y autorización.
 - Verificar gates componibles G2/G3 y evidencia G4 contra commit/árbol/build/digests/entorno exactos, sin desplegar ni autorizar una entrega.
-- Validar especificación y trazabilidad, preparar migraciones explícitas 0.9 → 1.0, 1.0 → 1.1, 1.1 → 1.2, 1.2 → 1.3, 1.3 → 1.4 o 1.4 → 1.5 de un solo salto y generar borradores cliente controlados desde información confirmada, con procedencia y aprobación pendiente.
+- Validar especificación y trazabilidad 1.5 y generar borradores cliente controlados desde información confirmada, con procedencia y aprobación pendiente.
 - Ejecutar el harness candidate M4, comparar releases y conservar como `not-run` la evidencia aún no aportada.
 - Generar un bundle candidate de marketplace y preparar un piloto saneado que permanece bloqueado hasta completar su configuración externa.
 
@@ -41,7 +41,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 
 - Seleccionar una pila automáticamente o tratar un perfil activo como homologación corporativa.
 - Implementar mezclas arbitrarias, familias, capabilities aisladas o perfiles candidatos que no tengan certificación exacta de composición.
-- Migrar automáticamente al actualizar el plugin, encadenar saltos o convertir propuestas de gobierno, ramas, entornos o arquitectura en decisiones.
+- Migrar contratos de proyecto, modificar consumidores al actualizar el plugin o convertir propuestas de gobierno, ramas, entornos o arquitectura en decisiones.
 - Declarar completa una release a partir de una tarea lista, autorizar por inferencia, inventar tareas, estimaciones, fechas, avance o evidencia.
 - Crear commits, pushes, merges o despliegues como efecto de un checkpoint.
 - Normalizar o modernizar código existente durante la adopción.

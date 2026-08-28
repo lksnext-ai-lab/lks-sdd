@@ -66,7 +66,14 @@ Cuando todas las tareas registradas de una release están `done`, aún se exige 
 
 Use el dispatcher instalado y declare la fase de trazabilidad de forma explícita cuando la inferencia automática no sea apropiada:
 
+## Sujeto técnico y continuidad 0.15
+
+La reutilización se liga a `verification_subject_hash`, fingerprint contractual y revisión observada por separado. Incluye código, tests, migraciones, fixtures de ejecución, dependencias/locks, Docker/build, configuración del artefacto, scripts de entrega, perfiles/bindings, criterios y gates. Solo excluye outputs derivados demostrables como recibos, checkpoints administrativos y la evidencia de la propia ejecución. Un cambio exclusivamente excluido produce una attestación de continuidad; cualquier cambio incluido o duda invalida la reutilización.
+
+`--reuse-evidence EVID-###` exige la misma selección de incremento y tareas, una evidencia 1.2 válida con checks técnicos `passed` y el mismo sujeto/fingerprint. Conserva el `build_id`, digests y ejecución técnica anteriores, registra la revisión observada y las rutas administrativas cambiadas, omite G4 salvo evidencia actual separada y crea un nuevo EVID únicamente mediante la misma transacción que actualiza trazabilidad, manifest, verification y ejecución. Una evidencia anterior a este contrato, corrupta, parcial, contradictoria o sin sujeto nunca se reutiliza. `work verify` selecciona automáticamente la última evidencia compatible y vuelve a ejecutar si no existe o el sujeto cambió.
+
 ```powershell
 python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --task TASK-001 --phase verification --json
 python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --execution-id EXEC-001 --plan
+python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --execute --authorize --reuse-evidence EVID-001 --record-evidence EVID-002
 ```

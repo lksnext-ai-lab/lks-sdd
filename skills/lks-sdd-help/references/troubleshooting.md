@@ -10,7 +10,7 @@ Confirme la raíz. Un proyecto ChatGPT no concede acceso directo a una carpeta; 
 
 ## El índice es inválido
 
-Ejecute la validación en modo de lectura y revise cada diagnóstico. Un proyecto 1.4 aplica gobierno, arquitectura, cobertura, tareas, tracking, autorización y continuidad estrictos; 1.3 conserva el mismo rigor sin tracking y 1.0/1.1/1.2 se validan en compatibilidad. No reconstruya decisiones desde el índice ni use la actualización como autorización de migración.
+Ejecute la validación en modo de lectura y revise cada diagnóstico. El proyecto debe declarar schema 1.5/método 1.5.0; cualquier otro contrato se rechaza sin escritura. No reconstruya decisiones desde el índice ni interprete una actualización del runtime como autorización para modificar el proyecto.
 
 ## Readiness está bloqueado
 
@@ -34,13 +34,9 @@ Estar catalogado o tener scaffold no basta. Compruebe lifecycle, `certification-
 
 Ejecute `tasks <project-root> validate` o `board`. Compruebe que fila y ficha coinciden, estado/progreso/salud son coherentes, dependencias no forman ciclos y cada bloqueo tiene un `PROB-###` abierto. Use `tasks transition --preview` y luego el hash autorizado; no edite solo una de las dos representaciones.
 
-## La migración devuelve `human_review_required`
-
-No repita el mismo comando con `--apply`: la operación se rechazará siempre antes de crear el backup o escribir. Resuelva cada entrada mostrada en los Markdown canónicos 1.0, valide el proyecto y repita el dry-run hasta obtener una lista vacía. Revisar o aceptar la lista no sustituye esa corrección explícita. La `Identity` agregada es distinta: el migrador la convierte en tres filas `pending` con motivo y no la muestra en `human_review_required`; tras aplicar, resuelva identidad, seguridad y privacidad en 1.1 para desbloquear readiness.
-
 ## La trazabilidad pasa sin comprobar nada
 
-Eso no es válido en 0.14.2: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
+Eso no es válido en 0.15.0: si existen requisitos aplicables y no se comprueba ninguno, el resultado señala alcance vacío. Use `--phase preimplementation` antes de implementar y `--phase verification` cuando deba existir evidencia ejecutada.
 
 ## La ejecución de verificación se bloquea aunque el plan existe
 
@@ -61,3 +57,11 @@ Revise [realidad del producto](product-reality.md), permisos y configuración. D
 ## Se actualizó el plugin pero la tarea sigue mostrando la versión anterior
 
 Publicar una release, refrescar un marketplace y cargar una instalación activa son estados distintos. Confirme la versión resuelta por la superficie instalada y, después de una actualización autorizada, reinicie Codex y abra una tarea nueva para recargar metadatos y skills. Esto no migra los proyectos consumidores.
+
+## Status muestra un bloqueo histórico o de producción
+
+Use `status --view audit --json` para comprobar el estado del problema. Solo `active` aplicable puede aparecer en management; `resolved`, `superseded` e `historical` deben conservarse únicamente en audit. Un problema exclusivo de producción se agrupa como futuro cuando la operación actual es local. Corrija el lifecycle canónico; no borre el historial ni normalice otro proyecto.
+
+## Una caché parece corrupta o el sujeto técnico es ambiguo
+
+Desactive o elimine la caché derivada y recalcule. La caché nunca es autoridad. Si no puede demostrarse que todos los cambios pertenecen a rutas administrativas explícitamente excluidas, invalide la reutilización y repita los gates afectados.

@@ -1,6 +1,6 @@
 {
-  "id": "FX-M5-CALCULATOR-HANDOFF-1.1",
-  "description": "Recorrido sintético y saneado de una calculadora profesional de presupuestos de construcción mediante el contrato 1.1.",
+  "id": "FX-M5-CALCULATOR-HANDOFF-1.5",
+  "description": "Recorrido sintético y saneado de una calculadora profesional de presupuestos de construcción mediante el contrato 1.5.",
   "classification": "synthetic-only",
   "project_id": "construction-calculator-fixture",
   "date": "2026-08-20",
@@ -176,7 +176,7 @@
     }
   },
   "assertions": [
-    "real_init_uses_schema_1.1",
+    "real_init_uses_schema_1.5",
     "canonical_ranges_expand_without_losing_interior_ids",
     "mixed_domain_applicability_is_explicit",
     "traceability_preimplementation_checks_non_empty_scope",

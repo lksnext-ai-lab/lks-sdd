@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.14/method-candidate 1.5 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.15 product/quality invariants."""
 
 from __future__ import annotations
 
@@ -56,9 +56,11 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.12-ENTRA-PROFILE-COVERAGE.md",
     "docs/V0.13-SIMULATED-OIDC-PROFILES.md",
     "docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md",
+    "docs/V0.15-QUALITY-EFFICIENCY-COVERAGE.md",
+    "docs/V0.15-PRODUCT-EXPERIENCE.md",
     "docs/releases/v0.14.0.md",
-    "docs/releases/v0.14.1.md",
     "docs/releases/v0.14.2.md",
+    "docs/releases/v0.15.0.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -75,13 +77,19 @@ REQUIRED_ROOT_FILES = {
     "profiles/catalog.json",
     "scripts/validate_spec.py",
     "scripts/check_traceability.py",
-    "scripts/migrate_project.py",
     "scripts/render_client_view.py",
     "scripts/run_quality_harness.py",
     "scripts/validate_fixture_manifest.py",
     "scripts/manage_pilot.py",
     "scripts/build_candidate_package.py",
     "scripts/contract_engine.py",
+    "scripts/evidence_contract.py",
+    "scripts/experience_engine.py",
+    "scripts/experience_fixture.py",
+    "scripts/project_status.py",
+    "scripts/work_task.py",
+    "scripts/doctor_project.py",
+    "scripts/benchmark_experience.py",
     "scripts/lks_sdd.py",
     "scripts/profile_registry.py",
     "scripts/automation_coverage.py",
@@ -93,6 +101,8 @@ REQUIRED_ROOT_FILES = {
     "scripts/manage_task_tracking.py",
     "scripts/jira_reporting_engine.py",
     "scripts/run_fast_validation.py",
+    "scripts/quality_execution.py",
+    "scripts/update_performance_baseline.py",
     "scripts/verify_profile_certifications.py",
     "scripts/manage_continuity.py",
     "scripts/update_profile_locks.py",
@@ -105,7 +115,12 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.11.0.json",
     "quality/corpora/definition-v0.12.0.json",
     "quality/corpora/definition-v0.14.0.json",
+    "quality/corpora/definition-v0.15.0.json",
     "quality/fixture-manifest.json",
+    "quality/test-suites.json",
+    "quality/v0.15-e2e-matrix.json",
+    "quality/test-impact-map.json",
+    "quality/performance-policy.json",
     "quality/baselines/v0.3.0.json",
     "quality/baselines/v0.4.0.json",
     "quality/baselines/v0.6.1.json",
@@ -113,22 +128,16 @@ REQUIRED_ROOT_FILES = {
     "quality/baselines/v0.11.0.json",
     "quality/baselines/v0.12.0.json",
     "quality/baselines/v0.13.0.json",
+    "quality/baselines/v0.14.2.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
+    "schemas/quality-report-1.1.schema.json",
     "schemas/verification-evidence-1.2.schema.json",
     "schemas/pilot-config.schema.json",
     "schemas/pilot-observation.schema.json",
     "schemas/pilot-summary.schema.json",
     "schemas/document-contracts.json",
     "schemas/document-contracts.schema.json",
-    "schemas/project-1.1.schema.json",
-    "schemas/frontmatter-1.1.schema.json",
-    "schemas/project-1.2.schema.json",
-    "schemas/frontmatter-1.2.schema.json",
-    "schemas/project-1.3.schema.json",
-    "schemas/frontmatter-1.3.schema.json",
-    "schemas/project-1.4.schema.json",
-    "schemas/frontmatter-1.4.schema.json",
     "schemas/project-1.5.schema.json",
     "schemas/frontmatter-1.5.schema.json",
     "schemas/profile-catalog.schema.json",
@@ -143,6 +152,7 @@ REQUIRED_ROOT_FILES = {
     ".github/ISSUE_TEMPLATE/config.yml",
     ".github/ISSUE_TEMPLATE/bug-report.yml",
     ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
+    ".github/workflows/quality.yml",
     "templates/client/client-deliverable.md",
     "tests/test_task_tracking_v14.py",
     "tests/test_jira_reporting_v15.py",
@@ -258,12 +268,17 @@ FORBIDDEN_RUNTIME_IMPORTS = {
 }
 RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/build_candidate_package.py": {"subprocess"},
+    "scripts/benchmark_experience.py": {"subprocess"},
     "scripts/delivery_engine.py": {"subprocess"},
+    "scripts/experience_engine.py": {"subprocess"},
     "scripts/manage_continuity.py": {"subprocess"},
     "scripts/manage_task_tracking.py": {"urllib.parse"},
     "scripts/run_reference_profile_gate.py": {"subprocess"},
     "scripts/run_quality_harness.py": {"subprocess"},
     "scripts/run_fast_validation.py": {"subprocess"},
+    "scripts/quality_execution.py": {"subprocess"},
+    "scripts/update_performance_baseline.py": {"subprocess"},
+    "scripts/work_task.py": {"subprocess"},
     "scripts/task_tracking_engine.py": {"urllib.parse"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {
         "subprocess",
@@ -406,7 +421,6 @@ def validate(root: Path) -> list[str]:
         runtime_version_files = (
             "skills/lks-sdd-define/scripts/init_project.py",
             "skills/lks-sdd-adopt-existing/scripts/materialize_adoption.py",
-            "scripts/migrate_project.py",
         )
         for relative in runtime_version_files:
             declared = python_string_constant(root / relative, "PLUGIN_VERSION")
@@ -668,7 +682,7 @@ def validate(root: Path) -> list[str]:
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.13.0.json"',
+            '"v0.14.2.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',
@@ -691,8 +705,6 @@ def validate(root: Path) -> list[str]:
                 errors.append(f"{relative} no contiene el marcador contractual {marker!r}.")
 
     for schema_name in (
-        "project.schema.json",
-        "frontmatter.schema.json",
         "technology-profile.schema.json",
         "technology-profile-lock.schema.json",
         "quality-observations.schema.json",
@@ -701,14 +713,6 @@ def validate(root: Path) -> list[str]:
         "pilot-observation.schema.json",
         "pilot-summary.schema.json",
         "catalogs.json",
-        "project-1.1.schema.json",
-        "frontmatter-1.1.schema.json",
-        "project-1.2.schema.json",
-        "frontmatter-1.2.schema.json",
-        "project-1.3.schema.json",
-        "frontmatter-1.3.schema.json",
-        "project-1.4.schema.json",
-        "frontmatter-1.4.schema.json",
         "project-1.5.schema.json",
         "frontmatter-1.5.schema.json",
         "profile-catalog.schema.json",
@@ -826,8 +830,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.13.0":
-            errors.append("El rollback del piloto 0.14.x debe conservar 0.13.0.")
+        if rollback.get("previous_version") != "0.14.2":
+            errors.append("El rollback del piloto 0.15.0 debe conservar 0.14.2.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -845,8 +849,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.13.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.13.0.")
+        if schema_previous != "0.14.2":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.14.2.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -886,7 +890,6 @@ def validate(root: Path) -> list[str]:
             "validate-project",
             "validate-spec",
             "traceability",
-            "migrate",
             "client-view",
             "tasks",
             "planning",
@@ -896,151 +899,6 @@ def validate(root: Path) -> list[str]:
         ):
             if f'"{command}"' not in cli_text:
                 errors.append(f"El dispatcher portable no declara {command}.")
-
-    try:
-        project_schema = json.loads(
-            (root / "schemas" / "project.schema.json").read_text(encoding="utf-8")
-        )
-        technology_properties = project_schema["properties"]["technology"]["properties"]
-        if "proposals" in technology_properties:
-            errors.append(
-                "project.json no debe almacenar propuestas tecnológicas sustantivas."
-            )
-        blocker_items = project_schema["properties"]["open_blockers"]["items"]
-        if blocker_items.get("type") != "string":
-            errors.append(
-                "open_blockers debe indexar IDs, no duplicar el texto de los bloqueos."
-            )
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("project.schema.json no expone el contrato operativo esperado.")
-
-    try:
-        project_11 = json.loads(
-            (root / "schemas" / "project-1.1.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        required_11 = set(project_11["required"])
-        properties_11 = project_11["properties"]
-        if project_11["properties"]["schema_version"].get("const") != "1.1":
-            errors.append("project-1.1.schema.json debe fijar schema_version 1.1.")
-        if project_11["properties"]["method_version"].get("const") != "1.1.0":
-            errors.append("project-1.1.schema.json debe fijar method_version 1.1.0.")
-        if {"open_blockers", "readiness"} & (required_11 | set(properties_11)):
-            errors.append(
-                "El índice 1.1 no debe persistir open_blockers ni snapshots de readiness."
-            )
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("project-1.1.schema.json no expone el contrato derivado esperado.")
-
-    try:
-        project_12 = json.loads(
-            (root / "schemas" / "project-1.2.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        required_12 = set(project_12["required"])
-        properties_12 = project_12["properties"]
-        if properties_12["schema_version"].get("const") != "1.2":
-            errors.append("project-1.2.schema.json debe fijar schema_version 1.2.")
-        if properties_12["method_version"].get("const") != "1.2.0":
-            errors.append("project-1.2.schema.json debe fijar method_version 1.2.0.")
-        expected = {
-            "active_plan",
-            "active_task",
-            "delivery_governance",
-            "version_control",
-            "last_verified_revision",
-        }
-        if not expected <= required_12:
-            errors.append(
-                "El índice 1.2 debe exigir gobierno, plan/tarea y revisión verificable."
-            )
-        technology_required = set(
-            properties_12["technology"].get("required", [])
-        )
-        if "profile_bindings" not in technology_required:
-            errors.append("El índice 1.2 debe exigir profile_bindings.")
-        if {"open_blockers", "readiness"} & (
-            required_12 | set(properties_12)
-        ):
-            errors.append(
-                "El índice 1.2 no debe persistir bloqueos o readiness derivados."
-            )
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("project-1.2.schema.json no expone el contrato esperado.")
-
-    try:
-        project_13 = json.loads(
-            (root / "schemas" / "project-1.3.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        required_13 = set(project_13["required"])
-        properties_13 = project_13["properties"]
-        if properties_13["schema_version"].get("const") != "1.3":
-            errors.append("project-1.3.schema.json debe fijar schema_version 1.3.")
-        if properties_13["method_version"].get("const") != "1.3.0":
-            errors.append("project-1.3.schema.json debe fijar method_version 1.3.0.")
-        expected_13 = {
-            "active_tasks", "planning", "authorizations", "executions",
-            "last_verified_revision",
-        }
-        if not expected_13 <= required_13:
-            errors.append(
-                "El índice 1.3 debe exigir planificación, autorizaciones, ejecuciones y tareas activas."
-            )
-        planning_required = set(properties_13["planning"].get("required", []))
-        if not {
-            "policy", "specification_fingerprint", "planning_fingerprint",
-        } <= planning_required:
-            errors.append("El índice 1.3 no fija los fingerprints separados.")
-        if {"open_blockers", "readiness"} & (required_13 | set(properties_13)):
-            errors.append("El índice 1.3 no debe persistir readiness derivado.")
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("project-1.3.schema.json no expone el contrato esperado.")
-
-    try:
-        project_14 = json.loads(
-            (root / "schemas" / "project-1.4.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        required_14 = set(project_14["required"])
-        properties_14 = project_14["properties"]
-        if properties_14["schema_version"].get("const") != "1.4":
-            errors.append("project-1.4.schema.json debe fijar schema_version 1.4.")
-        if properties_14["method_version"].get("const") != "1.4.0":
-            errors.append("project-1.4.schema.json debe fijar method_version 1.4.0.")
-        if "task_tracking" not in required_14:
-            errors.append("El índice 1.4 debe exigir task_tracking.")
-        tracking = properties_14["task_tracking"]
-        tracking_required = set(tracking.get("required", []))
-        expected_tracking = {
-            "source",
-            "binding_id",
-            "state",
-            "mode",
-            "provider",
-            "decision",
-            "site",
-            "project_key",
-            "issue_type",
-            "sync_policy",
-            "write_policy",
-            "projection_fingerprint",
-            "sync_status",
-            "last_sync_on",
-        }
-        if tracking_required != expected_tracking:
-            errors.append("task_tracking 1.4 no conserva el índice cerrado esperado.")
-        mode_enum = tracking["properties"]["mode"].get("enum")
-        if mode_enum != ["pending", "repository-only", "jira-hybrid"]:
-            errors.append("task_tracking.mode debe separar pending, repository-only y jira-hybrid.")
-        if {"open_blockers", "readiness"} & (required_14 | set(properties_14)):
-            errors.append("El índice 1.4 no debe persistir readiness derivado.")
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("project-1.4.schema.json no expone el contrato esperado.")
 
     try:
         project_15 = json.loads(
@@ -1087,10 +945,8 @@ def validate(root: Path) -> list[str]:
         )
         if document_contracts.get("catalog_version") != "1.5":
             errors.append("document-contracts.json debe usar catalog_version 1.5.")
-        if document_contracts.get("supported_project_schemas") != [
-            "1.0", "1.1", "1.2", "1.3", "1.4", "1.5"
-        ]:
-            errors.append("El catálogo documental debe conservar soporte 1.0 a 1.5.")
+        if document_contracts.get("supported_project_schemas") != ["1.5"]:
+            errors.append("El catálogo documental debe soportar únicamente schema 1.5.")
         if document_contracts.get("schema_inheritance") != {
             "1.2": "1.1",
             "1.3": "1.2",
@@ -1158,8 +1014,8 @@ def validate(root: Path) -> list[str]:
         )
         quality_required = set(quality_report["required"])
         source_contract = quality_report["properties"]["source"]
-        if quality_report["properties"]["schema_version"].get("const") != "1.1":
-            errors.append("quality-report.schema.json debe fijar schema_version 1.1.")
+        if quality_report["properties"]["schema_version"].get("const") != "1.2":
+            errors.append("quality-report.schema.json debe fijar schema_version 1.2.")
         if "source" not in quality_required or set(source_contract["required"]) != {
             "commit",
             "tree_state",
@@ -1287,6 +1143,28 @@ def validate(root: Path) -> list[str]:
     except (OSError, json.JSONDecodeError, TypeError):
         errors.append("quality/baselines/v0.13.0.json no es una baseline válida.")
 
+    try:
+        baseline_0142 = json.loads(
+            (root / "quality" / "baselines" / "v0.14.2.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        metrics_0142 = baseline_0142.get("metrics", {})
+        if (
+            baseline_0142.get("plugin_version") != "0.14.2"
+            or baseline_0142.get("source_commit")
+            != "a303370c2555236c1778f276e187a4bb3c1926f5"
+            or metrics_0142.get("automated_catalog_cases") != 43
+            or metrics_0142.get("unit_tests_total") != 263
+            or metrics_0142.get("unit_tests_passed") != 262
+            or metrics_0142.get("unit_tests_skipped") != 1
+            or metrics_0142.get("unit_tests_failed") != 0
+            or metrics_0142.get("profile_complete_gate") != 1
+        ):
+            errors.append("La baseline v0.14.2 no coincide con la medición del commit publicado.")
+    except (OSError, json.JSONDecodeError, TypeError):
+        errors.append("quality/baselines/v0.14.2.json no es una baseline válida.")
+
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:
         if "specs" in path.parts and "canonical" in path.parts:
@@ -1360,7 +1238,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} contract (M0-M5 + compatible evolution)")
+    print(f"VALID: LKS-SDD {version} contract (M0-M5 + schema 1.5 evolution)")
     return 0
 
 

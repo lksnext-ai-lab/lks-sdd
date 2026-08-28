@@ -15,6 +15,7 @@ from eval_support import (  # noqa: E402
     IMPLEMENT_SCRIPT,
     authorize_implementation,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
 )
@@ -41,8 +42,7 @@ def _apply_preview(root: Path, command: str, *arguments: str) -> dict:
 
 
 def _prepare_started_project(root: Path, project_id: str = "jira-milestones") -> dict:
-    initialize(root, project_id)
-    materialize_ready_increment(root)
+    materialize_ready_project(root, project_id)
     _configure(
         root,
         "jira-hybrid",
@@ -135,8 +135,7 @@ class JiraMilestoneReportingV15Tests(unittest.TestCase):
     def test_repository_only_remains_complete_and_never_requests_jira(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            initialize(root, "local-product")
-            materialize_ready_increment(root)
+            materialize_ready_project(root, "local-product")
             _configure(root, "repository-only", decision="ADR-001")
             report, _, _ = validate_project(root)
             self.assertTrue(report.valid, report.errors)

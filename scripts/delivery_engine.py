@@ -511,15 +511,17 @@ def _validate_task_detail(
         elif issue_id in issue_ids:
             errors.append(f"{task_id}: problema duplicado {issue_id}.")
         issue_ids.add(issue_id)
-        if issue.get("State") not in {"open", "mitigating", "resolved", "accepted"}:
+        if issue.get("State") not in {
+            "active", "resolved", "superseded", "historical",
+        }:
             errors.append(f"{task_id}: estado de problema inválido en {issue_id}.")
         for column in ("Description", "Impact", "Owner", "Resolution condition"):
             if not _meaningful(issue.get(column, "")):
                 errors.append(f"{task_id}: {issue_id or 'problema'} requiere {column}.")
     if row["Workflow state"] == "blocked" and not any(
-        issue.get("State") in {"open", "mitigating"} for issue in issues
+        issue.get("State") == "active" for issue in issues
     ):
-        errors.append(f"{task_id}: blocked exige un problema abierto o en mitigación.")
+        errors.append(f"{task_id}: blocked exige un problema active.")
 
     validation = resolved.get("validation", [])
     if row["Workflow state"] == "done" and not validation:

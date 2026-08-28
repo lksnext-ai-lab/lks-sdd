@@ -483,8 +483,8 @@ def load_tracking_contract(
     """Read the tracker tables without mutating the consumer project."""
 
     schema_version = str(manifest.get("schema_version"))
-    if schema_version not in {"1.4", "1.5"}:
-        raise TrackingContractError("El tracking operativo requiere schema 1.4 o 1.5.")
+    if schema_version != "1.5":
+        raise TrackingContractError("El tracking operativo de 0.15 requiere schema 1.5.")
     path = _safe_tracking_file(root, manifest)
     try:
         text = path.read_text(encoding="utf-8")
@@ -498,10 +498,9 @@ def load_tracking_contract(
     reporting_rows: list[dict[str, str]] = []
     workflow_rows: list[dict[str, str]] = []
     milestone_operations: list[dict[str, str]] = []
-    if schema_version == "1.5":
-        reporting_rows = _table(tables, REPORTING_HEADERS)
-        workflow_rows = _table(tables, WORKFLOW_HEADERS)
-        milestone_operations = _table(tables, MILESTONE_OPERATION_HEADERS)
+    reporting_rows = _table(tables, REPORTING_HEADERS)
+    workflow_rows = _table(tables, WORKFLOW_HEADERS)
+    milestone_operations = _table(tables, MILESTONE_OPERATION_HEADERS)
     if len(bindings) != 1:
         raise TrackingContractError("ART-TRACKING necesita un único binding activo.")
     if schema_version == "1.5" and len(reporting_rows) != 1:

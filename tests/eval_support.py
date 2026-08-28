@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
+import tempfile
+from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +50,6 @@ MATERIALIZE_ADOPTION_SCRIPT = (
     / "scripts"
     / "materialize_adoption.py"
 )
-MIGRATE_SCRIPT = PLUGIN_ROOT / "scripts" / "migrate_project.py"
 PLANNING_SCRIPT = PLUGIN_ROOT / "scripts" / "manage_planning.py"
 CLIENT_VIEW_SCRIPT = PLUGIN_ROOT / "scripts" / "render_client_view.py"
 VALIDATE_SPEC_SCRIPT = PLUGIN_ROOT / "scripts" / "validate_spec.py"
@@ -61,6 +63,12 @@ TASK_TEMPLATE = (
     / "04-delivery"
     / "task-detail.md"
 )
+
+_INITIALIZED_TEMPLATE_DIRECTORY: tempfile.TemporaryDirectory[str] | None = None
+_INITIALIZED_TEMPLATE_ROOT: Path | None = None
+_INITIALIZED_TEMPLATE_PAYLOAD: dict[str, Any] | None = None
+_READY_TEMPLATE_DIRECTORY: tempfile.TemporaryDirectory[str] | None = None
+_READY_TEMPLATE_ROOTS: dict[tuple[bool, str], Path] = {}
 
 
 def load_fixture(name: str) -> dict[str, Any]:
@@ -104,11 +112,137 @@ def tree_digest(root: Path) -> str:
 
 
 def initialize(root: Path, project_id: str, dry_run: bool = False) -> dict[str, Any]:
+    global _INITIALIZED_TEMPLATE_DIRECTORY
+    global _INITIALIZED_TEMPLATE_ROOT
+    global _INITIALIZED_TEMPLATE_PAYLOAD
     args = [str(root), "--project-id", project_id, "--date", "2026-08-19"]
-    if dry_run:
-        args.append("--dry-run")
-    _, payload = run_json(INIT_SCRIPT, *args)
+    if dry_run or any(root.iterdir()):
+        if dry_run:
+            args.append("--dry-run")
+        _, payload = run_json(INIT_SCRIPT, *args)
+        return payload
+    if _INITIALIZED_TEMPLATE_ROOT is None:
+        _INITIALIZED_TEMPLATE_DIRECTORY = tempfile.TemporaryDirectory(
+            prefix="lks-sdd-initialized-template-"
+        )
+        _INITIALIZED_TEMPLATE_ROOT = (
+            Path(_INITIALIZED_TEMPLATE_DIRECTORY.name) / "project"
+        )
+        _INITIALIZED_TEMPLATE_ROOT.mkdir()
+        _, _INITIALIZED_TEMPLATE_PAYLOAD = run_json(
+            INIT_SCRIPT,
+            str(_INITIALIZED_TEMPLATE_ROOT),
+            "--project-id",
+            "fixture-template",
+            "--date",
+            "2026-08-19",
+        )
+    shutil.copytree(
+        _INITIALIZED_TEMPLATE_ROOT,
+        root,
+        dirs_exist_ok=True,
+        copy_function=shutil.copy2,
+    )
+    old = b"fixture-template"
+    new = project_id.encode("utf-8")
+    for path in (item for item in root.rglob("*") if item.is_file()):
+        content = path.read_bytes()
+        if old in content:
+            path.write_bytes(content.replace(old, new))
+    payload = json.loads(json.dumps(_INITIALIZED_TEMPLATE_PAYLOAD))
+    payload["project_root"] = str(root.resolve())
     return payload
+
+
+def _copy_fixture_template(source: Path, root: Path, project_id: str) -> None:
+    """Clone an immutable test template and rewrite only its synthetic identity."""
+    shutil.copytree(source, root, dirs_exist_ok=True, copy_function=shutil.copy2)
+    old = b"fixture-template"
+    new = project_id.encode("utf-8")
+    for path in (item for item in root.rglob("*") if item.is_file()):
+        content = path.read_bytes()
+        if old in content:
+            path.write_bytes(content.replace(old, new))
+
+
+def materialize_ready_project(
+    root: Path,
+    project_id: str,
+    *,
+    confirm_plan: bool = True,
+    tracking_mode: str = "repository-only",
+) -> None:
+    """Clone a complete, immutable ready-project fixture into an isolated root."""
+    global _READY_TEMPLATE_DIRECTORY
+    if tracking_mode not in {"repository-only", "jira-hybrid"}:
+        raise AssertionError(f"unsupported fixture tracking mode: {tracking_mode}")
+    if any(root.iterdir()):
+        raise AssertionError("materialize_ready_project requires an empty test root")
+    cache_key = (confirm_plan, tracking_mode)
+    template = _READY_TEMPLATE_ROOTS.get(cache_key)
+    if template is None:
+        if _READY_TEMPLATE_DIRECTORY is None:
+            _READY_TEMPLATE_DIRECTORY = tempfile.TemporaryDirectory(
+                prefix="lks-sdd-ready-templates-"
+            )
+        template = Path(_READY_TEMPLATE_DIRECTORY.name) / (
+            ("confirmed" if confirm_plan else "unconfirmed")
+            + "-"
+            + tracking_mode
+        )
+        template.mkdir()
+        initialize(template, "fixture-template")
+        materialize_ready_increment(template, confirm_plan=confirm_plan)
+        if tracking_mode == "jira-hybrid":
+            sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
+            from manage_task_tracking import configure
+
+            _append_row(
+                template
+                / "docs/lks-sdd/03-solution/solution-overview.md",
+                "| ID | State | Decision",
+                "| ADR-901 | confirmed | Select jira-hybrid task tracking mode |  | Task tracking governance |",
+            )
+            arguments = Namespace(
+                mode="jira-hybrid",
+                decision="ADR-901",
+                date="2026-08-25",
+                site="https://jira.example.invalid",
+                project="SYN",
+                issue_type="Synthetic Work Item",
+                reporting_scope="projection-only",
+                coordination_gate="required-before-execution",
+                apply=False,
+                authorize=None,
+            )
+            preview = configure(template, arguments)
+            arguments.apply = True
+            arguments.authorize = preview["mutation_hash"]
+            configure(template, arguments)
+        _READY_TEMPLATE_ROOTS[cache_key] = template
+    _copy_fixture_template(template, root, project_id)
+    if confirm_plan:
+        # The project identifier is contract material, so cloning under a new
+        # synthetic identity intentionally changes both planning fingerprints.
+        # Recalculate those stable values without replaying the expensive CLI
+        # confirmation and whole-project post-validation.
+        sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
+        from planning_engine import assess_planning
+
+        manifest_path = root / ".lks-sdd" / "project.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        planning = assess_planning(root, manifest, "INC-001")
+        manifest["planning"]["specification_fingerprint"] = planning[
+            "specification_fingerprint"
+        ]
+        manifest["planning"]["planning_fingerprint"] = planning[
+            "planning_fingerprint"
+        ]
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
 
 
 def _append_row(path: Path, header_prefix: str, row: str) -> None:
@@ -386,35 +520,33 @@ def materialize_ready_increment(root: Path, *, confirm_plan: bool = True) -> Non
 
 
 def confirm_planning(root: Path, *, change_date: str = "2026-08-19") -> dict[str, Any]:
-    """Persist the fixture's complete planning fingerprints after human review."""
-    _, preview = run_json(
-        PLANNING_SCRIPT,
-        str(root),
-        "--increment",
-        "INC-001",
-        "confirm",
-        "--date",
-        change_date,
-        "--actor-role",
-        "fixture-authority",
-        "--preview",
+    """Persist known-valid fixture planning through the internal command logic.
+
+    CLI preview/apply behavior remains covered by dedicated command-contract tests;
+    fixture setup avoids launching the same interpreter twice per test.
+    """
+    sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
+    from manage_planning import _apply_atomic, _confirm, _load_manifest
+
+    manifest_path, manifest, manifest_original = _load_manifest(root)
+    arguments = Namespace(
+        increment="INC-001",
+        release=None,
+        date=change_date,
+        actor_role="fixture-authority",
     )
-    _, applied = run_json(
-        PLANNING_SCRIPT,
-        str(root),
-        "--increment",
-        "INC-001",
-        "confirm",
-        "--date",
-        change_date,
-        "--actor-role",
-        "fixture-authority",
-        "--apply",
-        "--authorize",
-        "--preview-hash",
-        preview["preview_hash"],
+    planning_path, planning_original, planning_new, manifest_new, payload = _confirm(
+        root, manifest, arguments
     )
-    return applied
+    manifest_new_bytes = (
+        json.dumps(manifest_new, indent=2, ensure_ascii=False) + "\n"
+    ).encode("utf-8")
+    _apply_atomic(
+        [planning_path, manifest_path],
+        [planning_original, manifest_original],
+        [planning_new, manifest_new_bytes],
+    )
+    return {"status": "applied", "changed": True, **payload}
 
 
 def confirm_planning_change(
@@ -703,4 +835,38 @@ def run_scoped_blocker(root: Path) -> dict[str, Any]:
             "status": result["status"],
             "pending": result["non_blocking_pending"],
         },
+    }
+
+
+def run_management_comprehension(root: Path) -> dict[str, Any]:
+    """Evaluate that the default view answers management questions without audit noise."""
+    scripts_root = str(PLUGIN_ROOT / "scripts")
+    if scripts_root not in sys.path:
+        sys.path.insert(0, scripts_root)
+    from experience_engine import load_status, render_management
+    from experience_fixture import create_representative_fixture
+
+    create_representative_fixture(root)
+    before = tree_digest(root)
+    status = load_status(root, task_id="TASK-001")
+    rendered = render_management(status)
+    after = tree_digest(root)
+    forbidden = ("G3", "G4", "AUTH-", "EXEC-", "CKPT-", "sha256", "fingerprint")
+    active_issue_ids = {
+        item["ID"] for item in status["audit"]["problems"]["active"]
+    }
+    checks = {
+        "read_only": before == after,
+        "current_phase_visible": "PROYECTO" in rendered and "TAREA ACTUAL" in rendered,
+        "progress_visible": all(label in rendered for label in ("Verificadas", "En desarrollo", "Pendientes")),
+        "next_step_visible": "Siguiente paso: Fix recorder" in rendered,
+        "decision_not_repeated": "Decisión necesaria: Ninguna" in rendered,
+        "only_current_local_issue": active_issue_ids == {"PROB-001"},
+        "no_internal_jargon": not any(term in rendered for term in forbidden),
+        "compact": len(rendered.splitlines()) <= 18,
+    }
+    return {
+        "id": "experience-management-comprehension-v015",
+        "passed": all(checks.values()),
+        "details": {"checks": checks, "line_count": len(rendered.splitlines())},
     }

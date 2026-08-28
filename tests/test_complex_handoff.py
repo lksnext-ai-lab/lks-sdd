@@ -23,7 +23,7 @@ from eval_support import (
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-FIXTURE_PATH = PLUGIN_ROOT / "tests" / "fixtures" / "calculator-handoff-1.1.json"
+FIXTURE_PATH = PLUGIN_ROOT / "tests" / "fixtures" / "calculator-handoff-1.5.json"
 TEMPLATE_ROOT = (
     PLUGIN_ROOT / "skills" / "lks-sdd-define" / "assets" / "templates"
 )
@@ -106,62 +106,6 @@ def _mark_definition_sufficient(path: Path) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
-def _downgrade_initialized_project_to_11(root: Path) -> None:
-    """Build a genuine compatibility fixture from the current initializer."""
-    manifest_path = root / ".lks-sdd" / "project.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest.update(
-        {
-            "schema_version": "1.1",
-            "method_version": "1.1.0",
-            "plugin_version": "0.7.0",
-        }
-    )
-    for key in (
-        "active_plan", "active_task", "active_tasks", "delivery_governance",
-        "planning", "task_tracking", "authorizations", "executions",
-    ):
-        manifest.pop(key, None)
-    manifest["technology"].pop("profile_bindings", None)
-    manifest["version_control"] = {
-        "type": manifest["version_control"]["type"],
-        "origin": manifest["version_control"]["origin"],
-    }
-    v12_only = {
-        "ART-ARCH",
-        "ART-GOVERNANCE",
-        "ART-PLANS",
-        "ART-TASKS",
-        "ART-TEST-STRATEGY",
-        "ART-DEPLOYMENT",
-        "ART-PLANNING",
-        "ART-TRACKING",
-    }
-    manifest["artifacts"] = [
-        item for item in manifest["artifacts"] if item["id"] not in v12_only
-    ]
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-    for artifact in manifest["artifacts"]:
-        path = root / artifact["path"]
-        text = path.read_text(encoding="utf-8")
-        text = text.replace('schema_version: "1.5"', 'schema_version: "1.1"', 1)
-        text = text.replace('method_version: "1.5.0"', 'method_version: "1.1.0"', 1)
-        text = text.replace(
-            'created_with_plugin_version: "0.14.2"',
-            'created_with_plugin_version: "0.7.0"',
-            1,
-        )
-        text = text.replace(
-            "PLAN-001 y REL-001 son propuestas iniciales",
-            "La planificación de entrega todavía no está definida",
-        )
-        path.write_text(text, encoding="utf-8", newline="\n")
-
-
 def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Path]:
     docs = root / "docs" / "lks-sdd"
     manifest_path = root / ".lks-sdd" / "project.json"
@@ -177,6 +121,18 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
         "preferred_stack_assessed": True,
         "selected_profile": fixture["profile"]["id"],
         "selection_decision": fixture["profile"]["decision"],
+        "profile_bindings": [
+            {
+                "binding_id": "BIND-001",
+                "unit_id": "UNIT-001",
+                "unit_path": ".",
+                "profile_id": fixture["profile"]["id"],
+                "profile_scope": "deployable",
+                "selection_decision": fixture["profile"]["decision"],
+                "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+                "state": "confirmed",
+            }
+        ],
     }
     for artifact in fixture["optional_artifacts"]:
         relative = artifact["path"]
@@ -191,7 +147,7 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
             ).replace(
                 'method_version: "1.5.0"', 'method_version: "1.1.0"', 1
             ).replace(
-                'created_with_plugin_version: "0.14.2"',
+                'created_with_plugin_version: "0.15.0"',
                 'created_with_plugin_version: "0.7.0"',
                 1,
             )
@@ -218,14 +174,29 @@ def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Pat
         / fixture["profile"]["id"]
         / "technology-profile.lock.json"
     )
-    (root / ".lks-sdd" / "profile.lock.json").write_bytes(
-        bundled_lock.read_bytes()
-    )
+    consumer_lock = root / ".lks-sdd" / "profiles" / "BIND-001.lock.json"
+    consumer_lock.parent.mkdir(parents=True, exist_ok=True)
+    consumer_lock.write_bytes(bundled_lock.read_bytes())
 
     _remove_seed_open_point(docs / "00-control" / "open-points.md")
     _mark_definition_sufficient(docs / "00-control" / "project-status.md")
     for table in fixture["tables"]:
         _append_rows(docs / table["path"], table["header"], table["rows"])
+    _append_rows(
+        docs / "03-solution" / "architecture.md",
+        "| Unit | State | Component | Responsibility | Runtime boundary | Interfaces | Data ownership | Requirements | Profile binding |",
+        [[
+            "UNIT-001",
+            "confirmed",
+            "Calculadora profesional",
+            "Calcular y versionar presupuestos sintéticos",
+            "Aplicación web desplegable",
+            "HTTP/OpenAPI y UI web",
+            "Presupuestos y versiones",
+            "FR-001..FR-004, NFR-001..NFR-002, TR-001..TR-002",
+            "BIND-001",
+        ]],
+    )
 
     visuals = docs / "03-solution" / "ui-prototypes"
     visuals.mkdir(parents=True, exist_ok=True)
@@ -295,7 +266,6 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-active-visual-") as temporary:
             root = Path(temporary)
             initialize(root, fixture["project_id"])
-            _downgrade_initialized_project_to_11(root)
             _materialize_fixture(root, fixture)
 
             increments_path = root / "docs/lks-sdd/04-delivery/increments.md"
@@ -360,19 +330,18 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
                 {item["code"] for item in readiness["diagnostics"]},
             )
 
-    def test_calculator_contract_1_1_crosses_the_real_handoff_without_execution(self) -> None:
+    def test_calculator_contract_1_5_reaches_the_guarded_handoff_without_execution(self) -> None:
         fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
         self.assertEqual(fixture["classification"], "synthetic-only")
         with tempfile.TemporaryDirectory(prefix="lks-sdd-calculator-1-1-") as temporary:
             root = Path(temporary)
             initialized = initialize(root, fixture["project_id"])
-            _downgrade_initialized_project_to_11(root)
             manifest = json.loads(
                 (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
             )
             self.assertEqual(initialized["status"], "initialized")
-            self.assertEqual(manifest["schema_version"], "1.1")
-            self.assertEqual(manifest["method_version"], "1.1.0")
+            self.assertEqual(manifest["schema_version"], "1.5")
+            self.assertEqual(manifest["method_version"], "1.5.0")
 
             active_path, historical_path = _materialize_fixture(root, fixture)
             _, structural = run_json(VALIDATE_SCRIPT, str(root))
@@ -420,12 +389,14 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
                 expected_codes={3},
             )
             self.assertEqual(first_code, 3)
-            self.assertEqual(first_readiness["status"], "planning-required")
+            self.assertEqual(
+                first_readiness["status"], "automation-blocked", first_readiness
+            )
             self.assertEqual(first_readiness["specification_readiness"]["status"], "ready")
-            self.assertEqual(first_readiness["automation_support"]["status"], "supported")
+            self.assertEqual(first_readiness["automation_support"]["status"], "unsupported")
             self.assertEqual(
                 first_readiness["planning_completeness"]["status"],
-                "not-applicable",
+                "not-started",
             )
             self.assertEqual(first_readiness["visual_prototypes"], ["VIS-003"])
             self.assertIn(active_path.relative_to(root).as_posix(), first_readiness["checked_files"])
@@ -443,7 +414,7 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
                 expected_codes={3},
             )
             self.assertEqual(second_code, 3)
-            self.assertEqual(second_readiness["status"], "planning-required")
+            self.assertEqual(second_readiness["status"], "automation-blocked")
             self.assertEqual(second_readiness["active_contract_fingerprint"], active_fingerprint)
             self.assertNotEqual(second_readiness["document_fingerprint"], document_fingerprint)
 
@@ -460,7 +431,10 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
             self.assertEqual(preparation["status"], "blocked")
             self.assertFalse(preparation["changed"])
             self.assertTrue(
-                any("migrar" in item.casefold() for item in preparation["blockers"])
+                any(
+                    "binding" in item.casefold() or "plan" in item.casefold()
+                    for item in preparation["blockers"]
+                )
             )
             self.assertEqual(tree_digest(root), before_plans)
             self.assertFalse((root / "apps").exists())
@@ -470,7 +444,5 @@ class ComplexCalculatorHandoffTests(unittest.TestCase):
             )
             self.assertNotIn("implementation", final_manifest)
             self.assertNotIn("verification", final_manifest)
-
-
 if __name__ == "__main__":
     unittest.main()

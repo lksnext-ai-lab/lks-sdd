@@ -21,6 +21,7 @@ from eval_support import (
     confirm_planning,
     confirm_planning_change,
     initialize,
+    materialize_ready_project,
     materialize_ready_increment,
     run_json,
 )
@@ -90,8 +91,9 @@ class VisualContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory(prefix="lks-sdd-visual-")
         self.root = Path(self.temporary.name)
-        initialize(self.root, "visual-contract")
-        materialize_ready_increment(self.root, confirm_plan=False)
+        materialize_ready_project(
+            self.root, "visual-contract", confirm_plan=False
+        )
         self.docs = self.root / "docs" / "lks-sdd"
         manifest_path = self.root / ".lks-sdd" / "project.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

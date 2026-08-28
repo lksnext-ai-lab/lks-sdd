@@ -27,8 +27,10 @@ COMMANDS = {
     "validate-project": "scripts/validate_project.py",
     "validate-spec": "scripts/validate_spec.py",
     "traceability": "scripts/check_traceability.py",
-    "migrate": "scripts/migrate_project.py",
     "client-view": "scripts/render_client_view.py",
+    "status": "scripts/project_status.py",
+    "work": "scripts/work_task.py",
+    "doctor": "scripts/doctor_project.py",
 }
 
 

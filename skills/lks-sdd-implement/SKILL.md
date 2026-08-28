@@ -20,3 +20,11 @@ Implement only the requested increment. A `ready` result is necessary but does n
 11. Hand off to `$lks-sdd-verify`. Its plan may anticipate checks while implementation is in progress, but execution/evidence requires the applicable completed handoff. Do not classify the slice or release as verified from implementation tests alone.
 
 Implement only exact closed profiles whose descriptor, driver, scaffold, certification evidence, composition digest, and consumer lock agree. A family, capability set, candidate profile, or arbitrary technology mixture is documentable but not automatically implementable. Do not replace a confirmed provider such as Microsoft Entra with Keycloak merely because the latter has an active profile.
+
+## Fast path and narration in 0.15
+
+Start with `work status <project-root> --task TASK-###`. Prefer `work start` for a new task, `work resume` for an existing execution, `work resolve` with cause and evidence for an active problem, `work review` for code-complete handoff and `work block` for a real blocker. `work resume` must fail closed while an applicable problem remains active. Low-level commands remain available for audit, recovery and conflicts.
+
+If an exact authorization already matches current scope and fingerprints, do not ask again: the façade may apply deterministic local bookkeeping as one atomic milestone. New scope, exception, environment, external action, evidence contradiction, deployment or promotion still requires a new decision. Create checkpoints only at meaningful start, pause, block, handoff, completed review, verification or close; do not create redundant checkpoints for consecutive transitions during one resumption.
+
+Use management narration before start/resume, after a material milestone, at a blocker and at implementation handoff. Do not narrate every preview, hash, receipt or internal command. A resolved, superseded or historical problem remains in audit but is never presented as active.

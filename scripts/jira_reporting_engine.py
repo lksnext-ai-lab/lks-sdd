@@ -174,7 +174,7 @@ def _source_exists(
         return False
     return any(
         row.get("ID") == source_ref
-        and row.get("State") in {"open", "mitigating"}
+        and row.get("State") == "active"
         for row in details.get("problems", details.get("issues", []))
         if isinstance(row, dict)
     )

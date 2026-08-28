@@ -75,9 +75,8 @@ def _ids(value: str, prefixes: set[str] | None = None) -> list[str]:
         require_defined=False,
         allow_empty=True,
         allow_applicability=frozenset({"pending", "not-applicable"}),
-        allow_legacy_artifact_marker=True,
     )
-    parsed = parse_reference_cell(value or "", relation, mode="compat")
+    parsed = parse_reference_cell(value or "", relation)
     return list(parsed.references) if parsed.valid else []
 
 

@@ -53,7 +53,7 @@ La trazabilidad previa a implementar llega hasta `TEST-###`; después de ejecuta
 
 ## 10. Versiones y compatibilidad
 
-Los proyectos nuevos usan método 1.5.0 y esquema 1.5. Los proyectos 1.0/1.1/1.2/1.3/1.4 continúan validándose en compatibilidad y no se migran al actualizar. La migración es explícita, reversible y de un salto. El paso histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1; 1.3 → 1.4 añade tracking pendiente; 1.4 → 1.5 añade reporting opcional conservando `repository-only` o `projection-only` sin ejecutar Rovo, comentar ni transicionar. El apply exige backup externo, autorización y hash coincidente.
+Los proyectos usan método 1.5.0 y esquema 1.5. El runtime rechaza contratos anteriores sin escribir y no distribuye migradores. El `plugin_version` del índice conserva la versión que materializó el proyecto y puede ser anterior al runtime activo. La evidencia histórica versionada continúa siendo legible cuando su contrato específico lo permite.
 
 ## 11. Primer paso a elegir
 

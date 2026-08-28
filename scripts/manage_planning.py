@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assess, confirm and authorize LKS-SDD 1.3/1.4 implementation planning."""
+"""Assess, confirm and authorize LKS-SDD 1.5 implementation planning."""
 
 from __future__ import annotations
 
@@ -37,9 +37,9 @@ def _load_manifest(root: Path) -> tuple[Path, dict[str, Any], bytes]:
         value = json.loads(original.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise PlanningCommandError(f"No se puede leer project.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") not in {"1.3", "1.4", "1.5"}:
+    if not isinstance(value, dict) or value.get("schema_version") != "1.5":
         raise PlanningCommandError(
-            "La gestión integral de planificación requiere schema 1.3 o 1.4."
+            "La gestión integral de planificación de 0.15 requiere schema 1.5."
         )
     return path, value, original
 
