@@ -58,7 +58,7 @@ python tests\run_evals.py
 python scripts\run_quality_harness.py --channel candidate --date $validationDate --baseline quality\baselines\v0.13.0.json --profile-mode reuse
 ```
 
-Para feedback rápido durante 0.14.0:
+Para feedback rápido durante 0.14.1:
 
 ```powershell
 python scripts\run_fast_validation.py --focus jira-reporting
@@ -127,7 +127,7 @@ python "<plugin-root>\scripts\lks_sdd.py" tracking reconcile-result "<project-ro
 
 El ancla debe ser exactamente `Last operation` y estar cerrada; un recibo aún `authorized` no sirve. Para `succeeded`, la huella observada debe coincidir con la del ancla o con la proyección local actual. Si coincide con el ancla pero el plan actual ya tiene otra huella —o aún no puede proyectarse— se conserva el hecho remoto y el mapping queda `out-of-sync`, no falsamente sincronizado.
 
-Los resultados actualizan únicamente `ART-TRACKING` y su índice; nunca cambian por sí solos TASK, AUTH o evidencia. Con mapping sincronizado y un hecho local durable, el reporting usa `preview-event`, `authorize-event`, ejecución Rovo separada y `record-event-result`; un resultado incierto se resuelve mediante `reconcile-event`. Con mappings o recibos durables, 0.14.0 bloquea cambiar/abandonar el binding y no ofrece `detach`/`rebind`.
+Los resultados actualizan únicamente `ART-TRACKING` y su índice; nunca cambian por sí solos TASK, AUTH o evidencia. Con mapping sincronizado y un hecho local durable, el reporting usa `preview-event`, `authorize-event`, ejecución Rovo separada y `record-event-result`; un resultado incierto se resuelve mediante `reconcile-event`. Con mappings o recibos durables, 0.14.1 bloquea cambiar/abandonar el binding y no ofrece `detach`/`rebind`.
 
 La confirmación del plan, la autorización, la preparación, los checkpoints y las transiciones que escriben usan preview, hash y apply explícito. El apply de preparación sincroniza las tareas seleccionadas a `in-progress`, crea `EXEC-###` y un checkpoint inicial; no crea commit. La verificación G3/G4 debe vincularse a revisión, árbol, build, artefactos y entorno. Ningún comando de validación autoriza merge o despliegue.
 

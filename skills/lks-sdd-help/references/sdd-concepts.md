@@ -30,4 +30,4 @@ LKS-SDD distingue hecho, objetivo, requisito, restricción, propuesta, decisión
 
 Para una empresa de servicios, el ancla documental ofrece un lenguaje contrastable con el cliente sin frenar la evolución del código. Una vista para cliente se deriva de fuentes confirmadas, conserva procedencia y requiere revisión; no sustituye a los Markdown canónicos ni convierte una inferencia técnica en acuerdo.
 
-Los proyectos nuevos de 0.14.0 usan método 1.5.0 y esquema 1.5. Los esquemas 1.0, 1.1, 1.2, 1.3, 1.4 y 1.5 permanecen soportados en compatibilidad y su migración nunca se deduce de una actualización. El salto histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1.
+Los proyectos nuevos de 0.14.1 usan método 1.5.0 y esquema 1.5. Los esquemas 1.0, 1.1, 1.2, 1.3, 1.4 y 1.5 permanecen soportados en compatibilidad y su migración nunca se deduce de una actualización. El salto histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1.

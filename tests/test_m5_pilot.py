@@ -71,7 +71,7 @@ def _valid_config() -> dict:
         },
         "rollback": {
             "previous_version": "0.13.0",
-            "candidate_version": "0.14.0",
+            "candidate_version": "0.14.1",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },

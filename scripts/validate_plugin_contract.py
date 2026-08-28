@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.13/method-candidate 1.5 invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.14/method-candidate 1.5 invariants."""
 
 from __future__ import annotations
 
@@ -57,6 +57,7 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.13-SIMULATED-OIDC-PROFILES.md",
     "docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md",
     "docs/releases/v0.14.0.md",
+    "docs/releases/v0.14.1.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -824,7 +825,7 @@ def validate(root: Path) -> list[str]:
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
         if rollback.get("previous_version") != "0.13.0":
-            errors.append("El rollback del piloto 0.14.0 debe conservar 0.13.0.")
+            errors.append("El rollback del piloto 0.14.x debe conservar 0.13.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 

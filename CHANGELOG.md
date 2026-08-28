@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.1 — 2026-08-28 — registro compatible de evidencia vacía
+
+- Unifica la definición de evidencia de trazabilidad pendiente entre el lector y el registrador: una celda `Evidence` vacía, formada solo por espacios, `none`, `pending` o `not-run` puede enlazarse atómicamente al `EVID-###` exacto después de superar la verificación.
+- Conserva el cierre fail-closed: exige `INC-###` exacto, no sobrescribe evidencias existentes, no altera filas de otros incrementos, rechaza tablas malformadas y revierte conjuntamente EVID, ART-TRACE y manifest ante un fallo de escritura.
+- Mantiene proyectos schema 1.5 sin migración ni normalización previa; las huellas activas no cambian hasta el registro autorizado de evidencia.
+- Añade los campos de perfil compatibles al EVID 1.2 generado por el runner para que el propio validador pueda consumirlo inmediatamente, sin eliminar los bindings y locks exactos del contrato multiperfil.
+- Añade regresión completa G3 → plantilla G4 → cierre con Evidence inicialmente vacío y conserva sin cambios los contratos de aplicabilidad visual por TASK, `build_id` determinista, CKPT semántico y PROB/Jira de 0.14.0.
+- No modifica `specs/canonical/`, schemas de proyecto ni proyectos consumidores.
+
 ## 0.14.0 — 2026-08-27 — verificación incremental, build reproducible y continuidad Jira
 
 - Calcula `visual-browser-review` sobre la selección exacta de `TASK-###`: una porción backend sin interfaz registra una no aplicabilidad determinista, mientras cualquier referencia UX/VIS, capability frontend/browser, unidad de interfaz, slice mixto o verificación conjunta de una release con interfaz mantiene el gate obligatorio.

@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La versión `0.14.0` conserva M0–M5 y el contrato 1.5 como release candidate técnica para Codex. Mantiene 1.0–1.5 en compatibilidad, los perfiles Microsoft Entra como candidates y añade dos perfiles OIDC simulados active certificados exclusivamente para entornos no productivos, sin composición dinámica. Una contribución puede mejorar las seis skills, contratos, perfiles, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.14.0` no significa que M6, la publicación estable, la interoperabilidad real o el soporte corporativo estén completados o aprobados.
+La versión `0.14.1` conserva M0–M5 y el contrato 1.5 como release candidate técnica para Codex. Mantiene 1.0–1.5 en compatibilidad, los perfiles Microsoft Entra como candidates y añade dos perfiles OIDC simulados active certificados exclusivamente para entornos no productivos, sin composición dinámica. Una contribución puede mejorar las seis skills, contratos, perfiles, harness, distribución candidate o infraestructura de piloto. M5 queda preparado pero no ejecutado; la numeración SemVer `0.14.1` no significa que M6, la publicación estable, la interoperabilidad real o el soporte corporativo estén completados o aprobados.
 
 ## Contrato de cambio
 

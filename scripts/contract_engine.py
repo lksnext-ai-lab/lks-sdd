@@ -27,6 +27,15 @@ ARTIFACT_MARKER_RE = re.compile(r"\bART-[A-Z0-9-]+\b")
 MARKDOWN_IMAGE_RE = re.compile(r"^!\[[^\]]*\]\(([^)]+)\)$")
 EMPTY_REFERENCE_VALUES = {"", "none", "n/a"}
 APPLICABILITY_VALUES = {"pending", "not-applicable"}
+PENDING_TRACEABILITY_EVIDENCE_VALUES = frozenset(
+    {"", "none", "pending", "not-run"}
+)
+
+
+def is_pending_traceability_evidence(value: str | None) -> bool:
+    """Return whether traceability is still awaiting executed evidence."""
+
+    return (value or "").strip().casefold() in PENDING_TRACEABILITY_EVIDENCE_VALUES
 
 
 class ContractEngineError(ValueError):

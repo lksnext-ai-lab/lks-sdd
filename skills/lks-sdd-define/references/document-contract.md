@@ -2,7 +2,7 @@
 
 Cada Markdown canónico empieza con front matter validable: `artifact_id`, `artifact_type`, `schema_version`, `method_version`, `created_with_plugin_version`, `project_id`, `baseline_id`, `status`, `classification`, `audience`, `owners`, `source_of_truth` y `last_updated`.
 
-Las inicializaciones nuevas de LKS-SDD 0.14.0 usan `method_version: 1.5.0` y `schema_version: 1.5`. Los documentos 1.0, 1.1, 1.2, 1.3, 1.4 y 1.5 siguen siendo validables en compatibilidad; no se actualizan al instalar el plugin. Las migraciones son explícitas, reversibles y de un solo salto (`1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5`). El salto histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1; 1.3 → 1.4 añade tracking pendiente; 1.4 → 1.5 añade reporting Jira sin escribir fuera, mantiene `repository-only` como no aplicable y conserva `jira-hybrid` en `projection-only` sin inferir mappings, comentarios o transiciones.
+Las inicializaciones nuevas de LKS-SDD 0.14.1 usan `method_version: 1.5.0` y `schema_version: 1.5`. Los documentos 1.0, 1.1, 1.2, 1.3, 1.4 y 1.5 siguen siendo validables en compatibilidad; no se actualizan al instalar el plugin. Las migraciones son explícitas, reversibles y de un solo salto (`1.0 → 1.1 → 1.2 → 1.3 → 1.4 → 1.5`). El salto histórico 1.2 → 1.3 conserva método 1.3.0/plugin 0.9.1; 1.3 → 1.4 añade tracking pendiente; 1.4 → 1.5 añade reporting Jira sin escribir fuera, mantiene `repository-only` como no aplicable y conserva `jira-hybrid` en `projection-only` sin inferir mappings, comentarios o transiciones.
 
 El núcleo se materializa bajo `docs/lks-sdd/`:
 

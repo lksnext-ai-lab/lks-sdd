@@ -20,18 +20,28 @@ from delivery_engine import (  # noqa: E402
     repository_revision,
     validate_delivery_contract,
 )
-from eval_support import run_json  # noqa: E402
+from eval_support import (  # noqa: E402
+    IMPLEMENT_SCRIPT,
+    VALIDATE_SCRIPT,
+    authorize_implementation,
+    confirm_planning,
+    initialize,
+    materialize_ready_increment,
+    run_json,
+)
 from jira_reporting_engine import _source_exists  # noqa: E402
 from test_jira_reporting_v15 import (  # noqa: E402
     TRACKING_SCRIPT,
     _prepare_started_project,
 )
+from test_task_tracking_v14 import _configure, _manifest, _record  # noqa: E402
 
 
 VERIFY_SCRIPT = (
     PLUGIN_ROOT / "skills/lks-sdd-verify/scripts/run_verification.py"
 )
 TASKS_SCRIPT = PLUGIN_ROOT / "scripts/manage_tasks.py"
+TRACEABILITY_SCRIPT = PLUGIN_ROOT / "scripts/check_traceability.py"
 
 
 def _load_verification_module():
@@ -100,6 +110,63 @@ def _delivery_contract() -> dict:
             "BIND-002": {"profile_id": "WEB-REACT-VITE-STATIC"},
         },
     }
+
+
+def _prepare_started_project_with_empty_evidence(
+    root: Path, project_id: str
+) -> dict:
+    initialize(root, project_id)
+    materialize_ready_increment(root, confirm_plan=False)
+    traceability = root / "docs/lks-sdd/05-quality/traceability.md"
+    traceability.write_text(
+        traceability.read_text(encoding="utf-8").replace(
+            "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | none |",
+            "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 |  |",
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    confirm_planning(root)
+    _configure(
+        root,
+        "jira-hybrid",
+        decision="ADR-001",
+        reporting_scope="milestone-reporting",
+        coordination_gate="advisory",
+    )
+    from task_tracking_engine import build_projection_preview  # noqa: PLC0415
+
+    projection = build_projection_preview(root, _manifest(root), ["TASK-001"])
+    _record(
+        root,
+        projection,
+        result="succeeded",
+        external_id="10001",
+        external_key="SYN-1",
+    )
+    authorize_implementation(root)
+    _, preview = run_json(
+        IMPLEMENT_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "--task",
+        "TASK-001",
+        "--dry-run",
+    )
+    _, implementation = run_json(
+        IMPLEMENT_SCRIPT,
+        str(root),
+        "--increment",
+        "INC-001",
+        "--task",
+        "TASK-001",
+        "--apply",
+        "--authorize",
+        "--preview-hash",
+        preview["preview_hash"],
+    )
+    return implementation
 
 
 class SliceVisualApplicabilityTests(unittest.TestCase):
@@ -478,6 +545,248 @@ class JiraCanonicalSourceRegressionTests(unittest.TestCase):
                 "problems": [{"ID": "PROB-001", "State": "open"}],
             }))
             self.assertFalse(_source_exists(root, manifest, "TASK-001", "PROB-999", details))
+
+
+class EmptyTraceabilityEvidenceRegressionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.module = _load_verification_module()
+
+    @staticmethod
+    def _passed(check, env):
+        return {
+            "name": check["name"],
+            "gate_id": check["gate_id"],
+            "binding_id": check["binding_id"],
+            "status": "passed",
+            "duration_seconds": 1.0,
+        }
+
+    def test_empty_schema_15_evidence_completes_g3_g4_and_records_consistently(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            implementation = _prepare_started_project_with_empty_evidence(
+                root, "empty-evidence-schema-15"
+            )
+            self.assertEqual(implementation["execution_id"], "EXEC-001")
+            manifest_path = root / ".lks-sdd/project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(manifest["schema_version"], "1.5")
+            manifest["implementation"]["status"] = "completed"
+            next(
+                item
+                for item in manifest["executions"]
+                if item["execution_id"] == "EXEC-001"
+            )["status"] = "completed"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+
+            _, validation = run_json(VALIDATE_SCRIPT, str(root))
+            _, preimplementation = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "preimplementation",
+            )
+            self.assertTrue(validation["valid"], validation)
+            self.assertTrue(preimplementation["valid"], preimplementation)
+
+            relative = Path("docs/lks-sdd/evidence/delivery/REL-001-ENV-001.json")
+            args = argparse.Namespace(
+                project_root=root,
+                increment="INC-001",
+                task=["TASK-001"],
+                execution_id="EXEC-001",
+                plan=False,
+                execute=True,
+                authorize=True,
+                containers=True,
+                environment="ENV-001",
+                delivery_evidence=None,
+                materialize_delivery_template=relative,
+                visual_evidence=None,
+                record_evidence=None,
+            )
+            with mock.patch.object(
+                self.module, "_execute_profile_command", side_effect=self._passed
+            ), mock.patch.object(
+                self.module, "_cleanup_profile_compositions", return_value=[]
+            ):
+                g3_code, g3 = self.module.run(args)
+            self.assertEqual(g3_code, 0, g3)
+            self.assertEqual(g3["classification"], "verified-with-reservations")
+
+            delivery_path = root / relative
+            delivery = json.loads(delivery_path.read_text(encoding="utf-8"))
+            delivery["evidence_state"] = "complete"
+            for key in ("promotion", "smoke", "observability", "recovery", "authorization"):
+                delivery[key]["status"] = "passed"
+                delivery[key]["recorded_at"] = "2026-08-28T10:00:00Z"
+                delivery[key]["reference"] = f"evidence:{key}:001"
+            delivery["authorization"]["authority"] = "release-owner"
+            delivery_path.write_text(
+                json.dumps(delivery, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            args.materialize_delivery_template = None
+            args.delivery_evidence = relative
+            args.record_evidence = "EVID-001"
+            with mock.patch.object(
+                self.module, "_execute_profile_command", side_effect=self._passed
+            ), mock.patch.object(
+                self.module, "_cleanup_profile_compositions", return_value=[]
+            ):
+                g4_code, g4 = self.module.run(args)
+
+            self.assertEqual(g4_code, 0, g4)
+            self.assertEqual(g4["classification"], "verified")
+            self.assertTrue(g4["evidence_recorded"])
+            self.assertEqual(g3["build_id"], g4["build_id"])
+            evidence_path = root / "docs/lks-sdd/evidence/EVID-001.json"
+            evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+            recorded_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            execution = next(
+                item
+                for item in recorded_manifest["executions"]
+                if item["execution_id"] == "EXEC-001"
+            )
+            traceability = (
+                root / "docs/lks-sdd/05-quality/traceability.md"
+            ).read_text(encoding="utf-8")
+            self.assertIn(
+                "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | EVID-001 |",
+                traceability,
+            )
+            self.assertEqual(evidence["evidence_id"], "EVID-001")
+            self.assertEqual(evidence["execution_id"], "EXEC-001")
+            self.assertEqual(evidence["build_id"], g4["build_id"])
+            self.assertEqual(
+                recorded_manifest["verification"]["evidence_ids"], ["EVID-001"]
+            )
+            self.assertEqual(execution["evidence_ids"], ["EVID-001"])
+            self.assertEqual(
+                recorded_manifest["last_delivery"]["evidence_ids"], ["EVID-001"]
+            )
+            _, verification = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment",
+                "INC-001",
+                "--phase",
+                "verification",
+            )
+            self.assertTrue(verification["valid"], verification)
+
+    def test_blank_variants_share_pending_contract(self) -> None:
+        for value in ("", " ", "\t", "none", "Pending", "not-run"):
+            with self.subTest(value=value):
+                self.assertTrue(
+                    self.module.is_pending_traceability_evidence(value)
+                )
+
+    def test_existing_evidence_and_other_increment_are_not_overwritten(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "traceability.md"
+            original = (
+                "| Requirement | Acceptance | Decision | Increment | Test | Evidence |\n"
+                "|---|---|---|---|---|---|\n"
+                "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | EVID-777 |\n"
+                "| FR-002 | AC-002 | ADR-002 | INC-002 | TEST-002 |   |\n"
+            ).encode("utf-8")
+            path.write_bytes(original)
+            with self.assertRaises(self.module.VerificationError):
+                self.module._updated_traceability(path, "INC-001", "EVID-001")
+            self.assertEqual(path.read_bytes(), original)
+
+            path.write_bytes(original.replace(b"EVID-777", b"         "))
+            _, updated = self.module._updated_traceability(
+                path, "INC-001", "EVID-001"
+            )
+            text = updated.decode("utf-8")
+            self.assertIn("| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | EVID-001 |", text)
+            self.assertIn("| FR-002 | AC-002 | ADR-002 | INC-002 | TEST-002 |   |", text)
+
+    def test_malformed_table_fails_without_mutating_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "traceability.md"
+            original = (
+                "| Requirement | Acceptance | Decision | Increment | Test | Evidence |\n"
+                "|---|---|---|---|---|---|\n"
+                "| FR-001 | AC-001 | INC-001 | TEST-001 | |\n"
+            ).encode("utf-8")
+            path.write_bytes(original)
+            with self.assertRaises(self.module.VerificationError):
+                self.module._updated_traceability(path, "INC-001", "EVID-001")
+            self.assertEqual(path.read_bytes(), original)
+
+    def test_record_rolls_back_evidence_traceability_and_manifest_together(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _prepare_started_project_with_empty_evidence(root, "atomic-evidence")
+            manifest_path = root / ".lks-sdd/project.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["implementation"]["status"] = "completed"
+            next(
+                item
+                for item in manifest["executions"]
+                if item["execution_id"] == "EXEC-001"
+            )["status"] = "completed"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            trace_path = root / "docs/lks-sdd/05-quality/traceability.md"
+            original_manifest = manifest_path.read_bytes()
+            original_trace = trace_path.read_bytes()
+            args = argparse.Namespace(
+                project_root=root,
+                increment="INC-001",
+                task=["TASK-001"],
+                execution_id="EXEC-001",
+                plan=False,
+                execute=True,
+                authorize=True,
+                containers=True,
+                environment="ENV-001",
+                delivery_evidence=None,
+                materialize_delivery_template=None,
+                visual_evidence=None,
+                record_evidence="EVID-001",
+            )
+            real_replace = self.module.os.replace
+            replace_calls = 0
+
+            def fail_manifest_replace(source, target):
+                nonlocal replace_calls
+                replace_calls += 1
+                if replace_calls == 2:
+                    raise OSError("synthetic manifest replace failure")
+                return real_replace(source, target)
+
+            with mock.patch.object(
+                self.module, "_execute_profile_command", side_effect=self._passed
+            ), mock.patch.object(
+                self.module, "_cleanup_profile_compositions", return_value=[]
+            ), mock.patch.object(
+                self.module.os, "replace", side_effect=fail_manifest_replace
+            ), self.assertRaises(OSError):
+                self.module.run(args)
+
+            self.assertEqual(manifest_path.read_bytes(), original_manifest)
+            self.assertEqual(trace_path.read_bytes(), original_trace)
+            self.assertFalse(
+                (root / "docs/lks-sdd/evidence/EVID-001.json").exists()
+            )
+            self.assertFalse(list(root.rglob("*.lks-sdd.tmp")))
 
 
 class ExistingSchema15CompatibilityTests(unittest.TestCase):

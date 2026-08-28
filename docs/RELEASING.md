@@ -31,8 +31,8 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "0.14.0"
-$releaseDate = "2026-08-27"
+$releaseVersion = "0.14.1"
+$releaseDate = "2026-08-28"
 $releaseTag = "v$releaseVersion"
 
 git status --short --branch
@@ -123,6 +123,6 @@ Cada nota incluye como mínimo:
 - periodo o estado de soporte;
 - responsables confirmados o, si todavía no existen, el pendiente explícito.
 
-Para 0.14.0, las notas deben documentar además la aplicabilidad visual por slice, el material canónico del `build_id`, la separación de `verification_run_id` y el flujo G3 → plantilla G4 → evidencia completa. Deben declarar la compatibilidad de lectura de evidencia G4 1.0 y el carácter no aprobatorio de una plantilla 1.1 `draft`. También deben distinguir el OIDC simulado local de la interoperabilidad externa. Los perfiles simulados deben declarar `external_interoperability: not-applicable` y fallar cerrados en producción; no permiten declarar Microsoft Entra real como `passed`. Tampoco los tests sintéticos, previews y recibos permiten declarar Rovo/Jira real como `passed`: esa evidencia pertenece al canal humano/piloto o al gate externo exacto y permanece `not-run` hasta una ejecución autorizada. Las propuestas 1.4/1.5 deben citarse como candidate no canónicas mientras no exista una decisión metodológica separada.
+Para 0.14.1, las notas deben documentar además la aplicabilidad visual por slice, el material canónico del `build_id`, la separación de `verification_run_id` y el flujo G3 → plantilla G4 → evidencia completa. Deben declarar la compatibilidad de lectura de evidencia G4 1.0 y el carácter no aprobatorio de una plantilla 1.1 `draft`. También deben distinguir el OIDC simulado local de la interoperabilidad externa. Los perfiles simulados deben declarar `external_interoperability: not-applicable` y fallar cerrados en producción; no permiten declarar Microsoft Entra real como `passed`. Tampoco los tests sintéticos, previews y recibos permiten declarar Rovo/Jira real como `passed`: esa evidencia pertenece al canal humano/piloto o al gate externo exacto y permanece `not-run` hasta una ejecución autorizada. Las propuestas 1.4/1.5 deben citarse como candidate no canónicas mientras no exista una decisión metodológica separada.
 
 El validador contractual compara dinámicamente la versión del manifiesto con la primera entrada del changelog y `docs/releases/vX.Y.Z.md`. La etiqueta se comprueba únicamente al publicar, porque los commits intermedios no constituyen una release.

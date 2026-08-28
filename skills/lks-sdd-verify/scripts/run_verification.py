@@ -19,7 +19,11 @@ from typing import Any
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
-from contract_engine import build_project_model, resolve_active_increment  # noqa: E402
+from contract_engine import (  # noqa: E402
+    build_project_model,
+    is_pending_traceability_evidence,
+    resolve_active_increment,
+)
 from validate_project import (  # noqa: E402
     INTERFACE_CONTRACT_HEADERS,
     interface_applicability,
@@ -657,7 +661,7 @@ def _updated_traceability(
         if (
             len(cells) == 6
             and cells[3] == increment
-            and cells[5].lower() in {"none", "pending", "not-run"}
+            and is_pending_traceability_evidence(cells[5])
         ):
             cells[5] = evidence_id
             lines[index] = "| " + " | ".join(cells) + " |"
@@ -1575,6 +1579,12 @@ def _run_v12(
     trace_original, trace_new = _updated_traceability(
         trace_path, args.increment, args.record_evidence
     )
+    selected_profile = manifest.get("technology", {}).get("selected_profile")
+    profile_versions = {
+        item.get("profile_id"): item.get("profile_version")
+        for item in build_material.get("profile_bindings", [])
+        if isinstance(item, dict)
+    }
     evidence = {
         "schema_version": "1.2",
         "evidence_id": args.record_evidence,
@@ -1584,6 +1594,8 @@ def _run_v12(
             else {}
         ),
         "increment": args.increment,
+        "profile_id": selected_profile,
+        "profile_version": profile_versions.get(selected_profile),
         "task_ids": task_ids,
         "profile_bindings": [
             item["binding_id"] for item in bindings

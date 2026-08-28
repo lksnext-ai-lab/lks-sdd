@@ -12,6 +12,7 @@ from typing import Any
 from contract_engine import (
     RelationSpec,
     build_project_model,
+    is_pending_traceability_evidence,
     parse_reference_cell,
     resolve_active_increment,
 )
@@ -258,7 +259,11 @@ def check(
         linked_evidence = [
             (row, evidence_id)
             for row in matching
-            for evidence_id in _ids(row.get("Evidence", ""), {"EVID"})
+            for evidence_id in (
+                set()
+                if is_pending_traceability_evidence(row.get("Evidence", ""))
+                else _ids(row.get("Evidence", ""), {"EVID"})
+            )
         ]
         if not linked_evidence:
             gap(
