@@ -19,7 +19,7 @@ El repositorio fija `eol=lf` para todo texto mediante `.gitattributes` y excluye
 El reporte publicable se genera desde un checkout dedicado, recién creado y sin archivos no versionados preexistentes, incluidos los ignorados. Desde la raíz del repositorio principal, una vez integrado y revisado el commit de release:
 
 ```powershell
-$releaseVersion = "0.14.1"
+$releaseVersion = "0.14.2"
 $releaseDate = "2026-08-28"
 $sourceCommit = (git rev-parse HEAD).Trim()
 $artifactBase = Join-Path ([System.IO.Path]::GetTempPath()) "lks-sdd-$releaseVersion"
@@ -75,7 +75,7 @@ Publicar el ZIP de marketplace como asset de GitHub no actualiza una instalació
 4. Para un marketplace ya configurado, actualizar su fuente de forma controlada y ejecutar, si la versión instalada lo soporta, `codex plugin marketplace upgrade lks-sdd-development`. Para un alta inicial, usar `codex plugin marketplace add "RUTA_MARKETPLACE"` y completar la activación en la superficie de Codex disponible.
 5. Confirmar que Codex resuelve la nueva versión, reiniciar la aplicación y abrir una tarea nueva para cargar sus metadatos y skills.
 
-El bundle 0.14.1 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. Para probar interoperabilidad Entra debe aportar por separado un tenant y registros de aplicación autorizados, sin persistir credenciales en el bundle. Esa preparación no forma parte del builder ni puede darse por superada mediante un test sintético. Sin Rovo, `repository-only` sigue completo; los perfiles Entra continúan candidate, `unsupported` y con interoperabilidad real `not-run`. Los dos perfiles OIDC simulados certificados son exclusivamente no productivos, declaran `external_interoperability: not-applicable` y fallan cerrados en producción.
+El bundle 0.14.2 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. Para probar interoperabilidad Entra debe aportar por separado un tenant y registros de aplicación autorizados, sin persistir credenciales en el bundle. Esa preparación no forma parte del builder ni puede darse por superada mediante un test sintético. Sin Rovo, `repository-only` sigue completo; los perfiles Entra continúan candidate, `unsupported` y con interoperabilidad real `not-run`. Los dos perfiles OIDC simulados certificados son exclusivamente no productivos, declaran `external_interoperability: not-applicable` y fallan cerrados en producción.
 
 No edite manualmente la caché como mecanismo de actualización. La instalación o activación modifica el entorno Codex del participante, no se automatiza desde este repositorio y requiere autorización separada de la publicación técnica.
 

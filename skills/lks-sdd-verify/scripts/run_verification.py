@@ -24,6 +24,14 @@ from contract_engine import (  # noqa: E402
     is_pending_traceability_evidence,
     resolve_active_increment,
 )
+from check_traceability import check as check_traceability  # noqa: E402
+from evidence_contract import (  # noqa: E402
+    canonical_top_level_profile_identity,
+    evidence_gate_applicability_errors,
+    evidence_profile_identity_errors,
+    selected_task_requirements,
+    visual_gate_applicability,
+)
 from validate_project import (  # noqa: E402
     INTERFACE_CONTRACT_HEADERS,
     interface_applicability,
@@ -31,6 +39,7 @@ from validate_project import (  # noqa: E402
     parse_markdown_table_blocks,
     table_rows_for_headers,
     v06_contract_applies,
+    evidence_document_errors,
     validate_project,
     validate_visual_review_evidence,
 )
@@ -320,115 +329,13 @@ def _visual_applicability(
     delivery: dict[str, Any],
 ) -> dict[str, Any]:
     """Derive visual review applicability from the exact selected TASK slice."""
-
-    triggers: list[str] = []
-    inspected: list[str] = []
-    selected_releases = {
-        delivery.get("tasks", {}).get(task_id, {}).get("Release")
-        for task_id in task_ids
-    }
-    selected_releases.discard(None)
-    release_scope = False
-    if len(selected_releases) == 1:
-        release_id = next(iter(selected_releases))
-        release_tasks = {
-            candidate_id
-            for candidate_id, row in delivery.get("tasks", {}).items()
-            if row.get("Release") == release_id
-        }
-        release_scope = bool(release_tasks) and set(task_ids) == release_tasks
-
-    for task_id in sorted(task_ids):
-        task = delivery.get("tasks", {}).get(task_id, {})
-        details = delivery.get("task_details", {}).get(task_id, {})
-        definition_rows = details.get("definition", [])
-        definition = definition_rows[0] if len(definition_rows) == 1 else {}
-        unit = delivery.get("units", {}).get(task.get("Unit"), {})
-        binding = delivery.get("bindings", {}).get(task.get("Profile binding"), {})
-        textual_fields = {
-            "in-scope": definition.get("In scope", ""),
-            "out-of-scope": definition.get("Out of scope", ""),
-            "requirements": definition.get("Requirements", ""),
-            "acceptance": definition.get("Acceptance", ""),
-            "capabilities": definition.get("Required capabilities", ""),
-            "gates": definition.get("Technical gates", ""),
-            "unit": " ".join(
-                str(unit.get(key, ""))
-                for key in ("Component", "Responsibility", "Runtime boundary", "Interfaces")
-            ),
-        }
-        joined = " ".join(textual_fields.values())
-        refs = sorted(set(re.findall(r"\b(?:UX|VIS)-[0-9]{3}\b", joined)))
-        if refs:
-            triggers.append(f"{task_id}:refs={','.join(refs)}")
-        contract_ids = re.findall(
-            r"\b(?:CAP|GATE)-[A-Z0-9-]{3,80}\b",
-            " ".join([textual_fields["capabilities"], textual_fields["gates"]]),
-        )
-        direct_frontend = sorted(
-            {
-                item
-                for item in contract_ids
-                if {"FRONTEND", "BROWSER", "UI"} & set(item.split("-"))
-            }
-        )
-        if direct_frontend:
-            triggers.append(
-                f"{task_id}:frontend-contract={','.join(direct_frontend)}"
-            )
-        in_scope_text = textual_fields["in-scope"].casefold()
-        backend_only = bool(
-            re.search(
-                r"\b(?:backend|api|worker|consumer|processor|database)\b",
-                in_scope_text,
-            )
-        ) and not bool(
-            re.search(
-                r"\b(?:frontend|browser|interfaz|interface|ui|spa|screen)\b",
-                in_scope_text,
-            )
-        )
-        unit_text = textual_fields["unit"].casefold()
-        if not backend_only and re.search(
-            r"\b(?:frontend|browser|interfaz|interface|client-side|spa)\b", unit_text
-        ):
-            triggers.append(f"{task_id}:unit={task.get('Unit')}")
-        profile_id = str(binding.get("profile_id", ""))
-        if not backend_only and profile_id:
-            bundle = load_profile_bundle(profile_id)
-            roles = {
-                str(item.get("role", "")).casefold()
-                for item in bundle.profile.get("units", [])
-                if isinstance(item, dict)
-            }
-            if "frontend" in roles and "backend" not in roles:
-                triggers.append(f"{task_id}:profile={profile_id}")
-        inspected.append(task_id)
-
-    if triggers:
-        return {
-            "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
-            "status": "applicable",
-            "scope": "release" if release_scope else "task-slice",
-            "task_ids": sorted(task_ids),
-            "reason": "selected-task-interface-signals:" + ";".join(sorted(set(triggers))),
-        }
-    if release_scope and _interface_is_applicable(root, manifest, increment):
-        return {
-            "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
-            "status": "applicable",
-            "scope": "release",
-            "task_ids": sorted(task_ids),
-            "reason": f"release-{next(iter(selected_releases))}-delivers-interface",
-        }
-    return {
-        "gate_id": "GATE-VISUAL-BROWSER-REVIEW",
-        "status": "not-applicable",
-        "scope": "task-slice",
-        "task_ids": sorted(task_ids),
-        "reason": "selected-tasks-have-no-ux-vis-frontend-browser-or-interface-unit-signals:"
-        + ",".join(inspected),
-    }
+    return visual_gate_applicability(
+        task_ids,
+        delivery,
+        release_interface_applicable=_interface_is_applicable(
+            root, manifest, increment
+        ),
+    )
 
 
 def _binding_ids_for_tasks(
@@ -651,7 +558,10 @@ def _execute_check_with_env(
 
 
 def _updated_traceability(
-    path: Path, increment: str, evidence_id: str
+    path: Path,
+    increment: str,
+    evidence_id: str,
+    requirement_ids: set[str] | None = None,
 ) -> tuple[bytes, bytes]:
     original = path.read_bytes()
     lines = original.decode("utf-8").splitlines()
@@ -661,6 +571,10 @@ def _updated_traceability(
         if (
             len(cells) == 6
             and cells[3] == increment
+            and (
+                requirement_ids is None
+                or bool(set(re.findall(r"\b(?:FR|NFR|TR|BR)-[0-9]{3}\b", cells[0])) & requirement_ids)
+            )
             and is_pending_traceability_evidence(cells[5])
         ):
             cells[5] = evidence_id
@@ -1204,6 +1118,9 @@ def _run_v12(
             binding_id=binding_id,
             required=True,
         )
+        details["profile_version"] = load_profile_bundle(profile_id).profile.get(
+            "version"
+        )
         blockers.extend(lock_errors)
         if implementation_locks.get(binding_id) != details.get("sha256"):
             blockers.append(
@@ -1576,15 +1493,23 @@ def _run_v12(
     if evidence_path.exists():
         raise VerificationError(f"La evidencia ya existe: {evidence_path}.")
     trace_path = root / "docs/lks-sdd/05-quality/traceability.md"
+    selected_requirements = selected_task_requirements(task_ids, delivery)
+    if not selected_requirements:
+        raise VerificationError(
+            "Las TASK seleccionadas no enlazan requisitos trazables."
+        )
     trace_original, trace_new = _updated_traceability(
-        trace_path, args.increment, args.record_evidence
+        trace_path,
+        args.increment,
+        args.record_evidence,
+        selected_requirements,
     )
-    selected_profile = manifest.get("technology", {}).get("selected_profile")
-    profile_versions = {
-        item.get("profile_id"): item.get("profile_version")
+    selected_identities = [
+        item
         for item in build_material.get("profile_bindings", [])
         if isinstance(item, dict)
-    }
+        and item.get("binding_id") in {binding["binding_id"] for binding in bindings}
+    ]
     evidence = {
         "schema_version": "1.2",
         "evidence_id": args.record_evidence,
@@ -1594,8 +1519,6 @@ def _run_v12(
             else {}
         ),
         "increment": args.increment,
-        "profile_id": selected_profile,
-        "profile_version": profile_versions.get(selected_profile),
         "task_ids": task_ids,
         "profile_bindings": [
             item["binding_id"] for item in bindings
@@ -1618,6 +1541,7 @@ def _run_v12(
         "gate_applicability": [visual_applicability],
         "limitations": limitations,
     }
+    evidence.update(canonical_top_level_profile_identity(selected_identities))
     manifest_new = json.loads(json.dumps(manifest))
     manifest_new["phase"] = "verification"
     manifest_new["gate"] = "G4"
@@ -1680,6 +1604,20 @@ def _run_v12(
     evidence_bytes = (
         json.dumps(evidence, indent=2, ensure_ascii=False) + "\n"
     ).encode("utf-8")
+    candidate_errors = evidence_document_errors(evidence, args.record_evidence)
+    candidate_errors.extend(
+        evidence_profile_identity_errors(
+            evidence, manifest_new, require_canonical_single=True
+        )
+    )
+    candidate_errors.extend(
+        evidence_gate_applicability_errors(evidence, visual_applicability)
+    )
+    if candidate_errors:
+        raise VerificationError(
+            "La evidencia candidata no satisface el contrato: "
+            + "; ".join(dict.fromkeys(candidate_errors))
+        )
     evidence_path.parent.mkdir(parents=True, exist_ok=True)
     temp_trace = trace_path.with_name(trace_path.name + ".lks-sdd.tmp")
     temp_manifest = manifest_path.with_name(
@@ -1701,6 +1639,23 @@ def _run_v12(
             )
         os.replace(temp_trace, trace_path)
         os.replace(temp_manifest, manifest_path)
+        updated_report, _, _ = validate_project(root)
+        if updated_report.errors:
+            raise VerificationError(
+                "El proyecto resultante no supera validate-project: "
+                + "; ".join(updated_report.errors)
+            )
+        trace_code, trace_result = check_traceability(
+            root,
+            args.increment,
+            "verification",
+            task_ids=task_ids,
+        )
+        if trace_code != 0:
+            raise VerificationError(
+                "El proyecto resultante no supera traceability verification: "
+                + "; ".join(trace_result.get("gaps", []))
+            )
     except (OSError, VerificationError):
         if evidence_path.exists():
             evidence_path.unlink()

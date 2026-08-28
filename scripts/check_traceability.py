@@ -21,6 +21,8 @@ from validate_project import (
     parse_markdown_tables,
     validate_project,
 )
+from delivery_engine import validate_delivery_contract
+from evidence_contract import selected_task_requirements
 
 
 def _ids(value: str, prefixes: set[str]) -> set[str]:
@@ -141,7 +143,11 @@ def _deduplicate(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def check(
-    root: Path, increment: str | None, phase: str = "auto"
+    root: Path,
+    increment: str | None,
+    phase: str = "auto",
+    *,
+    task_ids: list[str] | None = None,
 ) -> tuple[int, dict[str, Any]]:
     report, manifest, definitions = validate_project(root)
     diagnostics: list[dict[str, Any]] = []
@@ -171,6 +177,30 @@ def check(
         }
 
     resolved_phase = _resolved_phase(manifest, phase)
+    scoped_requirements: set[str] | None = None
+    if task_ids:
+        delivery = validate_delivery_contract(root, manifest)
+        unknown = sorted(set(task_ids) - set(delivery.get("tasks", {})))
+        wrong_increment = sorted(
+            task_id
+            for task_id in task_ids
+            if increment is not None
+            and delivery.get("tasks", {}).get(task_id, {}).get("Increment") != increment
+        )
+        if unknown:
+            gap("TRACE-TASK-UNDEFINED", "TASK no definida: " + ", ".join(unknown))
+        if wrong_increment:
+            gap(
+                "TRACE-TASK-SCOPE",
+                "TASK fuera del incremento solicitado: " + ", ".join(wrong_increment),
+            )
+        if not unknown and not wrong_increment:
+            scoped_requirements = selected_task_requirements(task_ids, delivery)
+            if not scoped_requirements:
+                gap(
+                    "TRACE-TASK-EMPTY",
+                    "El TASK slice no enlaza requisitos trazables.",
+                )
     if increment is not None:
         increment_definition = definitions.get(increment)
         if (
@@ -211,6 +241,8 @@ def check(
             continue
         item_increments = _ids(item.get("Increment", ""), {"INC"})
         if increment and increment not in item_increments:
+            continue
+        if scoped_requirements is not None and requirement_id not in scoped_requirements:
             continue
         checked.append(requirement_id)
         matching = [
@@ -325,6 +357,7 @@ def check(
         "valid": not diagnostics,
         "phase": resolved_phase,
         "increment": increment,
+        "task_ids": sorted(set(task_ids or [])),
         "checked": checked,
         "gaps": [_diagnostic_gap(item) for item in diagnostics],
         "diagnostics": diagnostics,
@@ -340,6 +373,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--increment")
+    parser.add_argument("--task", action="append", default=[])
     parser.add_argument(
         "--phase",
         choices=("auto", "preimplementation", "verification"),
@@ -348,7 +382,10 @@ def main() -> int:
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
     code, result = check(
-        args.project_root.expanduser().resolve(), args.increment, args.phase
+        args.project_root.expanduser().resolve(),
+        args.increment,
+        args.phase,
+        task_ids=args.task or None,
     )
     if args.as_json:
         print(json.dumps(result, indent=2, ensure_ascii=False))

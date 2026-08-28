@@ -24,7 +24,9 @@ En 1.3 el plan se liga a una única `EXEC-###` del mismo `INC-###`, a sus `task_
 
 Ejecutar cualquier check o registrar un `EVID-###` exige que ese mismo registro mantenga `implementation.status=completed`. Si falta `implementation`, el incremento no coincide, el perfil es incoherente o el estado es `not-started`, `in-progress` o `blocked`, el runner falla cerrado antes de invocar herramientas, crear evidencia o modificar trazabilidad e índice. Un plan, una autorización o unos checks potencialmente exitosos no sustituyen esta puerta.
 
-Después de ejecutar y antes de escribir, el runner recarga `project.json` y revalida estado `completed`, incremento, tareas, bindings, todos los locks, revisión/árbol del repositorio y contrato activo contra la instantánea inicial. Si algo cambió, no crea `EVID-###` ni modifica trazabilidad o índice; la mutación externa se conserva y debe repetirse la verificación.
+Después de ejecutar y antes de escribir, el runner recarga `project.json` y revalida estado `completed`, incremento, tareas, bindings, todos los locks, revisión/árbol del repositorio y contrato activo contra la instantánea inicial. Construye el EVID candidato en memoria y aplica los mismos contratos estructurales, de identidad y aplicabilidad que consume `validate-project`. Si algo cambió o el candidato no es válido, no crea `EVID-###` ni modifica trazabilidad o índice; la mutación externa se conserva y debe repetirse la verificación.
+
+Tras materializar EVID, ART-TRACE y manifest, ejecuta `validate-project` y `traceability --phase verification --task ...` sobre el estado resultante. Solo después declara `evidence_recorded=true`. Un rechazo restaura conjuntamente los bytes anteriores de trazabilidad y manifest —incluidos `verification`, `last_delivery`, `evidence_ids` y EXEC—, elimina EVID y limpia temporales.
 
 En 1.3 también exige que las huellas de especificación y planificación sigan vigentes, que la autorización cubra exactamente las tareas ejecutadas y que cualquier `CKPT-###` divergente haya sido reconciliado. Un checkpoint puede acreditar que se ejecutó un comando solo si contiene su resultado observado; nunca eleva por sí mismo un check a `passed`.
 
@@ -32,7 +34,7 @@ En 1.3 también exige que las huellas de especificación y planificación sigan 
 
 Antes de implementar, `preimplementation` exige una cadena no vacía de requisito confirmado, criterio de aceptación, decisión o no aplicabilidad motivada, incremento y prueba planificada. No exige fabricar evidencia antes de ejecutar. Una celda `Evidence` vacía o formada solo por espacios es el estado pendiente normal; por compatibilidad también se reconocen `none`, `pending` y `not-run`. El registrador y el lector consumen esta misma definición. `--record-evidence EVID-###` sustituye el estado pendiente por el identificador exacto solo después de superar las puertas aplicables y escribe EVID, ART-TRACE y manifest/EXEC como una unidad recuperable. No normaliza el Markdown antes de verificar, no cambia otras filas y no sobrescribe un EVID existente.
 
-Durante verificación, la fase `verification` exige además un archivo estructurado `EVID-###` aplicable al mismo incremento, con clasificación `verified` o `verified-with-reservations`, una lista no vacía de checks y todos ellos en `passed`. Un enlace a un archivo ausente, `not-verified`, sin checks, o con cualquier check `not-run`, `skipped`, `blocked` o `failed` no satisface la trazabilidad. Si hay requisitos aplicables pero no se comprueba ninguno, ambas fases fallan de forma explícita.
+Durante verificación, la fase `verification` exige además un archivo estructurado `EVID-###` aplicable al mismo incremento, con clasificación `verified` o `verified-with-reservations`, una lista no vacía de checks y todos ellos en `passed`. Un enlace a un archivo ausente, `not-verified`, sin checks, o con cualquier check `not-run`, `skipped`, `blocked` o `failed` no satisface la trazabilidad. `--task TASK-###` limita el control a los requisitos asignados al slice exacto; sin `--task`, se conserva el alcance completo del incremento. Si hay requisitos aplicables pero no se comprueba ninguno, ambas fases fallan de forma explícita.
 
 El contrato activo excluye referencias rechazadas, sustituidas o retiradas como inputs de ejecución, aunque sus filas sigan conservadas para historial. La ausencia de `EVID-###` en preimplementación no es éxito de verificación; significa que la evidencia todavía debe producirse.
 
@@ -52,6 +54,8 @@ Por cada binding perteneciente a las TASK seleccionadas se ejecutan los gates ob
 
 La evidencia registra identificador, revisión de commit o workspace, rama, `tree_id` exacto, SHA-256 del listado del árbol, build determinista, incremento, tareas, bindings y locks, digests inmutables de artefactos, entorno, gates, resultados, limitaciones y relaciones con criterios/pruebas. No copia tokens, contraseñas, datos personales, imágenes, volcados completos ni logs productivos; para capturas conserva solo ruta y hash.
 
+La identidad superior de EVID 1.2 resume únicamente una selección singular: con un binding, `profile_id` y `profile_version` coinciden exactamente con él; con varios bindings nuevos se omite el resumen y la identidad completa permanece en `profile_bindings`, `profile_locks` y `build_identity_material`. Los tres conjuntos deben coincidir y el `build_id` debe ser el hash canónico del material. Evidencias 1.2 heredadas con la pareja superior ausente o `null` siguen siendo legibles solo cuando esa identidad se deriva sin ambigüedad; no se migran ni reescriben.
+
 La verificación 1.2 exige cada `.lks-sdd/profiles/BIND-###.lock.json` como archivo regular idéntico al lock certificado empaquetado. Ausencia, `{}`, edición o enlace bloquean incluso `--plan`; así plan, ejecución y evidencia pertenecen a las mismas composiciones que fijó `active_contract_fingerprint` y materializó `prepare`.
 
 `build_id` usa el contrato canónico `lks-sdd-build-1.0`: revisión, `tree_id`, `tree_sha256`, locks exactos, bindings/perfiles/versiones y digests de artefactos ordenados de forma estable. Excluye resultados, duraciones, timestamps, stdout/stderr, PID, rutas temporales y nombres Compose. `verification_run_id` identifica aparte cada ejecución y los diagnósticos completos permanecen en `checks`.
@@ -63,6 +67,6 @@ Cuando todas las tareas registradas de una release están `done`, aún se exige 
 Use el dispatcher instalado y declare la fase de trazabilidad de forma explícita cuando la inferencia automática no sea apropiada:
 
 ```powershell
-python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --phase verification --json
+python "<plugin-root>/scripts/lks_sdd.py" traceability "<project-root>" --increment INC-001 --task TASK-001 --phase verification --json
 python "<plugin-root>/scripts/lks_sdd.py" verify "<project-root>" --increment INC-001 --task TASK-001 --execution-id EXEC-001 --plan
 ```

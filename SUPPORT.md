@@ -20,12 +20,12 @@ No comunique vulnerabilidades o incidentes sensibles mediante una issue ordinari
 - código de error y pasos reproducibles con datos sintéticos;
 - referencia saneada a evidencia controlada.
 
-## Límites candidate 0.14.1
+## Límites candidate 0.14.2
 
 - La interoperabilidad real Rovo/Jira permanece `not-run` hasta un piloto autorizado.
 - No existe soporte Jira-only ni sincronización bidireccional silenciosa.
 - Una TASK `confidential` o `restricted`, un secreto o dato personal detectable y una URL con credenciales, query o fragmento se bloquean antes de persistir o proyectar; no reduzca la clasificación ni sanee ocultando el riesgo para obtener soporte.
-- Un binding con mappings o recibos durables no se puede abandonar ni cambiar de destino: 0.14.1 no ofrece `detach`/`rebind`, incluso después de reconciliar una operación.
+- Un binding con mappings o recibos durables no se puede abandonar ni cambiar de destino: 0.14.2 no ofrece `detach`/`rebind`, incluso después de reconciliar una operación.
 - Los perfiles Microsoft Entra siguen candidate: `automation_coverage` no equivale a soporte, la interoperabilidad real permanece `not-run` y Keycloak no es un fallback equivalente.
 - Los perfiles OIDC simulados solo son soportados en entornos no productivos permitidos; `external_interoperability` es `not-applicable` y producción falla de forma cerrada.
 - Comentarios y transiciones solo se ejecutan para hitos soportados, con preview y recibos; si Rovo no expone la capacidad exacta, fallan de forma cerrada.

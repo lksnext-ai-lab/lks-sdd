@@ -16,6 +16,11 @@ from pathlib import Path
 from typing import Any
 
 from contract_engine import Diagnostic, build_project_model, legacy_messages
+from evidence_contract import (
+    evidence_gate_applicability_errors,
+    evidence_profile_identity_errors,
+    visual_gate_applicability,
+)
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_SCHEMAS = {
@@ -1667,10 +1672,17 @@ def validate_visual_review_evidence(
     return [], outcome, limitations, list(dict.fromkeys(checked_files))
 
 
-def _evidence_errors(value: Any, expected_id: str) -> list[str]:
+def evidence_document_errors(value: Any, expected_id: str) -> list[str]:
     if not isinstance(value, dict):
         return ["debe ser un objeto JSON"]
     errors: list[str] = []
+    if value.get("schema_version") == "1.2":
+        evidence_schema = json.loads(
+            (PLUGIN_ROOT / "schemas/verification-evidence-1.2.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        errors.extend(validate_json_schema(value, evidence_schema, "evidence"))
     if value.get("evidence_id") != expected_id:
         errors.append("evidence_id no coincide con la referencia")
     if not isinstance(value.get("increment"), str) or not re.fullmatch(
@@ -2612,6 +2624,12 @@ def validate_project(
                             f"{expected_ux_path}: {visual_id} confirmed debe enlazar INC-###."
                         )
 
+    delivery_contract: dict[str, Any] | None = None
+    if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
+        from delivery_engine import validate_delivery_contract
+
+        delivery_contract = validate_delivery_contract(root, manifest)
+
     evidence_cache: dict[str, Any] = {}
     index_defined_ids = {
         str(item.get("binding_id"))
@@ -2637,7 +2655,7 @@ def validate_project(
                 except (OSError, json.JSONDecodeError):
                     evidence_cache[reference] = None
             evidence = evidence_cache[reference]
-            evidence_errors = _evidence_errors(evidence, reference)
+            evidence_errors = evidence_document_errors(evidence, reference)
             if isinstance(evidence, dict):
                 evidence_increment_id = str(evidence.get("increment", ""))
                 evidence_increment = definitions.get(evidence_increment_id)
@@ -2647,13 +2665,9 @@ def validate_project(
                     evidence_errors.append(
                         "increment no referencia un incremento definido"
                     )
-                selected_profile = manifest.get("technology", {}).get(
-                    "selected_profile"
+                evidence_errors.extend(
+                    evidence_profile_identity_errors(evidence, manifest)
                 )
-                if evidence.get("profile_id") != selected_profile:
-                    evidence_errors.append(
-                        "profile_id no coincide con el perfil seleccionado"
-                    )
                 checks = evidence.get("checks", [])
                 visual_checks = [
                     check
@@ -2669,19 +2683,55 @@ def validate_project(
                     if interface_row is not None
                     else None
                 )
-                if (
-                    increments_v06_contract
-                    and applicability == "applicable"
-                    and evidence.get("classification")
-                    in {"verified", "verified-with-reservations"}
+                task_ids = evidence.get("task_ids")
+                if task_ids is None and evidence.get("schema_version") in {None, "1.2"}:
+                    if (
+                        increments_v06_contract
+                        and applicability == "applicable"
+                        and evidence.get("classification")
+                        in {"verified", "verified-with-reservations"}
+                    ):
+                        if len(visual_checks) != 1 or visual_checks[0].get("status") != "passed":
+                            evidence_errors.append(
+                                "un incremento con interfaz applicable requiere exactamente un check visual-browser-review ejecutado y passed"
+                            )
+                elif not isinstance(task_ids, list) or not task_ids or not all(
+                    isinstance(item, str) for item in task_ids
                 ):
-                    if len(visual_checks) != 1:
+                    evidence_errors.append("task_ids debe identificar el TASK slice")
+                elif delivery_contract is not None:
+                    unknown_tasks = sorted(
+                        set(task_ids) - set(delivery_contract.get("tasks", {}))
+                    )
+                    wrong_increment = sorted(
+                        task_id
+                        for task_id in task_ids
+                        if delivery_contract.get("tasks", {}).get(task_id, {}).get("Increment")
+                        != evidence_increment_id
+                    )
+                    if unknown_tasks:
                         evidence_errors.append(
-                            "un incremento con interfaz applicable requiere exactamente un check visual-browser-review"
+                            "task_ids referencia tareas inexistentes: "
+                            + ", ".join(unknown_tasks)
                         )
-                    elif visual_checks[0].get("status") != "passed":
+                    if wrong_increment:
                         evidence_errors.append(
-                            "visual-browser-review debe estar passed para clasificar la evidencia como verificada"
+                            "task_ids contiene tareas de otro incremento: "
+                            + ", ".join(wrong_increment)
+                        )
+                    if not unknown_tasks and not wrong_increment:
+                        expected_applicability = visual_gate_applicability(
+                            task_ids,
+                            delivery_contract,
+                            release_interface_applicable=(
+                                increments_v06_contract
+                                and applicability == "applicable"
+                            ),
+                        )
+                        evidence_errors.extend(
+                            evidence_gate_applicability_errors(
+                                evidence, expected_applicability
+                            )
                         )
                 for check in visual_checks:
                     if (
@@ -2882,10 +2932,8 @@ def validate_project(
     elif "adoption" in manifest:
         report.warnings.append("La ruta new no necesita un bloque adoption.")
 
-    if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
-        from delivery_engine import validate_delivery_contract
-
-        delivery = validate_delivery_contract(root, manifest)
+    if delivery_contract is not None:
+        delivery = delivery_contract
         report.errors.extend(
             f"Contrato de entrega: {item}" for item in delivery["errors"]
         )

@@ -3,7 +3,7 @@ artifact_id: ART-{{CHECKPOINT_ID}}
 artifact_type: implementation-checkpoint
 schema_version: "1.5"
 method_version: "1.5.0"
-created_with_plugin_version: "0.14.1"
+created_with_plugin_version: "0.14.2"
 project_id: "{{PROJECT_ID}}"
 baseline_id: "{{BASELINE_ID}}"
 status: confirmed

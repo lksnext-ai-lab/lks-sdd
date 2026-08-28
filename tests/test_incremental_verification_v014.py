@@ -169,6 +169,129 @@ def _prepare_started_project_with_empty_evidence(
     return implementation
 
 
+def _append_table_row(path: Path, header_prefix: str, row: str) -> None:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith(header_prefix):
+            cursor = index + 2
+            while cursor < len(lines) and lines[cursor].startswith("|"):
+                cursor += 1
+            lines.insert(cursor, row)
+            path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+            return
+    raise AssertionError(f"Missing table {header_prefix} in {path}")
+
+
+def _prepare_backend_slice_in_multibinding_project(root: Path) -> dict:
+    initialize(root, "evidence-contract-0142")
+    materialize_ready_increment(root, confirm_plan=False)
+    docs = root / "docs/lks-sdd"
+    manifest_path = root / ".lks-sdd/project.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["active_task"] = None
+    manifest["technology"]["selected_profile"] = None
+    manifest["technology"]["selection_decision"] = None
+    manifest["technology"]["profile_bindings"].append(
+        {
+            "binding_id": "BIND-002",
+            "unit_id": "UNIT-002",
+            "unit_path": "web",
+            "profile_id": "WEB-REACT-VITE-STATIC",
+            "profile_scope": "deployable",
+            "selection_decision": "ADR-003",
+            "lock_path": ".lks-sdd/profiles/BIND-002.lock.json",
+            "state": "confirmed",
+        }
+    )
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    _append_table_row(
+        docs / "03-solution/solution-overview.md",
+        "| ID | State | Decision",
+        "| ADR-003 | confirmed | Select WEB-REACT-VITE-STATIC for UNIT-002 and BIND-002. | FR-001 | Limited to the static web deployable |",
+    )
+    _append_table_row(
+        docs / "03-solution/architecture.md",
+        "| Unit | State | Component",
+        "| UNIT-002 | confirmed | Static frontend SPA | Human-facing browser interface | Browser | UI over HTTP | none: client state only | FR-001 | BIND-002 |",
+    )
+    _append_table_row(
+        docs / "04-delivery/tasks.md",
+        "| ID | Plan | Title",
+        "| TASK-002 | PLAN-001 | Implement synthetic frontend | REL-001 | INC-001 | UNIT-002 | BIND-002 | ready | on-track | 0 | not-applicable: no prerequisite task | none | fixture-owner | ./tasks/TASK-002.md | 2026-08-19 |",
+    )
+    plans = docs / "04-delivery/plans.md"
+    plans.write_text(
+        plans.read_text(encoding="utf-8").replace(
+            "| REL-001 | active | 0.1.0 | PLAN-001 | 2026-08-19 | continuous stream | ENV-001 | TASK-001 | pending | pending | pending: G3/G4 not executed |",
+            "| REL-001 | active | 0.1.0 | PLAN-001 | 2026-08-19 | continuous stream | ENV-001 | TASK-001, TASK-002 | pending | pending | pending: G3/G4 not executed |",
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    coverage = docs / "04-delivery/planning-coverage.md"
+    coverage.write_text(
+        coverage.read_text(encoding="utf-8").replace(
+            "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001 | TASK-001 | not-applicable: single-task release | Implement and jointly verify the complete synthetic increment | All active items are owned by the only executable task |",
+            "| REL-001 | INC-001 | FR-001, AC-001, ADR-001, TEST-001 | TASK-001 | TASK-002 | Keep backend ownership while the frontend remains a future slice | TASK-001 owns FR-001 and TASK-002 is independently bound |",
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    detail_1 = docs / "04-delivery/tasks/TASK-001.md"
+    detail_2 = docs / "04-delivery/tasks/TASK-002.md"
+    task_text = detail_1.read_text(encoding="utf-8")
+    task_text = task_text.replace("ART-TASK-001", "ART-TASK-002")
+    task_text = task_text.replace("TASK-001", "TASK-002")
+    task_text = task_text.replace("UNIT-001", "UNIT-002")
+    task_text = task_text.replace("BIND-001", "BIND-002")
+    task_text = task_text.replace(
+        "Implement synthetic acknowledgement",
+        "Implement synthetic frontend browser interface",
+    )
+    task_text = task_text.replace(
+        "CAP-API-CONTRACT, CAP-OCI-RUNTIME",
+        "CAP-FRONTEND-QUALITY, CAP-BROWSER-PLAYWRIGHT",
+    )
+    task_text = task_text.replace(
+        "GATE-API-TEST, GATE-API-OPENAPI, GATE-OCI-BUILD",
+        "GATE-FRONTEND-TEST, GATE-FRONTEND-BUILD, GATE-BROWSER-SMOKE",
+    )
+    detail_2.write_text(task_text, encoding="utf-8", newline="\n")
+    trace = docs / "05-quality/traceability.md"
+    trace.write_text(
+        trace.read_text(encoding="utf-8").replace(
+            "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | none |",
+            "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 |  |",
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
+    confirm_planning(root)
+    _configure(root, "repository-only")
+    authorize_implementation(root, task_ids=("TASK-001",))
+    _, preview = run_json(
+        IMPLEMENT_SCRIPT,
+        str(root),
+        "--increment", "INC-001",
+        "--task", "TASK-001",
+        "--dry-run",
+    )
+    _, implementation = run_json(
+        IMPLEMENT_SCRIPT,
+        str(root),
+        "--increment", "INC-001",
+        "--task", "TASK-001",
+        "--apply",
+        "--authorize",
+        "--preview-hash", preview["preview_hash"],
+    )
+    return implementation
+
+
 class SliceVisualApplicabilityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -786,6 +909,264 @@ class EmptyTraceabilityEvidenceRegressionTests(unittest.TestCase):
             self.assertFalse(
                 (root / "docs/lks-sdd/evidence/EVID-001.json").exists()
             )
+            self.assertFalse(list(root.rglob("*.lks-sdd.tmp")))
+
+
+class EvidenceContractV0142RegressionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.module = _load_verification_module()
+
+    @staticmethod
+    def _passed(check, env):
+        return {
+            "name": check["name"],
+            "gate_id": check["gate_id"],
+            "binding_id": check["binding_id"],
+            "status": "passed",
+            "duration_seconds": 1.0,
+        }
+
+    @staticmethod
+    def _complete_execution(root: Path) -> None:
+        manifest_path = root / ".lks-sdd/project.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["implementation"]["status"] = "completed"
+        next(
+            item
+            for item in manifest["executions"]
+            if item["execution_id"] == "EXEC-001"
+        )["status"] = "completed"
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+
+    @staticmethod
+    def _args(root: Path, delivery: Path | None = None) -> argparse.Namespace:
+        return argparse.Namespace(
+            project_root=root,
+            increment="INC-001",
+            task=["TASK-001"],
+            execution_id="EXEC-001",
+            plan=False,
+            execute=True,
+            authorize=True,
+            containers=True,
+            environment="ENV-001",
+            delivery_evidence=delivery,
+            materialize_delivery_template=None,
+            visual_evidence=None,
+            record_evidence=None,
+        )
+
+    @staticmethod
+    def _complete_delivery(path: Path) -> None:
+        delivery = json.loads(path.read_text(encoding="utf-8"))
+        delivery["evidence_state"] = "complete"
+        for key in ("promotion", "smoke", "observability", "recovery", "authorization"):
+            delivery[key]["status"] = "passed"
+            delivery[key]["recorded_at"] = "2026-08-28T12:00:00Z"
+            delivery[key]["reference"] = f"evidence:{key}:0142"
+        delivery["authorization"]["authority"] = "release-owner"
+        path.write_text(
+            json.dumps(delivery, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+
+    def test_multi_binding_top_level_identity_is_omitted_and_legacy_12_is_readable(self) -> None:
+        bindings = [
+            {"binding_id": "BIND-001", "profile_id": "API-FASTAPI-STATELESS-OCI", "profile_version": "1.0.0"},
+            {"binding_id": "BIND-002", "profile_id": "WEB-REACT-VITE-STATIC", "profile_version": "2.0.0"},
+        ]
+        self.assertEqual(
+            self.module.canonical_top_level_profile_identity(bindings), {}
+        )
+        self.assertEqual(
+            self.module.canonical_top_level_profile_identity(bindings[:1]),
+            {
+                "profile_id": "API-FASTAPI-STATELESS-OCI",
+                "profile_version": "1.0.0",
+            },
+        )
+        material = {
+            "identity_contract": "lks-sdd-build-1.0",
+            "revision": "a" * 40,
+            "tree_id": "b" * 40,
+            "tree_sha256": "c" * 64,
+            "locks": [{
+                "binding_id": "BIND-001",
+                "profile_id": "API-FASTAPI-STATELESS-OCI",
+                "profile_version": "1.0.0",
+                "sha256": "d" * 64,
+            }],
+            "profile_bindings": [bindings[0]],
+            "artifact_digests": [],
+        }
+        legacy = {
+            "schema_version": "1.2",
+            "profile_id": None,
+            "profile_version": None,
+            "profile_bindings": ["BIND-001"],
+            "profile_locks": material["locks"],
+            "build_identity_material": material,
+            "build_id": self.module._build_id(material),
+        }
+        manifest = {
+            "technology": {
+                "selected_profile": None,
+                "profile_bindings": [{
+                    "binding_id": "BIND-001",
+                    "profile_id": "API-FASTAPI-STATELESS-OCI",
+                }],
+            }
+        }
+        self.assertEqual(
+            self.module.evidence_profile_identity_errors(legacy, manifest), []
+        )
+        historical = json.loads(json.dumps(legacy))
+        historical["profile_locks"][0].pop("profile_version")
+        historical["build_identity_material"]["locks"][0].pop("profile_version")
+        historical["build_id"] = self.module._build_id(
+            historical["build_identity_material"]
+        )
+        self.assertEqual(
+            self.module.evidence_profile_identity_errors(historical, manifest), []
+        )
+        self.assertTrue(
+            self.module.evidence_profile_identity_errors(
+                legacy, manifest, require_canonical_single=True
+            )
+        )
+
+    def test_backend_slice_records_valid_single_profile_evidence_in_multibinding_project(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            implementation = _prepare_backend_slice_in_multibinding_project(root)
+            self.assertEqual(implementation["profile_bindings"], ["BIND-001"])
+            self._complete_execution(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            before = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertIsNone(before["technology"]["selected_profile"])
+            self.assertEqual(len(before["technology"]["profile_bindings"]), 2)
+            _, valid_before = run_json(VALIDATE_SCRIPT, str(root))
+            self.assertTrue(valid_before["valid"], valid_before)
+
+            delivery_relative = Path("docs/lks-sdd/evidence/delivery/REL-001-ENV-001.json")
+            args = self._args(root)
+            args.materialize_delivery_template = delivery_relative
+            with mock.patch.object(
+                self.module, "_execute_profile_command", side_effect=self._passed
+            ), mock.patch.object(
+                self.module, "_cleanup_profile_compositions", return_value=[]
+            ):
+                g3_code, g3 = self.module.run(args)
+            self.assertEqual(g3_code, 0, g3)
+            delivery_path = root / delivery_relative
+            self._complete_delivery(delivery_path)
+            snapshot = {
+                path.relative_to(root).as_posix(): path.read_bytes()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            args.materialize_delivery_template = None
+            args.delivery_evidence = delivery_relative
+            args.record_evidence = "EVID-001"
+            with mock.patch.object(
+                self.module, "_execute_profile_command", side_effect=self._passed
+            ), mock.patch.object(
+                self.module, "_cleanup_profile_compositions", return_value=[]
+            ):
+                g4_code, g4 = self.module.run(args)
+            self.assertEqual(g4_code, 0, g4)
+            self.assertEqual(g4["classification"], "verified")
+            self.assertTrue(g4["evidence_recorded"])
+            self.assertEqual(g3["build_id"], g4["build_id"])
+
+            evidence_path = root / "docs/lks-sdd/evidence/EVID-001.json"
+            evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+            self.assertEqual(evidence["profile_id"], "API-FASTAPI-STATELESS-OCI")
+            self.assertEqual(evidence["profile_version"], "1.0.0")
+            self.assertEqual(evidence["profile_bindings"], ["BIND-001"])
+            self.assertEqual(
+                [item["binding_id"] for item in evidence["profile_locks"]],
+                ["BIND-001"],
+            )
+            self.assertEqual(
+                [item["binding_id"] for item in evidence["build_identity_material"]["profile_bindings"]],
+                ["BIND-001"],
+            )
+            applicability = evidence["gate_applicability"]
+            self.assertEqual(applicability[0]["status"], "not-applicable")
+            self.assertEqual(applicability[0]["scope"], "task-slice")
+            self.assertEqual(applicability[0]["task_ids"], ["TASK-001"])
+            self.assertFalse(
+                any(item["name"] == "visual-browser-review" for item in evidence["checks"])
+            )
+            _, valid_after = run_json(VALIDATE_SCRIPT, str(root))
+            _, trace_after = run_json(
+                TRACEABILITY_SCRIPT,
+                str(root),
+                "--increment", "INC-001",
+                "--task", "TASK-001",
+                "--phase", "verification",
+            )
+            self.assertTrue(valid_after["valid"], valid_after)
+            self.assertTrue(trace_after["valid"], trace_after)
+            changed = {
+                relative
+                for relative, content in snapshot.items()
+                if (root / relative).read_bytes() != content
+            }
+            self.assertEqual(
+                changed,
+                {".lks-sdd/project.json", "docs/lks-sdd/05-quality/traceability.md"},
+            )
+            current_files = {
+                path.relative_to(root).as_posix()
+                for path in root.rglob("*")
+                if path.is_file()
+            }
+            self.assertEqual(
+                current_files - set(snapshot),
+                {"docs/lks-sdd/evidence/EVID-001.json"},
+            )
+
+    def test_invalid_post_write_evidence_rolls_back_every_recorded_projection(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _prepare_started_project_with_empty_evidence(root, "invalid-candidate-rollback")
+            self._complete_execution(root)
+            manifest_path = root / ".lks-sdd/project.json"
+            trace_path = root / "docs/lks-sdd/05-quality/traceability.md"
+            original_manifest = manifest_path.read_bytes()
+            original_trace = trace_path.read_bytes()
+            evidence_path = root / "docs/lks-sdd/evidence/EVID-001.json"
+            real_validate = self.module.validate_project
+
+            def reject_materialized_evidence(project_root):
+                report, manifest, definitions = real_validate(project_root)
+                if evidence_path.exists():
+                    report.errors.append("synthetic invalid evidence candidate")
+                return report, manifest, definitions
+
+            args = self._args(root)
+            args.record_evidence = "EVID-001"
+            with mock.patch.object(
+                self.module, "_execute_profile_command", side_effect=self._passed
+            ), mock.patch.object(
+                self.module, "_cleanup_profile_compositions", return_value=[]
+            ), mock.patch.object(
+                self.module, "validate_project", side_effect=reject_materialized_evidence
+            ), self.assertRaisesRegex(
+                self.module.VerificationError, "validate-project"
+            ):
+                self.module.run(args)
+            self.assertEqual(manifest_path.read_bytes(), original_manifest)
+            self.assertEqual(trace_path.read_bytes(), original_trace)
+            self.assertFalse(evidence_path.exists())
             self.assertFalse(list(root.rglob("*.lks-sdd.tmp")))
 
 

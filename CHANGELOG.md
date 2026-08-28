@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.2 — 2026-08-28 — evidencia autoconsumible y registro transaccional
+
+- Hace canónica la identidad de perfil del EVID 1.2: una ejecución con un solo binding registra arriba su `profile_id` y `profile_version` exactos; una ejecución multiperfil omite ese resumen y conserva la identidad completa en `profile_bindings`, `profile_locks` y `build_identity_material`.
+- Valida conjuntamente bindings, perfiles/versiones, locks, material canónico y `build_id`; mantiene legibles las evidencias 1.2 heredadas cuando esa identidad se puede reconstruir sin ambigüedad, sin reescribirlas.
+- Unifica la aplicabilidad de `visual-browser-review` entre runner, EVID y `validate-project` mediante la selección exacta de TASK. La no aplicabilidad backend se registra fuera de `checks`; un slice visual sigue exigiendo exactamente una revisión ejecutada y `passed`.
+- Añade `traceability --task TASK-###` para verificar el alcance exacto de requisitos del slice sin acreditar tareas futuras del mismo incremento.
+- Valida la evidencia candidata antes de escribir y vuelve a ejecutar `validate-project` y `traceability verification` sobre el estado materializado. Cualquier rechazo restaura conjuntamente EVID, ART-TRACE, manifest, `verification`, `last_delivery` y la proyección EXEC.
+- Añade regresiones E2E multiperfil G3 → G4 → registro → ambos validadores y una regresión que fuerza el rechazo posterior para demostrar el rollback completo.
+- No cambia el schema de proyecto, no migra consumidores y no modifica `specs/canonical/`.
+
 ## 0.14.1 — 2026-08-28 — registro compatible de evidencia vacía
 
 - Unifica la definición de evidencia de trazabilidad pendiente entre el lector y el registrador: una celda `Evidence` vacía, formada solo por espacios, `none`, `pending` o `not-run` puede enlazarse atómicamente al `EVID-###` exacto después de superar la verificación.

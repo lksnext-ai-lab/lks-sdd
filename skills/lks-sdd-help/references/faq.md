@@ -42,9 +42,9 @@ No. LKS-SDD muestra por separado especificación, automatización, cobertura int
 
 `planning_completeness: complete` exige que todo el alcance activo, criterios y pruebas tengan tarea responsable, todas las fichas sean ejecutables, release/tablero/cobertura concuerden, el DAG no tenga ciclos y exista integración conjunta. La salida enumera cualquier hueco concreto. No se calcula a partir de un porcentaje ni de que exista una tarea lista.
 
-## ¿Actualizar a 0.14.1 cambia mis documentos anteriores?
+## ¿Actualizar a 0.14.2 cambia mis documentos anteriores?
 
-No. LKS-SDD 0.14.1 usa método 1.5.0 y esquema 1.5 para proyectos nuevos, pero no migra proyectos existentes al actualizar el plugin. Los proyectos 1.0–1.5 siguen validándose en compatibilidad. Llegar a 1.5 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.4 → 1.5 conserva `repository-only` como no aplicable y un Jira existente como `projection-only`; no infiere reporting, workflow mappings, comentarios ni transiciones.
+No. LKS-SDD 0.14.2 usa método 1.5.0 y esquema 1.5 para proyectos nuevos, pero no migra proyectos existentes al actualizar el plugin. Los proyectos 1.0–1.5 siguen validándose en compatibilidad. Llegar a 1.5 requiere migraciones explícitas de un salto con dry-run, backup, hash, autorización, validación y rollback. El salto 1.4 → 1.5 conserva `repository-only` como no aplicable y un Jira existente como `projection-only`; no infiere reporting, workflow mappings, comentarios ni transiciones.
 
 ## ¿Qué permite reanudar sin recordar el chat?
 

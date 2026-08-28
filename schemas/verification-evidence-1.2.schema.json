@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.example/schemas/verification-evidence-1.2.schema.json",
+  "title": "LKS-SDD verification evidence 1.2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "increment",
+    "classification",
+    "checks",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.2"},
+    "evidence_id": {"type": "string", "pattern": "^EVID-[0-9]{3}$"},
+    "execution_id": {"type": "string", "pattern": "^EXEC-[0-9]{3}$"},
+    "increment": {"type": "string", "pattern": "^INC-[0-9]{3}$"},
+    "profile_id": {"type": ["string", "null"]},
+    "profile_version": {"type": ["string", "null"]},
+    "task_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^TASK-[0-9]{3}$"}
+    },
+    "profile_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^BIND-[0-9]{3}$"}
+    },
+    "profile_locks": {"type": "array", "items": {"type": "object"}},
+    "build_identity_material": {"type": "object"},
+    "build_id": {"type": "string", "pattern": "^build-sha256:[a-f0-9]{64}$"},
+    "gate_applicability": {"type": "array", "items": {"type": "object"}},
+    "classification": {
+      "enum": ["verified", "verified-with-reservations", "not-verified"]
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "status": {"enum": ["passed", "failed", "blocked", "not-run"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "additionalProperties": true
+}
