@@ -70,3 +70,7 @@ Un resumen M5 con decisión puede incorporarse mediante `--pilot-summary`. Antes
 Los estados de una prueba o canal conservan su semántica propia: `skipped` significa que una prueba declarada no se ejecutó y `not-run` que aún no existe una observación para ese canal. Ninguno equivale a `passed`. Un `not-run` opcional no impide candidate; el mismo estado impide stable cuando el canal es requerido.
 
 Los códigos de salida son `0`, `2` y `3`, respectivamente para `passed`, error/fallo e `incomplete`.
+
+## Extensión 0.16
+
+El catálogo incorpora FX-56 a FX-60 y el corpus `definition-v0.16.0.json`. La suite integration incluye `test_validation_evidence_v016`: límites visuales, integridad/semántica, salud actual, fichas derivadas, Jira y rollback. La comparación candidate usa como baseline publicada `quality/baselines/v0.15.0.json`; los canales humanos, semánticos, piloto y externos conservan su estado real.

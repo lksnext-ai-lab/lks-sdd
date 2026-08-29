@@ -217,7 +217,7 @@ class VerificationEvidenceGuardsTests(unittest.TestCase):
                 text = artifact_path.read_text(encoding="utf-8")
                 artifact_path.write_text(
                     text.replace(
-                        'created_with_plugin_version: "0.15.0"',
+                        'created_with_plugin_version: "0.16.0"',
                         'created_with_plugin_version: "0.12.0"',
                         1,
                     ),

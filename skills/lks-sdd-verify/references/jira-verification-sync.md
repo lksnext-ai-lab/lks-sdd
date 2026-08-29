@@ -8,9 +8,11 @@ Con `jira-hybrid` y `RPT-###` en `milestone-reporting`:
 
 | Event kind | Condición local | Fuente |
 |---|---|---|
-| `verification-pending` | TASK `in-review`; verificación aún pendiente | `CKPT-###` |
-| `verification-failed` | TASK `in-review`; evidencia ejecutada no supera gates | `EVID-###` |
-| `done` | TASK `done`; manifest `verification.status=verified` para la TASK | el `EVID-###` exacto |
+| `verification-passed` | EVID actual `verified` | `EVID-###` |
+| `verification-failed` | evidencia ejecutada `not-verified` | `EVID-###` |
+| `finding-opened` | hallazgo posterior abierto | `PROB-###` |
+| `correction-completed` | corrección durable pendiente de re-verificación | `CKPT-###` |
+| `reverification` | EVID nueva `verified` que cierra el ciclo | `EVID-###` |
 
 `not-run`, `blocked`, `not-verified`, evidencia incompleta o `verified-with-reservations` nunca se convierten en una transición Jira a Done-equivalente. Un Jira ya marcado Done tampoco permite fabricar evidencia local.
 
@@ -23,7 +25,7 @@ Con `jira-hybrid` y `RPT-###` en `milestone-reporting`:
 5. Presenta comentario y transición opcional como una unidad. Una confirmación del `preview_hash` es suficiente para el hito, pero `authorize-event` registra un `SYNC-###` por operación antes de cualquier escritura.
 6. Ejecuta las operaciones mediante Rovo, relee Jira y cierra cada recibo de forma independiente con `record-event-result`.
 
-Los comentarios son resúmenes saneados: no copies logs, secretos, datos personales, rutas absolutas o artefactos inaccesibles. No registres worklogs, no reasignes, no borres y no archives.
+Cada hito produce como máximo una actualización. El comentario resume TASK, resultado, pruebas ejecutadas, número de imágenes, hallazgos, revisión y próxima acción. Adjunta imágenes solo si el peer lo permite; en caso contrario usa referencias versionadas accesibles y nunca rutas absolutas locales. Los comentarios son resúmenes saneados: no copies logs, secretos, datos personales o artefactos inaccesibles. No registres worklogs, no reasignes, no borres y no archives.
 
 ## Fallo externo
 

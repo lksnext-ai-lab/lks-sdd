@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.15 product/quality invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.16 evidence/quality invariants."""
 
 from __future__ import annotations
 
@@ -58,9 +58,12 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md",
     "docs/V0.15-QUALITY-EFFICIENCY-COVERAGE.md",
     "docs/V0.15-PRODUCT-EXPERIENCE.md",
+    "docs/V0.16-VALIDATION-EVIDENCE.md",
+    "docs/MIGRATION-0.16.0.md",
     "docs/releases/v0.14.0.md",
     "docs/releases/v0.14.2.md",
     "docs/releases/v0.15.0.md",
+    "docs/releases/v0.16.0.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -86,6 +89,7 @@ REQUIRED_ROOT_FILES = {
     "scripts/evidence_contract.py",
     "scripts/experience_engine.py",
     "scripts/experience_fixture.py",
+    "scripts/validation_evidence.py",
     "scripts/project_status.py",
     "scripts/work_task.py",
     "scripts/doctor_project.py",
@@ -116,6 +120,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.12.0.json",
     "quality/corpora/definition-v0.14.0.json",
     "quality/corpora/definition-v0.15.0.json",
+    "quality/corpora/definition-v0.16.0.json",
     "quality/fixture-manifest.json",
     "quality/test-suites.json",
     "quality/v0.15-e2e-matrix.json",
@@ -129,10 +134,14 @@ REQUIRED_ROOT_FILES = {
     "quality/baselines/v0.12.0.json",
     "quality/baselines/v0.13.0.json",
     "quality/baselines/v0.14.2.json",
+    "quality/baselines/v0.15.0.json",
     "schemas/quality-observations.schema.json",
     "schemas/quality-report.schema.json",
     "schemas/quality-report-1.1.schema.json",
     "schemas/verification-evidence-1.2.schema.json",
+    "schemas/visual-review-evidence-1.2.schema.json",
+    "schemas/visual-evidence-policy.schema.json",
+    "schemas/task-evidence-summary-1.0.schema.json",
     "schemas/pilot-config.schema.json",
     "schemas/pilot-observation.schema.json",
     "schemas/pilot-summary.schema.json",
@@ -156,6 +165,8 @@ REQUIRED_ROOT_FILES = {
     "templates/client/client-deliverable.md",
     "tests/test_task_tracking_v14.py",
     "tests/test_jira_reporting_v15.py",
+    "tests/test_validation_evidence_v016.py",
+    "tests/fixtures/validation-evidence-v016.json",
 }
 EXPECTED_GIT_ATTRIBUTES = (
     "* text=auto eol=lf",
@@ -682,7 +693,7 @@ def validate(root: Path) -> list[str]:
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.14.2.json"',
+            '"v0.15.0.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',
@@ -830,8 +841,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.14.2":
-            errors.append("El rollback del piloto 0.15.0 debe conservar 0.14.2.")
+        if rollback.get("previous_version") != "0.15.0":
+            errors.append("El rollback del piloto 0.16.0 debe conservar 0.15.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -849,8 +860,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.14.2":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.14.2.")
+        if schema_previous != "0.15.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.15.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -1164,6 +1175,29 @@ def validate(root: Path) -> list[str]:
             errors.append("La baseline v0.14.2 no coincide con la medición del commit publicado.")
     except (OSError, json.JSONDecodeError, TypeError):
         errors.append("quality/baselines/v0.14.2.json no es una baseline válida.")
+
+    try:
+        baseline_015 = json.loads(
+            (root / "quality" / "baselines" / "v0.15.0.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        metrics_015 = baseline_015.get("metrics", {})
+        if (
+            baseline_015.get("plugin_version") != "0.15.0"
+            or baseline_015.get("source_commit")
+            != "4d1c6374f1b4b1ee4f107d8e0f5ed765ca799ab9"
+            or metrics_015.get("automated_catalog_cases") != 43
+            or metrics_015.get("automated_eval_cases") != 6
+            or metrics_015.get("unit_tests_total") != 276
+            or metrics_015.get("unit_tests_passed") != 275
+            or metrics_015.get("unit_tests_skipped") != 1
+            or metrics_015.get("unit_tests_failed") != 0
+            or metrics_015.get("profile_complete_gate") != 1
+        ):
+            errors.append("La baseline v0.15.0 no coincide con la release publicada.")
+    except (OSError, json.JSONDecodeError, TypeError):
+        errors.append("quality/baselines/v0.15.0.json no es una baseline válida.")
 
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:

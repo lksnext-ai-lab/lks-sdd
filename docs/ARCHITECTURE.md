@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.15.0
+# Arquitectura y alcance de la versión 0.16.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.15.0 conserva las seis skills, la arquitectura multiperfil y el contrato 1.5 de tracking y reporting. La orquestación de verificación es estrictamente task-aware: solo selecciona bindings y gates de las TASK solicitadas, calcula la aplicabilidad visual sobre esa selección y mantiene la revisión visual completa para una release que entregue interfaz. Separa también la identidad estable del build, la identidad de la ejecución diagnóstica y la evidencia de entrega G4; esta última se materializa y completa después de conocer revisión, árbol, build y digests. CKPT y PROB se interpretan por su estructura canónica, no por coincidencias textuales. El único contrato de proyecto soportado es `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. Los perfiles OIDC simulados siguen siendo exclusivamente no productivos, los perfiles Microsoft Entra siguen candidate y no existe composición dinámica. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
+La versión 0.16.0 conserva las seis skills, la arquitectura multiperfil y el contrato 1.5 de tracking y reporting. La orquestación de verificación sigue siendo task-aware y añade un contrato visual 1.2: cada TASK de interfaz conserva entre una y cinco capturas semánticas, mientras un backend puro declara no aplicabilidad determinista. `work verify` materializa EVID y todas las fichas TASK derivadas en una única transacción; estas fichas quedan fuera de `verification_subject`. La evidencia histórica permanece inmutable y la salud actual se deriva de EVID y PROB vigentes. CKPT y PROB se interpretan por su estructura canónica, no por coincidencias textuales. El único contrato de proyecto soportado es `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
 
 La ejecución de calidad se organiza en cuatro tiers mutuamente excluyentes (`fast`, `integration`, `package` y `profile`), con selección conservadora por impacto, procesos aislados, progreso visible y presupuestos bloqueantes. Docker `execute` es una fase separada; `all` compone los cuatro tiers sin duplicar tests.
 
@@ -130,7 +130,7 @@ La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps 
 
 ## Evolución posterior
 
-La versión SemVer `0.15.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `0.16.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.
 
 ## Capa de experiencia 0.15
 

@@ -197,4 +197,8 @@ La experiencia 0.15 presenta una sincronización de hito como una única operaci
 - No hay sincronización bidireccional automática, webhook, proceso en segundo plano, transacción bulk ni clave remota de idempotencia aportada por LKS-SDD.
 - No hay cambio de destino, abandono de Jira, `detach` ni `rebind` cuando ya existen mappings o recibos durables.
 - El motor 1.5 certifica consistencia local, fingerprints, previews y recibos, no la conexión ni los permisos externos.
-- Comentarios y transiciones están limitados a hitos soportados y mappings exactos; adjuntos, enlaces, worklogs, asignación automática, borrado y archivado quedan fuera del comportamiento inicial.
+- Comentarios y transiciones están limitados a hitos soportados y mappings exactos; worklogs, asignación automática, borrado y archivado quedan fuera del comportamiento inicial.
+
+## Hitos de validación 0.16
+
+La proyección reconoce `verification-passed`, `verification-failed`, `finding-opened`, `correction-completed` y `reverification`. Cada hito produce como máximo un comentario con TASK, resultado, tests ejecutados, número de imágenes, hallazgos, revisión y próxima acción. Las imágenes se adjuntan solo si el peer lo permite; si no, se usan referencias versionadas accesibles. Nunca se emiten rutas absolutas locales. Jira sigue siendo una proyección y únicamente un resultado local exacto `verified` puede solicitar una transición Done-equivalente.

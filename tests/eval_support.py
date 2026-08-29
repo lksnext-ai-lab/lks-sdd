@@ -858,15 +858,16 @@ def run_management_comprehension(root: Path) -> dict[str, Any]:
     checks = {
         "read_only": before == after,
         "current_phase_visible": "PROYECTO" in rendered and "TAREA ACTUAL" in rendered,
-        "progress_visible": all(label in rendered for label in ("Verificadas", "En desarrollo", "Pendientes")),
+        "progress_visible": all(label in rendered for label in ("Terminadas", "Activas", "Bloqueadas", "Pendientes")),
         "next_step_visible": "Siguiente paso: Fix recorder" in rendered,
         "decision_not_repeated": "Decisión necesaria: Ninguna" in rendered,
         "only_current_local_issue": active_issue_ids == {"PROB-001"},
         "no_internal_jargon": not any(term in rendered for term in forbidden),
-        "compact": len(rendered.splitlines()) <= 18,
+        "health_visible": "Salud actual:" in rendered and "histórico:" in rendered,
+        "compact": len(rendered.splitlines()) <= 20,
     }
     return {
-        "id": "experience-management-comprehension-v015",
+        "id": "validation-evidence-management-v016",
         "passed": all(checks.values()),
         "details": {"checks": checks, "line_count": len(rendered.splitlines())},
     }

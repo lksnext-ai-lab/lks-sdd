@@ -41,8 +41,14 @@ from validate_project import (  # noqa: E402
     table_rows_for_headers,
     v06_contract_applies,
     evidence_document_errors,
+    validate_json_schema,
     validate_project,
     validate_visual_review_evidence,
+)
+from validation_evidence import (  # noqa: E402
+    derive_task_summaries,
+    resolve_visual_policy,
+    summary_bytes,
 )
 from validate_reference_profile import (  # noqa: E402
     PROFILE_ID,
@@ -386,6 +392,10 @@ def _visual_evidence_check(
     evidence_path: Path | None,
     manifest: dict[str, Any] | None = None,
     definitions: dict[str, dict[str, str]] | None = None,
+    task_ids: list[str] | None = None,
+    policies: dict[str, dict[str, int]] | None = None,
+    require_v12: bool = False,
+    expected_revision: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], list[str]]:
     if evidence_path is None:
         return (
@@ -411,6 +421,10 @@ def _visual_evidence_check(
         increment,
         evidence_path,
         require_fresh=True,
+        task_ids=task_ids,
+        policies=policies,
+        require_v12=require_v12,
+        expected_revision=expected_revision,
     )
     if errors or outcome is None:
         raise VerificationError("Evidencia visual inválida: " + "; ".join(errors))
@@ -1244,12 +1258,15 @@ def _run_v12(
         "task_ids": sorted(task_ids),
         "reason": "verification-contract-invalid",
     }
+    visual_policies: dict[str, dict[str, int]] = {}
     visual_required = False
     if not blockers:
         visual_applicability = _visual_applicability(
             root, manifest, args.increment, task_ids, delivery
         )
         visual_required = visual_applicability["status"] == "applicable"
+        visual_policies, policy_errors = resolve_visual_policy(task_ids, delivery)
+        blockers.extend(policy_errors)
     if args.visual_evidence is not None and not visual_required:
         blockers.append(
             "Se aportó evidencia visual para un incremento sin interfaz applicable."
@@ -1285,6 +1302,7 @@ def _run_v12(
             "planning": planning_state,
             "implementation_authorization": authorization_state,
             "gate_applicability": [visual_applicability],
+            "visual_evidence_policy": visual_policies,
         }
     if args.plan:
         execution_ready = implementation.get("status") == "completed"
@@ -1313,6 +1331,7 @@ def _run_v12(
             "planning": planning_state,
             "implementation_authorization": authorization_state,
             "gate_applicability": [visual_applicability],
+            "visual_evidence_policy": visual_policies,
         }
     if not args.execute or not args.authorize:
         raise VerificationError(
@@ -1358,6 +1377,10 @@ def _run_v12(
             args.visual_evidence,
             manifest,
             definitions,
+            task_ids,
+            visual_policies,
+            True,
+            revision_before,
         )
         visual["gate_id"] = "GATE-VISUAL-BROWSER-REVIEW"
         outcomes.append(visual)
@@ -1525,6 +1548,7 @@ def _run_v12(
         "planning": planning_state,
         "implementation_authorization": authorization_state,
         "gate_applicability": [visual_applicability],
+        "visual_evidence_policy": visual_policies,
         "execution_id": (
             selected_execution.get("execution_id")
             if selected_execution is not None
@@ -1733,6 +1757,11 @@ def _run_v12(
     temp_manifest = manifest_path.with_name(
         manifest_path.name + ".lks-sdd.tmp"
     )
+    summary_root = root / ".lks-sdd/summaries/task-evidence"
+    summary_root_created = not summary_root.exists()
+    summary_originals: dict[Path, bytes | None] = {}
+    summary_temporaries: list[Path] = []
+    summary_paths: list[str] = []
     try:
         with evidence_path.open("xb") as stream:
             stream.write(evidence_bytes)
@@ -1740,6 +1769,31 @@ def _run_v12(
             stream.write(trace_new)
         with temp_manifest.open("xb") as stream:
             stream.write(manifest_new_bytes)
+        summary_schema = json.loads(
+            (PLUGIN_ROOT / "schemas/task-evidence-summary-1.0.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        summaries = derive_task_summaries(root, manifest_new, delivery)
+        summary_root.mkdir(parents=True, exist_ok=True)
+        for task_id, summary in summaries.items():
+            summary_errors = validate_json_schema(
+                summary, summary_schema, f"task-summary.{task_id}"
+            )
+            if summary_errors:
+                raise VerificationError(
+                    f"No se puede derivar la ficha de {task_id}: "
+                    + "; ".join(summary_errors)
+                )
+            summary_path = summary_root / f"{task_id}.json"
+            summary_originals[summary_path] = (
+                summary_path.read_bytes() if summary_path.is_file() else None
+            )
+            temporary = summary_path.with_name(summary_path.name + ".lks-sdd.tmp")
+            with temporary.open("xb") as stream:
+                stream.write(summary_bytes(summary))
+            summary_temporaries.append(temporary)
+            summary_paths.append(summary_path.relative_to(root).as_posix())
         if (
             trace_path.read_bytes() != trace_original
             or manifest_path.read_bytes() != initial_manifest
@@ -1749,6 +1803,10 @@ def _run_v12(
             )
         os.replace(temp_trace, trace_path)
         os.replace(temp_manifest, manifest_path)
+        for summary_path, temporary in zip(
+            summary_originals, summary_temporaries, strict=True
+        ):
+            os.replace(temporary, summary_path)
         updated_report, _, _ = validate_project(root)
         if updated_report.errors:
             raise VerificationError(
@@ -1769,16 +1827,29 @@ def _run_v12(
     except (OSError, VerificationError):
         if evidence_path.exists():
             evidence_path.unlink()
-        for temporary in (temp_trace, temp_manifest):
+        for temporary in (temp_trace, temp_manifest, *summary_temporaries):
             if temporary.exists():
                 temporary.unlink()
         if trace_path.read_bytes() != trace_original:
             trace_path.write_bytes(trace_original)
         if manifest_path.read_bytes() != initial_manifest:
             manifest_path.write_bytes(initial_manifest)
+        for summary_path, original in summary_originals.items():
+            if original is None:
+                if summary_path.exists():
+                    summary_path.unlink()
+            else:
+                summary_path.write_bytes(original)
+        if summary_root_created and summary_root.exists():
+            try:
+                summary_root.rmdir()
+            except OSError:
+                pass
         raise
     result["evidence_recorded"] = True
     result["evidence_id"] = args.record_evidence
+    result["task_summaries"] = summary_paths
+    result["task_summaries_generated_in_one_pass"] = len(summary_paths)
     return (0 if classification != "not-verified" else 3), result
 
 

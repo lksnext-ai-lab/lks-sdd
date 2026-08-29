@@ -33,8 +33,8 @@ TRANSITIONS = {
     "ready": {"in-progress", "blocked", "cancelled"},
     "in-progress": {"in-review", "blocked", "cancelled"},
     "in-review": {"in-progress", "done", "blocked", "cancelled"},
-    "blocked": {"backlog", "ready", "in-progress", "cancelled"},
-    "done": {"backlog"},
+    "blocked": {"backlog", "ready", "in-progress", "in-review", "cancelled"},
+    "done": {"backlog", "blocked"},
     "cancelled": set(),
 }
 SYMBOLS = {

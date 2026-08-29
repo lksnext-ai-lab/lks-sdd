@@ -85,6 +85,7 @@ class QualitySuiteRegistryTests(unittest.TestCase):
                 "test_task_tracking_v14_fourth",
                 "test_task_tracking_v14_initial_tail",
                 "test_task_tracking_v14_middle",
+                "test_validation_evidence_v016",
             ],
         )
         unknown = impacted_modules(["new-area/unknown.py"], impact_map)

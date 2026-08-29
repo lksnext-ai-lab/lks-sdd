@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the generic representative 0.15.0 experience/benchmark fixture."""
+"""Create the generic representative 0.16.0 experience/benchmark fixture."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ artifact_id: ART-{task_id}
 artifact_type: development-task
 schema_version: \"1.5\"
 method_version: \"1.5.0\"
-created_with_plugin_version: \"0.15.0\"
+created_with_plugin_version: \"0.16.0\"
 project_id: representative-fixture
 baseline_id: BL-0001
 status: confirmed
@@ -79,7 +79,7 @@ artifact_id: ART-TASKS
 artifact_type: development-task-board
 schema_version: "1.5"
 method_version: "1.5.0"
-created_with_plugin_version: "0.15.0"
+created_with_plugin_version: "0.16.0"
 project_id: representative-fixture
 baseline_id: BL-0001
 status: confirmed
@@ -95,7 +95,7 @@ artifact_id: ART-CKPT-{number:03d}
 artifact_type: checkpoint
 schema_version: "1.5"
 method_version: "1.5.0"
-created_with_plugin_version: "0.15.0"
+created_with_plugin_version: "0.16.0"
 project_id: representative-fixture
 baseline_id: BL-0001
 status: confirmed
@@ -122,7 +122,7 @@ Synthetic {state} checkpoint for the representative repository fixture.
         "route": "new",
         "method_version": "1.5.0",
         "schema_version": "1.5",
-        "plugin_version": "0.15.0",
+        "plugin_version": "0.16.0",
         "phase": "implementation",
         "gate": "G3",
         "active_increment": "INC-001",

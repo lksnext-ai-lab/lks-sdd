@@ -18,6 +18,8 @@ Usa este workflow exclusivamente para incorporar un repositorio con aplicación 
 7. Solo entonces repite el mismo comando con `--apply --authorize --preview-hash <hash>`.
 8. Valida el proyecto materializado. La baseline 1.5 conserva la revisión observada en evidencia de adopción, pero deja `last_verified_revision: null`; inspección no equivale a verificación. El gobierno, unidades/bindings, `ART-PLANNING` y `ART-TRACKING` nacen como propuestas o pendientes. No inventes un modo de tracking, binding Jira, alcance de reporting, workflow mapping, tareas, cobertura completa, una política incremental, autorización, ejecución, checkpoint, recibo de sincronización ni evidencia. Después, las nuevas necesidades vuelven a definición y readiness; ningún cambio funcional pertenece a esta skill.
 
+La adopción 0.16 mantiene `schema_version: 1.5` y no materializa fichas de evidencia ni revisiones visuales: ambas se derivan únicamente de una verificación posterior. Si el repositorio ya contiene EVID 0.15, consérvalas inmutables y no las normalices.
+
 ## Límites no negociables
 
 - La inspección no modifica archivos, índice Git, rama, dependencias, configuración ni `.gitignore`.

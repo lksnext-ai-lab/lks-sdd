@@ -7,6 +7,7 @@ import argparse
 import copy
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import date
@@ -358,7 +359,25 @@ def _resolve_problem(
 ) -> tuple[int, dict[str, Any]]:
     if not cause.strip() or not evidence.strip() or evidence.strip().casefold() in {"none", "pending", "not-run"}:
         raise ExperienceError("Resolver un problema requiere causa y evidencia concreta.")
+    if not re.fullmatch(r"EVID-[0-9]{3}", evidence.strip()):
+        raise ExperienceError("Cerrar un hallazgo requiere la nueva evidencia EVID-### de re-verificación.")
     status = load_status(root, task_id=task)
+    evidence_path = root / "docs/lks-sdd/evidence" / f"{evidence.strip()}.json"
+    try:
+        closing_evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ExperienceError(f"No se puede leer la evidencia de cierre {evidence}: {exc}") from exc
+    current_verification = status["audit"].get("verification", {})
+    if (
+        not isinstance(closing_evidence, dict)
+        or closing_evidence.get("classification") != "verified"
+        or task not in closing_evidence.get("task_ids", [])
+        or evidence not in current_verification.get("evidence_ids", [])
+        or current_verification.get("status") != "verified"
+    ):
+        raise ExperienceError(
+            "El hallazgo solo puede cerrarse con la EVID verified de la re-verificación actual."
+        )
     relative = status["developer"]["files"][0]
     detail_path = root / relative
     board_path = root / "docs/lks-sdd/04-delivery/tasks.md"
@@ -450,6 +469,78 @@ def _resolve_problem(
         "administrative_operations": 1,
         "human_confirmations_required": 0,
         "technical_reference": checkpoint_id,
+    }
+
+
+def _correct_problem(
+    root: Path,
+    task: str,
+    problem: str,
+    cause: str,
+    actor: str,
+) -> tuple[int, dict[str, Any]]:
+    """Record a correction checkpoint while keeping the finding open.
+
+    The finding is only resolved after a subsequent EVID is available.  This
+    keeps correction and re-verification distinct and preserves the historical
+    evidence that the later finding compromised.
+    """
+
+    if not cause.strip():
+        raise ExperienceError("Registrar una corrección requiere una descripción concreta.")
+    status = load_status(root, task_id=task)
+    current = status["current_task"]
+    if current is None or problem not in current.get("open_findings", []):
+        raise ExperienceError(f"{problem} no es un hallazgo activo de {task}.")
+    manifest = copy.deepcopy(status["audit"]["manifest"])
+    transition_args = argparse.Namespace(
+        task=task,
+        to_state="in-review",
+        reason=f"Corrección aplicada para {problem}: {cause}",
+        actor=actor,
+        date=date.today().isoformat(),
+        health="at-risk",
+        progress=None,
+        blocker=None,
+        branch=None,
+        revision_start=None,
+        revision=None,
+        build=None,
+        environment=None,
+        artifact_digest=None,
+        gate=None,
+        evidence=problem,
+        classification=None,
+        change_id=None,
+        auto_verified_deliverables=False,
+    )
+    try:
+        board_new, detail_new, manifest_new, _ = _transition(
+            root, manifest, transition_args
+        )
+        checkpoint_id = _compose_checkpoint_transaction(
+            root,
+            task,
+            "in-review",
+            actor,
+            "Ejecutar la re-verificación; mantener el hallazgo abierto hasta registrar una nueva EVID.",
+            board_new=board_new,
+            detail_new=detail_new,
+            manifest_new=manifest_new,
+            completed=f"Corrección aplicada para {problem}: {cause}",
+            execution_id=status["audit"].get("execution", {}).get("execution_id"),
+        )
+    except (TaskManagementError, ContinuityError) as exc:
+        raise ExperienceError(str(exc)) from exc
+    return 0, {
+        "status": "pending-reverification",
+        "changed": True,
+        "problem": problem,
+        "correction": checkpoint_id,
+        "summary": _management(root, task),
+        "administrative_operations": 1,
+        "human_confirmations_required": 0,
+        "next_action": "Ejecutar work verify y cerrar el hallazgo enlazando la nueva EVID.",
     }
 
 
@@ -583,7 +674,7 @@ def _checkpoint(root: Path, task: str, state: str, args: argparse.Namespace) -> 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="operation", required=True)
-    for name in ("status", "start", "resume", "resolve", "review", "verify", "block", "complete", "sync-jira"):
+    for name in ("status", "start", "resume", "correct", "resolve", "review", "verify", "block", "complete", "sync-jira"):
         item = sub.add_parser(name)
         item.add_argument("project_root", type=Path)
         item.add_argument("--task")
@@ -596,12 +687,13 @@ def main() -> int:
             item.add_argument("--reason")
             item.add_argument("--completed")
             item.add_argument("--next-action")
-        elif name == "resolve":
+        elif name in {"correct", "resolve"}:
             item.add_argument("--problem", required=True)
-            item.add_argument("--resolution", choices=("resolved", "superseded"), default="resolved")
             item.add_argument("--cause", required=True)
-            item.add_argument("--evidence", required=True)
             item.add_argument("--actor", default="codex")
+            if name == "resolve":
+                item.add_argument("--resolution", choices=("resolved", "superseded"), default="resolved")
+                item.add_argument("--evidence", required=True)
         elif name == "verify":
             item.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -626,6 +718,10 @@ def main() -> int:
             else:
                 code, detail = _run(["continuity", str(root), "resume"])
                 result = {"status": "resumable" if code == 0 else "blocked", "changed": False, "summary": _management(root, args.task), "detail": detail}
+        elif args.operation == "correct":
+            code, result = _correct_problem(
+                root, args.task, args.problem, args.cause, args.actor
+            )
         elif args.operation == "resolve":
             code, result = _resolve_problem(
                 root, args.task, args.problem, args.resolution,

@@ -124,7 +124,7 @@ COORDINATION_GATES = {
 COMMENT_POLICIES = {"pending", "not-applicable", "milestones-only"}
 LOCAL_WORKFLOW_STATES = {"in-progress", "blocked", "in-review", "done"}
 WORKFLOW_MAPPING_STATES = {"proposed", "confirmed"}
-MILESTONE_EVENT_KINDS = {
+LEGACY_MILESTONE_EVENT_KINDS = {
     "started",
     "progress",
     "blocked",
@@ -134,6 +134,16 @@ MILESTONE_EVENT_KINDS = {
     "verification-failed",
     "done",
 }
+VERIFICATION_MILESTONE_EVENT_KINDS = {
+    "verification-passed",
+    "verification-failed",
+    "finding-opened",
+    "correction-completed",
+    "reverification",
+}
+# Historical ledgers remain readable. New previews are constrained by
+# VERIFICATION_MILESTONE_EVENT_KINDS in jira_reporting_engine.
+MILESTONE_EVENT_KINDS = LEGACY_MILESTONE_EVENT_KINDS | VERIFICATION_MILESTONE_EVENT_KINDS
 MILESTONE_ACTIONS = {"comment", "transition"}
 MAPPING_STATES = {
     "unlinked",
@@ -1853,6 +1863,7 @@ __all__ = [
     "WORKFLOW_HEADERS",
     "MILESTONE_OPERATION_HEADERS",
     "MILESTONE_EVENT_KINDS",
+    "VERIFICATION_MILESTONE_EVENT_KINDS",
     "OPERATION_RESULTS",
     "PERSONAL_DATA_RE",
     "SENSITIVE_VALUE_RE",

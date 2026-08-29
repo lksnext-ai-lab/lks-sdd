@@ -139,10 +139,14 @@ class ProductExperienceV015Tests(unittest.TestCase):
         compact = management_json(status)
         rendered = render_management(status)
         self.assertLess(len(json.dumps(compact, ensure_ascii=False).encode("utf-8")), 8192)
-        self.assertEqual(compact["project"], {
-            "release": "REL-001", "tasks_total": 13, "verified": 1,
-            "in_progress": 1, "blocked": 1, "pending": 10,
-        })
+        self.assertEqual(compact["project"]["release"], "REL-001")
+        self.assertEqual(
+            {key: compact["project"][key] for key in ("tasks_total", "verified", "in_progress", "blocked", "pending")},
+            {"tasks_total": 13, "verified": 1, "in_progress": 1, "blocked": 1, "pending": 10},
+        )
+        self.assertIn("historically_verified", compact["project"])
+        self.assertIn("test_coverage", compact["project"])
+        self.assertIn("visual_coverage", compact["project"])
         self.assertEqual(compact["current_task"]["human_decision"], "Ninguna")
         self.assertIn("Evidence recorder", compact["current_task"]["active_blocker"])
         self.assertNotIn("Production promotion", compact["current_task"]["active_blocker"])
@@ -467,7 +471,7 @@ class ProductExperienceV015Tests(unittest.TestCase):
         self.assertFalse(payload["changed"])
         self.assertEqual(before, tree_digest(self.root))
 
-    def test_problem_resolution_returns_completed_code_directly_to_review(self) -> None:
+    def test_problem_resolution_requires_correction_and_current_reverification(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-v015-resolve-") as temporary:
             root = Path(temporary) / "project"
             root.mkdir()
@@ -497,6 +501,21 @@ class ProductExperienceV015Tests(unittest.TestCase):
                 "fixture-authority",
             )
             self.assertEqual(code, 0)
+            code, corrected = run_work(
+                root,
+                "correct",
+                "--task",
+                "TASK-001",
+                "--problem",
+                "PROB-001",
+                "--cause",
+                "Synthetic recorder restored and checked",
+                "--actor",
+                "fixture-authority",
+            )
+            self.assertEqual(code, 0, corrected)
+            self.assertEqual(corrected["status"], "pending-reverification")
+            record_synthetic_verified_evidence(root)
             code, payload = run_work(
                 root,
                 "resolve",
@@ -509,7 +528,7 @@ class ProductExperienceV015Tests(unittest.TestCase):
                 "--cause",
                 "Synthetic recorder restored and checked",
                 "--evidence",
-                "validated-local-repair",
+                "EVID-001",
                 "--actor",
                 "fixture-authority",
             )

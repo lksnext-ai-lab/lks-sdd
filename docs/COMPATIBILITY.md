@@ -42,3 +42,5 @@ python "<plugin-root>/scripts/lks_sdd.py" status "<project-root>" --view audit -
 ```
 
 Los comandos deben confirmar schema 1.5/método 1.5.0, mostrar por separado el runtime y la procedencia de materialización, y no alterar Markdown ni el índice.
+
+0.16 mantiene lectura de proyectos y EVID 0.15 sin migración destructiva. Las revisiones visuales 1.1 ya históricas siguen legibles; una revisión nueva se materializa como 1.2. Las fichas TASK son derivadas, pueden regenerarse y no forman parte de `verification_subject`. Un runtime 0.15 no interpreta estas fichas, pero tampoco necesita reescribirlas ni degradar el contrato del proyecto.

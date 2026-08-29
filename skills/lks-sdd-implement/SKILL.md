@@ -21,9 +21,9 @@ Implement only the requested increment. A `ready` result is necessary but does n
 
 Implement only exact closed profiles whose descriptor, driver, scaffold, certification evidence, composition digest, and consumer lock agree. A family, capability set, candidate profile, or arbitrary technology mixture is documentable but not automatically implementable. Do not replace a confirmed provider such as Microsoft Entra with Keycloak merely because the latter has an active profile.
 
-## Fast path and narration in 0.15
+## Fast path and narration in 0.16
 
-Start with `work status <project-root> --task TASK-###`. Prefer `work start` for a new task, `work resume` for an existing execution, `work resolve` with cause and evidence for an active problem, `work review` for code-complete handoff and `work block` for a real blocker. `work resume` must fail closed while an applicable problem remains active. Low-level commands remain available for audit, recovery and conflicts.
+Start with `work status <project-root> --task TASK-###`. Prefer `work start` for a new task, `work resume` for an existing execution, `work review` for code-complete handoff and `work block` for a real blocker. Para un hallazgo posterior, `work correct` registra problema, causa y corrección y deja la salud pendiente de re-verificación; `work resolve` solo cierra después de una EVID nueva `verified` de esa TASK. `work resume` falla cerrado mientras permanezca un problema aplicable. Low-level commands remain available for audit, recovery and conflicts.
 
 If an exact authorization already matches current scope and fingerprints, do not ask again: the façade may apply deterministic local bookkeeping as one atomic milestone. New scope, exception, environment, external action, evidence contradiction, deployment or promotion still requires a new decision. Create checkpoints only at meaningful start, pause, block, handoff, completed review, verification or close; do not create redundant checkpoints for consecutive transitions during one resumption.
 

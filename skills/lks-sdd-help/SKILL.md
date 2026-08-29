@@ -18,8 +18,8 @@ Orient the user without modifying files, state, phases, gates, or decisions. Exp
 
 Use [examples](references/examples.md) only when the user asks to see a case or starter prompt.
 
-## Default status and narration in 0.15
+## Default status and narration in 0.16
 
-For current project state, prefer `python "<plugin-root>/scripts/lks_sdd.py" status "<project-root>"` and its default `management` view. Use `--view developer` for actionable implementation detail and `--view audit --json` only on request or when a conflict requires full traceability. Do not expose hashes, fingerprints, locks, bindings, gates, authorizations, executions, checkpoints, evidence or receipts in the normal summary except for one compact technical-reference line.
+For current project state, prefer `python "<plugin-root>/scripts/lks_sdd.py" status "<project-root>"` and its default `management` view. Use `--view developer` for actionable implementation detail and `--view audit --json` only on request or when a conflict requires full traceability. If no task is active, report `current_task: null` instead of selecting the first task. Separate code, tests, historical verification, current health and delivery. Do not expose hashes, fingerprints, locks, bindings, gates, authorizations, executions, checkpoints, evidence or receipts in the normal summary except for one compact technical-reference line.
 
 Narrate outcome before mechanics: once before starting or resuming, after a material milestone, at a blocker, after implementation and after verification. Separate observed fact, checked result, pending work, active blocker and required human decision. Do not report every preview, hash or receipt.

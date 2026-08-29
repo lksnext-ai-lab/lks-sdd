@@ -21,6 +21,10 @@ from evidence_contract import (
     evidence_profile_identity_errors,
     visual_gate_applicability,
 )
+from validation_evidence import (
+    DEFAULT_VISUAL_POLICY,
+    validate_visual_review_v12,
+)
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_SCHEMAS = {
@@ -1273,6 +1277,10 @@ def validate_visual_review_evidence(
     requested: str | Path,
     *,
     require_fresh: bool,
+    task_ids: list[str] | None = None,
+    policies: dict[str, dict[str, int]] | None = None,
+    require_v12: bool = False,
+    expected_revision: dict[str, Any] | None = None,
 ) -> tuple[list[str], dict[str, Any] | None, list[str], list[str]]:
     """Validate browser evidence against the current implementation and UX baseline."""
     root = root.resolve()
@@ -1288,6 +1296,46 @@ def validate_visual_review_evidence(
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         return [f"evidencia visual JSON inválida: {exc}"], None, limitations, checked_files
+    if isinstance(value, dict) and value.get("schema_version") == "1.2":
+        visual_schema = json.loads(
+            (PLUGIN_ROOT / "schemas/visual-review-evidence-1.2.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        schema_errors = validate_json_schema(value, visual_schema, "visual-review")
+        from delivery_engine import validate_delivery_contract
+
+        delivery = validate_delivery_contract(root, manifest)
+        selected_tasks = task_ids or [
+            str(item.get("task_id"))
+            for item in value.get("task_reviews", [])
+            if isinstance(item, dict) and isinstance(item.get("task_id"), str)
+        ]
+        effective_policies = policies or {
+            task_id: dict(DEFAULT_VISUAL_POLICY) for task_id in selected_tasks
+        }
+        semantic_errors, outcome, limitations, visual_checked = validate_visual_review_v12(
+            root,
+            value,
+            increment=increment,
+            task_ids=selected_tasks,
+            delivery=delivery,
+            policies=effective_policies,
+            expected_revision=expected_revision,
+            resolve_path=lambda requested_path: _visual_evidence_path(root, requested_path),
+            image_signature=_image_signature,
+        )
+        checked_files.extend(visual_checked)
+        relative = path.relative_to(root).as_posix()
+        checked_files.append(relative)
+        errors = schema_errors + delivery.get("errors", []) + semantic_errors
+        if errors or outcome is None:
+            return list(dict.fromkeys(errors)), None, limitations, list(dict.fromkeys(checked_files))
+        outcome["evidence"] = relative
+        outcome["evidence_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        return [], outcome, limitations, list(dict.fromkeys(checked_files))
+    if require_v12:
+        return ["las verificaciones nuevas requieren evidencia visual schema 1.2 por TASK"], None, [], []
     required = {
         "schema_version",
         "increment",
@@ -2685,6 +2733,13 @@ def validate_project(
                             str(evidence.get("increment", "")),
                             visual_path,
                             require_fresh=False,
+                            task_ids=(task_ids if isinstance(task_ids, list) else None),
+                            policies=(check.get("policy") if isinstance(check.get("policy"), dict) else None),
+                            expected_revision={
+                                "revision": evidence.get("revision"),
+                                "tree_id": evidence.get("tree_id"),
+                                "tree_sha256": evidence.get("tree_sha256"),
+                            },
                         )
                     )
                     evidence_errors.extend(
@@ -2696,8 +2751,13 @@ def validate_project(
                             "evidence_sha256",
                             "baseline",
                             "screenshots",
+                            "task_coverage",
+                            "policy",
+                            "revision",
                         ):
-                            if check.get(field) != visual_outcome.get(field):
+                            if field in check or field in visual_outcome:
+                                if check.get(field) == visual_outcome.get(field):
+                                    continue
                                 evidence_errors.append(
                                     f"visual-browser-review: {field} ya no coincide"
                                 )

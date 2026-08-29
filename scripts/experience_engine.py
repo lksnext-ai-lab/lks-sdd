@@ -20,8 +20,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
+from evidence_contract import visual_gate_applicability
+from validation_evidence import load_evidence_index, task_health
 
-PLUGIN_VERSION = "0.15.0"
+
+PLUGIN_VERSION = "0.16.0"
 CACHE_SCHEMA = "lks-sdd-experience-cache-1"
 PENDING = {"", "none", "pending", "not-run", "not-started", "unknown"}
 ACTIVE_PROBLEM_STATES = {"active"}
@@ -373,22 +376,29 @@ def load_status(
     selected_id = task_id or manifest.get("active_task")
     if not selected_id:
         active = [item for item in manifest.get("active_tasks", []) if item in by_id]
-        selected_id = active[0] if active else next(
-            (row["ID"] for row in tasks if row.get("Workflow state") not in {"done", "cancelled"}),
-            next(iter(by_id), None),
-        )
+        # A list with several candidates is not an actual current TASK.  The
+        # management view must expose that ambiguity instead of selecting the
+        # first row or backlog item arbitrarily.
+        selected_id = active[0] if len(active) == 1 else None
     if task_id and task_id not in by_id:
         raise ExperienceError(f"No existe la tarea {task_id}.")
     selected = by_id.get(str(selected_id), {})
-    detail_path = _task_detail_path(root, selected, str(selected_id)) if selected_id else None
-    detail_tables: list[dict[str, Any]] = []
-    if detail_path and detail_path.is_file():
-        detail_tables = _cached_tables(
-            _read_text(detail_path, metrics),
-            metrics,
-            contract_version=contract_version,
-            use_cache=cache_enabled,
-        )
+    all_detail_tables: dict[str, list[dict[str, Any]]] = {}
+    detail_paths: dict[str, Path] = {}
+    for candidate_id, candidate in by_id.items():
+        candidate_path = _task_detail_path(root, candidate, candidate_id)
+        detail_paths[candidate_id] = candidate_path
+        if candidate_path.is_file():
+            all_detail_tables[candidate_id] = _cached_tables(
+                _read_text(candidate_path, metrics),
+                metrics,
+                contract_version=contract_version,
+                use_cache=cache_enabled,
+            )
+        else:
+            all_detail_tables[candidate_id] = []
+    detail_path = detail_paths.get(str(selected_id)) if selected_id else None
+    detail_tables = all_detail_tables.get(str(selected_id), []) if selected_id else []
     definition = (_table(detail_tables, "Objective", "Acceptance") or [{}])[0]
     execution_plan = (_table(detail_tables, "Tests", "Definition of done") or [{}])[0]
     deliverables = _table(detail_tables, "Deliverable", "State", "Acceptance")
@@ -404,6 +414,38 @@ def load_status(
         "Evidence",
     )
     environment = _current_environment(manifest)
+    evidence_index = load_evidence_index(root)
+    metrics.files_read += len(
+        {
+            item.get("_path")
+            for items in evidence_index.values()
+            for item in items
+            if isinstance(item.get("_path"), str)
+        }
+    )
+    all_active_problems: dict[str, list[dict[str, str]]] = {}
+    delivery_like: dict[str, Any] = {
+        "tasks": by_id,
+        "task_details": {},
+        "bindings": {
+            item.get("binding_id"): item
+            for item in manifest.get("technology", {}).get("profile_bindings", [])
+            if isinstance(item, dict) and item.get("binding_id")
+        },
+        "units": {},
+    }
+    for candidate_id, tables in all_detail_tables.items():
+        candidate_definition = _table(tables, "Objective", "Acceptance")
+        candidate_problems = _table(tables, "ID", "State", "Description", "Impact")
+        all_active_problems[candidate_id] = [
+            item for item in candidate_problems
+            if item.get("State", "").casefold() in ACTIVE_PROBLEM_STATES
+        ]
+        delivery_like["task_details"][candidate_id] = {
+            "definition": candidate_definition,
+            "problems": candidate_problems,
+            "issues": candidate_problems,
+        }
     active_problems = [
         item
         for item in problems
@@ -425,21 +467,79 @@ def load_status(
     passed_checks, test_commands = _evidence_checks(root, manifest, str(selected_id), metrics) if selected_id else (0, [])
     passed_checks += sum(1 for row in validations if row.get("Result", "").casefold() == "passed")
     exact_authorization = _exact_authorization(manifest, str(selected_id)) if selected_id else None
+    completed_count = sum(1 for row in by_id.values() if row.get("Workflow state") == "done")
+    active_count = sum(1 for row in by_id.values() if row.get("Workflow state") in {"in-progress", "in-review"})
+    blocked_count = sum(1 for row in by_id.values() if row.get("Workflow state") == "blocked")
+    pending_count = sum(1 for row in by_id.values() if row.get("Workflow state") in {"backlog", "ready"})
+    task_healths = {
+        candidate_id: task_health(
+            candidate_id,
+            evidence_index.get(candidate_id, []),
+            all_active_problems.get(candidate_id, []),
+            manifest.get("verification", {}) if isinstance(manifest.get("verification"), dict) else {},
+        )
+        for candidate_id in by_id
+    }
+    latest_evidence = {
+        candidate_id: (items[-1] if items else {})
+        for candidate_id, items in evidence_index.items()
+    }
+    executed_checks = [
+        check
+        for evidence in latest_evidence.values()
+        for check in evidence.get("checks", [])
+        if isinstance(check, dict) and check.get("name") != "visual-browser-review"
+    ]
+    visual_checks = [
+        check
+        for evidence in latest_evidence.values()
+        for check in evidence.get("checks", [])
+        if isinstance(check, dict) and check.get("name") == "visual-browser-review"
+    ]
+    applicable_tasks = [
+        candidate_id for candidate_id in by_id
+        if visual_gate_applicability([candidate_id], delivery_like).get("status") == "applicable"
+    ]
+    visual_task_rows = {
+        item.get("task_id"): item
+        for check in visual_checks
+        for item in check.get("task_coverage", [])
+        if isinstance(item, dict) and item.get("task_id")
+    }
+    progress_values = []
+    for row in by_id.values():
+        try:
+            progress_values.append(int(row.get("Progress", "0")))
+        except ValueError:
+            progress_values.append(0)
     counts = {
         "tasks_total": len(by_id),
-        "verified": sum(1 for row in by_id.values() if row.get("Workflow state") == "done"),
-        "in_progress": sum(1 for row in by_id.values() if row.get("Workflow state") in {"in-progress", "in-review"}),
-        "blocked": sum(1 for row in by_id.values() if row.get("Workflow state") == "blocked"),
-        "pending": sum(1 for row in by_id.values() if row.get("Workflow state") in {"backlog", "ready"}),
+        "verified": completed_count,
+        "in_progress": active_count,
+        "blocked": blocked_count,
+        "pending": pending_count,
     }
     development = _development_label(state, execution, history)
     tests_label = f"{passed_checks} pruebas superadas" if passed_checks else "Pruebas pendientes"
     verification_label = _verification_label(verification, state, active_blocker)
     delivery_label = _delivery_label(manifest, verification)
-    if active_blocker:
+    selected_health = task_healths.get(str(selected_id), {
+        "historical_verification": "not-verified",
+        "current_health": "not-verified",
+        "open_findings": [],
+        "pending_reverification": False,
+        "next_action": "Declarar una TASK activa real o solicitar una TASK explícita.",
+    })
+    if selected_id is None:
+        next_action = "Declarar una TASK activa real o consultar una TASK explícita."
+        decision = "Ninguna" if not by_id else "Seleccionar la siguiente TASK solo cuando vaya a iniciarse."
+    elif active_blocker:
         next_action = active_problems[0].get("Resolution condition") or "Resolver el bloqueo activo y reanudar desde el último estado material."
         decision = "Ninguna" if exact_authorization else "Resolver o sustituir explícitamente el bloqueo."
-    elif verification.get("status") == "verified":
+    elif selected_health.get("current_health") == "compromised":
+        next_action = selected_health["next_action"]
+        decision = "Ninguna"
+    elif verification.get("status") == "verified" and selected_health.get("current_health") == "healthy":
         next_action = "Revisar la entrega o cerrar formalmente la tarea."
         decision = "Ninguna"
     elif state in {"in-review", "done"} or execution.get("status") == "completed":
@@ -459,20 +559,76 @@ def load_status(
         or "sin release activa"
     )
     metrics.project_parse_ms = (time.perf_counter() - parse_started) * 1000
-    result = {
-        "project": {"release": release, **counts},
-        "current_task": {
+    project_status = {
+        "release": release,
+        "increment": manifest.get("active_increment") or manifest.get("planning", {}).get("target_id"),
+        "progress_percent": round(sum(progress_values) / len(progress_values), 1) if progress_values else 0.0,
+        **counts,
+        "tasks": {
+            "completed": completed_count,
+            "active": active_count,
+            "blocked": blocked_count,
+            "pending": pending_count,
+        },
+        "historically_verified": sum(
+            1 for value in task_healths.values()
+            if value.get("historical_verification") == "verified"
+        ),
+        "health_compromised": sum(
+            1 for value in task_healths.values()
+            if value.get("current_health") == "compromised"
+        ),
+        "open_findings": sum(len(items) for items in all_active_problems.values()),
+        "test_coverage": {
+            "executed": len(executed_checks),
+            "passed": sum(1 for item in executed_checks if item.get("status") == "passed"),
+        },
+        "visual_coverage": {
+            "applicable_tasks": len(applicable_tasks),
+            "covered_tasks": sum(
+                1 for task_id in applicable_tasks
+                if visual_task_rows.get(task_id, {}).get("status") == "passed"
+            ),
+            "images": sum(
+                int(item.get("image_count", 0)) for item in visual_task_rows.values()
+            ),
+            "not_applicable_tasks": len(by_id) - len(applicable_tasks),
+        },
+        "delivery": _delivery_label(manifest, manifest.get("verification", {}) if isinstance(manifest.get("verification"), dict) else {}),
+        "human_decisions_pending": ([] if decision == "Ninguna" else [decision]),
+    }
+    current_task = (
+        {
             "id": selected_id,
             "title": selected.get("Title") or "Sin tarea actual",
             "goal": definition.get("Objective") or selected.get("Title") or "Pendiente de definición",
             "development": development,
+            "code": development,
             "tests": tests_label,
             "verification": verification_label,
+            "historical_verification": selected_health.get("historical_verification"),
+            "current_health": selected_health.get("current_health"),
+            "pending_reverification": selected_health.get("pending_reverification"),
+            "open_findings": selected_health.get("open_findings", []),
+            "visual_coverage": visual_task_rows.get(str(selected_id), {
+                "status": (
+                    "not-applicable"
+                    if str(selected_id) not in applicable_tasks
+                    else "not-verified"
+                ),
+                "image_count": 0,
+            }),
             "delivery": delivery_label,
             "active_blocker": active_blocker,
             "next_action": next_action,
             "human_decision": decision,
-        },
+        }
+        if selected_id is not None
+        else None
+    )
+    result = {
+        "project": project_status,
+        "current_task": current_task,
         "developer": {
             "components": sorted({value for value in (selected.get("Unit"), selected.get("Profile binding")) if _meaningful(value)}),
             "files": [detail_path.relative_to(root).as_posix()] if detail_path else [],
@@ -491,7 +647,7 @@ def load_status(
                 "materialized_with_plugin_version": manifest.get("plugin_version"),
             },
             "manifest": manifest,
-            "task": selected,
+            "task": selected if selected_id is not None else None,
             "definition": definition,
             "execution_plan": execution_plan,
             "deliverables": deliverables,
@@ -504,6 +660,7 @@ def load_status(
             "authorization": exact_authorization,
             "execution": execution,
             "verification": verification,
+            "task_health": task_healths,
         },
     }
     result["instrumentation"] = metrics.payload()
@@ -535,17 +692,35 @@ def render_management(status: dict[str, Any]) -> str:
     task = status["current_task"]
     lines = [
         f"PROYECTO · Release {project['release']}",
-        f"Plan: {project['tasks_total']} tareas",
-        f"✅ Verificadas: {project['verified']}",
-        f"🟦 En desarrollo: {project['in_progress']}",
+        f"Plan: {project['tasks_total']} tareas · avance {project['progress_percent']}%",
+        f"✅ Terminadas: {project['tasks']['completed']} · históricamente verificadas: {project['historically_verified']}",
+        f"🟦 Activas: {project['tasks']['active']}",
         f"⛔ Bloqueadas: {project['blocked']}",
         f"⚪ Pendientes: {project['pending']}",
+        f"Salud comprometida: {project['health_compromised']} · hallazgos abiertos: {project['open_findings']}",
+        f"Tests: {project['test_coverage']['passed']}/{project['test_coverage']['executed']} superados · Visual: {project['visual_coverage']['covered_tasks']}/{project['visual_coverage']['applicable_tasks']} TASK",
+        f"Entrega: {project['delivery']}",
         "",
-        f"TAREA ACTUAL · {task['title']}",
-        f"{'✅' if task['development'].startswith('Código terminado') else '🟦' if 'curso' in task['development'] else '⚪'} {task['development']}",
-        f"{'✅' if task['tests'][0].isdigit() else '⏳'} {task['tests']}",
-        f"{'✅' if 'superada' in task['verification'] else '⛔' if 'bloqueada' in task['verification'] else '⏳'} {task['verification']}",
     ]
+    if task is None:
+        lines.extend(
+            [
+                "TAREA ACTUAL · ninguna declarada",
+                "",
+                "Siguiente paso: Declarar una TASK activa real o consultar una TASK explícita.",
+                "Decisión necesaria: ninguna hasta iniciar trabajo.",
+            ]
+        )
+        return "\n".join(lines)
+    lines.extend(
+        [
+            f"TAREA ACTUAL · {task['title']}",
+            f"{'✅' if task['development'].startswith('Código terminado') else '🟦' if 'curso' in task['development'] else '⚪'} {task['development']}",
+            f"{'✅' if task['tests'][0].isdigit() else '⏳'} {task['tests']}",
+            f"{'✅' if 'superada' in task['verification'] else '⛔' if 'bloqueada' in task['verification'] else '⏳'} {task['verification']}",
+            f"Salud actual: {task['current_health']} · histórico: {task['historical_verification']}",
+        ]
+    )
     if task.get("active_blocker"):
         lines.append(f"⛔ Bloqueo: {task['active_blocker']}")
     lines.extend(

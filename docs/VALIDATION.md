@@ -178,3 +178,14 @@ git diff --stat
 ```
 
 Revise el diff completo, diferencie gates ejecutados de canales `not-run` y no cree commit, etiqueta, publicación o instalación salvo autorización separada.
+
+## Evidencia 0.16 y benchmark
+
+```powershell
+python -X utf8 scripts\validate_fixture_manifest.py --json
+python -X utf8 tests\run_unit_tests.py --module test_validation_evidence_v016
+python -X utf8 scripts\benchmark_experience.py --iterations 5 --json
+python -X utf8 scripts\validate_plugin_contract.py .
+```
+
+Antes de empaquetar, ejecute también todos los tiers, los evals y los gates de perfiles. Construya dos veces desde el mismo commit limpio y compare hashes; extraiga después el ZIP en un directorio temporal, valide el manifest y las seis skills y ejecute una instalación limpia aislada, sin modificar la instalación activa.

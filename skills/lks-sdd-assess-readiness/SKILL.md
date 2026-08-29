@@ -7,7 +7,7 @@ description: "Use the LKS-SDD Codex plugin to assess a documented increment by r
 
 Evaluate one increment, not the whole project. A ready result is evidence for a human decision; it never authorizes implementation.
 
-1. Read `.lks-sdd/project.json` and the canonical Markdown paths it indexes. If either is absent or invalid, report an explained blocker. LKS-SDD 0.15 requires schema 1.5/method 1.5.0; an older index is rejected without mutation and a downgraded Markdown header cannot bypass the current gates.
+1. Read `.lks-sdd/project.json` and the canonical Markdown paths it indexes. If either is absent or invalid, report an explained blocker. LKS-SDD 0.16 requires schema 1.5/method 1.5.0; an older index is rejected without mutation and a downgraded Markdown header cannot bypass the current gates.
 2. Read [readiness rubric](references/readiness-rubric.md). Resolve `<plugin-root>` as the directory containing `.codex-plugin/plugin.json` for this installed skill; never resolve `scripts/` against the consumer project. Run `python "<plugin-root>/scripts/lks_sdd.py" assess-readiness "<project-root>" --increment <INC-###>`; add one repeatable `--task TASK-###` per selected task when assessing a portion instead of the default initial slice. Use `--json` when a structured result is useful.
 3. Review semantic sufficiency the deterministic script cannot judge: clarity, testability, contradictions, risk, whether one task concentrates an unreasonable or unverifiable amount of exact `coverage.by_task`, whether contributor responsibilities overlap ambiguously, and whether recorded confirmations are explicit. Do not silently repair the specification during assessment and do not impose an invented size threshold.
 4. For schema 1.5, evaluate the selected slice, the complete increment/release, projection tracking and milestone reporting simultaneously while keeping their results separate. Require confirmed delivery governance, plan/release, executable selected tasks, resolved dependencies, confirmed units/bindings and exact supported locks for slice readiness. Independently derive full ownership of active scope, acceptance and tests, executable task definitions, release consistency, DAG integrity, parallel frontiers and joint integration; never infer completeness from the number of existing tasks.
@@ -18,6 +18,8 @@ Evaluate one increment, not the whole project. A ready result is evidence for a 
 
 For an adopted project, require a materialized and current baseline. Do not produce code, change state, or infer implementation approval.
 
-## Default status and narration in 0.15
+## Default status and narration in 0.16
 
 Before detailed assessment run `status <project-root> --task TASK-###` and explain the whole project plus selected task in product language. The default answer uses `management`; IDs, `checked_files`, fingerprints and full diagnostics belong to `developer` or `audit`, unless they directly cause a blocker. Do not request an authorization that already matches the exact current scope and fingerprints. Exclude production-only decisions from a non-production slice and group them as future, non-blocking work. Never collapse code, tests, verification and delivery into one global blocked percentage.
+
+Una TASK de interfaz debe poder demostrar su aceptación y riesgos con una a cinco imágenes significativas; si necesita más estados esenciales, recomienda dividir o priorizar sin rebajar el máximo. Si no existe una TASK activa inequívoca, conserva `current_task: null`. Informa verificación histórica y salud actual como ejes separados.

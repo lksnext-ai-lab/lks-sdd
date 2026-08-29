@@ -29,6 +29,7 @@
         "test_task_tracking_v14_middle",
         "test_task_tracking_v14_extended",
         "test_task_tracking_v14_fourth",
+        "test_validation_evidence_v016",
         "test_visual_contract_adversarial",
         "test_visual_contract",
         "test_workflows"

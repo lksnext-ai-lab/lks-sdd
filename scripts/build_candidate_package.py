@@ -86,6 +86,11 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-52",
     "FX-54",
     "FX-55",
+    "FX-56",
+    "FX-57",
+    "FX-58",
+    "FX-59",
+    "FX-60",
 )
 EXPECTED_DETERMINISTIC_EVAL_IDS = {
     "FX-M1-ALTERNATIVE-STACK",
@@ -96,6 +101,9 @@ EXPECTED_DETERMINISTIC_EVAL_IDS = {
 }
 EXPECTED_V015_PRODUCT_EVAL_IDS = {
     "experience-management-comprehension-v015",
+}
+EXPECTED_V016_PRODUCT_EVAL_IDS = {
+    "validation-evidence-management-v016",
 }
 EXPECTED_RELEASE_METRICS = {
     "automated_catalog_cases",
@@ -386,17 +394,22 @@ def _expected_deterministic_eval_count(
     version = tuple(int(part) for part in core_version.split("."))
     if version < (0, 15, 0):
         return fixture_eval_count
+    expected_product_evals = (
+        EXPECTED_V016_PRODUCT_EVAL_IDS
+        if version >= (0, 16, 0)
+        else EXPECTED_V015_PRODUCT_EVAL_IDS
+    )
     support = committed_files.get("tests/eval_support.py", b"")
     missing = sorted(
         eval_id
-        for eval_id in EXPECTED_V015_PRODUCT_EVAL_IDS
+        for eval_id in expected_product_evals
         if f'"id": "{eval_id}"'.encode("utf-8") not in support
     )
     if missing:
         raise PackageError(
             f"Faltan evals de producto deterministas comprometidas: {missing}"
         )
-    return fixture_eval_count + len(EXPECTED_V015_PRODUCT_EVAL_IDS)
+    return fixture_eval_count + len(expected_product_evals)
 
 
 def _expected_comparison(
@@ -864,7 +877,7 @@ def _validated_quality_report(
         or len(catalog_ids) != len(set(catalog_ids))
         or len(extension_ids) != len(extension_cases)
         or not all(isinstance(case_id, str) for case_id in extension_ids)
-        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 56)}
+        or set(extension_ids) != {f"FX-{index:02d}" for index in range(20, 61)}
         or len(extension_ids) != len(set(extension_ids))
     ):
         raise PackageError("El inventario comprometido de casos FX cambió.")

@@ -76,8 +76,8 @@ def _valid_config() -> dict:
             "security_url": "https://security.example.invalid/lks-sdd",
         },
         "rollback": {
-            "previous_version": "0.14.2",
-            "candidate_version": "0.15.0",
+            "previous_version": "0.15.0",
+            "candidate_version": "0.16.0",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },
@@ -409,6 +409,14 @@ class M5PilotTests(unittest.TestCase):
         }
         self.assertEqual(
             _expected_deterministic_eval_count("0.15.0", 5, committed), 6
+        )
+        committed_v016 = {
+            "tests/eval_support.py": (
+                b'{"id": "validation-evidence-management-v016"}'
+            )
+        }
+        self.assertEqual(
+            _expected_deterministic_eval_count("0.16.0", 5, committed_v016), 6
         )
         self.assertEqual(
             _expected_deterministic_eval_count("0.14.2", 5, committed), 5

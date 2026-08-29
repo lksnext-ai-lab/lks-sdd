@@ -1905,7 +1905,11 @@ def main() -> int:
             "resumed",
             "in-review",
             "verification-pending",
+            "verification-passed",
             "verification-failed",
+            "finding-opened",
+            "correction-completed",
+            "reverification",
             "done",
         ),
     )

@@ -16,6 +16,7 @@ from typing import Any
 from delivery_engine import parse_tables, validate_delivery_contract
 from task_tracking_engine import (
     MILESTONE_EVENT_KINDS,
+    VERIFICATION_MILESTONE_EVENT_KINDS,
     PERSONAL_DATA_RE,
     SENSITIVE_VALUE_RE,
     TrackingContractError,
@@ -37,6 +38,10 @@ EVENT_TITLES = {
     "verification-pending": "Verificación pendiente",
     "verification-failed": "Verificación no superada",
     "done": "Implementación verificada",
+    "verification-passed": "Verificación superada",
+    "finding-opened": "Hallazgo posterior",
+    "correction-completed": "Corrección preparada",
+    "reverification": "Re-verificación superada",
 }
 EXPECTED_TASK_STATES = {
     "started": {"in-progress"},
@@ -47,6 +52,10 @@ EXPECTED_TASK_STATES = {
     "verification-pending": {"in-review"},
     "verification-failed": {"in-review"},
     "done": {"done"},
+    "verification-passed": {"in-review", "done"},
+    "finding-opened": {"blocked"},
+    "correction-completed": {"in-review"},
+    "reverification": {"in-review", "done"},
 }
 CHECKPOINT_IDENTITY_HEADERS = (
     "Checkpoint", "Execution", "State", "Tasks", "Increment", "Release",
@@ -251,15 +260,66 @@ def _comment_body(snapshot: dict[str, Any], marker: str) -> str:
     return "\n".join(
         [
             f"[LKS-SDD] {snapshot['task_id']} · {EVENT_TITLES[snapshot['event_kind']]}",
-            f"Estado local: {snapshot['workflow_state']} · avance {snapshot['progress']}% · salud {snapshot['health']}",
-            f"Fuente canónica: {snapshot['source_ref']}",
-            f"Checkpoint: {snapshot['current_checkpoint']}",
-            f"Bloqueos abiertos: {problem_text}",
-            f"Evidencia: {evidence_text}",
-            f"Siguiente acción segura: {snapshot['next_safe_action']}",
+            f"Resultado: {snapshot.get('result', snapshot['workflow_state'])}",
+            "Pruebas ejecutadas: " + (", ".join(snapshot.get("tests", [])) or "ninguna"),
+            f"Imágenes: {snapshot.get('image_count', 0)}",
+            f"Hallazgos: {problem_text}",
+            f"Revisión: {snapshot.get('revision') or 'no registrada'}",
+            f"Evidencia local canónica: {evidence_text}",
+            "Referencias visuales versionadas: " + (", ".join(snapshot.get("visual_references", [])) or "ninguna"),
+            f"Próxima acción: {snapshot['next_safe_action']}",
             marker,
         ]
     )
+
+
+def _verification_event_details(
+    root: Path,
+    task_id: str,
+    source_ref: str,
+    event_kind: str,
+    details: dict[str, Any],
+) -> dict[str, Any]:
+    result = "not-verified"
+    tests: list[str] = []
+    image_count = 0
+    revision: str | None = None
+    visual_references: list[str] = []
+    if source_ref.startswith("EVID-"):
+        evidence_path = root / "docs/lks-sdd/evidence" / f"{source_ref}.json"
+        try:
+            evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise TrackingContractError(f"No se puede leer {source_ref}: {exc}") from exc
+        if not isinstance(evidence, dict):
+            raise TrackingContractError(f"{source_ref} no contiene evidencia estructurada.")
+        result = str(evidence.get("classification", "not-verified"))
+        revision = evidence.get("revision") if isinstance(evidence.get("revision"), str) else None
+        for check in evidence.get("checks", []):
+            if not isinstance(check, dict):
+                continue
+            if check.get("name") == "visual-browser-review":
+                image_count += sum(
+                    int(item.get("image_count", 0))
+                    for item in check.get("task_coverage", [])
+                    if isinstance(item, dict) and item.get("task_id") == task_id
+                )
+                visual_path = check.get("evidence")
+                if isinstance(visual_path, str) and not Path(visual_path).is_absolute():
+                    visual_references.append(visual_path)
+            else:
+                tests.append(f"{check.get('name')}={check.get('status')}")
+    elif event_kind == "finding-opened":
+        result = "current-health-compromised"
+    elif event_kind == "correction-completed":
+        result = "pending-reverification"
+    return {
+        "result": result,
+        "tests": tests,
+        "image_count": image_count,
+        "revision": revision,
+        "visual_references": sorted(set(visual_references)),
+    }
 
 
 def build_milestone_preview(
@@ -328,18 +388,28 @@ def build_milestone_preview(
     ):
         raise TrackingContractError("blocked exige un PROB-### canónico abierto.")
     verification = manifest.get("verification", {})
-    if event_kind == "done" and (
+    if event_kind in {"verification-passed", "reverification", "done"} and (
         verification.get("status") != "verified"
         or task_id not in verification.get("task_ids", [])
         or source_ref not in verification.get("evidence_ids", [])
     ):
         raise TrackingContractError(
-            "done exige verificación canónica verified y el EVID-### indicado."
+            "El hito superado exige verificación canónica verified y el EVID-### indicado."
         )
     if event_kind == "verification-failed" and source_ref.split("-", 1)[0] != "EVID":
         raise TrackingContractError("verification-failed exige una fuente EVID-###.")
 
     snapshot = _milestone_snapshot(task_id, task, details, source_ref, event_kind)
+    snapshot.update(
+        _verification_event_details(root, task_id, source_ref, event_kind, details)
+    )
+    _sanitize_snapshot(snapshot)
+    if event_kind == "verification-failed" and snapshot["result"] != "not-verified":
+        raise TrackingContractError("verification-failed exige EVID not-verified.")
+    if event_kind in {"verification-passed", "reverification"} and snapshot["result"] != "verified":
+        raise TrackingContractError(
+            "No se puede tratar verified-with-reservations, not-run o not-verified como hito superado."
+        )
     event_hash = _canonical_hash(snapshot)
     marker = (
         f"LKS-SDD-EVENT: {manifest.get('project_id')}; {task_id}; "
@@ -356,10 +426,24 @@ def build_milestone_preview(
             "external_key": mapping.get("External key"),
             "duplicate_check": {"marker": marker},
             "payload": {"body": _comment_body(snapshot, marker)},
+            "attachments": [
+                {"path": path, "fallback": "versioned-reference"}
+                for path in snapshot.get("visual_references", [])
+            ],
         }
     ]
     workflow = contract["workflow"].get(current_state)
-    if workflow and workflow.get("State") == "confirmed":
+    if (
+        workflow
+        and workflow.get("State") == "confirmed"
+        and (
+            event_kind not in VERIFICATION_MILESTONE_EVENT_KINDS
+            or (
+                event_kind in {"verification-passed", "reverification"}
+                and snapshot.get("result") == "verified"
+            )
+        )
+    ):
         if not NUMERIC_ID_RE.fullmatch(observed_status_id or ""):
             raise TrackingContractError(
                 "La transición mapeada exige --observed-status-id desde una lectura Jira fresca."

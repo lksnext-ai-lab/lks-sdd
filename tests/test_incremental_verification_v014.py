@@ -1131,8 +1131,20 @@ class EvidenceContractV0142RegressionTests(unittest.TestCase):
             }
             self.assertEqual(
                 current_files - set(snapshot),
-                {"docs/lks-sdd/evidence/EVID-001.json"},
+                {
+                    "docs/lks-sdd/evidence/EVID-001.json",
+                    ".lks-sdd/summaries/task-evidence/TASK-001.json",
+                    ".lks-sdd/summaries/task-evidence/TASK-002.json",
+                },
             )
+            self.assertEqual(g4["task_summaries_generated_in_one_pass"], 2)
+            for task_id in ("TASK-001", "TASK-002"):
+                summary = json.loads(
+                    (root / f".lks-sdd/summaries/task-evidence/{task_id}.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+                self.assertEqual(summary["kind"], "derived-task-evidence-summary")
 
     def test_invalid_post_write_evidence_rolls_back_every_recorded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1167,6 +1179,7 @@ class EvidenceContractV0142RegressionTests(unittest.TestCase):
             self.assertEqual(manifest_path.read_bytes(), original_manifest)
             self.assertEqual(trace_path.read_bytes(), original_trace)
             self.assertFalse(evidence_path.exists())
+            self.assertFalse((root / ".lks-sdd/summaries/task-evidence").exists())
             self.assertFalse(list(root.rglob("*.lks-sdd.tmp")))
 
 

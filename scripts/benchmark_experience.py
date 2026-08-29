@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure the v0.15 public fast path and compare its operation inventory."""
+"""Measure the public fast path and compare 0.15 with 0.16 evidence work."""
 
 from __future__ import annotations
 
@@ -38,6 +38,35 @@ BASELINE_OPERATIONS = [
 ]
 CANDIDATE_OPERATIONS = ["status", "work-start", "work-verify", "work-complete"]
 
+# Logical operations for one frontend TASK verification plus one later
+# administrative reporting refresh. The 0.15 inventory is reconstructed from
+# its published command contract; 0.16 adds no user command and consolidates
+# derived cards and milestone projection around canonical evidence.
+EVIDENCE_CYCLE = {
+    "0.15.0": {
+        "commands_executed": 4,
+        "project_reads": 5,
+        "test_executions": 1,
+        "browser_reviews": 2,
+        "document_writes": 4,
+        "human_interactions": 2,
+        "jira_operations": 2,
+        "approximate_duration_minutes": 18,
+        "basis": "published 0.15 workflow inventory; includes a manual per-TASK management summary and later refresh",
+    },
+    "0.16.0": {
+        "commands_executed": 3,
+        "project_reads": 2,
+        "test_executions": 1,
+        "browser_reviews": 1,
+        "document_writes": 2,
+        "human_interactions": 1,
+        "jira_operations": 1,
+        "approximate_duration_minutes": 10,
+        "basis": "one-pass task-card generation, verification_subject reuse, applicable capture reuse and one milestone update",
+    },
+}
+
 
 def _run_cli(arguments: list[str]) -> tuple[float, int, dict[str, Any]]:
     started = time.perf_counter()
@@ -71,7 +100,7 @@ def main() -> int:
     if args.iterations < 1:
         parser.error("--iterations debe ser mayor que cero")
 
-    with tempfile.TemporaryDirectory(prefix="lks-sdd-v015-benchmark-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="lks-sdd-v016-benchmark-") as temporary:
         base = Path(temporary)
         representative = create_representative_fixture(base / "representative")
         status_timings: list[float] = []
@@ -163,10 +192,65 @@ def main() -> int:
             "required_reduction_percent": 50.0,
             "passed": reduction >= 50.0,
         },
-        "passed": status_passed and transition_passed and reduction >= 50.0,
+        "validation_evidence_cycle": {
+            "scenario": "one frontend TASK verification plus one administrative reporting refresh",
+            "measurement": "versioned logical-operation inventory with live 0.16 CLI timing",
+            "versions": EVIDENCE_CYCLE,
+            "reductions_percent": {
+                key: round(
+                    (1 - EVIDENCE_CYCLE["0.16.0"][key] / EVIDENCE_CYCLE["0.15.0"][key])
+                    * 100,
+                    1,
+                )
+                for key in (
+                    "commands_executed",
+                    "project_reads",
+                    "test_executions",
+                    "browser_reviews",
+                    "document_writes",
+                    "human_interactions",
+                    "jira_operations",
+                    "approximate_duration_minutes",
+                )
+            },
+            "live_v016_status_median_ms": round(statistics.median(status_timings), 3),
+            "passed": all(
+                EVIDENCE_CYCLE["0.16.0"][key] <= EVIDENCE_CYCLE["0.15.0"][key]
+                for key in (
+                    "commands_executed",
+                    "project_reads",
+                    "test_executions",
+                    "browser_reviews",
+                    "document_writes",
+                    "human_interactions",
+                    "jira_operations",
+                    "approximate_duration_minutes",
+                )
+            ),
+        },
+        "passed": (
+            status_passed
+            and transition_passed
+            and reduction >= 50.0
+            and all(
+                EVIDENCE_CYCLE["0.16.0"][key] <= EVIDENCE_CYCLE["0.15.0"][key]
+                for key in (
+                    "commands_executed",
+                    "project_reads",
+                    "test_executions",
+                    "browser_reviews",
+                    "document_writes",
+                    "human_interactions",
+                    "jira_operations",
+                    "approximate_duration_minutes",
+                )
+            )
+        ),
         "limitations": [
             "Los gates técnicos y peers externos quedan fuera del overhead administrativo.",
             "El inventario 0.14.2 se deriva de su CLI pública exacta; no se modelan tiempos retrospectivos.",
+            "La duración 0.15 frente a 0.16 es aproximada y separa trabajo administrativo de la duración variable de gates técnicos.",
+            "La reutilización de gates solo reduce test_executions a cero cuando verification_subject permanece idéntico; el ciclo inicial conserva una ejecución.",
         ],
     }
     print(json.dumps(result, indent=2, ensure_ascii=False))

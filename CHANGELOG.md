@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.0 — 2026-08-29 — evidencia de validación por tarea
+
+- Cierra el contrato visual 1.2 con política configurable de una a cinco imágenes por TASK de interfaz, semántica verificable, integridad SHA-256, dimensiones reales y rechazo controlado de duplicados o contradicciones.
+- Genera en una sola pasada fichas de evidencia derivadas para todas las TASK durante `work verify`; las fichas no son autoridad, no se editan manualmente y no participan en `verification_subject`.
+- Mantiene EVID históricas inmutables y separa verificación histórica, salud actual, hallazgos posteriores y re-verificación pendiente.
+- Evoluciona `work status` con `current_task: null` cuando no existe una TASK activa y separa código, tests, verificación, salud y entrega sin exponer recibos ni hashes en la vista breve.
+- Limita Jira a un comentario por hito de verificación, fallo, hallazgo, corrección o re-verificación; un resultado distinto de `verified` nunca transiciona a Done.
+- Conserva lectura de proyectos y EVID 0.15, rollback atómico, trazabilidad y reutilización por `verification_subject`; los nuevos artefactos visuales usan schema 1.2 sin reescribir los históricos 1.1.
+- Añade fixture genérico, regresiones adversariales, benchmark 0.15→0.16, guía de migración y validación de empaquetado reproducible.
+
 ## 0.15.0 — 2026-08-29 — experiencia ágil y harness de calidad
 
 - Añade status management/developer/audit, fast path `work` compuesto y transaccional, `doctor --quick`, lifecycle vigente de problemas, instrumentación local y una reducción medida del 60 % de comandos administrativos.

@@ -12,6 +12,7 @@
     {"path": "scoped-blocker.json", "id": "FX-M1-SCOPED-BLOCKER", "sha256": "b8091ee0b65b90951541057f7534aeb7ce9790cef2c7a3962f7f037a8d2746dc"},
     {"path": "tracking-choice.json", "id": "FX-M10-TRACKING-CHOICE", "sha256": "353a77c44de1e26448c4fe282113dfbd2454fa5a04fdf9498366f29ea36fad87"},
     {"path": "tracking-jira-hybrid.json", "id": "FX-M10-JIRA-HYBRID", "sha256": "3817556bb220f8da10069f695a460a015c8e9755bb7bc31d851ba51054715da3"},
-    {"path": "tracking-jira-degraded.json", "id": "FX-M10-JIRA-DEGRADED", "sha256": "0d23247e40978574a394b24d355e88f839dde14eeb4e8518f3e0db8c1b562edb"}
+    {"path": "tracking-jira-degraded.json", "id": "FX-M10-JIRA-DEGRADED", "sha256": "0d23247e40978574a394b24d355e88f839dde14eeb4e8518f3e0db8c1b562edb"},
+    {"path": "validation-evidence-v016.json", "id": "FX-M16-VALIDATION-EVIDENCE", "sha256": "d029cfb27cc544673d2cf5a4760e2799a245a3362e0bc772bb3d466b95360ca8"}
   ]
 }

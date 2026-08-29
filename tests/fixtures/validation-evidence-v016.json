@@ -1,0 +1,19 @@
+{
+  "id": "FX-M16-VALIDATION-EVIDENCE",
+  "schema_version": "1.0",
+  "project_id": "validation-evidence-generic",
+  "increment": "INC-001",
+  "release": "REL-001",
+  "tasks": ["TASK-001", "TASK-002"],
+  "acceptance": ["AC-001", "AC-002"],
+  "visual_policy": {"default_min": 1, "default_max": 5},
+  "scenarios": [
+    "frontend-zero-through-six-images",
+    "backend-not-applicable",
+    "semantic-image-validation",
+    "historical-evidence-current-health",
+    "jira-verification-milestones",
+    "atomic-summary-materialization"
+  ],
+  "contains_consumer_data": false
+}
