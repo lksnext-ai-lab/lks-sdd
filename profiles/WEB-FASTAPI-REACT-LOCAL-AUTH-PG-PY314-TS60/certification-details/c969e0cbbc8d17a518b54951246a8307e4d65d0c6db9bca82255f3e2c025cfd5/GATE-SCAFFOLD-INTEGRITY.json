@@ -1,0 +1,37 @@
+{
+  "certification_context": {
+    "certification_run_id": "756f3f14-366e-4798-8d79-7fd2bd53e831",
+    "profile_id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "78d17ebc271caaf2cdd1135af107c2a2c00a225d64185eb07f68042b0f741b98",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "af607e99af52784db6eba46fac13ecf625182d107d4887dd670812979246f6d2",
+      "scaffold_sha256": "2b0844fca7188bf97f9222a0660ee55f3b2ec8681d58ffa7fecfbaabf01e179c"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-SCAFFOLD-INTEGRITY"
+  ],
+  "duration_seconds": 0.284,
+  "exit_code": 0,
+  "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "scaffold-integrity",
+  "observations": {
+    "profile": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60",
+    "role": "system"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-SCAFFOLD-INTEGRITY\", \"observations\": {\"profile\": \"WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60\", \"role\": \"system\"}, \"status\": \"passed\"}\n"
+}

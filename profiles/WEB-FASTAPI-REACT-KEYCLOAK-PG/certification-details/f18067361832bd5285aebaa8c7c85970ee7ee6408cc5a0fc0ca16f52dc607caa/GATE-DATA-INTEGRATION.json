@@ -1,0 +1,31 @@
+{
+  "certification_context": {
+    "certification_run_id": "fa2bff84-10ce-4ea6-a2d8-ddc0d8333dc9",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "python",
+    "-c",
+    "import time, urllib.request\nurl = 'http://127.0.0.1:18000/ready'\nopener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\nlast = None\nfor _ in range(30):\n    try:\n        if opener.open(url, timeout=5).status == 200:\n            raise SystemExit(0)\n    except Exception as exc:\n        last = exc\n    time.sleep(2)\nraise SystemExit(f'Backend readiness endpoint not ready: {last}')"
+  ],
+  "duration_seconds": 4.842,
+  "exit_code": 0,
+  "gate_id": "GATE-DATA-INTEGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "database-integration",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

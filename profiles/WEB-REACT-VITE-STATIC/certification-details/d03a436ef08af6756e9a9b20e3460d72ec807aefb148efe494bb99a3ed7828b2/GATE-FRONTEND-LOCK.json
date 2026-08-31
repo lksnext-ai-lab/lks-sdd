@@ -1,0 +1,27 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-react-vite-static-92oxsmd0/reference-app:/work",
+    "-v",
+    "lkssddgate24616aebc7b10noded935a3cd:/work/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work && npm ci --ignore-scripts"
+  ],
+  "duration_seconds": 27.794,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-LOCK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "frontend-lock",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\nadded 202 packages, and audited 203 packages in 23s\n\n55 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities\n"
+}

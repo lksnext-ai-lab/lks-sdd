@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "family_id": "FAM-WEB-SPA-STATIC",
   "profile_scope": "deployable",
-  "lifecycle": "candidate",
+  "lifecycle": "active",
   "support_level": "H1",
   "default_rigor": "P1",
   "summary": "Closed WEB-REACT-VITE-LOCAL-AUTH-STATIC technology variant TS60; isolated development and CI only.",
@@ -92,14 +92,17 @@
     "composition_gate_id": "GATE-COMPOSE-TS60-FRONTEND"
   },
   "certification": {
-    "technical_gate": "not-run",
-    "composition_gate": "not-run",
-    "e2e_eval": "not-run",
+    "technical_gate": "passed",
+    "composition_gate": "passed",
+    "e2e_eval": "passed",
     "human_review": "not-run",
     "pilot": "not-run",
-    "validated_at": null,
-    "review_due": null,
-    "evidence": []
+    "validated_at": "2026-08-31",
+    "review_due": "2026-11-29",
+    "evidence": [
+      "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json",
+      "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
+    ]
   },
   "owner": "LKS-SDD maintainers"
 }

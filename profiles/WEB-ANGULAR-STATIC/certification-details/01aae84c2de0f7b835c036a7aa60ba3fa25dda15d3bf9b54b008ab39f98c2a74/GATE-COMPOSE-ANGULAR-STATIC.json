@@ -1,0 +1,25 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-angular-static-a_sqt00l/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'import json; p=json.load(open('\"'\"'package.json'\"'\"', encoding='\"'\"'utf-8'\"'\"')); assert '\"'\"'@angular/core'\"'\"' in p['\"'\"'dependencies'\"'\"']; assert json.load(open('\"'\"'angular.json'\"'\"', encoding='\"'\"'utf-8'\"'\"'))['\"'\"'projects'\"'\"']['\"'\"'lks-sdd-angular'\"'\"']['\"'\"'architect'\"'\"']['\"'\"'build'\"'\"']'"
+  ],
+  "duration_seconds": 3.075,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-ANGULAR-STATIC",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "profile-composition",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

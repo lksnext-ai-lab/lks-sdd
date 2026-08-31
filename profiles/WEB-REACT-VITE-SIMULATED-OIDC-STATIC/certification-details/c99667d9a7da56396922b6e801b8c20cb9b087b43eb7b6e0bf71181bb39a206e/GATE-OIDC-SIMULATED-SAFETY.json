@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "4fe10c52-cce0-4ac0-8a67-e1de2203de6f",
+    "profile_id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "d951963bf0d38fe0abdbcbb0775c82b4675651e3da90ccaeedd7c9b2e25f5498",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "fcfd9eb0c9783402c6b1d6c6dde8e0c8153e59095e772aeb76db75ccadc3aba9",
+      "scaffold_sha256": "a8b80956c19a1e8ef8b5de20d6aa49aac19730f833d1c119f288468f4a844c26"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-react-vite-simulated-oidc-static-jd9vq9k1/reference-app:/work",
+    "-v",
+    "lkssddgate35592c4d616aenoded935a3cd:/work/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work && npm test -- -t 'simulated identity safety'"
+  ],
+  "duration_seconds": 5.744,
+  "exit_code": 0,
+  "gate_id": "GATE-OIDC-SIMULATED-SAFETY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "simulated-identity-safety",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\n> lks-sdd-react-vite-simulated-oidc-static-reference@0.1.0 test\n> vitest run -t simulated identity safety\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work\u001b[39m\n\n \u001b[32m✓\u001b[39m src/App.test.tsx \u001b[2m(\u001b[22m\u001b[2m18 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[33m4 skipped\u001b[39m\u001b[2m)\u001b[22m\u001b[32m 11\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m14 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m4 skipped\u001b[39m\u001b[90m (18)\u001b[39m\n\u001b[2m   Start at \u001b[22m 15:10:24\n\u001b[2m   Duration \u001b[22m 1.98s\u001b[2m (transform 310ms, setup 239ms, import 273ms, tests 11ms, environment 1.14s)\u001b[22m\n\n"
+}

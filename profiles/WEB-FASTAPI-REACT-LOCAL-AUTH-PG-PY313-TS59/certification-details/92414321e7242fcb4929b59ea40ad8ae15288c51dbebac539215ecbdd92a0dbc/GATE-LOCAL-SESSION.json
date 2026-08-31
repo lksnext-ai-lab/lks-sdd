@@ -1,0 +1,26 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-LOCAL-SESSION"
+  ],
+  "duration_seconds": 10.788,
+  "exit_code": 0,
+  "gate_id": "GATE-LOCAL-SESSION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "local-session",
+  "observations": {
+    "observer": "pytest-real-postgresql",
+    "result": ".....                                                                    [100%]\n",
+    "selection": "refresh or expiration or logout"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-LOCAL-SESSION\", \"observations\": {\"observer\": \"pytest-real-postgresql\", \"selection\": \"refresh or expiration or logout\", \"result\": \".....                                                                    [100%]\\n\"}, \"status\": \"passed\"}\n"
+}

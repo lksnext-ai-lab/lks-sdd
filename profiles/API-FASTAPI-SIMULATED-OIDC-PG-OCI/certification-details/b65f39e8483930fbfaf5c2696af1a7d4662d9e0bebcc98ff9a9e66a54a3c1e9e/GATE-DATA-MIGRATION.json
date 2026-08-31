@@ -1,0 +1,27 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-api-fastapi-simulated-oidc-pg-oci-avuaak1q/reference-app:/work",
+    "-v",
+    "lkssddgate403640a7cfaadpython22b112d0:/work/.venv",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "python -m pip install --disable-pip-version-check --quiet uv==0.12.5 && cd /work && uv run alembic upgrade head --sql"
+  ],
+  "duration_seconds": 9.561,
+  "exit_code": 0,
+  "gate_id": "GATE-DATA-MIGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "migration-contract",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\n",
+  "stdout_tail": "BEGIN;\n\nCREATE TABLE alembic_version (\n    version_num VARCHAR(32) NOT NULL, \n    CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num)\n);\n\n-- Running upgrade  -> 0001_identity_audit\n\nCREATE TABLE identity_audit (\n    id SERIAL NOT NULL, \n    tenant_id VARCHAR(36) NOT NULL, \n    subject_id VARCHAR(255) NOT NULL, \n    PRIMARY KEY (id)\n);\n\nINSERT INTO alembic_version (version_num) VALUES ('0001_identity_audit') RETURNING alembic_version.version_num;\n\nCOMMIT;\n\n"
+}

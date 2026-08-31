@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-OCI-SMOKE"
+  ],
+  "duration_seconds": 2.394,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "oci-smoke",
+  "observations": {
+    "python": "Python 3.14.7"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-OCI-SMOKE\", \"observations\": {\"python\": \"Python 3.14.7\"}, \"status\": \"passed\"}\n"
+}

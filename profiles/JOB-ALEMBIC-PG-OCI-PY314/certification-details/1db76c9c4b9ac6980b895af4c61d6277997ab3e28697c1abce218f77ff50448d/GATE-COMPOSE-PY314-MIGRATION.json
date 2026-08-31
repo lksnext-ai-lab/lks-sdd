@@ -1,0 +1,31 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-COMPOSE-PY314-MIGRATION"
+  ],
+  "duration_seconds": 0.383,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-PY314-MIGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "compose-py314-migration",
+  "observations": {
+    "observed_gates": [
+      "GATE-DATA-INTEGRATION",
+      "GATE-DATA-MIGRATION",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-SCAFFOLD-INTEGRITY"
+    ],
+    "profile": "JOB-ALEMBIC-PG-OCI-PY314"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-COMPOSE-PY314-MIGRATION\", \"observations\": {\"profile\": \"JOB-ALEMBIC-PG-OCI-PY314\", \"observed_gates\": [\"GATE-DATA-INTEGRATION\", \"GATE-DATA-MIGRATION\", \"GATE-OCI-BUILD\", \"GATE-OCI-SMOKE\", \"GATE-SCAFFOLD-INTEGRITY\"]}, \"status\": \"passed\"}\n"
+}

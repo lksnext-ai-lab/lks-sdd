@@ -403,63 +403,63 @@
       "id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313",
       "family_id": "FAM-API-SERVICE",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313"
     },
     {
       "id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59",
       "family_id": "FAM-WEB-SPA-STATIC",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59"
     },
     {
       "id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
       "family_id": "FAM-WEB-SYSTEM",
       "profile_scope": "system",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59"
     },
     {
       "id": "JOB-ALEMBIC-PG-OCI-PY313",
       "family_id": "FAM-MIGRATION-JOB",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/JOB-ALEMBIC-PG-OCI-PY313"
     },
     {
       "id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
       "family_id": "FAM-API-SERVICE",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314"
     },
     {
       "id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60",
       "family_id": "FAM-WEB-SPA-STATIC",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60"
     },
     {
       "id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60",
       "family_id": "FAM-WEB-SYSTEM",
       "profile_scope": "system",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60"
     },
     {
       "id": "JOB-ALEMBIC-PG-OCI-PY314",
       "family_id": "FAM-MIGRATION-JOB",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/JOB-ALEMBIC-PG-OCI-PY314"
     },
     {
       "id": "DATA-POSTGRES-OCI-PG18",
       "family_id": "FAM-DATA-SERVICE",
       "profile_scope": "deployable",
-      "lifecycle": "candidate",
+      "lifecycle": "active",
       "path": "profiles/DATA-POSTGRES-OCI-PG18"
     }
   ]

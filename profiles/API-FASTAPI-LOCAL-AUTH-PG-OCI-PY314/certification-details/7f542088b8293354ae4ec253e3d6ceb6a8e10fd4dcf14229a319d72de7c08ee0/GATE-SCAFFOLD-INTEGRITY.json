@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-SCAFFOLD-INTEGRITY"
+  ],
+  "duration_seconds": 0.358,
+  "exit_code": 0,
+  "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "scaffold-integrity",
+  "observations": {
+    "profile": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+    "role": "api"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-SCAFFOLD-INTEGRITY\", \"observations\": {\"profile\": \"API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314\", \"role\": \"api\"}, \"status\": \"passed\"}\n"
+}

@@ -2,9 +2,9 @@
   "schema_version": "2.0",
   "profile_id": "JOB-ALEMBIC-PG-OCI-PY313",
   "profile_version": "1.0.0",
-  "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "cc5616cdd8e80db269a431c75caf6d2f8d7bc6b2b9b31fe0b0d823ca62c5f695",
+  "generated_at": "2026-08-31",
+  "validated": true,
+  "profile_sha256": "d4ec765009469db9e14e7dbb1eac5d01e95beeccf4a4a590299984cc63508a5a",
   "driver_sha256": "51fbffd4bba27352fbf23083601381feefa3a68fd8cef129695f5eb50a3cb1ba",
   "scaffold_sha256": "1c16389993c44fe79d53f01a198346e9976ddc956ae59ea069e2988f1446bea4",
   "capabilities": [
@@ -324,58 +324,59 @@
       "id": "GATE-COMPOSE-PY313-MIGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile JOB-ALEMBIC-PG-OCI-PY313: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json"
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PY313-MIGRATION",
-    "status": "not-run",
-    "digest": "c84796d5b35e67a79e5d64d2e0da3d47306689615f2d8bf3546452cda962d9f3"
+    "status": "passed",
+    "digest": "cf60166a575c7496d719190c8d3bfc7da15992962b496157c9816ffcd775c159"
   },
   "evidence": [
-    "Profile JOB-ALEMBIC-PG-OCI-PY313 awaits certification."
+    "profiles/JOB-ALEMBIC-PG-OCI-PY313/certification-evidence.json",
+    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
   ]
 }

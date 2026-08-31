@@ -2,9 +2,9 @@
   "schema_version": "2.0",
   "profile_id": "DATA-POSTGRES-OCI-PG18",
   "profile_version": "1.0.0",
-  "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "343b4b4cdf2a6e57ade897341ebd5a7dff9d3ab7256924e04ce1471f74859d2b",
+  "generated_at": "2026-08-31",
+  "validated": true,
+  "profile_sha256": "e538ba4ab66604ea8bed693850c9c6f6a23d611d4793a3547268b6acab887172",
   "driver_sha256": "4f2c93492d0c8a21e7ba7df50d5d9b968868d075d7cf1af9b682cddae46f5a5d",
   "scaffold_sha256": "b2cf9522396ea277e9e59686378373ef5b7d929e7b322941b4b4403d8f2083ce",
   "capabilities": [
@@ -72,58 +72,59 @@
       "id": "GATE-COMPOSE-PG18-DATABASE",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PG18-DATABASE",
-    "status": "not-run",
-    "digest": "4f8d9b3f1a34f4a7c3dda6f69519cf27c940f09ea0ff1284328ce4640eb00fc9"
+    "status": "passed",
+    "digest": "495fb81db8ab110903758dd7a76f2a0f9c7447955774f99b7ff8616f60338b28"
   },
   "evidence": [
-    "Profile DATA-POSTGRES-OCI-PG18 awaits certification."
+    "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json",
+    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
   ]
 }

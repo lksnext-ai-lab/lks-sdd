@@ -2,9 +2,9 @@
   "schema_version": "2.0",
   "profile_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
   "profile_version": "1.0.0",
-  "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "10f37bfa00d02cbaf4774a6684b7389bf53e3d9fd1c49c1b7cc76f29a572007a",
+  "generated_at": "2026-08-31",
+  "validated": true,
+  "profile_sha256": "c6d07c6a0bf724357b72f5f235321129f78b7ac38e2353ddcbe189831d5a805b",
   "driver_sha256": "4624b26c4dffdc7408d5ac4c1c7371645cd846df5360381035d0ce6fe6b129b7",
   "scaffold_sha256": "d96a48091f6dc1270598bbc42941350c54c308e1a56b3658e79869b52da03ad4",
   "capabilities": [
@@ -360,170 +360,171 @@
       "id": "GATE-API-LINT",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-COMPOSE-PY314-API",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-HTTP-CONTRACT-INTEGRATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-LOCAL-CREDENTIALS",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-LOCAL-JWT",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-LOCAL-SESSION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-PYTHON-LINT",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-PYTHON-LOCK",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-PYTHON-TEST",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-PYTHON-TYPECHECK",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-SECURITY-AUDIT",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-SECURITY-CONFIG",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     },
     {
       "id": "GATE-TENANT-AUTHORIZATION",
       "phase": "G3",
       "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314: exact certification not available"
+      "status": "passed",
+      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PY314-API",
-    "status": "not-run",
-    "digest": "ce8a7816e18bf1d143b132b5ad2beec7fe331a51fababd06848f11a286eed9fb"
+    "status": "passed",
+    "digest": "1bf9836faaf4ef1f2ea5a87e576f6208b822d8db836910eb4b848a8ed5e5b6de"
   },
   "evidence": [
-    "Profile API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314 awaits certification."
+    "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json",
+    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
   ]
 }

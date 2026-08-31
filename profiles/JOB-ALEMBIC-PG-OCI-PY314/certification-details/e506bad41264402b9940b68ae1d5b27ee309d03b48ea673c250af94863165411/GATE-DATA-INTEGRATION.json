@@ -1,0 +1,53 @@
+{
+  "certification_context": {
+    "certification_run_id": "73d28c57-7af7-49f4-b96b-5722318985e8",
+    "profile_id": "JOB-ALEMBIC-PG-OCI-PY314",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "17eaabcb04a5313695c57a79db5dd074bad87a3b0455fd4d57dc10a6e3ec77a7",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "deb34c677ecd1c1350a0d2122a42fcdc81673cdfdd43b4683219335178074e46",
+      "scaffold_sha256": "2fbacbfcdecaaa32475326cfc8c2147be8abe8fdc568534da59958496181d44f"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-DATA-INTEGRATION"
+  ],
+  "duration_seconds": 21.38,
+  "exit_code": 0,
+  "gate_id": "GATE-DATA-INTEGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "data-integration",
+  "observations": {
+    "independent_read": true,
+    "mutation": {
+      "record_id": "1",
+      "resource": "isolated_probe"
+    },
+    "observer": "postgresql",
+    "persistence": true,
+    "read_back": {
+      "matches": true,
+      "observer": "postgresql-psql",
+      "record_id": "1",
+      "resource": "isolated_probe"
+    },
+    "restart_preserved": true,
+    "runtime_units": [
+      "database"
+    ],
+    "server_version": "18.4 (Debian 18.4-1.pgdg13+1)"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-DATA-INTEGRATION\", \"observations\": {\"observer\": \"postgresql\", \"runtime_units\": [\"database\"], \"server_version\": \"18.4 (Debian 18.4-1.pgdg13+1)\", \"independent_read\": true, \"restart_preserved\": true, \"mutation\": {\"record_id\": \"1\", \"resource\": \"isolated_probe\"}, \"read_back\": {\"observer\": \"postgresql-psql\", \"resource\": \"isolated_probe\", \"record_id\": \"1\", \"matches\": true}, \"persistence\": true}, \"status\": \"passed\"}\n"
+}

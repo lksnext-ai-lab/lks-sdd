@@ -1,0 +1,25 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-nextjs-ssr-node-xw2bcw4i/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'from pathlib import Path; assert Path('\"'\"'.next/server/app/index.html'\"'\"').is_file() or Path('\"'\"'.next/server/app/page.js'\"'\"').is_file(); assert Path('\"'\"'.next/BUILD_ID'\"'\"').is_file()'"
+  ],
+  "duration_seconds": 3.144,
+  "exit_code": 0,
+  "gate_id": "GATE-SSR-RUNTIME",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "ssr-runtime-contract",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

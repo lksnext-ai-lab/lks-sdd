@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "fa2bff84-10ce-4ea6-a2d8-ddc0d8333dc9",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-fastapi-react-keycloak-pg-353lhswb/reference-app:/work",
+    "-v",
+    "lkssddgate39384a7ca61bcnodeebd7bee7:/work/apps/frontend/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work/apps/frontend && npx --yes pnpm@10.34.5 install --frozen-lockfile"
+  ],
+  "duration_seconds": 116.101,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-LOCK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "frontend-lock",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "ownloaded 159, added 43\nProgress: resolved 202, reused 0, downloaded 164, added 44\nProgress: resolved 202, reused 0, downloaded 165, added 45\nProgress: resolved 202, reused 0, downloaded 166, added 45\nProgress: resolved 202, reused 0, downloaded 169, added 45\nProgress: resolved 202, reused 0, downloaded 173, added 48\nProgress: resolved 202, reused 0, downloaded 177, added 48\nProgress: resolved 202, reused 0, downloaded 179, added 48\nProgress: resolved 202, reused 0, downloaded 181, added 49\nProgress: resolved 202, reused 0, downloaded 182, added 49\nProgress: resolved 202, reused 0, downloaded 186, added 52\nProgress: resolved 202, reused 0, downloaded 190, added 52\nProgress: resolved 202, reused 0, downloaded 192, added 52\nProgress: resolved 202, reused 0, downloaded 197, added 54\nProgress: resolved 202, reused 0, downloaded 199, added 56\nProgress: resolved 202, reused 0, downloaded 200, added 57\nProgress: resolved 202, reused 0, downloaded 201, added 57\nProgress: resolved 202, reused 0, downloaded 201, added 73\nProgress: resolved 202, reused 0, downloaded 201, added 81\nProgress: resolved 202, reused 0, downloaded 201, added 90\nProgress: resolved 202, reused 0, downloaded 201, added 99\nProgress: resolved 202, reused 0, downloaded 201, added 100\nProgress: resolved 202, reused 0, downloaded 202, added 115\nProgress: resolved 202, reused 0, downloaded 202, added 128\nProgress: resolved 202, reused 0, downloaded 202, added 142\nProgress: resolved 202, reused 0, downloaded 202, added 148\nProgress: resolved 202, reused 0, downloaded 202, added 157\nProgress: resolved 202, reused 0, downloaded 202, added 163\nProgress: resolved 202, reused 0, downloaded 202, added 167\nProgress: resolved 202, reused 0, downloaded 202, added 176\nProgress: resolved 202, reused 0, downloaded 202, added 177\nProgress: resolved 202, reused 0, downloaded 202, added 179\nProgress: resolved 202, reused 0, downloaded 202, added 180\nProgress: resolved 202, reused 0, downloaded 202, added 181\nProgress: resolved 202, reused 0, downloaded 202, added 185\nProgress: resolved 202, reused 0, downloaded 202, added 191\nProgress: resolved 202, reused 0, downloaded 202, added 197\nProgress: resolved 202, reused 0, downloaded 202, added 198\nProgress: resolved 202, reused 0, downloaded 202, added 199\nProgress: resolved 202, reused 0, downloaded 202, added 200\nProgress: resolved 202, reused 0, downloaded 202, added 201\nProgress: resolved 202, reused 0, downloaded 202, added 202\nProgress: resolved 202, reused 0, downloaded 202, added 202, done\n\ndependencies:\n+ keycloak-js 26.2.4\n+ react 19.2.7\n+ react-dom 19.2.7\n\ndevDependencies:\n+ @axe-core/playwright 4.13.0\n+ @eslint/js 10.0.1\n+ @playwright/test 1.62.1\n+ @testing-library/jest-dom 7.0.1\n+ @testing-library/react 16.3.2\n+ @types/react 19.2.18\n+ @types/react-dom 19.2.4\n+ @vitejs/plugin-react 6.0.5\n+ eslint 10.8.1\n+ globals 17.11.0\n+ jsdom 30.0.1\n+ typescript 6.0.3\n+ typescript-eslint 8.67.0\n+ vite 8.1.5\n+ vitest 4.1.11\n\nDone in 1m 46.6s using pnpm v10.34.5\n"
+}
