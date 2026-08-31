@@ -385,33 +385,52 @@ def certification_evidence_errors(
         from evidence_safety import evidence_safety_errors
         manifest = evidence.get("evidence_manifest")
         result_material["evidence_manifest"] = manifest
+        result_material["certification_run_id"] = evidence.get("certification_run_id")
+        expected_context = {"profile_id": bundle.profile_id, "profile_version": bundle.profile.get("version"),
+                            "runtime": "docker", "certification_run_id": evidence.get("certification_run_id"),
+                            "source_identity": {"profile_sha256": profile_sha256, "driver_sha256": driver_sha256,
+                                                "scaffold_sha256": scaffold_sha256, "engine_sha256": certification_engine_sha256()}}
+        if not isinstance(evidence.get("certification_run_id"), str):
+            errors.append(f"{bundle.profile_id}: certification has no execution identity")
         if not isinstance(manifest, list) or not manifest:
             errors.append(f"{bundle.profile_id}: certification has no observation manifest")
         else:
             observed_gates = set()
+            capture_references = set()
+            capture_artifacts = set()
             for artifact in manifest:
                 try:
                     path = bundle.root / artifact["path"]
                     path.resolve().relative_to((bundle.root / "certification-details").resolve())
-                    if path.is_symlink():
+                    if any(p.is_symlink() or (hasattr(p, "is_junction") and p.is_junction()) for p in [path, *path.parents] if p != bundle.root and bundle.root in p.parents):
                         raise ValueError("linked artifact")
                     content = path.read_bytes()
                     if len(content) != artifact["size"] or hashlib.sha256(content).hexdigest() != artifact["sha256"]:
                         raise ValueError("artifact digest mismatch")
                     if path.suffix == ".json":
                         observation = json.loads(content)
+                        if not isinstance(observation, dict) or observation.get("certification_context") != expected_context:
+                            raise ValueError("observation provenance mismatch")
                         errors.extend(evidence_safety_errors(observation))
                         if observation.get("gate_id") != artifact["gate_id"] or observation.get("status") != "passed":
                             raise ValueError("observation gate mismatch")
                         from observation_contract import gate_observation_errors
                         errors.extend(gate_observation_errors(observation, variant=bool(bundle.driver.get("variant"))))
+                        detail = observation.get("observations")
+                        if isinstance(detail, dict):
+                            for capture in detail.get("screenshots", []):
+                                capture_references.add((artifact["gate_id"], capture["sha256"]))
                         observed_gates.add(artifact["gate_id"])
                     elif path.suffix != ".png" or not content.startswith(b"\x89PNG\r\n\x1a\n"):
                         raise ValueError("unsupported evidence artifact")
-                except (ValueError, OSError, KeyError, TypeError):
+                    else:
+                        capture_artifacts.add((artifact["gate_id"], artifact["sha256"]))
+                except (ValueError, OSError, KeyError, TypeError, AttributeError):
                     errors.append(f"{bundle.profile_id}: invalid or missing certification observation artifact")
             if not required_gate_ids <= observed_gates:
                 errors.append(f"{bundle.profile_id}: observations do not cover all required gates")
+            if capture_references != capture_artifacts:
+                errors.append(f"{bundle.profile_id}: browser captures and observation manifest diverge")
     canonical = json.dumps(
         result_material,
         sort_keys=True,

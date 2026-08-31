@@ -629,6 +629,26 @@ def _updated_traceability(
     return original, ("\n".join(lines) + "\n").encode("utf-8")
 
 
+def _variant_runtime_config(root: Path, path: Path, bundle: Any, unit_paths: dict[str, str] | None = None, *, adoption: bool = False) -> None:
+    _assert_safe_path(root, path)
+    try:
+        actual = json.loads(path.read_text(encoding="utf-8"))
+        expected = json.loads((bundle.root / "scaffold/profile-runtime.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        raise VerificationError("Falta configuración de runtime preparada y verificable.") from None
+    if not isinstance(actual, dict):
+        raise VerificationError("La configuración de runtime no es un objeto válido.")
+    if adoption:
+        allowed = {"mode", "unit_paths", "functional_contract_status", "fixture_status", "entrypoints_observed"}
+        if actual.get("mode") != "adoption" or {k: v for k, v in actual.items() if k not in allowed} != expected:
+            raise VerificationError("La configuración adoptada diverge de la variante exacta.")
+    else:
+        if unit_paths is not None:
+            expected["unit_paths"] = unit_paths
+        if actual != expected:
+            raise VerificationError("La configuración de runtime diverge de la variante o sus participantes.")
+
+
 def _profile_command(
     root: Path,
     binding: dict[str, Any],
@@ -654,8 +674,14 @@ def _profile_command(
         command = [sys.executable, str(adoption_root / "observer/gate.py"), "--config", str(adoption_root / "profile-runtime.json"), "--gate", check["id"]]
     evidence_path = check.get("evidence_path")
     evidence_scopes = list(check.get("evidence_scopes", ["component"]))
-    variant = load_profile_bundle(str(binding.get("profile_id", ""))).driver.get("variant")
+    bundle = load_profile_bundle(str(binding.get("profile_id", "")))
+    variant = bundle.driver.get("variant")
     if variant:
+        config_path = adoption_root / "profile-runtime.json" if adoption else root / unit / "profile-runtime.json"
+        _variant_runtime_config(root, config_path, bundle, adoption=adoption)
+        # Execute the packaged observer, never a consumer-editable copy that
+        # could fabricate successful JSON while keeping the profile lock intact.
+        command = [sys.executable, str(PLUGIN_ROOT / "profiles/_shared/local-auth/verification/gate.py"), "--config", str(config_path), "--gate", check["id"]]
         evidence_path = f".lks-sdd/{check['id']}.json"
     elif check.get("id") == FULLSTACK_GATE_ID:
         evidence_path = ".lks-sdd/fullstack-evidence.json"
@@ -1362,6 +1388,10 @@ def _run_v12(
                     and str(item.get("exact_composition", "")).partition("@")[0]
                     == binding.get("profile_id")
                 )
+                required_scopes = {scope for item in integration_applicability
+                                   if item.get("interface_id") in prepared["interface_ids"]
+                                   for scope in item.get("required_evidence_scopes", [])}
+                prepared["evidence_scopes"] = sorted(set(prepared["evidence_scopes"]) | required_scopes)
             profile_checks.append(prepared)
     for composition in compositions:
         if any(b.get("profile_id") == composition["profile_id"] for b in bindings):
@@ -1371,6 +1401,7 @@ def _run_v12(
         if not bundle.driver.get("variant") or not config_path.is_file():
             blockers.append(f"{composition['interface_id']}: falta preparación de verificación de la composición.")
             continue
+        _variant_runtime_config(root, config_path, bundle, {p["role"]: p["unit_path"] for p in composition["material"]["participants"]})
         gate = next(c for c in bundle.driver["verify"]["checks"] if c["id"] == composition["gate_id"])
         profile_checks.append({"name": composition["profile_id"] + ":" + gate["name"],
             "gate_id": gate["id"], "binding_id": None, "profile_id": composition["profile_id"],

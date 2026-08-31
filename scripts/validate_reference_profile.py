@@ -164,6 +164,8 @@ def validate_consumer_profile_lock(
         "profile_id": profile_id,
         "binding_id": binding_id,
     }
+    if bundle.driver.get("variant") and bundle.profile.get("profile_scope") == "system":
+        return ["La variante de sistema se selecciona mediante INT.Exact composition, no mediante un binding de unidad."], details
     try:
         packaged = packaged_path.read_bytes()
     except OSError as exc:

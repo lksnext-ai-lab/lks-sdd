@@ -6,6 +6,8 @@ from typing import Any
 
 
 def persistence_errors(observations: dict[str, Any]) -> list[str]:
+    if not isinstance(observations, dict):
+        return ["persistence observations must be an object"]
     mutation, read = observations.get("mutation"), observations.get("read_back")
     if not isinstance(mutation, dict) or not isinstance(read, dict):
         return ["persistence requires an independent structured database read"]
@@ -22,6 +24,8 @@ def persistence_errors(observations: dict[str, Any]) -> list[str]:
 
 
 def gate_observation_errors(check: dict[str, Any], *, variant: bool = False) -> list[str]:
+    if not isinstance(check, dict):
+        return ["gate observation must be an object"]
     gate = check.get("gate_id")
     observations = check.get("observations")
     if check.get("status") != "passed":
@@ -37,11 +41,13 @@ def gate_observation_errors(check: dict[str, Any], *, variant: bool = False) -> 
             errors.append("browser captures are incomplete")
         if variant:
             after = observations.get("read_after_restart", {})
-            if observations.get("api_restart") is not True or after.get("record_id") != observations.get("mutation", {}).get("record_id") or after.get("status") != 200:
+            mutation = observations.get("mutation")
+            if not isinstance(after, dict) or not isinstance(mutation, dict) or observations.get("api_restart") is not True or after.get("record_id") != mutation.get("record_id") or after.get("status") != 200:
                 errors.append("business read after API restart is missing")
             if observations.get("offline_logout_honest") is not True or observations.get("credential_storage") is not False:
                 errors.append("session browser observations are missing")
-            if observations.get("database_unavailable", {}).get("fallback") is not False:
+            outage = observations.get("database_unavailable")
+            if not isinstance(outage, dict) or outage.get("fallback") is not False:
                 errors.append("real database outage was not observed")
         return errors
     if variant and gate != "GATE-DELIVERY-EVIDENCE":

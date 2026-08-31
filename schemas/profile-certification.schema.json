@@ -12,6 +12,7 @@
     "result_sha256", "command"
   ],
   "properties": {
+    "certification_run_id": {"type": "string", "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"},
     "schema_version": {"enum": ["1.0", "1.1"]},
     "evidence_manifest": {
       "type": "array", "minItems": 1,

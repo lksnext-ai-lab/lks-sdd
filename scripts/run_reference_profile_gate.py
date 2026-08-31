@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import uuid
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -304,6 +305,11 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
                         "scaffold_sha256": scaffold_hash, "engine_sha256": certification_engine_sha256()}
     if result.get("source_identity") != current_identity:
         raise ValueError("Source inputs changed or certification provenance is missing; rerun the complete gate")
+    run_id = result.get("certification_run_id")
+    if not isinstance(run_id, str) or str(uuid.UUID(run_id)) != run_id:
+        raise ValueError("Certification execution identity is missing")
+    context = {"profile_id": profile_id, "profile_version": bundle.profile["version"],
+               "source_identity": current_identity, "runtime": "docker", "certification_run_id": run_id}
     composition_hash = composition_digest(
         profile_sha256=profile_hash,
         driver_sha256=driver_hash,
@@ -334,7 +340,7 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
         semantic_errors = gate_observation_errors(item, variant=bool(bundle.driver.get("variant")))
         if semantic_errors:
             raise ValueError(f"{gate_id}: " + "; ".join(semantic_errors))
-        content = (json.dumps(item, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+        content = (json.dumps({**item, "certification_context": context}, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
         content_hash = hashlib.sha256(content).hexdigest()
         relative = f"certification-details/{content_hash}/{gate_id}.json"
         artifacts.append((relative, content))
@@ -356,6 +362,7 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
         "passed": result["passed"],
         "checks": checks,
         "evidence_manifest": evidence_manifest,
+        "certification_run_id": run_id,
     }
     result_sha256 = hashlib.sha256(
         json.dumps(
@@ -367,6 +374,7 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
     ).hexdigest()
     evidence = {
         "schema_version": "1.1",
+        "certification_run_id": run_id,
         "profile_id": profile_id,
         "profile_version": bundle.profile["version"],
         "certified_at": date.today().isoformat(),
@@ -443,6 +451,7 @@ def run_gate(
     profile_id: str, *, runtime: str, containers: bool
 ) -> tuple[int, dict[str, Any]]:
     results: list[dict[str, Any]] = []
+    certification_run_id = str(uuid.uuid4())
     evidence_artifacts: list[dict[str, Any]] = []
     structural_errors = validate_profile(
         profile_id, require_validated=False
@@ -661,6 +670,7 @@ def run_gate(
         "checks": results,
         "evidence_artifacts": evidence_artifacts,
         "source_identity": source_identity,
+        "certification_run_id": certification_run_id,
     }
 
 
