@@ -415,6 +415,7 @@ def validate_definition_corpus(value: Any, catalog: dict[str, Any]) -> dict[str,
             case["id"]
             for case in catalog["extension_cases"]
             if case.get("mode") in {"semantic", "human"}
+            and tuple(int(part) for part in case.get("introduced_in", "0.0.0").split(".")) <= tuple(int(part) for part in version_match.groups())
         )
     ids: set[str] = set()
     allowed_dimensions = {
