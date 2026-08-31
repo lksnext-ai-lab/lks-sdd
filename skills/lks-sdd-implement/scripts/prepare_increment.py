@@ -148,6 +148,8 @@ def _binding_contracts(
 def _planned_files(
     root: Path,
     bindings: list[dict[str, Any]],
+    *,
+    mode: str = "new-project",
 ) -> tuple[
     list[tuple[Path, bytes]],
     list[str],
@@ -169,7 +171,15 @@ def _planned_files(
         bundle = load_profile_bundle(profile_id)
         if bundle.root is None:
             raise PreparationError(f"Perfil no resoluble: {profile_id}")
-        for source in bundle.driver["prepare"]["sources"]:
+        if mode == "adoption":
+            from adoption_preparation import adoption_resources
+            try:
+                candidates.update(adoption_resources(root, binding, bundle.driver))
+            except ValueError as exc:
+                raise PreparationError(str(exc)) from exc
+        elif mode != "new-project":
+            raise PreparationError("Modo de preparación desconocido.")
+        for source in ([] if mode == "adoption" else bundle.driver["prepare"]["sources"]):
             target = Path(str(source["to"]))
             if target.is_absolute() or ".." in target.parts:
                 raise PreparationError(
@@ -204,6 +214,31 @@ def _planned_files(
         lock = (bundle.root / "technology-profile.lock.json").read_bytes()
         candidates[descriptor_path] = descriptor
         candidates[lock_path] = lock
+        if bundle.driver.get("variant"):
+            import tempfile
+            from technology_resolution import inspect_dependencies
+            unit_root = root / unit_path
+            # Inspect the exact prospective files, including preserved consumer
+            # dependency inputs. Preview performs no installation or execution.
+            with tempfile.TemporaryDirectory(prefix="lks-dependency-preview-") as temporary:
+                prospective = Path(temporary)
+                current = inspect_dependencies(unit_root)
+                for relative in current["input_hashes"]:
+                    target = prospective / relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes((unit_root / relative).read_bytes())
+                for destination, content in candidates.items():
+                    try:
+                        relative = destination.relative_to(unit_root)
+                    except ValueError:
+                        continue
+                    if relative.name not in __import__("technology_resolution").INPUT_NAMES:
+                        continue
+                    target = prospective / relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(content)
+                snapshot = inspect_dependencies(prospective)
+            candidates[root / ".lks-sdd/profiles" / f"{binding_id}.resolution.json"] = (json.dumps(snapshot, sort_keys=True, indent=2) + "\n").encode()
         lock_details.append(
             {
                 "binding_id": binding_id,
@@ -718,7 +753,35 @@ def prepare(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
             "blockers": list(dict.fromkeys(blockers)),
         }
 
-    planned, preserved, manual, locks = _planned_files(root, bindings)
+    planned, preserved, manual, locks = _planned_files(
+        root, bindings, mode="adoption" if manifest.get("route") == "adopt-existing" else "new-project"
+    )
+    from composition_contract import resolve_compositions
+    from delivery_engine import validate_delivery_contract
+    compositions, composition_errors = resolve_compositions(root, validate_delivery_contract(root, manifest), delivery.get("task_ids", []))
+    if composition_errors:
+        raise PreparationError("; ".join(composition_errors))
+    for composition in compositions:
+        candidates = [(root / composition["path"], composition["content"].encode())]
+        bundle = load_profile_bundle(composition["profile_id"])
+        if bundle.driver.get("variant"):
+            config = json.loads((bundle.root / "scaffold/profile-runtime.json").read_text())
+            config["unit_paths"] = {p["role"]: p["unit_path"] for p in composition["material"]["participants"]}
+            config_path = root / ".lks-sdd/verification/compositions" / (composition["profile_id"] + ".json")
+            candidates.append((config_path, (json.dumps(config, sort_keys=True, indent=2) + "\n").encode()))
+        for destination, content in candidates:
+            _assert_safe_destination(root, destination)
+            previous = next((value for path, value in planned if path == destination), None)
+            if previous is not None:
+                if previous != content:
+                    raise PreparationError("Dos composiciones divergen en la misma ruta.")
+                continue
+            if destination.exists():
+                if destination.read_bytes() != content:
+                    raise PreparationError("La composición preparada ha cambiado; requiere reconciliación explícita.")
+                preserved.append(destination.relative_to(root).as_posix())
+            else:
+                planned.append((destination, content))
     input_fingerprint = readiness.get("input_fingerprint")
     if not isinstance(input_fingerprint, str) or not re.fullmatch(
         r"[a-f0-9]{64}", input_fingerprint

@@ -1,0 +1,1998 @@
+{
+  "schema_version": "2.0",
+  "profile_id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
+  "profile_version": "1.0.0",
+  "generated_at": "2026-08-21",
+  "validated": false,
+  "profile_sha256": "3e7f054506d32175b2252a70b98fafcdc04ea6437bc7c35f173193f207f20889",
+  "driver_sha256": "4d871c0daf6f5af06540f4d7fcfd878d02e4603c6279f8a83c0a030d85b58960",
+  "scaffold_sha256": "5737a32b6e67eb490be8fff973e46b778e850824229f29e57e0b5a01f8ad32fd",
+  "capabilities": [
+    {
+      "id": "CAP-API-CONTRACT",
+      "version": "1.0.0",
+      "digest": "78812070c06bd8ce66dfb07f326b338e4a93b4394628c2fd94cd83c3275c3260"
+    },
+    {
+      "id": "CAP-BROWSER-PLAYWRIGHT",
+      "version": "1.0.0",
+      "digest": "ba3eaff34aa18d8b9d69c35efdd1d70a537d978c75be1ed5a976dc03fb37a881"
+    },
+    {
+      "id": "CAP-DATA-POSTGRES",
+      "version": "1.0.0",
+      "digest": "7b764c2e269cce1915189e215adf1bf9893e6d57d749a45e7c4863c7752cdffe"
+    },
+    {
+      "id": "CAP-DELIVERY-EVIDENCE",
+      "version": "1.0.0",
+      "digest": "cd3e887e974ac8310d0411ec8aa8410500138692e4497fa87cebb443f073d966"
+    },
+    {
+      "id": "CAP-FRONTEND-QUALITY",
+      "version": "1.0.0",
+      "digest": "ec287b3f774e7800531e06521ebd038f3c5fe8ac14f25e803d9b312b450e43c8"
+    },
+    {
+      "id": "CAP-FULLSTACK-E2E",
+      "version": "1.0.0",
+      "digest": "7d008c59e97e169e9d442306bedd75c4c765fc249e2db188ad51c15a05c27cc8"
+    },
+    {
+      "id": "CAP-LOCAL-AUTH-SPA",
+      "version": "1.0.0",
+      "digest": "210b336d6dec0f64787dcbde43ca25537b6430b524c500ae3fc7eb93e92cdc0c"
+    },
+    {
+      "id": "CAP-LOCAL-CREDENTIALS",
+      "version": "1.0.0",
+      "digest": "f5d82b703c1126858d3d92fdfc9f35c22b25986851c6a24fea8a35fdce9facad"
+    },
+    {
+      "id": "CAP-LOCAL-JWT-SESSION",
+      "version": "1.0.0",
+      "digest": "88f24c269db6e8ca224969fa742ee6a8a2cec19048c73e12df4d34603b21ef1f"
+    },
+    {
+      "id": "CAP-OCI-RUNTIME",
+      "version": "1.0.0",
+      "digest": "be051ab5ffb29c826e637ad0e0da17529d22a8add1f2876740640dac54a515a8"
+    },
+    {
+      "id": "CAP-PYTHON-QUALITY",
+      "version": "1.0.0",
+      "digest": "70dd00d0cc09b4928206680642bf85c28214c7da66d1eda312f5b5c19ac13210"
+    },
+    {
+      "id": "CAP-SCAFFOLD-COPY",
+      "version": "1.0.0",
+      "digest": "d80b6618d83caffc7eae3b326c4696363e83d32be6ddc08bf12ed8abd0f6e89d"
+    },
+    {
+      "id": "CAP-SECURITY-CONFIG-AUDIT",
+      "version": "1.0.0",
+      "digest": "ebdb2f53b30f5dc8654af68906961bb80d24069f1725187b8da0dc92d1e2d84f"
+    },
+    {
+      "id": "CAP-STATIC-BUNDLE",
+      "version": "1.0.0",
+      "digest": "62ba9ee62cef52846899e18670d3b8b40c4589a39d1cecd242e8f720deb8918e"
+    },
+    {
+      "id": "CAP-TENANT-AUTHORIZATION",
+      "version": "1.0.0",
+      "digest": "a3a416318d228303f300cc569c9b80be7dc6e34144ff6aeb8315adbe771d92f7"
+    }
+  ],
+  "components": [
+    {
+      "name": "npm:@adobe/css-tools",
+      "version": "4.5.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@asamuzakjp/css-color",
+      "version": "6.0.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@asamuzakjp/dom-selector",
+      "version": "8.3.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@axe-core/playwright",
+      "version": "4.13.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@babel/code-frame",
+      "version": "7.29.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@babel/helper-validator-identifier",
+      "version": "7.29.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@babel/runtime",
+      "version": "7.29.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@bramus/specificity",
+      "version": "2.4.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@csstools/color-helpers",
+      "version": "6.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@csstools/css-calc",
+      "version": "3.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@csstools/css-color-parser",
+      "version": "4.2.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@csstools/css-parser-algorithms",
+      "version": "4.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@csstools/css-syntax-patches-for-csstree",
+      "version": "1.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@csstools/css-tokenizer",
+      "version": "4.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@emnapi/core",
+      "version": "1.10.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@emnapi/runtime",
+      "version": "1.10.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@emnapi/wasi-threads",
+      "version": "1.2.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint-community/eslint-utils",
+      "version": "4.10.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint-community/regexpp",
+      "version": "4.12.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint/config-array",
+      "version": "0.23.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint/config-helpers",
+      "version": "0.7.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint/core",
+      "version": "1.2.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint/js",
+      "version": "10.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint/object-schema",
+      "version": "3.0.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@eslint/plugin-kit",
+      "version": "0.7.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@exodus/bytes",
+      "version": "1.15.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@humanfs/core",
+      "version": "0.19.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@humanfs/node",
+      "version": "0.16.8",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@humanfs/types",
+      "version": "0.15.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@humanwhocodes/module-importer",
+      "version": "1.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@humanwhocodes/retry",
+      "version": "0.4.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@jridgewell/sourcemap-codec",
+      "version": "1.6.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@napi-rs/wasm-runtime",
+      "version": "1.2.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@oxc-project/types",
+      "version": "0.133.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@playwright/test",
+      "version": "1.62.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-android-arm64",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-darwin-arm64",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-darwin-x64",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-freebsd-x64",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-arm-gnueabihf",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-arm64-gnu",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-arm64-musl",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-ppc64-gnu",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-s390x-gnu",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-x64-gnu",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-linux-x64-musl",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-openharmony-arm64",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-wasm32-wasi",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-win32-arm64-msvc",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/binding-win32-x64-msvc",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@rolldown/pluginutils",
+      "version": "1.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@standard-schema/spec",
+      "version": "1.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@testing-library/dom",
+      "version": "10.4.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@testing-library/jest-dom",
+      "version": "7.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@testing-library/react",
+      "version": "16.3.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@tybys/wasm-util",
+      "version": "0.10.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/aria-query",
+      "version": "5.0.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/chai",
+      "version": "5.2.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/deep-eql",
+      "version": "4.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/esrecurse",
+      "version": "4.3.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/estree",
+      "version": "1.0.9",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/json-schema",
+      "version": "7.0.15",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/react",
+      "version": "19.2.18",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@types/react-dom",
+      "version": "19.2.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/eslint-plugin",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/parser",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/project-service",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/scope-manager",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/tsconfig-utils",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/type-utils",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/types",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/typescript-estree",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/utils",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@typescript-eslint/visitor-keys",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitejs/plugin-react",
+      "version": "6.0.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/expect",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/mocker",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/pretty-format",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/runner",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/snapshot",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/spy",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:@vitest/utils",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:acorn",
+      "version": "8.18.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:acorn-jsx",
+      "version": "5.3.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:ajv",
+      "version": "6.15.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:ansi-regex",
+      "version": "5.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:ansi-styles",
+      "version": "5.2.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:aria-query",
+      "version": "5.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:assertion-error",
+      "version": "2.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:axe-core",
+      "version": "4.13.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:balanced-match",
+      "version": "4.0.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:bidi-js",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:brace-expansion",
+      "version": "5.0.9",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:chai",
+      "version": "6.2.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:convert-source-map",
+      "version": "2.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:cross-spawn",
+      "version": "7.0.6",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:css-tree",
+      "version": "3.2.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:css.escape",
+      "version": "1.5.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:csstype",
+      "version": "3.2.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:data-urls",
+      "version": "7.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:debug",
+      "version": "4.4.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:decimal.js",
+      "version": "10.6.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:deep-is",
+      "version": "0.1.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:dequal",
+      "version": "2.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:detect-libc",
+      "version": "2.1.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:dom-accessibility-api",
+      "version": "[\"0.5.16\", \"0.6.3\"]",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:entities",
+      "version": "8.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:es-module-lexer",
+      "version": "2.3.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:escape-string-regexp",
+      "version": "4.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:eslint",
+      "version": "10.8.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:eslint-scope",
+      "version": "9.1.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:eslint-visitor-keys",
+      "version": "[\"3.4.3\", \"5.0.1\"]",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:espree",
+      "version": "11.2.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:esquery",
+      "version": "1.7.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:esrecurse",
+      "version": "4.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:estraverse",
+      "version": "5.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:estree-walker",
+      "version": "3.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:esutils",
+      "version": "2.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:expect-type",
+      "version": "1.4.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:fast-deep-equal",
+      "version": "3.1.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:fast-json-stable-stringify",
+      "version": "2.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:fast-levenshtein",
+      "version": "2.0.6",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:fdir",
+      "version": "6.5.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:file-entry-cache",
+      "version": "8.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:find-up",
+      "version": "5.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:flat-cache",
+      "version": "4.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:flatted",
+      "version": "3.4.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:fsevents",
+      "version": "[\"2.3.2\", \"2.3.3\"]",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:glob-parent",
+      "version": "6.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:globals",
+      "version": "17.11.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:html-encoding-sniffer",
+      "version": "6.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:ignore",
+      "version": "[\"5.3.2\", \"7.0.8\"]",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:imurmurhash",
+      "version": "0.1.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:indent-string",
+      "version": "4.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:is-extglob",
+      "version": "2.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:is-glob",
+      "version": "4.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:is-potential-custom-element-name",
+      "version": "1.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:isexe",
+      "version": "2.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:js-tokens",
+      "version": "4.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:jsdom",
+      "version": "30.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:json-buffer",
+      "version": "3.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:json-schema-traverse",
+      "version": "0.4.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:json-stable-stringify-without-jsonify",
+      "version": "1.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:keyv",
+      "version": "4.5.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:levn",
+      "version": "0.4.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-android-arm64",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-darwin-arm64",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-darwin-x64",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-freebsd-x64",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-linux-arm-gnueabihf",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-linux-arm64-gnu",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-linux-arm64-musl",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-linux-x64-gnu",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-linux-x64-musl",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-win32-arm64-msvc",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lightningcss-win32-x64-msvc",
+      "version": "1.33.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:locate-path",
+      "version": "6.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lru-cache",
+      "version": "11.5.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:lz-string",
+      "version": "1.5.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:magic-string",
+      "version": "0.30.21",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:mdn-data",
+      "version": "2.27.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:min-indent",
+      "version": "1.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:minimatch",
+      "version": "10.2.6",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:ms",
+      "version": "2.1.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:nanoid",
+      "version": "3.3.18",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:natural-compare",
+      "version": "1.4.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:obug",
+      "version": "2.1.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:optionator",
+      "version": "0.9.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:p-limit",
+      "version": "3.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:p-locate",
+      "version": "5.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:parse5",
+      "version": "8.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:path-exists",
+      "version": "4.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:path-key",
+      "version": "3.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:pathe",
+      "version": "2.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:picocolors",
+      "version": "1.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:picomatch",
+      "version": "4.0.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:playwright",
+      "version": "1.62.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:playwright-core",
+      "version": "1.62.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:postcss",
+      "version": "8.5.26",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:prelude-ls",
+      "version": "1.2.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:pretty-format",
+      "version": "27.5.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:punycode",
+      "version": "2.3.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:react",
+      "version": "19.2.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:react-dom",
+      "version": "19.2.7",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:react-is",
+      "version": "17.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:redent",
+      "version": "3.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:require-from-string",
+      "version": "2.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:rolldown",
+      "version": "1.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:saxes",
+      "version": "6.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:scheduler",
+      "version": "0.27.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:semver",
+      "version": "7.8.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:shebang-command",
+      "version": "2.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:shebang-regex",
+      "version": "3.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:siginfo",
+      "version": "2.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:source-map-js",
+      "version": "1.2.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:stackback",
+      "version": "0.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:std-env",
+      "version": "4.2.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:strip-indent",
+      "version": "3.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:symbol-tree",
+      "version": "3.2.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tinybench",
+      "version": "2.9.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tinyexec",
+      "version": "1.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tinyglobby",
+      "version": "0.2.17",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tinyrainbow",
+      "version": "3.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tldts",
+      "version": "7.4.11",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tldts-core",
+      "version": "7.4.11",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tough-cookie",
+      "version": "6.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tr46",
+      "version": "6.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:ts-api-utils",
+      "version": "2.5.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:tslib",
+      "version": "2.8.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:type-check",
+      "version": "0.4.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:typescript",
+      "version": "5.9.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:typescript-eslint",
+      "version": "8.67.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:undici",
+      "version": "8.10.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:uri-js",
+      "version": "4.4.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:vite",
+      "version": "8.0.16",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:vitest",
+      "version": "4.1.10",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:w3c-xmlserializer",
+      "version": "5.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:webidl-conversions",
+      "version": "8.0.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:whatwg-mimetype",
+      "version": "5.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:whatwg-url",
+      "version": "[\"16.0.1\", \"17.1.0\"]",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:which",
+      "version": "2.0.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:why-is-node-running",
+      "version": "2.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:word-wrap",
+      "version": "1.2.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:xml-name-validator",
+      "version": "5.0.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:xmlchars",
+      "version": "2.2.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "npm:yocto-queue",
+      "version": "0.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:alembic",
+      "version": "1.17.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:annotated-doc",
+      "version": "0.0.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:annotated-types",
+      "version": "0.8.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:anyio",
+      "version": "4.14.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:argon2-cffi",
+      "version": "25.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:argon2-cffi-bindings",
+      "version": "26.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:ast-serialize",
+      "version": "0.8.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:certifi",
+      "version": "2026.7.22",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:cffi",
+      "version": "2.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:click",
+      "version": "8.5.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:colorama",
+      "version": "0.4.6",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:fastapi",
+      "version": "0.125.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:greenlet",
+      "version": "3.5.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:h11",
+      "version": "0.16.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:httpcore",
+      "version": "1.0.9",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:httpx",
+      "version": "0.28.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:idna",
+      "version": "3.19",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:iniconfig",
+      "version": "2.3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:librt",
+      "version": "0.15.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:mako",
+      "version": "1.4.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:markupsafe",
+      "version": "3.0.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:mypy",
+      "version": "2.3.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:mypy-extensions",
+      "version": "1.1.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:packaging",
+      "version": "26.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pathspec",
+      "version": "1.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pluggy",
+      "version": "1.6.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:psycopg",
+      "version": "3.3.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:psycopg-binary",
+      "version": "3.3.2",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pycparser",
+      "version": "3.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pydantic",
+      "version": "2.13.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pydantic-core",
+      "version": "2.46.5",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pygments",
+      "version": "2.21.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pyjwt",
+      "version": "2.10.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:pytest",
+      "version": "9.1.1",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:ruff",
+      "version": "0.16.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:sqlalchemy",
+      "version": "2.0.45",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:starlette",
+      "version": "0.50.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:typing-extensions",
+      "version": "4.16.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:typing-inspection",
+      "version": "0.4.4",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:tzdata",
+      "version": "2026.3",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "python:uvicorn",
+      "version": "0.38.0",
+      "source": "resolved:packages",
+      "digest": null
+    },
+    {
+      "name": "node",
+      "version": "24.19.0",
+      "source": "resolved:runtimes",
+      "digest": null
+    },
+    {
+      "name": "postgresql",
+      "version": "18.4",
+      "source": "resolved:runtimes",
+      "digest": null
+    },
+    {
+      "name": "python",
+      "version": "3.13.15",
+      "source": "resolved:runtimes",
+      "digest": null
+    },
+    {
+      "name": "npm",
+      "version": "11.12.0",
+      "source": "resolved:tools",
+      "digest": null
+    },
+    {
+      "name": "pip",
+      "version": "26.2.1",
+      "source": "resolved:tools",
+      "digest": null
+    },
+    {
+      "name": "nginx",
+      "version": "nginx:1.29.1-alpine@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8",
+      "source": "resolved:images",
+      "digest": "sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8"
+    },
+    {
+      "name": "node",
+      "version": "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+      "source": "resolved:images",
+      "digest": "sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+    },
+    {
+      "name": "playwright",
+      "version": "mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e",
+      "source": "resolved:images",
+      "digest": "sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e"
+    },
+    {
+      "name": "postgresql",
+      "version": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636",
+      "source": "resolved:images",
+      "digest": "sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636"
+    },
+    {
+      "name": "python",
+      "version": "python:3.13.15-slim@sha256:7ce4b6dfe35e55397b7cda544f8a13f191b7ae28dc5aad71fe664dbc9bc2623f",
+      "source": "resolved:images",
+      "digest": "sha256:7ce4b6dfe35e55397b7cda544f8a13f191b7ae28dc5aad71fe664dbc9bc2623f"
+    }
+  ],
+  "gates": [
+    {
+      "id": "GATE-API-LINT",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-API-LOCK",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-API-OPENAPI",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-API-TEST",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-API-TYPECHECK",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-BROWSER-ACCESSIBILITY",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-BROWSER-FULLSTACK-E2E",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-BROWSER-SMOKE",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-COMPOSE-PY313-TS59-SYSTEM",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-DATA-INTEGRATION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-DATA-MIGRATION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-DELIVERY-EVIDENCE",
+      "phase": "G4",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-FRONTEND-BUILD",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-FRONTEND-LINT",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-FRONTEND-LOCK",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-FRONTEND-TEST",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-FRONTEND-TYPECHECK",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-HTTP-CONTRACT-INTEGRATION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-LOCAL-CREDENTIALS",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-LOCAL-JWT",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-LOCAL-SESSION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-LOCAL-SPA",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-OCI-BUILD",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-OCI-SMOKE",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-PYTHON-LINT",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-PYTHON-LOCK",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-PYTHON-TEST",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-PYTHON-TYPECHECK",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-SCAFFOLD-INTEGRITY",
+      "phase": "G2",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-SECURITY-AUDIT",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-SECURITY-CONFIG",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-STATIC-OUTPUT",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    },
+    {
+      "id": "GATE-TENANT-AUTHORIZATION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59: exact certification not available"
+    }
+  ],
+  "composition": {
+    "gate_id": "GATE-COMPOSE-PY313-TS59-SYSTEM",
+    "status": "not-run",
+    "digest": "a2566da9c1fadd559c8383eeb92f392b3bb872368686c928b1e7b3ca48954617"
+  },
+  "evidence": [
+    "Profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59 awaits certification."
+  ]
+}

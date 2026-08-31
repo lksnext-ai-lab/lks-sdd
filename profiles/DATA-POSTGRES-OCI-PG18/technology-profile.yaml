@@ -1,0 +1,88 @@
+{
+  "schema_version": "2.0",
+  "id": "DATA-POSTGRES-OCI-PG18",
+  "version": "1.0.0",
+  "family_id": "FAM-DATA-SERVICE",
+  "profile_scope": "deployable",
+  "lifecycle": "candidate",
+  "support_level": "H1",
+  "default_rigor": "P1",
+  "summary": "Closed DATA-POSTGRES-OCI technology variant PG18; isolated development and CI only.",
+  "units": [
+    {
+      "role": "database",
+      "runtime": "database isolated runtime",
+      "default_path": "."
+    }
+  ],
+  "dimensions": {
+    "frontend": [],
+    "backend": [],
+    "data": [],
+    "identity": [],
+    "integration": [],
+    "delivery": [],
+    "testing": [],
+    "observability": []
+  },
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY",
+    "CAP-DELIVERY-EVIDENCE",
+    "CAP-DATA-POSTGRES",
+    "CAP-OCI-RUNTIME"
+  ],
+  "excluded_capabilities": [],
+  "capability_bindings": [
+    {
+      "capability_id": "CAP-SCAFFOLD-COPY",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-DELIVERY-EVIDENCE",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-DATA-POSTGRES",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-OCI-RUNTIME",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    }
+  ],
+  "compatibility_rules": [
+    "Only the exact resolved-technology.json combination can be certified.",
+    "Adoption never overwrites consumer functional code.",
+    "No production or native mobile client certification."
+  ],
+  "drivers": {
+    "prepare": "profile-driver.json",
+    "verify": "profile-driver.json"
+  },
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-DATA-INTEGRATION",
+      "GATE-DATA-MIGRATION",
+      "GATE-DELIVERY-EVIDENCE",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-SCAFFOLD-INTEGRITY"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-PG18-DATABASE"
+  },
+  "certification": {
+    "technical_gate": "not-run",
+    "composition_gate": "not-run",
+    "e2e_eval": "not-run",
+    "human_review": "not-run",
+    "pilot": "not-run",
+    "validated_at": null,
+    "review_due": null,
+    "evidence": []
+  },
+  "owner": "LKS-SDD maintainers"
+}

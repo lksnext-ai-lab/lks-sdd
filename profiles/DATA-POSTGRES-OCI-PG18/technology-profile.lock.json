@@ -1,0 +1,129 @@
+{
+  "schema_version": "2.0",
+  "profile_id": "DATA-POSTGRES-OCI-PG18",
+  "profile_version": "1.0.0",
+  "generated_at": "2026-08-21",
+  "validated": false,
+  "profile_sha256": "343b4b4cdf2a6e57ade897341ebd5a7dff9d3ab7256924e04ce1471f74859d2b",
+  "driver_sha256": "4f2c93492d0c8a21e7ba7df50d5d9b968868d075d7cf1af9b682cddae46f5a5d",
+  "scaffold_sha256": "b2cf9522396ea277e9e59686378373ef5b7d929e7b322941b4b4403d8f2083ce",
+  "capabilities": [
+    {
+      "id": "CAP-DATA-POSTGRES",
+      "version": "1.0.0",
+      "digest": "7b764c2e269cce1915189e215adf1bf9893e6d57d749a45e7c4863c7752cdffe"
+    },
+    {
+      "id": "CAP-DELIVERY-EVIDENCE",
+      "version": "1.0.0",
+      "digest": "cd3e887e974ac8310d0411ec8aa8410500138692e4497fa87cebb443f073d966"
+    },
+    {
+      "id": "CAP-OCI-RUNTIME",
+      "version": "1.0.0",
+      "digest": "be051ab5ffb29c826e637ad0e0da17529d22a8add1f2876740640dac54a515a8"
+    },
+    {
+      "id": "CAP-SCAFFOLD-COPY",
+      "version": "1.0.0",
+      "digest": "d80b6618d83caffc7eae3b326c4696363e83d32be6ddc08bf12ed8abd0f6e89d"
+    }
+  ],
+  "components": [
+    {
+      "name": "postgresql",
+      "version": "18.4",
+      "source": "resolved:runtimes",
+      "digest": null
+    },
+    {
+      "name": "nginx",
+      "version": "nginx:1.29.1-alpine@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8",
+      "source": "resolved:images",
+      "digest": "sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8"
+    },
+    {
+      "name": "node",
+      "version": "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+      "source": "resolved:images",
+      "digest": "sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+    },
+    {
+      "name": "playwright",
+      "version": "mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e",
+      "source": "resolved:images",
+      "digest": "sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e"
+    },
+    {
+      "name": "postgresql",
+      "version": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636",
+      "source": "resolved:images",
+      "digest": "sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636"
+    },
+    {
+      "name": "python",
+      "version": "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+      "source": "resolved:images",
+      "digest": "sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4"
+    }
+  ],
+  "gates": [
+    {
+      "id": "GATE-COMPOSE-PG18-DATABASE",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    },
+    {
+      "id": "GATE-DATA-INTEGRATION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    },
+    {
+      "id": "GATE-DATA-MIGRATION",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    },
+    {
+      "id": "GATE-DELIVERY-EVIDENCE",
+      "phase": "G4",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    },
+    {
+      "id": "GATE-OCI-BUILD",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    },
+    {
+      "id": "GATE-OCI-SMOKE",
+      "phase": "G3",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    },
+    {
+      "id": "GATE-SCAFFOLD-INTEGRITY",
+      "phase": "G2",
+      "required": true,
+      "status": "not-run",
+      "evidence": "profile DATA-POSTGRES-OCI-PG18: exact certification not available"
+    }
+  ],
+  "composition": {
+    "gate_id": "GATE-COMPOSE-PG18-DATABASE",
+    "status": "not-run",
+    "digest": "4f8d9b3f1a34f4a7c3dda6f69519cf27c940f09ea0ff1284328ce4640eb00fc9"
+  },
+  "evidence": [
+    "Profile DATA-POSTGRES-OCI-PG18 awaits certification."
+  ]
+}

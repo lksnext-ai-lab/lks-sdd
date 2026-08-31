@@ -645,6 +645,14 @@ def assess_planning(
                 for item in joint_bundle.lock.get("gates", [])
                 if isinstance(item, dict) and item.get("id")
             )
+        for interface in delivery.get("interfaces", {}).values():
+            if interface.get("State") != "confirmed" or task_id not in re.findall(r"\bTASK-[0-9]{3}\b", interface.get("Verification task", "")):
+                continue
+            exact_id, _, exact_version = str(interface.get("Exact composition", "")).partition("@")
+            joint_bundle = load_profile_bundle(exact_id)
+            if joint_bundle.profile.get("version") == exact_version:
+                allowed_capabilities.update(item["id"] for item in joint_bundle.lock.get("capabilities", []) if isinstance(item, dict) and item.get("id"))
+                allowed_gates.update(item["id"] for item in joint_bundle.lock.get("gates", []) if isinstance(item, dict) and item.get("id"))
         definition = payload.get("definition", {})
         requested_capabilities = set(
             re.findall(
@@ -712,7 +720,7 @@ def assess_planning(
         if (
             support is None
             or support.profile_version != version
-            or support.profile_scope != "system"
+            or (required_gate == "GATE-BROWSER-FULLSTACK-E2E" and support.profile_scope != "system")
             or not support.verifiable
         ):
             gaps.append(
@@ -725,6 +733,10 @@ def assess_planning(
                     ),
                 }
             )
+
+    from composition_contract import resolve_compositions
+    _, composition_errors = resolve_compositions(root, delivery, target_tasks, require_certified=False)
+    integrity_errors.extend(composition_errors)
 
     if schema_version not in {"1.3", "1.4", "1.5"}:
         for task_id, payload in task_definitions.items():

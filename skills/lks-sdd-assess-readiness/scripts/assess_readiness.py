@@ -767,6 +767,10 @@ def assess(
         binding_results: list[dict[str, Any]] = []
         coverage_results: list[dict[str, Any]] = []
         automation_errors: list[str] = []
+        from composition_contract import resolve_compositions
+        compositions, composition_errors = resolve_compositions(root, delivery_contract, delivery.get("task_ids", []))
+        automation_errors.extend(composition_errors)
+        result["compositions"] = [{key: value for key, value in item.items() if key != "content"} for item in compositions]
         for obligation in integration_applicability:
             if obligation.get("status") != "applicable":
                 continue
@@ -776,7 +780,7 @@ def assess(
             if (
                 support is None
                 or support.profile_version != expected_version
-                or support.profile_scope != "system"
+                or (obligation.get("gate_id") == "GATE-BROWSER-FULLSTACK-E2E" and support.profile_scope != "system")
                 or not support.verifiable
             ):
                 automation_errors.append(
@@ -835,7 +839,7 @@ def assess(
             automation_errors.append(
                 "El incremento no resuelve ningún profile binding confirmado."
             )
-        supported = bool(binding_results) and all(
+        supported = not automation_errors and bool(binding_results) and all(
             item["status"] == "supported" for item in binding_results
         )
         result["profile_locks"] = [

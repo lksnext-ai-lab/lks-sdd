@@ -3,17 +3,75 @@
   "root": "tests/fixtures",
   "classification": "synthetic-only",
   "fixtures": [
-    {"path": "alternative-stack.json", "id": "FX-M1-ALTERNATIVE-STACK", "sha256": "e7c9d882e218a25fab965558f005859cc66de8fa8c6bc0eab50bd59d97ad89cd"},
-    {"path": "calculator-handoff-1.5.json", "id": "FX-M5-CALCULATOR-HANDOFF-1.5", "sha256": "71aa3fcdda8fdc0a88ca64a67438e2d8519ad26cd07034dadd726da7b9bc1644"},
-    {"path": "prueba-calculadora-planning-partial.json", "id": "FX-M9-PRUEBA-CALCULADORA-PARTIAL", "sha256": "2f10378f449d118e64c90b83f04a047b40505a37abe6d6fd9940e7f67b0f12f3"},
-    {"path": "help.json", "id": "FX-M1-HELP", "sha256": "5e2f58bccaaf0a941ce43e4484d361b75082ddad2c5c9c62cc71c6c5c834062e"},
-    {"path": "insufficient-information.json", "id": "FX-M1-INSUFFICIENT", "sha256": "69eb188a2898bd42bbd43ea7e22aad64a6cab0b8f7d0bcc5b27a661b259d5b2d"},
-    {"path": "new-project.json", "id": "FX-M1-NEW-PROJECT", "sha256": "6ebb7f7c0978dc09ae4bbc77f36221fea0601f1b0024284a172474fc942ab09b"},
-    {"path": "scoped-blocker.json", "id": "FX-M1-SCOPED-BLOCKER", "sha256": "b8091ee0b65b90951541057f7534aeb7ce9790cef2c7a3962f7f037a8d2746dc"},
-    {"path": "tracking-choice.json", "id": "FX-M10-TRACKING-CHOICE", "sha256": "353a77c44de1e26448c4fe282113dfbd2454fa5a04fdf9498366f29ea36fad87"},
-    {"path": "tracking-jira-hybrid.json", "id": "FX-M10-JIRA-HYBRID", "sha256": "3817556bb220f8da10069f695a460a015c8e9755bb7bc31d851ba51054715da3"},
-    {"path": "tracking-jira-degraded.json", "id": "FX-M10-JIRA-DEGRADED", "sha256": "0d23247e40978574a394b24d355e88f839dde14eeb4e8518f3e0db8c1b562edb"},
-    {"path": "validation-evidence-v016.json", "id": "FX-M16-VALIDATION-EVIDENCE", "sha256": "d029cfb27cc544673d2cf5a4760e2799a245a3362e0bc772bb3d466b95360ca8"}
-    ,{"path": "fullstack-integration-v017.json", "id": "FX-M17-FULLSTACK-INTEGRATION", "sha256": "69248e6123a0b7184166f142a2b96f32cce42c89a9fa1729e2f5294486f0daac"}
+    {
+      "path": "alternative-stack.json",
+      "id": "FX-M1-ALTERNATIVE-STACK",
+      "sha256": "e7c9d882e218a25fab965558f005859cc66de8fa8c6bc0eab50bd59d97ad89cd"
+    },
+    {
+      "path": "calculator-handoff-1.5.json",
+      "id": "FX-M5-CALCULATOR-HANDOFF-1.5",
+      "sha256": "71aa3fcdda8fdc0a88ca64a67438e2d8519ad26cd07034dadd726da7b9bc1644"
+    },
+    {
+      "path": "prueba-calculadora-planning-partial.json",
+      "id": "FX-M9-PRUEBA-CALCULADORA-PARTIAL",
+      "sha256": "2f10378f449d118e64c90b83f04a047b40505a37abe6d6fd9940e7f67b0f12f3"
+    },
+    {
+      "path": "help.json",
+      "id": "FX-M1-HELP",
+      "sha256": "5e2f58bccaaf0a941ce43e4484d361b75082ddad2c5c9c62cc71c6c5c834062e"
+    },
+    {
+      "path": "insufficient-information.json",
+      "id": "FX-M1-INSUFFICIENT",
+      "sha256": "69eb188a2898bd42bbd43ea7e22aad64a6cab0b8f7d0bcc5b27a661b259d5b2d"
+    },
+    {
+      "path": "new-project.json",
+      "id": "FX-M1-NEW-PROJECT",
+      "sha256": "6ebb7f7c0978dc09ae4bbc77f36221fea0601f1b0024284a172474fc942ab09b"
+    },
+    {
+      "path": "scoped-blocker.json",
+      "id": "FX-M1-SCOPED-BLOCKER",
+      "sha256": "b8091ee0b65b90951541057f7534aeb7ce9790cef2c7a3962f7f037a8d2746dc"
+    },
+    {
+      "path": "tracking-choice.json",
+      "id": "FX-M10-TRACKING-CHOICE",
+      "sha256": "353a77c44de1e26448c4fe282113dfbd2454fa5a04fdf9498366f29ea36fad87"
+    },
+    {
+      "path": "tracking-jira-hybrid.json",
+      "id": "FX-M10-JIRA-HYBRID",
+      "sha256": "3817556bb220f8da10069f695a460a015c8e9755bb7bc31d851ba51054715da3"
+    },
+    {
+      "path": "tracking-jira-degraded.json",
+      "id": "FX-M10-JIRA-DEGRADED",
+      "sha256": "0d23247e40978574a394b24d355e88f839dde14eeb4e8518f3e0db8c1b562edb"
+    },
+    {
+      "path": "validation-evidence-v016.json",
+      "id": "FX-M16-VALIDATION-EVIDENCE",
+      "sha256": "d029cfb27cc544673d2cf5a4760e2799a245a3362e0bc772bb3d466b95360ca8"
+    },
+    {
+      "path": "fullstack-integration-v017.json",
+      "id": "FX-M17-FULLSTACK-INTEGRATION",
+      "sha256": "69248e6123a0b7184166f142a2b96f32cce42c89a9fa1729e2f5294486f0daac"
+    },
+    {
+      "path": "adoption-flat-v018.json",
+      "id": "FX-M18-ADOPTION-FLAT",
+      "sha256": "e376b4028c6b19dfb31bdb4eab46a803d791bb943ef4210b6598c61db85793aa"
+    },
+    {
+      "path": "adoption-apps-v018.json",
+      "id": "FX-M18-ADOPTION-APPS",
+      "sha256": "ab83ed788c76d5cc93f048435014e7a4e71a0078b74d64e4d87e7bb3aba1740a"
+    }
   ]
 }

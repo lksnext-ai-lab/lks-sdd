@@ -1,0 +1,105 @@
+{
+  "schema_version": "2.0",
+  "id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60",
+  "version": "1.0.0",
+  "family_id": "FAM-WEB-SPA-STATIC",
+  "profile_scope": "deployable",
+  "lifecycle": "candidate",
+  "support_level": "H1",
+  "default_rigor": "P1",
+  "summary": "Closed WEB-REACT-VITE-LOCAL-AUTH-STATIC technology variant TS60; isolated development and CI only.",
+  "units": [
+    {
+      "role": "frontend",
+      "runtime": "frontend isolated runtime",
+      "default_path": "."
+    }
+  ],
+  "dimensions": {
+    "frontend": [],
+    "backend": [],
+    "data": [],
+    "identity": [],
+    "integration": [],
+    "delivery": [],
+    "testing": [],
+    "observability": []
+  },
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY",
+    "CAP-DELIVERY-EVIDENCE",
+    "CAP-FRONTEND-QUALITY",
+    "CAP-STATIC-BUNDLE",
+    "CAP-BROWSER-PLAYWRIGHT",
+    "CAP-LOCAL-AUTH-SPA"
+  ],
+  "excluded_capabilities": [],
+  "capability_bindings": [
+    {
+      "capability_id": "CAP-SCAFFOLD-COPY",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-DELIVERY-EVIDENCE",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-FRONTEND-QUALITY",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-STATIC-BUNDLE",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-BROWSER-PLAYWRIGHT",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-LOCAL-AUTH-SPA",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    }
+  ],
+  "compatibility_rules": [
+    "Only the exact resolved-technology.json combination can be certified.",
+    "Adoption never overwrites consumer functional code.",
+    "No production or native mobile client certification."
+  ],
+  "drivers": {
+    "prepare": "profile-driver.json",
+    "verify": "profile-driver.json"
+  },
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-BROWSER-SMOKE",
+      "GATE-DELIVERY-EVIDENCE",
+      "GATE-FRONTEND-BUILD",
+      "GATE-FRONTEND-LINT",
+      "GATE-FRONTEND-LOCK",
+      "GATE-FRONTEND-TEST",
+      "GATE-FRONTEND-TYPECHECK",
+      "GATE-LOCAL-SPA",
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-STATIC-OUTPUT"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-TS60-FRONTEND"
+  },
+  "certification": {
+    "technical_gate": "not-run",
+    "composition_gate": "not-run",
+    "e2e_eval": "not-run",
+    "human_review": "not-run",
+    "pilot": "not-run",
+    "validated_at": null,
+    "review_due": null,
+    "evidence": []
+  },
+  "owner": "LKS-SDD maintainers"
+}

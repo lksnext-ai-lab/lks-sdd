@@ -1,48 +1,466 @@
 {
   "schema_version": "1.0",
   "families": [
-    {"id": "FAM-WEB-SPA-STATIC", "name": "Static browser SPA", "architecture": "Client-side application delivered as immutable static assets", "selectable": false},
-    {"id": "FAM-API-SERVICE", "name": "API service", "architecture": "HTTP API without a project-owned human interface", "selectable": false},
-    {"id": "FAM-WEB-SSR", "name": "Server-rendered web", "architecture": "Web application with a production server runtime and hydration", "selectable": false},
-    {"id": "FAM-WEB-SYSTEM", "name": "Composed web system", "architecture": "Certified composition of multiple deployable units", "selectable": false},
-    {"id": "FAM-MSG-WORKER", "name": "Message worker", "architecture": "Discrete message processing with acknowledgement and dead-letter handling", "selectable": false},
-    {"id": "FAM-STR-PROCESSOR", "name": "Stream processor", "architecture": "Partitioned durable event log processing with offsets and replay", "selectable": false}
+    {
+      "id": "FAM-WEB-SPA-STATIC",
+      "name": "Static browser SPA",
+      "architecture": "Client-side application delivered as immutable static assets",
+      "selectable": false
+    },
+    {
+      "id": "FAM-API-SERVICE",
+      "name": "API service",
+      "architecture": "HTTP API without a project-owned human interface",
+      "selectable": false
+    },
+    {
+      "id": "FAM-WEB-SSR",
+      "name": "Server-rendered web",
+      "architecture": "Web application with a production server runtime and hydration",
+      "selectable": false
+    },
+    {
+      "id": "FAM-WEB-SYSTEM",
+      "name": "Composed web system",
+      "architecture": "Certified composition of multiple deployable units",
+      "selectable": false
+    },
+    {
+      "id": "FAM-MSG-WORKER",
+      "name": "Message worker",
+      "architecture": "Discrete message processing with acknowledgement and dead-letter handling",
+      "selectable": false
+    },
+    {
+      "id": "FAM-STR-PROCESSOR",
+      "name": "Stream processor",
+      "architecture": "Partitioned durable event log processing with offsets and replay",
+      "selectable": false
+    },
+    {
+      "id": "FAM-DATA-SERVICE",
+      "name": "Database service",
+      "architecture": "Database service with independent verification and ownership",
+      "selectable": false
+    },
+    {
+      "id": "FAM-MIGRATION-JOB",
+      "name": "Schema migration job",
+      "architecture": "Schema migration job with independent verification and ownership",
+      "selectable": false
+    }
   ],
   "capabilities": [
-    {"id": "CAP-SCAFFOLD-COPY", "version": "1.0.0", "name": "Reproducible scaffold", "description": "Collision-safe materialization of a locked profile scaffold.", "gate_ids": ["GATE-SCAFFOLD-INTEGRITY"]},
-    {"id": "CAP-PYTHON-QUALITY", "version": "1.0.0", "name": "Python quality", "description": "Frozen dependency resolution, lint, strict type checking and deterministic unit tests for a Python deployable.", "gate_ids": ["GATE-PYTHON-LOCK", "GATE-PYTHON-LINT", "GATE-PYTHON-TYPECHECK", "GATE-PYTHON-TEST"]},
-    {"id": "CAP-FRONTEND-QUALITY", "version": "1.0.0", "name": "Frontend quality", "description": "Locked dependency install, lint, type checking and deterministic unit tests for a frontend unit.", "gate_ids": ["GATE-FRONTEND-LOCK", "GATE-FRONTEND-LINT", "GATE-FRONTEND-TYPECHECK", "GATE-FRONTEND-TEST"]},
-    {"id": "CAP-STATIC-BUNDLE", "version": "1.0.0", "name": "Static web bundle", "description": "Production frontend build and inspection of immutable static output.", "gate_ids": ["GATE-FRONTEND-BUILD", "GATE-STATIC-OUTPUT"]},
-    {"id": "CAP-BROWSER-PLAYWRIGHT", "version": "1.0.0", "name": "Browser verification", "description": "Real-browser smoke, route and accessibility checks with recorded limitations.", "gate_ids": ["GATE-BROWSER-SMOKE", "GATE-BROWSER-ACCESSIBILITY"]},
-    {"id": "CAP-FULLSTACK-E2E", "version": "1.0.0", "name": "Full-stack browser composition", "description": "Exact composed browser, API, persistence and controlled identity verification with structured cross-unit evidence.", "gate_ids": ["GATE-BROWSER-FULLSTACK-E2E"]},
-    {"id": "CAP-API-CONTRACT", "version": "1.0.0", "name": "API contract", "description": "Typed API, OpenAPI compatibility, health, readiness and negative tests.", "gate_ids": ["GATE-API-LOCK", "GATE-API-LINT", "GATE-API-TYPECHECK", "GATE-API-TEST", "GATE-API-OPENAPI"]},
-    {"id": "CAP-IDENTITY-OIDC", "version": "1.0.0", "name": "OIDC identity", "description": "Authorization Code or bearer-token contracts with issuer and audience validation.", "gate_ids": ["GATE-OIDC-CONTRACT", "GATE-OIDC-INTEGRATION"]},
-    {"id": "CAP-IDENTITY-OIDC-SIMULATED", "version": "1.0.0", "name": "Controlled simulated OIDC identity", "description": "Non-production OIDC contract double with synthetic identities, PKCE semantics and a mandatory production fail-closed guard.", "gate_ids": ["GATE-OIDC-CONTRACT", "GATE-OIDC-SIMULATED-SAFETY", "GATE-OIDC-SIMULATED-INTEGRATION"]},
-    {"id": "CAP-OIDC-DISCOVERY-JWKS", "version": "1.0.0", "name": "OIDC discovery and keys", "description": "Provider-neutral OpenID discovery with exact issuer validation and signing keys resolved from the declared jwks_uri.", "gate_ids": ["GATE-OIDC-DISCOVERY", "GATE-OIDC-JWKS"]},
-    {"id": "CAP-OIDC-API-BEARER", "version": "1.0.0", "name": "OIDC API bearer", "description": "Bearer-token authentication and authorization for an API, including deterministic 401 and 403 behavior.", "gate_ids": ["GATE-OIDC-API-AUTHN", "GATE-OIDC-API-AUTHZ"]},
-    {"id": "CAP-OIDC-SPA-PKCE", "version": "1.0.0", "name": "OIDC SPA PKCE", "description": "Browser sign-in, callback, logout and silent token acquisition through Authorization Code with PKCE.", "gate_ids": ["GATE-OIDC-SPA-PKCE", "GATE-OIDC-SPA-SESSION"]},
-    {"id": "CAP-ENTRA-CLAIMS", "version": "1.0.0", "name": "Microsoft Entra claims", "description": "Tenant-bound Microsoft Entra issuer, audience, delegated scope and application-role claim enforcement.", "gate_ids": ["GATE-ENTRA-TENANT", "GATE-ENTRA-PERMISSIONS"]},
-    {"id": "CAP-DATA-POSTGRES", "version": "1.0.0", "name": "PostgreSQL persistence", "description": "Locked PostgreSQL persistence with migrations and recovery analysis.", "gate_ids": ["GATE-DATA-MIGRATION", "GATE-DATA-INTEGRATION"]},
-    {"id": "CAP-OCI-RUNTIME", "version": "1.0.0", "name": "OCI runtime", "description": "Digest-pinned container build and runtime smoke checks.", "gate_ids": ["GATE-OCI-BUILD", "GATE-OCI-SMOKE"]},
-    {"id": "CAP-SSR-RUNTIME", "version": "1.0.0", "name": "SSR runtime", "description": "Production server rendering, hydration, cache and route verification.", "gate_ids": ["GATE-SSR-BUILD", "GATE-SSR-RUNTIME", "GATE-SSR-HYDRATION"]},
-    {"id": "CAP-MESSAGE-RABBITMQ", "version": "1.0.0", "name": "RabbitMQ messaging", "description": "Publish, consume, acknowledgement, retry, dead-letter and idempotency behavior.", "gate_ids": ["GATE-MSG-CONTRACT", "GATE-MSG-RETRY", "GATE-MSG-DLQ", "GATE-MSG-RECOVERY"]},
-    {"id": "CAP-STREAM-KAFKA", "version": "1.0.0", "name": "Kafka stream processing", "description": "Partition, offset, schema compatibility, replay, lag and recovery behavior.", "gate_ids": ["GATE-STR-CONTRACT", "GATE-STR-REPLAY", "GATE-STR-OFFSETS", "GATE-STR-RECOVERY"]},
-    {"id": "CAP-DELIVERY-EVIDENCE", "version": "1.0.0", "name": "Delivery evidence", "description": "Immutable artifact promotion, environment smoke, observability, authorization and recovery evidence.", "gate_ids": ["GATE-DELIVERY-EVIDENCE"]}
+    {
+      "id": "CAP-SCAFFOLD-COPY",
+      "version": "1.0.0",
+      "name": "Reproducible scaffold",
+      "description": "Collision-safe materialization of a locked profile scaffold.",
+      "gate_ids": [
+        "GATE-SCAFFOLD-INTEGRITY"
+      ]
+    },
+    {
+      "id": "CAP-PYTHON-QUALITY",
+      "version": "1.0.0",
+      "name": "Python quality",
+      "description": "Frozen dependency resolution, lint, strict type checking and deterministic unit tests for a Python deployable.",
+      "gate_ids": [
+        "GATE-PYTHON-LOCK",
+        "GATE-PYTHON-LINT",
+        "GATE-PYTHON-TYPECHECK",
+        "GATE-PYTHON-TEST"
+      ]
+    },
+    {
+      "id": "CAP-FRONTEND-QUALITY",
+      "version": "1.0.0",
+      "name": "Frontend quality",
+      "description": "Locked dependency install, lint, type checking and deterministic unit tests for a frontend unit.",
+      "gate_ids": [
+        "GATE-FRONTEND-LOCK",
+        "GATE-FRONTEND-LINT",
+        "GATE-FRONTEND-TYPECHECK",
+        "GATE-FRONTEND-TEST"
+      ]
+    },
+    {
+      "id": "CAP-STATIC-BUNDLE",
+      "version": "1.0.0",
+      "name": "Static web bundle",
+      "description": "Production frontend build and inspection of immutable static output.",
+      "gate_ids": [
+        "GATE-FRONTEND-BUILD",
+        "GATE-STATIC-OUTPUT"
+      ]
+    },
+    {
+      "id": "CAP-BROWSER-PLAYWRIGHT",
+      "version": "1.0.0",
+      "name": "Browser verification",
+      "description": "Real-browser smoke, route and accessibility checks with recorded limitations.",
+      "gate_ids": [
+        "GATE-BROWSER-SMOKE",
+        "GATE-BROWSER-ACCESSIBILITY"
+      ]
+    },
+    {
+      "id": "CAP-FULLSTACK-E2E",
+      "version": "1.0.0",
+      "name": "Full-stack browser composition",
+      "description": "Exact composed browser, API, persistence and controlled identity verification with structured cross-unit evidence.",
+      "gate_ids": [
+        "GATE-BROWSER-FULLSTACK-E2E"
+      ]
+    },
+    {
+      "id": "CAP-API-CONTRACT",
+      "version": "1.0.0",
+      "name": "API contract",
+      "description": "Typed API, OpenAPI compatibility, health, readiness and negative tests.",
+      "gate_ids": [
+        "GATE-API-LOCK",
+        "GATE-API-LINT",
+        "GATE-API-TYPECHECK",
+        "GATE-API-TEST",
+        "GATE-API-OPENAPI"
+      ]
+    },
+    {
+      "id": "CAP-IDENTITY-OIDC",
+      "version": "1.0.0",
+      "name": "OIDC identity",
+      "description": "Authorization Code or bearer-token contracts with issuer and audience validation.",
+      "gate_ids": [
+        "GATE-OIDC-CONTRACT",
+        "GATE-OIDC-INTEGRATION"
+      ]
+    },
+    {
+      "id": "CAP-IDENTITY-OIDC-SIMULATED",
+      "version": "1.0.0",
+      "name": "Controlled simulated OIDC identity",
+      "description": "Non-production OIDC contract double with synthetic identities, PKCE semantics and a mandatory production fail-closed guard.",
+      "gate_ids": [
+        "GATE-OIDC-CONTRACT",
+        "GATE-OIDC-SIMULATED-SAFETY",
+        "GATE-OIDC-SIMULATED-INTEGRATION"
+      ]
+    },
+    {
+      "id": "CAP-OIDC-DISCOVERY-JWKS",
+      "version": "1.0.0",
+      "name": "OIDC discovery and keys",
+      "description": "Provider-neutral OpenID discovery with exact issuer validation and signing keys resolved from the declared jwks_uri.",
+      "gate_ids": [
+        "GATE-OIDC-DISCOVERY",
+        "GATE-OIDC-JWKS"
+      ]
+    },
+    {
+      "id": "CAP-OIDC-API-BEARER",
+      "version": "1.0.0",
+      "name": "OIDC API bearer",
+      "description": "Bearer-token authentication and authorization for an API, including deterministic 401 and 403 behavior.",
+      "gate_ids": [
+        "GATE-OIDC-API-AUTHN",
+        "GATE-OIDC-API-AUTHZ"
+      ]
+    },
+    {
+      "id": "CAP-OIDC-SPA-PKCE",
+      "version": "1.0.0",
+      "name": "OIDC SPA PKCE",
+      "description": "Browser sign-in, callback, logout and silent token acquisition through Authorization Code with PKCE.",
+      "gate_ids": [
+        "GATE-OIDC-SPA-PKCE",
+        "GATE-OIDC-SPA-SESSION"
+      ]
+    },
+    {
+      "id": "CAP-ENTRA-CLAIMS",
+      "version": "1.0.0",
+      "name": "Microsoft Entra claims",
+      "description": "Tenant-bound Microsoft Entra issuer, audience, delegated scope and application-role claim enforcement.",
+      "gate_ids": [
+        "GATE-ENTRA-TENANT",
+        "GATE-ENTRA-PERMISSIONS"
+      ]
+    },
+    {
+      "id": "CAP-DATA-POSTGRES",
+      "version": "1.0.0",
+      "name": "PostgreSQL persistence",
+      "description": "Locked PostgreSQL persistence with migrations and recovery analysis.",
+      "gate_ids": [
+        "GATE-DATA-MIGRATION",
+        "GATE-DATA-INTEGRATION"
+      ]
+    },
+    {
+      "id": "CAP-OCI-RUNTIME",
+      "version": "1.0.0",
+      "name": "OCI runtime",
+      "description": "Digest-pinned container build and runtime smoke checks.",
+      "gate_ids": [
+        "GATE-OCI-BUILD",
+        "GATE-OCI-SMOKE"
+      ]
+    },
+    {
+      "id": "CAP-SSR-RUNTIME",
+      "version": "1.0.0",
+      "name": "SSR runtime",
+      "description": "Production server rendering, hydration, cache and route verification.",
+      "gate_ids": [
+        "GATE-SSR-BUILD",
+        "GATE-SSR-RUNTIME",
+        "GATE-SSR-HYDRATION"
+      ]
+    },
+    {
+      "id": "CAP-MESSAGE-RABBITMQ",
+      "version": "1.0.0",
+      "name": "RabbitMQ messaging",
+      "description": "Publish, consume, acknowledgement, retry, dead-letter and idempotency behavior.",
+      "gate_ids": [
+        "GATE-MSG-CONTRACT",
+        "GATE-MSG-RETRY",
+        "GATE-MSG-DLQ",
+        "GATE-MSG-RECOVERY"
+      ]
+    },
+    {
+      "id": "CAP-STREAM-KAFKA",
+      "version": "1.0.0",
+      "name": "Kafka stream processing",
+      "description": "Partition, offset, schema compatibility, replay, lag and recovery behavior.",
+      "gate_ids": [
+        "GATE-STR-CONTRACT",
+        "GATE-STR-REPLAY",
+        "GATE-STR-OFFSETS",
+        "GATE-STR-RECOVERY"
+      ]
+    },
+    {
+      "id": "CAP-DELIVERY-EVIDENCE",
+      "version": "1.0.0",
+      "name": "Delivery evidence",
+      "description": "Immutable artifact promotion, environment smoke, observability, authorization and recovery evidence.",
+      "gate_ids": [
+        "GATE-DELIVERY-EVIDENCE"
+      ]
+    },
+    {
+      "id": "CAP-LOCAL-CREDENTIALS",
+      "version": "1.0.0",
+      "name": "Local credentials",
+      "description": "Local credentials for isolated development and CI; production excluded.",
+      "gate_ids": [
+        "GATE-LOCAL-CREDENTIALS"
+      ]
+    },
+    {
+      "id": "CAP-LOCAL-JWT-SESSION",
+      "version": "1.0.0",
+      "name": "Local JWT session",
+      "description": "Local JWT session for isolated development and CI; production excluded.",
+      "gate_ids": [
+        "GATE-LOCAL-JWT",
+        "GATE-LOCAL-SESSION",
+        "GATE-HTTP-CONTRACT-INTEGRATION"
+      ]
+    },
+    {
+      "id": "CAP-LOCAL-AUTH-SPA",
+      "version": "1.0.0",
+      "name": "Local authentication SPA",
+      "description": "Local authentication SPA for isolated development and CI; production excluded.",
+      "gate_ids": [
+        "GATE-LOCAL-SPA"
+      ]
+    },
+    {
+      "id": "CAP-TENANT-AUTHORIZATION",
+      "version": "1.0.0",
+      "name": "Live tenant authorization",
+      "description": "Live tenant authorization for isolated development and CI; production excluded.",
+      "gate_ids": [
+        "GATE-TENANT-AUTHORIZATION"
+      ]
+    },
+    {
+      "id": "CAP-SECURITY-CONFIG-AUDIT",
+      "version": "1.0.0",
+      "name": "Security configuration and audit",
+      "description": "Security configuration and audit for isolated development and CI; production excluded.",
+      "gate_ids": [
+        "GATE-SECURITY-CONFIG",
+        "GATE-SECURITY-AUDIT"
+      ]
+    }
   ],
   "profiles": [
-    {"id": "WEB-FASTAPI-REACT-KEYCLOAK-PG", "family_id": "FAM-WEB-SYSTEM", "profile_scope": "system", "lifecycle": "active", "path": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG"},
-    {"id": "WEB-REACT-VITE-STATIC", "family_id": "FAM-WEB-SPA-STATIC", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/WEB-REACT-VITE-STATIC"},
-    {"id": "WEB-ANGULAR-STATIC", "family_id": "FAM-WEB-SPA-STATIC", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/WEB-ANGULAR-STATIC"},
-    {"id": "API-FASTAPI-STATELESS-OCI", "family_id": "FAM-API-SERVICE", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/API-FASTAPI-STATELESS-OCI"},
-    {"id": "API-FASTAPI-KEYCLOAK-PG-OCI", "family_id": "FAM-API-SERVICE", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI"},
-    {"id": "API-FASTAPI-ENTRA-PG-OCI", "family_id": "FAM-API-SERVICE", "profile_scope": "deployable", "lifecycle": "candidate", "path": "profiles/API-FASTAPI-ENTRA-PG-OCI"},
-    {"id": "WEB-REACT-VITE-ENTRA-STATIC", "family_id": "FAM-WEB-SPA-STATIC", "profile_scope": "deployable", "lifecycle": "candidate", "path": "profiles/WEB-REACT-VITE-ENTRA-STATIC"},
-    {"id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI", "family_id": "FAM-API-SERVICE", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI"},
-    {"id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC", "family_id": "FAM-WEB-SPA-STATIC", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC"},
-    {"id": "WEB-NEXTJS-SSR-NODE", "family_id": "FAM-WEB-SSR", "profile_scope": "deployable", "lifecycle": "active", "path": "profiles/WEB-NEXTJS-SSR-NODE"},
-    {"id": "WEB-ANGULAR-SSR-NODE", "family_id": "FAM-WEB-SSR", "profile_scope": "deployable", "lifecycle": "candidate", "path": "profiles/WEB-ANGULAR-SSR-NODE"},
-    {"id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG", "family_id": "FAM-WEB-SYSTEM", "profile_scope": "system", "lifecycle": "candidate", "path": "profiles/SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG"},
-    {"id": "MSG-PYTHON-RABBITMQ-WORKER-OCI", "family_id": "FAM-MSG-WORKER", "profile_scope": "deployable", "lifecycle": "candidate", "path": "profiles/MSG-PYTHON-RABBITMQ-WORKER-OCI"},
-    {"id": "STR-PYTHON-KAFKA-PROCESSOR-OCI", "family_id": "FAM-STR-PROCESSOR", "profile_scope": "deployable", "lifecycle": "candidate", "path": "profiles/STR-PYTHON-KAFKA-PROCESSOR-OCI"}
+    {
+      "id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+      "family_id": "FAM-WEB-SYSTEM",
+      "profile_scope": "system",
+      "lifecycle": "active",
+      "path": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG"
+    },
+    {
+      "id": "WEB-REACT-VITE-STATIC",
+      "family_id": "FAM-WEB-SPA-STATIC",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/WEB-REACT-VITE-STATIC"
+    },
+    {
+      "id": "WEB-ANGULAR-STATIC",
+      "family_id": "FAM-WEB-SPA-STATIC",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/WEB-ANGULAR-STATIC"
+    },
+    {
+      "id": "API-FASTAPI-STATELESS-OCI",
+      "family_id": "FAM-API-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/API-FASTAPI-STATELESS-OCI"
+    },
+    {
+      "id": "API-FASTAPI-KEYCLOAK-PG-OCI",
+      "family_id": "FAM-API-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI"
+    },
+    {
+      "id": "API-FASTAPI-ENTRA-PG-OCI",
+      "family_id": "FAM-API-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/API-FASTAPI-ENTRA-PG-OCI"
+    },
+    {
+      "id": "WEB-REACT-VITE-ENTRA-STATIC",
+      "family_id": "FAM-WEB-SPA-STATIC",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/WEB-REACT-VITE-ENTRA-STATIC"
+    },
+    {
+      "id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+      "family_id": "FAM-API-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI"
+    },
+    {
+      "id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+      "family_id": "FAM-WEB-SPA-STATIC",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC"
+    },
+    {
+      "id": "WEB-NEXTJS-SSR-NODE",
+      "family_id": "FAM-WEB-SSR",
+      "profile_scope": "deployable",
+      "lifecycle": "active",
+      "path": "profiles/WEB-NEXTJS-SSR-NODE"
+    },
+    {
+      "id": "WEB-ANGULAR-SSR-NODE",
+      "family_id": "FAM-WEB-SSR",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/WEB-ANGULAR-SSR-NODE"
+    },
+    {
+      "id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
+      "family_id": "FAM-WEB-SYSTEM",
+      "profile_scope": "system",
+      "lifecycle": "candidate",
+      "path": "profiles/SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG"
+    },
+    {
+      "id": "MSG-PYTHON-RABBITMQ-WORKER-OCI",
+      "family_id": "FAM-MSG-WORKER",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/MSG-PYTHON-RABBITMQ-WORKER-OCI"
+    },
+    {
+      "id": "STR-PYTHON-KAFKA-PROCESSOR-OCI",
+      "family_id": "FAM-STR-PROCESSOR",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/STR-PYTHON-KAFKA-PROCESSOR-OCI"
+    },
+    {
+      "id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313",
+      "family_id": "FAM-API-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313"
+    },
+    {
+      "id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59",
+      "family_id": "FAM-WEB-SPA-STATIC",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59"
+    },
+    {
+      "id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
+      "family_id": "FAM-WEB-SYSTEM",
+      "profile_scope": "system",
+      "lifecycle": "candidate",
+      "path": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59"
+    },
+    {
+      "id": "JOB-ALEMBIC-PG-OCI-PY313",
+      "family_id": "FAM-MIGRATION-JOB",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/JOB-ALEMBIC-PG-OCI-PY313"
+    },
+    {
+      "id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+      "family_id": "FAM-API-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314"
+    },
+    {
+      "id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60",
+      "family_id": "FAM-WEB-SPA-STATIC",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60"
+    },
+    {
+      "id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60",
+      "family_id": "FAM-WEB-SYSTEM",
+      "profile_scope": "system",
+      "lifecycle": "candidate",
+      "path": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60"
+    },
+    {
+      "id": "JOB-ALEMBIC-PG-OCI-PY314",
+      "family_id": "FAM-MIGRATION-JOB",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/JOB-ALEMBIC-PG-OCI-PY314"
+    },
+    {
+      "id": "DATA-POSTGRES-OCI-PG18",
+      "family_id": "FAM-DATA-SERVICE",
+      "profile_scope": "deployable",
+      "lifecycle": "candidate",
+      "path": "profiles/DATA-POSTGRES-OCI-PG18"
+    }
   ]
 }

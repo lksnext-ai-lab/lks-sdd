@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "contracts": [
+    {
+      "id": "API-FASTAPI-LOCAL-AUTH-PG-OCI",
+      "selectable": false,
+      "profile_ids": [
+        "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313",
+        "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314"
+      ]
+    },
+    {
+      "id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC",
+      "selectable": false,
+      "profile_ids": [
+        "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59",
+        "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60"
+      ]
+    },
+    {
+      "id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG",
+      "selectable": false,
+      "profile_ids": [
+        "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
+        "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60"
+      ]
+    },
+    {
+      "id": "JOB-ALEMBIC-PG-OCI",
+      "selectable": false,
+      "profile_ids": [
+        "JOB-ALEMBIC-PG-OCI-PY313",
+        "JOB-ALEMBIC-PG-OCI-PY314"
+      ]
+    },
+    {
+      "id": "DATA-POSTGRES-OCI",
+      "selectable": false,
+      "profile_ids": [
+        "DATA-POSTGRES-OCI-PG18"
+      ]
+    }
+  ]
+}
