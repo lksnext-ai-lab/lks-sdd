@@ -72,15 +72,15 @@ Publicar el ZIP de marketplace como asset de GitHub no actualiza una instalació
 1. Descargar o copiar el ZIP de marketplace publicado y verificarlo contra `SHA256SUMS`, `release-manifest.json` y `quality-report.json`.
 2. Extraerlo en una carpeta controlada y comprobar `.agents/plugins/marketplace.json` y `plugins/lks-sdd/.codex-plugin/plugin.json`.
 3. Consultar `codex plugin marketplace --help` en la versión instalada. El CLI 0.125.0 comprobado para esta release admite `add`, `upgrade` y `remove`; no ofrece subcomandos CLI de instalación, reinstalación, activación o desactivación del plugin.
-4. Para un marketplace ya configurado, actualizar su fuente de forma controlada y ejecutar, si la versión instalada lo soporta, `codex plugin marketplace upgrade lks-sdd-development`. Para un alta inicial, usar `codex plugin marketplace add "RUTA_MARKETPLACE"` y completar la activación en la superficie de Codex disponible.
+4. Para esta fuente local no Git, conservar la carpeta 0.17.0 y registrar su ruta para rollback; ejecutar `codex plugin marketplace remove lks-sdd-development` y `codex plugin marketplace add "RAÍZ_0.18.0_VERIFICADA"`. No usar `upgrade` para esta fuente. Para un alta inicial basta `add`; completar la activación en la superficie de Codex disponible.
 5. Confirmar que Codex resuelve la nueva versión, reiniciar la aplicación y abrir una tarea nueva para cargar sus metadatos y skills.
 
 El bundle 0.18.0 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. Para probar interoperabilidad Entra debe aportar por separado un tenant y registros de aplicación autorizados, sin persistir credenciales en el bundle. Esa preparación no forma parte del builder ni puede darse por superada mediante un test sintético. Sin Rovo, `repository-only` sigue completo; los perfiles Entra continúan candidate, `unsupported` y con interoperabilidad real `not-run`. El perfil full-stack 2.1 está active con certificación Docker exacta. Los perfiles OIDC simulados certificados son exclusivamente no productivos, declaran `external_interoperability: not-applicable` y fallan cerrados en producción.
 
-No edite manualmente la caché como mecanismo de actualización. La instalación o activación modifica el entorno Codex del participante, no se automatiza desde este repositorio y requiere autorización separada de la publicación técnica.
+No edite manualmente la caché como mecanismo de actualización. La instalación o activación modifica el entorno Codex del participante y exige autorización; el plan aprobado de 0.18.0 incluye expresamente este marketplace personal. No autoriza otros marketplaces ni configuración global ajena a LKS-SDD. Si falla registro o carga, restaurar la fuente 0.17.0 con el mismo remove/add y comprobarla.
 
 ## Retirada
 
 Siga `pilot/ROLLBACK.md`. Retirar el plugin no autoriza a revertir automáticamente documentación o código consumidor, borrar evidencia ni mover etiquetas Git.
 
-La prueba de instalación 0.16 se realiza contra un marketplace y un directorio de configuración temporales. Debe validar manifest, seis skills, schemas, perfiles, fixtures y scripts desde el bundle extraído; nunca se usa la caché activa como área de ensayo.
+La prueba de instalación 0.18 se realiza contra un marketplace y un directorio de configuración temporales. Debe validar manifest, seis skills, schemas, perfiles, fixtures y scripts desde el bundle extraído; nunca se usa la caché activa como área de ensayo.

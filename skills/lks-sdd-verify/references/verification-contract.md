@@ -52,7 +52,7 @@ La evidencia canónica registra el SHA-256 del JSON, baseline, árbol de fuentes
 
 Los scopes de evidencia son cerrados y compartidos: `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`. No forman una jerarquía implícita ni se deducen del nombre del comando. Cada check declara los scopes que realmente observa y los `INT-###` que cubre. Un check `component` o `visual` no satisface criterios `composition`, `user-flow` o `persistence`.
 
-Una interfaz confirmada activa `GATE-BROWSER-FULLSTACK-E2E` solo para su TASK propietaria. La evidencia 1.3 debe declarar la aplicabilidad exacta, unidades y bindings, `PROFILE@version`, operaciones y scopes requeridos. El gate usa una composición cerrada certificada y registra navegador/viewport, unidades arrancadas, requests reales versionadas, mutación iniciada en UI, respuesta/correlación saneada, lectura posterior, recarga, persistencia, capturas con hash y errores de consola. Interceptar un endpoint funcional bajo `/api/v1` invalida los scopes conjuntos; un doble de identidad expresamente autorizado permanece separado en `mocks`. Si la composición exacta no está certificada, el resultado es `automation_support=unsupported`, no una combinación dinámica de capabilities.
+Una interfaz confirmada con flujo web activa `GATE-BROWSER-FULLSTACK-E2E` solo para su TASK propietaria. Las tareas HTTP, PostgreSQL y migración usan sus gates específicos; una tarea aislada de base de datos no exige navegador. La evidencia 1.3 debe declarar la aplicabilidad exacta, unidades y bindings, `PROFILE@version`, operaciones y scopes requeridos. El gate usa una composición cerrada certificada y registra navegador/viewport, unidades arrancadas, requests reales del contrato declarado, mutación iniciada en UI, respuesta/correlación saneada, lectura posterior, recarga, persistencia, capturas con hash y errores de consola. Interceptar una operación funcional del contrato en cualquier ruta invalida los scopes conjuntos; un doble de identidad expresamente autorizado permanece separado en `mocks`. Si la composición exacta no está certificada, el resultado es `automation_support=unsupported`, no una combinación dinámica de capabilities.
 
 La evidencia histórica anterior se conserva byte por byte. Sus checks siguen acreditando los scopes de componente realmente demostrados, pero no pueden cerrar retrospectivamente una interfaz conjunta. `validate-project`, readiness y trazabilidad exponen `reconciliation-required`, identifican interfaz, TASK y EVID afectadas y recomiendan PROB/PCH o nueva ejecución; nunca reabren tareas ni cambian estados automáticamente.
 
@@ -72,7 +72,7 @@ Cuando todas las tareas registradas de una release están `done`, aún se exige 
 
 Use el dispatcher instalado y declare la fase de trazabilidad de forma explícita cuando la inferencia automática no sea apropiada:
 
-## Sujeto técnico, fichas y continuidad 0.17
+## Sujeto técnico, fichas y continuidad 0.18
 
 La reutilización se liga a `verification_subject_hash`, fingerprint contractual y revisión observada por separado. Incluye código, tests, migraciones, fixtures de ejecución, dependencias/locks, Docker/build, configuración del artefacto, scripts de entrega, perfiles/bindings, criterios y gates. Solo excluye outputs derivados demostrables como recibos, checkpoints administrativos y la evidencia de la propia ejecución. Un cambio exclusivamente excluido produce una attestación de continuidad; cualquier cambio incluido o duda invalida la reutilización.
 

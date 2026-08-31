@@ -18,7 +18,7 @@ Usa este workflow exclusivamente para incorporar un repositorio con aplicación 
 7. Solo entonces repite el mismo comando con `--apply --authorize --preview-hash <hash>`.
 8. Valida el proyecto materializado. La baseline 1.5 conserva la revisión observada en evidencia de adopción, pero deja `last_verified_revision: null`; inspección no equivale a verificación. El gobierno, unidades/bindings, `ART-PLANNING` y `ART-TRACKING` nacen como propuestas o pendientes. No inventes un modo de tracking, binding Jira, alcance de reporting, workflow mapping, tareas, cobertura completa, una política incremental, autorización, ejecución, checkpoint, recibo de sincronización ni evidencia. Después, las nuevas necesidades vuelven a definición y readiness; ningún cambio funcional pertenece a esta skill.
 
-La adopción 0.17 mantiene `schema_version: 1.5` y no materializa fichas de evidencia ni revisiones visuales: ambas se derivan únicamente de una verificación posterior. Registra interfaces multiunidad observadas como hechos `as-is` o propuestas pendientes de confirmación; no inventes un `INT-###` confirmado, propietario, composición soportada o evidencia conjunta a partir de imports, URLs o procesos que arrancan por separado. Si el repositorio ya contiene EVID anterior, consérvala inmutable y no la normalices; una afirmación conjunta que solo tenga checks de componente se reportará después como `reconciliation-required`.
+La adopción 0.18 mantiene `schema_version: 1.5` y no materializa fichas de evidencia ni revisiones visuales: ambas se derivan únicamente de una verificación posterior. Registra interfaces multiunidad observadas como hechos `as-is` o propuestas pendientes de confirmación; no inventes un `INT-###` confirmado, propietario, composición soportada o evidencia conjunta a partir de imports, URLs o procesos que arrancan por separado. Si el repositorio ya contiene EVID anterior, consérvala inmutable y no la normalices; una afirmación conjunta que solo tenga checks de componente se reportará después como `reconciliation-required`.
 
 ## Límites no negociables
 
@@ -29,3 +29,5 @@ La adopción 0.17 mantiene `schema_version: 1.5` y no materializa fichas de evid
 - La materialización solo puede añadir `.lks-sdd/` y `docs/lks-sdd/`.
 - No modifica código, datos, infraestructura, `README.md` ni `AGENTS.md`.
 - Una baseline adoptada es un punto de partida gobernable, no una homologación o verificación.
+
+Para contrastar versiones y preparar verificación posterior, consulta [variantes y adopción](../../docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md). La inspección distingue declarado, resuelto y verificado sin instalar dependencias. La preparación adoptada solo añade recursos de verificación con preview; no copia negocio del scaffold ni ejecuta provisión o migración sobre la aplicación.
