@@ -16,7 +16,7 @@ from delivery_engine import (
 )
 from evidence_contract import integration_gate_applicability, integration_evidence_errors
 from integration_contract import interface_policy, operation_matches
-from tests.test_fullstack_integration_contract_v017 import delivery, fullstack_check
+from test_fullstack_integration_contract_v017 import delivery, fullstack_check
 
 
 def table(headers, rows):

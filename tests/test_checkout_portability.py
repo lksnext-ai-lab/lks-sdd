@@ -58,7 +58,7 @@ class CheckoutPortabilityTests(unittest.TestCase):
 
     def test_hash_locked_files_remain_lf_with_autocrlf_checkout(self) -> None:
         with tempfile.TemporaryDirectory(
-            prefix="lks-sdd-autocrlf-checkout-"
+            prefix="lks-eol-"
         ) as directory:
             temporary = Path(directory).resolve()
             source = temporary / "source"

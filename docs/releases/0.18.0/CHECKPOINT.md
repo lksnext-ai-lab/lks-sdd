@@ -186,3 +186,24 @@ Pendientes: revisar/confirmar evidencia, PR y CI; integrar; harness final y dobl
 build; workflow de tag y prerelease privada; descargar/verificar cinco assets;
 marketplace local y activación tras reinicio. El estado de rollback 0.17.0 está
 guardado fuera del repositorio y el marketplace aún no se ha modificado.
+
+## CKPT-018-008 — correcciones de la primera ejecución de CI
+
+Fecha: 2026-08-31. PR #1 abierta. El primer CI falló y no se integró.
+El diagnóstico identificó un runtime que todavía declaraba 0.17.0, una
+importación de test incompatible con el runner, una sustitución histórica
+ligada a la versión anterior y una carpeta temporal que alcanzaba el límite
+de ruta de Windows. Se corrigieron esos cuatro puntos sin cambiar el motor,
+los perfiles, los límites temporales ni las certificaciones.
+
+El runner conserva ahora el detalle saneado de cada fallo, lo muestra al
+producirse y mantiene el resultado bloqueado si un módulo termina con error.
+La repetición dirigida pasa: procedencia histórica (1 caso), shard rápido
+(7 casos, 29,013 s dentro de 60 s), integraciones y clonación (12 casos).
+La primera ejecución diagnóstica completa se conserva como fallida; no es
+evidencia publicable. El shard rápido había agotado 60 s durante esa ejecución
+concurrente y su repetición aislada confirma el resultado dentro del presupuesto.
+El validador de contrato sigue aceptando las 17 certificaciones exactas.
+
+Pendiente inmediato: actualizar la PR, exigir CI correcto y continuar el cierre
+H5/H6 sobre el SHA final de main. No se ha publicado ni cambiado el marketplace.

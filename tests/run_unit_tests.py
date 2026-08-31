@@ -27,6 +27,7 @@ from quality_execution import (  # noqa: E402
     run_managed_command,
     runner_fingerprint,
 )
+from evidence_safety import sanitize  # noqa: E402
 
 
 PROGRESS_STREAM = sys.stderr
@@ -108,6 +109,8 @@ class JsonTestResult(unittest.TextTestResult):
         outcome: dict[str, Any] = {**self._identity(test), "status": status}
         if reason:
             outcome["reason"] = reason
+            if status == "failed":
+                print(f"FAIL {test.id()}: {reason}", file=PROGRESS_STREAM, flush=True)
         self.outcomes.append(outcome)
         self._outcome_by_id[test.id()] = outcome
 
@@ -121,11 +124,11 @@ class JsonTestResult(unittest.TextTestResult):
 
     def addFailure(self, test: unittest.case.TestCase, err: Any) -> None:  # noqa: N802
         super().addFailure(test, err)
-        self._record(test, "failed", self._exc_info_to_string(err, test).splitlines()[-1])
+        self._record(test, "failed", sanitize(self._exc_info_to_string(err, test).strip())[0])
 
     def addError(self, test: unittest.case.TestCase, err: Any) -> None:  # noqa: N802
         super().addError(test, err)
-        self._record(test, "failed", self._exc_info_to_string(err, test).splitlines()[-1])
+        self._record(test, "failed", sanitize(self._exc_info_to_string(err, test).strip())[0])
 
     def addExpectedFailure(  # noqa: N802
         self, test: unittest.case.TestCase, err: Any
@@ -266,7 +269,7 @@ def _run_parent(
             reason = "module-invalid-json"
         module_results = (
             parsed.get("results", [])
-            if reason is None and isinstance(parsed.get("results"), list)
+            if not managed.timed_out and isinstance(parsed, dict) and isinstance(parsed.get("results"), list)
             else _failure_results(module, expected_ids, reason or "module-failed")
         )
         module_payload = {
@@ -334,7 +337,7 @@ def _run_parent(
         performance = performance_assessment(
             actual, load_performance_policy(), fingerprint
         )
-    passed = counts["failed"] == 0 and (
+    passed = counts["failed"] == 0 and all(item["status"] == "passed" for item in modules) and (
         performance is None or performance["status"] == "passed"
     )
     if counts["failed"] == 0 and performance and performance["status"] == "failed":
