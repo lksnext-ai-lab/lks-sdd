@@ -1,0 +1,6 @@
+.git
+.runtime
+.lks-sdd
+node_modules
+dist
+*.env

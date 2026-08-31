@@ -1,0 +1,70 @@
+{
+  "images": {
+    "nginx": "nginx:1.29.1-alpine@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8",
+    "node": "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "playwright": "mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e",
+    "postgresql": "postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636",
+    "python": "python:3.13.15-slim@sha256:7ce4b6dfe35e55397b7cda544f8a13f191b7ae28dc5aad71fe664dbc9bc2623f"
+  },
+  "lock_input_hashes": {
+    ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+    "Dockerfile": "5ce3377f1bbe68a3725c8652286f6d6c320f571bac38e6e38c26fd03fe0c02a1",
+    "pyproject.toml": "4cf24299e8f51ee4a42a7ff486b8812f99097be9b7bed9c17f0044d219c8f72d",
+    "requirements.lock": "716fdf9e7b027f71708f08d03ea95af376bf6e797d8d83fbf58ddd43f1100b6f",
+    "requirements.txt": "ea804e325836bc1c2267bf5e1b6d90c6c08e18f5fc1d3a954ca1e5fbfa4f351a",
+    "uv.lock": "b2c223e2e6b5ae7d5cf23b9d6432c30d87745c7fc8b2ebd17fe810a748b08c6b"
+  },
+  "packages": {
+    "python:alembic": "1.17.2",
+    "python:annotated-doc": "0.0.5",
+    "python:annotated-types": "0.8.0",
+    "python:anyio": "4.14.2",
+    "python:argon2-cffi": "25.1.0",
+    "python:argon2-cffi-bindings": "26.1.0",
+    "python:ast-serialize": "0.8.0",
+    "python:certifi": "2026.7.22",
+    "python:cffi": "2.1.1",
+    "python:click": "8.5.0",
+    "python:colorama": "0.4.6",
+    "python:fastapi": "0.125.0",
+    "python:greenlet": "3.5.5",
+    "python:h11": "0.16.0",
+    "python:httpcore": "1.0.9",
+    "python:httpx": "0.28.1",
+    "python:idna": "3.19",
+    "python:iniconfig": "2.3.0",
+    "python:librt": "0.15.0",
+    "python:mako": "1.4.1",
+    "python:markupsafe": "3.0.3",
+    "python:mypy": "2.3.1",
+    "python:mypy-extensions": "1.1.0",
+    "python:packaging": "26.3",
+    "python:pathspec": "1.1.1",
+    "python:pluggy": "1.6.0",
+    "python:psycopg": "3.3.2",
+    "python:psycopg-binary": "3.3.2",
+    "python:pycparser": "3.0",
+    "python:pydantic": "2.13.5",
+    "python:pydantic-core": "2.46.5",
+    "python:pygments": "2.21.0",
+    "python:pyjwt": "2.10.1",
+    "python:pytest": "9.1.1",
+    "python:ruff": "0.16.3",
+    "python:sqlalchemy": "2.0.45",
+    "python:starlette": "0.50.0",
+    "python:typing-extensions": "4.16.0",
+    "python:typing-inspection": "0.4.4",
+    "python:tzdata": "2026.3",
+    "python:uvicorn": "0.38.0"
+  },
+  "profile_id": "JOB-ALEMBIC-PG-OCI-PY313",
+  "runtime_verified": {},
+  "runtimes": {
+    "python": "3.13.15"
+  },
+  "schema_version": "1.0",
+  "status": "resolved-not-certified",
+  "tools": {
+    "pip": "26.2.1"
+  }
+}

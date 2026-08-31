@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-SCAFFOLD-INTEGRITY"
+  ],
+  "duration_seconds": 0.367,
+  "exit_code": 0,
+  "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "scaffold-integrity",
+  "observations": {
+    "profile": "DATA-POSTGRES-OCI-PG18",
+    "role": "database"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-SCAFFOLD-INTEGRITY\", \"observations\": {\"profile\": \"DATA-POSTGRES-OCI-PG18\", \"role\": \"database\"}, \"status\": \"passed\"}\n"
+}

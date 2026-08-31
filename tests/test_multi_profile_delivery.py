@@ -111,7 +111,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             for item in catalog["profiles"]
             if item["lifecycle"] == "candidate"
         }
-        self.assertEqual(len(active), 8)
+        self.assertEqual(len(active), 17)
         self.assertIn("WEB-FASTAPI-REACT-KEYCLOAK-PG", active)
         self.assertEqual(len(candidate), 6)
 

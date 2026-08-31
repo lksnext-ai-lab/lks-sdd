@@ -13,6 +13,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
 
+from integration_contract import interface_policy
+
 
 DELIVERY_MODELS = {
     "bounded-release",
@@ -121,6 +123,10 @@ ARCHITECTURE_HEADERS = (
     "Data ownership",
     "Requirements",
     "Profile binding",
+)
+EXTERNAL_INTEGRATION_HEADERS = (
+    "ID", "State", "System", "Purpose", "Contract", "Authentication",
+    "Failure handling", "Requirements",
 )
 INTEGRATION_INTERFACE_HEADERS = (
     "Interface",
@@ -670,6 +676,10 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     interface_rows = _table_rows(
         integration_tables, INTEGRATION_INTERFACE_HEADERS
     )
+    external_rows = _table_rows(integration_tables, EXTERNAL_INTEGRATION_HEADERS)
+    external_integrations = {
+        row.get("ID", ""): row for row in external_rows if row.get("ID")
+    }
 
     governance = {row.get("ID", ""): row for row in governance_rows if row.get("ID")}
     environments = {row.get("ID", ""): row for row in environment_rows if row.get("ID")}
@@ -696,9 +706,12 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         ("tareas", task_rows, tasks),
         ("unidades", unit_rows, units),
         ("interfaces", interface_rows, interfaces),
+        ("integraciones externas", external_rows, external_integrations),
     ):
         if len(rows) != len(values):
             errors.append(f"Hay identificadores duplicados o vacíos en {label}.")
+    for identifier in sorted(set(interfaces) & set(external_integrations)):
+        errors.append(f"{identifier}: identificador duplicado entre integración externa e interfaz interna.")
 
     index_governance = manifest.get("delivery_governance", {})
     active_change = index_governance.get("active_change")
@@ -768,7 +781,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     for unit_id, unit in units.items():
         raw_interfaces = unit.get("Interfaces", "").strip()
         referenced = set(_ids(raw_interfaces, "INT"))
-        unknown = sorted(referenced - set(interfaces))
+        unknown = sorted(referenced - set(interfaces) - set(external_integrations))
         if unknown:
             errors.append(
                 f"{unit_id}: Interfaces referencia contratos inexistentes: "
@@ -835,9 +848,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
             for item in interface.get("Required evidence", "").split(",")
             if item.strip()
         }
-        required_scopes = {"contract", "composition", "user-flow"}
-        if "write" in operations:
-            required_scopes.add("persistence")
+        required_scopes = set(interface_policy(interface)["required_scopes"])
         if (
             not evidence_scopes
             or not evidence_scopes <= EVIDENCE_SCOPES
@@ -1149,6 +1160,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         "units": units,
         "bindings": bindings,
         "interfaces": interfaces,
+        "external_integrations": external_integrations,
         "integration_reconciliation": integration_reconciliation,
     }
 

@@ -1,0 +1,35 @@
+{
+  "certification_context": {
+    "certification_run_id": "5e7c69d9-8d81-4195-a899-70b5b5d7247e",
+    "profile_id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2d39e4e2a0b41719794a73ccaa9841cda262d02ec61b70af77d6bc12bbe07d3d",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "ebd379aa22b116fa0ca149657b3ceff72949aba7e12f3b3c41daf6384d7f4fbf",
+      "scaffold_sha256": "2af461578ac77bc2b8e6c42f9ba8330391b57f88747a198ace915f5c688a9fbd"
+    }
+  },
+  "command": [
+    "docker",
+    "compose",
+    "-f",
+    "infra/compose.yaml",
+    "up",
+    "-d",
+    "--wait"
+  ],
+  "duration_seconds": 24.457,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "oci-smoke",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": " Network lkssddgate257200a7cfaad_default Creating \n Network lkssddgate257200a7cfaad_default Created \n Volume lkssddgate257200a7cfaad_postgres-data Creating \n Volume lkssddgate257200a7cfaad_postgres-data Created \n Container lkssddgate257200a7cfaad-postgres-1 Creating \n Container lkssddgate257200a7cfaad-postgres-1 Created \n Container lkssddgate257200a7cfaad-api-1 Creating \n Container lkssddgate257200a7cfaad-api-1 Created \n Container lkssddgate257200a7cfaad-postgres-1 Starting \n Container lkssddgate257200a7cfaad-postgres-1 Started \n Container lkssddgate257200a7cfaad-postgres-1 Waiting \n Container lkssddgate257200a7cfaad-postgres-1 Healthy \n Container lkssddgate257200a7cfaad-api-1 Starting \n Container lkssddgate257200a7cfaad-api-1 Started \n Container lkssddgate257200a7cfaad-postgres-1 Waiting \n Container lkssddgate257200a7cfaad-api-1 Waiting \n Container lkssddgate257200a7cfaad-postgres-1 Healthy \n Container lkssddgate257200a7cfaad-api-1 Healthy \n",
+  "stdout_tail": ""
+}

@@ -1,0 +1,26 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-SECURITY-AUDIT"
+  ],
+  "duration_seconds": 12.006,
+  "exit_code": 0,
+  "gate_id": "GATE-SECURITY-AUDIT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "security-audit",
+  "observations": {
+    "observer": "pytest-real-postgresql",
+    "result": ".                                                                        [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/fastapi/testclient.py:1\n  /app/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+    "selection": "validation_and_audit"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-SECURITY-AUDIT\", \"observations\": {\"observer\": \"pytest-real-postgresql\", \"selection\": \"validation_and_audit\", \"result\": \".                                                                        [100%]\\n=============================== warnings summary ===============================\\n.venv/lib/python3.14/site-packages/fastapi/testclient.py:1\\n  /app/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\\n    from starlette.testclient import TestClient as TestClient  # noqa\\n\\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\\n\"}, \"status\": \"passed\"}\n"
+}

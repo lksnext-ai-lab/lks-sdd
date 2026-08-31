@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.18.0 — 2026-08-31 — autenticación local y variantes certificadas
+
+- Conserva schema 1.5/método 1.5.0, seis skills, invocación implícita y M0–M5.
+- Repara las tablas externas/internas de ART-INTEGRATIONS sin renumerar IDs.
+- Añade cinco contratos y nueve variantes exactas para API, SPA, PostgreSQL,
+  Alembic y sistema con autenticación local. Su soporte exige certificación vigente.
+- Separa diagnóstico tecnológico, preparación nueva y adopción sin sobrescritura.
+- Enlaza composición con todos los participantes y evidencia con observaciones,
+  hashes y motor semántico; añade negativos y saneamiento previo a persistencia.
+- Usa 0.17.0 publicada y verificada como baseline de regresión.
+- No certifica producción, cliente móvil nativo, MFA, federación, piloto ni canales
+  humanos no ejecutados. No modifica el SAT ni promueve los candidatos anteriores.
+
+Los diecisiete perfiles comprometidos tienen certificación exacta del motor
+actual. El SHA final, la elegibilidad y los assets de la prerelease se acreditan
+en `quality-report.json`, `release-manifest.json` y `SHA256SUMS`.
+
 ## 0.17.0 — 2026-08-31 — integración multiunidad fail-closed
 
 - Añade un contrato canónico aditivo `INT-###` con consumidor, productor, bindings, operaciones, scopes de evidencia, propietario, TASK conjunta y composición exacta.

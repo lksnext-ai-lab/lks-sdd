@@ -1,8 +1,9 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
+  "certification_run_id": "eb1953ac-67cd-4bb6-9e5e-74ca772ee068",
   "profile_id": "WEB-ANGULAR-STATIC",
   "profile_version": "1.0.0",
-  "certified_at": "2026-08-21",
+  "certified_at": "2026-08-31",
   "runtime": "docker",
   "containers_executed": true,
   "complete_gate": true,
@@ -11,7 +12,7 @@
   "driver_sha256": "2d189549a99736c8c552b24881cb8b6c2f3a5e6aa8e8a3f302149d9929e022f4",
   "scaffold_sha256": "e1664a4489a3c837330664690ef87afc86155ec0f1024c0b466710141b0e0826",
   "composition_digest": "934b95ece45caade3160e1101b6385b8914d3a63f01fbc186f09367317b9cbb6",
-  "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
+  "certification_engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
   "checks": [
     {
       "gate_id": "GATE-BROWSER-ACCESSIBILITY",
@@ -58,6 +59,74 @@
       "status": "passed"
     }
   ],
-  "result_sha256": "9beb14cb6d51c55304a7e3eb7a2344609db8dfe2e6f694fee28603c6d71b264f",
+  "evidence_manifest": [
+    {
+      "path": "certification-details/f6759bcaba63ac8d4a253da69a72c7e0fc57374834021121027fb3d7293ad7a5/GATE-SCAFFOLD-INTEGRITY.json",
+      "sha256": "f6759bcaba63ac8d4a253da69a72c7e0fc57374834021121027fb3d7293ad7a5",
+      "size": 1326,
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY"
+    },
+    {
+      "path": "certification-details/5ab47376271f3e9f3c563f83d57199e6fda662678546f1039ac90b0addd1fdac/GATE-FRONTEND-LOCK.json",
+      "sha256": "5ab47376271f3e9f3c563f83d57199e6fda662678546f1039ac90b0addd1fdac",
+      "size": 1648,
+      "gate_id": "GATE-FRONTEND-LOCK"
+    },
+    {
+      "path": "certification-details/c8a64c233d6ec7ce32ed301151d63882d74d7a53e7b1e846b030085065928302/GATE-FRONTEND-LINT.json",
+      "sha256": "c8a64c233d6ec7ce32ed301151d63882d74d7a53e7b1e846b030085065928302",
+      "size": 1547,
+      "gate_id": "GATE-FRONTEND-LINT"
+    },
+    {
+      "path": "certification-details/67ba551dc769c2b0c0163c2e692312f44b50886c7dda96c81141f75a84c8acec/GATE-FRONTEND-TYPECHECK.json",
+      "sha256": "67ba551dc769c2b0c0163c2e692312f44b50886c7dda96c81141f75a84c8acec",
+      "size": 1606,
+      "gate_id": "GATE-FRONTEND-TYPECHECK"
+    },
+    {
+      "path": "certification-details/4d4de23da3083b2031098e513257e58c286c7293031ff44ae2ac53fda1230cd3/GATE-FRONTEND-TEST.json",
+      "sha256": "4d4de23da3083b2031098e513257e58c286c7293031ff44ae2ac53fda1230cd3",
+      "size": 2222,
+      "gate_id": "GATE-FRONTEND-TEST"
+    },
+    {
+      "path": "certification-details/86185a102a288a0fb49505cef89dd8129a5b1836a4f652deed43283d8d9d671d/GATE-FRONTEND-BUILD.json",
+      "sha256": "86185a102a288a0fb49505cef89dd8129a5b1836a4f652deed43283d8d9d671d",
+      "size": 2135,
+      "gate_id": "GATE-FRONTEND-BUILD"
+    },
+    {
+      "path": "certification-details/aab63b5acfcd2b2cb593732e6bdc906030cdaf96e5e7f9f71f3fb711b4e05f31/GATE-STATIC-OUTPUT.json",
+      "sha256": "aab63b5acfcd2b2cb593732e6bdc906030cdaf96e5e7f9f71f3fb711b4e05f31",
+      "size": 1366,
+      "gate_id": "GATE-STATIC-OUTPUT"
+    },
+    {
+      "path": "certification-details/7219f59605b44fe70b92d5b3590a1c87feddb7cc4fbd0d68fbf846322139138e/GATE-BROWSER-SMOKE.json",
+      "sha256": "7219f59605b44fe70b92d5b3590a1c87feddb7cc4fbd0d68fbf846322139138e",
+      "size": 1677,
+      "gate_id": "GATE-BROWSER-SMOKE"
+    },
+    {
+      "path": "certification-details/26b32aef1ab23ed7fbf277da1b3148f28792b109e4d70e34460a93ba9f493626/GATE-BROWSER-ACCESSIBILITY.json",
+      "sha256": "26b32aef1ab23ed7fbf277da1b3148f28792b109e4d70e34460a93ba9f493626",
+      "size": 1720,
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY"
+    },
+    {
+      "path": "certification-details/89b79b923a3e08b76034d4464cf185ecfbd2bbd1cc46d756c8561be2ff98f4d9/GATE-DELIVERY-EVIDENCE.json",
+      "sha256": "89b79b923a3e08b76034d4464cf185ecfbd2bbd1cc46d756c8561be2ff98f4d9",
+      "size": 735,
+      "gate_id": "GATE-DELIVERY-EVIDENCE"
+    },
+    {
+      "path": "certification-details/558f684e69c61936ded65abb50c155ed7c0fd3679f7e9f70340cce9b1867fde6/GATE-COMPOSE-ANGULAR-STATIC.json",
+      "sha256": "558f684e69c61936ded65abb50c155ed7c0fd3679f7e9f70340cce9b1867fde6",
+      "size": 1546,
+      "gate_id": "GATE-COMPOSE-ANGULAR-STATIC"
+    }
+  ],
+  "result_sha256": "31f0af8c880440b87bd753e659b472733b0e2323da93263e2774f0e5917b484b",
   "command": "python scripts/run_reference_profile_gate.py --profile WEB-ANGULAR-STATIC --runtime docker --containers --record-certification"
 }

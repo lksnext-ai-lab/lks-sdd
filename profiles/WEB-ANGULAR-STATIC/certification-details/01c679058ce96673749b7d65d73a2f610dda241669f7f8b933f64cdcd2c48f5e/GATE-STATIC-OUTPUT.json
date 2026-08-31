@@ -1,0 +1,25 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-angular-static-a_sqt00l/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'from pathlib import Path; p=Path('\"'\"'dist/lks-sdd-angular/browser/index.html'\"'\"'); assert p.is_file(); assert not any(Path('\"'\"'dist'\"'\"').rglob('\"'\"'*.map'\"'\"'))'"
+  ],
+  "duration_seconds": 2.572,
+  "exit_code": 0,
+  "gate_id": "GATE-STATIC-OUTPUT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "static-output",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

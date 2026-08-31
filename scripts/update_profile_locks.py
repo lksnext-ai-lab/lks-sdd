@@ -21,7 +21,16 @@ from profile_registry import (
 )
 
 
-def _components(profile: dict[str, Any]) -> list[dict[str, Any]]:
+def _components(profile: dict[str, Any], driver: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    if driver and driver.get("variant"):
+        resolution = json.loads((PLUGIN_ROOT / driver["variant"]["resolution"]).read_text(encoding="utf-8"))
+        values = []
+        for section in ("packages", "runtimes", "tools", "images"):
+            for name, version in sorted(resolution.get(section, {}).items()):
+                values.append({"name": name, "version": json.dumps(version) if isinstance(version, list) else version,
+                               "source": "resolved:" + section,
+                               "digest": "sha256:" + version.partition("@sha256:")[2] if section == "images" else None})
+        return values
     values: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
     for dimension, items in profile.get("dimensions", {}).items():
@@ -158,7 +167,7 @@ def build_lock(profile_id: str) -> dict[str, Any]:
         "driver_sha256": driver_hash,
         "scaffold_sha256": scaffold_hash,
         "capabilities": locked_caps,
-        "components": _components(profile),
+        "components": _components(profile, driver),
         "gates": locked_gates,
         "composition": {
             "gate_id": profile["gates"]["composition_gate_id"],

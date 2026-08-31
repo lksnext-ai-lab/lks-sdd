@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.17.0
+# Arquitectura y alcance de la versión 0.18.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.17.0 conserva las seis skills, la arquitectura multiperfil y el contrato de proyecto 1.5. Añade una interfaz canónica `INT-###` y un contrato EVID 1.3 que separa componente, contrato, composición, flujo, persistencia y visual. La aplicabilidad se deriva de la TASK propietaria y de tablas estructuradas, nunca de texto libre. `work verify` bloquea antes de escribir si un scope inferior intenta cerrar integración, si faltan bindings o si un endpoint de dominio fue simulado. La evidencia histórica permanece inmutable y puede requerir reconciliación sin perder sus checks de componente. El único contrato de proyecto soportado sigue siendo `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. `specs/canonical/` permanece intacto.
+La versión 0.18.0 conserva las seis skills, la arquitectura multiperfil y el contrato de proyecto 1.5. Añade una interfaz canónica `INT-###` y un contrato EVID 1.3 que separa componente, contrato, composición, flujo, persistencia y visual. La aplicabilidad se deriva de la TASK propietaria y de tablas estructuradas, nunca de texto libre. `work verify` bloquea antes de escribir si un scope inferior intenta cerrar integración, si faltan bindings o si un endpoint de dominio fue simulado. La evidencia histórica permanece inmutable y puede requerir reconciliación sin perder sus checks de componente. El único contrato de proyecto soportado sigue siendo `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. `specs/canonical/` permanece intacto.
 
 La ejecución de calidad se organiza en cuatro tiers mutuamente excluyentes (`fast`, `integration`, `package` y `profile`), con selección conservadora por impacto, procesos aislados, progreso visible y presupuestos bloqueantes. Docker `execute` es una fase separada; `all` compone los cuatro tiers sin duplicar tests.
 
@@ -130,8 +130,11 @@ La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps 
 
 ## Evolución posterior
 
-La versión SemVer `0.17.0` y el schema 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La promoción de cualquier candidate, incluido el perfil de sistema 2.1, debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate full-stack, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `0.18.0` y el schema 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La promoción de cualquier candidate, incluido el perfil de sistema 2.1, debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate full-stack, evals y certificación exacta antes de modificar su estado.
 
 ## Capa de experiencia 0.15
 
 `experience_engine.py` deriva una proyección humana sin modificar Markdown: management es compacta, developer añade diagnóstico e instrumentación y audit conserva el modelo completo. `work_task.py` orquesta las transacciones existentes como hitos compuestos; no es una vía alternativa a autorización, validación o rollback. `doctor_project.py` es un preflight mínimo y nunca ejecuta la suite interna. `verification_subject` separa entradas técnicas/contractuales de outputs administrativos derivados y falla cerrado ante rutas ambiguas.
+
+
+La ampliación de autenticación local, variantes y preparación de adopción se detalla en `docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md`. Los cinco contratos añaden nueve variantes; el catálogo contiene 23 perfiles. Cada soporte vigente requiere evidencia exacta del motor actual.

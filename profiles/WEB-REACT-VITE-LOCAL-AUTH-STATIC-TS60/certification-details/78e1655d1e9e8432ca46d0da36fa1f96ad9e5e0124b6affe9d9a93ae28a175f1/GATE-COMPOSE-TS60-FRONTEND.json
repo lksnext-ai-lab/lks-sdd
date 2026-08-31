@@ -1,0 +1,36 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-COMPOSE-TS60-FRONTEND"
+  ],
+  "duration_seconds": 0.634,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-TS60-FRONTEND",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "compose-ts60-frontend",
+  "observations": {
+    "observed_gates": [
+      "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-BROWSER-SMOKE",
+      "GATE-FRONTEND-BUILD",
+      "GATE-FRONTEND-LINT",
+      "GATE-FRONTEND-LOCK",
+      "GATE-FRONTEND-TEST",
+      "GATE-FRONTEND-TYPECHECK",
+      "GATE-LOCAL-SPA",
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-STATIC-OUTPUT"
+    ],
+    "profile": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-COMPOSE-TS60-FRONTEND\", \"observations\": {\"profile\": \"WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60\", \"observed_gates\": [\"GATE-BROWSER-ACCESSIBILITY\", \"GATE-BROWSER-SMOKE\", \"GATE-FRONTEND-BUILD\", \"GATE-FRONTEND-LINT\", \"GATE-FRONTEND-LOCK\", \"GATE-FRONTEND-TEST\", \"GATE-FRONTEND-TYPECHECK\", \"GATE-LOCAL-SPA\", \"GATE-SCAFFOLD-INTEGRITY\", \"GATE-STATIC-OUTPUT\"]}, \"status\": \"passed\"}\n"
+}

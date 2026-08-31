@@ -11,6 +11,11 @@ from typing import Any, Iterable
 from profile_registry import load_profile_bundle
 from contract_engine import expand_reference_ids
 from delivery_engine import EVIDENCE_SCOPES
+from evidence_safety import evidence_safety_errors
+from integration_contract import (
+    INTEGRATION_GATES, BROWSER_GATE, HTTP_GATE, POSTGRES_GATE, MIGRATION_GATE,
+    interface_policy, http_observation_errors,
+)
 
 
 VISUAL_GATE_ID = "GATE-VISUAL-BROWSER-REVIEW"
@@ -170,16 +175,17 @@ def integration_gate_applicability(
         bindings = sorted(
             expand_reference_ids(interface.get("Profile bindings", ""), {"BIND"})
         )
+        policy = interface_policy(interface)
         result.append(
             {
-                "gate_id": FULLSTACK_GATE_ID,
+                "gate_id": policy["gate_id"],
                 "status": "applicable",
                 "scope": "interface",
                 "interface_id": interface_id,
                 "task_ids": selected,
                 "unit_ids": units,
                 "binding_ids": bindings,
-                "required_evidence_scopes": scopes,
+                "required_evidence_scopes": sorted(set(scopes) | set(policy["required_scopes"])),
                 "operations": sorted(
                     {
                         item.strip().casefold()
@@ -188,6 +194,9 @@ def integration_gate_applicability(
                     }
                 ),
                 "exact_composition": interface.get("Exact composition"),
+                "observer": policy["observer"],
+                "contract": policy["contract"],
+                "http_operations": policy["http_operations"],
                 "reason": "confirmed-cross-unit-interface",
             }
         )
@@ -222,7 +231,7 @@ def integration_evidence_errors(
     applicable = [item for item in expected if item.get("status") == "applicable"]
     if not applicable:
         return []
-    errors: list[str] = []
+    errors: list[str] = evidence_safety_errors(evidence)
     checks = [
         item for item in evidence.get("checks", []) if isinstance(item, dict)
     ]
@@ -232,6 +241,41 @@ def integration_evidence_errors(
             errors.append(f"{check.get('name', 'check')}: evidence_scopes inválidos")
     for obligation in applicable:
         interface_id = str(obligation["interface_id"])
+        exact_id, _, exact_version = str(obligation.get("exact_composition", "")).partition("@")
+        exact_bundle = load_profile_bundle(exact_id)
+        if exact_bundle.driver.get("variant"):
+            material = evidence.get("build_identity_material", {})
+            compositions = material.get("compositions", []) if isinstance(material, dict) else []
+            candidates = [c for c in compositions if isinstance(c, dict) and c.get("profile_id") == exact_id and c.get("profile_version") == exact_version]
+            candidates = list({json.dumps(c, sort_keys=True): c for c in candidates}.values())
+            if len(candidates) != 1:
+                errors.append(f"{interface_id}: falta identidad exacta y única de la composición")
+            else:
+                value = candidates[0]
+                composition = value.get("material", {})
+                if not isinstance(composition, dict):
+                    errors.append(f"{interface_id}: material de composición inválido")
+                    continue
+                serialized = (json.dumps(composition, sort_keys=True, indent=2) + "\n").encode()
+                if value.get("sha256") != hashlib.sha256(serialized).hexdigest():
+                    errors.append(f"{interface_id}: digest de composición incorrecto")
+                expected_lock = hashlib.sha256((exact_bundle.root / "technology-profile.lock.json").read_bytes()).hexdigest()
+                if composition.get("profile_lock_sha256") != expected_lock or composition.get("profile") != obligation.get("exact_composition"):
+                    errors.append(f"{interface_id}: composición de otra revisión o variante")
+                members = composition.get("participants", [])
+                if not isinstance(members, list) or any(not isinstance(m, dict) for m in members):
+                    errors.append(f"{interface_id}: participantes inválidos")
+                    continue
+                required_members = exact_bundle.driver["variant"].get("participants", {})
+                if required_members and {m.get("role"): m.get("profile") for m in members} != required_members:
+                    errors.append(f"{interface_id}: participantes de otra composición")
+                for member in members:
+                    member_id, _, member_version = str(member.get("profile", "")).partition("@")
+                    participant = load_profile_bundle(member_id)
+                    if participant.root is None or participant.profile.get("version") != member_version or member.get("lock_sha256") != hashlib.sha256((participant.root / "technology-profile.lock.json").read_bytes()).hexdigest():
+                        errors.append(f"{interface_id}: lock de participante ajeno o modificado")
+                if required_members and {m.get("binding_id") for m in members} != set(obligation.get("binding_ids", [])):
+                    errors.append(f"{interface_id}: bindings no coinciden con los participantes")
         required = set(obligation.get("required_evidence_scopes", []))
         matching = [
             check
@@ -247,12 +291,11 @@ def integration_evidence_errors(
                 item
                 for item in mocked
                 if isinstance(item, dict)
-                and item.get("kind") == "domain-endpoint"
-                and str(item.get("path", "")).startswith("/api/v1")
+                and item.get("kind") != "identity-provider"
             ] if isinstance(mocked, list) else []
             if domain_mocks and scopes & {"composition", "user-flow", "persistence"}:
                 errors.append(
-                    f"{interface_id}: un mock funcional /api/v1 no acredita "
+                    f"{interface_id}: un mock funcional no acredita "
                     "composition, user-flow ni persistence"
                 )
                 continue
@@ -266,38 +309,40 @@ def integration_evidence_errors(
         fullstack = [
             check
             for check in matching
-            if check.get("gate_id") == FULLSTACK_GATE_ID
+            if check.get("gate_id") == obligation.get("gate_id")
         ]
         if not fullstack:
             errors.append(
-                f"{interface_id}: falta {FULLSTACK_GATE_ID} ejecutado y passed"
+                f"{interface_id}: falta {obligation.get('gate_id')} ejecutado y passed"
             )
             continue
         for check in fullstack:
             observations = check.get("observations")
-            required_observations = {
-                "runtime_units", "browser", "viewport", "requests", "mutation",
-                "read_back", "reload", "persistence", "screenshots",
-                "console_errors",
-            }
+            browser_required = obligation.get("gate_id") == BROWSER_GATE
+            http_required = obligation.get("gate_id") in {BROWSER_GATE, HTTP_GATE}
+            required_observations = {"runtime_units"}
+            if http_required:
+                required_observations.add("requests")
+            if browser_required:
+                required_observations.update({"browser", "viewport", "reload", "screenshots", "console_errors"})
+            if "persistence" in required:
+                required_observations.update({"mutation", "read_back", "persistence"})
             if not isinstance(observations, dict) or not required_observations <= set(observations):
                 errors.append(
                     f"{interface_id}: el gate full-stack no contiene observaciones estructuradas completas"
                 )
                 continue
-            requests = observations.get("requests")
-            if not isinstance(requests, list) or not any(
-                isinstance(item, dict)
-                and str(item.get("path", "")).startswith("/api/v1")
-                and item.get("method") in {"POST", "PUT", "PATCH", "DELETE"}
-                and isinstance(item.get("status"), int)
-                and 200 <= item["status"] < 300
-                for item in requests
+            if http_required:
+                errors.extend(f"{interface_id}: {message}" for message in http_observation_errors(observations, obligation))
+            else:
+                from integration_contract import resource_observation_errors
+                errors.extend(f"{interface_id}: {message}" for message in resource_observation_errors(observations, obligation))
+            if "persistence" in required:
+                from observation_contract import persistence_errors
+                errors.extend(f"{interface_id}: {message}" for message in persistence_errors(observations))
+            if (browser_required and observations.get("reload") is not True) or (
+                "persistence" in required and (observations.get("persistence") is not True or not observations.get("read_back"))
             ):
-                errors.append(
-                    f"{interface_id}: no se observó una mutación real contra /api/v1"
-                )
-            if observations.get("reload") is not True or observations.get("persistence") is not True:
                 errors.append(
                     f"{interface_id}: no se confirmó recarga y persistencia"
                 )
@@ -394,6 +439,10 @@ def evidence_profile_identity_errors(
         identities[binding_id] = (profile_id, profile_version)
         if manifest_binding.get("profile_id") != profile_id:
             errors.append(f"{binding_id}: profile_id diverge del manifest")
+        if load_profile_bundle(profile_id).driver.get("variant"):
+            for field in ("unit_id", "unit_path"):
+                if str(built_binding.get(field, "." if field == "unit_path" else "")) != str(manifest_binding.get(field, "." if field == "unit_path" else "")):
+                    errors.append(f"{binding_id}: {field} diverge del manifest")
         for label, lock in (("profile_locks", declared_lock), ("build_identity_material.locks", built_lock)):
             if lock.get("profile_id") != profile_id:
                 errors.append(f"{binding_id}: {label} diverge del profile_id del binding")
@@ -444,9 +493,7 @@ def evidence_gate_applicability_errors(
         (item for item in expected_values if item.get("gate_id") == VISUAL_GATE_ID),
         None,
     )
-    expected_integrations = [
-        item for item in expected_values if item.get("gate_id") == FULLSTACK_GATE_ID
-    ]
+    expected_integrations = [item for item in expected_values if item.get("gate_id") in INTEGRATION_GATES]
     visual = [item for item in values if isinstance(item, dict) and item.get("gate_id") == VISUAL_GATE_ID]
     if len(visual) != 1:
         return ["gate_applicability debe declarar exactamente una decisión visual"]
@@ -464,7 +511,7 @@ def evidence_gate_applicability_errors(
     if expected_visual.get("status") == "not-applicable" and visual_checks:
         return ["un gate visual no aplicable no debe aparecer como check ejecutado o not-run"]
     observed_integrations = [
-        item for item in values if isinstance(item, dict) and item.get("gate_id") == FULLSTACK_GATE_ID
+        item for item in values if isinstance(item, dict) and item.get("gate_id") in INTEGRATION_GATES
     ]
     if observed_integrations != expected_integrations:
         return ["gate_applicability de integración no coincide con el TASK slice"]

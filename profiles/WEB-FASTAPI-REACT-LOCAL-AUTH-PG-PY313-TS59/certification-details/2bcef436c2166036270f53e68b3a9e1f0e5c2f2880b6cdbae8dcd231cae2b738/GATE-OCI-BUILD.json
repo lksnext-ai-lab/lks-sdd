@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-OCI-BUILD"
+  ],
+  "duration_seconds": 1.823,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "oci-build",
+  "observations": {
+    "image_digest": "sha256:1291d9600cdeb295953d2dda14430b8b96988b1558c729ffabff7ecefd7d17c7"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-OCI-BUILD\", \"observations\": {\"image_digest\": \"sha256:1291d9600cdeb295953d2dda14430b8b96988b1558c729ffabff7ecefd7d17c7\"}, \"status\": \"passed\"}\n"
+}

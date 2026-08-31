@@ -37,6 +37,7 @@ test('real browser mutation survives reload through API and PostgreSQL', async (
   await page.getByLabel('Etiqueta').fill(label);
   await page.getByRole('button', { name: 'Guardar elemento' }).click();
   await expect(page.getByRole('listitem').filter({ hasText: label })).toBeVisible();
+  const recordId = await page.getByRole('listitem').filter({ hasText: label }).getAttribute('data-record-id');
   await page.screenshot({ path: after });
   await page.reload();
   await expect(page.getByRole('listitem').filter({ hasText: label })).toBeVisible();
@@ -52,10 +53,10 @@ test('real browser mutation survives reload through API and PostgreSQL', async (
       browser: browserName,
       viewport: page.viewportSize(),
       requests,
-      mutation: { action: 'Guardar elemento', label },
-      read_back: true,
+      mutation: { action: 'Guardar elemento', method: 'POST', path: '/api/v1/items', record_id: recordId, label },
+      read_back: false,
       reload: true,
-      persistence: true,
+      persistence: false,
       screenshots,
       console_errors: consoleErrors,
     },

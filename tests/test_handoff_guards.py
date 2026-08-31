@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -216,10 +217,11 @@ class VerificationEvidenceGuardsTests(unittest.TestCase):
                 artifact_path = root / artifact["path"]
                 text = artifact_path.read_text(encoding="utf-8")
                 artifact_path.write_text(
-                    text.replace(
-                        'created_with_plugin_version: "0.17.0"',
+                    re.sub(
+                        r'(?m)^created_with_plugin_version: "[0-9]+\.[0-9]+\.[0-9]+"$',
                         'created_with_plugin_version: "0.12.0"',
-                        1,
+                        text,
+                        count=1,
                     ),
                     encoding="utf-8",
                     newline="\n",

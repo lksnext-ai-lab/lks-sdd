@@ -2,6 +2,7 @@ name: quality
 
 env:
   LKS_SDD_RUNNER_CLASS: github-windows-latest
+  PYTHONDONTWRITEBYTECODE: "1"
 
 on:
   pull_request:
@@ -75,24 +76,38 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yyyy-MM-dd"
+          "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
           python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --preflight-only
       - name: Candidate harness
         shell: pwsh
         run: |
-          $date = Get-Date -Format "yyyy-MM-dd"
-          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --baseline quality\baselines\v0.13.0.json --profile-mode reuse --output "$env:RUNNER_TEMP\quality-report.json"
+          $date = $env:LKS_SDD_CERTIFICATION_DATE
+          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --baseline quality\baselines\v0.17.0.json --profile-mode reuse --output "$env:RUNNER_TEMP\quality-report.json"
       - name: Reproducible double build and clean install
         shell: pwsh
         run: |
-          $date = Get-Date -Format "yyyy-MM-dd"
+          $date = $env:LKS_SDD_CERTIFICATION_DATE
           $commit = (git rev-parse HEAD).Trim()
           python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-a"
           python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-b"
-          if (Compare-Object (Get-Content "$env:RUNNER_TEMP\candidate-a\SHA256SUMS") (Get-Content "$env:RUNNER_TEMP\candidate-b\SHA256SUMS")) { throw "Los builds no son reproducibles." }
+          $assets = @(Get-ChildItem "$env:RUNNER_TEMP\candidate-a" -File)
+          if ($assets.Count -ne 5 -or @(Get-ChildItem "$env:RUNNER_TEMP\candidate-b" -File).Count -ne 5) { throw "Inventario de assets incorrecto." }
+          foreach ($asset in $assets) {
+            $other = Join-Path "$env:RUNNER_TEMP\candidate-b" $asset.Name
+            if ((Get-FileHash -LiteralPath $asset.FullName).Hash -ne (Get-FileHash -LiteralPath $other).Hash) { throw "Asset no reproducible: $($asset.Name)" }
+          }
           $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
-          $install = "$env:RUNNER_TEMP\clean-install"
-          Expand-Archive "$env:RUNNER_TEMP\candidate-a\lks-sdd-plugin-v$version.zip" -DestinationPath $install
-          python -X utf8 "$install\lks-sdd\scripts\validate_plugin_contract.py" "$install\lks-sdd"
+          foreach ($build in @('candidate-a', 'candidate-b')) {
+            foreach ($kind in @('plugin', 'marketplace')) {
+              $install = "$env:RUNNER_TEMP\clean-install-$build-$kind"
+              Expand-Archive "$env:RUNNER_TEMP\$build\lks-sdd-$kind-v$version.zip" -DestinationPath $install
+              $validators = @(Get-ChildItem -LiteralPath $install -Filter validate_plugin_contract.py -File -Recurse)
+              if ($validators.Count -ne 1) { throw "Raíz de plugin ambigua." }
+              $pluginRoot = $validators[0].Directory.Parent.FullName
+              python -X utf8 $validators[0].FullName $pluginRoot
+              if ($LASTEXITCODE -ne 0) { throw "Bundle inválido: $build/$kind" }
+            }
+          }
       - uses: actions/upload-artifact@v4
         if: always()
         with:

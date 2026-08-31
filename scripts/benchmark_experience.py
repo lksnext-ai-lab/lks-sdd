@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure the public fast path and compare 0.15 with 0.16 evidence work."""
+"""Measure the current public fast path; retain historical workflow comparisons."""
 
 from __future__ import annotations
 
@@ -142,6 +142,8 @@ def main() -> int:
     )
     result = {
         "schema_version": "1.0",
+        "measured_plugin_version": json.loads((PLUGIN_ROOT / ".codex-plugin/plugin.json").read_text())["version"],
+        "release_regression_baseline": "0.17.0",
         "fixture": {
             "tasks": 13,
             "planning_relations": 420,
@@ -194,7 +196,7 @@ def main() -> int:
         },
         "validation_evidence_cycle": {
             "scenario": "one frontend TASK verification plus one administrative reporting refresh",
-            "measurement": "versioned logical-operation inventory with live 0.16 CLI timing",
+            "measurement": "historical logical-operation inventory; CLI timing belongs to measured_plugin_version",
             "versions": EVIDENCE_CYCLE,
             "reductions_percent": {
                 key: round(
@@ -213,7 +215,7 @@ def main() -> int:
                     "approximate_duration_minutes",
                 )
             },
-            "live_v016_status_median_ms": round(statistics.median(status_timings), 3),
+            "live_status_median_ms": round(statistics.median(status_timings), 3),
             "passed": all(
                 EVIDENCE_CYCLE["0.16.0"][key] <= EVIDENCE_CYCLE["0.15.0"][key]
                 for key in (

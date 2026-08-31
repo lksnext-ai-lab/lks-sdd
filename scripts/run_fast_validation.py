@@ -28,6 +28,19 @@ def _run(check_id: str, command: list[str], timeout: int) -> dict[str, Any]:
     )
     output = f"{process.stdout}\n{process.stderr}".strip()
     passed = process.returncode == 0 and not process.timed_out
+    detail = output[-4000:] if not passed else ""
+    if not passed:
+        try:
+            report = json.loads(process.stdout)
+        except (ValueError, TypeError):
+            report = None
+        if isinstance(report, dict):
+            failures = [
+                item for item in report.get("results", [])
+                if isinstance(item, dict) and item.get("status") == "failed"
+            ]
+            if failures:
+                detail = json.dumps(failures, ensure_ascii=False)
     return {
         "id": check_id,
         "status": "passed" if passed else "failed",
@@ -36,7 +49,7 @@ def _run(check_id: str, command: list[str], timeout: int) -> dict[str, Any]:
         "timeout_seconds": timeout,
         "termination": process.termination,
         "process_cleanup": process.process_cleanup,
-        "detail": output[-4000:] if not passed else "",
+        "detail": detail,
     }
 
 

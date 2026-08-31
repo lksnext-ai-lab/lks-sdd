@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "fa2bff84-10ce-4ea6-a2d8-ddc0d8333dc9",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-fastapi-react-keycloak-pg-353lhswb/reference-app:/work",
+    "-v",
+    "lkssddgate39384a7ca61bcnodeebd7bee7:/work/apps/frontend/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work/apps/frontend && npx --yes pnpm@10.34.5 build"
+  ],
+  "duration_seconds": 10.473,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "frontend-build",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\n> lks-sdd-reference-frontend@0.1.0 build /work/apps/frontend\n> tsc -b && vite build\n\nvite v8.1.5 building client environment for production...\n\u001b[2K\ntransforming...✓ 18 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB │ gzip:  0.27 kB\ndist/assets/index-CdZVDnvS.css    0.69 kB │ gzip:  0.42 kB\ndist/assets/index-BemK5KuX.js   218.59 kB │ gzip: 68.62 kB\n\n✓ built in 920ms\n"
+}

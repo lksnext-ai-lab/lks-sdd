@@ -1,0 +1,27 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-angular-static-a_sqt00l/reference-app:/work",
+    "-v",
+    "lkssddgate260120a067a43noded935a3cd:/work/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work && npm run build"
+  ],
+  "duration_seconds": 17.595,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "frontend-build",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\n> lks-sdd-angular-static-reference@0.1.0 build\n> ng build --configuration production\n\n❯ Building...\n✔ Building...\nInitial chunk files   | Names         |  Raw size | Estimated transfer size\nmain-2MSFNKQY.js      | main          |  97.07 kB |                29.34 kB\npolyfills-RV3JTMEC.js | polyfills     |  35.78 kB |                11.63 kB\nstyles-DS3GTOTC.css   | styles        | 359 bytes |               359 bytes\n\n                      | Initial total | 133.22 kB |                41.34 kB\n\nApplication bundle generation complete. [11.049 seconds] - 2026-08-31T14:36:48.772Z\n\nOutput location: /work/dist/lks-sdd-angular\n\n"
+}

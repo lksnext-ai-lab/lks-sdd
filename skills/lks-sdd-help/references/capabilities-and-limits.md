@@ -1,8 +1,8 @@
-# Capacidades y límites de LKS-SDD 0.17.0
+# Capacidades y límites de LKS-SDD 0.18.0
 
 La evidencia visual nueva aplica una política predeterminada de una a cinco imágenes por TASK con interfaz. Cada captura debe enlazar aceptación e interacción, conservar contexto reproducible y declarar un resultado; el archivo por sí solo nunca acredita `passed`. `work verify` genera fichas TASK derivadas sin convertirlas en autoridad ni alterar el sujeto técnico. Una EVID conserva el hecho histórico y los hallazgos posteriores cambian la salud actual hasta una corrección y re-verificación gobernadas.
 
-La evidencia funcional usa scopes tipados compartidos: `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`. Solo una interfaz `INT-###` confirmada activa el gate full-stack para su TASK propietaria. Arrancar unidades o aprobar sus tests por separado no acredita comunicación; una captura no acredita persistencia; un mock de dominio `/api/v1` no acredita integración. La identidad controlada puede usar el doble autorizado por el perfil no productivo.
+La evidencia funcional usa scopes tipados compartidos: `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`. Solo una interfaz `INT-###` confirmada con flujo web activa el gate de navegador para su TASK propietaria; HTTP, PostgreSQL y migración usan observadores propios. Arrancar unidades o aprobar sus tests por separado no acredita comunicación; una captura no acredita persistencia; un mock de una operación funcional, sea cual sea su ruta, no acredita integración. La identidad controlada puede usar el doble autorizado por el perfil no productivo.
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 
@@ -59,3 +59,6 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Ejecutar el plugin con soporte garantizado fuera de Codex.
 
 La baseline normativa es candidata. Puede orientar un piloto, pero no debe presentarse como política corporativa, certificación ni aprobación formal.
+
+
+La ampliación de autenticación local, variantes y preparación de adopción se detalla en `docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md`. Los cinco contratos añaden nueve variantes; el catálogo contiene 23 perfiles. Cada soporte vigente requiere evidencia exacta del motor actual.

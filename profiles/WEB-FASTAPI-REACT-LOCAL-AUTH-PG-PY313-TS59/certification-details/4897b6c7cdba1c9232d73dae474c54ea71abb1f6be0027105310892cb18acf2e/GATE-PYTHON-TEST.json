@@ -1,0 +1,26 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-PYTHON-TEST"
+  ],
+  "duration_seconds": 16.483,
+  "exit_code": 0,
+  "gate_id": "GATE-PYTHON-TEST",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "python-test",
+  "observations": {
+    "observer": "pytest-real-postgresql",
+    "result": ".......................................                                  [100%]\n",
+    "selection": "not never"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-PYTHON-TEST\", \"observations\": {\"observer\": \"pytest-real-postgresql\", \"selection\": \"not never\", \"result\": \".......................................                                  [100%]\\n\"}, \"status\": \"passed\"}\n"
+}

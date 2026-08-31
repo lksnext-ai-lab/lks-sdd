@@ -1,0 +1,37 @@
+{
+  "certification_context": {
+    "certification_run_id": "a7edc892-7aef-4d77-bed7-cefd23e76412",
+    "profile_id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "4d871c0daf6f5af06540f4d7fcfd878d02e4603c6279f8a83c0a030d85b58960",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "05b41a2306e598e9344ae2635694f08e557010ef0f66a152c93f544cf9d2be17",
+      "scaffold_sha256": "a3112aa04678cc0dcb3c37ef31569a9508d349ebf64960fa3d4c343c1eb38140"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-LOCAL-SPA"
+  ],
+  "duration_seconds": 10.716,
+  "exit_code": 0,
+  "gate_id": "GATE-LOCAL-SPA",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "local-spa",
+  "observations": {
+    "component_only": true,
+    "result": "\n> lks-sdd-local-auth-spa@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.10 \u001b[39m\u001b[90m/app\u001b[39m\n\n \u001b[32m✓\u001b[39m src/auth.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 57\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m4 passed\u001b[39m\u001b[22m\u001b[90m (4)\u001b[39m\n\u001b[2m   Start at \u001b[22m 15:36:22\n\u001b[2m   Duration \u001b[22m 3.14s\u001b[2m (transform 145ms, setup 0ms, import 215ms, tests 57ms, environment 2.29s)\u001b[22m\n\n"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-LOCAL-SPA\", \"observations\": {\"component_only\": true, \"result\": \"\\n> lks-sdd-local-auth-spa@0.1.0 test\\n> vitest run\\n\\n\\n\\u001b[1m\\u001b[30m\\u001b[46m RUN \\u001b[49m\\u001b[39m\\u001b[22m \\u001b[36mv4.1.10 \\u001b[39m\\u001b[90m/app\\u001b[39m\\n\\n \\u001b[32m\\u2713\\u001b[39m src/auth.test.ts \\u001b[2m(\\u001b[22m\\u001b[2m4 tests\\u001b[22m\\u001b[2m)\\u001b[22m\\u001b[32m 57\\u001b[2mms\\u001b[22m\\u001b[39m\\n\\n\\u001b[2m Test Files \\u001b[22m \\u001b[1m\\u001b[32m1 passed\\u001b[39m\\u001b[22m\\u001b[90m (1)\\u001b[39m\\n\\u001b[2m      Tests \\u001b[22m \\u001b[1m\\u001b[32m4 passed\\u001b[39m\\u001b[22m\\u001b[90m (4)\\u001b[39m\\n\\u001b[2m   Start at \\u001b[22m 15:36:22\\n\\u001b[2m   Duration \\u001b[22m 3.14s\\u001b[2m (transform 145ms, setup 0ms, import 215ms, tests 57ms, environment 2.29s)\\u001b[22m\\n\\n\"}, \"status\": \"passed\"}\n"
+}

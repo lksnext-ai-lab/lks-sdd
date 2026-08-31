@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "suite": "LKS-SDD M0-M5 + v0.13 perfiles OIDC simulados no productivos",
+  "suite": "LKS-SDD M0-M5 + 0.18 variantes y autenticación local aislada",
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
@@ -116,6 +116,15 @@
     {"id": "FX-57", "title": "Semántica, integridad y reemplazo de capturas", "family": "verification", "layers": ["T0", "T1", "T6", "T7"], "mode": "automated", "fixture": "validation-evidence-v016.json", "critical": true, "evidence": ["test:test_duplicate_image_without_justification_is_rejected", "test:test_missing_file_and_wrong_hash_are_rejected", "test:test_passed_cannot_contradict_observed_behavior", "test:test_executed_failure_is_preserved_as_failed_outcome", "test:test_correction_replaces_failed_capture_for_same_state", "test:test_joint_release_reuses_one_image_without_duplication"]},
     {"id": "FX-58", "title": "Evidencia histórica y salud actual separadas", "family": "verification", "layers": ["T0", "T1", "T3", "T6"], "mode": "automated", "fixture": "validation-evidence-v016.json", "critical": true, "evidence": ["test:test_historical_verification_and_current_health_are_separate", "test:test_project_without_active_task_returns_null"]},
     {"id": "FX-59", "title": "Ficha TASK derivada sin invalidación técnica y rollback", "family": "verification", "layers": ["T0", "T1", "T6", "T7"], "mode": "automated", "fixture": "validation-evidence-v016.json", "critical": true, "evidence": ["test:test_derived_summary_does_not_change_verification_subject", "test:test_backend_slice_records_valid_single_profile_evidence_in_multibinding_project", "test:test_invalid_post_write_evidence_rolls_back_every_recorded_projection"]},
-    {"id": "FX-60", "title": "Jira conciso sin Done para resultado no verificado", "family": "integration", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": "validation-evidence-v016.json", "critical": true, "evidence": ["test:test_not_verified_milestone_never_transitions_to_done"]}
+    {"id": "FX-60", "title": "Jira conciso sin Done para resultado no verificado", "family": "integration", "layers": ["T0", "T1", "T5", "T7"], "mode": "automated", "fixture": "validation-evidence-v016.json", "critical": true, "evidence": ["test:test_not_verified_milestone_never_transitions_to_done"]},
+    {"id": "FX-61", "title": "Integraciones externas e internas", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_external_internal_both_and_not_applicable_round_trip"]},
+    {"id": "FX-62", "title": "Variantes y deriva tecnológica", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_dependency_changes_are_seen_without_changing_profile_lock"]},
+    {"id": "FX-63", "title": "Adopción sin sobrescritura", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": "adoption-flat-v018.json", "critical": true, "evidence": ["test:test_adoption_of_both_layouts_preserves_every_consumer_byte"]},
+    {"id": "FX-64", "title": "Protección de información", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_sanitization_precedes_output_without_rewriting_original"]},
+    {"id": "FX-65", "title": "Participantes exactos", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": "adoption-apps-v018.json", "critical": true, "evidence": ["test:test_composition_requires_exact_participants_without_system_unit"]},
+    {"id": "FX-66", "title": "Persistencia real e impacto conservador", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_simulated_or_foreign_database_read_is_rejected"]},
+    {"id": "FX-67", "introduced_in": "0.18.0", "title": "Variante no evaluada", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-68", "introduced_in": "0.18.0", "title": "Adopción sin sobrescritura", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-69", "introduced_in": "0.18.0", "title": "Autenticación propia", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []}
   ]
 }

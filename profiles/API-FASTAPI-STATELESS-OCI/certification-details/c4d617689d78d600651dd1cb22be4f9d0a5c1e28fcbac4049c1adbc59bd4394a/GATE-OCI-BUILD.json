@@ -1,0 +1,21 @@
+{
+  "command": [
+    "docker",
+    "build",
+    "--tag",
+    "lks-sdd/api-fastapi-stateless:verification",
+    "."
+  ],
+  "duration_seconds": 15.134,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "oci-build",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "inition from Dockerfile\n#1 transferring dockerfile: 547B 0.0s done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4\n#2 DONE 0.1s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 107B 0.0s done\n#3 DONE 0.0s\n\n#4 [internal] load build context\n#4 DONE 0.0s\n\n#5 [1/7] FROM docker.io/library/python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4\n#5 resolve docker.io/library/python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4 0.1s done\n#5 DONE 0.1s\n\n#4 [internal] load build context\n#4 transferring context: 72.06kB 0.0s done\n#4 DONE 0.1s\n\n#6 [2/7] WORKDIR /app\n#6 CACHED\n\n#7 [3/7] RUN python -m pip install --no-cache-dir uv==0.12.5\n#7 CACHED\n\n#8 [4/7] COPY pyproject.toml uv.lock ./\n#8 CACHED\n\n#9 [5/7] COPY src ./src\n#9 DONE 0.1s\n\n#10 [6/7] RUN uv sync --frozen --no-dev\n#10 0.530 Using CPython 3.14.7 interpreter at: /usr/local/bin/python3\n#10 0.530 Creating virtual environment at: .venv\n#10 0.570    Building lks-sdd-api-reference @ file:///app\n#10 0.723 Downloading pydantic-core (2.0MiB)\n#10 1.074  Downloaded pydantic-core\n#10 1.866       Built lks-sdd-api-reference @ file:///app\n#10 1.870 Prepared 14 packages in 1.31s\n#10 1.878 Installed 14 packages in 8ms\n#10 1.878  + annotated-doc==0.0.5\n#10 1.878  + annotated-types==0.8.0\n#10 1.878  + anyio==4.14.2\n#10 1.878  + click==8.4.2\n#10 1.878  + fastapi==0.141.1\n#10 1.878  + h11==0.16.0\n#10 1.878  + idna==3.19\n#10 1.878  + lks-sdd-api-reference==0.1.0 (from file:///app)\n#10 1.878  + pydantic==2.13.4\n#10 1.878  + pydantic-core==2.46.4\n#10 1.878  + starlette==1.6.0\n#10 1.878  + typing-extensions==4.16.0\n#10 1.878  + typing-inspection==0.4.4\n#10 1.878  + uvicorn==0.52.4\n#10 DONE 2.0s\n\n#11 [7/7] RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app\n#11 DONE 3.8s\n\n#12 exporting to image\n#12 exporting layers\n#12 exporting layers 0.9s done\n#12 exporting manifest sha256:610b6c78ce7636acc8bf41b2663909ab09f9e592ad347e2782bfb8bbd90ac643 0.1s done\n#12 exporting config sha256:544a92c87d4a227eaf7c3e4f0df8292933b450a9127f15dc4cba2915ab8129fd 0.1s done\n#12 exporting attestation manifest sha256:135fe1518121a9f3799abbefc27c70e7435031e540aaac99253761702b91944b\n#12 exporting attestation manifest sha256:135fe1518121a9f3799abbefc27c70e7435031e540aaac99253761702b91944b 0.2s done\n#12 exporting manifest list sha256:26e04dd1e35442a5b60635c6c719defee032a28cf7dcfd4d5edb12db5a84bd5d\n#12 exporting manifest list sha256:26e04dd1e35442a5b60635c6c719defee032a28cf7dcfd4d5edb12db5a84bd5d 0.0s done\n#12 naming to docker.io/lks-sdd/api-fastapi-stateless:verification done\n#12 unpacking to docker.io/lks-sdd/api-fastapi-stateless:verification\n#12 unpacking to docker.io/lks-sdd/api-fastapi-stateless:verification 0.5s done\n#12 DONE 1.9s\n\nView build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/kn3pdms0g893cin13vk7m9lk2\n",
+  "stdout_tail": ""
+}

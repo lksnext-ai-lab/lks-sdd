@@ -1,0 +1,36 @@
+{
+  "certification_context": {
+    "certification_run_id": "a6b4089d-58af-4d5c-8c38-2340b0eda2b0",
+    "profile_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "4624b26c4dffdc7408d5ac4c1c7371645cd846df5360381035d0ce6fe6b129b7",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "10f37bfa00d02cbaf4774a6684b7389bf53e3d9fd1c49c1b7cc76f29a572007a",
+      "scaffold_sha256": "d96a48091f6dc1270598bbc42941350c54c308e1a56b3658e79869b52da03ad4"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-OCI-SMOKE"
+  ],
+  "duration_seconds": 2.533,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "oci-smoke",
+  "observations": {
+    "python": "Python 3.14.7"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-OCI-SMOKE\", \"observations\": {\"python\": \"Python 3.14.7\"}, \"status\": \"passed\"}\n"
+}

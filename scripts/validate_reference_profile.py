@@ -48,8 +48,15 @@ def _validate_dependency_pins(profile_id: str) -> list[str]:
         return []
     errors: list[str] = []
     scaffold = bundle.root / "scaffold"
-    for path in profile_source_files(scaffold):
-        relative = path.relative_to(scaffold).as_posix()
+    files = profile_source_files(scaffold)
+    if bundle.driver.get("variant"):
+        for source in bundle.driver.get("prepare", {}).get("sources", []):
+            origin = (PLUGIN_ROOT / source["from"]).resolve()
+            origin.relative_to(PLUGIN_ROOT.resolve())
+            files.extend([origin] if origin.is_file() else profile_source_files(origin))
+        files = sorted(set(files))
+    for path in files:
+        relative = path.relative_to(PLUGIN_ROOT).as_posix()
         if path.name == "package.json":
             package = _load_json(path, errors)
             for section in (
@@ -91,7 +98,7 @@ def _validate_dependency_pins(profile_id: str) -> list[str]:
             if not (path.parent / "uv.lock").is_file():
                 errors.append(f"{profile_id}: {relative} no tiene uv.lock.")
 
-    for path in profile_source_files(scaffold):
+    for path in files:
         if path.name == "compose.yaml" or path.name.endswith("Dockerfile"):
             text = path.read_text(encoding="utf-8")
             for line in text.splitlines():
@@ -99,14 +106,14 @@ def _validate_dependency_pins(profile_id: str) -> list[str]:
                 if re.search(r"(?i)(?:image:|FROM)\s+\S+:latest\b", stripped):
                     errors.append(
                         f"{profile_id}: etiqueta latest prohibida en "
-                        f"{path.relative_to(scaffold).as_posix()}."
+                        f"{path.relative_to(PLUGIN_ROOT).as_posix()}."
                     )
                 if stripped.startswith(("image:", "FROM ")) and (
                     "@sha256:" not in stripped
                 ):
                     errors.append(
                         f"{profile_id}: imagen OCI sin digest en "
-                        f"{path.relative_to(scaffold).as_posix()}: {stripped}"
+                        f"{path.relative_to(PLUGIN_ROOT).as_posix()}: {stripped}"
                     )
     return errors
 
@@ -157,6 +164,8 @@ def validate_consumer_profile_lock(
         "profile_id": profile_id,
         "binding_id": binding_id,
     }
+    if bundle.driver.get("variant") and bundle.profile.get("profile_scope") == "system":
+        return ["La variante de sistema se selecciona mediante INT.Exact composition, no mediante un binding de unidad."], details
     try:
         packaged = packaged_path.read_bytes()
     except OSError as exc:
@@ -206,6 +215,26 @@ def validate_consumer_profile_lock(
         errors.append(
             f"El lock de {profile_id} diverge del lock exacto empaquetado."
         )
+    if bundle.driver.get("variant") and binding_id:
+        from technology_resolution import diagnose
+        manifest_path = root / ".lks-sdd/project.json"
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            bindings = manifest.get("technology", {}).get("profile_bindings", [])
+            binding = next(item for item in bindings if item.get("binding_id") == binding_id)
+            unit_root = (root / binding.get("unit_path", ".")).resolve()
+            unit_root.relative_to(root)
+            snapshot_path = root / f".lks-sdd/profiles/{binding_id}.resolution.json"
+            snapshot = json.loads(snapshot_path.read_text()) if snapshot_path.is_file() else None
+            if required and snapshot is None:
+                errors.append(f"{binding_id}: dependency resolution snapshot is missing; explicit preparation is required")
+            diagnosis = diagnose(unit_root, profile_id, snapshot=snapshot)
+            details["dependency_fingerprint"] = diagnosis["dependency_fingerprint"]
+            details["compatibility"] = diagnosis["compatibility"]
+            if required and (diagnosis["compatibility"] != "catalog-match" or diagnosis["dependency_drift"]):
+                errors.append(f"{binding_id}: consumer technology requires reconciliation: " + "; ".join(diagnosis["reasons"]))
+        except (OSError, ValueError, KeyError, StopIteration):
+            errors.append(f"{binding_id}: consumer dependency inventory cannot be resolved safely")
     return errors, details
 
 

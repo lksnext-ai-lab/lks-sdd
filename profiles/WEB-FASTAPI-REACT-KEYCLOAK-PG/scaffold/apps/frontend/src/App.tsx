@@ -74,7 +74,7 @@ export function App({ tokenProvider }: { tokenProvider?: TokenProvider }) {
             <input id="item-label" value={label} onChange={(event) => setLabel(event.target.value)} />
             <button type="submit">Guardar elemento</button>
           </form>
-          <ul>{items.map((item) => <li key={item.id}>{item.label}</li>)}</ul>
+          <ul>{items.map((item) => <li key={item.id} data-record-id={item.id}>{item.label}</li>)}</ul>
         </section>
       ) : null}
     </main>

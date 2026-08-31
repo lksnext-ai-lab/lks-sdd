@@ -3,6 +3,10 @@
   "fallback_suite": "integration",
   "rules": [
     {
+      "paths": ["schemas/document-contracts.json", "scripts/delivery_engine.py", "scripts/evidence_contract.py"],
+      "modules": ["test_integrations_v018", "test_fullstack_integration_contract_v017"]
+    },
+    {
       "paths": [".codex-plugin/**", "schemas/**", "quality/**", "scripts/validate_plugin_contract.py"],
       "modules": ["test_contract_engine", "test_quality_harness", "test_quality_suite_registry", "test_v06_quality"]
     },

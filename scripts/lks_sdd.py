@@ -24,6 +24,8 @@ COMMANDS = {
     "tracking": "scripts/manage_task_tracking.py",
     "continuity": "scripts/manage_continuity.py",
     "profiles": "scripts/validate_reference_profile.py",
+    "compatibility": "scripts/technology_resolution.py",
+    "profile-impact": "scripts/profile_impact.py",
     "validate-project": "scripts/validate_project.py",
     "validate-spec": "scripts/validate_spec.py",
     "traceability": "scripts/check_traceability.py",

@@ -1,6 +1,6 @@
 {
   "name": "lks-sdd",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Plugin Spec-anchored para Codex con evidencia tipada TASK-aware, composición full-stack fail-closed, trazabilidad y verificación incremental segura.",
   "author": {
     "name": "LKS"

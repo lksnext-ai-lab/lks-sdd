@@ -23,10 +23,12 @@ Implement only exact closed profiles whose descriptor, driver, scaffold, certifi
 
 For a joint integration TASK, implement the canonical interface deliverables across every declared unit/binding and preserve its dependency boundary. Green component tests, separately running processes, hardcoded frontend data or local UI state do not complete the integration criterion. Do not narrow the TASK to one unit or change its typed evidence scopes to make implementation appear complete; hand off the unchanged `INT-###` obligation to verification.
 
-## Fast path and narration in 0.17
+## Fast path and narration in 0.18
 
 Start with `work status <project-root> --task TASK-###`. Prefer `work start` for a new task, `work resume` for an existing execution, `work review` for code-complete handoff and `work block` for a real blocker. Para un hallazgo posterior, `work correct` registra problema, causa y corrección y deja la salud pendiente de re-verificación; `work resolve` solo cierra después de una EVID nueva `verified` de esa TASK. `work resume` falla cerrado mientras permanezca un problema aplicable. Low-level commands remain available for audit, recovery and conflicts.
 
 If an exact authorization already matches current scope and fingerprints, do not ask again: the façade may apply deterministic local bookkeeping as one atomic milestone. New scope, exception, environment, external action, evidence contradiction, deployment or promotion still requires a new decision. Create checkpoints only at meaningful start, pause, block, handoff, completed review, verification or close; do not create redundant checkpoints for consecutive transitions during one resumption.
 
 Use management narration before start/resume, after a material milestone, at a blocker and at implementation handoff. Do not narrate every preview, hash, receipt or internal command. A resolved, superseded or historical problem remains in audit but is never presented as active.
+
+For existing applications, preserve the adoption preparation route: verification resources only, reviewed preview and no functional scaffold overwrite. New-project preparation may materialize the certified scaffold. Do not switch variants or update dependencies to clear readiness.

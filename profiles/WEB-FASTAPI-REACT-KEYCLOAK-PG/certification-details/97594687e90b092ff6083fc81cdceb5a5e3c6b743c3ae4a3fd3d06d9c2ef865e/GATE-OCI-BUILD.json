@@ -1,0 +1,35 @@
+{
+  "certification_context": {
+    "certification_run_id": "fa2bff84-10ce-4ea6-a2d8-ddc0d8333dc9",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "docker",
+    "compose",
+    "--env-file",
+    "infra/compose/gate.env",
+    "-f",
+    "infra/compose/compose.yaml",
+    "build"
+  ],
+  "duration_seconds": 17.272,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "compose-build",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": " Image lkssddgate39384a7ca61bc-backend Building \n Image lkssddgate39384a7ca61bc-frontend Building \n Image lkssddgate39384a7ca61bc-backend Built \n Image lkssddgate39384a7ca61bc-frontend Built \n",
+  "stdout_tail": " [frontend internal] load .dockerignore\n#6 CACHED\n\n#17 [frontend internal] load build context\n#17 DONE 0.0s\n\n#18 [frontend stage-1 1/3] FROM docker.io/library/nginx:1.29.1-alpine@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8\n#18 resolve docker.io/library/nginx:1.29.1-alpine@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8 0.1s done\n#18 DONE 0.1s\n\n#19 [frontend build 1/7] FROM docker.io/library/node:24.19.0-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43\n#19 resolve docker.io/library/node:24.19.0-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43\n#19 resolve docker.io/library/node:24.19.0-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 0.1s done\n#19 DONE 0.1s\n\n#17 [frontend internal] load build context\n#17 transferring context: 125.38kB 0.0s done\n#17 DONE 0.1s\n\n#20 [frontend build 2/7] RUN npm install --global pnpm@10.34.5\n#20 CACHED\n\n#21 [frontend build 4/7] COPY apps/frontend/package.json apps/frontend/pnpm-lock.yaml ./\n#21 CACHED\n\n#22 [frontend build 3/7] WORKDIR /app\n#22 CACHED\n\n#23 [frontend build 5/7] RUN pnpm install --frozen-lockfile\n#23 CACHED\n\n#24 [frontend build 6/7] COPY apps/frontend/ ./\n#24 DONE 0.1s\n\n#25 [frontend build 7/7] RUN pnpm build\n#25 1.736 \n#25 1.736 > lks-sdd-reference-frontend@0.1.0 build /app\n#25 1.736 > tsc -b && vite build\n#25 1.736 \n#25 5.171 vite v8.1.5 building client environment for production...\n#25 5.191 \u001b[2K\ntransforming...✓ 18 modules transformed.\n#25 5.364 rendering chunks...\n#25 5.429 computing gzip size...\n#25 5.438 dist/index.html                   0.40 kB │ gzip:  0.27 kB\n#25 5.438 dist/assets/index-CdZVDnvS.css    0.69 kB │ gzip:  0.42 kB\n#25 5.438 dist/assets/index-DjyVpHWr.js   218.63 kB │ gzip: 68.65 kB\n#25 5.438 \n#25 5.439 ✓ built in 265ms\n#25 DONE 5.6s\n\n#26 [frontend stage-1 2/3] COPY infra/containers/nginx.conf /etc/nginx/nginx.conf\n#26 CACHED\n\n#27 [frontend stage-1 3/3] COPY --from=build /app/dist /usr/share/nginx/html\n#27 DONE 0.1s\n\n#28 [frontend] exporting to image\n#28 exporting layers\n#28 exporting layers 0.2s done\n#28 exporting manifest sha256:790b23981c4b2ce47c5ceef6ea430b94eb6c171dbe6f0c4c6aa7938450082fa5 0.0s done\n#28 exporting config sha256:05c327e226005015c58498608b89892149131a017d0db0b3f7002172cc7cc467 0.0s done\n#28 exporting attestation manifest sha256:f5ff8a55b8cd1b7af4f920b87777cdfb73606c5a70249e015fc51bedf5dc70c7\n#28 exporting attestation manifest sha256:f5ff8a55b8cd1b7af4f920b87777cdfb73606c5a70249e015fc51bedf5dc70c7 0.1s done\n#28 exporting manifest list sha256:64ca740b9d49df2099efd0fdbcb597b919a332c2960bb9cf4170be3e65ab4960 0.0s done\n#28 naming to docker.io/library/lkssddgate39384a7ca61bc-frontend:latest\n#28 naming to docker.io/library/lkssddgate39384a7ca61bc-frontend:latest done\n#28 unpacking to docker.io/library/lkssddgate39384a7ca61bc-frontend:latest 0.1s done\n#28 DONE 0.6s\n\n#29 [frontend] resolving provenance for metadata file\n#29 DONE 0.0s\n"
+}

@@ -98,7 +98,7 @@ class QualityHarnessTests(unittest.TestCase):
     def test_fixture_manifest_is_complete_and_hash_locked(self):
         result = validate_fixture_manifest()
         self.assertEqual(result["status"], "passed")
-        self.assertEqual(result["fixture_count"], 12)
+        self.assertEqual(result["fixture_count"], 14)
 
     def test_fixture_hash_drift_is_reported(self):
         manifest = copy.deepcopy(_load_json(FIXTURE_MANIFEST_PATH))
@@ -260,11 +260,11 @@ class QualityHarnessTests(unittest.TestCase):
 
     def test_default_baseline_is_the_last_published_release(self):
         baseline = _load_json(DEFAULT_BASELINE_PATH)
-        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.15.0.json")
-        self.assertEqual(baseline["plugin_version"], "0.15.0")
+        self.assertEqual(DEFAULT_BASELINE_PATH.name, "v0.17.0.json")
+        self.assertEqual(baseline["plugin_version"], "0.17.0")
         self.assertEqual(
             baseline["source_commit"],
-            "4d1c6374f1b4b1ee4f107d8e0f5ed765ca799ab9",
+            "9b13616e9f9d67c7112ee620c65b8ea6831c50c2",
         )
         self.assertEqual(
             {
@@ -277,8 +277,8 @@ class QualityHarnessTests(unittest.TestCase):
                 )
             },
             {
-                "unit_tests_total": 276,
-                "unit_tests_passed": 275,
+                "unit_tests_total": 312,
+                "unit_tests_passed": 311,
                 "unit_tests_skipped": 1,
                 "unit_tests_failed": 0,
             },

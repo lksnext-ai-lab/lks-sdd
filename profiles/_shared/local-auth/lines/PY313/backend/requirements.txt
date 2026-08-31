@@ -1,0 +1,7 @@
+fastapi==0.125.0
+sqlalchemy==2.0.45
+alembic==1.17.2
+PyJWT==2.10.1
+uvicorn==0.38.0
+psycopg[binary]==3.3.2
+argon2-cffi==25.1.0

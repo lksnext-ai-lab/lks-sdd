@@ -11,8 +11,8 @@
   "relative_regression_limit": 0.2,
   "minimum_regression_seconds": 30,
   "baseline": {
-    "version": "0.15.0-initial",
-    "reason": "Baseline inicial pendiente de tres ejecuciones limpias comparables de 0.15.0",
+    "version": "0.17.0",
+    "reason": "Baseline funcional publicada 0.17.0 verificada; referencia temporal pendiente de tres ejecuciones limpias comparables en el mismo runner. No se inventan duraciones históricas.",
     "runner_fingerprint": {
       "os": "windows",
       "architecture": "amd64",

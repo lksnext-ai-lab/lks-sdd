@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "eb1953ac-67cd-4bb6-9e5e-74ca772ee068",
+    "profile_id": "WEB-ANGULAR-STATIC",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2d189549a99736c8c552b24881cb8b6c2f3a5e6aa8e8a3f302149d9929e022f4",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "81ca9a7ff7a163e877e3122588d07dfb9988c796bb7091e2f67b9f52d0de3408",
+      "scaffold_sha256": "e1664a4489a3c837330664690ef87afc86155ec0f1024c0b466710141b0e0826"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-angular-static-4sgc6k31/reference-app:/work",
+    "-v",
+    "lkssddgate82560a067a43noded935a3cd:/work/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work && npm ci --ignore-scripts"
+  ],
+  "duration_seconds": 22.059,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-LOCK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "frontend-lock",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\nadded 439 packages, and audited 440 packages in 19s\n\n140 packages are looking for funding\n  run `npm fund` for details\n\nfound 0 vulnerabilities\n"
+}

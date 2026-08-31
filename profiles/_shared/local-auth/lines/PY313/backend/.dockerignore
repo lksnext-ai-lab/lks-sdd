@@ -1,0 +1,6 @@
+.git
+.runtime
+.lks-sdd
+.venv
+__pycache__
+*.env

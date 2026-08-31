@@ -125,6 +125,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.15.0.json",
     "quality/corpora/definition-v0.16.0.json",
     "quality/corpora/definition-v0.17.0.json",
+    "quality/corpora/definition-v0.18.0.json",
     "quality/fixture-manifest.json",
     "quality/test-suites.json",
     "quality/v0.15-e2e-matrix.json",
@@ -283,6 +284,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
     "urllib",
 }
 RUNTIME_IMPORT_ALLOWLIST = {
+    "scripts/integration_contract.py": {"urllib.parse"},
     "scripts/build_candidate_package.py": {"subprocess"},
     "scripts/benchmark_experience.py": {"subprocess"},
     "scripts/delivery_engine.py": {"subprocess"},
@@ -698,7 +700,7 @@ def validate(root: Path) -> list[str]:
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.15.0.json"',
+            '"v0.17.0.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',
@@ -846,8 +848,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.15.0":
-            errors.append("El rollback del piloto 0.17.0 debe conservar 0.15.0.")
+        if rollback.get("previous_version") != "0.17.0":
+            errors.append("El rollback del piloto 0.18.0 debe conservar 0.17.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -865,8 +867,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.15.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.15.0.")
+        if schema_previous != "0.17.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.17.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 

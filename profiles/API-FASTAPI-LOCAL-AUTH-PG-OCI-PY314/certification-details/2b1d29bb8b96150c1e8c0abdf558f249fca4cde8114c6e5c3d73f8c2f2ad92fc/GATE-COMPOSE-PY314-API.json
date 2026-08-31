@@ -1,0 +1,47 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-COMPOSE-PY314-API"
+  ],
+  "duration_seconds": 0.375,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-PY314-API",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "compose-py314-api",
+  "observations": {
+    "observed_gates": [
+      "GATE-API-LINT",
+      "GATE-API-LOCK",
+      "GATE-API-OPENAPI",
+      "GATE-API-TEST",
+      "GATE-API-TYPECHECK",
+      "GATE-DATA-INTEGRATION",
+      "GATE-DATA-MIGRATION",
+      "GATE-HTTP-CONTRACT-INTEGRATION",
+      "GATE-LOCAL-CREDENTIALS",
+      "GATE-LOCAL-JWT",
+      "GATE-LOCAL-SESSION",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-PYTHON-LINT",
+      "GATE-PYTHON-LOCK",
+      "GATE-PYTHON-TEST",
+      "GATE-PYTHON-TYPECHECK",
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-SECURITY-AUDIT",
+      "GATE-SECURITY-CONFIG",
+      "GATE-TENANT-AUTHORIZATION"
+    ],
+    "profile": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-COMPOSE-PY314-API\", \"observations\": {\"profile\": \"API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314\", \"observed_gates\": [\"GATE-API-LINT\", \"GATE-API-LOCK\", \"GATE-API-OPENAPI\", \"GATE-API-TEST\", \"GATE-API-TYPECHECK\", \"GATE-DATA-INTEGRATION\", \"GATE-DATA-MIGRATION\", \"GATE-HTTP-CONTRACT-INTEGRATION\", \"GATE-LOCAL-CREDENTIALS\", \"GATE-LOCAL-JWT\", \"GATE-LOCAL-SESSION\", \"GATE-OCI-BUILD\", \"GATE-OCI-SMOKE\", \"GATE-PYTHON-LINT\", \"GATE-PYTHON-LOCK\", \"GATE-PYTHON-TEST\", \"GATE-PYTHON-TYPECHECK\", \"GATE-SCAFFOLD-INTEGRITY\", \"GATE-SECURITY-AUDIT\", \"GATE-SECURITY-CONFIG\", \"GATE-TENANT-AUTHORIZATION\"]}, \"status\": \"passed\"}\n"
+}

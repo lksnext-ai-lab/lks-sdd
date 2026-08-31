@@ -1,0 +1,27 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-api-fastapi-stateless-oci-2qoiitwy/reference-app:/work",
+    "-v",
+    "lkssddgate26696e785eb93python22b112d0:/work/.venv",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "python -m pip install --disable-pip-version-check --quiet uv==0.12.5 && cd /work && uv run mypy"
+  ],
+  "duration_seconds": 23.287,
+  "exit_code": 0,
+  "gate_id": "GATE-API-TYPECHECK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "api-typecheck",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\n",
+  "stdout_tail": "Success: no issues found in 2 source files\n"
+}

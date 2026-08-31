@@ -33,22 +33,26 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["evidence"], [])
 
     def test_definition_cases_are_versioned_for_v013_and_not_run(self) -> None:
-        self.assertEqual(self.corpus["plugin_version"], "0.17.0")
+        self.assertEqual(self.corpus["plugin_version"], "0.18.0")
         self.assertEqual(
-            self.corpus["corpus_id"], "lks-sdd-definition-fullstack-evidence-es-0.17.0"
+            self.corpus["corpus_id"], "lks-sdd-definition-local-auth-variants-es-0.18.0"
         )
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
-            {f"FX-{index:02d}" for index in range(20, 61)},
+            {f"FX-{index:02d}" for index in range(20, 70)},
         )
         self.assertEqual(
             {case["id"] for case in self.corpus["cases"]},
-            {"FX-01", "FX-20", "FX-21", "FX-36", "FX-53"},
+            {"FX-01", "FX-20", "FX-21", "FX-36", "FX-53", "FX-67", "FX-68", "FX-69"},
         )
         channel = evaluate_definition_conversation(self.corpus)
         self.assertEqual(channel["status"], "not-run")
         self.assertEqual(channel["observed"], 0)
-        self.assertEqual(channel["total"], 5)
+        self.assertEqual(channel["total"], 8)
+
+    def test_historical_definition_corpus_remains_readable(self) -> None:
+        historical = _load_json(PLUGIN_ROOT / "quality/corpora/definition-v0.17.0.json")
+        self.assertEqual(validate_definition_corpus(historical, self.catalog), historical)
 
     def test_definition_evidence_cannot_be_invented(self) -> None:
         changed = copy.deepcopy(self.corpus)

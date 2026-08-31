@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.1",
+  "profile_id": "DATA-POSTGRES-OCI-PG18",
+  "profile_version": "1.0.0",
+  "variant": {
+    "contract_id": "DATA-POSTGRES-OCI",
+    "resolution": "profiles/DATA-POSTGRES-OCI-PG18/resolved-technology.json",
+    "participants": {}
+  },
+  "prepare": {
+    "strategy": "copy",
+    "sources": [
+      {
+        "from": "profiles/DATA-POSTGRES-OCI-PG18/scaffold",
+        "to": "."
+      },
+      {
+        "from": "profiles/_shared/local-auth/verification",
+        "to": "verification"
+      }
+    ],
+    "adoption": {
+      "strategy": "verification-only",
+      "adapters": [
+        "flat",
+        "apps",
+        "unit"
+      ]
+    }
+  },
+  "verify": {
+    "checks": [
+      {
+        "id": "GATE-DATA-INTEGRATION",
+        "name": "data-integration",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-DATA-INTEGRATION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-DATA-MIGRATION",
+        "name": "data-migration",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-DATA-MIGRATION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-DELIVERY-EVIDENCE",
+        "name": "delivery-evidence",
+        "phase": "G4",
+        "kind": "delivery-evidence",
+        "cwd": ".",
+        "command": [],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-OCI-BUILD",
+        "name": "oci-build",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-OCI-BUILD"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-OCI-SMOKE",
+        "name": "oci-smoke",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-OCI-SMOKE"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-SCAFFOLD-INTEGRITY",
+        "name": "scaffold-integrity",
+        "phase": "G2",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-SCAFFOLD-INTEGRITY"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-COMPOSE-PG18-DATABASE",
+        "name": "compose-pg18-database",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-COMPOSE-PG18-DATABASE"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      }
+    ]
+  }
+}
