@@ -1062,7 +1062,8 @@
           "id": "solution.integrations",
           "schemas": [
             "1.0",
-            "1.1"
+            "1.1",
+            "1.5"
           ],
           "headers": [
             "ID",
@@ -1074,7 +1075,7 @@
             "Failure handling",
             "Requirements"
           ],
-          "min_occurs": 1,
+          "min_occurs": 0,
           "max_occurs": 1,
           "key": {
             "column": "ID",

@@ -17,3 +17,20 @@ not-run. Piloto, producción, revisión humana e interoperabilidad: not-run.
 
 Próximo paso: corregir ART-INTEGRATIONS y sus regresiones sin alterar IDs ni el
 schema consumidor 1.5. Mantener SAT en lectura y no tocar el site original.
+
+## CKPT-018-002 — R18-02
+
+Fecha: 2026-08-31. Estado: corrección de tablas y referencias verificada.
+
+Cambios: ambas tablas opcionales de ART-INTEGRATIONS reconocidas en 1.5;
+delivery diferencia sistemas externos de interfaces entre unidades. Rechaza
+duplicados dentro de una tabla o entre ambas sin renumerar ni escribir documentos.
+
+Evidencia ejecutada: unittest tests.test_integrations_v018 y
+tests.test_contract_engine: 17 passed; tests.test_fullstack_integration_contract_v017
+y tests.test_quality_suite_registry: 18 passed. validate_plugin_contract.py:
+VALID; validate_fixture_manifest.py: VALID (12 fixtures). Diff sin whitespace.
+Estos resultados no acreditan todavía variantes, autenticación ni H5.
+
+Pendientes: R18-03..R18-24. Próximo paso: observadores y operaciones declaradas
+comunes, eliminando la dependencia de /api/v1 y la obligación de browser para DB.
