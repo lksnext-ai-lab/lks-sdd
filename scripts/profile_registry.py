@@ -27,9 +27,22 @@ TRANSIENT_PARTS = {
 }
 TRANSIENT_SUFFIXES = {".pyc", ".pyo", ".tsbuildinfo"}
 CERTIFICATION_ENGINE_FILES = (
+    "scripts/observation_contract.py",
     "scripts/profile_registry.py",
     "scripts/validate_reference_profile.py",
     "scripts/run_reference_profile_gate.py",
+    "scripts/evidence_contract.py",
+    "scripts/integration_contract.py",
+    "scripts/evidence_safety.py",
+    "scripts/technology_resolution.py",
+    "scripts/adoption_preparation.py",
+    "scripts/composition_contract.py",
+    "scripts/planning_engine.py",
+    "skills/lks-sdd-implement/scripts/prepare_increment.py",
+    "skills/lks-sdd-verify/scripts/run_verification.py",
+    "skills/lks-sdd-assess-readiness/scripts/assess_readiness.py",
+    "scripts/delivery_engine.py",
+    "scripts/validation_evidence.py",
     "schemas/technology-profile.schema.json",
     "schemas/technology-profile-lock.schema.json",
     "schemas/profile-driver.schema.json",
@@ -256,6 +269,13 @@ def sha256_prepare_sources(driver: dict[str, Any]) -> str:
             digest.update(item.relative_to(base).as_posix().encode("utf-8"))
             digest.update(b"\0")
             digest.update(hashlib.sha256(item.read_bytes()).digest())
+    variant = driver.get("variant")
+    if variant:
+        for relative in [variant["resolution"], "profiles/architecture-contracts.json"]:
+            path = (PLUGIN_ROOT / relative).resolve()
+            path.relative_to(PLUGIN_ROOT.resolve())
+            digest.update(relative.encode("utf-8"))
+            digest.update(hashlib.sha256(path.read_bytes()).digest())
     return digest.hexdigest()
 
 
@@ -352,8 +372,7 @@ def certification_evidence_errors(
         errors.append(
             f"{bundle.profile_id}: evidencia sin gates passed: {missing}."
         )
-    canonical = json.dumps(
-        {
+    result_material = {
             "profile_id": evidence.get("profile_id"),
             "profile_version": evidence.get("profile_version"),
             "runtime": evidence.get("runtime"),
@@ -361,7 +380,40 @@ def certification_evidence_errors(
             "complete_gate": evidence.get("complete_gate"),
             "passed": evidence.get("passed"),
             "checks": evidence.get("checks"),
-        },
+    }
+    if evidence.get("schema_version") == "1.1":
+        from evidence_safety import evidence_safety_errors
+        manifest = evidence.get("evidence_manifest")
+        result_material["evidence_manifest"] = manifest
+        if not isinstance(manifest, list) or not manifest:
+            errors.append(f"{bundle.profile_id}: certification has no observation manifest")
+        else:
+            observed_gates = set()
+            for artifact in manifest:
+                try:
+                    path = bundle.root / artifact["path"]
+                    path.resolve().relative_to((bundle.root / "certification-details").resolve())
+                    if path.is_symlink():
+                        raise ValueError("linked artifact")
+                    content = path.read_bytes()
+                    if len(content) != artifact["size"] or hashlib.sha256(content).hexdigest() != artifact["sha256"]:
+                        raise ValueError("artifact digest mismatch")
+                    if path.suffix == ".json":
+                        observation = json.loads(content)
+                        errors.extend(evidence_safety_errors(observation))
+                        if observation.get("gate_id") != artifact["gate_id"] or observation.get("status") != "passed":
+                            raise ValueError("observation gate mismatch")
+                        from observation_contract import gate_observation_errors
+                        errors.extend(gate_observation_errors(observation, variant=bool(bundle.driver.get("variant"))))
+                        observed_gates.add(artifact["gate_id"])
+                    elif path.suffix != ".png" or not content.startswith(b"\x89PNG\r\n\x1a\n"):
+                        raise ValueError("unsupported evidence artifact")
+                except (ValueError, OSError, KeyError, TypeError):
+                    errors.append(f"{bundle.profile_id}: invalid or missing certification observation artifact")
+            if not required_gate_ids <= observed_gates:
+                errors.append(f"{bundle.profile_id}: observations do not cover all required gates")
+    canonical = json.dumps(
+        result_material,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
@@ -449,6 +501,20 @@ def validate_profile_bundle(
         bundle.lock,
         bundle.catalog_entry,
     )
+    if driver.get("variant"):
+        variant = driver["variant"]
+        try:
+            architecture = json.loads((PROFILES_ROOT / "architecture-contracts.json").read_text())
+            contract = next(c for c in architecture["contracts"] if c["id"] == variant["contract_id"])
+            if contract.get("selectable") is not False or profile_id not in contract["profile_ids"]:
+                raise ValueError("variant contract mismatch")
+            path = (PLUGIN_ROOT / variant["resolution"]).resolve()
+            path.relative_to(PROFILES_ROOT.resolve())
+            resolution = json.loads(path.read_text())
+            if resolution.get("profile_id") != profile_id or not resolution.get("runtimes") or not resolution.get("images"):
+                raise ValueError("exact technology resolution incomplete")
+        except (OSError, ValueError, KeyError, StopIteration):
+            errors.append(f"{profile_id}: arquitectura o variante exacta inválida/incompleta.")
     catalog, _ = load_catalog()
     capabilities = _capability_entries(catalog)
     profile_path = bundle.root / "technology-profile.yaml"

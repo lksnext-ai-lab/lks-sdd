@@ -15,7 +15,8 @@ PATTERNS = (
     re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/-]{8,}"),
     re.compile(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b"),
     re.compile(r"(?im)^\s*(?:authorization|cookie|set-cookie)\s*:[^\r\n]+"),
-    re.compile(r"(?i)\b(?:password|client_secret|refresh_token|access_token)\s*[=:]\s*['\"]?[^\s,'\"}]+"),
+    re.compile(r"(?i)\b(?:password(?:_hash)?|current_password|new_password|client_secret|refresh_token|access_token)['\"]?\s*[=:]\s*['\"]?[^\s,'\"}]+"),
+    re.compile(r"\$argon2(?:id|i|d)\$[^\s'\"]+"),
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(r"\b(?:postgresql(?:\+psycopg)?|https?)://[^\s/:]+:[^\s/@]+@"),
 )

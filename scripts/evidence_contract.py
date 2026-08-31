@@ -185,7 +185,7 @@ def integration_gate_applicability(
                 "task_ids": selected,
                 "unit_ids": units,
                 "binding_ids": bindings,
-                "required_evidence_scopes": scopes,
+                "required_evidence_scopes": sorted(set(scopes) | set(policy["required_scopes"])),
                 "operations": sorted(
                     {
                         item.strip().casefold()
@@ -241,6 +241,41 @@ def integration_evidence_errors(
             errors.append(f"{check.get('name', 'check')}: evidence_scopes inválidos")
     for obligation in applicable:
         interface_id = str(obligation["interface_id"])
+        exact_id, _, exact_version = str(obligation.get("exact_composition", "")).partition("@")
+        exact_bundle = load_profile_bundle(exact_id)
+        if exact_bundle.driver.get("variant"):
+            material = evidence.get("build_identity_material", {})
+            compositions = material.get("compositions", []) if isinstance(material, dict) else []
+            candidates = [c for c in compositions if isinstance(c, dict) and c.get("profile_id") == exact_id and c.get("profile_version") == exact_version]
+            candidates = list({json.dumps(c, sort_keys=True): c for c in candidates}.values())
+            if len(candidates) != 1:
+                errors.append(f"{interface_id}: falta identidad exacta y única de la composición")
+            else:
+                value = candidates[0]
+                composition = value.get("material", {})
+                if not isinstance(composition, dict):
+                    errors.append(f"{interface_id}: material de composición inválido")
+                    continue
+                serialized = (json.dumps(composition, sort_keys=True, indent=2) + "\n").encode()
+                if value.get("sha256") != hashlib.sha256(serialized).hexdigest():
+                    errors.append(f"{interface_id}: digest de composición incorrecto")
+                expected_lock = hashlib.sha256((exact_bundle.root / "technology-profile.lock.json").read_bytes()).hexdigest()
+                if composition.get("profile_lock_sha256") != expected_lock or composition.get("profile") != obligation.get("exact_composition"):
+                    errors.append(f"{interface_id}: composición de otra revisión o variante")
+                members = composition.get("participants", [])
+                if not isinstance(members, list) or any(not isinstance(m, dict) for m in members):
+                    errors.append(f"{interface_id}: participantes inválidos")
+                    continue
+                required_members = exact_bundle.driver["variant"].get("participants", {})
+                if required_members and {m.get("role"): m.get("profile") for m in members} != required_members:
+                    errors.append(f"{interface_id}: participantes de otra composición")
+                for member in members:
+                    member_id, _, member_version = str(member.get("profile", "")).partition("@")
+                    participant = load_profile_bundle(member_id)
+                    if participant.root is None or participant.profile.get("version") != member_version or member.get("lock_sha256") != hashlib.sha256((participant.root / "technology-profile.lock.json").read_bytes()).hexdigest():
+                        errors.append(f"{interface_id}: lock de participante ajeno o modificado")
+                if required_members and {m.get("binding_id") for m in members} != set(obligation.get("binding_ids", [])):
+                    errors.append(f"{interface_id}: bindings no coinciden con los participantes")
         required = set(obligation.get("required_evidence_scopes", []))
         matching = [
             check
@@ -299,6 +334,12 @@ def integration_evidence_errors(
                 continue
             if http_required:
                 errors.extend(f"{interface_id}: {message}" for message in http_observation_errors(observations, obligation))
+            else:
+                from integration_contract import resource_observation_errors
+                errors.extend(f"{interface_id}: {message}" for message in resource_observation_errors(observations, obligation))
+            if "persistence" in required:
+                from observation_contract import persistence_errors
+                errors.extend(f"{interface_id}: {message}" for message in persistence_errors(observations))
             if (browser_required and observations.get("reload") is not True) or (
                 "persistence" in required and (observations.get("persistence") is not True or not observations.get("read_back"))
             ):
@@ -398,6 +439,10 @@ def evidence_profile_identity_errors(
         identities[binding_id] = (profile_id, profile_version)
         if manifest_binding.get("profile_id") != profile_id:
             errors.append(f"{binding_id}: profile_id diverge del manifest")
+        if load_profile_bundle(profile_id).driver.get("variant"):
+            for field in ("unit_id", "unit_path"):
+                if str(built_binding.get(field, "." if field == "unit_path" else "")) != str(manifest_binding.get(field, "." if field == "unit_path" else "")):
+                    errors.append(f"{binding_id}: {field} diverge del manifest")
         for label, lock in (("profile_locks", declared_lock), ("build_identity_material.locks", built_lock)):
             if lock.get("profile_id") != profile_id:
                 errors.append(f"{binding_id}: {label} diverge del profile_id del binding")

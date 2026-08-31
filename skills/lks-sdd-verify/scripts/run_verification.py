@@ -65,6 +65,9 @@ from delivery_engine import (  # noqa: E402
 )
 from planning_engine import assess_authorization, assess_planning  # noqa: E402
 from profile_registry import load_profile_bundle  # noqa: E402
+from evidence_safety import sanitize  # noqa: E402
+from composition_contract import resolve_compositions  # noqa: E402
+from integration_contract import INTEGRATION_GATES  # noqa: E402
 from experience_engine import (  # noqa: E402
     compare_subject,
     is_administrative_path,
@@ -645,16 +648,23 @@ def _profile_command(
     command = list(check["command"])
     if os.name == "nt" and command and command[0] in {"npm", "npx"}:
         command[0] += ".cmd"
+    adoption_root = root / ".lks-sdd/verification" / str(binding["binding_id"])
+    adoption = (adoption_root / "adoption.json").is_file()
+    if adoption:
+        command = [sys.executable, str(adoption_root / "observer/gate.py"), "--config", str(adoption_root / "profile-runtime.json"), "--gate", check["id"]]
     evidence_path = check.get("evidence_path")
     evidence_scopes = list(check.get("evidence_scopes", ["component"]))
-    if check.get("id") == FULLSTACK_GATE_ID:
+    variant = load_profile_bundle(str(binding.get("profile_id", ""))).driver.get("variant")
+    if variant:
+        evidence_path = f".lks-sdd/{check['id']}.json"
+    elif check.get("id") == FULLSTACK_GATE_ID:
         evidence_path = ".lks-sdd/fullstack-evidence.json"
         evidence_scopes = ["contract", "composition", "user-flow", "persistence"]
     resolved_evidence: Path | None = None
     if isinstance(evidence_path, str):
         requested = (
             root / evidence_path
-            if check.get("id") == FULLSTACK_GATE_ID
+            if check.get("id") == FULLSTACK_GATE_ID and not variant
             else root / unit / relative_cwd / evidence_path
         )
         try:
@@ -672,7 +682,7 @@ def _profile_command(
         "evidence_scopes": evidence_scopes,
         "interface_ids": [],
         "evidence_path": resolved_evidence,
-        "cwd": root / unit / relative_cwd,
+        "cwd": root if adoption else root / unit / relative_cwd,
         "command": command,
         "timeout_seconds": check["timeout_seconds"],
         "requires_containers": check["requires_containers"],
@@ -728,15 +738,18 @@ def _execute_profile_command(
             "reason": "timeout",
             **metadata,
         }
+    safe_output, contamination = sanitize({"stdout_tail": process.stdout[-2000:], "stderr_tail": process.stderr[-2000:]})
+    _, complete_contamination = sanitize({"stdout": process.stdout, "stderr": process.stderr})
+    contamination.extend(complete_contamination)
     result = {
         "name": check["name"],
         "gate_id": check["gate_id"],
         "binding_id": check["binding_id"],
-        "status": "passed" if process.returncode == 0 else "failed",
+        "status": "passed" if process.returncode == 0 and not contamination else "failed",
         "exit_code": process.returncode,
         "duration_seconds": round(time.monotonic() - started, 3),
-        "stdout_tail": process.stdout[-2000:],
-        "stderr_tail": process.stderr[-2000:],
+        **safe_output,
+        "information_protection": {"status": "blocked" if contamination else "passed", "locations": contamination},
         **metadata,
     }
     evidence_path = check.get("evidence_path")
@@ -753,9 +766,14 @@ def _execute_profile_command(
                 result["status"] = "failed"
                 result["reason"] = "structured-evidence-invalid"
             else:
-                result["observations"] = payload.get("observations")
-                result["mocks"] = payload.get("mocks", [])
+                cleaned, locations = sanitize(payload)
+                if locations:
+                    result["status"] = "failed"
+                    result["reason"] = "contaminated-evidence"
+                result["observations"] = cleaned.get("observations")
+                result["mocks"] = cleaned.get("mocks", [])
                 result["structured_evidence"] = candidate.as_posix()
+                result["structured_evidence_sha256"] = hashlib.sha256(candidate.read_bytes()).hexdigest()
     return result
 
 
@@ -765,12 +783,19 @@ def _cleanup_profile_compositions(
     env: dict[str, str],
 ) -> list[dict[str, Any]]:
     prefixes: set[tuple[str, tuple[str, ...]]] = set()
+    packaged_cleanups: set[tuple[str, tuple[str, ...]]] = set()
     for check in checks:
         command = check["command"]
         normalized = [
             item[:-4] if index == 0 and item.endswith(".cmd") else item
             for index, item in enumerate(command)
         ]
+        if check.get("profile_id") and load_profile_bundle(check["profile_id"]).driver.get("variant") and "--gate" in normalized:
+            prefix = normalized[:normalized.index("--gate")]
+            if "--config" in normalized and "--config" not in prefix:
+                index = normalized.index("--config")
+                prefix += normalized[index:index + 2]
+            packaged_cleanups.add((str(check["cwd"]), tuple(prefix)))
         if normalized[:2] != ["docker", "compose"]:
             continue
         prefix = ["docker", "compose"]
@@ -780,6 +805,9 @@ def _cleanup_profile_compositions(
                 prefix.extend(["-f", normalized[index + 1]])
         prefixes.add((str(check["cwd"]), tuple(prefix)))
     outcomes: list[dict[str, Any]] = []
+    for cwd_text, prefix in sorted(packaged_cleanups):
+        outcomes.append(_execute_check_with_env({"name": "packaged-fixture-cleanup", "cwd": Path(cwd_text),
+                                                "command": [*prefix, "--cleanup"]}, env, timeout=180))
     for cwd_text, prefix in sorted(prefixes):
         outcomes.append(
             _execute_check_with_env(
@@ -908,6 +936,7 @@ def _build_identity_material(
     lock_details: list[dict[str, str | None]],
     bindings: list[dict[str, Any]],
     artifact_digests: list[str],
+    compositions: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Select only stable build inputs; execution diagnostics are deliberately absent."""
 
@@ -915,7 +944,7 @@ def _build_identity_material(
         {
             key: value
             for key, value in details.items()
-            if key in {"binding_id", "profile_id", "profile_version", "sha256"}
+            if key in {"binding_id", "profile_id", "profile_version", "sha256", "dependency_fingerprint"}
         }
         for details in lock_details
     ]
@@ -942,6 +971,7 @@ def _build_identity_material(
         "locks": stable_locks,
         "profile_bindings": stable_bindings,
         "artifact_digests": sorted(set(artifact_digests)),
+        **({"compositions": [{k: v for k, v in c.items() if k in {"profile_id", "profile_version", "sha256", "material"}} for c in compositions]} if compositions else {}),
     }
 
 
@@ -1224,36 +1254,32 @@ def _run_v12(
         blockers.append("No hay bindings verificables en implementation.")
 
     integration_applicability = integration_gate_applicability(task_ids, delivery)
+    compositions, composition_errors = resolve_compositions(root, delivery, task_ids, require_locks=True)
+    blockers.extend(composition_errors)
     for obligation in integration_applicability:
         if obligation.get("status") != "applicable":
             continue
         exact = str(obligation.get("exact_composition", ""))
         profile_id, separator, profile_version = exact.partition("@")
-        matching = [
-            binding
-            for binding in bindings
-            if binding.get("profile_id") == profile_id
-            and str(load_profile_bundle(profile_id).profile.get("version"))
-            == profile_version
-        ] if separator else []
+        matching = [c for c in compositions if c["profile_id"] == profile_id and c["profile_version"] == profile_version] if separator else []
         if not matching:
             blockers.append(
                 f"{obligation.get('interface_id')}: automation_support=unsupported; "
-                f"la selección no incluye la composición exacta {exact}."
+                f"INT no resuelve la composición exacta {exact}."
             )
             continue
         bundle = load_profile_bundle(profile_id)
         fullstack = [
             check
             for check in bundle.driver.get("verify", {}).get("checks", [])
-            if check.get("id") == "GATE-BROWSER-FULLSTACK-E2E"
+            if check.get("id") == obligation.get("gate_id")
         ]
         required_scopes = set(obligation.get("required_evidence_scopes", []))
         supported_scopes = {"contract", "composition", "user-flow", "persistence"}
         if len(fullstack) != 1 or not required_scopes <= supported_scopes:
             blockers.append(
                 f"{obligation.get('interface_id')}: automation_support=unsupported; "
-                f"{exact} no aporta un gate full-stack estructurado para todos los scopes."
+                f"{exact} no aporta el observador declarado para todos los scopes."
             )
 
     initial_contract_fingerprint, contract_errors = _active_contract_snapshot(
@@ -1328,7 +1354,7 @@ def _run_v12(
             if check.get("kind") != "command" or check.get("phase") == "G4":
                 continue
             prepared = _profile_command(root, binding, check)
-            if check.get("id") == "GATE-BROWSER-FULLSTACK-E2E":
+            if check.get("id") in INTEGRATION_GATES:
                 prepared["interface_ids"] = sorted(
                     str(item["interface_id"])
                     for item in integration_applicability
@@ -1337,6 +1363,22 @@ def _run_v12(
                     == binding.get("profile_id")
                 )
             profile_checks.append(prepared)
+    for composition in compositions:
+        if any(b.get("profile_id") == composition["profile_id"] for b in bindings):
+            continue  # Historical monolithic system binding remains readable.
+        bundle = load_profile_bundle(composition["profile_id"])
+        config_path = root / ".lks-sdd/verification/compositions" / (composition["profile_id"] + ".json")
+        if not bundle.driver.get("variant") or not config_path.is_file():
+            blockers.append(f"{composition['interface_id']}: falta preparación de verificación de la composición.")
+            continue
+        gate = next(c for c in bundle.driver["verify"]["checks"] if c["id"] == composition["gate_id"])
+        profile_checks.append({"name": composition["profile_id"] + ":" + gate["name"],
+            "gate_id": gate["id"], "binding_id": None, "profile_id": composition["profile_id"],
+            "cwd": root, "command": [sys.executable, str(PLUGIN_ROOT / "profiles/_shared/local-auth/verification/gate.py"), "--config", str(config_path), "--gate", gate["id"]],
+            "timeout_seconds": gate["timeout_seconds"], "required": True, "requires_containers": True,
+            "evidence_path": root / ".lks-sdd" / (gate["id"] + ".json"),
+            "evidence_scopes": ["contract", "composition", "persistence"] + (["user-flow"] if gate["id"] == FULLSTACK_GATE_ID else []),
+            "interface_ids": composition.get("interface_ids", [composition["interface_id"]])})
     plan = [
         {
             "name": item["name"],
@@ -1613,7 +1655,7 @@ def _run_v12(
         verification_run_id = str(reuse_evidence.get("verification_run_id", ""))
     else:
         build_material = _build_identity_material(
-            revision_after, lock_details, bindings, artifact_digests
+            revision_after, lock_details, bindings, artifact_digests, compositions
         )
         build_id = _build_id(build_material)
         verification_run_id = _verification_run_id(outcomes, env["COMPOSE_PROJECT_NAME"])

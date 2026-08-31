@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -29,6 +30,7 @@ from profile_registry import (
     sha256_prepare_sources,
 )
 from validate_reference_profile import PROFILE_ID, validate_profile
+from evidence_safety import sanitize, evidence_safety_errors
 
 
 PYTHON_IMAGE = (
@@ -77,23 +79,26 @@ def _run(
                 "name": name,
                 "status": "failed",
                 "duration_seconds": round(time.monotonic() - started, 3),
-                "error": str(exc),
+                "error": type(exc).__name__,
                 "command": command,
             }
         )
         return False
+    clean_output, contamination = sanitize({"stdout_tail": process.stdout[-3000:], "stderr_tail": process.stderr[-3000:]})
+    _, complete_contamination = sanitize({"stdout": process.stdout, "stderr": process.stderr})
+    contamination.extend(complete_contamination)
     results.append(
         {
             "name": name,
-            "status": "passed" if process.returncode == 0 else "failed",
+            "status": "passed" if process.returncode == 0 and not contamination else "failed",
             "exit_code": process.returncode,
             "duration_seconds": round(time.monotonic() - started, 3),
             "command": command,
-            "stdout_tail": process.stdout[-3000:],
-            "stderr_tail": process.stderr[-3000:],
+            **clean_output,
+            "information_protection": {"status": "blocked" if contamination else "passed", "locations": contamination},
         }
     )
-    return process.returncode == 0
+    return process.returncode == 0 and not contamination
 
 
 def _materialize(profile_id: str, work: Path) -> None:
@@ -295,6 +300,10 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
     profile_hash = sha256_file(bundle.root / "technology-profile.yaml")
     driver_hash = sha256_file(bundle.root / "profile-driver.json")
     scaffold_hash = sha256_prepare_sources(bundle.driver)
+    current_identity = {"profile_sha256": profile_hash, "driver_sha256": driver_hash,
+                        "scaffold_sha256": scaffold_hash, "engine_sha256": certification_engine_sha256()}
+    if result.get("source_identity") != current_identity:
+        raise ValueError("Source inputs changed or certification provenance is missing; rerun the complete gate")
     composition_hash = composition_digest(
         profile_sha256=profile_hash,
         driver_sha256=driver_hash,
@@ -313,6 +322,31 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
     ]
     if any(item["status"] != "passed" for item in checks):
         raise ValueError("El resultado no contiene todos los gates required superados.")
+    if evidence_safety_errors(result):
+        raise ValueError("Credential-bearing certification evidence is blocked")
+    evidence_manifest = []
+    artifacts = []
+    for item in result.get("checks", []):
+        gate_id = item.get("gate_id")
+        if gate_id not in gate_ids:
+            continue
+        from observation_contract import gate_observation_errors
+        semantic_errors = gate_observation_errors(item, variant=bool(bundle.driver.get("variant")))
+        if semantic_errors:
+            raise ValueError(f"{gate_id}: " + "; ".join(semantic_errors))
+        content = (json.dumps(item, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+        content_hash = hashlib.sha256(content).hexdigest()
+        relative = f"certification-details/{content_hash}/{gate_id}.json"
+        artifacts.append((relative, content))
+        evidence_manifest.append({"path": relative, "sha256": content_hash, "size": len(content), "gate_id": gate_id})
+    for item in result.get("evidence_artifacts", []):
+        content = base64.b64decode(item["content_base64"], validate=True)
+        content_hash = hashlib.sha256(content).hexdigest()
+        if item["sha256"] != content_hash:
+            raise ValueError("Captured artifact hash mismatch")
+        relative = f"certification-details/{content_hash}/capture.png"
+        artifacts.append((relative, content))
+        evidence_manifest.append({"path": relative, "sha256": content_hash, "size": len(content), "gate_id": item["gate_id"]})
     result_material = {
         "profile_id": profile_id,
         "profile_version": bundle.profile["version"],
@@ -321,6 +355,7 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
         "complete_gate": result["complete_gate"],
         "passed": result["passed"],
         "checks": checks,
+        "evidence_manifest": evidence_manifest,
     }
     result_sha256 = hashlib.sha256(
         json.dumps(
@@ -331,7 +366,7 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
         ).encode("utf-8")
     ).hexdigest()
     evidence = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "profile_id": profile_id,
         "profile_version": bundle.profile["version"],
         "certified_at": date.today().isoformat(),
@@ -345,6 +380,7 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
         "composition_digest": composition_hash,
         "certification_engine_sha256": certification_engine_sha256(),
         "checks": checks,
+        "evidence_manifest": evidence_manifest,
         "result_sha256": result_sha256,
         "command": (
             "python scripts/run_reference_profile_gate.py --profile "
@@ -358,6 +394,13 @@ def _record_certification(profile_id: str, result: dict[str, Any]) -> Path:
     evidence_temp = evidence_path.with_name(evidence_path.name + ".tmp")
     lock_temp = lock_path.with_name(lock_path.name + ".tmp")
     try:
+        for relative, content in artifacts:
+            target = bundle.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if target.is_file() and target.read_bytes() != content:
+                raise ValueError("Immutable evidence artifact collision")
+            if not target.exists():
+                target.write_bytes(content)
         evidence_temp.write_bytes(
             (json.dumps(evidence, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
         )
@@ -400,6 +443,7 @@ def run_gate(
     profile_id: str, *, runtime: str, containers: bool
 ) -> tuple[int, dict[str, Any]]:
     results: list[dict[str, Any]] = []
+    evidence_artifacts: list[dict[str, Any]] = []
     structural_errors = validate_profile(
         profile_id, require_validated=False
     )
@@ -421,6 +465,10 @@ def run_gate(
             "checks": results,
         }
     checks = bundle.driver["verify"]["checks"]
+    source_identity = {"profile_sha256": sha256_file(bundle.root / "technology-profile.yaml"),
+                       "driver_sha256": sha256_file(bundle.root / "profile-driver.json"),
+                       "scaffold_sha256": sha256_prepare_sources(bundle.driver),
+                       "engine_sha256": certification_engine_sha256()}
     required_container_checks = [
         item for item in checks if item.get("required") and item.get("requires_containers")
     ]
@@ -541,6 +589,39 @@ def run_gate(
                 )
                 results[-1]["gate_id"] = check["id"]
                 results[-1]["required"] = bool(check["required"])
+                evidence_relative = check.get("evidence_path")
+                if not evidence_relative and bundle.driver.get("variant"):
+                    evidence_relative = f".lks-sdd/{check['id']}.json"
+                if not evidence_relative and check["id"] == "GATE-BROWSER-FULLSTACK-E2E":
+                    evidence_relative = ".lks-sdd/fullstack-evidence.json"
+                if passed and evidence_relative:
+                    evidence_file = (work / evidence_relative).resolve()
+                    evidence_file.relative_to(work.resolve())
+                    structured = json.loads(evidence_file.read_text(encoding="utf-8"))
+                    clean, contamination = sanitize(structured)
+                    results[-1]["observations"] = clean.get("observations")
+                    results[-1]["mocks"] = clean.get("mocks", [])
+                    if contamination:
+                        results[-1]["status"] = "failed"
+                        passed = False
+                    else:
+                        for capture in clean.get("observations", {}).get("screenshots", []):
+                            candidates = [work / ".runtime" / capture["path"], work / ".lks-sdd" / capture["path"]]
+                            capture_file = next((p for p in candidates if p.is_file()), None)
+                            if capture_file is None:
+                                raise ValueError("Captured screenshot is missing")
+                            capture_file.resolve().relative_to(work.resolve())
+                            content = capture_file.read_bytes()
+                            if hashlib.sha256(content).hexdigest() != capture["sha256"]:
+                                raise ValueError("Captured screenshot hash mismatch")
+                            evidence_artifacts.append({"gate_id": check["id"], "sha256": capture["sha256"], "content_base64": base64.b64encode(content).decode()})
+                if passed:
+                    from observation_contract import gate_observation_errors
+                    semantic_errors = gate_observation_errors(results[-1], variant=bool(bundle.driver.get("variant")))
+                    if semantic_errors:
+                        results[-1]["status"] = "failed"
+                        results[-1]["semantic_errors"] = semantic_errors
+                        passed = False
                 if not passed:
                     _compose_diagnostics(command, cwd, results, env)
                     break
@@ -549,6 +630,8 @@ def run_gate(
                 {"name": "materialization", "status": "failed", "error": str(exc)}
             )
         finally:
+            if bundle.driver.get("variant") and (work / "verification/gate.py").is_file():
+                _run("isolated-fixture-cleanup", [sys.executable, "verification/gate.py", "--cleanup"], work, results, env=env, timeout=120)
             if containers:
                 _compose_cleanup(work, checks, results, env)
             for volume in sorted(created_dependency_volumes):
@@ -576,6 +659,8 @@ def run_gate(
         "runtime": runtime,
         "containers_executed": containers,
         "checks": results,
+        "evidence_artifacts": evidence_artifacts,
+        "source_identity": source_identity,
     }
 
 
@@ -607,6 +692,7 @@ def main() -> int:
                 result.setdefault("errors", []).append(str(exc))
                 result["certification_recorded"] = False
                 code = 2
+    result.pop("evidence_artifacts", None)
     if args.as_json:
         print(json.dumps(result, indent=2, ensure_ascii=True))
     else:

@@ -65,8 +65,8 @@ def fullstack_check() -> dict:
                 {"path": "/api/v1/items", "method": "POST", "status": 201, "correlation_id": "synthetic-correlation"},
                 {"path": "/api/v1/items", "method": "GET", "status": 200},
             ],
-            "mutation": {"action": "save synthetic item", "method": "POST", "path": "/api/v1/items"},
-            "read_back": True,
+            "mutation": {"action": "save synthetic item", "method": "POST", "path": "/api/v1/items", "record_id": "synthetic-001"},
+            "read_back": {"observer": "postgresql-psql", "record_id": "synthetic-001", "resource": "reference_items", "matches": True},
             "reload": True,
             "persistence": True,
             "screenshots": [

@@ -2,11 +2,11 @@
   "schema_version": "2.0",
   "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
   "profile_version": "2.1.0",
-  "generated_at": "2026-08-30",
-  "validated": true,
+  "generated_at": "2026-08-21",
+  "validated": false,
   "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
-  "driver_sha256": "75e1f9af0e798625c9fc8fff24e02c33669ae50687bddb522f298555e565b547",
-  "scaffold_sha256": "16888e55b76ca9bc251aa621378df85089cfdd987d4778b705a63173c5ff012b",
+  "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+  "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -174,161 +174,161 @@
       "id": "GATE-API-LINT",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-BROWSER-FULLSTACK-E2E",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-OIDC-INTEGRATION",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
       "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
+      "status": "not-run",
+      "evidence": "profile WEB-FASTAPI-REACT-KEYCLOAK-PG: exact certification not available"
     }
   ],
   "composition": {
     "gate_id": "GATE-BROWSER-FULLSTACK-E2E",
-    "status": "passed",
-    "digest": "c5c140f7f18f11d54af0ae38002163ef72851c684eb72c044dc93ac5eea844a1"
+    "status": "not-run",
+    "digest": "a02349b43d377a9dab8019319a1679dd6eb4f5194dd34346bcdaae047e3937cb"
   },
   "evidence": [
     "python scripts/validate_reference_profile.py --profile WEB-FASTAPI-REACT-KEYCLOAK-PG",

@@ -76,3 +76,21 @@ def http_observation_errors(observations: dict[str, Any], obligation: dict[str, 
         ):
             errors.append("mutation no identifica una escritura del contrato declarado")
     return errors
+
+
+def resource_observation_errors(observations: dict[str, Any], obligation: dict[str, Any]) -> list[str]:
+    contract = str(obligation.get("contract", ""))
+    if obligation.get("observer") == "postgresql":
+        resources = re.findall(r"\bTABLE\s*:?\s+([a-z_][a-z0-9_]*)\b", contract, re.I)
+        read = observations.get("read_back", {})
+        if not resources:
+            return ["Contract no declara TABLE <recurso>; información insuficiente"]
+        if not isinstance(read, dict) or read.get("resource") not in resources:
+            return ["la observación PostgreSQL no corresponde al recurso del contrato"]
+    elif obligation.get("observer") == "migration":
+        revisions = re.search(r"\bREVISION\s*:?\s+([A-Za-z0-9_-]+)\s*->\s*([A-Za-z0-9_-]+)", contract, re.I)
+        if not revisions:
+            return ["Contract no declara REVISION <origen> -> <destino>; información insuficiente"]
+        if (observations.get("from"), observations.get("to")) != revisions.groups() or observations.get("data_preserved") is not True or observations.get("forward_fix_rehearsed") is not True:
+            return ["la migración observada no corresponde al contrato o carece de recuperación"]
+    return []
