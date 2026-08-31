@@ -848,8 +848,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.15.0":
-            errors.append("El rollback del piloto 0.17.0 debe conservar 0.15.0.")
+        if rollback.get("previous_version") != "0.17.0":
+            errors.append("El rollback del piloto 0.18.0 debe conservar 0.17.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -867,8 +867,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.15.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.15.0.")
+        if schema_previous != "0.17.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.17.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 

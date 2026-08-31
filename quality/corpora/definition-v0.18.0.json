@@ -146,7 +146,7 @@
       ]
     },
     {
-      "id": "FX-20",
+      "id": "FX-67",
       "title": "Variante no evaluada",
       "input": "Mi aplicación usa React 17 y el perfil certifica React 19.",
       "expected": [
@@ -155,10 +155,15 @@
       ],
       "forbidden": [
         "Inventar certificación o autorización."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "information_protection"
       ]
     },
     {
-      "id": "FX-21",
+      "id": "FX-68",
       "title": "Adopción sin sobrescritura",
       "input": "Adopta una aplicación existente con backend y frontend.",
       "expected": [
@@ -167,10 +172,15 @@
       ],
       "forbidden": [
         "Inventar certificación o autorización."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "information_protection"
       ]
     },
     {
-      "id": "FX-22",
+      "id": "FX-69",
       "title": "Autenticación propia",
       "input": "Necesito autenticación propia con varias organizaciones.",
       "expected": [
@@ -179,6 +189,11 @@
       ],
       "forbidden": [
         "Inventar certificación o autorización."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "information_protection"
       ]
     }
   ],

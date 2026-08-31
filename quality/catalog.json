@@ -122,6 +122,9 @@
     {"id": "FX-63", "title": "Adopción sin sobrescritura", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": "adoption-flat-v018.json", "critical": true, "evidence": ["test:test_adoption_of_both_layouts_preserves_every_consumer_byte"]},
     {"id": "FX-64", "title": "Protección de información", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_sanitization_precedes_output_without_rewriting_original"]},
     {"id": "FX-65", "title": "Participantes exactos", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": "adoption-apps-v018.json", "critical": true, "evidence": ["test:test_composition_requires_exact_participants_without_system_unit"]},
-    {"id": "FX-66", "title": "Persistencia real e impacto conservador", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_simulated_or_foreign_database_read_is_rejected"]}
+    {"id": "FX-66", "title": "Persistencia real e impacto conservador", "family": "verification", "layers": ["T0", "T1", "T7"], "mode": "automated", "fixture": null, "critical": true, "evidence": ["test:test_simulated_or_foreign_database_read_is_rejected"]},
+    {"id": "FX-67", "title": "Variante no evaluada", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-68", "title": "Adopción sin sobrescritura", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []},
+    {"id": "FX-69", "title": "Autenticación propia", "family": "definition", "layers": ["T3", "T4"], "mode": "semantic", "fixture": null, "critical": true, "evidence": []}
   ]
 }

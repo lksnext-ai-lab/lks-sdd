@@ -346,8 +346,8 @@ def validate_catalog(value: Any) -> dict[str, Any]:
             raise HarnessError(
                 f"{case_id} no puede declarar evidencia antes de su ejecución controlada."
             )
-    if extension_ids != {f"FX-{index:02d}" for index in range(20, 67)}:
-        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-66.")
+    if extension_ids != {f"FX-{index:02d}" for index in range(20, 70)}:
+        raise HarnessError("Las extensiones vigentes deben cubrir exactamente FX-20 a FX-69.")
     if "definition-conversation" not in channels["candidate"].get("optional", []):
         raise HarnessError(
             "Candidate debe mostrar definition-conversation como evidencia opcional."
