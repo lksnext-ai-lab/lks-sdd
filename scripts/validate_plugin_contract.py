@@ -125,6 +125,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.15.0.json",
     "quality/corpora/definition-v0.16.0.json",
     "quality/corpora/definition-v0.17.0.json",
+    "quality/corpora/definition-v0.18.0.json",
     "quality/fixture-manifest.json",
     "quality/test-suites.json",
     "quality/v0.15-e2e-matrix.json",
@@ -283,6 +284,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
     "urllib",
 }
 RUNTIME_IMPORT_ALLOWLIST = {
+    "scripts/integration_contract.py": {"urllib.parse"},
     "scripts/build_candidate_package.py": {"subprocess"},
     "scripts/benchmark_experience.py": {"subprocess"},
     "scripts/delivery_engine.py": {"subprocess"},
@@ -698,7 +700,7 @@ def validate(root: Path) -> list[str]:
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
-            '"v0.15.0.json"',
+            '"v0.17.0.json"',
             "PILOT_SUMMARY_SCHEMA_PATH",
             "METRIC_DIRECTIONS",
             '"tree_state": "dirty" if porcelain else "clean"',

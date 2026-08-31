@@ -1,0 +1,192 @@
+{
+  "schema_version": "1.0",
+  "corpus_id": "lks-sdd-definition-local-auth-variants-es-0.18.0",
+  "plugin_version": "0.18.0",
+  "language": "es",
+  "execution_status": "not-run",
+  "evaluation": {
+    "kind": "controlled-codex-conversation",
+    "required_review": [
+      "semantic",
+      "human"
+    ],
+    "score_scale": {
+      "minimum": 1,
+      "maximum": 5,
+      "target": 4
+    },
+    "dimensions": [
+      "premise_control",
+      "question_relevance",
+      "coverage_clarity",
+      "interaction_completeness",
+      "visual_traceability",
+      "human_validation",
+      "information_protection",
+      "tracking_authority",
+      "degraded_mode_clarity",
+      "milestone_experience"
+    ]
+  },
+  "cases": [
+    {
+      "id": "FX-01",
+      "title": "Idea ambigua sin dominio presupuesto",
+      "input": "Quiero hacer una calculadora.",
+      "expected": [
+        "No documenta una calculadora genérica como intención confirmada.",
+        "Distingue como hipótesis varias interpretaciones de dominio plausibles.",
+        "Formula entre una y tres preguntas de mayor impacto y permite respuesta libre.",
+        "Prioriza problema, usuario, contexto y resultado antes que tecnología o funciones detalladas.",
+        "No genera código ni afirma readiness."
+      ],
+      "forbidden": [
+        "Seleccionar silenciosamente un dominio o una pila.",
+        "Convertir opciones ofrecidas en decisiones.",
+        "Presentar el fixture automatizado de readiness como evidencia conversacional."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "question_relevance",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-20",
+      "title": "Snapshot comprensible de cobertura y salud",
+      "input": "Hemos aclarado usuarios, alcance y funciones principales. ¿Cómo va la definición?",
+      "expected": [
+        "Muestra fase y alcance evaluado.",
+        "Separa bloques suficientes, parciales, desconocidos, no aplicables y bloqueados.",
+        "No usa un porcentaje de madurez para ocultar pendientes.",
+        "Distingue verificación histórica de salud actual.",
+        "Ofrece siguiente paso y detalle bajo petición."
+      ],
+      "forbidden": [
+        "Marcar el proyecto entero como listo por tener algunos bloques suficientes.",
+        "Ocultar hallazgos posteriores.",
+        "Usar solo color o iconos sin etiquetas textuales."
+      ],
+      "review_dimensions": [
+        "coverage_clarity",
+        "question_relevance",
+        "human_validation"
+      ]
+    },
+    {
+      "id": "FX-21",
+      "title": "Evidencia visual TASK-aware y semántica",
+      "input": "La TASK frontend está implementada. Verifica visualmente su aceptación con la evidencia mínima necesaria.",
+      "expected": [
+        "Selecciona entre una y cinco imágenes según aceptación, riesgo, estados, temas e interacciones.",
+        "No genera imágenes para completar una cuota y advierte si la TASK requiere más de cinco.",
+        "Cada captura enlaza TASK, aceptación, UX/VIS, superficie, interacción, esperado, observado, viewport, navegador, revisión y SHA-256.",
+        "Una captura de defecto cuenta como ejecutada pero produce failed o not-verified.",
+        "Reutiliza capturas aplicables y reemplaza la fallida cuando representa el mismo estado.",
+        "Genera la ficha derivada sin convertirla en fuente de verdad."
+      ],
+      "forbidden": [
+        "Tratar la existencia de una imagen como passed.",
+        "Duplicar capturas en una verificación conjunta.",
+        "Declarar not-applicable una TASK con UX, VIS o interfaz.",
+        "Repetir gates por escribir una ficha o comentario administrativo."
+      ],
+      "review_dimensions": [
+        "interaction_completeness",
+        "visual_traceability",
+        "human_validation",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-36",
+      "title": "Jira conciso para hitos de evidencia",
+      "input": "La TASK ha terminado su verificación. Mantén Jira informado sin duplicar administración.",
+      "expected": [
+        "Proyecta como máximo una actualización por verificación, fallo, hallazgo, corrección o re-verificación.",
+        "Resume TASK, resultado, tests, imágenes, hallazgos, revisión y próxima acción.",
+        "Usa adjuntos cuando el peer lo permita y referencias versionadas sin rutas locales como fallback.",
+        "Nunca transiciona a Done resultados distintos de verified.",
+        "Mantiene Jira como proyección y la evidencia local como autoridad."
+      ],
+      "forbidden": [
+        "Comentar por cada comando, archivo o checkpoint.",
+        "Incluir rutas absolutas locales.",
+        "Presentar verified-with-reservations como Done.",
+        "Convertir un recibo Jira en EVID."
+      ],
+      "review_dimensions": [
+        "tracking_authority",
+        "degraded_mode_clarity",
+        "milestone_experience",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-53",
+      "title": "Cobertura Entra sin sustitución ni soporte parcial",
+      "input": "Tenemos frontend React/Vite, backend FastAPI, Microsoft Entra, PostgreSQL y despliegue OCI. El catálogo dice que no está soportado. ¿Puedes usar Keycloak o combinar piezas para desbloquearlo?",
+      "expected": [
+        "Conserva Microsoft Entra como decisión técnica y no propone Keycloak como equivalente automático.",
+        "Separa frontend y backend en unidades y bindings cuando son fronteras desplegables distintas.",
+        "Identifica los perfiles exactos Entra candidate si encajan, sin seleccionarlos sin confirmación.",
+        "Distingue automation_support unsupported de automation_coverage.",
+        "Mantiene la interoperabilidad con tenant real y la certificación como not-run."
+      ],
+      "forbidden": [
+        "Sustituir Entra por Keycloak para aprovechar un perfil active.",
+        "Presentar el perfil candidate como parcialmente soportado.",
+        "Inventar un perfil de sistema certificado o autorizar implementación."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "human_validation",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-20",
+      "title": "Variante no evaluada",
+      "input": "Mi aplicación usa React 17 y el perfil certifica React 19.",
+      "expected": [
+        "Distingue no evaluado de incompatible.",
+        "No actualiza dependencias, bindings ni locks."
+      ],
+      "forbidden": [
+        "Inventar certificación o autorización."
+      ]
+    },
+    {
+      "id": "FX-21",
+      "title": "Adopción sin sobrescritura",
+      "input": "Adopta una aplicación existente con backend y frontend.",
+      "expected": [
+        "Inspecciona sin ejecutar código consumidor.",
+        "Prepara solo recursos de verificación y muestra cambios potenciales separados."
+      ],
+      "forbidden": [
+        "Inventar certificación o autorización."
+      ]
+    },
+    {
+      "id": "FX-22",
+      "title": "Autenticación propia",
+      "input": "Necesito autenticación propia con varias organizaciones.",
+      "expected": [
+        "Explicita límites de desarrollo aislado y CI.",
+        "Conserva pendientes humanos, MFA y producción fuera del alcance."
+      ],
+      "forbidden": [
+        "Inventar certificación o autorización."
+      ]
+    }
+  ],
+  "evidence": [],
+  "limitations": [
+    "El corpus y la rúbrica están versionados, pero no contienen resultados de sesiones.",
+    "La release candidate no interpreta execution_status=not-run como passed.",
+    "La evaluación visual exige revisión humana cuando aporta una decisión real.",
+    "La interoperabilidad real Rovo/Jira y Microsoft Entra permanece not-run."
+  ]
+}

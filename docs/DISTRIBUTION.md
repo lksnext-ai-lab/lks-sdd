@@ -10,7 +10,7 @@
 
 `X.Y.Z` se deriva del manifiesto del plugin; el builder no mantiene una segunda versión hardcodeada. La entrada del marketplace usa la forma estándar `local`, ruta `./plugins/lks-sdd`, instalación `AVAILABLE`, autenticación `ON_INSTALL` y categoría `Developer Tools`.
 
-El builder solo acepta la raíz exacta de un repositorio Git, comprueba que `--source-commit` exista y coincida con `HEAD`, y exige un árbol de trabajo limpio. Además exige un quality report 1.2 del mismo commit, versión y fecha; los reportes 1.1 solo se validan como históricos y no empaquetan 0.15.0. Recalcula hashes del catálogo, corpus, fixtures, baseline y política temporal, exige los inventarios exactos de checks, canales, casos y métricas, y contrasta las duraciones con cada check. También comprueba que cada evidencia automatizada resuelva al resultado ejecutado esperado y que los canales opcionales conserven su `not-run` real.
+El builder solo acepta la raíz exacta de un repositorio Git, comprueba que `--source-commit` exista y coincida con `HEAD`, y exige un árbol de trabajo limpio. Además exige un quality report 1.2 del mismo commit, versión y fecha; los reportes 1.1 solo se validan como históricos y no empaquetan la release actual. Recalcula hashes del catálogo, corpus, fixtures, baseline y política temporal, exige los inventarios exactos de checks, canales, casos y métricas, y contrasta las duraciones con cada check. También comprueba que cada evidencia automatizada resuelva al resultado ejecutado esperado y que los canales opcionales conserven su `not-run` real.
 
 Los bytes del plugin se leen del commit mediante objetos Git, no del working tree. Esto impide atribuir a un SHA contenido sin confirmar, incluso si Git oculta localmente un cambio mediante `assume-unchanged`. También rechaza enlaces, submódulos, salidas dentro del repositorio y patrones de secretos conocidos.
 
@@ -19,8 +19,8 @@ El repositorio fija `eol=lf` para todo texto mediante `.gitattributes` y excluye
 El reporte publicable se genera desde un checkout dedicado, recién creado y sin archivos no versionados preexistentes, incluidos los ignorados. Desde la raíz del repositorio principal, una vez integrado y revisado el commit de release:
 
 ```powershell
-$releaseVersion = "0.15.0"
-$releaseDate = "2026-08-27"
+$releaseVersion = "0.18.0"
+$releaseDate = Get-Date -Format "yyyy-MM-dd"
 $sourceCommit = (git rev-parse HEAD).Trim()
 $artifactBase = Join-Path ([System.IO.Path]::GetTempPath()) "lks-sdd-$releaseVersion"
 $qualityReport = "$artifactBase-quality.json"
@@ -31,7 +31,7 @@ git worktree add --detach $releaseCheckout $sourceCommit
 
 Push-Location $releaseCheckout
 try {
-  python scripts\run_quality_harness.py --channel candidate --date $releaseDate --baseline quality\baselines\v0.14.2.json --profile-mode reuse --output $qualityReport
+  python scripts\run_quality_harness.py --channel candidate --date $releaseDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --output $qualityReport
   python scripts\build_candidate_package.py --date $releaseDate --source-commit $sourceCommit --quality-report $qualityReport --output "$artifactBase-a"
   python scripts\build_candidate_package.py --date $releaseDate --source-commit $sourceCommit --quality-report $qualityReport --output "$artifactBase-b"
 } finally {
@@ -75,7 +75,7 @@ Publicar el ZIP de marketplace como asset de GitHub no actualiza una instalació
 4. Para un marketplace ya configurado, actualizar su fuente de forma controlada y ejecutar, si la versión instalada lo soporta, `codex plugin marketplace upgrade lks-sdd-development`. Para un alta inicial, usar `codex plugin marketplace add "RUTA_MARKETPLACE"` y completar la activación en la superficie de Codex disponible.
 5. Confirmar que Codex resuelve la nueva versión, reiniciar la aplicación y abrir una tarea nueva para cargar sus metadatos y skills.
 
-El bundle 0.17.0 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. Para probar interoperabilidad Entra debe aportar por separado un tenant y registros de aplicación autorizados, sin persistir credenciales en el bundle. Esa preparación no forma parte del builder ni puede darse por superada mediante un test sintético. Sin Rovo, `repository-only` sigue completo; los perfiles Entra continúan candidate, `unsupported` y con interoperabilidad real `not-run`. El perfil full-stack 2.1 está active con certificación Docker exacta. Los perfiles OIDC simulados certificados son exclusivamente no productivos, declaran `external_interoperability: not-applicable` y fallan cerrados en producción.
+El bundle 0.18.0 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. Para probar interoperabilidad Entra debe aportar por separado un tenant y registros de aplicación autorizados, sin persistir credenciales en el bundle. Esa preparación no forma parte del builder ni puede darse por superada mediante un test sintético. Sin Rovo, `repository-only` sigue completo; los perfiles Entra continúan candidate, `unsupported` y con interoperabilidad real `not-run`. El perfil full-stack 2.1 está active con certificación Docker exacta. Los perfiles OIDC simulados certificados son exclusivamente no productivos, declaran `external_interoperability: not-applicable` y fallan cerrados en producción.
 
 No edite manualmente la caché como mecanismo de actualización. La instalación o activación modifica el entorno Codex del participante, no se automatiza desde este repositorio y requiere autorización separada de la publicación técnica.
 

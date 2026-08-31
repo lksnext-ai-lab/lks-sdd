@@ -21,7 +21,7 @@ python scripts\validate_plugin_contract.py .
 python scripts\validate_fixture_manifest.py .
 ```
 
-`--allow-unvalidated` comprueba la estructura de los catorce perfiles, incluidos los candidate; no los presenta como soportados. `validate_plugin_contract.py` exige además que cada perfil `active` tenga una certificación exacta vigente, valida catálogo, drivers, scaffolds y locks, mantiene por hash las siete fuentes canónicas, identifica separadamente las propuestas candidate 1.4/1.5, valida el contrato 1.5, las seis skills y la ausencia de componentes fuera de alcance.
+`--allow-unvalidated` comprueba la estructura de los veintitrés perfiles, incluidos los candidate; no los presenta como soportados. `validate_plugin_contract.py` exige además que cada perfil `active` tenga una certificación exacta vigente, valida catálogo, drivers, scaffolds y locks, mantiene por hash las siete fuentes canónicas, identifica separadamente las propuestas candidate 1.4/1.5, valida el contrato 1.5, las seis skills y la ausencia de componentes fuera de alcance.
 
 Puede consultar el inventario de producto así:
 
@@ -58,10 +58,10 @@ python tests\run_unit_tests.py --suite integration
 python tests\run_unit_tests.py --suite package
 python tests\run_unit_tests.py --suite profile
 python tests\run_evals.py
-python scripts\run_quality_harness.py --channel candidate --date $validationDate --baseline quality\baselines\v0.15.0.json --profile-mode reuse
+python scripts\run_quality_harness.py --channel candidate --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse
 ```
 
-Para feedback rápido durante 0.17.0:
+Para feedback rápido durante 0.18.0:
 
 ```powershell
 python scripts\run_fast_validation.py --focus jira-reporting
@@ -139,7 +139,7 @@ La confirmación del plan, la autorización, la preparación, los checkpoints y 
 
 ## Corte de contrato de proyecto
 
-0.17 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
+0.18 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
 
 ```powershell
 python "<plugin-root>\scripts\lks_sdd.py" doctor "<project-root>" --quick --view audit --json
@@ -161,7 +161,7 @@ El resultado esperado es `blocked` con código `3`. No convierta ese estado en u
 
 ## Cierre obligatorio
 
-Antes del cierre 0.17 ejecute además:
+Antes del cierre 0.18 ejecute además:
 
 ```powershell
 python -X utf8 -m unittest tests.test_product_experience_v015 -v

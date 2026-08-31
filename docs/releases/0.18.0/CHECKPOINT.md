@@ -34,3 +34,70 @@ Estos resultados no acreditan todavía variantes, autenticación ni H5.
 
 Pendientes: R18-03..R18-24. Próximo paso: observadores y operaciones declaradas
 comunes, eliminando la dependencia de /api/v1 y la obligación de browser para DB.
+
+## CKPT-018-003 — implementación en curso, sin certificación
+
+Fecha: 2026-08-31. Estado: H1/H2 avanzados; H3/H4 en desarrollo. No publicar.
+
+Hechos observados:
+
+- 21 regresiones de integraciones pasan: rutas declaradas, login ajeno al contrato,
+  mocks fuera de /api/v1, HTTP read-only y elección de observadores sin browser para DB.
+- Siete regresiones de diagnóstico/adopción pasan: versiones declaradas/resueltas
+  separadas, drift, React 16/17 negativos, ambos layouts y archivos preservados.
+- Nueve perfiles candidate creados; cinco contratos arquitectónicos no seleccionables.
+  Se han resuelto locks Python y Node. Ninguna variante está certificada ni activa.
+- 33 pruebas de seguridad contra PostgreSQL real pasan en Python 3.13 y 3.14.
+  Esto es diagnóstico sobre fixtures, no certificación de perfiles completos.
+- Primer flujo Chromium/HTTPS en PY313-TS59 pasa: escritura /records, lectura SQL
+  independiente, recarga, cookies seguras, dos pestañas y logout offline honesto.
+  La lectura después del reinicio observado es SQL; queda completar la prueba HTTP
+  posterior y fallos de servicios. Revisión visual automática inspeccionada, humana not-run.
+- Baseline 0.17.0 descargada fuera del worktree; los cinco hashes coinciden con GitHub.
+
+Diagnósticos externos: C:/Dev/lks-sdd-0.18.0-evidence/dev-api-py313 y
+dev-system-py313; dev-system-py314. Contienen exclusivamente datos sintéticos y
+secretos efímeros de prueba; no incluir .runtime en bundles ni en contextos Docker.
+Los Dockerfiles incorporan .dockerignore. Las redes/containers lkssdd18* creadas
+por verification/gate.py son desechables; limpiar únicamente mediante su --cleanup.
+
+Pendientes materiales: terminar conexión de composiciones en preparación/readiness/
+runner/trazabilidad, pruebas de adopción desde bundle, fortalecimiento semántico de
+evidencia PostgreSQL/migración/procedencia, tests de fallos y recuperación, cerrar
+versiones/hashes de herramientas e imágenes, completar fixtures e inventarios,
+recertificar 8 activos + 9 nuevos, regresión integral y reproducibilidad, PR/CI/tag,
+publicación y marketplace. Los cambios del motor invalidan las certificaciones
+anteriores para soporte vigente hasta recertificarlas. Es esperado durante desarrollo.
+
+Publicación 0.18, registro y activación local: not-run. SAT y canónicos: sin cambios.
+
+## CKPT-018-004 — contratos y candidatos implementados; certificación pendiente
+
+- 30 regresiones específicas pasan; 23 perfiles estructuralmente válidos y 14
+  fixtures inventariados. Dos fixtures nuevos prueban adopción sin sobrescritura.
+- Los gates completos diagnósticos de API PY314, API PY313 y PostgreSQL pasaron.
+  Las dos líneas web pasaron previamente HTTPS/SQL/reload/reinicio; las ampliaciones
+  de separación del migrador, outage y suites siguen en validación. No acreditan H5.
+- Seguridad ampliada a 39 casos PostgreSQL reales: tamaño de cuerpo sin confiar
+  en Content-Length, configuración cerrada y límites compartidos de hash incluidos.
+- La SPA añade rechazo de respuestas tardías tras logout y rutas de otro origen.
+  Se corrigieron los filtros ESLint/Vitest para separar fuente, build y Playwright;
+  se repite el gate completo, conservando diagnósticos fallidos fuera del repositorio.
+- Sistema resuelto por INT, cuatro bindings y locks participantes; job y base de
+  datos independientes. La evidencia exige lectura SQL estructurada del mismo ID,
+  recursos/revisions declarados y composición exacta. Los booleanos no bastan.
+- Certificación interna 1.1 incorpora observaciones, capturas y hashes del motor;
+  los lectores históricos permanecen. Una ejecución durante cambios del motor
+  fue rechazada por deriva. Deben recertificarse los ocho activos con el motor final.
+- Preparación adoptada: diagnóstico estático y recursos de verificación; la
+  adaptación funcional/fixture queda explícita y no se ejecuta el scaffold contra
+  el consumidor. La hoja SAT documenta cambios potenciales, sin ejecutar ninguno.
+- Metadatos de desarrollo en 0.18.0, baseline 0.17.0 verificada, corpus humano
+  0.18 not-run y seis casos automatizados nuevos FX-61..66. Los presupuestos no cambian.
+- Fuentes normalizadas a LF antes de cerrar hashes, conforme a .gitattributes.
+
+Pendientes: completar/certificar las nueve variantes candidate; recertificar ocho
+activos; regresión fast/integration/package/profile, evals, benchmark, instalación
+de prueba y round-trip desde bundle; cerrar matriz R18 con evidencia; commits/PR/CI,
+checkout limpio final, doble build, tag/prerelease, descarga y verificación,
+marketplace local y activación tras reinicio. Publicación/registro/activación not-run.

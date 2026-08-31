@@ -80,7 +80,7 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yyyy-MM-dd"
-          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --baseline quality\baselines\v0.13.0.json --profile-mode reuse --output "$env:RUNNER_TEMP\quality-report.json"
+          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --baseline quality\baselines\v0.17.0.json --profile-mode reuse --output "$env:RUNNER_TEMP\quality-report.json"
       - name: Reproducible double build and clean install
         shell: pwsh
         run: |
