@@ -139,3 +139,50 @@ round-trip/bundle, cierre de matriz y notas, PR/CI/main final, checkout limpio,
 harness candidate, doble build, tag/prerelease y descarga verificada, marketplace
 y activación tras reinicio. SAT y fuentes canónicas no modificados; site/storyboard
 del workspace original intactos. Publicación/registro/activación: not-run.
+
+## CKPT-018-006 — revisión del coste de ejecución
+
+El usuario cuestiona expresamente la agilidad tras más de dos horas. Se reconoce
+repetición evitable: certificar mientras cambiaban las fuentes y volver a ejecutar
+por metadatos de promoción. La última SPA TS59 pasó sus checks, pero el registro
+se rechazó por deriva de fuentes durante la ejecución; no fue un fallo funcional.
+
+Se detuvieron las colas automáticas de nuevas certificaciones. La comprobación
+API-FASTAPI-KEYCLOAK-PG-OCI ya iniciada puede finalizar y limpiar sus recursos;
+no se encadenará el siguiente perfil. No lanzar más baterías completas sin
+resolver primero su necesidad y congelar los inputs. Las dos API locales han
+cerrado sus gates finales; el resto no se presenta como terminado por analogía.
+
+Criterio de continuación: pruebas dirigidas durante desarrollo; una regresión
+completa sobre código congelado; certificación de combinaciones comprometidas;
+verificaciones de paquete/publicación. Separar duración útil de repetición
+evitable. El acoplamiento actual entre metadatos y certificado necesita tratarse
+sin fabricar procedencia ni modificar certificados para aparentar una ejecución.
+No se ha acordado reducir alcance, omitir controles de seguridad o publicar con
+gates pendientes. Publicación, registro y activación local siguen sin ejecutar.
+
+## CKPT-018-007 — diecisiete certificaciones cerradas, integración y entrega pendientes
+
+Fecha: 2026-08-31. El usuario autoriza continuar conservando las nueve
+certificaciones vigentes y cerrando las ocho pendientes, sin ampliar alcance.
+
+Se fijaron los metadatos finales en una copia temporal de certificación; cada
+perfil pasó una única batería completa y se incorporó al worktree solo después
+de validar fuentes, motor, observaciones y locks exactos. No se modificó el motor
+ni se reescribió procedencia para evitar una ejecución. Los nueve certificados
+anteriores permanecen byte a byte intactos.
+
+Resultado: 17 perfiles active con certificación exacta vigente; otros 6 candidate
+sin promoción; 23 locks actuales. Pasan validadores de contrato, plugin, seis
+skills y catorce fixtures. Los canales humanos y de piloto mantienen su estado.
+
+El contenido funcional y los metadatos de perfiles quedan congelados. La regresión
+previa se ejecuta mediante el PR/CI; el harness candidate publicable se ejecutará
+en el checkout limpio del SHA final de main y reutilizará estas certificaciones.
+Los resultados finales de H5/H6 estarán anclados a ese SHA en los assets externos;
+este checkpoint versionado no pretende anticiparlos.
+
+Pendientes: revisar/confirmar evidencia, PR y CI; integrar; harness final y doble
+build; workflow de tag y prerelease privada; descargar/verificar cinco assets;
+marketplace local y activación tras reinicio. El estado de rollback 0.17.0 está
+guardado fuera del repositorio y el marketplace aún no se ha modificado.

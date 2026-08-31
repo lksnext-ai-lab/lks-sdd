@@ -14,6 +14,21 @@ dependencias ni copia su código.
 | DATA-POSTGRES-OCI | PG18 |
 | JOB-ALEMBIC-PG-OCI | PY313, PY314 |
 
+| Dimensión fijada | Línea PY313 / TS59 | Línea PY314 / TS60 |
+|---|---|---|
+| Python / FastAPI | 3.13.15 / 0.125.0 | 3.14.7 / 0.141.1 |
+| SQLAlchemy / Alembic | 2.0.45 / 1.17.2 | 2.0.52 / 1.19.1 |
+| PyJWT | 2.10.1 | 2.13.0 |
+| Node / React | 24.19.0 / 19.2.7 | 24.19.0 / 19.2.7 |
+| TypeScript / Vite | 5.9.3 / 8.0.16 | 6.0.3 / 8.1.5 |
+| Vitest | 4.1.10 | 4.1.11 |
+| Gestores | pip 26.2.1 / npm 11.12.0 | uv 0.12.5 / pnpm 10.34.5 |
+
+PostgreSQL 18.4 es compartido. Los locks incluyen dependencias transitivas e
+imágenes por digest; esta tabla no sustituye sus identidades exactas ni afirma
+que el SAT ejecute estas versiones resueltas. La imagen Python de la segunda
+línea también fija pip 26.2.1 como herramienta auxiliar.
+
 Cada directorio de perfil contiene descriptor, driver, lock y
 `resolved-technology.json`. Este último distingue dependencias bloqueadas de
 observaciones de ejecución. La evidencia completa añade observaciones saneadas,

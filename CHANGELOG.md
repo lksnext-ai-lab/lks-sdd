@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.18.0 — prerelease en preparación
+## 0.18.0 — 2026-08-31 — autenticación local y variantes certificadas
 
 - Conserva schema 1.5/método 1.5.0, seis skills, invocación implícita y M0–M5.
 - Repara las tablas externas/internas de ART-INTEGRATIONS sin renumerar IDs.
@@ -13,7 +13,9 @@
 - No certifica producción, cliente móvil nativo, MFA, federación, piloto ni canales
   humanos no ejecutados. No modifica el SAT ni promueve los candidatos anteriores.
 
-La fecha final, SHA, certificaciones y assets se completan después de H5/H6.
+Los diecisiete perfiles comprometidos tienen certificación exacta del motor
+actual. El SHA final, la elegibilidad y los assets de la prerelease se acreditan
+en `quality-report.json`, `release-manifest.json` y `SHA256SUMS`.
 
 ## 0.17.0 — 2026-08-31 — integración multiunidad fail-closed
 
