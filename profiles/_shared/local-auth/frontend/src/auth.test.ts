@@ -34,5 +34,7 @@ it("never sends credentials to an external origin", async () => {
   const fetcher = vi.fn(); vi.stubGlobal("fetch", fetcher);
   await expect(api("https://untrusted.invalid/records")).rejects.toThrow("Same-origin");
   await expect(api("//untrusted.invalid/records")).rejects.toThrow("Same-origin");
+  await expect(api(String.raw`/\untrusted.invalid/records`)).rejects.toThrow("Same-origin");
+  await expect(api("/\t/untrusted.invalid/records")).rejects.toThrow("Same-origin");
   expect(fetcher).not.toHaveBeenCalled();
 });

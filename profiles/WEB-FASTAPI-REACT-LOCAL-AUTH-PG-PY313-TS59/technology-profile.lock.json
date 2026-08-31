@@ -6,7 +6,7 @@
   "validated": false,
   "profile_sha256": "3e7f054506d32175b2252a70b98fafcdc04ea6437bc7c35f173193f207f20889",
   "driver_sha256": "4d871c0daf6f5af06540f4d7fcfd878d02e4603c6279f8a83c0a030d85b58960",
-  "scaffold_sha256": "5737a32b6e67eb490be8fff973e46b778e850824229f29e57e0b5a01f8ad32fd",
+  "scaffold_sha256": "a3112aa04678cc0dcb3c37ef31569a9508d349ebf64960fa3d4c343c1eb38140",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -1990,7 +1990,7 @@
   "composition": {
     "gate_id": "GATE-COMPOSE-PY313-TS59-SYSTEM",
     "status": "not-run",
-    "digest": "a2566da9c1fadd559c8383eeb92f392b3bb872368686c928b1e7b3ca48954617"
+    "digest": "7f86a940585572a5d2c480ca5512e60567f546deda018c0b3dac5e9a46b4c306"
   },
   "evidence": [
     "Profile WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59 awaits certification."

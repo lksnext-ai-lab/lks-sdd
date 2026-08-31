@@ -50,7 +50,7 @@ export async function login(username: string, password: string, organization: st
 }
 
 export async function api(path: string, init: RequestInit = {}, retry = true): Promise<Response> {
-  if (!path.startsWith("/") || path.startsWith("//")) throw new Error("Same-origin API path required");
+  if (!path.startsWith("/") || path.startsWith("//") || new URL(path, window.location.href).origin !== window.location.origin) throw new Error("Same-origin API path required");
   if (!access) await refresh();
   const epoch = generation;
   const response = await fetch(path, {...init, signal: init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(10000)]) : AbortSignal.timeout(10000), credentials: "include", cache: "no-store", headers: {...init.headers, "Content-Type": "application/json", "X-CSRF": "1", Authorization: `Bearer ${access}`}});

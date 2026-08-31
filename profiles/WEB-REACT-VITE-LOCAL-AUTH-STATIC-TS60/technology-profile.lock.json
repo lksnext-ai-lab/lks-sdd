@@ -6,7 +6,7 @@
   "validated": false,
   "profile_sha256": "a4691a1c4008291a5a368b0f18e8a84cb0d61e029b04e59eae708c818b7773fe",
   "driver_sha256": "6f01f3eef72780d3b4f6d151cf8ba33a734768191820ed2ee4c0359567f3c54a",
-  "scaffold_sha256": "6ddf9f200297a0b0774fd2333bdee7274ffeb67cd7cacae1a2c19a5cfcda9cd0",
+  "scaffold_sha256": "faf13110ddba4503c8d0bc49e1fb211e1f6bf17706c97ed381906abdf5bd6150",
   "capabilities": [
     {
       "id": "CAP-BROWSER-PLAYWRIGHT",
@@ -1534,7 +1534,7 @@
   "composition": {
     "gate_id": "GATE-COMPOSE-TS60-FRONTEND",
     "status": "not-run",
-    "digest": "5517f7e8016ae46556650b96a28a18531502ad7befd16a930f740273ee1410ba"
+    "digest": "d836b7ea0015858db4678c6c59520093bb5d151c66cc958ef45b5f5ee57d6629"
   },
   "evidence": [
     "Profile WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60 awaits certification."

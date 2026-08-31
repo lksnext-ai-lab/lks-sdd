@@ -6,7 +6,7 @@
   "validated": false,
   "profile_sha256": "c4a30f1d65151187a223a715c978d44ad5fd84375f9b041de97c532b7b2b84ce",
   "driver_sha256": "fa2bc2889c3e719562ea4af90f84ae7fa0db730b55e368248ed40e932ef33d8d",
-  "scaffold_sha256": "caecc01dfc1cbccfc5ecea775c7b95bf149c34f6357b16eef5eedd06e5933568",
+  "scaffold_sha256": "7527089ffd6f46821780d103aecd5e9890106fc63cf35de6705b992f76cca640",
   "capabilities": [
     {
       "id": "CAP-BROWSER-PLAYWRIGHT",
@@ -1534,7 +1534,7 @@
   "composition": {
     "gate_id": "GATE-COMPOSE-TS59-FRONTEND",
     "status": "not-run",
-    "digest": "c41698bf561e973b141a0d663ba0c48e4971f8ce4015b6b804ad6ce7f1f9355d"
+    "digest": "3a917fcced865ea53f8b666d5ca1812298f8edb0aa47573f0502a80e331c7f12"
   },
   "evidence": [
     "Profile WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59 awaits certification."
