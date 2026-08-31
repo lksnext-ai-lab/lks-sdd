@@ -101,3 +101,41 @@ activos; regresión fast/integration/package/profile, evals, benchmark, instalac
 de prueba y round-trip desde bundle; cerrar matriz R18 con evidencia; commits/PR/CI,
 checkout limpio final, doble build, tag/prerelease, descarga y verificación,
 marketplace local y activación tras reinicio. Publicación/registro/activación not-run.
+
+## CKPT-018-005 — motor definitivo y recertificación en curso
+
+Fecha: 2026-08-31. No publicar hasta cerrar H5.
+
+- 23 pruebas específicas de integraciones, variantes y adopción pasan; seis evals
+  y catorce fixtures validados. Corpus 0.18 y baseline 0.17 están reconciliados.
+- El runner ejecuta el observador empaquetado, no una copia editable del consumidor,
+  y rechaza imágenes/configuración ajenas a la variante. Un sistema no puede
+  ocultarse en un BIND de unidad ficticia.
+- Cada observación certificada lleva identidad de ejecución, perfil, variante,
+  runtime y hashes de fuentes/motor. Se rechazan mezclas aun recalculando hashes;
+  capturas y manifiesto deben concordar. El historial detallado se conserva.
+- La SPA comprueba el origen después de normalizar URLs del navegador, incluidos
+  casos de barras invertidas y caracteres de control. Los cuatro locks web/sistema
+  afectados se regeneraron; las variantes se certifican después de este cambio.
+- Se han actualizado las seis skills sin cambiar nombres, descripciones o
+  invocación implícita. La documentación distingue los observadores por protocolo
+  y el marketplace local usa remove/add, nunca upgrade sobre la fuente no Git.
+- El workflow compara los cinco assets y valida plugin y marketplace de ambos
+  builds. Conserva presupuestos, canales humanos y fecha única de certificación.
+- Recertificación completa en curso: ocho perfiles anteriores y nueve candidatos.
+  Cada candidato debe pasar con el motor actual antes de promocionarse; después
+  se ejecutan de nuevo todos sus gates para certificar el descriptor promovido.
+  Hasta cerrar la segunda ejecución no se presenta como soporte vigente.
+- La pasada fast diagnóstica detectó un timeout bajo carga Docker y aserciones
+  históricas de corpus/inventario. Estas últimas están corregidas; los tiempos
+  deben medirse de nuevo sin carga concurrente. No se ampliaron presupuestos.
+
+Evidencia de trabajo externa: C:/Dev/lks-sdd-0.18.0-evidence, ficheros
+candidate-v018-*, cert-v018-* y promotion-*. Las certificaciones vigentes se
+comprueban con el lector del plugin, no por el nombre del fichero de diagnóstico.
+
+Pendientes: finalizar 17 certificaciones, regresión completa y benchmark sin carga,
+round-trip/bundle, cierre de matriz y notas, PR/CI/main final, checkout limpio,
+harness candidate, doble build, tag/prerelease y descarga verificada, marketplace
+y activación tras reinicio. SAT y fuentes canónicas no modificados; site/storyboard
+del workspace original intactos. Publicación/registro/activación: not-run.

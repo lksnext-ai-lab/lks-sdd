@@ -26,4 +26,4 @@ En 0.18, diseña cada TASK de interfaz para que sus criterios, estados, temas e 
 
 Do not generate application code, infer authority, claim formal approval, or modify a repository merely because the user asked for an explanation. Do not create a seventh LKS-SDD skill, MCP, app, connector, hook or executable agent. `lks-sdd-define` owns the definition, ImageGen is only a conditional rendering capability, and Atlassian Rovo remains an independently installed optional companion rather than a bundled LKS-SDD component.
 
-When selecting local-auth variants, read [variants and adoption](../../docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md). Architectural groups are descriptive, not selectable. Do not infer compatibility from version ranges or select a newer variant automatically.
+When selecting local-auth variants, treat architectural groups as descriptive, not selectable. Do not infer compatibility from version ranges or select a newer variant automatically.

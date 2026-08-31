@@ -31,4 +31,4 @@ If an exact authorization already matches current scope and fingerprints, do not
 
 Use management narration before start/resume, after a material milestone, at a blocker and at implementation handoff. Do not narrate every preview, hash, receipt or internal command. A resolved, superseded or historical problem remains in audit but is never presented as active.
 
-For existing applications, preserve the adoption preparation route: verification resources only, reviewed preview and no functional scaffold overwrite. New-project preparation may materialize the certified scaffold. Do not switch variants or update dependencies to clear readiness; see [variants and adoption](../../docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md).
+For existing applications, preserve the adoption preparation route: verification resources only, reviewed preview and no functional scaffold overwrite. New-project preparation may materialize the certified scaffold. Do not switch variants or update dependencies to clear readiness.

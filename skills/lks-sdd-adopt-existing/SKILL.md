@@ -30,4 +30,4 @@ La adopción 0.18 mantiene `schema_version: 1.5` y no materializa fichas de evid
 - No modifica código, datos, infraestructura, `README.md` ni `AGENTS.md`.
 - Una baseline adoptada es un punto de partida gobernable, no una homologación o verificación.
 
-Para contrastar versiones y preparar verificación posterior, consulta [variantes y adopción](../../docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md). La inspección distingue declarado, resuelto y verificado sin instalar dependencias. La preparación adoptada solo añade recursos de verificación con preview; no copia negocio del scaffold ni ejecuta provisión o migración sobre la aplicación.
+Para contrastar versiones y preparar verificación posterior, mantén separados catálogo, scaffold y resolución real. La inspección distingue declarado, resuelto y verificado sin instalar dependencias. La preparación adoptada solo añade recursos de verificación con preview; no copia negocio del scaffold ni ejecuta provisión o migración sobre la aplicación.

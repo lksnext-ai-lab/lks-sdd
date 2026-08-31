@@ -25,4 +25,4 @@ Before detailed assessment run `status <project-root> --task TASK-###` and expla
 
 Una TASK de interfaz debe poder demostrar su aceptación y riesgos con una a cinco imágenes significativas; si necesita más estados esenciales, recomienda dividir o priorizar sin rebajar el máximo. Si no existe una TASK activa inequívoca, conserva `current_task: null`. Informa verificación histórica y salud actual como ejes separados.
 
-For exact variants, require dependency resolution without drift as well as current profile certification. Evaluate system composition and all participant locks from INT, not a fictitious system UNIT. Incompatibility, an unevaluated combination and missing information are distinct blockers; see [variants and adoption](../../docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md).
+For exact variants, require dependency resolution without drift as well as current profile certification. Evaluate system composition and all participant locks from INT, not a fictitious system UNIT. Incompatibility, an unevaluated combination and missing information are distinct blockers.
