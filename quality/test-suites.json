@@ -19,6 +19,7 @@
       "max_workers": 4,
       "modules": [
         "test_complex_handoff",
+        "test_fullstack_integration_contract_v017",
         "test_handoff_guards",
         "test_jira_reporting_v15",
         "test_m3_workflows",

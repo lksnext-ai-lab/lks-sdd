@@ -10,9 +10,11 @@ from typing import Any, Iterable
 
 from profile_registry import load_profile_bundle
 from contract_engine import expand_reference_ids
+from delivery_engine import EVIDENCE_SCOPES
 
 
 VISUAL_GATE_ID = "GATE-VISUAL-BROWSER-REVIEW"
+FULLSTACK_GATE_ID = "GATE-BROWSER-FULLSTACK-E2E"
 REQUIREMENT_RE = re.compile(r"\b(?:FR|NFR|TR|BR)-[0-9]{3}\b")
 
 
@@ -132,6 +134,178 @@ def visual_gate_applicability(
         "task_ids": selected,
         "reason": "selected-tasks-have-no-ux-vis-frontend-browser-or-interface-unit-signals:" + ",".join(inspected),
     }
+
+
+def integration_gate_applicability(
+    task_ids: Iterable[str], delivery: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Resolve typed cross-unit obligations for an exact TASK slice.
+
+    Only canonical INT rows and the task's structured integration table are
+    considered. Free-text Integration points never enables or satisfies an
+    integration gate.
+    """
+
+    selected = sorted(set(task_ids))
+    result: list[dict[str, Any]] = []
+    for interface_id, interface in sorted(delivery.get("interfaces", {}).items()):
+        if interface.get("State", "").strip().casefold() != "confirmed":
+            continue
+        verification_tasks = expand_reference_ids(
+            interface.get("Verification task", ""), {"TASK"}
+        )
+        if not set(verification_tasks) & set(selected):
+            continue
+        scopes = sorted(
+            {
+                item.strip().casefold()
+                for item in interface.get("Required evidence", "").split(",")
+                if item.strip()
+            }
+        )
+        units = sorted(
+            expand_reference_ids(interface.get("Consumer unit", ""), {"UNIT"})
+            | expand_reference_ids(interface.get("Producer unit", ""), {"UNIT"})
+        )
+        bindings = sorted(
+            expand_reference_ids(interface.get("Profile bindings", ""), {"BIND"})
+        )
+        result.append(
+            {
+                "gate_id": FULLSTACK_GATE_ID,
+                "status": "applicable",
+                "scope": "interface",
+                "interface_id": interface_id,
+                "task_ids": selected,
+                "unit_ids": units,
+                "binding_ids": bindings,
+                "required_evidence_scopes": scopes,
+                "operations": sorted(
+                    {
+                        item.strip().casefold()
+                        for item in interface.get("Operations", "").split(",")
+                        if item.strip()
+                    }
+                ),
+                "exact_composition": interface.get("Exact composition"),
+                "reason": "confirmed-cross-unit-interface",
+            }
+        )
+    if result:
+        return result
+    return [
+        {
+            "gate_id": FULLSTACK_GATE_ID,
+            "status": "not-applicable",
+            "scope": "task-slice",
+            "task_ids": selected,
+            "reason": "selected-tasks-own-no-confirmed-cross-unit-interface",
+        }
+    ]
+
+
+def _check_scopes(check: dict[str, Any]) -> set[str]:
+    scopes = check.get("evidence_scopes")
+    if isinstance(scopes, list):
+        return {str(item).casefold() for item in scopes if isinstance(item, str)}
+    scope = check.get("evidence_scope")
+    if isinstance(scope, str):
+        return {scope.casefold()}
+    return {"component"}
+
+
+def integration_evidence_errors(
+    evidence: dict[str, Any], expected: list[dict[str, Any]]
+) -> list[str]:
+    """Fail closed when lower-scope or mocked evidence claims integration."""
+
+    applicable = [item for item in expected if item.get("status") == "applicable"]
+    if not applicable:
+        return []
+    errors: list[str] = []
+    checks = [
+        item for item in evidence.get("checks", []) if isinstance(item, dict)
+    ]
+    for check in checks:
+        scopes = _check_scopes(check)
+        if not scopes <= EVIDENCE_SCOPES:
+            errors.append(f"{check.get('name', 'check')}: evidence_scopes inválidos")
+    for obligation in applicable:
+        interface_id = str(obligation["interface_id"])
+        required = set(obligation.get("required_evidence_scopes", []))
+        matching = [
+            check
+            for check in checks
+            if interface_id in check.get("interface_ids", [])
+            and check.get("status") == "passed"
+        ]
+        demonstrated: set[str] = set()
+        for check in matching:
+            scopes = _check_scopes(check)
+            mocked = check.get("mocks", [])
+            domain_mocks = [
+                item
+                for item in mocked
+                if isinstance(item, dict)
+                and item.get("kind") == "domain-endpoint"
+                and str(item.get("path", "")).startswith("/api/v1")
+            ] if isinstance(mocked, list) else []
+            if domain_mocks and scopes & {"composition", "user-flow", "persistence"}:
+                errors.append(
+                    f"{interface_id}: un mock funcional /api/v1 no acredita "
+                    "composition, user-flow ni persistence"
+                )
+                continue
+            demonstrated.update(scopes)
+        missing = sorted(required - demonstrated)
+        if missing:
+            errors.append(
+                f"{interface_id}: evidencia insuficiente; faltan scopes "
+                + ", ".join(missing)
+            )
+        fullstack = [
+            check
+            for check in matching
+            if check.get("gate_id") == FULLSTACK_GATE_ID
+        ]
+        if not fullstack:
+            errors.append(
+                f"{interface_id}: falta {FULLSTACK_GATE_ID} ejecutado y passed"
+            )
+            continue
+        for check in fullstack:
+            observations = check.get("observations")
+            required_observations = {
+                "runtime_units", "browser", "viewport", "requests", "mutation",
+                "read_back", "reload", "persistence", "screenshots",
+                "console_errors",
+            }
+            if not isinstance(observations, dict) or not required_observations <= set(observations):
+                errors.append(
+                    f"{interface_id}: el gate full-stack no contiene observaciones estructuradas completas"
+                )
+                continue
+            requests = observations.get("requests")
+            if not isinstance(requests, list) or not any(
+                isinstance(item, dict)
+                and str(item.get("path", "")).startswith("/api/v1")
+                and item.get("method") in {"POST", "PUT", "PATCH", "DELETE"}
+                and isinstance(item.get("status"), int)
+                and 200 <= item["status"] < 300
+                for item in requests
+            ):
+                errors.append(
+                    f"{interface_id}: no se observó una mutación real contra /api/v1"
+                )
+            if observations.get("reload") is not True or observations.get("persistence") is not True:
+                errors.append(
+                    f"{interface_id}: no se confirmó recarga y persistencia"
+                )
+            if observations.get("console_errors") not in ([], None):
+                errors.append(
+                    f"{interface_id}: existen errores relevantes de consola"
+                )
+    return list(dict.fromkeys(errors))
 
 
 def evidence_profile_identity_errors(
@@ -259,14 +433,24 @@ def evidence_profile_identity_errors(
     return errors
 
 
-def evidence_gate_applicability_errors(evidence: dict[str, Any], expected: dict[str, Any]) -> list[str]:
+def evidence_gate_applicability_errors(
+    evidence: dict[str, Any], expected: dict[str, Any] | list[dict[str, Any]]
+) -> list[str]:
+    expected_values = expected if isinstance(expected, list) else [expected]
     values = evidence.get("gate_applicability")
     if not isinstance(values, list):
         return ["gate_applicability debe ser una lista"]
+    expected_visual = next(
+        (item for item in expected_values if item.get("gate_id") == VISUAL_GATE_ID),
+        None,
+    )
+    expected_integrations = [
+        item for item in expected_values if item.get("gate_id") == FULLSTACK_GATE_ID
+    ]
     visual = [item for item in values if isinstance(item, dict) and item.get("gate_id") == VISUAL_GATE_ID]
     if len(visual) != 1:
         return ["gate_applicability debe declarar exactamente una decisión visual"]
-    if visual[0] != expected:
+    if expected_visual is None or visual[0] != expected_visual:
         return ["gate_applicability visual no coincide con el TASK slice"]
     checks = evidence.get("checks")
     visual_checks = [
@@ -274,9 +458,14 @@ def evidence_gate_applicability_errors(evidence: dict[str, Any], expected: dict[
         if isinstance(item, dict) and item.get("name") == "visual-browser-review"
     ] if isinstance(checks, list) else []
     classification = evidence.get("classification")
-    if expected.get("status") == "applicable" and classification in {"verified", "verified-with-reservations"}:
+    if expected_visual.get("status") == "applicable" and classification in {"verified", "verified-with-reservations"}:
         if len(visual_checks) != 1 or visual_checks[0].get("status") != "passed":
             return ["un TASK slice visual requiere exactamente una revisión ejecutada y passed"]
-    if expected.get("status") == "not-applicable" and visual_checks:
+    if expected_visual.get("status") == "not-applicable" and visual_checks:
         return ["un gate visual no aplicable no debe aparecer como check ejecutado o not-run"]
-    return []
+    observed_integrations = [
+        item for item in values if isinstance(item, dict) and item.get("gate_id") == FULLSTACK_GATE_ID
+    ]
+    if observed_integrations != expected_integrations:
+        return ["gate_applicability de integración no coincide con el TASK slice"]
+    return integration_evidence_errors(evidence, expected_integrations)

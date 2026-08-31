@@ -42,6 +42,13 @@ last_updated: "{{DATE}}"
 |---|---|---|---|---|---|
 | pending | pending | pending | pending | pending | pending |
 
+## Alcance conjunto de integración
+
+| Interface | Units | Profile bindings | Evidence scopes | Operations |
+|---|---|---|---|---|
+
+Complete esta tabla solo para una TASK responsable de `INT-###`. Debe repetir exactamente todas las unidades, bindings, scopes y operaciones del contrato de interfaz; no oculte participantes en texto libre.
+
 ## Ejecución y seguimiento
 
 | Workflow state | Health | Progress | Owner | Branch | Revision start | Revision verified | Build | Environment | Updated |

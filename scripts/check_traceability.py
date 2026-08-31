@@ -21,7 +21,11 @@ from validate_project import (
     validate_project,
 )
 from delivery_engine import validate_delivery_contract
-from evidence_contract import selected_task_requirements
+from evidence_contract import (
+    integration_evidence_errors,
+    integration_gate_applicability,
+    selected_task_requirements,
+)
 
 
 def _ids(value: str, prefixes: set[str]) -> set[str]:
@@ -39,11 +43,27 @@ def _resolved_phase(manifest: dict[str, Any], requested: str) -> str:
     return "preimplementation"
 
 
+def _integration_obligations_for_evidence(
+    evidence: dict[str, Any], delivery: dict[str, Any]
+) -> list[dict[str, Any]]:
+    task_ids = evidence.get("task_ids")
+    if isinstance(task_ids, list) and task_ids:
+        return integration_gate_applicability(task_ids, delivery)
+    historical_owners: set[str] = set()
+    for interface in delivery.get("interfaces", {}).values():
+        if interface.get("State", "").strip().casefold() == "confirmed":
+            historical_owners.update(
+                expand_reference_ids(interface.get("Verification task", ""), {"TASK"})
+            )
+    return integration_gate_applicability(sorted(historical_owners), delivery)
+
+
 def _successful_evidence(
     evidence: dict[str, Any] | None,
     evidence_id: str,
     row_increments: set[str],
     scoped_increment: str | None,
+    delivery: dict[str, Any],
 ) -> bool:
     """Accept only structured, applicable evidence whose checks all passed."""
 
@@ -60,7 +80,7 @@ def _successful_evidence(
     }:
         return False
     checks = evidence.get("checks")
-    return (
+    checks_passed = (
         isinstance(checks, list)
         and bool(checks)
         and all(
@@ -68,6 +88,10 @@ def _successful_evidence(
             for item in checks
         )
     )
+    if not checks_passed:
+        return False
+    obligations = _integration_obligations_for_evidence(evidence, delivery)
+    return not integration_evidence_errors(evidence, obligations)
 
 
 def _active_gap(item: dict[str, Any]) -> str:
@@ -165,8 +189,8 @@ def check(
 
     resolved_phase = _resolved_phase(manifest, phase)
     scoped_requirements: set[str] | None = None
+    delivery = validate_delivery_contract(root, manifest)
     if task_ids:
-        delivery = validate_delivery_contract(root, manifest)
         unknown = sorted(set(task_ids) - set(delivery.get("tasks", {})))
         wrong_increment = sorted(
             task_id
@@ -287,6 +311,7 @@ def check(
             continue
         applicable_evidence = False
         unsuccessful_applicable_evidence = False
+        reconciliation_applicable_evidence = False
         for row, evidence_id in linked_evidence:
             if evidence_id not in evidence_cache:
                 path = root / "docs" / "lks-sdd" / "evidence" / f"{evidence_id}.json"
@@ -303,15 +328,30 @@ def check(
             same_scope = evidence_increment in row_increments and (
                 increment is None or evidence_increment == increment
             )
+            if same_scope and evidence:
+                obligations = _integration_obligations_for_evidence(
+                    evidence, delivery
+                )
+                reconciliation_applicable_evidence = (
+                    reconciliation_applicable_evidence
+                    or bool(integration_evidence_errors(evidence, obligations))
+                )
             if same_scope and _successful_evidence(
-                evidence, evidence_id, row_increments, increment
+                evidence, evidence_id, row_increments, increment, delivery
             ):
                 applicable_evidence = True
                 break
             if same_scope:
                 unsuccessful_applicable_evidence = True
         if not applicable_evidence:
-            if unsuccessful_applicable_evidence:
+            if reconciliation_applicable_evidence:
+                gap(
+                    "TRACE-EVIDENCE-RECONCILIATION-REQUIRED",
+                    f"{requirement_id}: reconciliation-required; la evidencia histórica "
+                    "conserva valor de componente, pero no acredita la integración tipada.",
+                    requirement_id,
+                )
+            elif unsuccessful_applicable_evidence:
                 gap(
                     "TRACE-EVIDENCE-NOT-PASSED",
                     f"{requirement_id}: la evidencia enlazada no acredita checks ejecutados satisfactoriamente.",
@@ -343,8 +383,12 @@ def check(
         "gaps": [_diagnostic_gap(item) for item in diagnostics],
         "diagnostics": diagnostics,
         "evidence_required": resolved_phase == "verification",
+        "reconciliation_required": any(
+            item.get("code") == "TRACE-EVIDENCE-RECONCILIATION-REQUIRED"
+            for item in diagnostics
+        ),
         "limitations": [
-            "La comprobación exige checks ejecutados y passed; no juzga la suficiencia semántica de la evidencia."
+            "La comprobación exige scopes tipados suficientes; component y visual no acreditan composición, flujo ni persistencia."
         ],
     }
     return (0 if not diagnostics else 3), result

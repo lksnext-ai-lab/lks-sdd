@@ -9,6 +9,7 @@ class Settings:
     environment: str
     database_url: str | None
     oidc_issuer: str | None
+    oidc_jwks_url: str | None
     oidc_audience: str
 
     @classmethod
@@ -17,5 +18,6 @@ class Settings:
             environment=os.getenv("APP_ENV", "development"),
             database_url=os.getenv("DATABASE_URL"),
             oidc_issuer=os.getenv("OIDC_ISSUER"),
-            oidc_audience=os.getenv("OIDC_AUDIENCE", "account"),
+            oidc_jwks_url=os.getenv("OIDC_JWKS_URL"),
+            oidc_audience=os.getenv("OIDC_AUDIENCE", "lks-sdd-api"),
         )

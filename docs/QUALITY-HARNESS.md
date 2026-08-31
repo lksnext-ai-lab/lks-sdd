@@ -4,7 +4,7 @@
 
 El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51, la cobertura granular Entra v0.12 FX-52–FX-53, los perfiles OIDC simulados v0.13 en FX-54 y la verificación incremental reproducible v0.14 en FX-55. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, rechazo sin mutación de schemas de proyecto anteriores a 1.5, aplicabilidad visual por tarea, build estable, G4 no circular y CKPT/PROB consumibles. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness mantiene `quality/corpora/definition-v0.15.0.json` como corpus vigente; los anteriores son históricos.
+FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness usa `quality/corpora/definition-v0.17.0.json`; los anteriores son históricos.
 
 ## Canales de evidencia
 
@@ -73,4 +73,4 @@ Los códigos de salida son `0`, `2` y `3`, respectivamente para `passed`, error/
 
 ## Extensión 0.16
 
-El catálogo incorpora FX-56 a FX-60 y el corpus `definition-v0.16.0.json`. La suite integration incluye `test_validation_evidence_v016`: límites visuales, integridad/semántica, salud actual, fichas derivadas, Jira y rollback. La comparación candidate usa como baseline publicada `quality/baselines/v0.15.0.json`; los canales humanos, semánticos, piloto y externos conservan su estado real.
+El catálogo conserva FX-56 a FX-60 y añade el corpus `definition-v0.17.0.json`. La suite integration incluye `test_validation_evidence_v016` y `test_fullstack_integration_contract_v017`: límites visuales, integridad/semántica, salud actual, fichas derivadas, integración multiunidad, mocks, reconciliación, atomicidad y determinismo. La comparación candidate usa como baseline publicada `quality/baselines/v0.15.0.json`; los canales humanos, semánticos, piloto y externos conservan su estado real.

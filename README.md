@@ -8,9 +8,9 @@ Codex es el entorno objetivo y el único soportado contractualmente por esta imp
 
 Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
 
-La versión `0.16.0` conserva M0–M5, las seis skills y el contrato de proyectos `method_version: 1.5.0` / `schema_version: 1.5`. Sobre la verificación incremental 0.15 añade evidencia visual semántica de una a cinco imágenes por TASK de interfaz, fichas derivadas automáticas, salud actual separada del historial y reporting Jira conciso. No reescribe EVID existentes ni incorpora artefactos derivados a `verification_subject`; los gates siguen siendo reutilizables únicamente con identidad técnica y contractual idéntica. Conserva `CAP-IDENTITY-OIDC-SIMULATED` y los dos perfiles exactos `active`, no productivos y certificados de 0.13.0.
+La versión `0.17.0` conserva M0–M5, las seis skills y el contrato de proyectos `method_version: 1.5.0` / `schema_version: 1.5`. Añade interfaces `INT-###` tipadas, scopes de evidencia `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`, EVID 1.3 y el gate `GATE-BROWSER-FULLSTACK-E2E`. Un binding aislado o una captura ya no pueden acreditar una integración. La aplicabilidad sigue siendo TASK-aware: sin interfaz confirmada, backend y frontend independientes declaran `not-applicable`; la evidencia histórica insuficiente permanece inmutable y se informa como `reconciliation-required`.
 
-Frontend y backend continúan como unidades/bindings independientes y su certificación no afirma una composición conjunta ni interoperabilidad externa. Los perfiles Microsoft Entra `API-FASTAPI-ENTRA-PG-OCI` y `WEB-REACT-VITE-ENTRA-STATIC` permanecen `candidate`, `unsupported` y con interoperabilidad real `not-run`; los perfiles simulados no los sustituyen y nunca satisfacen un binding productivo. `automation_coverage` sigue siendo diagnóstico y `automation_support` estricto. La experiencia local y Jira mediante Atlassian Rovo se conservan, los Markdown siguen siendo la única autoridad semántica y el runtime 0.16 opera exclusivamente sobre schema 1.5/método 1.5.0. `plugin_version` del índice conserva la procedencia de materialización y no se reescribe al actualizar. La interoperabilidad real Entra y Rovo/Jira, los canales humanos y el piloto siguen `not-run`; M6 y la promoción a `stable` permanecen pendientes. El bundle continúa sin MCP, cliente Jira, conectores propios, hooks, apps ni agentes ejecutables.
+Frontend y backend continúan como unidades/bindings independientes; su certificación por separado nunca afirma una composición conjunta. El perfil de sistema `WEB-FASTAPI-REACT-KEYCLOAK-PG` 2.1 está `active`, con soporte H1 y certificación exacta de la composición real mediante `GATE-BROWSER-FULLSTACK-E2E`. Los perfiles Microsoft Entra continúan `candidate`, `unsupported` y con interoperabilidad real `not-run`; los perfiles simulados no los sustituyen. `automation_coverage` sigue siendo diagnóstico y `automation_support` estricto. Los Markdown siguen siendo la única autoridad semántica y el runtime 0.17 opera exclusivamente sobre schema 1.5/método 1.5.0. `plugin_version` conserva la procedencia de materialización. La interoperabilidad real Entra, Atlassian Rovo/Jira, los canales humanos y el piloto siguen `not-run`; M6 y la promoción a `stable` permanecen pendientes. El bundle continúa sin MCP, cliente Jira, conectores propios, hooks, apps ni agentes ejecutables.
 
 ## Posicionamiento Spec-anchored
 
@@ -72,7 +72,7 @@ Para una empresa de servicios, esta continuidad permite desarrollar con agilidad
 - `quality/`: catálogo M4, corpus de activación, fixtures bloqueados y baselines de comparación.
 - `pilot/`: ejemplo bloqueado, plan y rollback para el piloto controlado M5.
 - `distribution/`: plantilla estándar del marketplace de desarrollo generado externamente.
-- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.16.0, M0–M5 y límites aún vigentes.
+- `docs/ARCHITECTURE.md`: arquitectura de la versión 0.17.0, M0–M5 y límites aún vigentes.
 - `docs/COMPATIBILITY.md`: entorno Codex soportado y límites de portabilidad.
 - `docs/M1-COVERAGE.md`: correspondencia auditable entre M0–M1, implementación y pendientes.
 - `docs/M2-COVERAGE.md`: fotografía histórica del primer perfil H0, implementación y verificación en 0.2.0.
@@ -89,6 +89,7 @@ Para una empresa de servicios, esta continuidad permite desarrollar con agilidad
 - `docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md`: aplicabilidad visual por TASK, build/G4, CKPT y PROB/Jira.
 - `docs/V0.15-PRODUCT-EXPERIENCE.md`: vistas management/developer/audit, fast path, problemas, sujeto técnico, doctor, caché y benchmark.
 - `docs/V0.16-VALIDATION-EVIDENCE.md`: diagnóstico, diseño, schemas, benchmark, compatibilidad y migración de evidencia por TASK.
+- `docs/V0.17-FULLSTACK-INTEGRATION-EVIDENCE.md`: interfaz multiunidad, scopes tipados, aplicabilidad, E2E full-stack y reconciliación histórica.
 - `docs/JIRA-ROVO-INTEGRATION.md`: contrato operativo de interacción entre las skills y el peer Rovo opcional.
 - `docs/QUALITY-HARNESS.md`: ejecución, evidencia y semántica de las puertas candidate/stable.
 - `docs/DISTRIBUTION.md`: empaquetado, instalación controlada y retirada.

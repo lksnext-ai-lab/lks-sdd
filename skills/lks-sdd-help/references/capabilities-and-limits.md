@@ -1,6 +1,8 @@
-# Capacidades y límites de LKS-SDD 0.16.0
+# Capacidades y límites de LKS-SDD 0.17.0
 
 La evidencia visual nueva aplica una política predeterminada de una a cinco imágenes por TASK con interfaz. Cada captura debe enlazar aceptación e interacción, conservar contexto reproducible y declarar un resultado; el archivo por sí solo nunca acredita `passed`. `work verify` genera fichas TASK derivadas sin convertirlas en autoridad ni alterar el sujeto técnico. Una EVID conserva el hecho histórico y los hallazgos posteriores cambian la salud actual hasta una corrección y re-verificación gobernadas.
+
+La evidencia funcional usa scopes tipados compartidos: `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`. Solo una interfaz `INT-###` confirmada activa el gate full-stack para su TASK propietaria. Arrancar unidades o aprobar sus tests por separado no acredita comunicación; una captura no acredita persistencia; un mock de dominio `/api/v1` no acredita integración. La identidad controlada puede usar el doble autorizado por el perfil no productivo.
 
 Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
 

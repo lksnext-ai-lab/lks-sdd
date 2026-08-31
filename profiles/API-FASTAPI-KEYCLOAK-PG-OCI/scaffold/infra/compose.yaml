@@ -23,6 +23,17 @@ services:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     ports:
       - "18080:8080"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080 &&
+          printf "GET /realms/lks-sdd/.well-known/openid-configuration HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n" >&3 &&
+          grep -q "200 OK" <&3'
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,7 +58,7 @@ services:
       postgres:
         condition: service_healthy
       keycloak:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
   postgres-data:

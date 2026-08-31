@@ -31,6 +31,7 @@ from automation_coverage import describe_profile_coverage  # noqa: E402
 from delivery_engine import delivery_readiness, validate_delivery_contract  # noqa: E402
 from planning_engine import assess_authorization, assess_planning, next_tasks  # noqa: E402
 from task_tracking_engine import assess_tracking  # noqa: E402
+from evidence_contract import integration_gate_applicability  # noqa: E402
 from contract_engine import (  # noqa: E402
     RelationSpec,
     build_project_model,
@@ -604,6 +605,7 @@ def _finalize_result(result: dict[str, Any]) -> dict[str, Any]:
         )),
         "next_step": recommendation,
         "human_decision": decision,
+        "integration_applicability": result.get("integration_applicability", []),
     }
     return result
 
@@ -744,6 +746,10 @@ def assess(
             root, manifest, delivery.get("task_ids", [])
         )
         delivery_contract = validate_delivery_contract(root, manifest)
+        integration_applicability = integration_gate_applicability(
+            delivery.get("task_ids", []), delivery_contract
+        )
+        result["integration_applicability"] = integration_applicability
         result["next_tasks"] = next_tasks(delivery_contract, planning)
         result["_completed_summary"].extend(
             [
@@ -761,6 +767,23 @@ def assess(
         binding_results: list[dict[str, Any]] = []
         coverage_results: list[dict[str, Any]] = []
         automation_errors: list[str] = []
+        for obligation in integration_applicability:
+            if obligation.get("status") != "applicable":
+                continue
+            exact = str(obligation.get("exact_composition", ""))
+            profile_id, separator, expected_version = exact.partition("@")
+            support = resolve_profile(profile_id) if separator else None
+            if (
+                support is None
+                or support.profile_version != expected_version
+                or support.profile_scope != "system"
+                or not support.verifiable
+            ):
+                automation_errors.append(
+                    f"{obligation.get('interface_id')}: "
+                    f"automation_support=unsupported para {exact}; "
+                    "falta una composición exacta de sistema certificada."
+                )
         for binding_id in delivery.get("binding_ids", []):
             binding = bindings.get(binding_id, {})
             profile_id = binding.get("profile_id")

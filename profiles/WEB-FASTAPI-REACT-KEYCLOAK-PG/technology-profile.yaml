@@ -1,11 +1,11 @@
 {
   "schema_version": "2.0",
   "id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "family_id": "FAM-WEB-SYSTEM",
   "profile_scope": "system",
   "lifecycle": "active",
-  "support_level": "H0",
+  "support_level": "H1",
   "default_rigor": "P1",
   "summary": "Composed React SPA, FastAPI API, PostgreSQL and Keycloak OIDC system delivered as OCI containers.",
   "units": [
@@ -47,7 +47,7 @@
   "required_capabilities": [
     "CAP-SCAFFOLD-COPY", "CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE", "CAP-BROWSER-PLAYWRIGHT",
     "CAP-API-CONTRACT", "CAP-IDENTITY-OIDC", "CAP-DATA-POSTGRES",
-    "CAP-OCI-RUNTIME", "CAP-DELIVERY-EVIDENCE"
+    "CAP-OCI-RUNTIME", "CAP-FULLSTACK-E2E", "CAP-DELIVERY-EVIDENCE"
   ],
   "excluded_capabilities": ["CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
   "capability_bindings": [
@@ -59,6 +59,7 @@
     {"capability_id": "CAP-IDENTITY-OIDC", "provider": "Keycloak", "version_range": "26.7.x"},
     {"capability_id": "CAP-DATA-POSTGRES", "provider": "PostgreSQL + Alembic", "version_range": "18.x / 1.19.x"},
     {"capability_id": "CAP-OCI-RUNTIME", "provider": "Docker Compose", "version_range": "2.x"},
+    {"capability_id": "CAP-FULLSTACK-E2E", "provider": "Playwright + FastAPI + PostgreSQL", "version_range": "profile contract 2.1"},
     {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
   ],
   "compatibility_rules": [
@@ -77,18 +78,18 @@
       "GATE-API-LOCK", "GATE-API-LINT", "GATE-API-TYPECHECK", "GATE-API-TEST",
       "GATE-API-OPENAPI", "GATE-OIDC-CONTRACT", "GATE-OIDC-INTEGRATION",
       "GATE-DATA-MIGRATION", "GATE-DATA-INTEGRATION", "GATE-OCI-BUILD",
-      "GATE-OCI-SMOKE", "GATE-DELIVERY-EVIDENCE"
+      "GATE-OCI-SMOKE", "GATE-BROWSER-FULLSTACK-E2E", "GATE-DELIVERY-EVIDENCE"
     ],
-    "composition_gate_id": "GATE-COMPOSE-H0-WEB"
+    "composition_gate_id": "GATE-BROWSER-FULLSTACK-E2E"
   },
   "certification": {
     "technical_gate": "passed",
     "composition_gate": "passed",
     "e2e_eval": "passed",
-    "human_review": "passed",
+    "human_review": "not-run",
     "pilot": "not-applicable",
-    "validated_at": "2026-08-19",
-    "review_due": "2026-11-19",
+    "validated_at": "2026-08-30",
+    "review_due": "2026-11-30",
     "evidence": [
       "python scripts/validate_reference_profile.py --profile WEB-FASTAPI-REACT-KEYCLOAK-PG",
       "python scripts/run_reference_profile_gate.py --profile WEB-FASTAPI-REACT-KEYCLOAK-PG --runtime docker --containers",

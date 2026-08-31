@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
   "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-  "profile_version": "2.0.0",
-  "certified_at": "2026-08-21",
+  "profile_version": "2.1.0",
+  "certified_at": "2026-08-30",
   "runtime": "docker",
   "containers_executed": true,
   "complete_gate": true,
   "passed": true,
-  "profile_sha256": "d94304c724099975842e0a1b5c2c55cd8bf4070e6cf7d083bc23249ff4bc23ab",
-  "driver_sha256": "bcdb99ef572655d7e38ea053b5afe56dd002f2d875681daeccd71a193be16598",
-  "scaffold_sha256": "e6063d4c7a3ca69df2cde3a56861da79f07c059c5215c4eaf026aaf841ba0b72",
-  "composition_digest": "c2b4a072422df9f5f63f0ebaacb8bf69ad3694fe0ba10bcfbd37c7cdfbd973d7",
+  "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+  "driver_sha256": "75e1f9af0e798625c9fc8fff24e02c33669ae50687bddb522f298555e565b547",
+  "scaffold_sha256": "16888e55b76ca9bc251aa621378df85089cfdd987d4778b705a63173c5ff012b",
+  "composition_digest": "c5c140f7f18f11d54af0ae38002163ef72851c684eb72c044dc93ac5eea844a1",
   "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
   "checks": [
     {
@@ -38,11 +38,11 @@
       "status": "passed"
     },
     {
-      "gate_id": "GATE-BROWSER-SMOKE",
+      "gate_id": "GATE-BROWSER-FULLSTACK-E2E",
       "status": "passed"
     },
     {
-      "gate_id": "GATE-COMPOSE-H0-WEB",
+      "gate_id": "GATE-BROWSER-SMOKE",
       "status": "passed"
     },
     {
@@ -102,6 +102,6 @@
       "status": "passed"
     }
   ],
-  "result_sha256": "c41ce94c777ce682eed0df92e45b645c5ea3e2c61a680357dd37fdd7f792292d",
+  "result_sha256": "94d32e437d27b1f2fff8b7fbb709f46ea95d0106804a89179d2ac4d475314b18",
   "command": "python scripts/run_reference_profile_gate.py --profile WEB-FASTAPI-REACT-KEYCLOAK-PG --runtime docker --containers --record-certification"
 }

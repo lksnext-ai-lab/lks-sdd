@@ -1102,6 +1102,86 @@
               "allow_applicability": []
             }
           }
+        },
+        {
+          "id": "solution.deployable-interfaces",
+          "schemas": [
+            "1.5"
+          ],
+          "headers": [
+            "Interface",
+            "State",
+            "Consumer unit",
+            "Producer unit",
+            "Profile bindings",
+            "Protocol",
+            "Contract",
+            "Operations",
+            "Required evidence",
+            "Primary owner",
+            "Verification task",
+            "Requirements",
+            "Exact composition"
+          ],
+          "min_occurs": 0,
+          "max_occurs": 1,
+          "key": {
+            "column": "Interface",
+            "prefixes": [
+              "INT"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Consumer unit": {
+              "targets": ["UNIT"],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Producer unit": {
+              "targets": ["UNIT"],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Profile bindings": {
+              "targets": ["BIND"],
+              "min": 2,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Verification task": {
+              "targets": ["TASK"],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Requirements": {
+              "targets": ["FR", "NFR", "TR", "BR"],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
         }
       ]
     },

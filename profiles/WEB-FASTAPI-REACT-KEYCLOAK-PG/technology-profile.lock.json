@@ -1,12 +1,12 @@
 {
   "schema_version": "2.0",
   "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-  "profile_version": "2.0.0",
-  "generated_at": "2026-08-19",
+  "profile_version": "2.1.0",
+  "generated_at": "2026-08-30",
   "validated": true,
-  "profile_sha256": "d94304c724099975842e0a1b5c2c55cd8bf4070e6cf7d083bc23249ff4bc23ab",
-  "driver_sha256": "bcdb99ef572655d7e38ea053b5afe56dd002f2d875681daeccd71a193be16598",
-  "scaffold_sha256": "e6063d4c7a3ca69df2cde3a56861da79f07c059c5215c4eaf026aaf841ba0b72",
+  "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+  "driver_sha256": "75e1f9af0e798625c9fc8fff24e02c33669ae50687bddb522f298555e565b547",
+  "scaffold_sha256": "16888e55b76ca9bc251aa621378df85089cfdd987d4778b705a63173c5ff012b",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -32,6 +32,11 @@
       "id": "CAP-FRONTEND-QUALITY",
       "version": "1.0.0",
       "digest": "ec287b3f774e7800531e06521ebd038f3c5fe8ac14f25e803d9b312b450e43c8"
+    },
+    {
+      "id": "CAP-FULLSTACK-E2E",
+      "version": "1.0.0",
+      "digest": "7d008c59e97e169e9d442306bedd75c4c765fc249e2db188ad51c15a05c27cc8"
     },
     {
       "id": "CAP-IDENTITY-OIDC",
@@ -208,14 +213,14 @@
       "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
     },
     {
-      "id": "GATE-BROWSER-SMOKE",
+      "id": "GATE-BROWSER-FULLSTACK-E2E",
       "phase": "G3",
       "required": true,
       "status": "passed",
       "evidence": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/certification-evidence.json"
     },
     {
-      "id": "GATE-COMPOSE-H0-WEB",
+      "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
       "required": true,
       "status": "passed",
@@ -321,9 +326,9 @@
     }
   ],
   "composition": {
-    "gate_id": "GATE-COMPOSE-H0-WEB",
+    "gate_id": "GATE-BROWSER-FULLSTACK-E2E",
     "status": "passed",
-    "digest": "c2b4a072422df9f5f63f0ebaacb8bf69ad3694fe0ba10bcfbd37c7cdfbd973d7"
+    "digest": "c5c140f7f18f11d54af0ae38002163ef72851c684eb72c044dc93ac5eea844a1"
   },
   "evidence": [
     "python scripts/validate_reference_profile.py --profile WEB-FASTAPI-REACT-KEYCLOAK-PG",

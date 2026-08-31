@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
-  "profile_version": "1.0.0",
+  "profile_version": "1.1.0",
   "prepare": {
     "strategy": "copy",
     "sources": [

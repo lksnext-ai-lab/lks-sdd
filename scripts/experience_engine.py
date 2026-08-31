@@ -20,11 +20,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
-from evidence_contract import visual_gate_applicability
+from delivery_engine import validate_delivery_contract
+from evidence_contract import integration_gate_applicability, visual_gate_applicability
 from validation_evidence import load_evidence_index, task_health
 
 
-PLUGIN_VERSION = "0.16.0"
+PLUGIN_VERSION = "0.17.0"
 CACHE_SCHEMA = "lks-sdd-experience-cache-1"
 PENDING = {"", "none", "pending", "not-run", "not-started", "unknown"}
 ACTIVE_PROBLEM_STATES = {"active"}
@@ -464,6 +465,10 @@ def load_status(
     state = str(selected.get("Workflow state", "backlog"))
     execution = _execution_for_task(manifest, str(selected_id)) if selected_id else {}
     verification = _verification_for_task(manifest, str(selected_id)) if selected_id else {}
+    delivery_contract = validate_delivery_contract(root, manifest)
+    integration_applicability = integration_gate_applicability(
+        [str(selected_id)] if selected_id else [], delivery_contract
+    )
     passed_checks, test_commands = _evidence_checks(root, manifest, str(selected_id), metrics) if selected_id else (0, [])
     passed_checks += sum(1 for row in validations if row.get("Result", "").casefold() == "passed")
     exact_authorization = _exact_authorization(manifest, str(selected_id)) if selected_id else None
@@ -618,6 +623,7 @@ def load_status(
                 ),
                 "image_count": 0,
             }),
+            "integration_applicability": integration_applicability,
             "delivery": delivery_label,
             "active_blocker": active_blocker,
             "next_action": next_action,
@@ -660,6 +666,7 @@ def load_status(
             "authorization": exact_authorization,
             "execution": execution,
             "verification": verification,
+            "integration_applicability": integration_applicability,
             "task_health": task_healths,
         },
     }

@@ -18,6 +18,15 @@ last_updated: "{{DATE}}"
 
 # Integraciones
 
+## Interfaces entre unidades desplegables
+
+| Interface | State | Consumer unit | Producer unit | Profile bindings | Protocol | Contract | Operations | Required evidence | Primary owner | Verification task | Requirements | Exact composition |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+
+Cada interfaz material usa un `INT-###` confirmado, un consumidor y productor distintos, todos sus `BIND-###`, operaciones `read`, `write` o `read,write`, scopes cerrados y una composición exacta `PROFILE@version`. Una escritura exige `contract,composition,user-flow,persistence`. La TASK de verificación conjunta debe declarar el mismo alcance y depender de las tareas de ambos extremos.
+
+## Sistemas externos
+
 | ID | State | System | Purpose | Contract | Authentication | Failure handling | Requirements |
 |---|---|---|---|---|---|---|---|
 

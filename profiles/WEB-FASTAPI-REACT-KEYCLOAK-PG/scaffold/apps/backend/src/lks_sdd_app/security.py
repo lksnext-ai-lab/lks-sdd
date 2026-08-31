@@ -20,7 +20,10 @@ def decode_access_token(
             detail="OIDC issuer is not configured",
         )
     try:
-        client = PyJWKClient(f"{settings.oidc_issuer.rstrip('/')}/protocol/openid-connect/certs")
+        jwks_url = settings.oidc_jwks_url or (
+            f"{settings.oidc_issuer.rstrip('/')}/protocol/openid-connect/certs"
+        )
+        client = PyJWKClient(jwks_url)
         signing_key = client.get_signing_key_from_jwt(credentials.credentials)
         payload = jwt.decode(
             credentials.credentials,

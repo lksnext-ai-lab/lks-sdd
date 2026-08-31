@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
-  "version": "1.0.0-candidate.1",
+  "version": "1.0.0-candidate.2",
   "family_id": "FAM-WEB-SYSTEM",
   "profile_scope": "system",
   "lifecycle": "candidate",

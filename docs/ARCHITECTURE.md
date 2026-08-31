@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.16.0
+# Arquitectura y alcance de la versión 0.17.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.16.0 conserva las seis skills, la arquitectura multiperfil y el contrato 1.5 de tracking y reporting. La orquestación de verificación sigue siendo task-aware y añade un contrato visual 1.2: cada TASK de interfaz conserva entre una y cinco capturas semánticas, mientras un backend puro declara no aplicabilidad determinista. `work verify` materializa EVID y todas las fichas TASK derivadas en una única transacción; estas fichas quedan fuera de `verification_subject`. La evidencia histórica permanece inmutable y la salud actual se deriva de EVID y PROB vigentes. CKPT y PROB se interpretan por su estructura canónica, no por coincidencias textuales. El único contrato de proyecto soportado es `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. Las propuestas permanecen en `specs/proposed/`: no alteran los hashes ni el estado de las siete fuentes canónicas.
+La versión 0.17.0 conserva las seis skills, la arquitectura multiperfil y el contrato de proyecto 1.5. Añade una interfaz canónica `INT-###` y un contrato EVID 1.3 que separa componente, contrato, composición, flujo, persistencia y visual. La aplicabilidad se deriva de la TASK propietaria y de tablas estructuradas, nunca de texto libre. `work verify` bloquea antes de escribir si un scope inferior intenta cerrar integración, si faltan bindings o si un endpoint de dominio fue simulado. La evidencia histórica permanece inmutable y puede requerir reconciliación sin perder sus checks de componente. El único contrato de proyecto soportado sigue siendo `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. `specs/canonical/` permanece intacto.
 
 La ejecución de calidad se organiza en cuatro tiers mutuamente excluyentes (`fast`, `integration`, `package` y `profile`), con selección conservadora por impacto, procesos aislados, progreso visible y presupuestos bloqueantes. Docker `execute` es una fase separada; `all` compone los cuatro tiers sin duplicar tests.
 
@@ -31,7 +31,7 @@ Las vistas para cliente son artefactos derivados del contrato confirmado, con pr
 | Arquitectura multiperfil | Familias, capabilities internas, perfiles cerrados, bindings, locks, certificaciones y diagnóstico de cobertura | `profiles/catalog.json`, `profiles/*`, `scripts/profile_registry.py`, `scripts/automation_coverage.py` |
 | Ejecución | Readiness por porción, autorización persistida, preparación aditiva, implementación acotada y rollback | `lks-sdd-assess-readiness`, `lks-sdd-implement`, `scripts/manage_planning.py` |
 | Continuidad | Ejecución durable, checkpoints observables y reconciliación al reanudar | `EXEC-###`, `CKPT-###`, `scripts/manage_continuity.py` |
-| Evidencia | Gates G3/G4, revisión Git, árbol, build, artefactos, entorno y autorización | `lks-sdd-verify`, `scripts/delivery_engine.py` |
+| Evidencia | Scopes tipados, gates G3/G4, revisión Git, árbol, build, artefactos, entorno y autorización | `lks-sdd-verify`, `scripts/evidence_contract.py`, `scripts/delivery_engine.py` |
 | Calidad y distribución | Tests, evals, candidate/stable, piloto y bundle reproducible | `tests/`, `quality/`, `pilot/`, `distribution/` |
 
 ## Gobierno adaptable del ciclo de vida
@@ -104,7 +104,7 @@ La versión 0.15.0 contiene catorce perfiles en seis familias: conserva los perf
 | `WEB-REACT-VITE-SIMULATED-OIDC-STATIC` | SPA React/Vite estática con OIDC simulado y PKCE | active; solo no productivo, certificación exacta vigente |
 | `WEB-REACT-VITE-ENTRA-STATIC` | SPA React/Vite estática con Microsoft Entra y PKCE | candidate; cobertura local definida, no soportado aún |
 | `WEB-NEXTJS-SSR-NODE` | SSR/hidratación con Next.js | active; requiere certificación exacta vigente |
-| `WEB-FASTAPI-REACT-KEYCLOAK-PG` | Sistema web React, API, OIDC y PostgreSQL | active; requiere certificación exacta vigente |
+| `WEB-FASTAPI-REACT-KEYCLOAK-PG` | Sistema web React, API, OIDC y PostgreSQL | active 2.1, H1; composición full-stack con certificación exacta vigente |
 | `WEB-ANGULAR-SSR-NODE` | SSR/hidratación con Angular | candidate; documentable, no soportado aún |
 | `SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG` | Sistema web Angular, API, OIDC y PostgreSQL | candidate; documentable, no soportado aún |
 | `MSG-PYTHON-RABBITMQ-WORKER-OCI` | Worker event-driven RabbitMQ | candidate; documentable, no soportado aún |
@@ -130,7 +130,7 @@ La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps 
 
 ## Evolución posterior
 
-La versión SemVer `0.16.0` y el schema candidate 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La eventual incorporación canónica de las propuestas 1.4/1.5 requiere una decisión metodológica separada. La promoción de los candidates Entra o un futuro perfil de sistema debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate de composición, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `0.17.0` y el schema 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La promoción de cualquier candidate, incluido el perfil de sistema 2.1, debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate full-stack, evals y certificación exacta antes de modificar su estado.
 
 ## Capa de experiencia 0.15
 

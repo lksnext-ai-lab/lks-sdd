@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "profile_id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
-  "profile_version": "1.0.0-candidate.1",
+  "profile_version": "1.0.0-candidate.2",
   "prepare": {
     "strategy": "copy",
     "sources": [

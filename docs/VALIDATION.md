@@ -56,11 +56,12 @@ $validationDate = Get-Date -Format "yyyy-MM-dd"
 python tests\run_unit_tests.py --suite fast
 python tests\run_unit_tests.py --suite integration
 python tests\run_unit_tests.py --suite package
+python tests\run_unit_tests.py --suite profile
 python tests\run_evals.py
-python scripts\run_quality_harness.py --channel candidate --date $validationDate --baseline quality\baselines\v0.14.2.json --profile-mode reuse
+python scripts\run_quality_harness.py --channel candidate --date $validationDate --baseline quality\baselines\v0.15.0.json --profile-mode reuse
 ```
 
-Para feedback rápido durante 0.15.0:
+Para feedback rápido durante 0.17.0:
 
 ```powershell
 python scripts\run_fast_validation.py --focus jira-reporting
@@ -138,7 +139,7 @@ La confirmación del plan, la autorización, la preparación, los checkpoints y 
 
 ## Corte de contrato de proyecto
 
-0.15 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
+0.17 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
 
 ```powershell
 python "<plugin-root>\scripts\lks_sdd.py" doctor "<project-root>" --quick --view audit --json
@@ -160,7 +161,7 @@ El resultado esperado es `blocked` con código `3`. No convierta ese estado en u
 
 ## Cierre obligatorio
 
-Antes del cierre 0.15 ejecute además:
+Antes del cierre 0.17 ejecute además:
 
 ```powershell
 python -X utf8 -m unittest tests.test_product_experience_v015 -v
@@ -179,13 +180,16 @@ git diff --stat
 
 Revise el diff completo, diferencie gates ejecutados de canales `not-run` y no cree commit, etiqueta, publicación o instalación salvo autorización separada.
 
-## Evidencia 0.16 y benchmark
+## Evidencia 0.17, integración y benchmark
 
 ```powershell
 python -X utf8 scripts\validate_fixture_manifest.py --json
 python -X utf8 tests\run_unit_tests.py --module test_validation_evidence_v016
+python -X utf8 tests\run_unit_tests.py --module test_fullstack_integration_contract_v017
 python -X utf8 scripts\benchmark_experience.py --iterations 5 --json
 python -X utf8 scripts\validate_plugin_contract.py .
 ```
+
+La suite focalizada 0.17 contiene diez casos: falso positivo por componentes, integración real, backend-only, frontend-only, slice mixto, mock funcional, doble OIDC controlado, historia/reconciliación, atomicidad y determinismo. El perfil `WEB-FASTAPI-REACT-KEYCLOAK-PG` 2.1 fue promocionado a `active` únicamente después de ejecutar con Docker `GATE-BROWSER-FULLSTACK-E2E` y registrar una certificación exacta nueva. Cualquier cambio posterior en sus entradas certificadas exige recertificación y debe volver a fallar de forma cerrada mientras falte.
 
 Antes de empaquetar, ejecute también todos los tiers, los evals y los gates de perfiles. Construya dos veces desde el mismo commit limpio y compare hashes; extraiga después el ZIP en un directorio temporal, valide el manifest y las seis skills y ejecute una instalación limpia aislada, sin modificar la instalación activa.

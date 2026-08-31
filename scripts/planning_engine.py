@@ -12,7 +12,7 @@ from typing import Any, Iterable
 
 from contract_engine import build_project_model, resolve_active_increment
 from delivery_engine import parse_tables, validate_delivery_contract
-from profile_registry import load_profile_bundle
+from profile_registry import load_profile_bundle, resolve_profile
 
 
 PLANNING_TARGET_HEADERS = (
@@ -244,6 +244,7 @@ def _task_definition(
         "definition": definition,
         "plan": plan,
         "continuity": continuity,
+        "integration": detail.get("integration", []),
     }
 
 
@@ -620,6 +621,29 @@ def assess_planning(
             for item in bundle.lock.get("gates", [])
             if isinstance(item, dict) and item.get("id")
         } | {"GATE-VISUAL-BROWSER-REVIEW"}
+        joint_binding_ids: set[str] = set()
+        for integration_row in payload.get("integration", []):
+            joint_binding_ids.update(
+                re.findall(
+                    r"\bBIND-[0-9]{3}\b",
+                    integration_row.get("Profile bindings", ""),
+                )
+            )
+        for joint_binding_id in sorted(joint_binding_ids - {str(binding_id)}):
+            joint_binding = binding_index.get(joint_binding_id)
+            if not isinstance(joint_binding, dict):
+                continue
+            joint_bundle = load_profile_bundle(str(joint_binding.get("profile_id", "")))
+            allowed_capabilities.update(
+                str(item.get("id"))
+                for item in joint_bundle.lock.get("capabilities", [])
+                if isinstance(item, dict) and item.get("id")
+            )
+            allowed_gates.update(
+                str(item.get("id"))
+                for item in joint_bundle.lock.get("gates", [])
+                if isinstance(item, dict) and item.get("id")
+            )
         definition = payload.get("definition", {})
         requested_capabilities = set(
             re.findall(
@@ -648,6 +672,56 @@ def assess_planning(
                 f"{task_id}: gates no aplicables a {binding_id}: "
                 + ", ".join(unknown_gates)
                 + "."
+            )
+
+    for interface_id, interface in sorted(delivery.get("interfaces", {}).items()):
+        if interface.get("State", "").strip().casefold() != "confirmed":
+            continue
+        verification_tasks, task_errors = expand_ids(
+            interface.get("Verification task", "")
+        )
+        integrity_errors.extend(task_errors)
+        if len(verification_tasks) != 1 or verification_tasks[0] not in target_tasks:
+            gaps.append(
+                {
+                    "kind": "integration-task",
+                    "items": [interface_id, *verification_tasks],
+                    "explanation": (
+                        f"{interface_id}: la TASK de integración no pertenece al objetivo planificado."
+                    ),
+                }
+            )
+            continue
+        task_id = verification_tasks[0]
+        definition = task_definitions.get(task_id, {}).get("definition", {})
+        requested_gates = set(
+            re.findall(
+                r"\bGATE-[A-Z0-9-]{3,80}\b",
+                definition.get("Technical gates", ""),
+            )
+        )
+        if "GATE-BROWSER-FULLSTACK-E2E" not in requested_gates:
+            integrity_errors.append(
+                f"{task_id}: {interface_id} exige GATE-BROWSER-FULLSTACK-E2E observable."
+            )
+        exact = str(interface.get("Exact composition", ""))
+        profile_id, separator, version = exact.partition("@")
+        support = resolve_profile(profile_id) if separator else None
+        if (
+            support is None
+            or support.profile_version != version
+            or support.profile_scope != "system"
+            or not support.verifiable
+        ):
+            gaps.append(
+                {
+                    "kind": "integration-automation-support",
+                    "items": [interface_id, exact],
+                    "explanation": (
+                        f"{interface_id}: automation_support=unsupported para la composición exacta; "
+                        "certifique un perfil de sistema cerrado o deje la porción sin verificar automáticamente."
+                    ),
+                }
             )
 
     if schema_version not in {"1.3", "1.4", "1.5"}:

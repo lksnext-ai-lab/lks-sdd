@@ -77,7 +77,7 @@ def _valid_config() -> dict:
         },
         "rollback": {
             "previous_version": "0.15.0",
-            "candidate_version": "0.16.0",
+            "candidate_version": "0.17.0",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },
@@ -416,7 +416,7 @@ class M5PilotTests(unittest.TestCase):
             )
         }
         self.assertEqual(
-            _expected_deterministic_eval_count("0.16.0", 5, committed_v016), 6
+            _expected_deterministic_eval_count("0.17.0", 5, committed_v016), 6
         )
         self.assertEqual(
             _expected_deterministic_eval_count("0.14.2", 5, committed), 5

@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
   "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
-  "profile_version": "1.0.0",
-  "certified_at": "2026-08-21",
+  "profile_version": "1.1.0",
+  "certified_at": "2026-08-31",
   "runtime": "docker",
   "containers_executed": true,
   "complete_gate": true,
   "passed": true,
-  "profile_sha256": "1e43f05d89bd9c1d98b0291af9765629b4b333ca373c9f97370594ef9b57d185",
-  "driver_sha256": "c6e285af822675223fc584cae7a06a7278ac77968da17a1c009b0af7558091e8",
-  "scaffold_sha256": "b88981d48b6b1a8a44b663b1a5a65438d0b562a50a147eb55f024307e877c8b8",
-  "composition_digest": "3297a0c4ca0710e0dcae0abb38f9c4d0da0ff50977328c68592201c47a684bdc",
+  "profile_sha256": "715370fd509e5d79c8bb0c625cd8630e3a222660ea37b5948a8cb574b00cce82",
+  "driver_sha256": "9e01ccb460da5daa9ac94b4a8997332682f7b6f8bca96427224c0ca03b1f4ee1",
+  "scaffold_sha256": "e74a791dd51b4efd68888c6137a51cc9ed6196dc80353b784874b7392263f5c7",
+  "composition_digest": "eb6a3c7ca5775f585e7483433e37c80c70d8e8ee9ad9cf1d40f941d89fc95e04",
   "certification_engine_sha256": "8679d8e0b51ca6c924c680360548af9e957d1a46dd3c1fa8e197bd2ac3ad099d",
   "checks": [
     {
@@ -70,6 +70,6 @@
       "status": "passed"
     }
   ],
-  "result_sha256": "acf9cf8e2846ea2928609dd66aa77ff5265f9d19cf5b869326a5f00b7989bf13",
+  "result_sha256": "9955e80ac6d04105ab5602bac0480e7cb65d0fc748ecb20e04e8c5a73ff2adad",
   "command": "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-KEYCLOAK-PG-OCI --runtime docker --containers --record-certification"
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.16 evidence/quality invariants."""
+"""Validate LKS-SDD M0-M5 plus the 0.17 integration/evidence invariants."""
 
 from __future__ import annotations
 
@@ -59,11 +59,14 @@ REQUIRED_ROOT_FILES = {
     "docs/V0.15-QUALITY-EFFICIENCY-COVERAGE.md",
     "docs/V0.15-PRODUCT-EXPERIENCE.md",
     "docs/V0.16-VALIDATION-EVIDENCE.md",
+    "docs/V0.17-FULLSTACK-INTEGRATION-EVIDENCE.md",
     "docs/MIGRATION-0.16.0.md",
+    "docs/MIGRATION-0.17.0.md",
     "docs/releases/v0.14.0.md",
     "docs/releases/v0.14.2.md",
     "docs/releases/v0.15.0.md",
     "docs/releases/v0.16.0.md",
+    "docs/releases/v0.17.0.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -121,6 +124,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.14.0.json",
     "quality/corpora/definition-v0.15.0.json",
     "quality/corpora/definition-v0.16.0.json",
+    "quality/corpora/definition-v0.17.0.json",
     "quality/fixture-manifest.json",
     "quality/test-suites.json",
     "quality/v0.15-e2e-matrix.json",
@@ -139,6 +143,7 @@ REQUIRED_ROOT_FILES = {
     "schemas/quality-report.schema.json",
     "schemas/quality-report-1.1.schema.json",
     "schemas/verification-evidence-1.2.schema.json",
+    "schemas/verification-evidence-1.3.schema.json",
     "schemas/visual-review-evidence-1.2.schema.json",
     "schemas/visual-evidence-policy.schema.json",
     "schemas/task-evidence-summary-1.0.schema.json",
@@ -842,7 +847,7 @@ def validate(root: Path) -> list[str]:
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
         if rollback.get("previous_version") != "0.15.0":
-            errors.append("El rollback del piloto 0.16.0 debe conservar 0.15.0.")
+            errors.append("El rollback del piloto 0.17.0 debe conservar 0.15.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 

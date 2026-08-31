@@ -27,9 +27,12 @@ from contract_engine import (  # noqa: E402
 )
 from check_traceability import check as check_traceability  # noqa: E402
 from evidence_contract import (  # noqa: E402
+    FULLSTACK_GATE_ID,
     canonical_top_level_profile_identity,
     evidence_gate_applicability_errors,
     evidence_profile_identity_errors,
+    integration_gate_applicability,
+    integration_evidence_errors,
     selected_task_requirements,
     visual_gate_applicability,
 )
@@ -354,13 +357,19 @@ def _visual_applicability(
 def _binding_ids_for_tasks(
     task_ids: list[str], delivery: dict[str, Any]
 ) -> list[str]:
-    return sorted(
-        {
+    selected = {
             str(delivery.get("tasks", {}).get(task_id, {}).get("Profile binding"))
             for task_id in task_ids
             if delivery.get("tasks", {}).get(task_id, {}).get("Profile binding")
-        }
-    )
+    }
+    for task_id in task_ids:
+        for row in delivery.get("task_details", {}).get(task_id, {}).get(
+            "integration", []
+        ):
+            selected.update(
+                expand_reference_ids(row.get("Profile bindings", ""), {"BIND"})
+            )
+    return sorted(selected)
 
 
 def _resolve_visual_evidence_path(root: Path, requested: Path) -> Path:
@@ -636,10 +645,33 @@ def _profile_command(
     command = list(check["command"])
     if os.name == "nt" and command and command[0] in {"npm", "npx"}:
         command[0] += ".cmd"
+    evidence_path = check.get("evidence_path")
+    evidence_scopes = list(check.get("evidence_scopes", ["component"]))
+    if check.get("id") == FULLSTACK_GATE_ID:
+        evidence_path = ".lks-sdd/fullstack-evidence.json"
+        evidence_scopes = ["contract", "composition", "user-flow", "persistence"]
+    resolved_evidence: Path | None = None
+    if isinstance(evidence_path, str):
+        requested = (
+            root / evidence_path
+            if check.get("id") == FULLSTACK_GATE_ID
+            else root / unit / relative_cwd / evidence_path
+        )
+        try:
+            requested.resolve(strict=False).relative_to(root.resolve())
+        except ValueError as exc:
+            raise VerificationError(
+                f"{binding.get('binding_id')}: evidence_path inseguro en el driver."
+            ) from exc
+        resolved_evidence = requested
     return {
         "name": f"{binding['binding_id']}:{check['name']}",
         "gate_id": check["id"],
         "binding_id": binding["binding_id"],
+        "profile_id": binding.get("profile_id"),
+        "evidence_scopes": evidence_scopes,
+        "interface_ids": [],
+        "evidence_path": resolved_evidence,
         "cwd": root / unit / relative_cwd,
         "command": command,
         "timeout_seconds": check["timeout_seconds"],
@@ -651,6 +683,10 @@ def _profile_command(
 def _execute_profile_command(
     check: dict[str, Any], env: dict[str, str]
 ) -> dict[str, Any]:
+    metadata = {
+        "evidence_scopes": check.get("evidence_scopes", ["component"]),
+        "interface_ids": check.get("interface_ids", []),
+    }
     if not check["cwd"].is_dir():
         return {
             "name": check["name"],
@@ -658,6 +694,7 @@ def _execute_profile_command(
             "binding_id": check["binding_id"],
             "status": "blocked",
             "reason": "working-directory-missing",
+            **metadata,
         }
     started = time.monotonic()
     try:
@@ -680,6 +717,7 @@ def _execute_profile_command(
             "binding_id": check["binding_id"],
             "status": status,
             "reason": reason,
+            **metadata,
         }
     except subprocess.TimeoutExpired:
         return {
@@ -688,8 +726,9 @@ def _execute_profile_command(
             "binding_id": check["binding_id"],
             "status": "failed",
             "reason": "timeout",
+            **metadata,
         }
-    return {
+    result = {
         "name": check["name"],
         "gate_id": check["gate_id"],
         "binding_id": check["binding_id"],
@@ -698,7 +737,26 @@ def _execute_profile_command(
         "duration_seconds": round(time.monotonic() - started, 3),
         "stdout_tail": process.stdout[-2000:],
         "stderr_tail": process.stderr[-2000:],
+        **metadata,
     }
+    evidence_path = check.get("evidence_path")
+    if process.returncode == 0 and isinstance(evidence_path, Path):
+        candidate = evidence_path
+        try:
+            payload = json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            result["status"] = "failed"
+            result["reason"] = "structured-evidence-invalid"
+            result["evidence_error"] = str(exc)
+        else:
+            if not isinstance(payload, dict):
+                result["status"] = "failed"
+                result["reason"] = "structured-evidence-invalid"
+            else:
+                result["observations"] = payload.get("observations")
+                result["mocks"] = payload.get("mocks", [])
+                result["structured_evidence"] = candidate.as_posix()
+    return result
 
 
 def _cleanup_profile_compositions(
@@ -1165,6 +1223,39 @@ def _run_v12(
     if not bindings:
         blockers.append("No hay bindings verificables en implementation.")
 
+    integration_applicability = integration_gate_applicability(task_ids, delivery)
+    for obligation in integration_applicability:
+        if obligation.get("status") != "applicable":
+            continue
+        exact = str(obligation.get("exact_composition", ""))
+        profile_id, separator, profile_version = exact.partition("@")
+        matching = [
+            binding
+            for binding in bindings
+            if binding.get("profile_id") == profile_id
+            and str(load_profile_bundle(profile_id).profile.get("version"))
+            == profile_version
+        ] if separator else []
+        if not matching:
+            blockers.append(
+                f"{obligation.get('interface_id')}: automation_support=unsupported; "
+                f"la selección no incluye la composición exacta {exact}."
+            )
+            continue
+        bundle = load_profile_bundle(profile_id)
+        fullstack = [
+            check
+            for check in bundle.driver.get("verify", {}).get("checks", [])
+            if check.get("id") == "GATE-BROWSER-FULLSTACK-E2E"
+        ]
+        required_scopes = set(obligation.get("required_evidence_scopes", []))
+        supported_scopes = {"contract", "composition", "user-flow", "persistence"}
+        if len(fullstack) != 1 or not required_scopes <= supported_scopes:
+            blockers.append(
+                f"{obligation.get('interface_id')}: automation_support=unsupported; "
+                f"{exact} no aporta un gate full-stack estructurado para todos los scopes."
+            )
+
     initial_contract_fingerprint, contract_errors = _active_contract_snapshot(
         root, args.increment
     )
@@ -1236,9 +1327,16 @@ def _run_v12(
         for check in bundle.driver.get("verify", {}).get("checks", []):
             if check.get("kind") != "command" or check.get("phase") == "G4":
                 continue
-            profile_checks.append(
-                _profile_command(root, binding, check)
-            )
+            prepared = _profile_command(root, binding, check)
+            if check.get("id") == "GATE-BROWSER-FULLSTACK-E2E":
+                prepared["interface_ids"] = sorted(
+                    str(item["interface_id"])
+                    for item in integration_applicability
+                    if item.get("status") == "applicable"
+                    and str(item.get("exact_composition", "")).partition("@")[0]
+                    == binding.get("profile_id")
+                )
+            profile_checks.append(prepared)
     plan = [
         {
             "name": item["name"],
@@ -1248,6 +1346,8 @@ def _run_v12(
             "command": item["command"],
             "required": item["required"],
             "requires_containers": item["requires_containers"],
+            "evidence_scopes": item["evidence_scopes"],
+            "interface_ids": item["interface_ids"],
         }
         for item in profile_checks
     ]
@@ -1301,7 +1401,7 @@ def _run_v12(
             ),
             "planning": planning_state,
             "implementation_authorization": authorization_state,
-            "gate_applicability": [visual_applicability],
+            "gate_applicability": [visual_applicability, *integration_applicability],
             "visual_evidence_policy": visual_policies,
         }
     if args.plan:
@@ -1330,7 +1430,7 @@ def _run_v12(
             ),
             "planning": planning_state,
             "implementation_authorization": authorization_state,
-            "gate_applicability": [visual_applicability],
+            "gate_applicability": [visual_applicability, *integration_applicability],
             "visual_evidence_policy": visual_policies,
         }
     if not args.execute or not args.authorize:
@@ -1442,6 +1542,33 @@ def _run_v12(
         limitations.append(
             f"Gates técnicos reutilizados desde {args.reuse_evidence}; sujeto técnico y contrato sin cambios."
         )
+    for outcome in outcomes:
+        if not isinstance(outcome.get("evidence_scopes"), list):
+            outcome["evidence_scopes"] = (
+                ["visual"]
+                if outcome.get("gate_id") == "GATE-VISUAL-BROWSER-REVIEW"
+                else ["component"]
+            )
+        if not isinstance(outcome.get("interface_ids"), list):
+            outcome["interface_ids"] = []
+    integration_errors = integration_evidence_errors(
+        {"checks": outcomes}, integration_applicability
+    )
+    if integration_errors:
+        outcomes.append(
+            {
+                "name": "integration-evidence-postvalidation",
+                "gate_id": "GATE-BROWSER-FULLSTACK-E2E",
+                "status": "failed",
+                "evidence_scopes": ["composition"],
+                "interface_ids": sorted(
+                    str(item.get("interface_id"))
+                    for item in integration_applicability
+                    if item.get("interface_id")
+                ),
+                "errors": integration_errors,
+            }
+        )
     required_failures = [
         item
         for item in outcomes
@@ -1547,7 +1674,7 @@ def _run_v12(
         "environment": environment,
         "planning": planning_state,
         "implementation_authorization": authorization_state,
-        "gate_applicability": [visual_applicability],
+        "gate_applicability": [visual_applicability, *integration_applicability],
         "visual_evidence_policy": visual_policies,
         "execution_id": (
             selected_execution.get("execution_id")
@@ -1627,7 +1754,7 @@ def _run_v12(
         in {binding["binding_id"] for binding in bindings}
     ]
     evidence = {
-        "schema_version": "1.2",
+        "schema_version": "1.3",
         "evidence_id": args.record_evidence,
         **(
             {"execution_id": selected_execution["execution_id"]}
@@ -1654,7 +1781,7 @@ def _run_v12(
             {item["gate_id"] for item in outcomes if item.get("gate_id")}
         ),
         "checks": outcomes,
-        "gate_applicability": [visual_applicability],
+        "gate_applicability": [visual_applicability, *integration_applicability],
         "limitations": limitations,
         "verification_subject": current_subject,
         **(
@@ -1745,7 +1872,9 @@ def _run_v12(
         )
     )
     candidate_errors.extend(
-        evidence_gate_applicability_errors(evidence, visual_applicability)
+        evidence_gate_applicability_errors(
+            evidence, [visual_applicability, *integration_applicability]
+        )
     )
     if candidate_errors:
         raise VerificationError(
@@ -1914,6 +2043,7 @@ def _transition_summary(result: dict[str, Any]) -> dict[str, Any]:
         "blocked": list(dict.fromkeys(blocked)),
         "next_step": next_step,
         "human_decision": human_decision,
+        "integration_applicability": result.get("gate_applicability", []),
     }
 
 

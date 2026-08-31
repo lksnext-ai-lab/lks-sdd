@@ -22,4 +22,6 @@ def test_openapi_is_generated_and_identity_is_protected() -> None:
     schema = asyncio.run(request("/openapi.json")).json()
     assert schema["openapi"].startswith("3.1.")
     assert "/api/v1/me" in schema["paths"]
+    assert "/api/v1/items" in schema["paths"]
     assert asyncio.run(request("/api/v1/me")).status_code in {401, 403}
+    assert asyncio.run(request("/api/v1/items")).status_code in {401, 403}

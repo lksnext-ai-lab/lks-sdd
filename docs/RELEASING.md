@@ -125,6 +125,6 @@ Cada nota incluye como mínimo:
 
 Para 0.15.0, las notas deben documentar los tiers, la selección por cambios, los presupuestos bloqueantes, el fail-fast y la compatibilidad histórica del quality report 1.1. También conservan los contratos 0.14: aplicabilidad visual por slice, material canónico del `build_id`, separación de `verification_run_id` y flujo G3 → plantilla G4 → evidencia completa. Deben distinguir el OIDC simulado local de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Microsoft Entra o Rovo/Jira real como `passed`; esa evidencia permanece `not-run` hasta una ejecución autorizada.
 
-Para 0.16.0, las notas incluyen además política visual 1–5, semántica de capturas, fichas derivadas, historial/salud, Jira por cinco hitos, benchmark 0.15→0.16 y migración no destructiva. El paquete debe superar instalación limpia aislada y validación extraída sin tocar una instalación activa.
+Para 0.17.0, las notas incluyen además interfaces `INT-###`, scopes tipados, EVID 1.3, el gate full-stack, reglas de mocks, reconciliación histórica y migración no destructiva. El paquete debe superar recertificación exacta del perfil de sistema, instalación limpia aislada y validación extraída sin tocar una instalación activa.
 
 El validador contractual compara dinámicamente la versión del manifiesto con la primera entrada del changelog y `docs/releases/vX.Y.Z.md`. La etiqueta se comprueba únicamente al publicar, porque los commits intermedios no constituyen una release.

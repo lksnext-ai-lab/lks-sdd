@@ -122,6 +122,32 @@ ARCHITECTURE_HEADERS = (
     "Requirements",
     "Profile binding",
 )
+INTEGRATION_INTERFACE_HEADERS = (
+    "Interface",
+    "State",
+    "Consumer unit",
+    "Producer unit",
+    "Profile bindings",
+    "Protocol",
+    "Contract",
+    "Operations",
+    "Required evidence",
+    "Primary owner",
+    "Verification task",
+    "Requirements",
+    "Exact composition",
+)
+TASK_INTEGRATION_HEADERS = (
+    "Interface",
+    "Units",
+    "Profile bindings",
+    "Evidence scopes",
+    "Operations",
+)
+EVIDENCE_SCOPES = frozenset(
+    {"component", "contract", "composition", "user-flow", "persistence", "visual"}
+)
+INTEGRATION_OPERATIONS = frozenset({"read", "write"})
 TASK_DETAIL_HEADERS = {
     "identity": (
         "Task",
@@ -422,6 +448,18 @@ def _validate_task_detail(
                 resolved[name] = []
             else:
                 resolved[name] = matches[0]
+        integration_matches = [
+            rows for actual, rows in tables if actual == TASK_INTEGRATION_HEADERS
+        ]
+        if len(integration_matches) > 1:
+            errors.append(
+                f"{task_id}: se repite la tabla de alcance de integración."
+            )
+            resolved["integration"] = []
+        else:
+            resolved["integration"] = (
+                integration_matches[0] if integration_matches else []
+            )
     identity = resolved.get("identity", [])
     execution = resolved.get("execution", [])
     definition = resolved.get("definition", [])
@@ -617,6 +655,11 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     _, architecture_tables = _load_artifact(
         root, manifest, "ART-ARCH", errors, checked
     )
+    integration_tables: list[dict[str, Any]] = []
+    if _artifact_path(manifest, "ART-INTEGRATIONS") is not None:
+        _, integration_tables = _load_artifact(
+            root, manifest, "ART-INTEGRATIONS", errors, checked
+        )
 
     governance_rows = _table_rows(governance_tables, GOVERNANCE_HEADERS)
     environment_rows = _table_rows(governance_tables, ENVIRONMENT_HEADERS)
@@ -624,6 +667,9 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     release_rows = _table_rows(plan_tables, RELEASE_HEADERS)
     task_rows = _table_rows(task_tables, TASK_HEADERS)
     unit_rows = _table_rows(architecture_tables, ARCHITECTURE_HEADERS)
+    interface_rows = _table_rows(
+        integration_tables, INTEGRATION_INTERFACE_HEADERS
+    )
 
     governance = {row.get("ID", ""): row for row in governance_rows if row.get("ID")}
     environments = {row.get("ID", ""): row for row in environment_rows if row.get("ID")}
@@ -631,6 +677,11 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     releases = {row.get("ID", ""): row for row in release_rows if row.get("ID")}
     tasks = {row.get("ID", ""): row for row in task_rows if row.get("ID")}
     units = {row.get("Unit", ""): row for row in unit_rows if row.get("Unit")}
+    interfaces = {
+        row.get("Interface", ""): row
+        for row in interface_rows
+        if row.get("Interface")
+    }
     bindings = {
         item.get("binding_id", ""): item
         for item in manifest.get("technology", {}).get("profile_bindings", [])
@@ -644,6 +695,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         ("releases", release_rows, releases),
         ("tareas", task_rows, tasks),
         ("unidades", unit_rows, units),
+        ("interfaces", interface_rows, interfaces),
     ):
         if len(rows) != len(values):
             errors.append(f"Hay identificadores duplicados o vacíos en {label}.")
@@ -711,6 +763,112 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         errors.append("technology.selected_profile diverge del único binding confirmado.")
     if len(confirmed_bindings) > 1 and selected_profile is not None:
         errors.append("technology.selected_profile debe ser null en una composición multiperfil.")
+
+    integration_reconciliation: list[dict[str, str]] = []
+    for unit_id, unit in units.items():
+        raw_interfaces = unit.get("Interfaces", "").strip()
+        referenced = set(_ids(raw_interfaces, "INT"))
+        unknown = sorted(referenced - set(interfaces))
+        if unknown:
+            errors.append(
+                f"{unit_id}: Interfaces referencia contratos inexistentes: "
+                + ", ".join(unknown)
+                + "."
+            )
+
+    for interface_id, interface in interfaces.items():
+        if not re.fullmatch(r"INT-[0-9]{3}", interface_id):
+            errors.append(f"ID de interfaz inválido: {interface_id!r}.")
+            continue
+        state = interface.get("State", "").strip().casefold()
+        if state not in {"proposed", "confirmed", "superseded", "rejected", "retired"}:
+            errors.append(f"{interface_id}: State de interfaz inválido: {state!r}.")
+        consumer_ids = _ids(interface.get("Consumer unit", ""), "UNIT")
+        producer_ids = _ids(interface.get("Producer unit", ""), "UNIT")
+        participant_units = set(consumer_ids + producer_ids)
+        if len(consumer_ids) != 1 or len(producer_ids) != 1:
+            errors.append(
+                f"{interface_id}: debe declarar un Consumer unit y un Producer unit exactos."
+            )
+        if len(participant_units) != 2:
+            errors.append(
+                f"{interface_id}: consumidor y productor deben ser unidades distintas."
+            )
+        unknown_units = sorted(participant_units - set(units))
+        if unknown_units:
+            errors.append(
+                f"{interface_id}: unidades inexistentes: "
+                + ", ".join(unknown_units)
+                + "."
+            )
+        binding_ids = _ids(interface.get("Profile bindings", ""), "BIND")
+        if len(set(binding_ids)) < 2:
+            errors.append(
+                f"{interface_id}: Profile bindings debe seleccionar al menos dos BIND-###."
+            )
+        unknown_bindings = sorted(set(binding_ids) - set(bindings))
+        if unknown_bindings:
+            errors.append(
+                f"{interface_id}: bindings inexistentes: "
+                + ", ".join(unknown_bindings)
+                + "."
+            )
+        observed_units = {
+            str(bindings.get(binding_id, {}).get("unit_id", ""))
+            for binding_id in binding_ids
+        }
+        if participant_units and observed_units != participant_units:
+            errors.append(
+                f"{interface_id}: Profile bindings no coincide exactamente con consumidor y productor."
+            )
+        operations = {
+            item.strip().casefold()
+            for item in interface.get("Operations", "").split(",")
+            if item.strip()
+        }
+        if not operations or not operations <= INTEGRATION_OPERATIONS:
+            errors.append(
+                f"{interface_id}: Operations debe usar read, write o read,write."
+            )
+        evidence_scopes = {
+            item.strip().casefold()
+            for item in interface.get("Required evidence", "").split(",")
+            if item.strip()
+        }
+        required_scopes = {"contract", "composition", "user-flow"}
+        if "write" in operations:
+            required_scopes.add("persistence")
+        if (
+            not evidence_scopes
+            or not evidence_scopes <= EVIDENCE_SCOPES
+            or not required_scopes <= evidence_scopes
+        ):
+            errors.append(
+                f"{interface_id}: Required evidence debe incluir "
+                + ", ".join(sorted(required_scopes))
+                + " y usar solo scopes del catálogo."
+            )
+        for column in ("Protocol", "Contract", "Primary owner"):
+            if not _meaningful(interface.get(column, "")):
+                errors.append(f"{interface_id}: falta {column} verificable.")
+        verification_tasks = _ids(
+            interface.get("Verification task", ""), "TASK"
+        )
+        if len(verification_tasks) != 1:
+            errors.append(
+                f"{interface_id}: Verification task debe seleccionar una TASK-### exacta."
+            )
+        elif verification_tasks[0] not in tasks:
+            errors.append(
+                f"{interface_id}: Verification task no existe: {verification_tasks[0]}."
+            )
+        if state == "confirmed" and not re.fullmatch(
+            r"[A-Z][A-Z0-9-]{2,95}@[0-9]+\.[0-9]+\.[0-9]+",
+            interface.get("Exact composition", ""),
+        ):
+            errors.append(
+                f"{interface_id}: una interfaz confirmed necesita Exact composition PROFILE@version."
+            )
 
     active_plan = manifest.get("active_plan")
     if active_plan is not None and active_plan not in plans:
@@ -802,6 +960,87 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
                 errors.append(
                     f"{task_id}: no puede estar ready mientras {dependency} no esté done."
                 )
+
+    for interface_id, interface in interfaces.items():
+        if interface.get("State", "").strip().casefold() != "confirmed":
+            continue
+        verification_tasks = _ids(interface.get("Verification task", ""), "TASK")
+        if len(verification_tasks) != 1 or verification_tasks[0] not in tasks:
+            continue
+        task_id = verification_tasks[0]
+        detail = detail_contracts.get(task_id, {})
+        integration_rows = [
+            row
+            for row in detail.get("integration", [])
+            if row.get("Interface") == interface_id
+        ]
+        if len(integration_rows) != 1:
+            errors.append(
+                f"{task_id}: debe declarar una fila de alcance conjunto para {interface_id}."
+            )
+            continue
+        scope = integration_rows[0]
+        expected_units = set(
+            _ids(interface.get("Consumer unit", ""), "UNIT")
+            + _ids(interface.get("Producer unit", ""), "UNIT")
+        )
+        expected_bindings = set(
+            _ids(interface.get("Profile bindings", ""), "BIND")
+        )
+        expected_scopes = {
+            item.strip().casefold()
+            for item in interface.get("Required evidence", "").split(",")
+            if item.strip()
+        }
+        expected_operations = {
+            item.strip().casefold()
+            for item in interface.get("Operations", "").split(",")
+            if item.strip()
+        }
+        if set(_ids(scope.get("Units", ""), "UNIT")) != expected_units:
+            errors.append(f"{task_id}: Units no coincide con {interface_id}.")
+        if set(_ids(scope.get("Profile bindings", ""), "BIND")) != expected_bindings:
+            errors.append(
+                f"{task_id}: Profile bindings conjuntos no coinciden con {interface_id}."
+            )
+        observed_scopes = {
+            item.strip().casefold()
+            for item in scope.get("Evidence scopes", "").split(",")
+            if item.strip()
+        }
+        if observed_scopes != expected_scopes:
+            errors.append(
+                f"{task_id}: Evidence scopes no coincide con {interface_id}."
+            )
+        observed_operations = {
+            item.strip().casefold()
+            for item in scope.get("Operations", "").split(",")
+            if item.strip()
+        }
+        if observed_operations != expected_operations:
+            errors.append(f"{task_id}: Operations no coincide con {interface_id}.")
+        dependencies = set(_ids(tasks[task_id].get("Dependencies", ""), "TASK"))
+        participant_tasks = {
+            candidate_id
+            for candidate_id, candidate in tasks.items()
+            if candidate_id != task_id
+            and candidate.get("Unit") in expected_units
+            and candidate.get("Release") == tasks[task_id].get("Release")
+        }
+        missing_dependencies = sorted(
+            unit_id
+            for unit_id in expected_units
+            if not any(
+                tasks.get(candidate_id, {}).get("Unit") == unit_id
+                for candidate_id in dependencies & participant_tasks
+            )
+        )
+        if missing_dependencies:
+            errors.append(
+                f"{task_id}: faltan dependencias de consumidor/productor para "
+                + ", ".join(missing_dependencies)
+                + "."
+            )
 
     if schema_version in {"1.3", "1.4", "1.5"}:
         indexed_active = set(manifest.get("active_tasks", []))
@@ -909,6 +1148,8 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         "task_readiness_blockers": task_readiness_blockers,
         "units": units,
         "bindings": bindings,
+        "interfaces": interfaces,
+        "integration_reconciliation": integration_reconciliation,
     }
 
 

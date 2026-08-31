@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.17.0 — 2026-08-31 — integración multiunidad fail-closed
+
+- Añade un contrato canónico aditivo `INT-###` con consumidor, productor, bindings, operaciones, scopes de evidencia, propietario, TASK conjunta y composición exacta.
+- Comparte los scopes `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual` entre planificación, readiness, runner, EVID 1.3, status y trazabilidad.
+- Impide que gates de componente, capturas o procesos arrancados por separado cierren criterios cross-unit; sin perfil de sistema exacto certificado informa `automation_support=unsupported`.
+- Añade `GATE-BROWSER-FULLSTACK-E2E` con navegador real, API funcional real, mutación UI, lectura, recarga, persistencia, requests, correlación, capturas con hash y errores de consola.
+- Rechaza mocks de dominio `/api/v1` para composición/flujo/persistencia y mantiene separado un doble de identidad no productivo autorizado.
+- Conserva evidencia histórica sin reescritura y expone `reconciliation-required`; la evidencia de componente demostrada sigue siendo válida para ese alcance.
+- Mantiene la aplicabilidad TASK-aware y no exige full-stack a backend-only, frontend standalone o slices sin interfaz confirmada.
+- Evoluciona el perfil de sistema React/FastAPI/Keycloak/PostgreSQL a 2.1 `active` con certificación Docker exacta, salud OIDC observable y disponibilidad con reintentos acotados; los canales humanos y externos permanecen `not-run`.
+- Versiona los perfiles dependientes del scaffold compartido: API Keycloak/PostgreSQL 1.1.0 y sistema Angular 1.0.0-candidate.2. Cada lock se reconcilia con sus fuentes exactas; el sistema Angular conserva su estado no certificado.
+
 ## 0.16.0 — 2026-08-29 — evidencia de validación por tarea
 
 - Cierra el contrato visual 1.2 con política configurable de una a cinco imágenes por TASK de interfaz, semántica verificable, integridad SHA-256, dimensiones reales y rechazo controlado de duplicados o contradicciones.

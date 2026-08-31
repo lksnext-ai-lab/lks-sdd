@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "id": "API-FASTAPI-KEYCLOAK-PG-OCI",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "family_id": "FAM-API-SERVICE",
   "profile_scope": "deployable",
   "lifecycle": "active",
@@ -57,8 +57,8 @@
     "e2e_eval": "passed",
     "human_review": "not-applicable",
     "pilot": "not-applicable",
-    "validated_at": "2026-08-21",
-    "review_due": "2026-11-21",
+    "validated_at": "2026-08-31",
+    "review_due": "2026-11-29",
     "evidence": [
       "python scripts/validate_reference_profile.py --profile API-FASTAPI-KEYCLOAK-PG-OCI",
       "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-KEYCLOAK-PG-OCI --runtime docker --containers",

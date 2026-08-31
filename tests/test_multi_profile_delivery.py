@@ -29,6 +29,24 @@ from run_reference_profile_gate import _dockerized  # noqa: E402
 
 
 class MultiProfileDeliveryTests(unittest.TestCase):
+    def test_fullstack_host_readiness_checks_retry_transient_port_publication(self) -> None:
+        driver = json.loads(
+            (
+                PLUGIN_ROOT
+                / "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-driver.json"
+            ).read_text(encoding="utf-8")
+        )
+        checks = {
+            item["id"]: item for item in driver["verify"]["checks"]
+        }
+
+        for gate_id in ("GATE-OIDC-INTEGRATION", "GATE-DATA-INTEGRATION"):
+            with self.subTest(gate=gate_id):
+                check = checks[gate_id]
+                self.assertEqual(check["execution_context"], "host")
+                self.assertIn("for _ in range(30)", check["command"][2])
+                self.assertGreaterEqual(check["timeout_seconds"], 90)
+
     def test_node_gate_uses_a_linux_dependency_volume(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-node-volume-") as temporary:
             work = Path(temporary)
@@ -94,6 +112,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             if item["lifecycle"] == "candidate"
         }
         self.assertEqual(len(active), 8)
+        self.assertIn("WEB-FASTAPI-REACT-KEYCLOAK-PG", active)
         self.assertEqual(len(candidate), 6)
 
         for profile_id in sorted(active):
@@ -104,12 +123,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
                 self.assertTrue(support.composition_certified)
                 self.assertTrue(support.implementable)
                 self.assertTrue(support.verifiable)
-                self.assertEqual(
-                    support.support_level,
-                    "H0"
-                    if profile_id == "WEB-FASTAPI-REACT-KEYCLOAK-PG"
-                    else "H1",
-                )
+                self.assertEqual(support.support_level, "H1")
 
         for profile_id in sorted(candidate):
             with self.subTest(profile=profile_id):

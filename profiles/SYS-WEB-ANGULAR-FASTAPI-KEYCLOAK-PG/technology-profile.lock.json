@@ -1,12 +1,12 @@
 {
   "schema_version": "2.0",
   "profile_id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
-  "profile_version": "1.0.0-candidate.1",
+  "profile_version": "1.0.0-candidate.2",
   "generated_at": "2026-08-21",
   "validated": false,
-  "profile_sha256": "48761da4b39b417fa6ddad88bcc115cf86822c7703d19e36be1979e0abdcf4b5",
-  "driver_sha256": "e48774ec4f1cbd9753deeae350c7decf353d82490811993a83341670f7521966",
-  "scaffold_sha256": "df8ae900cd5b203a501f08a2623bf9cdfa90aa4cada441d871d6aa0604764cc6",
+  "profile_sha256": "c87036c6f91765ec105468198494c219e88b12ef643b39cc28e38d1f29524159",
+  "driver_sha256": "8d72e6abb9e8220df1fe1a10b5ddddbeb92fa1bf9d306fed55c6b0292428ca1a",
+  "scaffold_sha256": "6eeda2cb436c50bcadd386653c2fab681075668e5df8ce58d05655bccc0df2c7",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -287,7 +287,7 @@
   "composition": {
     "gate_id": "GATE-COMPOSE-ANGULAR-FULL-WEB",
     "status": "not-run",
-    "digest": "910a13134bbd44ec3b736d2de30de101a804bfd3bd49c85bcb2a7f5c2a8ffb9d"
+    "digest": "b4271c839b8bad51ff4df60fd310c23ce49f327e93915db480fc7e2b61e6fbb5"
   },
   "evidence": [
     "Candidate composition is packaged; end-to-end certification is pending."

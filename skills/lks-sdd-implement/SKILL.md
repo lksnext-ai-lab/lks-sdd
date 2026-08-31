@@ -21,7 +21,9 @@ Implement only the requested increment. A `ready` result is necessary but does n
 
 Implement only exact closed profiles whose descriptor, driver, scaffold, certification evidence, composition digest, and consumer lock agree. A family, capability set, candidate profile, or arbitrary technology mixture is documentable but not automatically implementable. Do not replace a confirmed provider such as Microsoft Entra with Keycloak merely because the latter has an active profile.
 
-## Fast path and narration in 0.16
+For a joint integration TASK, implement the canonical interface deliverables across every declared unit/binding and preserve its dependency boundary. Green component tests, separately running processes, hardcoded frontend data or local UI state do not complete the integration criterion. Do not narrow the TASK to one unit or change its typed evidence scopes to make implementation appear complete; hand off the unchanged `INT-###` obligation to verification.
+
+## Fast path and narration in 0.17
 
 Start with `work status <project-root> --task TASK-###`. Prefer `work start` for a new task, `work resume` for an existing execution, `work review` for code-complete handoff and `work block` for a real blocker. Para un hallazgo posterior, `work correct` registra problema, causa y corrección y deja la salud pendiente de re-verificación; `work resolve` solo cierra después de una EVID nueva `verified` de esa TASK. `work resume` falla cerrado mientras permanezca un problema aplicable. Low-level commands remain available for audit, recovery and conflicts.
 

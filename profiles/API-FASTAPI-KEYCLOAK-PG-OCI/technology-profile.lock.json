@@ -1,12 +1,12 @@
 {
   "schema_version": "2.0",
   "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
-  "profile_version": "1.0.0",
-  "generated_at": "2026-08-21",
+  "profile_version": "1.1.0",
+  "generated_at": "2026-08-31",
   "validated": true,
-  "profile_sha256": "1e43f05d89bd9c1d98b0291af9765629b4b333ca373c9f97370594ef9b57d185",
-  "driver_sha256": "c6e285af822675223fc584cae7a06a7278ac77968da17a1c009b0af7558091e8",
-  "scaffold_sha256": "b88981d48b6b1a8a44b663b1a5a65438d0b562a50a147eb55f024307e877c8b8",
+  "profile_sha256": "715370fd509e5d79c8bb0c625cd8630e3a222660ea37b5948a8cb574b00cce82",
+  "driver_sha256": "9e01ccb460da5daa9ac94b4a8997332682f7b6f8bca96427224c0ca03b1f4ee1",
+  "scaffold_sha256": "e74a791dd51b4efd68888c6137a51cc9ed6196dc80353b784874b7392263f5c7",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -204,7 +204,7 @@
   "composition": {
     "gate_id": "GATE-COMPOSE-FASTAPI-OIDC-PG",
     "status": "passed",
-    "digest": "3297a0c4ca0710e0dcae0abb38f9c4d0da0ff50977328c68592201c47a684bdc"
+    "digest": "eb6a3c7ca5775f585e7483433e37c80c70d8e8ee9ad9cf1d40f941d89fc95e04"
   },
   "evidence": [
     "python scripts/validate_reference_profile.py --profile API-FASTAPI-KEYCLOAK-PG-OCI",

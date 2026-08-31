@@ -19,6 +19,7 @@ from contract_engine import build_project_model, diagnostic_messages
 from evidence_contract import (
     evidence_gate_applicability_errors,
     evidence_profile_identity_errors,
+    integration_gate_applicability,
     visual_gate_applicability,
 )
 from validation_evidence import (
@@ -1687,9 +1688,14 @@ def evidence_document_errors(value: Any, expected_id: str) -> list[str]:
     if not isinstance(value, dict):
         return ["debe ser un objeto JSON"]
     errors: list[str] = []
-    if value.get("schema_version") == "1.2":
+    if value.get("schema_version") in {"1.2", "1.3"}:
+        evidence_schema_name = (
+            "verification-evidence-1.3.schema.json"
+            if value.get("schema_version") == "1.3"
+            else "verification-evidence-1.2.schema.json"
+        )
         evidence_schema = json.loads(
-            (PLUGIN_ROOT / "schemas/verification-evidence-1.2.schema.json").read_text(
+            (PLUGIN_ROOT / "schemas" / evidence_schema_name).read_text(
                 encoding="utf-8"
             )
         )
@@ -2704,13 +2710,34 @@ def validate_project(
                             "task_ids contiene tareas de otro incremento: " + ", ".join(wrong_increment)
                         )
                     if not unknown_tasks and not wrong_increment:
-                        expected_applicability = visual_gate_applicability(
+                        expected_applicability = [visual_gate_applicability(
                             task_ids,
                             delivery_contract,
                             release_interface_applicable=(
                                 increments_v06_contract and applicability == "applicable"
                             ),
+                        ), *integration_gate_applicability(task_ids, delivery_contract)]
+                        integration_required = any(
+                            item.get("status") == "applicable"
+                            for item in expected_applicability
+                            if item.get("gate_id") == "GATE-BROWSER-FULLSTACK-E2E"
                         )
+                        has_typed_integration = any(
+                            isinstance(item, dict)
+                            and item.get("gate_id") == "GATE-BROWSER-FULLSTACK-E2E"
+                            for item in evidence.get("gate_applicability", [])
+                        )
+                        if (
+                            integration_required
+                            and evidence.get("schema_version") in {None, "1.2"}
+                            and not has_typed_integration
+                        ):
+                            report.warnings.append(
+                                f"{reference}: reconciliation-required; la evidencia histórica "
+                                "conserva sus checks de componente, pero no acredita la interfaz "
+                                "cross-unit ahora tipada."
+                            )
+                            expected_applicability = [expected_applicability[0]]
                         evidence_errors.extend(
                             evidence_gate_applicability_errors(evidence, expected_applicability)
                         )
