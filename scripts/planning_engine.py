@@ -13,6 +13,7 @@ from typing import Any, Iterable
 from contract_engine import build_project_model, resolve_active_increment
 from delivery_engine import parse_tables, validate_delivery_contract
 from profile_registry import load_profile_bundle, resolve_profile
+from integration_contract import interface_policy
 
 
 PLANNING_TARGET_HEADERS = (
@@ -700,9 +701,10 @@ def assess_planning(
                 definition.get("Technical gates", ""),
             )
         )
-        if "GATE-BROWSER-FULLSTACK-E2E" not in requested_gates:
+        required_gate = interface_policy(interface)["gate_id"]
+        if required_gate not in requested_gates:
             integrity_errors.append(
-                f"{task_id}: {interface_id} exige GATE-BROWSER-FULLSTACK-E2E observable."
+                f"{task_id}: {interface_id} exige {required_gate} observable."
             )
         exact = str(interface.get("Exact composition", ""))
         profile_id, separator, version = exact.partition("@")

@@ -11,6 +11,11 @@ from typing import Any, Iterable
 from profile_registry import load_profile_bundle
 from contract_engine import expand_reference_ids
 from delivery_engine import EVIDENCE_SCOPES
+from evidence_safety import evidence_safety_errors
+from integration_contract import (
+    INTEGRATION_GATES, BROWSER_GATE, HTTP_GATE, POSTGRES_GATE, MIGRATION_GATE,
+    interface_policy, http_observation_errors,
+)
 
 
 VISUAL_GATE_ID = "GATE-VISUAL-BROWSER-REVIEW"
@@ -170,9 +175,10 @@ def integration_gate_applicability(
         bindings = sorted(
             expand_reference_ids(interface.get("Profile bindings", ""), {"BIND"})
         )
+        policy = interface_policy(interface)
         result.append(
             {
-                "gate_id": FULLSTACK_GATE_ID,
+                "gate_id": policy["gate_id"],
                 "status": "applicable",
                 "scope": "interface",
                 "interface_id": interface_id,
@@ -188,6 +194,9 @@ def integration_gate_applicability(
                     }
                 ),
                 "exact_composition": interface.get("Exact composition"),
+                "observer": policy["observer"],
+                "contract": policy["contract"],
+                "http_operations": policy["http_operations"],
                 "reason": "confirmed-cross-unit-interface",
             }
         )
@@ -222,7 +231,7 @@ def integration_evidence_errors(
     applicable = [item for item in expected if item.get("status") == "applicable"]
     if not applicable:
         return []
-    errors: list[str] = []
+    errors: list[str] = evidence_safety_errors(evidence)
     checks = [
         item for item in evidence.get("checks", []) if isinstance(item, dict)
     ]
@@ -247,12 +256,11 @@ def integration_evidence_errors(
                 item
                 for item in mocked
                 if isinstance(item, dict)
-                and item.get("kind") == "domain-endpoint"
-                and str(item.get("path", "")).startswith("/api/v1")
+                and item.get("kind") != "identity-provider"
             ] if isinstance(mocked, list) else []
             if domain_mocks and scopes & {"composition", "user-flow", "persistence"}:
                 errors.append(
-                    f"{interface_id}: un mock funcional /api/v1 no acredita "
+                    f"{interface_id}: un mock funcional no acredita "
                     "composition, user-flow ni persistence"
                 )
                 continue
@@ -266,38 +274,34 @@ def integration_evidence_errors(
         fullstack = [
             check
             for check in matching
-            if check.get("gate_id") == FULLSTACK_GATE_ID
+            if check.get("gate_id") == obligation.get("gate_id")
         ]
         if not fullstack:
             errors.append(
-                f"{interface_id}: falta {FULLSTACK_GATE_ID} ejecutado y passed"
+                f"{interface_id}: falta {obligation.get('gate_id')} ejecutado y passed"
             )
             continue
         for check in fullstack:
             observations = check.get("observations")
-            required_observations = {
-                "runtime_units", "browser", "viewport", "requests", "mutation",
-                "read_back", "reload", "persistence", "screenshots",
-                "console_errors",
-            }
+            browser_required = obligation.get("gate_id") == BROWSER_GATE
+            http_required = obligation.get("gate_id") in {BROWSER_GATE, HTTP_GATE}
+            required_observations = {"runtime_units"}
+            if http_required:
+                required_observations.add("requests")
+            if browser_required:
+                required_observations.update({"browser", "viewport", "reload", "screenshots", "console_errors"})
+            if "persistence" in required:
+                required_observations.update({"mutation", "read_back", "persistence"})
             if not isinstance(observations, dict) or not required_observations <= set(observations):
                 errors.append(
                     f"{interface_id}: el gate full-stack no contiene observaciones estructuradas completas"
                 )
                 continue
-            requests = observations.get("requests")
-            if not isinstance(requests, list) or not any(
-                isinstance(item, dict)
-                and str(item.get("path", "")).startswith("/api/v1")
-                and item.get("method") in {"POST", "PUT", "PATCH", "DELETE"}
-                and isinstance(item.get("status"), int)
-                and 200 <= item["status"] < 300
-                for item in requests
+            if http_required:
+                errors.extend(f"{interface_id}: {message}" for message in http_observation_errors(observations, obligation))
+            if (browser_required and observations.get("reload") is not True) or (
+                "persistence" in required and (observations.get("persistence") is not True or not observations.get("read_back"))
             ):
-                errors.append(
-                    f"{interface_id}: no se observó una mutación real contra /api/v1"
-                )
-            if observations.get("reload") is not True or observations.get("persistence") is not True:
                 errors.append(
                     f"{interface_id}: no se confirmó recarga y persistencia"
                 )
@@ -444,9 +448,7 @@ def evidence_gate_applicability_errors(
         (item for item in expected_values if item.get("gate_id") == VISUAL_GATE_ID),
         None,
     )
-    expected_integrations = [
-        item for item in expected_values if item.get("gate_id") == FULLSTACK_GATE_ID
-    ]
+    expected_integrations = [item for item in expected_values if item.get("gate_id") in INTEGRATION_GATES]
     visual = [item for item in values if isinstance(item, dict) and item.get("gate_id") == VISUAL_GATE_ID]
     if len(visual) != 1:
         return ["gate_applicability debe declarar exactamente una decisión visual"]
@@ -464,7 +466,7 @@ def evidence_gate_applicability_errors(
     if expected_visual.get("status") == "not-applicable" and visual_checks:
         return ["un gate visual no aplicable no debe aparecer como check ejecutado o not-run"]
     observed_integrations = [
-        item for item in values if isinstance(item, dict) and item.get("gate_id") == FULLSTACK_GATE_ID
+        item for item in values if isinstance(item, dict) and item.get("gate_id") in INTEGRATION_GATES
     ]
     if observed_integrations != expected_integrations:
         return ["gate_applicability de integración no coincide con el TASK slice"]

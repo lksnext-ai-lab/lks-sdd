@@ -13,6 +13,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
 
+from integration_contract import interface_policy
+
 
 DELIVERY_MODELS = {
     "bounded-release",
@@ -846,9 +848,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
             for item in interface.get("Required evidence", "").split(",")
             if item.strip()
         }
-        required_scopes = {"contract", "composition", "user-flow"}
-        if "write" in operations:
-            required_scopes.add("persistence")
+        required_scopes = set(interface_policy(interface)["required_scopes"])
         if (
             not evidence_scopes
             or not evidence_scopes <= EVIDENCE_SCOPES

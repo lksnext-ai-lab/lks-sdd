@@ -14,6 +14,9 @@ from delivery_engine import (
     ARCHITECTURE_HEADERS, EXTERNAL_INTEGRATION_HEADERS,
     INTEGRATION_INTERFACE_HEADERS, validate_delivery_contract,
 )
+from evidence_contract import integration_gate_applicability, integration_evidence_errors
+from integration_contract import interface_policy, operation_matches
+from tests.test_fullstack_integration_contract_v017 import delivery, fullstack_check
 
 
 def table(headers, rows):
@@ -95,6 +98,55 @@ class IntegrationTablesV018Tests(unittest.TestCase):
                 manifest = materialize(root, [table(headers, [row, row])])
                 self.assertIn("LKS-ID-DUPLICATE", [d.code for d in build_project_model(root).diagnostics])
                 self.assertTrue(any("duplicados" in e for e in validate_delivery_contract(root, manifest)["errors"]))
+
+    def test_contract_operations_outside_api_v1_are_supported(self):
+        document = delivery()
+        document["interfaces"]["INT-001"]["Contract"] = "POST /records; GET /records"
+        obligation = integration_gate_applicability(["TASK-003"], document)
+        check = fullstack_check()
+        for request in check["observations"]["requests"]:
+            request["path"] = "/records"
+        check["observations"]["mutation"]["path"] = "/records"
+        self.assertEqual(integration_evidence_errors({"checks": [check]}, obligation), [])
+        check["mocks"].append({"kind": "domain-endpoint", "path": "/records"})
+        self.assertTrue(any("mock funcional" in e for e in integration_evidence_errors({"checks": [check]}, obligation)))
+
+    def test_login_and_unrelated_write_do_not_prove_business_persistence(self):
+        obligations = integration_gate_applicability(["TASK-003"], delivery())
+        for path in ["/auth/login", "/api/v1/other", "/api/v1/items-elsewhere"]:
+            check = fullstack_check()
+            check["observations"]["requests"][0]["path"] = path
+            check["observations"]["mutation"]["path"] = path
+            self.assertTrue(integration_evidence_errors({"checks": [check]}, obligations), path)
+
+    def test_unknown_contract_is_insufficient_not_inferred_from_success(self):
+        document = delivery()
+        document["interfaces"]["INT-001"]["Contract"] = "pending"
+        obligations = integration_gate_applicability(["TASK-003"], document)
+        self.assertTrue(any("información insuficiente" in e for e in integration_evidence_errors({"checks": [fullstack_check()]}, obligations)))
+
+    def test_read_only_http_requires_no_mutation_or_browser(self):
+        document = delivery()
+        row = document["interfaces"]["INT-001"]
+        row.update({"Operations": "read", "Required evidence": "contract,composition", "Contract": "GET /records"})
+        obligations = integration_gate_applicability(["TASK-003"], document)
+        check = {"status": "passed", "name": "http", "gate_id": obligations[0]["gate_id"],
+                 "evidence_scopes": ["contract", "composition"], "interface_ids": ["INT-001"],
+                 "observations": {"runtime_units": ["api"], "requests": [{"method": "GET", "path": "/records", "status": 200}]}}
+        self.assertEqual(integration_evidence_errors({"checks": [check]}, obligations), [])
+
+    def test_database_and_migration_observers_never_require_browser(self):
+        for protocol, observer in [("PostgreSQL", "postgresql"), ("Alembic", "migration")]:
+            policy = interface_policy({"Protocol": protocol, "Operations": "read,write", "Required evidence": "contract,composition,persistence"})
+            self.assertEqual(policy["observer"], observer)
+            self.assertNotIn("user-flow", policy["required_scopes"])
+            self.assertNotIn("BROWSER", policy["gate_id"])
+
+    def test_http_operation_parameters_match_one_complete_segment(self):
+        operation = {"method": "GET", "path": "/records/{id}"}
+        self.assertTrue(operation_matches({"method": "GET", "path": "/records/17"}, operation))
+        self.assertFalse(operation_matches({"method": "GET", "path": "/records/17/private"}, operation))
+        self.assertFalse(operation_matches({"method": "POST", "path": "/records/17"}, operation))
 
 
 if __name__ == "__main__":
