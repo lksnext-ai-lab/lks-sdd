@@ -4,11 +4,11 @@
   "channels": {
     "candidate": {
       "required": ["automated", "fixture-integrity", "profile-complete", "regression"],
-      "optional": ["definition-conversation", "activation", "document-review", "pilot"]
+      "optional": ["definition-conversation", "activation", "document-review", "pilot", "release-approval"]
     },
     "stable": {
-      "required": ["automated", "fixture-integrity", "profile-complete", "regression", "definition-conversation", "activation", "document-review", "pilot"],
-      "optional": []
+      "required": ["automated", "fixture-integrity", "profile-complete", "regression", "release-approval"],
+      "optional": ["definition-conversation", "activation", "document-review", "pilot"]
     }
   },
   "thresholds": {

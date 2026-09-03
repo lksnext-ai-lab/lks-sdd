@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build deterministic LKS-SDD candidate bundles from an exact clean Git HEAD."""
+"""Build deterministic LKS-SDD candidate or stable bundles from a clean Git HEAD."""
 
 from __future__ import annotations
 
@@ -37,6 +37,20 @@ EXPECTED_CANDIDATE_REQUIRED_CHANNELS = {
     "regression",
 }
 EXPECTED_CANDIDATE_OPTIONAL_CHANNELS = {
+    "definition-conversation",
+    "activation",
+    "document-review",
+    "pilot",
+    "release-approval",
+}
+EXPECTED_STABLE_REQUIRED_CHANNELS = {
+    "automated",
+    "fixture-integrity",
+    "profile-complete",
+    "regression",
+    "release-approval",
+}
+EXPECTED_STABLE_OPTIONAL_CHANNELS = {
     "definition-conversation",
     "activation",
     "document-review",
@@ -173,7 +187,19 @@ def _definition_corpus_relative(plugin_version: str) -> str:
     if match is None:
         raise PackageError("No se puede resolver el corpus para una versión no SemVer.")
     major, minor, _patch = match.groups()
+    if (major, minor, _patch) == ("1", "0", "0"):
+        return "quality/corpora/definition-v0.18.0.json"
     return f"quality/corpora/definition-v{major}.{minor}.0.json"
+
+
+def _release_approval_relative(plugin_version: str) -> str:
+    if SEMVER_RE.fullmatch(plugin_version) is None:
+        raise PackageError(
+            "No se puede resolver la aprobación para una versión no SemVer."
+        )
+    return f"quality/release-approval-v{plugin_version}.json"
+
+
 EXCLUDED_PARTS = {
     ".git",
     "__pycache__",
@@ -704,9 +730,10 @@ def _validated_quality_report(
         )
     if report.get("evaluated_on") != build_date:
         raise PackageError("El reporte de calidad no corresponde a la fecha del build.")
-    if report.get("channel") != "candidate":
+    release_channel = report.get("channel")
+    if release_channel not in {"candidate", "stable"}:
         raise PackageError(
-            "El empaquetado candidate requiere un reporte del canal candidate."
+            "El empaquetado requiere un reporte de canal candidate o stable."
         )
     source = report.get("source")
     if not isinstance(source, dict) or source.get("commit") != source_commit:
@@ -720,7 +747,10 @@ def _validated_quality_report(
     corpus = _committed_json(committed_files, "quality/corpora/activation.json")
     definition_corpus_path = _definition_corpus_relative(plugin_version)
     definition_corpus = _committed_json(committed_files, definition_corpus_path)
-    if definition_corpus.get("plugin_version") != f"{plugin_version.rsplit('.', 1)[0]}.0":
+    expected_corpus_version = (
+        "0.18.0" if plugin_version == "1.0.0" else f"{plugin_version.rsplit('.', 1)[0]}.0"
+    )
+    if definition_corpus.get("plugin_version") != expected_corpus_version:
         raise PackageError(
             "El corpus de definición comprometido no corresponde a la línea minor empaquetada."
         )
@@ -769,6 +799,17 @@ def _validated_quality_report(
             _canonical_json_bytes(performance_policy)
         ),
     }
+    release_approval = None
+    if release_channel == "stable":
+        approval_relative = _release_approval_relative(plugin_version)
+        release_approval = _committed_json(committed_files, approval_relative)
+        expected_input_hashes["release_approval_sha256"] = _sha256(
+            committed_files[approval_relative]
+        )
+    elif inputs.get("release_approval_sha256") is not None:
+        raise PackageError(
+            "El bundle candidate reproducible no incorpora una aprobación stable."
+        )
     if any(
         inputs.get(name) != digest
         for name, digest in expected_input_hashes.items()
@@ -780,27 +821,41 @@ def _validated_quality_report(
         "pilot_summary_sha256"
     ) is not None:
         raise PackageError(
-            "El candidate reproducible no admite observaciones o piloto externos."
+            "El bundle reproducible no admite observaciones o piloto externos."
         )
     if report.get("suite") != catalog.get("suite"):
         raise PackageError("El reporte no corresponde a la suite comprometida.")
     channel_catalog = catalog.get("channels")
     if not isinstance(channel_catalog, dict):
         raise PackageError("El catálogo comprometido no declara canales válidos.")
-    candidate_channels = channel_catalog.get("candidate")
-    if not isinstance(candidate_channels, dict):
-        raise PackageError("El catálogo comprometido no declara candidate.")
-    required_names = candidate_channels.get("required")
-    optional_names = candidate_channels.get("optional")
+    selected_channels = channel_catalog.get(release_channel)
+    if not isinstance(selected_channels, dict):
+        raise PackageError(
+            f"El catálogo comprometido no declara {release_channel}."
+        )
+    required_names = selected_channels.get("required")
+    optional_names = selected_channels.get("optional")
+    expected_required = (
+        EXPECTED_CANDIDATE_REQUIRED_CHANNELS
+        if release_channel == "candidate"
+        else EXPECTED_STABLE_REQUIRED_CHANNELS
+    )
+    expected_optional = (
+        EXPECTED_CANDIDATE_OPTIONAL_CHANNELS
+        if release_channel == "candidate"
+        else EXPECTED_STABLE_OPTIONAL_CHANNELS
+    )
     if (
         not isinstance(required_names, list)
-        or set(required_names) != EXPECTED_CANDIDATE_REQUIRED_CHANNELS
+        or set(required_names) != expected_required
         or len(required_names) != len(set(required_names))
         or not isinstance(optional_names, list)
-        or set(optional_names) != EXPECTED_CANDIDATE_OPTIONAL_CHANNELS
+        or set(optional_names) != expected_optional
         or len(optional_names) != len(set(optional_names))
     ):
-        raise PackageError("El catálogo candidate comprometido reduce canales esperados.")
+        raise PackageError(
+            f"El catálogo {release_channel} comprometido reduce canales esperados."
+        )
     checks = report["checks"]
     check_ids = [check["id"] for check in checks]
     if (
@@ -1011,6 +1066,39 @@ def _validated_quality_report(
         "document-review": {"status": "not-run", "reviewed": 0},
         "pilot": {"status": "not-run", "decision": "not-evaluated"},
     }
+    if release_channel == "candidate":
+        expected_optional_channels["release-approval"] = {
+            "status": "not-run",
+            "decision": "not-evaluated",
+        }
+    else:
+        if not isinstance(release_approval, dict):
+            raise PackageError("Falta la aprobación comprometida de la release stable.")
+        decision = release_approval.get("decision")
+        if (
+            release_approval.get("release_version") != plugin_version
+            or release_approval.get("scope") != "stable-release"
+            or release_approval.get("evidence_handling")
+            != "aggregated-no-identities"
+            or not isinstance(release_approval.get("basis"), list)
+            or not isinstance(decision, dict)
+            or decision.get("status") != "approved"
+            or decision.get("authority_role") != "project-owner"
+            or decision.get("blocking_findings") != []
+        ):
+            raise PackageError(
+                "La aprobación stable comprometida no acredita la decisión del responsable."
+            )
+        if channels.get("release-approval") != {
+            "status": "passed",
+            "decision": "approved",
+            "authority_role": "project-owner",
+            "basis": release_approval["basis"],
+            "evidence_handling": "aggregated-no-identities",
+        }:
+            raise PackageError(
+                "El canal release-approval no coincide con la aprobación comprometida."
+            )
     if any(
         channels.get(name) != expected
         for name, expected in expected_optional_channels.items()
@@ -1061,7 +1149,9 @@ def _validated_quality_report(
         "blockers": [],
         "missing_evidence": [],
     }:
-        raise PackageError("El gate candidate no es consistente con su evidencia.")
+        raise PackageError(
+            f"El gate {release_channel} no es consistente con su evidencia."
+        )
     return report, content
 
 
@@ -1200,6 +1290,7 @@ def build(
         ],
         "quality": {
             "gate": quality["gate"]["status"],
+            "channel": quality["channel"],
             "baseline_commit": quality["comparison"]["baseline_commit"],
             "report_sha256": _sha256(quality_bytes),
         },

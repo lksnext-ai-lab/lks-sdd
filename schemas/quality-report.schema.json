@@ -46,6 +46,7 @@
         "fixture_manifest_sha256",
         "observations_sha256",
         "pilot_summary_sha256",
+        "release_approval_sha256",
         "baseline_sha256",
         "performance_policy_sha256"
       ],
@@ -59,6 +60,10 @@
           "pattern": "^[0-9a-f]{64}$"
         },
         "pilot_summary_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "release_approval_sha256": {
           "type": ["string", "null"],
           "pattern": "^[0-9a-f]{64}$"
         },

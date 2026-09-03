@@ -14,7 +14,7 @@ from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
-PREVIOUS_CANDIDATE_VERSION = "0.17.0"
+PREVIOUS_CANDIDATE_VERSION = "0.18.0"
 CONFIG_KEYS = {
     "schema_version",
     "pilot_id",

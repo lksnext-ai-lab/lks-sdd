@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.0 — 2026-09-03 — primera release estable
+
+- Promueve LKS-SDD a su primera línea estable sin cambiar `schema_version: 1.5`
+  ni `method_version: 1.5.0`.
+- Conserva las seis skills, la invocación implícita, los 23 perfiles y las
+  certificaciones técnicas exactas heredadas de 0.18.0.
+- Sustituye el piloto cuantitativo obligatorio como autoridad de promoción por
+  una aprobación durable del responsable del proyecto, informada por el uso
+  satisfactorio del plugin en diferentes equipos.
+- Mantiene visibles `definition-conversation`, `activation`, `document-review`
+  y `pilot`: un estado `not-run` no se convierte en `passed`, aunque estos
+  canales detallados dejan de bloquear `stable`.
+- Añade el schema y la evidencia saneada `release-approval`, sin identidades,
+  conversaciones, proyectos ni resultados individuales.
+- Extiende el harness, el empaquetado reproducible y CI para certificar tanto
+  canales `candidate` como `stable`.
+- Conserva 0.18.0 como rollback y separa preparación, commit, publicación,
+  instalación y activación.
+
 ## 0.18.0 — 2026-08-31 — autenticación local y variantes certificadas
 
 - Conserva schema 1.5/método 1.5.0, seis skills, invocación implícita y M0–M5.
@@ -13,8 +32,8 @@
 - No certifica producción, cliente móvil nativo, MFA, federación, piloto ni canales
   humanos no ejecutados. No modifica el SAT ni promueve los candidatos anteriores.
 
-Los diecisiete perfiles comprometidos tienen certificación exacta del motor
-actual. El SHA final, la elegibilidad y los assets de la prerelease se acreditan
+Los perfiles `active` comprometidos tienen certificación exacta del motor
+actual. El SHA final, la elegibilidad y los assets de la release se acreditan
 en `quality-report.json`, `release-manifest.json` y `SHA256SUMS`.
 
 ## 0.17.0 — 2026-08-31 — integración multiunidad fail-closed

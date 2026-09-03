@@ -4,7 +4,7 @@
 
 El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51, la cobertura granular Entra v0.12 FX-52–FX-53, los perfiles OIDC simulados v0.13 en FX-54 y la verificación incremental reproducible v0.14 en FX-55. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, rechazo sin mutación de schemas de proyecto anteriores a 1.5, aplicabilidad visual por tarea, build estable, G4 no circular y CKPT/PROB consumibles. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye aceptación humana o piloto. El harness usa `quality/corpora/definition-v0.17.0.json`; los anteriores son históricos.
+FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye estos resultados. El cierre estable puede basarse en una decisión agregada del responsable del proyecto sin transformar esos estados. El harness conserva como diagnóstico el corpus `quality/corpora/definition-v0.18.0.json`.
 
 ## Canales de evidencia
 
@@ -16,18 +16,27 @@ FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run
 - `activation`: resultados observados en sesiones controladas de Codex contra el corpus etiquetado.
 - `document-review`: rúbrica humana de diez dimensiones, de 1 a 5.
 - `pilot`: resultados agregados y saneados del piloto M5.
+- `release-approval`: decisión durable del responsable del proyecto, informada
+  por el uso real que considere suficiente y almacenada sin identidades ni
+  conversaciones.
 
-El canal `candidate` exige `automated`, `fixture-integrity`, `profile-complete` y `regression`. `definition-conversation`, `activation`, `document-review` y `pilot` son opcionales solo para candidate: pueden permanecer `not-run`, pero siguen visibles y no cuentan como superados. `stable` exige los ocho canales; por tanto, un reporte con un canal requerido `not-run`, `skipped`, incompleto o fallido no puede publicarse como estable.
+El canal `candidate` exige `automated`, `fixture-integrity`, `profile-complete` y `regression`. `stable` exige esos cuatro canales técnicos más `release-approval`. `definition-conversation`, `activation`, `document-review` y `pilot` permanecen visibles como evidencia detallada opcional en ambos canales: pueden conservar `not-run`, pero nunca cuentan como superados. Un canal requerido `not-run`, `skipped`, incompleto o fallido bloquea la release.
 
 ## Ejecución
 
-La puerta publicable de candidate se ejecuta desde la raíz de un checkout dedicado y recién creado para el commit de release. Ese checkout debe estar limpio antes de arrancar y no debe contener archivos no versionados preexistentes, ni siquiera ignorados. Una ejecución desde el checkout de desarrollo sigue siendo útil como diagnóstico, pero no sustituye esta atestación:
+La puerta publicable se ejecuta desde la raíz de un checkout dedicado y recién creado para el commit de release. Ese checkout debe estar limpio antes de arrancar y no debe contener archivos no versionados preexistentes, ni siquiera ignorados. Una ejecución desde el checkout de desarrollo sigue siendo útil como diagnóstico, pero no sustituye esta atestación. Para una candidate:
 
 ```powershell
 $pluginRoot = Resolve-Path "."
 $reportPath = Join-Path (Resolve-Path "..") "quality-report.json"
 python (Join-Path $pluginRoot "scripts\validate_fixture_manifest.py") $pluginRoot
-python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.14.2.json") --profile-mode reuse --output $reportPath
+python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.17.0.json") --profile-mode reuse --output $reportPath
+```
+
+Para 1.0.0 estable, la misma puerta incorpora la decisión del responsable:
+
+```powershell
+python scripts\run_quality_harness.py --channel stable --date (Get-Date -Format "yyyy-MM-dd") --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.0.0.json --output $reportPath
 ```
 
 `--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte usa el esquema 1.2, conserva 1.1 como contrato histórico, registra `HEAD`, ejecución y rendimiento, y falla en preflight si la fuente inicial no coincide exactamente con Git. Una ruta de salida ya existente se rechaza antes de lanzar tests; `--force` requiere `--rerun-reason` y esa razón queda registrada en `execution.rerun_reason`.
@@ -55,9 +64,9 @@ La vinculación de fuente se captura antes de lanzar validadores, tests o el per
 
 Los artefactos que una comprobación cree después de ese snapshot no cambian retroactivamente la atestación inicial. Esto permite que el propio gate genere salidas temporales sin falsificar el estado de partida; no permite reutilizar para otra atestación un checkout que ya las contenga. El procedimiento completo para crear el checkout dedicado y generar los bundles está en `docs/DISTRIBUTION.md`.
 
-Para aportar evidencia de activación y revisión documental, copie `quality/observations.example.json` fuera del repositorio, sustituya los valores de ejemplo, use el hash canónico indicado por un reporte reciente y pase `--observations`. Ese archivo solo alimenta `activation` y `document-review`: no cambia `definition-conversation`. El archivo no debe contener nombres, prompts de cliente, repositorios, secretos ni contenido sustantivo.
+Para aportar evidencia opcional de activación y revisión documental, copie `quality/observations.example.json` fuera del repositorio, sustituya los valores de ejemplo, use el hash canónico indicado por un reporte reciente y pase `--observations`. Ese archivo solo alimenta `activation` y `document-review`: no cambia `definition-conversation`. El archivo no debe contener nombres, prompts de cliente, repositorios, secretos ni contenido sustantivo.
 
-Por tanto, el canal `stable` no es alcanzable con el harness actual aunque `--observations` y `--pilot-summary` estén completos: `definition-conversation` continúa requerido y `not-run`. Además, los casos base FX-06, FX-07, FX-16, FX-17 y FX-19 aún carecen de una ejecución caso a caso; son un límite pendiente y no se consideran cubiertos por las métricas agregadas de activación o revisión documental.
+Para certificar `stable`, use una aprobación versionada que cumpla `schemas/release-approval.schema.json` y pásela mediante `--release-approval`. Debe corresponder a la versión exacta, limitarse a `stable-release`, declarar el rol `project-owner`, conservar evidencia agregada sin identidades y no tener hallazgos bloqueantes. La aprobación acredita la decisión de promoción, no ejecuciones caso a caso. Los casos FX detallados sin observación siguen `not-run` y pueden retomarse para aprendizaje sin reabrir por sí solos una release ya aprobada.
 
 Un resumen M5 con decisión puede incorporarse mediante `--pilot-summary`. Antes de interpretar `go`, el harness valida de forma cerrada todas las propiedades, tipos, mínimos, catálogos y listas únicas de `schemas/pilot-summary.schema.json`. `go` satisface el canal, `go-conditioned` queda `incomplete` y `no-go` o `withdrawal` lo dejan `failed`.
 
@@ -67,7 +76,7 @@ Un resumen M5 con decisión puede incorporarse mediante `--pilot-summary`. Antes
 - `failed`: existe un fallo crítico, un canal requerido fallido o una regresión.
 - `incomplete`: falta evidencia exigida, sin presentarla como fallo ni como éxito.
 
-Los estados de una prueba o canal conservan su semántica propia: `skipped` significa que una prueba declarada no se ejecutó y `not-run` que aún no existe una observación para ese canal. Ninguno equivale a `passed`. Un `not-run` opcional no impide candidate; el mismo estado impide stable cuando el canal es requerido.
+Los estados de una prueba o canal conservan su semántica propia: `skipped` significa que una prueba declarada no se ejecutó y `not-run` que aún no existe una observación para ese canal. Ninguno equivale a `passed`. Un `not-run` opcional no bloquea la release; cualquier canal requerido que no esté `passed` sí la bloquea. En `stable`, `release-approval` es requerido.
 
 Los códigos de salida son `0`, `2` y `3`, respectivamente para `passed`, error/fallo e `incomplete`.
 

@@ -61,7 +61,7 @@ jobs:
             ${{ runner.temp }}\package.json
           retention-days: 30
 
-  release-candidate:
+  release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: windows-latest
     timeout-minutes: 45
@@ -76,13 +76,21 @@ jobs:
         shell: pwsh
         run: |
           $date = Get-Date -Format "yyyy-MM-dd"
+          $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
+          $channel = if ([version]$version -ge [version]"1.0.0") { "stable" } else { "candidate" }
+          if ($env:GITHUB_REF_NAME -ne "v$version") { throw "La etiqueta no coincide con el manifest: $env:GITHUB_REF_NAME vs v$version" }
           "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
-          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --preflight-only
-      - name: Candidate harness
+          "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+          "LKS_SDD_RELEASE_CHANNEL=$channel" >> $env:GITHUB_ENV
+          python -X utf8 scripts/run_quality_harness.py --channel $channel --date $date --preflight-only
+      - name: Release harness
         shell: pwsh
         run: |
           $date = $env:LKS_SDD_CERTIFICATION_DATE
-          python -X utf8 scripts/run_quality_harness.py --channel candidate --date $date --baseline quality\baselines\v0.17.0.json --profile-mode reuse --output "$env:RUNNER_TEMP\quality-report.json"
+          $channel = $env:LKS_SDD_RELEASE_CHANNEL
+          $approval = @()
+          if ($channel -eq "stable") { $approval = @("--release-approval", "quality\release-approval-v$env:LKS_SDD_RELEASE_VERSION.json") }
+          python -X utf8 scripts/run_quality_harness.py --channel $channel --date $date --baseline quality\baselines\v0.17.0.json --profile-mode reuse @approval --output "$env:RUNNER_TEMP\quality-report.json"
       - name: Reproducible double build and clean install
         shell: pwsh
         run: |
@@ -111,7 +119,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: release-candidate-evidence
+          name: release-evidence
           path: |
             ${{ runner.temp }}\quality-report.json
             ${{ runner.temp }}\candidate-a

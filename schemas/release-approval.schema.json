@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/release-approval-1.0.json",
+  "title": "LKS-SDD stable release approval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release_version",
+    "scope",
+    "basis",
+    "evidence_handling",
+    "decision",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "release_version": {"type": "string"},
+    "scope": {"const": "stable-release"},
+    "basis": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "multi-team-use",
+          "project-owner-acceptance",
+          "technical-release-gates"
+        ]
+      }
+    },
+    "evidence_handling": {"const": "aggregated-no-identities"},
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "decided_on",
+        "authority_role",
+        "rationale",
+        "blocking_findings"
+      ],
+      "properties": {
+        "status": {"enum": ["approved", "deferred", "rejected"]},
+        "decided_on": {"type": "string"},
+        "authority_role": {"const": "project-owner"},
+        "rationale": {"type": "string"},
+        "blocking_findings": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    }
+  }
+}

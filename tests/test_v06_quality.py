@@ -68,6 +68,7 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertTrue(_definition_corpus_matches_plugin_line("0.7.0", "0.7.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.7.0", "0.7.1"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.10.0", "0.10.0"))
+        self.assertTrue(_definition_corpus_matches_plugin_line("0.18.0", "1.0.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.10.0", "0.10.1"))
         self.assertFalse(_definition_corpus_matches_plugin_line("0.9.0", "0.10.0"))
         self.assertTrue(_definition_corpus_matches_plugin_line("0.11.0", "0.11.0"))

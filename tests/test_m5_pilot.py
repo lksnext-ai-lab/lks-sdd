@@ -76,8 +76,8 @@ def _valid_config() -> dict:
             "security_url": "https://security.example.invalid/lks-sdd",
         },
         "rollback": {
-            "previous_version": "0.17.0",
-            "candidate_version": "0.18.0",
+            "previous_version": "0.18.0",
+            "candidate_version": "1.0.0",
             "package_sha256": "a" * 64,
             "procedure_confirmed": True,
         },
@@ -134,6 +134,9 @@ def _create_package_repository(root: Path) -> str:
         "README.md": b"committed package source\n",
         "SECURITY.md": b"synthetic security policy\n",
         "SUPPORT.md": b"synthetic support policy\n",
+        "tests/eval_support.py": (
+            PLUGIN_ROOT / "tests/eval_support.py"
+        ).read_bytes(),
         "distribution/marketplace.template.json": (
             json.dumps(marketplace) + "\n"
         ).encode(),
@@ -142,11 +145,14 @@ def _create_package_repository(root: Path) -> str:
         "quality/baselines/v0.6.1.json",
         "quality/catalog.json",
         "quality/corpora/activation.json",
+        "quality/corpora/definition-v0.18.0.json",
         "quality/corpora/definition-v0.9.0.json",
         "quality/fixture-manifest.json",
         "quality/performance-policy.json",
+        "quality/release-approval-v1.0.0.json",
         "schemas/quality-report-1.1.schema.json",
         "schemas/quality-report.schema.json",
+        "schemas/release-approval.schema.json",
     ]
     for relative in committed_quality_files:
         files[relative] = (PLUGIN_ROOT / relative).read_bytes()
@@ -243,7 +249,13 @@ def _forged_release_quality_report(
 
 
 def _harness_quality_report(
-    path: Path, source_root: Path, source_commit: str
+    path: Path,
+    source_root: Path,
+    source_commit: str,
+    *,
+    channel: str = "candidate",
+    definition_corpus_name: str = "definition-v0.9.0.json",
+    release_approval_path: Path | None = None,
 ) -> Path:
     catalog = json.loads(
         (source_root / "quality/catalog.json").read_text(encoding="utf-8")
@@ -281,6 +293,10 @@ def _harness_quality_report(
         for fixture in fixture_manifest["fixtures"]
         if fixture["id"].startswith("FX-M1-")
     ]
+    if channel == "stable":
+        eval_results.append(
+            {"id": "validation-evidence-management-v016", "passed": True}
+        )
 
     def executed_check(check_id, _command, _json_output=False, _timeout=600):
         payload = None
@@ -321,9 +337,11 @@ def _harness_quality_report(
         "CATALOG_PATH": source_root / "quality/catalog.json",
         "CORPUS_PATH": source_root / "quality/corpora/activation.json",
         "DEFINITION_CORPUS_PATH": source_root
-        / "quality/corpora/definition-v0.9.0.json",
+        / f"quality/corpora/{definition_corpus_name}",
         "FIXTURE_MANIFEST_PATH": source_root / "quality/fixture-manifest.json",
         "MANIFEST_PATH": source_root / ".codex-plugin/plugin.json",
+        "RELEASE_APPROVAL_SCHEMA_PATH": source_root
+        / "schemas/release-approval.schema.json",
     }
     with patch.multiple(quality_harness, **patched_paths), patch.object(
         quality_harness, "_run_command", side_effect=executed_check
@@ -336,11 +354,12 @@ def _harness_quality_report(
     ):
         report = quality_harness.build_report(
             "2026-08-20",
-            "candidate",
+            channel,
             None,
             None,
             source_root / "quality/baselines/v0.6.1.json",
             True,
+            release_approval_path=release_approval_path,
         )
     if report["source"] != {"commit": source_commit, "tree_state": "clean"}:
         raise AssertionError("El informe del harness no quedó ligado al repo sintético.")
@@ -622,6 +641,55 @@ class M5PilotTests(unittest.TestCase):
                 marketplace["plugins"][0]["source"]["path"],
                 "./plugins/lks-sdd",
             )
+
+    def test_stable_bundle_accepts_owner_approval_and_preserves_not_run_channels(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-stable-package-") as directory:
+            root = Path(directory)
+            source_root = root / "source"
+            source_root.mkdir()
+            _package_repository(source_root)
+            manifest_path = source_root / ".codex-plugin/plugin.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["version"] = "1.0.0"
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+            )
+            _git(source_root, "add", ".codex-plugin/plugin.json")
+            _git(source_root, "commit", "--quiet", "-m", "test: stable fixture")
+            source_commit = _git(source_root, "rev-parse", "HEAD")
+            approval_path = source_root / "quality/release-approval-v1.0.0.json"
+            quality_report = _harness_quality_report(
+                root / "quality-report.json",
+                source_root,
+                source_commit,
+                channel="stable",
+                definition_corpus_name="definition-v0.18.0.json",
+                release_approval_path=approval_path,
+            )
+
+            report = json.loads(quality_report.read_text(encoding="utf-8"))
+            self.assertEqual(report["channels"]["release-approval"]["status"], "passed")
+            for channel in (
+                "definition-conversation",
+                "activation",
+                "document-review",
+                "pilot",
+            ):
+                self.assertEqual(report["channels"][channel]["status"], "not-run")
+
+            build(
+                root / "stable",
+                "2026-08-20",
+                source_commit,
+                source_root,
+                quality_report,
+            )
+            release = json.loads(
+                (root / "stable/release-manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(release["quality"]["channel"], "stable")
+            self.assertEqual(release["quality"]["gate"], "passed")
+            self.assertTrue((root / "stable/lks-sdd-plugin-v1.0.0.zip").exists())
 
     def test_candidate_builder_rejects_self_asserted_or_hollow_attestations(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-package-") as directory:

@@ -38,6 +38,9 @@ FIXTURE_MANIFEST_PATH = QUALITY_ROOT / "fixture-manifest.json"
 DEFAULT_BASELINE_PATH = QUALITY_ROOT / "baselines" / "v0.17.0.json"
 MANIFEST_PATH = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
 PILOT_SUMMARY_SCHEMA_PATH = PLUGIN_ROOT / "schemas" / "pilot-summary.schema.json"
+RELEASE_APPROVAL_SCHEMA_PATH = (
+    PLUGIN_ROOT / "schemas" / "release-approval.schema.json"
+)
 UNIT_TEST_TIMEOUT_SECONDS = 900
 SUITE_TIMEOUT_SECONDS = {
     "fast": 120,
@@ -121,7 +124,14 @@ def _definition_corpus_matches_plugin_line(
         return False
     corpus_parts = tuple(int(part) for part in corpus_match.groups())
     plugin_parts = tuple(int(part) for part in plugin_match.groups())
-    return corpus_parts[:2] == plugin_parts[:2] and corpus_parts[2] <= plugin_parts[2]
+    same_compatible_line = (
+        corpus_parts[:2] == plugin_parts[:2]
+        and corpus_parts[2] <= plugin_parts[2]
+    )
+    first_stable_from_last_candidate = (
+        plugin_parts == (1, 0, 0) and corpus_parts == (0, 18, 0)
+    )
+    return same_compatible_line or first_stable_from_last_candidate
 
 
 def _load_json(path: Path) -> Any:
@@ -270,6 +280,55 @@ def validate_pilot_summary(
     return summary
 
 
+def validate_release_approval(
+    value: Any,
+    plugin_version: str,
+    schema_value: Any | None = None,
+) -> dict[str, Any]:
+    """Validate a privacy-safe stable-release decision by the project owner."""
+    approval = _require_object(value, "La aprobación de release")
+    schema = _require_object(
+        schema_value
+        if schema_value is not None
+        else _load_json(RELEASE_APPROVAL_SCHEMA_PATH),
+        "El schema de aprobación de release",
+    )
+    _assert_supported_json_schema(schema)
+    errors = _validate_json_schema(approval, schema)
+    if errors:
+        raise HarnessError(
+            "La aprobación no cumple schemas/release-approval.schema.json: "
+            + " | ".join(errors)
+        )
+    if approval.get("release_version") != plugin_version:
+        raise HarnessError(
+            "La aprobación del responsable no corresponde a la versión evaluada."
+        )
+    decision = approval["decision"]
+    decided_on = str(decision.get("decided_on"))
+    if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", decided_on):
+        raise HarnessError("decision.decided_on debe usar YYYY-MM-DD.")
+    try:
+        date.fromisoformat(decided_on)
+    except ValueError as exc:
+        raise HarnessError("decision.decided_on no es una fecha válida.") from exc
+    if not decision.get("rationale", "").strip():
+        raise HarnessError("La decisión debe conservar una justificación no vacía.")
+    if not approval.get("basis"):
+        raise HarnessError("La aprobación debe declarar al menos una base de decisión.")
+    if "project-owner-acceptance" not in approval["basis"]:
+        raise HarnessError(
+            "La aprobación stable debe declarar project-owner-acceptance."
+        )
+    status = decision.get("status")
+    blockers = decision.get("blocking_findings", [])
+    if status == "approved" and blockers:
+        raise HarnessError(
+            "Una release aprobada no puede conservar hallazgos bloqueantes."
+        )
+    return approval
+
+
 def validate_catalog(value: Any) -> dict[str, Any]:
     catalog = _require_object(value, "El catálogo")
     if catalog.get("schema_version") != "1.0":
@@ -352,8 +411,50 @@ def validate_catalog(value: Any) -> dict[str, Any]:
         raise HarnessError(
             "Candidate debe mostrar definition-conversation como evidencia opcional."
         )
-    if "definition-conversation" not in channels["stable"].get("required", []):
-        raise HarnessError("Stable debe exigir el canal definition-conversation.")
+    known_channels = {
+        "automated",
+        "fixture-integrity",
+        "profile-complete",
+        "regression",
+        "definition-conversation",
+        "activation",
+        "document-review",
+        "pilot",
+        "release-approval",
+    }
+    for channel_name, contract in channels.items():
+        if not isinstance(contract, dict) or set(contract) != {"required", "optional"}:
+            raise HarnessError(
+                f"El canal {channel_name} debe declarar required y optional."
+            )
+        required = contract["required"]
+        optional = contract["optional"]
+        if (
+            not isinstance(required, list)
+            or not isinstance(optional, list)
+            or len(required) != len(set(required))
+            or len(optional) != len(set(optional))
+            or set(required) & set(optional)
+            or (set(required) | set(optional)) != known_channels
+        ):
+            raise HarnessError(
+                f"El inventario de canales {channel_name} es inválido o incompleto."
+            )
+    if "release-approval" not in channels["stable"]["required"]:
+        raise HarnessError(
+            "Stable debe exigir la aprobación durable del responsable del proyecto."
+        )
+    for detailed_channel in (
+        "definition-conversation",
+        "activation",
+        "document-review",
+        "pilot",
+    ):
+        if detailed_channel not in channels["stable"]["optional"]:
+            raise HarnessError(
+                "Stable debe conservar los canales humanos detallados como "
+                f"evidencia visible opcional: falta {detailed_channel}."
+            )
     for name, threshold in thresholds.items():
         if not isinstance(threshold, dict):
             raise HarnessError(f"Umbral inválido: {name}")
@@ -777,6 +878,31 @@ def evaluate_pilot(summary: dict[str, Any] | None) -> dict[str, Any]:
         "project_count": summary.get("project_count"),
         "participant_count": summary.get("participant_count"),
         "sample_sufficient": summary.get("sample_sufficient"),
+    }
+
+
+def evaluate_release_approval(
+    approval: dict[str, Any] | None,
+    plugin_version: str,
+) -> dict[str, Any]:
+    if approval is None:
+        return {"status": "not-run", "decision": "not-evaluated"}
+    approval = validate_release_approval(approval, plugin_version)
+    decision = approval["decision"]
+    status = decision["status"]
+    channel_status = (
+        "passed"
+        if status == "approved"
+        else "incomplete"
+        if status == "deferred"
+        else "failed"
+    )
+    return {
+        "status": channel_status,
+        "decision": status,
+        "authority_role": decision["authority_role"],
+        "basis": approval["basis"],
+        "evidence_handling": approval["evidence_handling"],
     }
 
 
@@ -1523,6 +1649,7 @@ def build_report(
     baseline_path: Path,
     profile_mode: str | bool,
     rerun_reason: str | None = None,
+    release_approval_path: Path | None = None,
 ) -> dict[str, Any]:
     execution_started = time.monotonic()
     if isinstance(profile_mode, bool):
@@ -1548,6 +1675,15 @@ def build_report(
         raise HarnessError(
             "El corpus de definición debe pertenecer a la misma línea major.minor "
             "del manifest y no puede ser posterior a la release evaluada."
+        )
+    if release_approval_path is not None and channel != "stable":
+        raise HarnessError(
+            "--release-approval solo corresponde a una evaluación stable."
+        )
+    release_approval = None
+    if release_approval_path is not None:
+        release_approval = validate_release_approval(
+            _load_json(release_approval_path), str(manifest.get("version"))
         )
     observations = None
     if observations_path is not None:
@@ -1635,6 +1771,9 @@ def build_report(
         "activation": activation,
         "document-review": document_review,
         "pilot": evaluate_pilot(pilot_summary),
+        "release-approval": evaluate_release_approval(
+            release_approval, str(manifest.get("version"))
+        ),
     }
     required = catalog["channels"][channel]["required"]
     blockers = list(critical_failures)
@@ -1680,6 +1819,9 @@ def build_report(
             else None,
             "pilot_summary_sha256": _sha256_file(pilot_summary_path)
             if pilot_summary_path
+            else None,
+            "release_approval_sha256": _sha256_file(release_approval_path)
+            if release_approval_path
             else None,
             "baseline_sha256": _sha256_bytes(_canonical_bytes(baseline)),
             "performance_policy_sha256": _sha256_bytes(
@@ -1743,6 +1885,14 @@ def main() -> int:
     parser.add_argument("--date", default=date.today().isoformat(), dest="evaluated_on")
     parser.add_argument("--observations", type=Path)
     parser.add_argument("--pilot-summary", type=Path)
+    parser.add_argument(
+        "--release-approval",
+        type=Path,
+        help=(
+            "Decisión saneada y versionada del responsable del proyecto; "
+            "es la autoridad humana requerida por stable."
+        ),
+    )
     parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE_PATH)
     parser.add_argument(
         "--profile-mode",
@@ -1815,6 +1965,7 @@ def main() -> int:
             args.baseline.expanduser().resolve(),
             profile_mode,
             args.rerun_reason,
+            args.release_approval,
         )
         if args.output:
             _atomic_write(args.output, report, args.force)

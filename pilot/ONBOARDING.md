@@ -10,7 +10,7 @@
 ## Sesión inicial
 
 1. Explicar SDD, el papel de los Markdown y la separación entre propuesta, decisión y autorización.
-2. Instalar el bundle candidate de marketplace en el entorno Codex autorizado.
+2. Instalar el bundle de release del marketplace en el entorno Codex autorizado.
 3. Abrir una tarea nueva y realizar primero una consulta de ayuda de solo lectura.
 4. Elegir explícitamente la ruta greenfield, adopción o pila alternativa; confirmar el modelo de entrega y un perfil coherente por unidad desplegable.
 5. Antes de materializar tareas, elegir `repository-only` o `jira-hybrid`. La segunda opción requiere un peer Rovo ya autorizado, preview exacto y un destino de prueba; no copie credenciales o payloads al repositorio.

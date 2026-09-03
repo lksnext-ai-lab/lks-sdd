@@ -58,10 +58,10 @@ python tests\run_unit_tests.py --suite integration
 python tests\run_unit_tests.py --suite package
 python tests\run_unit_tests.py --suite profile
 python tests\run_evals.py
-python scripts\run_quality_harness.py --channel candidate --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse
+python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.0.0.json
 ```
 
-Para feedback rápido durante 0.18.0:
+Para feedback rápido durante 1.0.0:
 
 ```powershell
 python scripts\run_fast_validation.py --focus jira-reporting
@@ -73,7 +73,7 @@ El fast gate no acredita una release. El harness integral emite quality report 1
 
 Los límites bloqueantes son 120 s para `fast`, 480 s para `integration`, 240 s para `package`, 180 s para `profile` en reutilización y 900 s para candidate sin Docker `execute`. Un módulo dispone de 60/180/300 s según tier; Docker `execute` conserva un máximo separado de 30 minutos. El timeout mata el árbol de procesos y registra si la limpieza quedó confirmada. Ejecute `--preflight-only` antes de reservar un runner de release; un checkout sucio se rechaza sin lanzar tests. `--force` exige `--rerun-reason`.
 
-El reporte publicable debe crearse desde un checkout dedicado, limpio y sin archivos no versionados preexistentes, incluso ignorados. Una ejecución sobre el árbol de desarrollo es diagnóstico, no atestación publicable. Los tests sintéticos de tracking no ejecutan Rovo; `definition-conversation` y `pilot` conservan la evaluación humana y la interoperabilidad real Rovo/Jira como `not-run`. El procedimiento reproducible y el doble build están en `docs/DISTRIBUTION.md`.
+El reporte publicable debe crearse desde un checkout dedicado, limpio y sin archivos no versionados preexistentes, incluso ignorados. Una ejecución sobre el árbol de desarrollo es diagnóstico, no atestación publicable. Los tests sintéticos de tracking no ejecutan Rovo; `definition-conversation` y `pilot` conservan su estado real, incluido `not-run`. La promoción stable se apoya en gates técnicos y `release-approval`; no convierte esos canales opcionales en superados. El procedimiento reproducible y el doble build están en `docs/DISTRIBUTION.md`.
 
 ## Validación de un proyecto consumidor 1.5
 
@@ -139,7 +139,7 @@ La confirmación del plan, la autorización, la preparación, los checkpoints y 
 
 ## Corte de contrato de proyecto
 
-0.18 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
+1.0 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
 
 ```powershell
 python "<plugin-root>\scripts\lks_sdd.py" doctor "<project-root>" --quick --view audit --json
@@ -157,14 +157,14 @@ El ejemplo debe seguir bloqueado porque no contiene muestra, aliases, responsabl
 python scripts\manage_pilot.py validate-config pilot\pilot-config.example.json
 ```
 
-El resultado esperado es `blocked` con código `3`. No convierta ese estado en una evidencia de piloto ejecutado. El empaquetado, publicación, instalación y activación requieren autorizaciones separadas y se realizan únicamente desde un commit de release limpio.
+El resultado esperado es `blocked` con código `3`. No convierta ese estado en una evidencia de piloto ejecutado. El piloto es opcional para stable y no sustituye la aprobación del responsable. El empaquetado, publicación, instalación y activación requieren autorizaciones separadas y se realizan únicamente desde un commit de release limpio.
 
 ## Cierre obligatorio
 
-Antes del cierre 0.18 ejecute además:
+Antes del cierre 1.0 ejecute además:
 
 ```powershell
-python -X utf8 -m unittest tests.test_product_experience_v015 -v
+python -X utf8 tests\run_unit_tests.py --module test_product_experience_v015
 python -X utf8 scripts\benchmark_experience.py --json
 ```
 

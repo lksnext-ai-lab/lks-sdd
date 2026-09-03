@@ -1,10 +1,10 @@
-# Arquitectura y alcance de la versión 0.18.0
+# Arquitectura y alcance de la versión 1.0.0
 
 ## Decisión de producto
 
 LKS-SDD es un plugin skills-only y Spec-anchored para desarrollar con Codex mediante Specification-Driven Development. Los Markdown versionados del proyecto consumidor son la fuente canónica y duradera; `.lks-sdd/project.json` indexa el contrato operativo, pero no sustituye decisiones, tareas ni evidencias.
 
-La versión 0.18.0 conserva las seis skills, la arquitectura multiperfil y el contrato de proyecto 1.5. Añade una interfaz canónica `INT-###` y un contrato EVID 1.3 que separa componente, contrato, composición, flujo, persistencia y visual. La aplicabilidad se deriva de la TASK propietaria y de tablas estructuradas, nunca de texto libre. `work verify` bloquea antes de escribir si un scope inferior intenta cerrar integración, si faltan bindings o si un endpoint de dominio fue simulado. La evidencia histórica permanece inmutable y puede requerir reconciliación sin perder sus checks de componente. El único contrato de proyecto soportado sigue siendo `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. `specs/canonical/` permanece intacto.
+La versión 1.0.0 conserva las seis skills, la arquitectura multiperfil y el contrato de proyecto 1.5. Mantiene la interfaz canónica `INT-###` y el contrato EVID 1.3 que separa componente, contrato, composición, flujo, persistencia y visual. La aplicabilidad se deriva de la TASK propietaria y de tablas estructuradas, nunca de texto libre. `work verify` bloquea antes de escribir si un scope inferior intenta cerrar integración, si faltan bindings o si un endpoint de dominio fue simulado. La evidencia histórica permanece inmutable y puede requerir reconciliación sin perder sus checks de componente. El único contrato de proyecto soportado sigue siendo `method_version: 1.5.0` y `schema_version: 1.5`; `plugin_version` conserva la procedencia de materialización. `specs/canonical/` permanece intacto.
 
 La ejecución de calidad se organiza en cuatro tiers mutuamente excluyentes (`fast`, `integration`, `package` y `profile`), con selección conservadora por impacto, procesos aislados, progreso visible y presupuestos bloqueantes. Docker `execute` es una fase separada; `all` compone los cuatro tiers sin duplicar tests.
 
@@ -124,13 +124,13 @@ La revisión verificada no puede quedar en `null`: la evidencia 1.2 distingue co
 
 ## Límites vigentes
 
-Codex es el único runtime soportado contractualmente. ImageGen y el peer Atlassian Rovo son capacidades condicionales: su disponibilidad no equivale a aprobación ni demuestra el workflow completo. La adopción estática no demuestra comportamiento productivo. Los perfiles candidate no son automatización soportada. Los canales semánticos, humanos, de activación, revisión documental, interoperabilidad real Entra y Rovo/Jira y piloto sin observaciones reales permanecen `not-run`; candidate puede mantenerlos opcionales, pero `stable` no.
+Codex es el único runtime soportado contractualmente. ImageGen y el peer Atlassian Rovo son capacidades condicionales: su disponibilidad no equivale a aprobación ni demuestra el workflow completo. La adopción estática no demuestra comportamiento productivo. Los perfiles candidate no son automatización soportada. Los canales semánticos, humanos, de activación, revisión documental, interoperabilidad real Entra y Rovo/Jira y piloto sin observaciones reales permanecen `not-run`. La release estable no los presenta como superados: exige en su lugar gates técnicos completos y aprobación durable del responsable del proyecto.
 
 La implementación no añade MCP, cliente Jira, conectores propios, hooks, apps ni agentes ejecutables. Tampoco inventa dominio, selecciona tecnología o tracker, decide ramas, aprueba merges, publica, instala o despliega por cuenta de una persona autorizada.
 
 ## Evolución posterior
 
-La versión SemVer `0.18.0` y el schema 1.5 no equivalen a M6, a interoperabilidad Entra o Rovo/Jira verificada ni a política corporativa aprobada. La promoción de cualquier candidate, incluido el perfil de sistema 2.1, debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate full-stack, evals y certificación exacta antes de modificar su estado.
+La versión SemVer `1.0.0` declara la primera línea estable del plugin, pero no acredita por sí sola interoperabilidad Entra o Rovo/Jira ni convierte el método en política corporativa. La promoción de cualquier perfil candidate debe partir de evidencia real y cerrar descriptor, lock, scaffold, gates por capability, gate full-stack, evals y certificación exacta antes de modificar su estado.
 
 ## Capa de experiencia 0.15
 

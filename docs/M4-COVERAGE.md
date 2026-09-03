@@ -26,4 +26,4 @@ Este documento conserva la fotografía base cerrada por la versión `0.4.0`. Las
 
 - El corpus etiquetado no constituye por sí solo una ejecución semántica; sin observaciones reales el canal `activation` figura como `not-run`.
 - La puntuación documental exige revisión humana saneada y no se infiere a partir de tests estructurales.
-- El gate `stable` seguirá incompleto hasta incorporar el piloto M5; esto es una protección deliberada, no un resultado aprobado implícitamente.
+- El gate `stable` exige automatización M4 completa y aprobación durable del responsable del proyecto. El piloto M5 y los canales humanos detallados conservan su estado real como evidencia opcional; nunca se infieren como aprobados.

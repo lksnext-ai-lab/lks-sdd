@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "release_version": "1.0.0",
+  "scope": "stable-release",
+  "basis": [
+    "multi-team-use",
+    "project-owner-acceptance",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-03",
+    "authority_role": "project-owner",
+    "rationale": "El responsable del proyecto da por buena la release tras el uso satisfactorio del plugin por diferentes equipos y considera suficiente esa validación para el cierre estable.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "No se registran identidades, conversaciones, proyectos ni resultados individuales de los equipos.",
+    "La aprobación no convierte canales detallados no ejecutados en pruebas superadas.",
+    "La publicación, instalación y activación permanecen sujetas a autorizaciones separadas."
+  ]
+}

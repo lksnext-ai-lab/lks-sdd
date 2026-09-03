@@ -19,6 +19,7 @@ from run_quality_harness import (  # noqa: E402
     DEFAULT_BASELINE_PATH,
     FIXTURE_MANIFEST_PATH,
     PILOT_SUMMARY_SCHEMA_PATH,
+    RELEASE_APPROVAL_SCHEMA_PATH,
     UNIT_TEST_TIMEOUT_SECONDS,
     SUITE_TIMEOUT_SECONDS,
     HarnessError,
@@ -34,6 +35,7 @@ from run_quality_harness import (  # noqa: E402
     evaluate_automated_evidence,
     evaluate_document_reviews,
     evaluate_pilot,
+    evaluate_release_approval,
     main,
     repository_binding,
     run_automated,
@@ -42,6 +44,7 @@ from run_quality_harness import (  # noqa: E402
     validate_fixture_manifest,
     validate_observations,
     validate_pilot_summary,
+    validate_release_approval,
 )
 from quality_execution import ManagedCommandResult  # noqa: E402
 
@@ -88,12 +91,75 @@ class QualityHarnessTests(unittest.TestCase):
             ],
         }
 
+    def _release_approval(self, status: str = "approved") -> dict:
+        return {
+            "schema_version": "1.0",
+            "release_version": "1.0.0",
+            "scope": "stable-release",
+            "basis": ["multi-team-use", "project-owner-acceptance"],
+            "evidence_handling": "aggregated-no-identities",
+            "decision": {
+                "status": status,
+                "decided_on": "2026-09-03",
+                "authority_role": "project-owner",
+                "rationale": "El responsable da por buena la release.",
+                "blocking_findings": [],
+            },
+            "limitations": ["Sin identidades ni conversaciones."],
+        }
+
     def test_catalog_covers_fx_01_to_fx_19(self):
         self.assertEqual(len(self.catalog["cases"]), 19)
         self.assertEqual(
             {case["id"] for case in self.catalog["cases"]},
             {f"FX-{index:02d}" for index in range(1, 20)},
         )
+
+    def test_stable_requires_owner_approval_and_keeps_detailed_channels_optional(self):
+        stable = self.catalog["channels"]["stable"]
+        self.assertIn("release-approval", stable["required"])
+        self.assertEqual(
+            set(stable["optional"]),
+            {"definition-conversation", "activation", "document-review", "pilot"},
+        )
+
+    def test_project_owner_approval_is_the_stable_human_authority(self):
+        approval = validate_release_approval(
+            self._release_approval(), "1.0.0"
+        )
+        channel = evaluate_release_approval(approval, "1.0.0")
+        self.assertEqual(channel["status"], "passed")
+        self.assertEqual(channel["authority_role"], "project-owner")
+
+        deferred = evaluate_release_approval(
+            self._release_approval("deferred"), "1.0.0"
+        )
+        rejected = evaluate_release_approval(
+            self._release_approval("rejected"), "1.0.0"
+        )
+        self.assertEqual(deferred["status"], "incomplete")
+        self.assertEqual(rejected["status"], "failed")
+
+    def test_owner_approval_is_version_bound_and_fail_closed(self):
+        with self.assertRaisesRegex(HarnessError, "versión evaluada"):
+            validate_release_approval(self._release_approval(), "1.0.1")
+        blocked = self._release_approval()
+        blocked["decision"]["blocking_findings"] = ["hallazgo abierto"]
+        with self.assertRaisesRegex(HarnessError, "hallazgos bloqueantes"):
+            validate_release_approval(blocked, "1.0.0")
+        missing_authority_basis = self._release_approval()
+        missing_authority_basis["basis"] = ["multi-team-use"]
+        with self.assertRaisesRegex(HarnessError, "project-owner-acceptance"):
+            validate_release_approval(missing_authority_basis, "1.0.0")
+        invalid_date = self._release_approval()
+        invalid_date["decision"]["decided_on"] = "2026-99-99"
+        with self.assertRaisesRegex(HarnessError, "fecha válida"):
+            validate_release_approval(invalid_date, "1.0.0")
+        schema = _load_json(RELEASE_APPROVAL_SCHEMA_PATH)
+        invalid_schema = copy.deepcopy(schema)
+        invalid_schema["unevaluatedProperties"] = False
+        with self.assertRaisesRegex(HarnessError, "no soportadas"):
+            validate_release_approval({}, "1.0.0", invalid_schema)
 
     def test_fixture_manifest_is_complete_and_hash_locked(self):
         result = validate_fixture_manifest()
@@ -830,6 +896,10 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(schema["properties"]["schema_version"]["const"], "1.2")
         self.assertIn("execution", schema["required"])
         self.assertIn("performance", schema["required"])
+        self.assertIn(
+            "release_approval_sha256",
+            schema["properties"]["inputs"]["required"],
+        )
         historical = _load_json(
             PLUGIN_ROOT / "schemas" / "quality-report-1.1.schema.json"
         )

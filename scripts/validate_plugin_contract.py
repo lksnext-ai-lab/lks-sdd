@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD M0-M5 plus the 0.17 integration/evidence invariants."""
+"""Validate LKS-SDD 1.0, its M0-M5 contract and release evidence."""
 
 from __future__ import annotations
 
@@ -67,6 +67,8 @@ REQUIRED_ROOT_FILES = {
     "docs/releases/v0.15.0.md",
     "docs/releases/v0.16.0.md",
     "docs/releases/v0.17.0.md",
+    "docs/releases/v0.18.0.md",
+    "docs/releases/v1.0.0.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
@@ -151,6 +153,7 @@ REQUIRED_ROOT_FILES = {
     "schemas/pilot-config.schema.json",
     "schemas/pilot-observation.schema.json",
     "schemas/pilot-summary.schema.json",
+    "schemas/release-approval.schema.json",
     "schemas/document-contracts.json",
     "schemas/document-contracts.schema.json",
     "schemas/project-1.5.schema.json",
@@ -161,6 +164,7 @@ REQUIRED_ROOT_FILES = {
     "schemas/delivery-evidence.schema.json",
     "distribution/marketplace.template.json",
     "pilot/pilot-config.example.json",
+    "quality/release-approval-v1.0.0.json",
     "pilot/PLAN.md",
     "pilot/ONBOARDING.md",
     "pilot/ROLLBACK.md",
@@ -848,8 +852,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.17.0":
-            errors.append("El rollback del piloto 0.18.0 debe conservar 0.17.0.")
+        if rollback.get("previous_version") != "0.18.0":
+            errors.append("El rollback de 1.0.0 debe conservar 0.18.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -867,10 +871,34 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.17.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.17.0.")
+        if schema_previous != "0.18.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 0.18.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
+
+    try:
+        release_approval = json.loads(
+            (root / "quality" / "release-approval-v1.0.0.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        decision = release_approval.get("decision", {})
+        if release_approval.get("release_version") != plugin_version:
+            errors.append("La aprobación estable no coincide con la versión del manifest.")
+        if release_approval.get("scope") != "stable-release":
+            errors.append("La aprobación debe limitarse al cierre de la release stable.")
+        if release_approval.get("evidence_handling") != "aggregated-no-identities":
+            errors.append("La aprobación debe conservar evidencia agregada sin identidades.")
+        if (
+            decision.get("status") != "approved"
+            or decision.get("authority_role") != "project-owner"
+            or decision.get("blocking_findings") != []
+        ):
+            errors.append(
+                "La release stable requiere aprobación sin bloqueantes del project-owner."
+            )
+    except (OSError, json.JSONDecodeError, AttributeError):
+        errors.append("La aprobación estable 1.0.0 no es legible o válida.")
 
     package_builder = root / "scripts" / "build_candidate_package.py"
     if package_builder.is_file():

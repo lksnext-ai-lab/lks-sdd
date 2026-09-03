@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 0.18.0
+# Capacidades y límites de LKS-SDD 1.0.0
 
 La evidencia visual nueva aplica una política predeterminada de una a cinco imágenes por TASK con interfaz. Cada captura debe enlazar aceptación e interacción, conservar contexto reproducible y declarar un resultado; el archivo por sí solo nunca acredita `passed`. `work verify` genera fichas TASK derivadas sin convertirlas en autoridad ni alterar el sujeto técnico. Una EVID conserva el hecho histórico y los hallazgos posteriores cambian la salud actual hasta una corrección y re-verificación gobernadas.
 
@@ -53,7 +53,7 @@ Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituye
 - Tratar la especificación como generador automático de todo el código o considerar conforme un resultado solo porque fue generado desde ella.
 - Instalar automáticamente el bundle, desplegar, acceder a producción o aprobar excepciones.
 - Presentar la infraestructura M5 como un piloto ya ejecutado o una decisión `go` sin resultados reales.
-- Presentar canales opcionales candidate `not-run` o pruebas `skipped` como superados, o promover a stable sin los ocho canales requeridos.
+- Presentar canales opcionales `not-run` o pruebas `skipped` como superados, o promover a stable sin gates técnicos y aprobación durable del responsable del proyecto.
 - Presentar una imagen generada como diseño confirmado, código, prueba de accesibilidad o evidencia semántica/humana ejecutada.
 - Incorporar o ejecutar directamente MCP, conectores, hooks, apps o agentes dentro del bundle. La interoperabilidad opcional con el peer Rovo no lo convierte en una dependencia embebida ni autoriza acceso remoto.
 - Ejecutar el plugin con soporte garantizado fuera de Codex.
