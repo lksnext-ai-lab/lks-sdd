@@ -12,6 +12,9 @@ presupuesto de rutas de la distribución nativa de Windows.
   perfiles del repositorio.
 - Revalida hashes y tamaños de los artefactos de certificación, actualiza los
   manifiestos derivados y entrega el mismo núcleo compacto a Codex y Copilot.
+- Calibra de 60 a 90 segundos el límite interno por módulo `fast`, tras medir
+  60,191 s para el shard de experiencia limpio; conserva el límite bloqueante
+  de 120 s de la suite y todas las aserciones funcionales y de rendimiento.
 - Actualiza la etiqueta de instalación nativa de Copilot a `copilot-v1.1.1` y la
   documentación de actualización, sin cambiar schema/método del consumidor ni
   activar instalaciones personales.
