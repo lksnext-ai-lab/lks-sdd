@@ -112,7 +112,7 @@ class HarnessError(Exception):
 def _definition_corpus_matches_plugin_line(
     corpus_version: Any, plugin_version: Any
 ) -> bool:
-    """Allow a versioned corpus across compatible patch releases only."""
+    """Allow compatible patches and the explicit stable lines retaining the corpus."""
     pattern = re.compile(
         r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
     )
@@ -128,10 +128,10 @@ def _definition_corpus_matches_plugin_line(
         corpus_parts[:2] == plugin_parts[:2]
         and corpus_parts[2] <= plugin_parts[2]
     )
-    first_stable_from_last_candidate = (
-        plugin_parts == (1, 0, 0) and corpus_parts == (0, 18, 0)
+    stable_lines_retaining_definition_contract = (
+        plugin_parts[:2] in {(1, 0), (1, 1)} and corpus_parts == (0, 18, 0)
     )
-    return same_compatible_line or first_stable_from_last_candidate
+    return same_compatible_line or stable_lines_retaining_definition_contract
 
 
 def _load_json(path: Path) -> Any:

@@ -24,6 +24,7 @@ from run_quality_harness import (  # noqa: E402
     SUITE_TIMEOUT_SECONDS,
     HarnessError,
     _canonical_bytes,
+    _definition_corpus_matches_plugin_line,
     _load_json,
     _run_command,
     _sha256_bytes,
@@ -50,6 +51,13 @@ from quality_execution import ManagedCommandResult  # noqa: E402
 
 
 class QualityHarnessTests(unittest.TestCase):
+    def test_definition_corpus_reuse_is_explicit_for_dual_stable_line(self):
+        for version in ("1.0.0", "1.1.0-rc.1", "1.1.0", "1.1.1"):
+            self.assertTrue(_definition_corpus_matches_plugin_line("0.18.0", version))
+        for version in ("1.2.0", "2.0.0", "invalid"):
+            self.assertFalse(_definition_corpus_matches_plugin_line("0.18.0", version))
+        self.assertFalse(_definition_corpus_matches_plugin_line("1.1.1", "1.1.0"))
+
     def setUp(self):
         self.catalog = validate_catalog(_load_json(CATALOG_PATH))
         self.corpus = validate_corpus(_load_json(CORPUS_PATH))
