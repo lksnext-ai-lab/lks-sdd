@@ -29,17 +29,16 @@ La puerta publicable se ejecuta desde la raíz de un checkout dedicado y recién
 ```powershell
 $pluginRoot = Resolve-Path "."
 $reportPath = Join-Path (Resolve-Path "..") "quality-report.json"
-python (Join-Path $pluginRoot "scripts\validate_fixture_manifest.py") $pluginRoot
 python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.17.0.json") --profile-mode reuse --output $reportPath
 ```
 
-Para 1.0.0 estable, la misma puerta incorpora la decisión del responsable:
+Para 1.1.1 estable, la misma puerta incorpora la decisión del responsable:
 
 ```powershell
-python scripts\run_quality_harness.py --channel stable --date (Get-Date -Format "yyyy-MM-dd") --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.0.0.json --output $reportPath
+python scripts\run_quality_harness.py --channel stable --date (Get-Date -Format "yyyy-MM-dd") --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.1.1.json --output $reportPath
 ```
 
-`--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte usa el esquema 1.2, conserva 1.1 como contrato histórico, registra `HEAD`, ejecución y rendimiento, y falla en preflight si la fuente inicial no coincide exactamente con Git. Una ruta de salida ya existente se rechaza antes de lanzar tests; `--force` requiere `--rerun-reason` y esa razón queda registrada en `execution.rerun_reason`.
+`--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte usa el esquema 1.2, conserva 1.1 como contrato histórico, registra `HEAD`, ejecución y rendimiento, y falla en la atestación inicial si la fuente no coincide exactamente con Git. `--preflight-only` conserva esa atestación completa como diagnóstico opcional; no precede a la ruta estándar porque el harness la repite de forma segura antes de sus hijos. Una ruta de salida ya existente se rechaza antes de lanzar tests; `--force` requiere `--rerun-reason` y esa razón queda registrada en `execution.rerun_reason`.
 
 Para feedback cotidiano use una vía focalizada que no pretende ser evidencia de release:
 
@@ -49,7 +48,7 @@ python scripts\run_fast_validation.py --focus compatibility
 python scripts\run_fast_validation.py --changed-from origin/main
 ```
 
-Esta vía ejecuta siempre contratos y `fast`, añade solo los módulos afectados conocidos y cae en `integration` ante una ruta nueva. No ejecuta Docker ni acredita una release. La release ejecuta `fast`, `integration`, `package` y `profile` exactamente una vez desde checkout limpio, además de evals; `--profile-mode reuse` comprueba certificaciones exactas y `execute` reserva su fase Docker independiente. El proceso publica heartbeats cada 30 segundos, limita cada módulo y mata su árbol completo al agotar el tiempo.
+Esta vía ejecuta siempre contratos y `fast`, añade solo los módulos afectados conocidos y cae en `integration` ante una ruta nueva. No ejecuta Docker ni acredita una release. La release ejecuta `fast`, `integration`, `package` y `profile` exactamente una vez desde checkout limpio, además de evals; `--profile-mode reuse` comprueba certificaciones exactas y `execute` reserva su fase Docker independiente. Cada tier impone dentro de su propio runner el presupuesto comprometido; el harness sólo usa un techo de 900 s para recuperar JSON y limpiar un despachador bloqueado, sin ampliar los presupuestos de tier. El proceso publica heartbeats cada 30 segundos, limita cada módulo y mata su árbol completo al agotar el tiempo.
 
 Los presupuestos comprometidos están en `quality/performance-policy.json`: 120/480/240/180 segundos para `fast`, `integration`, `package` y `profile`, 900 para candidate sin Docker `execute` y 1800 para ese perfil. Un límite absoluto siempre bloquea. La comparación relativa solo se aplica cuando coincide el fingerprint no personal del runner; una diferencia de entorno queda visible y no se presenta como comparación superada. La baseline no se actualiza automáticamente.
 

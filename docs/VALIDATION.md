@@ -71,19 +71,21 @@ python scripts\run_reference_profile_gate.py --profile WEB-REACT-VITE-STATIC --r
 
 Repita el comando para cada perfil afectado. No use `--allow-unvalidated` como sustituto de esta puerta. Los perfiles candidate se mantienen sin certificación hasta que una decisión de producto autorice su promoción y exista evidencia completa.
 
-## Pruebas, evals y harness
+## Puerta de release, pruebas y evals
 
 ```powershell
 $validationDate = Get-Date -Format "yyyy-MM-dd"
-python tests\run_unit_tests.py --suite fast
-python tests\run_unit_tests.py --suite integration
-python tests\run_unit_tests.py --suite package
-python tests\run_unit_tests.py --suite profile
-python tests\run_evals.py
-python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.0.0.json
+$qualityReport = Join-Path ([System.IO.Path]::GetTempPath()) ("lks-sdd-quality-{0}.json" -f [guid]::NewGuid().ToString("N"))
+python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.1.1.json --output $qualityReport
 ```
 
-Para feedback rápido durante 1.0.0:
+El harness es la única ejecución integral requerida para una release: valida fixtures,
+contrato y perfiles, ejecuta `fast`, `integration`, `package`, `profile` y los evals una
+sola vez, y comprueba las certificaciones exactas reutilizadas. Ejecute una suite o los
+evals directamente sólo para diagnosticar un fallo o iterar sobre un cambio localizado;
+esa repetición no añade evidencia de release y no sustituye el reporte integral.
+
+Para feedback rápido:
 
 ```powershell
 python scripts\run_fast_validation.py --focus jira-reporting
@@ -93,7 +95,7 @@ python scripts\run_fast_validation.py --changed-from origin/main
 
 El fast gate no acredita una release. El harness integral emite quality report 1.2; el schema 1.1 se conserva únicamente para leer evidencia histórica. Cada módulo pertenece exactamente a un tier, stdout permanece JSON y el progreso se escribe en stderr. `--profile-mode reuse` comprueba todos los perfiles active contra certificaciones exactas con un máximo de 90 días; cualquier deriva o caducidad falla y requiere `--profile-mode execute` o recertificación Docker. `not-run`, `skipped` y timeout nunca cuentan como `passed`.
 
-Los límites bloqueantes son 120 s para `fast`, 480 s para `integration`, 240 s para `package`, 180 s para `profile` en reutilización y 900 s para candidate sin Docker `execute`. Un módulo dispone de 90/180/300 s según tier; Docker `execute` conserva un máximo separado de 30 minutos. Los 90 s de `fast` dejan margen para el shard de experiencia medido en 60,191 s en un checkout limpio bajo Windows; no amplían el límite bloqueante de 120 s de la suite ni las aserciones de rendimiento del producto. El timeout mata el árbol de procesos y registra si la limpieza quedó confirmada. Ejecute `--preflight-only` antes de reservar un runner de release; un checkout sucio se rechaza sin lanzar tests. `--force` exige `--rerun-reason`.
+Los límites bloqueantes son 120 s para `fast`, 480 s para `integration`, 240 s para `package`, 180 s para `profile` en reutilización y 900 s para candidate sin Docker `execute`. Un módulo dispone de 90/180/300 s según tier; Docker `execute` conserva un máximo separado de 30 minutos. Los 90 s de `fast` dejan margen para el shard de experiencia medido en 60,191 s en un checkout limpio bajo Windows; no amplían el límite bloqueante de 120 s de la suite ni las aserciones de rendimiento del producto. Cada tier aplica su presupuesto dentro de `tests/run_unit_tests.py`; el harness reserva 900 s únicamente como techo de emergencia del despachador para que el hijo pueda devolver su JSON y limpiar procesos. Si un tier supera su propio presupuesto, sigue fallando. El timeout mata el árbol de procesos y registra si la limpieza quedó confirmada. `--preflight-only` conserva la atestación completa como diagnóstico opcional, pero la ruta estándar invoca directamente el harness: éste toma esa misma atestación exacta una sola vez antes de lanzar hijos. `--force` exige `--rerun-reason`.
 
 El reporte publicable debe crearse desde un checkout dedicado, limpio y sin archivos no versionados preexistentes, incluso ignorados. Una ejecución sobre el árbol de desarrollo es diagnóstico, no atestación publicable. Los tests sintéticos de tracking no ejecutan Rovo; `definition-conversation` y `pilot` conservan su estado real, incluido `not-run`. La promoción stable se apoya en gates técnicos y `release-approval`; no convierte esos canales opcionales en superados. El procedimiento reproducible y el doble build están en `docs/DISTRIBUTION.md`.
 

@@ -21,7 +21,6 @@ from run_quality_harness import (  # noqa: E402
     PILOT_SUMMARY_SCHEMA_PATH,
     RELEASE_APPROVAL_SCHEMA_PATH,
     UNIT_TEST_TIMEOUT_SECONDS,
-    SUITE_TIMEOUT_SECONDS,
     HarnessError,
     _canonical_bytes,
     _definition_corpus_matches_plugin_line,
@@ -687,9 +686,10 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(
             command[profile_index + 1], "WEB-FASTAPI-REACT-KEYCLOAK-PG"
         )
+        unit_suites = ("fast", "integration", "package", "profile")
         self.assertEqual(
-            {name: timeouts[f"unit-tests-{name}"] for name in SUITE_TIMEOUT_SECONDS},
-            SUITE_TIMEOUT_SECONDS,
+            {name: timeouts[f"unit-tests-{name}"] for name in unit_suites},
+            {name: UNIT_TEST_TIMEOUT_SECONDS for name in unit_suites},
         )
         self.assertEqual(UNIT_TEST_TIMEOUT_SECONDS, 900)
 

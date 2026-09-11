@@ -98,6 +98,9 @@ atestación si ya existiera al comenzarla. Reporte y carpetas de salida deben se
 nuevos. Dos compilaciones con igual fecha, commit y reporte deben producir hashes
 idénticos para todos los assets declarados. `SHA256SUMS` cubre todos los ZIP, reportes
 y manifiestos; el de release enumera fuentes, tamaños, hashes y vinculación del gate.
+No ejecute antes las cuatro suites, los evals ni `--preflight-only`: el harness ya
+realiza cada gate obligatorio una vez y toma la atestación completa de fuente antes
+de sus hijos. Las ejecuciones directas son diagnósticas y no sustituyen ese reporte.
 
 ```powershell
 $hashesA = Get-ChildItem "$artifactBase-a" -File | Sort-Object Name | ForEach-Object { "$($_.Name):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" }

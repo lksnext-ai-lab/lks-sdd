@@ -15,6 +15,12 @@ presupuesto de rutas de la distribución nativa de Windows.
 - Calibra de 60 a 90 segundos el límite interno por módulo `fast`, tras medir
   60,191 s para el shard de experiencia limpio; conserva el límite bloqueante
   de 120 s de la suite y todas las aserciones funcionales y de rendimiento.
+- Simplifica la puerta de release para ejecutar una sola vez el harness integral:
+  elimina la ejecución previa de preflight y las suites/evals duplicados de la
+  ruta estándar, pero conserva la atestación completa inicial, los cuatro tiers,
+  los evals y el doble build. El techo externo de 900 s sólo recupera el diagnóstico
+  de un despachador bloqueado; los presupuestos bloqueantes de cada tier siguen
+  aplicándose dentro de su runner.
 - Actualiza la etiqueta de instalación nativa de Copilot a `copilot-v1.1.1` y la
   documentación de actualización, sin cambiar schema/método del consumidor ni
   activar instalaciones personales.
