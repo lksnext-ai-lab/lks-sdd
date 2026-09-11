@@ -4,8 +4,8 @@
 
 Codex desktop y Copilot VS Code Agent se distribuyen con una versión, un núcleo y dos
 adaptadores. El setup offline facilita instalar y actualizar sin tocar configuraciones
-personales. La versión estable es `1.1.0`; tiene aprobación propia del responsable
-en `quality/release-approval-v1.1.0.json`, sin reutilizar la de 1.0.0.
+personales. La versión estable es `1.1.1`; tiene aprobación propia del responsable
+en `quality/release-approval-v1.1.1.json`, sin reutilizar la de 1.0.0 ni la de 1.1.0.
 Los paquetes de desarrollo son diagnósticos, no atestaciones publicables. Antes de
 promover, registrar [aceptación dual](DUAL-HOST-ACCEPTANCE.md), superar gates técnicos, build
 reproducible limpio y autorización de publicación separada. El snapshot de evaluación
@@ -44,7 +44,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "1.1.0"
+$releaseVersion = "1.1.1"
 $releaseChannel = "stable"
 $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $releaseTag = "v$releaseVersion"

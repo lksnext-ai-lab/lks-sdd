@@ -1,4 +1,4 @@
-# Arquitectura y alcance de la versión 1.1.0
+# Arquitectura y alcance de la versión 1.1.1
 
 ## Distribución dual
 
@@ -9,6 +9,12 @@ sin proyecto y `setup/` para preparación explícita. El núcleo inmutable por p
 con lock es la autoridad de versión, incluso si el plugin personal es más reciente.
 `runtime-doctor` comprueba núcleo e instrucciones.
 El instalador offline administra solo sus archivos y bloques, con preview y recuperación.
+
+La proyección de distribución 1.1.1 acorta únicamente los nombres de ruta de la
+evidencia de certificación dentro de los paquetes. Conserva los bytes observados y
+sus SHA-256 completos, y vuelve a validar hashes y tamaños antes de empaquetar. Las
+fuentes hash-addressed del repositorio de mantenimiento no se modifican; Codex y
+Copilot reciben el mismo núcleo compacto y verificable.
 
 El setup del plugin genera `entrypoints: plugin` y no crea `.github/skills`; el setup
 alternativo conserva `entrypoints: project`. Migrar usa recibos y hashes para retirar
@@ -25,7 +31,7 @@ el schema consumidor. Los resultados se derivan de la validación UX/VIS/ADR vig
 No se añaden proveedores de imágenes, MCP ni un séptimo workflow. Las decisiones de
 compatibilidad y alcance están en `specs/proposed/dual-host-visual-handoff-1.0.md`.
 La arquitectura base 1.0 descrita a continuación se conserva; su aprobación de release
-no se hereda en esta RC.
+no se hereda. Cada versión estable conserva su propia aprobación durable.
 
 ## Decisión de producto
 

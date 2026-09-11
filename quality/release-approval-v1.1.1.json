@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "release_version": "1.1.1",
+  "scope": "stable-release",
+  "basis": ["project-owner-acceptance", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-11",
+    "authority_role": "project-owner",
+    "rationale": "El responsable del proyecto autoriza explícitamente publicar la corrección compatible 1.1.1 para evitar rutas de paquete demasiado largas durante la instalación de Copilot. La publicación queda condicionada a superar los gates técnicos de release sobre el commit exacto.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La autorización cubre la publicación de esta corrección; no aporta una nueva matriz observada de versiones, modelos, permisos o recorridos de host.",
+    "El piloto de tres desarrolladores, los recorridos visuales detallados y la interoperabilidad externa Rovo/Jira conservan su estado not-run hasta que exista evidencia específica.",
+    "La aprobación no sustituye el quality report nuevo, el checkout limpio, el doble build reproducible ni la verificación de los paquetes del commit exacto.",
+    "La publicación no instala ni activa plugins personales, ni equivale a una aprobación corporativa del método."
+  ]
+}

@@ -1,15 +1,16 @@
 # Estado de aceptación de la distribución dual
 
-Versión: 1.1.0. Promoción estable autorizada el 2026-09-11.
+Versión de distribución actual: 1.1.1. Corrección compatible autorizada el 2026-09-11.
 No se puede presentar el resultado como paridad conversacional certificada hasta
 ejecutar pruebas reales en ambas herramientas. Este documento separa esos canales.
 
 ## Aceptación comunicada y aprobación estable
 
-El responsable comunica «las pruebas en copilot han sido correctas» y posteriormente
-autoriza subir la versión 1.1 estable. Esta es evidencia de aceptación comunicada,
-no una ejecución observada por el agente. Se registra, sin identidades ni datos de
-proyectos, en `quality/release-approval-v1.1.0.json`.
+La aceptación comunicada para 1.1.0 permanece registrada como hecho histórico en
+`quality/release-approval-v1.1.0.json`. Para 1.1.1, el responsable autoriza publicar
+la corrección de rutas, condicionada a los gates técnicos del commit exacto, en
+`quality/release-approval-v1.1.1.json`. Ninguna de las dos aprobaciones equivale a
+una ejecución observada por el agente ni aporta identidades o datos de proyectos.
 
 No se aportan versiones del host/modelo, pasos ni evidencias por escenario. Por ello
 la matriz detallada conserva `not-run` donde no hay evidencia individual; no contradice

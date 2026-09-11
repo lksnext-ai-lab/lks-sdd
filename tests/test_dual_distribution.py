@@ -3,7 +3,8 @@ from __future__ import annotations
 import importlib.util
 import io
 import json
-from pathlib import Path
+import re
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import sys
 import tempfile
 import unittest
@@ -306,6 +307,126 @@ class DualDistributionTests(unittest.TestCase):
         for name, expected in manifest["artifacts"].items():
             self.assertEqual(digest((output / name).read_bytes()), expected, name)
 
+    def test_compact_core_rejects_malformed_certification_artifacts(self):
+        from dual_distribution import compact_distribution_core
+
+        active = b'{"gate_id":"GATE-TEST","status":"passed"}\n'
+        active_hash = digest(active)
+        evidence = {
+            "profile_id": "DEMO",
+            "evidence_manifest": [{
+                "path": f"certification-details/{active_hash}/GATE-TEST.json",
+                "sha256": active_hash,
+                "size": len(active),
+                "gate_id": "GATE-TEST",
+            }],
+        }
+        core = {
+            "profiles/DEMO/certification-evidence.json": json.dumps(evidence).encode(),
+            f"profiles/DEMO/certification-details/{active_hash}/GATE-TEST.json": active,
+        }
+        malformed_size = json.loads(json.dumps(evidence))
+        malformed_size["evidence_manifest"][0]["size"] += 1
+        with self.assertRaisesRegex(ValueError, "Invalid certification artifact"):
+            compact_distribution_core({
+                **core,
+                "profiles/DEMO/certification-evidence.json": json.dumps(malformed_size).encode(),
+            })
+        noncanonical_path = json.loads(json.dumps(evidence))
+        noncanonical_path["evidence_manifest"][0]["path"] = (
+            f"other-details/{active_hash}/GATE-TEST.json"
+        )
+        with self.assertRaisesRegex(ValueError, "Noncanonical certification artifact path"):
+            compact_distribution_core({
+                **core,
+                "profiles/DEMO/certification-evidence.json": json.dumps(noncanonical_path).encode(),
+                f"profiles/DEMO/other-details/{active_hash}/GATE-TEST.json": active,
+            })
+        with self.assertRaisesRegex(ValueError, "Unsupported historical certification artifact path"):
+            compact_distribution_core({
+                **core,
+                "profiles/DEMO/certification-details/not-a-content-hash/GATE-OLD.json": b"old\n",
+            })
+
+    def test_release_builder_compacts_the_codex_and_copilot_cores_equally(self):
+        from build_candidate_package import build
+        from dual_distribution import runtime_identity
+        from validate_copilot_package import validate
+        import build_candidate_package as builder
+
+        active = b'{"gate_id":"GATE-TEST","status":"passed"}\n'
+        historical = b'{"gate_id":"GATE-OLD","status":"passed"}\n'
+        active_hash, historical_hash = digest(active), digest(historical)
+        core = {
+            **self.core,
+            "distribution/dual.json": b'{"schema_version":"1.0"}',
+            "profiles/DEMO/certification-evidence.json": json.dumps({
+                "profile_id": "DEMO",
+                "evidence_manifest": [{
+                    "path": f"certification-details/{active_hash}/GATE-TEST.json",
+                    "sha256": active_hash,
+                    "size": len(active),
+                    "gate_id": "GATE-TEST",
+                }],
+            }).encode(),
+            f"profiles/DEMO/certification-details/{active_hash}/GATE-TEST.json": active,
+            f"profiles/DEMO/certification-details/{historical_hash}/GATE-OLD.json": historical,
+        }
+        report = {"gate": {"status": "passed"}, "channel": "candidate", "comparison": {"baseline_commit": "synthetic"}}
+        output = self.root / "release-hosts"
+        source = self.root / "release-source"
+        source.mkdir()
+        with mock.patch.object(builder, "_validate_source_checkout", return_value=source), \
+             mock.patch.object(builder, "collect_source_files", return_value=sorted(core.items())), \
+             mock.patch.object(builder, "_validated_quality_report", return_value=(report, json.dumps(report).encode())):
+            build(output, "2026-09-11", "synthetic", source, self.root / "synthetic-report.json")
+
+        def unpack(data: bytes) -> dict[str, bytes]:
+            with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                return {name: archive.read(name) for name in archive.namelist()}
+
+        version = json.loads(self.core[".codex-plugin/plugin.json"])["version"]
+        plugin = unpack((output / f"lks-sdd-plugin-v{version}.zip").read_bytes())
+        marketplace = unpack((output / f"lks-sdd-marketplace-v{version}.zip").read_bytes())
+        native_archive = (output / f"lks-sdd-copilot-plugin-v{version}.zip").read_bytes()
+        native = unpack(native_archive)
+        plugin_core = {name.removeprefix("lks-sdd/"): data for name, data in plugin.items()}
+        marketplace_core = {
+            name.removeprefix("plugins/lks-sdd/"): data
+            for name, data in marketplace.items()
+            if name.startswith("plugins/lks-sdd/")
+        }
+        native_core = {
+            name.removeprefix("lks-sdd/core/"): data
+            for name, data in native.items()
+            if name.startswith("lks-sdd/core/")
+        }
+        project = unpack((output / f"lks-sdd-copilot-v{version}.zip").read_bytes())
+        lock = json.loads(project[".lks-sdd/distribution-lock.json"])
+        runtime = lock["runtime"] + "/"
+        project_core = {
+            name.removeprefix(runtime): data
+            for name, data in project.items()
+            if name.startswith(runtime)
+        }
+        self.assertEqual(plugin_core, marketplace_core)
+        self.assertEqual(plugin_core, native_core)
+        self.assertEqual(plugin_core, project_core)
+        self.assertEqual(lock["runtime_digest"], runtime_identity(project_core))
+        for files in (plugin_core, marketplace_core, native_core, project_core):
+            self.assertFalse(any(re.search(r"certification-details/[0-9a-f]{64}/", path) for path in files))
+            self.assertIn(f"profiles/DEMO/certification-history/{historical_hash[:12]}.json", files)
+        evidence = json.loads(plugin_core["profiles/DEMO/certification-evidence.json"])
+        artifact = evidence["evidence_manifest"][0]
+        self.assertEqual(artifact["path"], f"certification-details/{active_hash[:12]}.json")
+        self.assertEqual(digest(plugin_core["profiles/DEMO/" + artifact["path"]]), artifact["sha256"])
+        self.assertEqual(len(plugin_core["profiles/DEMO/" + artifact["path"]]), artifact["size"])
+        integrity = json.loads(plugin_core["package-integrity.json"])
+        for item in integrity["files"]:
+            self.assertEqual(digest(plugin_core[item["path"]]), item["sha256"])
+            self.assertEqual(len(plugin_core[item["path"]]), item["size"])
+        self.assertEqual(validate(native_archive)["status"], "valid")
+
     def test_full_runtime_installs_initializes_and_rejects_wrong_global_cli(self):
         from build_dual_distribution import collect_development
         import subprocess
@@ -331,6 +452,23 @@ class DualDistributionTests(unittest.TestCase):
         self.assertEqual(wrong.returncode, 2)
         self.assertIn("project-pinned", wrong.stdout)
         self.assertEqual(check(self.consumer)["status"], "valid")
+
+    def test_native_plugin_paths_fit_a_windows_plugin_cache(self):
+        from build_dual_distribution import collect_development
+        core = collect_development(ROOT)
+        files = copilot_plugin_files(core, "synthetic-test", "development-not-certified")
+        longest = max(len(str(PurePosixPath("lks-sdd") / path)) for path in files)
+        self.assertLessEqual(longest, 110)
+        standard_cache = PureWindowsPath(
+            r"C:\Users\very-long-local-profile\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\plugins"
+        )
+        absolute_longest = max(
+            len(str(standard_cache / "lks-sdd" / PureWindowsPath(path)))
+            for path in files
+        )
+        # Keep a margin below the legacy 260-character Windows path limit.
+        self.assertLessEqual(absolute_longest, 240)
+        self.assertFalse(any(re.search(r"certification-details/[0-9a-f]{64}/", path) for path in files))
 
 
 if __name__ == "__main__":
