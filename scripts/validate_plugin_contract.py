@@ -290,6 +290,7 @@ FORBIDDEN_RUNTIME_IMPORTS = {
 RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/integration_contract.py": {"urllib.parse"},
     "scripts/build_candidate_package.py": {"subprocess"},
+    "scripts/build_dual_distribution.py": {"subprocess"},
     "scripts/benchmark_experience.py": {"subprocess"},
     "scripts/delivery_engine.py": {"subprocess"},
     "scripts/experience_engine.py": {"subprocess"},
@@ -852,8 +853,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "La candidate del ejemplo de piloto debe coincidir con el manifest."
             )
-        if rollback.get("previous_version") != "0.18.0":
-            errors.append("El rollback de 1.0.0 debe conservar 0.18.0.")
+        if rollback.get("previous_version") != "1.0.0":
+            errors.append("El rollback de la distribución dual debe conservar 1.0.0.")
     except (OSError, json.JSONDecodeError, AttributeError):
         errors.append("El ejemplo de piloto M5 no es legible o válido.")
 
@@ -871,8 +872,8 @@ def validate(root: Path) -> list[str]:
             errors.append(
                 "pilot-config.schema.json debe fijar la misma candidate que el manifest."
             )
-        if schema_previous != "0.18.0":
-            errors.append("pilot-config.schema.json debe fijar previous_version 0.18.0.")
+        if schema_previous != "1.0.0":
+            errors.append("pilot-config.schema.json debe fijar previous_version 1.0.0.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
@@ -883,8 +884,19 @@ def validate(root: Path) -> list[str]:
             )
         )
         decision = release_approval.get("decision", {})
-        if release_approval.get("release_version") != plugin_version:
-            errors.append("La aprobación estable no coincide con la versión del manifest.")
+        if release_approval.get("release_version") != "1.0.0":
+            errors.append("La aprobación histórica estable debe seguir vinculada a 1.0.0.")
+        # A candidate must not inherit a previous stable release authorization.
+        if plugin_version and "-" not in plugin_version and plugin_version != "1.0.0":
+            current_path = root / "quality" / f"release-approval-v{plugin_version}.json"
+            from run_quality_harness import validate_release_approval
+            try:
+                current = json.loads(current_path.read_text(encoding="utf-8"))
+                validate_release_approval(current, plugin_version)
+                if current.get("decision", {}).get("status") != "approved":
+                    errors.append("La release stable actual requiere aprobación explícita.")
+            except (OSError, ValueError, RuntimeError) as exc:
+                errors.append(f"Falta aprobación estable vigente: {exc}")
         if release_approval.get("scope") != "stable-release":
             errors.append("La aprobación debe limitarse al cierre de la release stable.")
         if release_approval.get("evidence_handling") != "aggregated-no-identities":
@@ -1247,6 +1259,11 @@ def validate(root: Path) -> list[str]:
             errors.append(f"Scaffold incompleto en {path.relative_to(root)}")
 
     link_re = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+    # Help and the human-facing repository manual deliberately share these sources.
+    # Other cross-skill/outside paths remain forbidden, and existence is still checked.
+    shared_help_docs = {(root / "docs" / name).resolve() for name in (
+        "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "DUAL-HOST-ACCEPTANCE.md",
+    )}
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
         for markdown in [
@@ -1263,8 +1280,9 @@ def validate(root: Path) -> list[str]:
                 try:
                     destination.relative_to(skill_root.resolve())
                 except ValueError:
-                    errors.append(f"Referencia fuera de la skill {skill}: {target}")
-                    continue
+                    if skill != "lks-sdd-help" or destination not in shared_help_docs:
+                        errors.append(f"Referencia fuera de la skill {skill}: {target}")
+                        continue
                 if not destination.is_file():
                     errors.append(f"Referencia ausente en {skill}: {target}")
 

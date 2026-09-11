@@ -27,6 +27,15 @@ No usar una imagen para decidir información que todavía está abierta. Si falt
 
 ## Propuestas con ImageGen
 
+El adaptador activo determina el host, no la existencia de carpetas. En Codex nativo
+se ejecuta este flujo sin avisos, preguntas ni archivos de relevo. Si Codex recibe
+un relevo existente, primero valida su vigencia y continúa desde el brief conservado.
+En GitHub Copilot, un brief suficiente y generación necesaria activan el protocolo
+de `<plugin-root>/docs/VISUAL-HANDOFF.md`: preparar ficha, invitar una vez a Codex y
+validar el resultado si se vuelve. No llamar APIs de imágenes ni instalar proveedores.
+Un brief incompleto se completa en el host actual; backend y reutilización no
+provocan el salto. Las confirmaciones humanas y los pendientes siguientes se conservan.
+
 Con un brief suficiente, un cambio visual aplicable e ImageGen disponible, la generación es obligatoria antes de cerrar la definición visual. Crear entre una y tres propuestas PNG o JPG ajustadas al mismo alcance. En una aplicación nueva o rediseño material, presentar normalmente dos o tres direcciones comparables y explicar qué decisión permite contrastar cada una; si una sola propuesta es suficiente, conservar la justificación en el brief. Para extender una dirección visual ya confirmada puede bastar un prototipo fiel a esa línea. La generación visual no crea código. Cada salida empieza en estado `proposal` y debe:
 
 - corresponder a un brief o prompt conservado;

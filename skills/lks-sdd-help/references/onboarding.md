@@ -1,5 +1,9 @@
 # Onboarding de cinco a diez minutos
 
+Si no conoces agentes, editores o repositorios, empieza por la
+[guía desde cero](../../../docs/LEARNING-GUIDE.md). Este resumen es el segundo paso,
+no exige memorizar identificadores ni ejecutar comandos para comprender el método.
+
 ## 1. El problema que resuelve
 
 Generar código antes de aclarar el objetivo, el alcance y la aceptación crea velocidad aparente y retrabajo real. SDD mantiene especificaciones versionadas y comprobables para que lo acordado, lo implementado y lo demostrado puedan compararse.
@@ -8,11 +12,16 @@ LKS-SDD adopta un enfoque **Spec-anchored**: la especificación no se archiva cu
 
 ## 2. Qué añade LKS-SDD
 
-LKS-SDD empaqueta para Codex un método común, plantillas y validadores. El plugin no es la fuente de verdad de una aplicación: esa fuente permanece en los Markdown y evidencias de su repositorio. Codex puede generar o modificar código desde ese contrato, pero el código generado todavía debe revisarse y verificarse.
+LKS-SDD empaqueta para Codex desktop y Copilot en VS Code un método común, plantillas
+y validadores. La fuente de verdad de la aplicación permanece en sus Markdown y
+evidencias versionados. El agente puede escribir código desde ese contrato, pero el
+resultado todavía debe revisarse y verificarse. La aceptación real de la RC se
+consulta por separado; no se deduce de que exista un paquete.
 
 ## 3. Dónde se trabaja
 
-- Codex es el entorno soportado para ejecutar el plugin sobre una raíz de proyecto, sus archivos y, en hitos posteriores, el código.
+- Codex desktop y Copilot en VS Code Agent son los destinos de la distribución dual.
+  Ambos trabajan sobre una raíz de proyecto; imágenes nuevas desde Copilot requieren relevo a Codex.
 - ChatGPT Work puede ser una superficie auxiliar para análisis y revisión de documentos, pero no se declara como runtime equivalente del plugin.
 - Un proyecto ChatGPT organiza contexto; un repositorio conserva el estado versionado. No son equivalentes.
 

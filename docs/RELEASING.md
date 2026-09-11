@@ -1,5 +1,16 @@
 # Releases técnicas
 
+## Línea dual 1.1
+
+Codex desktop y Copilot VS Code Agent se distribuyen con una versión, un núcleo y dos
+adaptadores. El setup offline facilita instalar y actualizar sin tocar configuraciones
+personales. La versión estable es `1.1.0`; tiene aprobación propia del responsable
+en `quality/release-approval-v1.1.0.json`, sin reutilizar la de 1.0.0.
+Los paquetes de desarrollo son diagnósticos, no atestaciones publicables. Antes de
+promover, registrar [aceptación dual](DUAL-HOST-ACCEPTANCE.md), superar gates técnicos, build
+reproducible limpio y autorización de publicación separada. El snapshot de evaluación
+no debe publicarse como estable aunque permita una instalación local satisfactoria.
+
 ## Propósito
 
 Las releases de GitHub fijan hitos reproducibles del plugin LKS-SDD para Codex. Publicar una release técnica no equivale a aprobar el método como política corporativa, instalar el plugin, habilitar soporte oficial ni decidir su distribución por marketplace.
@@ -22,7 +33,9 @@ Antes de publicar una versión:
 3. Integrar mediante PR revisable con CI correcto y comprobar el SHA final de `main` y su coincidencia con `origin/main`.
 4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto, superar primero `--preflight-only` y generar allí un reporte 1.2 del canal de release que atestigüe `HEAD`, índice, bytes reales y presupuestos sin ningún archivo no versionado preexistente —también los ignorados— y valide las certificaciones exactas de todos los perfiles active. Para `stable`, el reporte incorpora además `release-approval`; después se generan dos veces los bundles, se verifican reproducibilidad, manifiesto y checksums y se mantienen fuera del árbol Git.
 5. Solo después de superar el harness limpio y el doble build, crear y subir una etiqueta anotada `vX.Y.Z` sobre ese commit.
-6. Esperar el workflow correcto de la etiqueta y crear la release de GitHub desde esa etiqueta remota, como prerelease para `candidate` o release normal para `stable`, con notas versionadas y cinco assets; verificar URL, commit, estado, cuerpo, hashes y descargas.
+6. Esperar el workflow correcto de la etiqueta y crear la release desde esa etiqueta,
+   como prerelease para `candidate` o normal para `stable`, con notas versionadas y
+   el inventario completo de assets aprobado; verificar URL, commit, estado y hashes.
 
 El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el commit debe existir, coincidir con `HEAD` y tener un working tree limpio. Además revalida contra el contenido comprometido el esquema, hashes de inputs y fixtures, inventarios de checks, canales, casos y métricas, resolución de evidencias, consistencia de totales y comparación con la baseline. Empaqueta los blobs del commit, no los bytes del working tree.
 
@@ -31,7 +44,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "1.0.0"
+$releaseVersion = "1.1.0"
 $releaseChannel = "stable"
 $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $releaseTag = "v$releaseVersion"
@@ -64,12 +77,10 @@ $publishRoot = "$artifactBase-a"
 
 $releaseVisibility = if ($releaseChannel -eq "candidate") { @("--prerelease", "--latest=false") } else { @("--latest") }
 
-gh release create $releaseTag `
-  (Join-Path $publishRoot "lks-sdd-plugin-v$releaseVersion.zip") `
-  (Join-Path $publishRoot "lks-sdd-marketplace-v$releaseVersion.zip") `
-  (Join-Path $publishRoot "quality-report.json") `
-  (Join-Path $publishRoot "release-manifest.json") `
-  (Join-Path $publishRoot "SHA256SUMS") `
+$approvedManifest = Get-Content (Join-Path $publishRoot 'release-manifest.json') -Raw | ConvertFrom-Json
+$approvedNames = @($approvedManifest.artifacts.path) + @('release-manifest.json', 'SHA256SUMS')
+$approvedAssets = @($approvedNames | ForEach-Object { Join-Path $publishRoot $_ })
+gh release create $releaseTag @approvedAssets `
   --repo lksnext-ai-lab/lks-sdd `
   --title "LKS-SDD $releaseVersion" `
   --notes-file "docs/releases/$releaseTag.md" `
@@ -90,7 +101,7 @@ if ($release.isDraft) { throw "La release quedó como draft." }
 if ($releaseChannel -eq "candidate" -and -not $release.isPrerelease) { throw "La candidate no quedó como prerelease." }
 if ($releaseChannel -eq "stable" -and $release.isPrerelease) { throw "La stable quedó marcada como prerelease." }
 
-$expectedAssets = @("lks-sdd-plugin-v$releaseVersion.zip", "lks-sdd-marketplace-v$releaseVersion.zip", "quality-report.json", "release-manifest.json", "SHA256SUMS") | Sort-Object
+$expectedAssets = $approvedNames | Sort-Object
 $actualAssets = @($release.assets.name) | Sort-Object
 if (Compare-Object $expectedAssets $actualAssets) { throw "Los assets publicados no coinciden con el conjunto aprobado." }
 foreach ($asset in $release.assets) {
@@ -105,7 +116,10 @@ if ($localBody -ne $remoteBody) { throw "Las notas publicadas no coinciden con e
 git ls-remote --heads --tags origin
 ```
 
-El cuerpo remoto debe coincidir con `docs/releases/$releaseTag.md`; la release debe ser no draft y su estado prerelease debe corresponder al canal, la etiqueta debe resolver al commit esperado y deben existir los dos ZIP, `quality-report.json`, `release-manifest.json` y `SHA256SUMS` con los hashes verificados.
+El cuerpo remoto debe coincidir con `docs/releases/$releaseTag.md`; la release debe
+ser no draft y su estado prerelease debe corresponder al canal. La etiqueta debe
+resolver al commit esperado y todos los assets declarados deben tener hashes
+verificados, incluidos los ZIP Copilot (plugin nativo y alternativa de proyecto) y setup.
 
 Si una validación falla, corríjala antes de etiquetar. Si la carga falla mientras la release aún es draft, inspeccione ese draft antes de reanudar. Una vez publicada, no mueva la etiqueta ni reemplace assets: cierre la corrección en una versión nueva.
 

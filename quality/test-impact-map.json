@@ -15,8 +15,12 @@
       "modules": ["test_managed_process", "test_quality_harness", "test_quality_suite_registry"]
     },
     {
-      "paths": ["scripts/build_candidate_package.py", "distribution/**"],
-      "modules": ["test_checkout_portability", "test_m5_pilot"]
+      "paths": ["scripts/build_candidate_package.py", "scripts/dual_distribution.py", "scripts/build_dual_distribution.py", "scripts/validate_copilot_package.py", "scripts/runtime_doctor.py", "distribution/**", ".github/plugin/**"],
+      "modules": ["test_checkout_portability", "test_m5_pilot", "test_dual_distribution"]
+    },
+    {
+      "paths": ["scripts/manage_visual_handoff.py", "schemas/visual-handoff.schema.json"],
+      "modules": ["test_visual_handoff", "test_visual_contract"]
     },
     {
       "paths": ["scripts/jira_reporting_engine.py", "scripts/manage_task_tracking.py", "scripts/task_tracking_engine.py", "skills/**/references/jira-*.md"],

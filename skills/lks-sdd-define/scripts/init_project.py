@@ -11,7 +11,7 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.1.0"
 METHOD_VERSION = "1.5.0"
 SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"

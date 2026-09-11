@@ -1,12 +1,39 @@
-# LKS-SDD para Codex
+# LKS-SDD para Codex y GitHub Copilot
 
-LKS-SDD es un plugin corporativo **Spec-anchored** para desarrollar aplicaciones web con Codex mediante Specification-Driven Development (SDD). El plugin contiene el método, las plantillas, las reglas, los validadores y la ayuda; Codex los aplica sobre el repositorio de cada aplicación, que conserva su propia documentación, código, evidencias y estado.
+LKS-SDD ayuda a desarrollar aplicaciones web con agentes de IA sin perder de vista
+lo que las personas han acordado. Primero se aclara el problema, después se documenta
+y planifica, se autoriza el trabajo y finalmente se comprueba el resultado.
+
+Este enfoque se llama **Specification-Driven Development (SDD)**, o desarrollo guiado
+por especificaciones. LKS-SDD es **Spec-anchored**: mantiene esos acuerdos vigentes
+durante el desarrollo, no solo al principio. Sus plugins para Codex desktop y Copilot
+en VS Code comparten método, plantillas, validadores y ayuda. Cada aplicación conserva
+en su repositorio su propia documentación, código, evidencias y estado.
 
 ## Entorno objetivo y compatibilidad
 
-Codex es el entorno objetivo y el único soportado contractualmente por esta implementación. El manifiesto `.codex-plugin`, el descubrimiento e invocación de skills, los metadatos `agents/openai.yaml` y el modelo de trabajo sobre el repositorio se diseñan y validan para Codex.
+¿Es tu primer contacto con agentes de IA o con SDD? Empieza por la
+[guía desde cero](docs/LEARNING-GUIDE.md): explica las herramientas, las decisiones
+humanas y un caso completo de reservas de salas. Después sigue
+[instalación](docs/INSTALLATION.md) y el [piloto guiado de Copilot](docs/COPILOT-PILOT.md).
+No necesitas comprender las siglas de las secciones técnicas para empezar.
 
-Los Markdown, esquemas JSON y algunos scripts Python pueden resultar reutilizables en otros entornos, pero eso no convierte el plugin en agnóstico. No se garantiza el mismo descubrimiento, comportamiento, control de permisos ni calidad de resultado en GitHub Copilot, Claude u otros asistentes. Cualquier compatibilidad con ellos deberá diseñarse, implementarse y probarse como un alcance independiente. Véase [Compatibilidad y entorno objetivo](docs/COMPATIBILITY.md).
+La versión `1.1.0` incorpora distribución dual: Codex desktop y GitHub Copilot
+en VS Code Agent. Las seis skills comparten un núcleo y contrato consumidor 1.5.
+Copilot dispone de un plugin de agente instalable y un runtime fijado por proyecto;
+los adaptadores de proyecto se conservan como alternativa sin plugin. Los compañeros
+pueden compartir el mismo repositorio con relevo secuencial. La extensión Codex de
+VS Code y la escritura simultánea distribuida están fuera de esta entrega.
+
+Para instalar, siga la [guía de instalación desde el panel o ZIP](docs/INSTALLATION.md).
+En Codex el prototipado sigue normalmente, sin mensajes de relevo. En Copilot, cuando
+hacen falta imágenes nuevas, se prepara una ficha y se invita a continuar esa parte
+en Codex; regresar es opcional y no se integra una API de imágenes de pago.
+Véanse [relevo visual](docs/VISUAL-HANDOFF.md), [compatibilidad](docs/COMPATIBILITY.md)
+y [evidencia y pendientes de aceptación](docs/DUAL-HOST-ACCEPTANCE.md). La promoción
+estable tiene aprobación propia tras las pruebas satisfactorias de Copilot comunicadas
+por el responsable; no acredita automáticamente todos los recorridos conversacionales.
+Claude y otros asistentes quedan fuera del alcance de esta distribución.
 
 La versión `1.0.0` abre la primera línea estable y conserva las seis skills y el contrato de proyectos `method_version: 1.5.0` / `schema_version: 1.5`. Mantiene interfaces `INT-###` tipadas, scopes de evidencia `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`, EVID 1.3 y el gate `GATE-BROWSER-FULLSTACK-E2E`. Un binding aislado o una captura no pueden acreditar una integración. La aplicabilidad sigue siendo TASK-aware: sin interfaz confirmada, backend y frontend independientes declaran `not-applicable`; la evidencia histórica insuficiente permanece inmutable y se informa como `reconciliation-required`.
 

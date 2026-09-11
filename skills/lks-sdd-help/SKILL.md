@@ -5,7 +5,25 @@ description: "Explain the Spec-anchored LKS-SDD method and how to use its Codex 
 
 # LKS-SDD Help
 
+For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
+and this workflow from that runtime, not a different global version. Run
+`<plugin-root>/scripts/lks_sdd.py runtime-doctor <project-root> --json` before work;
+integrity failure blocks affected actions. The invoking host adapter governs tools,
+not folder presence. Preserve all method gates below. On resumption, read applicable
+visual handoffs and validate their results; no handoff grants implementation authority.
+Help/status remain read-only. Native Codex work never creates or announces a handoff.
+
 Orient the user without modifying files, state, phases, gates, or decisions. Explaining or suggesting an action never authorizes it.
+
+For users unfamiliar with agents, SDD, VS Code or Codex, read the shared
+[learning guide](../../docs/LEARNING-GUIDE.md) from the selected runtime. Teach from
+their concrete goal; distinguish editor, model, agent, plugin and project. Define
+each necessary term on first use, explain what a proposed command will change,
+and separate expected behavior from observed acceptance. Do not dump the whole
+manual or start initialization while answering help. For installation and testing,
+read [installation](../../docs/INSTALLATION.md) and [guided pilot](../../docs/COPILOT-PILOT.md).
+These are shared maintained sources, not separate Copilot/Codex copies. Use the
+host's actual invocation syntax and never promise native Copilot image generation.
 
 1. Identify whether the user needs a short answer, onboarding, contextual orientation, an example, reference detail, or troubleshooting.
 2. Start from the user's goal and disclose detail progressively. Read [concepts](references/sdd-concepts.md) for terminology, including the Spec-first/Spec-anchored/Spec-as-source distinction, or [lifecycle](references/project-lifecycle.md) for routes and gates only when needed.

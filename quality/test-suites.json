@@ -35,6 +35,7 @@
         "test_validation_evidence_v016",
         "test_visual_contract_adversarial",
         "test_visual_contract",
+        "test_visual_handoff",
         "test_workflows"
       ]
     },
@@ -43,6 +44,7 @@
       "max_workers": 2,
       "modules": [
         "test_checkout_portability",
+        "test_dual_distribution",
         "test_managed_process",
         "test_m5_pilot",
         "test_public_cli",

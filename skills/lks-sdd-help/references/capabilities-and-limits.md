@@ -1,10 +1,15 @@
-# Capacidades y límites de LKS-SDD 1.0.0
+# Capacidades y límites de LKS-SDD 1.1.0
 
 La evidencia visual nueva aplica una política predeterminada de una a cinco imágenes por TASK con interfaz. Cada captura debe enlazar aceptación e interacción, conservar contexto reproducible y declarar un resultado; el archivo por sí solo nunca acredita `passed`. `work verify` genera fichas TASK derivadas sin convertirlas en autoridad ni alterar el sujeto técnico. Una EVID conserva el hecho histórico y los hallazgos posteriores cambian la salud actual hasta una corrección y re-verificación gobernadas.
 
 La evidencia funcional usa scopes tipados compartidos: `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`. Solo una interfaz `INT-###` confirmada con flujo web activa el gate de navegador para su TASK propietaria; HTTP, PostgreSQL y migración usan observadores propios. Arrancar unidades o aprobar sus tests por separado no acredita comunicación; una captura no acredita persistencia; un mock de una operación funcional, sea cual sea su ruta, no acredita integración. La identidad controlada puede usar el doble autorizado por el perfil no productivo.
 
-Estas capacidades describen el plugin LKS-SDD ejecutado con Codex. No constituyen una promesa de comportamiento equivalente en GitHub Copilot, Claude u otros asistentes.
+Las seis capacidades comparten núcleo entre Codex desktop y el adaptador GitHub Copilot
+para VS Code Agent. Copilot deriva la generación de prototipos a Codex sin API adicional;
+Codex nativo no muestra avisos de relevo. La aceptación conversacional real por host
+permanece separada de las pruebas automatizadas. Otros asistentes y la extensión Codex
+de VS Code están fuera de alcance. Consultar `<plugin-root>/docs/INSTALLATION.md` y
+`<plugin-root>/docs/DUAL-HOST-ACCEPTANCE.md` para instalación, evidencia y límites.
 
 ## Disponibles
 

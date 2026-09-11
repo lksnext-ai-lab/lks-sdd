@@ -5,6 +5,14 @@ description: "Use the LKS-SDD Codex plugin to assess a documented increment by r
 
 # Assess LKS-SDD Readiness
 
+For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
+and this workflow from that runtime, not a different global version. Run
+`<plugin-root>/scripts/lks_sdd.py runtime-doctor <project-root> --json` before work;
+integrity failure blocks affected actions. The invoking host adapter governs tools,
+not folder presence. Preserve all method gates below. On resumption, read applicable
+visual handoffs and validate their results; no handoff grants implementation authority.
+Help/status remain read-only. Native Codex work never creates or announces a handoff.
+
 Evaluate one increment, not the whole project. A ready result is evidence for a human decision; it never authorizes implementation.
 
 1. Read `.lks-sdd/project.json` and the canonical Markdown paths it indexes. If either is absent or invalid, report an explained blocker. LKS-SDD 0.18 requires schema 1.5/method 1.5.0; an older index is rejected without mutation and a downgraded Markdown header cannot bypass the current gates.

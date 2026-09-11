@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import runpy
 import sys
 from pathlib import Path
+from dual_distribution import filesystem_root
 
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+PLUGIN_ROOT = filesystem_root(Path(__file__).resolve().parents[1])
 COMMANDS = {
     "help": "skills/lks-sdd-help/scripts/context_help.py",
     "define": "skills/lks-sdd-define/scripts/init_project.py",
@@ -33,6 +35,8 @@ COMMANDS = {
     "status": "scripts/project_status.py",
     "work": "scripts/work_task.py",
     "doctor": "scripts/doctor_project.py",
+    "runtime-doctor": "scripts/runtime_doctor.py",
+    "visual-handoff": "scripts/manage_visual_handoff.py",
 }
 
 
@@ -57,6 +61,29 @@ def main() -> int:
             f"(choose from {', '.join(repr(item) for item in COMMANDS)})"
         )
     forwarded = sys.argv[2:]
+    # A shared project never silently runs a different global installation.
+    if command != "runtime-doctor":
+        from runtime_doctor import check as check_runtime
+        for argument in forwarded:
+            if argument.startswith("-"):
+                continue
+            try:
+                candidate = filesystem_root(Path(argument))
+                locked = candidate.is_dir() and (candidate / ".lks-sdd/distribution-lock.json").is_file()
+            except (OSError, ValueError):
+                continue
+            if not locked:
+                continue
+            runtime = check_runtime(candidate)
+            if runtime["status"] == "blocked":
+                print(json.dumps(runtime, ensure_ascii=False))
+                return 2
+            pinned = (candidate / runtime["runtime"]).resolve()
+            if pinned != PLUGIN_ROOT:
+                print(json.dumps({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
+                                  "cli": str(pinned / "scripts/lks_sdd.py")}, ensure_ascii=False))
+                return 2
+            break
     target = (PLUGIN_ROOT / COMMANDS[command]).resolve()
     try:
         target.relative_to(PLUGIN_ROOT)

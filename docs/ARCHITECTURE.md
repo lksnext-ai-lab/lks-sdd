@@ -1,4 +1,31 @@
-# Arquitectura y alcance de la versión 1.0.0
+# Arquitectura y alcance de la versión 1.1.0
+
+## Distribución dual
+
+`scripts/dual_distribution.py` genera los adaptadores desde las seis skills comunes.
+Codex conserva el manifiesto y marketplace; Copilot usa un plugin Agent Plugins 1.0
+con `plugin.json` y seis entradas en `skills/`. El plugin contiene `core/` para ayuda
+sin proyecto y `setup/` para preparación explícita. El núcleo inmutable por proyecto
+con lock es la autoridad de versión, incluso si el plugin personal es más reciente.
+`runtime-doctor` comprueba núcleo e instrucciones.
+El instalador offline administra solo sus archivos y bloques, con preview y recuperación.
+
+El setup del plugin genera `entrypoints: plugin` y no crea `.github/skills`; el setup
+alternativo conserva `entrypoints: project`. Migrar usa recibos y hashes para retirar
+solo wrappers gestionados sin modificaciones. No hay hooks de instalación, MCP ni
+agentes ejecutables. Instalar/actualizar el plugin no escribe en consumidores.
+La selección del núcleo desde las skills es una instrucción de agente; se comprueba
+en el piloto real. La CLI añade comprobación determinista para rechazar un runtime
+global distinto al fijado cuando recibe un consumidor con lock.
+
+La guía `docs/LEARNING-GUIDE.md` es compartida por README y la skill help: una sola
+fuente didáctica, con lectura progresiva hacia instalación, piloto y contratos técnicos.
+`manage_visual_handoff.py` coordina solicitudes y resultados auxiliares sin modificar
+el schema consumidor. Los resultados se derivan de la validación UX/VIS/ADR vigente.
+No se añaden proveedores de imágenes, MCP ni un séptimo workflow. Las decisiones de
+compatibilidad y alcance están en `specs/proposed/dual-host-visual-handoff-1.0.md`.
+La arquitectura base 1.0 descrita a continuación se conserva; su aprobación de release
+no se hereda en esta RC.
 
 ## Decisión de producto
 

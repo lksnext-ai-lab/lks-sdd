@@ -5,6 +5,14 @@ description: "Adopt an existing software system into LKS-SDD with Codex by stati
 
 # Adoptar una aplicación existente
 
+For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
+and this workflow from that runtime, not a different global version. Run
+`<plugin-root>/scripts/lks_sdd.py runtime-doctor <project-root> --json` before work;
+integrity failure blocks affected actions. The invoking host adapter governs tools,
+not folder presence. Preserve all method gates below. On resumption, read applicable
+visual handoffs and validate their results; no handoff grants implementation authority.
+Help/status remain read-only. Native Codex work never creates or announces a handoff.
+
 Usa este workflow exclusivamente para incorporar un repositorio con aplicación preexistente. Es la ruta de entrada Spec-anchored cuando no existe una especificación confiable: construye una baseline documental desde evidencia estática del código sin convertir la implementación observada en intención aprobada. Mantén separados lo observado (`as-is`), las inferencias, la intención confirmada (`to-be`), las contradicciones y los desconocidos.
 
 ## Secuencia obligatoria

@@ -5,6 +5,14 @@ description: "Verify an implemented LKS-SDD TASK slice or joint release checkpoi
 
 # Verify an LKS-SDD Increment with Codex
 
+For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
+and this workflow from that runtime, not a different global version. Run
+`<plugin-root>/scripts/lks_sdd.py runtime-doctor <project-root> --json` before work;
+integrity failure blocks affected actions. The invoking host adapter governs tools,
+not folder presence. Preserve all method gates below. On resumption, read applicable
+visual handoffs and validate their results; no handoff grants implementation authority.
+Help/status remain read-only. Native Codex work never creates or announces a handoff.
+
 Verification produces evidence, not approval. Never classify a check as passed unless it actually ran and its result is available.
 
 1. Read the project index, current `EXEC-###`/`CKPT-###`, implementation `task_ids`, planning fingerprints and authorization, every profile binding/lock, delivery governance, release/environment, acceptance, tests, traceability, implementation diff and repository instructions. Reconcile any checkpoint divergence before running checks.

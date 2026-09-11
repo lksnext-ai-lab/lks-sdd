@@ -187,7 +187,7 @@ def _definition_corpus_relative(plugin_version: str) -> str:
     if match is None:
         raise PackageError("No se puede resolver el corpus para una versión no SemVer.")
     major, minor, _patch = match.groups()
-    if (major, minor, _patch) == ("1", "0", "0"):
+    if (major, minor) in {("1", "0"), ("1", "1")}:
         return "quality/corpora/definition-v0.18.0.json"
     return f"quality/corpora/definition-v{major}.{minor}.0.json"
 
@@ -747,9 +747,7 @@ def _validated_quality_report(
     corpus = _committed_json(committed_files, "quality/corpora/activation.json")
     definition_corpus_path = _definition_corpus_relative(plugin_version)
     definition_corpus = _committed_json(committed_files, definition_corpus_path)
-    expected_corpus_version = (
-        "0.18.0" if plugin_version == "1.0.0" else f"{plugin_version.rsplit('.', 1)[0]}.0"
-    )
+    expected_corpus_version = Path(definition_corpus_path).stem.removeprefix("definition-v")
     if definition_corpus.get("plugin_version") != expected_corpus_version:
         raise PackageError(
             "El corpus de definición comprometido no corresponde a la línea minor empaquetada."
@@ -1296,7 +1294,24 @@ def build(
         },
         "marketplace": marketplace,
     }
+    dual_assets: dict[str, bytes] = {}
+    if "distribution/dual.json" in committed_files:
+        from dual_distribution import artifacts as dual_artifacts
+        dual_core = {**committed_files, "package-integrity.json": integrity_bytes}
+        generated = dual_artifacts(dual_core, source_commit, quality["channel"])
+        # This manifest describes the ZIPs actually emitted by this release builder,
+        # including its legacy timestamps, not the development builder's ZIP format.
+        dual_manifest = json.loads(generated["distribution-manifest.json"])
+        dual_manifest["artifacts"][plugin_name] = _sha256(plugin_zip)
+        dual_manifest["artifacts"][marketplace_name] = _sha256(marketplace_zip)
+        generated["distribution-manifest.json"] = _canonical_json_bytes(dual_manifest)
+        dual_assets = {name: data for name, data in generated.items()
+                       if name not in {plugin_name, marketplace_name, "SHA256SUMS"}}
+        for name, content in dual_assets.items():
+            release_manifest["artifacts"].append({"path": name, "sha256": _sha256(content), "size": len(content)})
     output.mkdir(parents=True)
+    for name, content in dual_assets.items():
+        (output / name).write_bytes(content)
     (output / plugin_name).write_bytes(plugin_zip)
     (output / marketplace_name).write_bytes(marketplace_zip)
     (output / QUALITY_REPORT_NAME).write_bytes(quality_bytes)

@@ -25,7 +25,7 @@ from evidence_contract import integration_gate_applicability, visual_gate_applic
 from validation_evidence import load_evidence_index, task_health
 
 
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.1.0"
 CACHE_SCHEMA = "lks-sdd-experience-cache-1"
 PENDING = {"", "none", "pending", "not-run", "not-started", "unknown"}
 ACTIVE_PROBLEM_STATES = {"active"}

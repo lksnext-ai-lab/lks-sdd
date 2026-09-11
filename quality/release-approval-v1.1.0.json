@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "release_version": "1.1.0",
+  "scope": "stable-release",
+  "basis": ["project-owner-acceptance", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-11",
+    "authority_role": "project-owner",
+    "rationale": "El responsable comunica que las pruebas en Copilot han sido correctas y autoriza publicar la línea 1.1 como estable. La publicación queda condicionada a superar los gates técnicos de release sobre el commit exacto.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "Aceptación comunicada por el responsable; no se han aportado versiones del host, conversaciones ni una matriz detallada de resultados.",
+    "No acredita un piloto de tres desarrolladores, todos los recorridos visuales ni interoperabilidad externa Rovo/Jira.",
+    "Los canales detallados sin evidencia conservan not-run; no se reutiliza la aprobación de 1.0.0.",
+    "La autorización de publicación no activa instalaciones personales ni equivale a aprobación corporativa del método."
+  ]
+}
