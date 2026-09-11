@@ -1,6 +1,6 @@
 # Validación local
 
-## Distribución dual 1.1.0
+## Distribución dual 1.1.1
 
 ```powershell
 python -X utf8 tests/run_unit_tests.py --module test_dual_distribution --module test_visual_handoff
@@ -19,7 +19,7 @@ instala desde el setup nativo en un directorio temporal y ejecuta definición y
 validación; no registra un plugin en la configuración personal del host.
 No ejecutan sesiones reales de Copilot ni generan imágenes. Conservar `not-run` para
 los canales humanos descritos en [aceptación dual](DUAL-HOST-ACCEPTANCE.md).
-El harness estable usa `--channel stable` y `quality/release-approval-v1.1.0.json`,
+El harness estable usa `--channel stable` y `quality/release-approval-v1.1.1.json`,
 no la aprobación histórica 1.0.0.
 
 Ejecute las comprobaciones desde la raíz del repositorio con Python 3. Los comandos de estructura no requieren red; los gates completos descargan toolchains e imágenes bloqueadas y requieren Docker.

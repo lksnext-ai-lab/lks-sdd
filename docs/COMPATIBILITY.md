@@ -1,8 +1,8 @@
-# Compatibilidad de LKS-SDD 1.1.0
+# Compatibilidad de LKS-SDD 1.1.1
 
 ## Contrato de proyecto soportado
 
-LKS-SDD 1.1.0 opera exclusivamente sobre proyectos con:
+LKS-SDD 1.1.1 opera exclusivamente sobre proyectos con:
 
 - `schema_version: "1.5"`;
 - `method_version: "1.5.0"`.

@@ -1241,18 +1241,30 @@ def build(
     )
     output = _safe_output(output, source_root)
     timestamp = (parsed_date.year, parsed_date.month, parsed_date.day, 0, 0, 0)
-    integrity_bytes = _package_integrity_bytes(files, plugin_version, source_commit)
+    # The source commit retains hash-addressed certification history. Every
+    # distributable host receives the same compact, integrity-checked projection
+    # so neither Codex extraction nor a Copilot Git checkout inherits its path
+    # length risk.
+    from dual_distribution import compact_distribution_core
+    distribution_core = compact_distribution_core(committed_files)
+    integrity_bytes = _package_integrity_bytes(
+        sorted(distribution_core.items()), plugin_version, source_commit
+    )
+    distribution_core["package-integrity.json"] = integrity_bytes
+    # Use the same deterministic serialization that the dual adapters apply.
+    # Otherwise Codex's primary ZIP and Copilot's reprojected core would have
+    # semantically equal, but byte-different, integrity manifests.
+    distribution_core = compact_distribution_core(distribution_core)
+    integrity_bytes = distribution_core["package-integrity.json"]
     plugin_entries = [
-        *[(f"lks-sdd/{relative}", content) for relative, content in files],
-        ("lks-sdd/package-integrity.json", integrity_bytes),
+        *[(f"lks-sdd/{relative}", content) for relative, content in sorted(distribution_core.items())],
     ]
     marketplace_bytes = (
         json.dumps(marketplace, indent=2, ensure_ascii=False) + "\n"
     ).encode("utf-8")
     marketplace_entries = [
         (".agents/plugins/marketplace.json", marketplace_bytes),
-        *[(f"plugins/lks-sdd/{relative}", content) for relative, content in files],
-        ("plugins/lks-sdd/package-integrity.json", integrity_bytes),
+        *[(f"plugins/lks-sdd/{relative}", content) for relative, content in sorted(distribution_core.items())],
     ]
     plugin_zip = _zip_bytes(plugin_entries, timestamp)
     marketplace_zip = _zip_bytes(marketplace_entries, timestamp)
@@ -1297,8 +1309,7 @@ def build(
     dual_assets: dict[str, bytes] = {}
     if "distribution/dual.json" in committed_files:
         from dual_distribution import artifacts as dual_artifacts
-        dual_core = {**committed_files, "package-integrity.json": integrity_bytes}
-        generated = dual_artifacts(dual_core, source_commit, quality["channel"])
+        generated = dual_artifacts(distribution_core, source_commit, quality["channel"])
         # This manifest describes the ZIPs actually emitted by this release builder,
         # including its legacy timestamps, not the development builder's ZIP format.
         dual_manifest = json.loads(generated["distribution-manifest.json"])

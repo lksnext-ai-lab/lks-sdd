@@ -1,8 +1,23 @@
 # Changelog
 
-La distribución dual 1.1.0 añade un plugin nativo de agente para Copilot,
+La distribución dual 1.1.1 conserva un plugin nativo de agente para Copilot,
 preparación explícita del proyecto sin skills duplicadas, migración reversible por
-recibos y una guía desde cero compartida por README y la skill de ayuda.
+recibos, una guía desde cero compartida por README y la skill de ayuda, y corrige el
+presupuesto de rutas de la distribución nativa de Windows.
+
+## 1.1.1 — 2026-09-11 — corrección de rutas de distribución
+
+- Acorta de forma determinista sólo las rutas de evidencia dentro de los paquetes,
+  sin cambiar la fuente hash-addressed, los bytes observados ni los contratos de
+  perfiles del repositorio.
+- Revalida hashes y tamaños de los artefactos de certificación, actualiza los
+  manifiestos derivados y entrega el mismo núcleo compacto a Codex y Copilot.
+- Actualiza la etiqueta de instalación nativa de Copilot a `copilot-v1.1.1` y la
+  documentación de actualización, sin cambiar schema/método del consumidor ni
+  activar instalaciones personales.
+- La publicación estable requiere una aprobación propia 1.1.1 y los gates limpios,
+  reproducibles y de paquete del commit exacto; los canales humanos detallados y el
+  piloto permanecen con su evidencia real.
 
 ## 1.1.0 — 2026-09-11 — distribución dual estable
 

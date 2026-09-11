@@ -60,7 +60,7 @@ Sí. Es la ruta de entrada Spec-anchored para sistemas sin especificaciones conf
 
 ## ¿Funciona igual en GitHub Copilot o Claude?
 
-La distribución 1.1.0 incluye un plugin de agente para Copilot en VS Code y la
+La distribución 1.1.1 incluye un plugin de agente para Copilot en VS Code y la
 distribución Codex desktop, con el mismo núcleo fijado por proyecto. Copilot usa un
 relevo a Codex para las imágenes; no genera mediante una API añadida. La paridad
 conversacional requiere el piloto real: empaquetar las skills no la demuestra.

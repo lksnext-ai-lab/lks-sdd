@@ -1,6 +1,6 @@
 # Distribución candidate o stable
 
-## Distribución dual desde 1.1.0
+## Distribución dual 1.1.1
 
 La ruta recomendada para usuarios es el [asistente de instalación](INSTALLATION.md).
 Desde esta versión, el builder de release añade `lks-sdd-copilot-vVERSION.zip`,
@@ -16,6 +16,14 @@ del repositorio de mantenimiento referencia la etiqueta `copilot-vVERSION` del m
 repositorio. Esa etiqueta contiene exclusivamente la raíz `lks-sdd/` extraída del
 ZIP nativo aprobado, incluidos los archivos ocultos. No apunta al commit de `main`:
 ese commit conserva el layout de mantenimiento, no el del plugin nativo.
+
+El árbol nativo se proyecta de forma determinista antes de empaquetarse: conserva
+los bytes de cada artefacto de observación y sus SHA-256 completos, pero usa rutas
+cortas en el paquete y actualiza el manifiesto derivado que las referencia. Esto
+evita que el checkout Git que usa Copilot exceda el límite clásico de Windows. La
+evidencia fuente hash-addressed del repositorio de mantenimiento no se reescribe;
+el validador del paquete y el test de presupuesto de ruta protegen esta propiedad
+antes de publicar.
 
 Tras los gates limpios, extraiga el ZIP nativo en un directorio nuevo y corto,
 valídelo y cree un repositorio Git aislado dentro de su carpeta `lks-sdd`. Use una
@@ -64,7 +72,7 @@ El repositorio fija `eol=lf` para todo texto mediante `.gitattributes` y excluye
 El reporte publicable se genera desde un checkout dedicado, recién creado y sin archivos no versionados preexistentes, incluidos los ignorados. Desde la raíz del repositorio principal, una vez integrado y revisado el commit de release:
 
 ```powershell
-$releaseVersion = "1.1.0"
+$releaseVersion = "1.1.1"
 $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $sourceCommit = (git rev-parse HEAD).Trim()
 $artifactBase = Join-Path ([System.IO.Path]::GetTempPath()) "lks-sdd-$releaseVersion"

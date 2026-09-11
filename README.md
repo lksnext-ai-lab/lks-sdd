@@ -18,22 +18,26 @@ humanas y un caso completo de reservas de salas. Después sigue
 [instalación](docs/INSTALLATION.md) y el [piloto guiado de Copilot](docs/COPILOT-PILOT.md).
 No necesitas comprender las siglas de las secciones técnicas para empezar.
 
-La versión `1.1.0` incorpora distribución dual: Codex desktop y GitHub Copilot
+La versión `1.1.1` mantiene la distribución dual: Codex desktop y GitHub Copilot
 en VS Code Agent. Las seis skills comparten un núcleo y contrato consumidor 1.5.
 Copilot dispone de un plugin de agente instalable y un runtime fijado por proyecto;
-los adaptadores de proyecto se conservan como alternativa sin plugin. Los compañeros
-pueden compartir el mismo repositorio con relevo secuencial. La extensión Codex de
-VS Code y la escritura simultánea distribuida están fuera de esta entrega.
+los adaptadores de proyecto se conservan como alternativa sin plugin. La corrección
+compacta solo las rutas internas de evidencia del paquete, conservando hashes y
+contenido observado, para evitar rutas demasiado largas durante el checkout nativo
+de Windows. Los compañeros pueden compartir el mismo repositorio con relevo
+secuencial. La extensión Codex de VS Code y la escritura simultánea distribuida
+están fuera de esta entrega.
 
 Para instalar, siga la [guía de instalación desde el panel o ZIP](docs/INSTALLATION.md).
 En Codex el prototipado sigue normalmente, sin mensajes de relevo. En Copilot, cuando
 hacen falta imágenes nuevas, se prepara una ficha y se invita a continuar esa parte
 en Codex; regresar es opcional y no se integra una API de imágenes de pago.
 Véanse [relevo visual](docs/VISUAL-HANDOFF.md), [compatibilidad](docs/COMPATIBILITY.md)
-y [evidencia y pendientes de aceptación](docs/DUAL-HOST-ACCEPTANCE.md). La promoción
-estable tiene aprobación propia tras las pruebas satisfactorias de Copilot comunicadas
-por el responsable; no acredita automáticamente todos los recorridos conversacionales.
-Claude y otros asistentes quedan fuera del alcance de esta distribución.
+y [evidencia y pendientes de aceptación](docs/DUAL-HOST-ACCEPTANCE.md). La aceptación
+comunicada de Copilot se conserva como hecho histórico de 1.1.0; la publicación de
+1.1.1 está autorizada para esta corrección y condicionada a los gates técnicos, sin
+acreditar una nueva prueba conversacional. Claude y otros asistentes quedan fuera del
+alcance de esta distribución.
 
 La versión `1.0.0` abre la primera línea estable y conserva las seis skills y el contrato de proyectos `method_version: 1.5.0` / `schema_version: 1.5`. Mantiene interfaces `INT-###` tipadas, scopes de evidencia `component`, `contract`, `composition`, `user-flow`, `persistence` y `visual`, EVID 1.3 y el gate `GATE-BROWSER-FULLSTACK-E2E`. Un binding aislado o una captura no pueden acreditar una integración. La aplicabilidad sigue siendo TASK-aware: sin interfaz confirmada, backend y frontend independientes declaran `not-applicable`; la evidencia histórica insuficiente permanece inmutable y se informa como `reconciliation-required`.
 

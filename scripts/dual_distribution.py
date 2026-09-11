@@ -12,6 +12,9 @@ from pathlib import Path, PurePosixPath
 SKILLS = ("help", "define", "adopt-existing", "assess-readiness", "implement", "verify")
 BEGIN = "<!-- LKS-SDD:BEGIN -->"
 END = "<!-- LKS-SDD:END -->"
+_EVIDENCE_DIRECTORY = "certification-details/"
+_EVIDENCE_HASH = re.compile(r"^[0-9a-f]{64}$")
+_GATE_ID = re.compile(r"^[A-Z0-9][A-Z0-9-]*$")
 
 
 def filesystem_root(path: Path) -> Path:
@@ -59,7 +62,138 @@ def zip_bytes(files: dict[str, bytes]) -> bytes:
     return output.getvalue()
 
 
+def _certification_result_sha256(evidence: dict) -> str:
+    """Recompute the signed material after a layout-only projection."""
+    material = {
+        "profile_id": evidence.get("profile_id"),
+        "profile_version": evidence.get("profile_version"),
+        "runtime": evidence.get("runtime"),
+        "containers_executed": evidence.get("containers_executed"),
+        "complete_gate": evidence.get("complete_gate"),
+        "passed": evidence.get("passed"),
+        "checks": evidence.get("checks"),
+        "evidence_manifest": evidence.get("evidence_manifest"),
+        "certification_run_id": evidence.get("certification_run_id"),
+    }
+    return digest(json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
+
+
+def _compact_evidence_path(gate_id: str, content_hash: str, suffix: str) -> str:
+    """Use the manifest SHA for integrity, not an unnecessarily deep pathname.
+
+    ``gate_id`` remains signed in the manifest, so repeating it in every file
+    name only consumes Windows checkout budget without adding provenance.
+    """
+    if not _GATE_ID.fullmatch(gate_id) or not _EVIDENCE_HASH.fullmatch(content_hash):
+        raise ValueError("Invalid certification evidence identity")
+    if suffix not in {".json", ".png"}:
+        raise ValueError("Unsupported certification evidence artifact")
+    return f"{_EVIDENCE_DIRECTORY}{content_hash[:12]}{suffix}"
+
+
+def _put_projected(files: dict[str, bytes], name: str, content: bytes) -> None:
+    current = files.get(name)
+    if current is not None and current != content:
+        raise ValueError(f"Projected certification artifact collision: {name}")
+    files[name] = content
+
+
+def compact_distribution_core(core: dict[str, bytes]) -> dict[str, bytes]:
+    """Project certification evidence into a Git-checkout-safe package layout.
+
+    The source corpus deliberately retains its immutable, hash-addressed evidence.
+    Distribution packages retain the same bytes and full SHA-256 manifest values,
+    but use short, deterministic paths so a Copilot Git checkout can fit Windows
+    path limits. Unreferenced historical observations are preserved separately.
+    """
+    output = dict(core)
+    evidence_files = sorted(
+        name for name in core
+        if name.startswith("profiles/") and name.endswith("/certification-evidence.json")
+    )
+    for evidence_name in evidence_files:
+        profile_root = evidence_name.removesuffix("/certification-evidence.json")
+        evidence = json.loads(core[evidence_name])
+        manifest = evidence.get("evidence_manifest")
+        if not isinstance(manifest, list):
+            raise ValueError(f"Invalid certification manifest: {evidence_name}")
+        source_prefix = profile_root + "/"
+        active_sources: set[str] = set()
+        projected_active: list[tuple[str, str, bytes]] = []
+        compact_manifest = []
+        for item in manifest:
+            if not isinstance(item, dict):
+                raise ValueError(f"Invalid certification manifest item: {evidence_name}")
+            relative = safe_name(str(item.get("path", "")))
+            content_hash = item.get("sha256")
+            gate_id = item.get("gate_id")
+            artifact_size = item.get("size")
+            source = source_prefix + relative
+            content = core.get(source)
+            suffix = PurePosixPath(relative).suffix
+            if (
+                not isinstance(content_hash, str)
+                or not isinstance(gate_id, str)
+                or not isinstance(artifact_size, int)
+                or isinstance(artifact_size, bool)
+                or content is None
+                or digest(content) != content_hash
+                or len(content) != artifact_size
+            ):
+                raise ValueError(f"Invalid certification artifact: {source}")
+            artifact_name = PurePosixPath(relative).name
+            canonical_relative = f"{_EVIDENCE_DIRECTORY}{content_hash}/{artifact_name}"
+            compact_relative = _compact_evidence_path(gate_id, content_hash, suffix)
+            if (
+                not _EVIDENCE_HASH.fullmatch(content_hash)
+                or not _GATE_ID.fullmatch(gate_id)
+                or suffix not in {".json", ".png"}
+                or relative not in {canonical_relative, compact_relative}
+            ):
+                raise ValueError(
+                    f"Noncanonical certification artifact path: {source}"
+                )
+            target_relative = compact_relative
+            compact_manifest.append({**item, "path": target_relative})
+            active_sources.add(source)
+            projected_active.append((source, source_prefix + target_relative, content))
+        for source, _, _ in projected_active:
+            output.pop(source, None)
+        for source, target, content in projected_active:
+            _put_projected(output, target, content)
+        for source, content in sorted(core.items()):
+            if not source.startswith(source_prefix + _EVIDENCE_DIRECTORY) or source in active_sources:
+                continue
+            remainder = source[len(source_prefix + _EVIDENCE_DIRECTORY):]
+            parts = remainder.split("/")
+            if len(parts) != 2 or not _EVIDENCE_HASH.fullmatch(parts[0]):
+                raise ValueError(f"Unsupported historical certification artifact path: {source}")
+            suffix = PurePosixPath(parts[1]).suffix
+            if suffix not in {".json", ".png"}:
+                raise ValueError(f"Unsupported historical certification artifact type: {source}")
+            if digest(content) != parts[0]:
+                raise ValueError(f"Historical certification artifact digest mismatch: {source}")
+            output.pop(source, None)
+            _put_projected(output, source_prefix + f"certification-history/{parts[0][:12]}{suffix}", content)
+        if compact_manifest != manifest:
+            evidence["evidence_manifest"] = compact_manifest
+            evidence["result_sha256"] = _certification_result_sha256(evidence)
+            output[evidence_name] = json_bytes(evidence)
+    integrity_name = "package-integrity.json"
+    if integrity_name in output:
+        integrity = json.loads(output[integrity_name])
+        runtime_prefixes = (".codex-plugin/", "profiles/", "schemas/", "scripts/", "skills/")
+        integrity["files"] = [
+            {"path": name, "sha256": digest(content), "size": len(content)}
+            for name, content in sorted(output.items())
+            if name == ".codex-plugin/plugin.json" or name.startswith(runtime_prefixes)
+        ]
+        output[integrity_name] = json_bytes(integrity)
+    return output
+
+
 def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_entrypoints: bool = False) -> dict[str, bytes]:
+    core = compact_distribution_core(core)
     version = json.loads(core[".codex-plugin/plugin.json"])["version"]
     identity = runtime_identity(core)
     runtime = f".lks-sdd/runtime/{version}-{identity[:12]}"
@@ -128,6 +262,7 @@ def copilot_plugin_files(core: dict[str, bytes], source: str, channel: str) -> d
     Installing the personal plugin does not initialize or upgrade any project.
     The bootstrap has no discoverable project skills, avoiding double invocation.
     """
+    core = compact_distribution_core(core)
     version = json.loads(core[".codex-plugin/plugin.json"])["version"]
     output = {f"core/{name}": data for name, data in core.items()}
     # Native plugins are also distributed as Git repositories. Preserve setup
@@ -201,6 +336,7 @@ def copilot_plugin_files(core: dict[str, bytes], source: str, channel: str) -> d
 
 
 def artifacts(core: dict[str, bytes], source: str, channel: str) -> dict[str, bytes]:
+    core = compact_distribution_core(core)
     version = json.loads(core[".codex-plugin/plugin.json"])["version"]
     marketplace = core["distribution/marketplace.template.json"]
     plugin = {f"lks-sdd/{name}": data for name, data in core.items()}
