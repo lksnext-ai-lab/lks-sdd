@@ -1,0 +1,78 @@
+{
+  "schema_version": "2.0",
+  "id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+  "version": "1.0.0",
+  "family_id": "FAM-WEB-SPA-STATIC",
+  "profile_scope": "deployable",
+  "lifecycle": "active",
+  "support_level": "H1",
+  "default_rigor": "P1",
+  "summary": "Non-production React and Vite static SPA using a controlled OIDC identity double and browser-safe session handling.",
+  "units": [{"role": "frontend", "runtime": "browser and static host with a non-production OIDC double", "default_path": "."}],
+  "dimensions": {
+    "frontend": [
+      {"name": "Node.js", "version_range": "24.x LTS", "required": true},
+      {"name": "React", "version_range": "19.2.x", "required": true},
+      {"name": "TypeScript", "version_range": "6.0.x", "required": true},
+      {"name": "Vite", "version_range": "8.2.x", "required": true}
+    ],
+    "backend": [],
+    "data": [],
+    "identity": [{"name": "controlled OIDC identity double", "version_range": "profile contract 1.0", "required": true}],
+    "integration": [{"name": "protected API", "version_range": "synthetic bearer contract", "required": true}],
+    "delivery": [{"name": "static hosting", "version_range": "immutable-bundle contract 1.0", "required": true}],
+    "testing": [
+      {"name": "Vitest", "version_range": "4.1.x", "required": true},
+      {"name": "Playwright", "version_range": "1.62.x", "required": true},
+      {"name": "axe-core", "version_range": "4.13.x", "required": true}
+    ],
+    "observability": [{"name": "client auth failures, client errors and delivery monitoring", "version_range": "project decision", "required": true}]
+  },
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY", "CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE", "CAP-BROWSER-PLAYWRIGHT",
+    "CAP-IDENTITY-OIDC-SIMULATED", "CAP-OIDC-SPA-PKCE", "CAP-DELIVERY-EVIDENCE"
+  ],
+  "excluded_capabilities": ["CAP-API-CONTRACT", "CAP-IDENTITY-OIDC", "CAP-OIDC-DISCOVERY-JWKS", "CAP-OIDC-API-BEARER", "CAP-ENTRA-CLAIMS", "CAP-DATA-POSTGRES", "CAP-OCI-RUNTIME", "CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "capability_bindings": [
+    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD copy driver", "version_range": "1.0.0"},
+    {"capability_id": "CAP-FRONTEND-QUALITY", "provider": "ESLint, TypeScript and Vitest", "version_range": "10 / 6 / 4"},
+    {"capability_id": "CAP-STATIC-BUNDLE", "provider": "React, Vite and npm", "version_range": "React 19.2 / Vite 8.2"},
+    {"capability_id": "CAP-BROWSER-PLAYWRIGHT", "provider": "Playwright and axe-core", "version_range": "1.62 / 4.13"},
+    {"capability_id": "CAP-IDENTITY-OIDC-SIMULATED", "provider": "controlled non-production OIDC double", "version_range": "1.0.0"},
+    {"capability_id": "CAP-OIDC-SPA-PKCE", "provider": "Web Crypto SHA-256 PKCE boundary", "version_range": "RFC 7636"},
+    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+  ],
+  "compatibility_rules": [
+    "This profile is restricted to development, CI, integration and acceptance-preproduction with synthetic identities.",
+    "The bootstrap fails closed unless VITE_APP_ENV names an explicitly allowed non-production environment; this profile can never satisfy a production Microsoft Entra binding.",
+    "The browser creates a fresh PKCE verifier for each synthetic sign-in and sends only its S256 challenge to the configured double.",
+    "Access tokens and the synthetic session are confined to sessionStorage and are never placed in localStorage.",
+    "The issuer must use the dedicated /__test__/oidc path; HTTP is loopback-only, remote acceptance-preproduction requires HTTPS, and no client secret is accepted.",
+    "The static bundle is environment-specific and promoted by immutable digest."
+  ],
+  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-SCAFFOLD-INTEGRITY", "GATE-FRONTEND-LOCK", "GATE-FRONTEND-LINT", "GATE-FRONTEND-TYPECHECK", "GATE-FRONTEND-TEST",
+      "GATE-FRONTEND-BUILD", "GATE-STATIC-OUTPUT", "GATE-BROWSER-SMOKE", "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-OIDC-CONTRACT", "GATE-OIDC-SPA-PKCE", "GATE-OIDC-SPA-SESSION", "GATE-OIDC-SIMULATED-SAFETY", "GATE-OIDC-SIMULATED-INTEGRATION",
+      "GATE-DELIVERY-EVIDENCE"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-REACT-SIMULATED-OIDC-STATIC"
+  },
+  "certification": {
+    "technical_gate": "passed",
+    "composition_gate": "passed",
+    "e2e_eval": "passed",
+    "human_review": "not-applicable",
+    "pilot": "not-applicable",
+    "validated_at": "2026-08-27",
+    "review_due": "2026-11-25",
+    "evidence": [
+      "python scripts/validate_reference_profile.py --profile WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+      "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-SIMULATED-OIDC-STATIC --runtime docker --containers",
+      "tests/test_multi_profile_delivery.py"
+    ]
+  },
+  "owner": "LKS-SDD maintainers"
+}

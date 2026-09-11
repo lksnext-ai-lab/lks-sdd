@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "corpus_id": "lks-sdd-activation-es-1",
+  "corpus_sha256": "ba398ad3c8bce5afeecfe9e754fe3ae86916d1dee58db2c3bc08aaf18993320e",
+  "evaluator_context": {
+    "kind": "controlled-codex-session",
+    "product": "Codex",
+    "executed_on": "2026-08-19",
+    "evidence_reference": "external-sanitized-evidence-reference"
+  },
+  "activation_results": [],
+  "document_reviews": []
+}

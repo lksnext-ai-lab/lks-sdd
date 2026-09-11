@@ -1,0 +1,212 @@
+{
+  "schema_version": "1.1",
+  "certification_run_id": "5e7c69d9-8d81-4195-a899-70b5b5d7247e",
+  "profile_id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+  "profile_version": "1.0.0",
+  "certified_at": "2026-08-31",
+  "runtime": "docker",
+  "containers_executed": true,
+  "complete_gate": true,
+  "passed": true,
+  "profile_sha256": "ebd379aa22b116fa0ca149657b3ceff72949aba7e12f3b3c41daf6384d7f4fbf",
+  "driver_sha256": "2d39e4e2a0b41719794a73ccaa9841cda262d02ec61b70af77d6bc12bbe07d3d",
+  "scaffold_sha256": "2af461578ac77bc2b8e6c42f9ba8330391b57f88747a198ace915f5c688a9fbd",
+  "composition_digest": "d592a00ba01e7cdd9bbb1a1e9e96cde3b4478c48b0a43688936f867af4870427",
+  "certification_engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+  "checks": [
+    {
+      "gate_id": "GATE-API-LINT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-LOCK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-OPENAPI",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-TEST",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-API-TYPECHECK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DATA-INTEGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DATA-MIGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OCI-BUILD",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OCI-SMOKE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-API-AUTHN",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-API-AUTHZ",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-CONTRACT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-DISCOVERY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-JWKS",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SIMULATED-INTEGRATION",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-OIDC-SIMULATED-SAFETY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "status": "passed"
+    }
+  ],
+  "evidence_manifest": [
+    {
+      "path": "certification-details/29406c460f2814a610a5082ca1b57b3e9f055db826f5720f11eea4d51e188210/GATE-SCAFFOLD-INTEGRITY.json",
+      "sha256": "29406c460f2814a610a5082ca1b57b3e9f055db826f5720f11eea4d51e188210",
+      "size": 1770,
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY"
+    },
+    {
+      "path": "certification-details/6a6078f5e4b88e7377c9ad684607c466d36d17b52c1af7de5838efe80f99372f/GATE-API-LOCK.json",
+      "sha256": "6a6078f5e4b88e7377c9ad684607c466d36d17b52c1af7de5838efe80f99372f",
+      "size": 3801,
+      "gate_id": "GATE-API-LOCK"
+    },
+    {
+      "path": "certification-details/738f647f722f58f27cbd6482661af1db0ab36a7bde4a42e61d8bb9fdb110b2c8/GATE-API-LINT.json",
+      "sha256": "738f647f722f58f27cbd6482661af1db0ab36a7bde4a42e61d8bb9fdb110b2c8",
+      "size": 1742,
+      "gate_id": "GATE-API-LINT"
+    },
+    {
+      "path": "certification-details/98256c556c4714089a9f1ea442c761318a20ac074653cfb6a4652feb587b55ec/GATE-API-TYPECHECK.json",
+      "sha256": "98256c556c4714089a9f1ea442c761318a20ac074653cfb6a4652feb587b55ec",
+      "size": 1769,
+      "gate_id": "GATE-API-TYPECHECK"
+    },
+    {
+      "path": "certification-details/08ffa10172e92d47743bea4d148b4082b4646b5a086e38cbbfa4d3b4f230c772/GATE-API-TEST.json",
+      "sha256": "08ffa10172e92d47743bea4d148b4082b4646b5a086e38cbbfa4d3b4f230c772",
+      "size": 1819,
+      "gate_id": "GATE-API-TEST"
+    },
+    {
+      "path": "certification-details/17fc73042370e477add93b0694a86f3814790e662818be21d41883d850093659/GATE-API-OPENAPI.json",
+      "sha256": "17fc73042370e477add93b0694a86f3814790e662818be21d41883d850093659",
+      "size": 1887,
+      "gate_id": "GATE-API-OPENAPI"
+    },
+    {
+      "path": "certification-details/cef13781e235a4fd0d8d05ed0a1c123997c62beff258f37751b89fbf00f9787b/GATE-OIDC-CONTRACT.json",
+      "sha256": "cef13781e235a4fd0d8d05ed0a1c123997c62beff258f37751b89fbf00f9787b",
+      "size": 1859,
+      "gate_id": "GATE-OIDC-CONTRACT"
+    },
+    {
+      "path": "certification-details/9c146fe1038cd56266c3b650cdf8e22acfcbe599d0ba649236a3ad37733d54d3/GATE-OIDC-DISCOVERY.json",
+      "sha256": "9c146fe1038cd56266c3b650cdf8e22acfcbe599d0ba649236a3ad37733d54d3",
+      "size": 1862,
+      "gate_id": "GATE-OIDC-DISCOVERY"
+    },
+    {
+      "path": "certification-details/b79d0bea785f9c1a5d4afc76e2f48ce817ade3736a9b058e53cc73c69dc6a548/GATE-OIDC-JWKS.json",
+      "sha256": "b79d0bea785f9c1a5d4afc76e2f48ce817ade3736a9b058e53cc73c69dc6a548",
+      "size": 1842,
+      "gate_id": "GATE-OIDC-JWKS"
+    },
+    {
+      "path": "certification-details/f95af7078377259e6c9d8bb8c19da1c59773c93993af331aeb20b37274f8f319/GATE-OIDC-API-AUTHN.json",
+      "sha256": "f95af7078377259e6c9d8bb8c19da1c59773c93993af331aeb20b37274f8f319",
+      "size": 1875,
+      "gate_id": "GATE-OIDC-API-AUTHN"
+    },
+    {
+      "path": "certification-details/401f2e51ec99d199bad907235ca38a6bc664e79955f08a3335ccddbb25931b54/GATE-OIDC-API-AUTHZ.json",
+      "sha256": "401f2e51ec99d199bad907235ca38a6bc664e79955f08a3335ccddbb25931b54",
+      "size": 1873,
+      "gate_id": "GATE-OIDC-API-AUTHZ"
+    },
+    {
+      "path": "certification-details/f1b1d84a52cbd57ab5ff3cf72293821e5f8bd8602f8ef988923cdfa83d5fef37/GATE-OIDC-SIMULATED-SAFETY.json",
+      "sha256": "f1b1d84a52cbd57ab5ff3cf72293821e5f8bd8602f8ef988923cdfa83d5fef37",
+      "size": 1892,
+      "gate_id": "GATE-OIDC-SIMULATED-SAFETY"
+    },
+    {
+      "path": "certification-details/79be6b4c597fae83cf409e4ce9e5092fc0e1fc4e9ca65a5f72714cd2e12e6260/GATE-DATA-MIGRATION.json",
+      "sha256": "79be6b4c597fae83cf409e4ce9e5092fc0e1fc4e9ca65a5f72714cd2e12e6260",
+      "size": 2238,
+      "gate_id": "GATE-DATA-MIGRATION"
+    },
+    {
+      "path": "certification-details/c76b0b710d15c6574a4cdeb0ec714bff9ec6ebd21b49542aca72a6cdea038aef/GATE-OCI-BUILD.json",
+      "sha256": "c76b0b710d15c6574a4cdeb0ec714bff9ec6ebd21b49542aca72a6cdea038aef",
+      "size": 4148,
+      "gate_id": "GATE-OCI-BUILD"
+    },
+    {
+      "path": "certification-details/011bb42e539acfc12028bd03846d22b98f9c13152c4c4343b7f71d9dfbcc985d/GATE-OCI-SMOKE.json",
+      "sha256": "011bb42e539acfc12028bd03846d22b98f9c13152c4c4343b7f71d9dfbcc985d",
+      "size": 1971,
+      "gate_id": "GATE-OCI-SMOKE"
+    },
+    {
+      "path": "certification-details/e2bcb863d81b537c6da3a39de5ceecde4ca25974a9ed549ed283d26f1f3be7f6/GATE-OIDC-SIMULATED-INTEGRATION.json",
+      "sha256": "e2bcb863d81b537c6da3a39de5ceecde4ca25974a9ed549ed283d26f1f3be7f6",
+      "size": 985,
+      "gate_id": "GATE-OIDC-SIMULATED-INTEGRATION"
+    },
+    {
+      "path": "certification-details/466119800ffb7314174703afd5d7e66a73df6ef3213572c382ca37b12368e47b/GATE-DATA-INTEGRATION.json",
+      "sha256": "466119800ffb7314174703afd5d7e66a73df6ef3213572c382ca37b12368e47b",
+      "size": 1128,
+      "gate_id": "GATE-DATA-INTEGRATION"
+    },
+    {
+      "path": "certification-details/f9c49e36ebd4b6d92b584b390e50dbc7c6d427716106f84a94ce46ad12256426/GATE-DELIVERY-EVIDENCE.json",
+      "sha256": "f9c49e36ebd4b6d92b584b390e50dbc7c6d427716106f84a94ce46ad12256426",
+      "size": 750,
+      "gate_id": "GATE-DELIVERY-EVIDENCE"
+    },
+    {
+      "path": "certification-details/aca0ff25593d035da48ea510f0a9cc9ed079f5fd11a6d5166c1ecfce69283d95/GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG.json",
+      "sha256": "aca0ff25593d035da48ea510f0a9cc9ed079f5fd11a6d5166c1ecfce69283d95",
+      "size": 1257,
+      "gate_id": "GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG"
+    }
+  ],
+  "result_sha256": "3672778481b6c82e329e6002998fbd47c187e309daa8f004148ea3e9a09e98ea",
+  "command": "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-SIMULATED-OIDC-PG-OCI --runtime docker --containers --record-certification"
+}

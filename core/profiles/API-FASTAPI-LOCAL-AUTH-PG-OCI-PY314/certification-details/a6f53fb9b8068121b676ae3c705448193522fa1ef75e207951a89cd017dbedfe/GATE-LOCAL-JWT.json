@@ -1,0 +1,26 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-LOCAL-JWT"
+  ],
+  "duration_seconds": 12.224,
+  "exit_code": 0,
+  "gate_id": "GATE-LOCAL-JWT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "local-jwt",
+  "observations": {
+    "observer": "pytest-real-postgresql",
+    "result": ".............                                                            [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/fastapi/testclient.py:1\n  /app/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\ntests/test_security.py::test_invalid_tokens_are_rejected[algorithm]\n  /app/.venv/lib/python3.14/site-packages/jwt/api_jwt.py:147: InsecureKeyLengthWarning: The HMAC key is 32 bytes long, which is below the minimum recommended length of 48 bytes for SHA384. See RFC 7518 Section 3.2.\n    return self._jws.encode(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+    "selection": "invalid_tokens or key_rotation"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-LOCAL-JWT\", \"observations\": {\"observer\": \"pytest-real-postgresql\", \"selection\": \"invalid_tokens or key_rotation\", \"result\": \".............                                                            [100%]\\n=============================== warnings summary ===============================\\n.venv/lib/python3.14/site-packages/fastapi/testclient.py:1\\n  /app/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\\n    from starlette.testclient import TestClient as TestClient  # noqa\\n\\ntests/test_security.py::test_invalid_tokens_are_rejected[algorithm]\\n  /app/.venv/lib/python3.14/site-packages/jwt/api_jwt.py:147: InsecureKeyLengthWarning: The HMAC key is 32 bytes long, which is below the minimum recommended length of 48 bytes for SHA384. See RFC 7518 Section 3.2.\\n    return self._jws.encode(\\n\\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\\n\"}, \"status\": \"passed\"}\n"
+}

@@ -1,0 +1,3685 @@
+{
+  "catalog_version": "1.5",
+  "supported_project_schemas": [
+    "1.5"
+  ],
+  "schema_inheritance": {
+    "1.2": "1.1",
+    "1.3": "1.2",
+    "1.4": "1.3",
+    "1.5": "1.4"
+  },
+  "identifier_prefixes": [
+    "OBJ",
+    "STK",
+    "USR",
+    "CON",
+    "FR",
+    "NFR",
+    "TR",
+    "BR",
+    "AC",
+    "ADR",
+    "INT",
+    "DATA",
+    "SEC",
+    "PRIV",
+    "UX",
+    "VIS",
+    "INC",
+    "RISK",
+    "DEP",
+    "DEV",
+    "TEST",
+    "EVID",
+    "OPEN",
+    "PLAN",
+    "TASK",
+    "REL",
+    "UNIT",
+    "BIND",
+    "CHG",
+    "ENV",
+    "PCH",
+    "CKPT",
+    "AUTH",
+    "EXEC",
+    "TRK",
+    "SYNC",
+    "RPT"
+  ],
+  "reference_grammar": {
+    "canonical_range": "..",
+    "list_separators": [
+      ",",
+      ";"
+    ],
+    "max_range_size": 999
+  },
+  "state_policies": {
+    "content-lifecycle": {
+      "allowed": [
+        "draft",
+        "proposed",
+        "confirmed",
+        "rejected",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "confirmed"
+      ],
+      "pending": [
+        "draft",
+        "proposed"
+      ],
+      "inactive": [
+        "rejected",
+        "superseded",
+        "retired"
+      ]
+    },
+    "open-point": {
+      "allowed": [
+        "open",
+        "blocked",
+        "resolved",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "resolved"
+      ],
+      "pending": [
+        "open",
+        "blocked"
+      ],
+      "inactive": [
+        "superseded",
+        "retired"
+      ]
+    },
+    "test-plan": {
+      "allowed": [
+        "draft",
+        "proposed",
+        "planned",
+        "confirmed",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "planned",
+        "confirmed"
+      ],
+      "pending": [
+        "draft",
+        "proposed"
+      ],
+      "inactive": [
+        "superseded",
+        "retired"
+      ]
+    },
+    "risk-lifecycle": {
+      "allowed": [
+        "draft",
+        "proposed",
+        "confirmed",
+        "open",
+        "blocked",
+        "accepted",
+        "mitigated",
+        "resolved",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "confirmed",
+        "open",
+        "blocked",
+        "accepted",
+        "mitigated"
+      ],
+      "pending": [
+        "draft",
+        "proposed"
+      ],
+      "inactive": [
+        "resolved",
+        "superseded",
+        "retired"
+      ]
+    },
+    "governance-lifecycle": {
+      "allowed": [
+        "proposed",
+        "confirmed",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "confirmed"
+      ],
+      "pending": [
+        "proposed"
+      ],
+      "inactive": [
+        "superseded",
+        "retired"
+      ]
+    },
+    "plan-lifecycle": {
+      "allowed": [
+        "draft",
+        "proposed",
+        "confirmed",
+        "active",
+        "completed",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "confirmed",
+        "active",
+        "completed"
+      ],
+      "pending": [
+        "draft",
+        "proposed"
+      ],
+      "inactive": [
+        "superseded",
+        "retired"
+      ]
+    },
+    "release-lifecycle": {
+      "allowed": [
+        "draft",
+        "planned",
+        "active",
+        "frozen",
+        "released",
+        "withdrawn",
+        "retired"
+      ],
+      "active": [
+        "planned",
+        "active",
+        "frozen",
+        "released"
+      ],
+      "pending": [
+        "draft"
+      ],
+      "inactive": [
+        "withdrawn",
+        "retired"
+      ]
+    },
+    "task-workflow": {
+      "allowed": [
+        "backlog",
+        "ready",
+        "in-progress",
+        "in-review",
+        "done",
+        "blocked",
+        "cancelled"
+      ],
+      "active": [
+        "ready",
+        "in-progress",
+        "in-review",
+        "done"
+      ],
+      "pending": [
+        "backlog",
+        "blocked"
+      ],
+      "inactive": [
+        "cancelled"
+      ]
+    },
+    "planning-lifecycle": {
+      "allowed": [
+        "proposed",
+        "confirmed",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "confirmed"
+      ],
+      "pending": [
+        "proposed"
+      ],
+      "inactive": [
+        "superseded",
+        "retired"
+      ]
+    },
+    "authorization-lifecycle": {
+      "allowed": [
+        "authorized",
+        "invalidated",
+        "revoked"
+      ],
+      "active": [
+        "authorized"
+      ],
+      "pending": [],
+      "inactive": [
+        "invalidated",
+        "revoked"
+      ]
+    },
+    "planning-change-lifecycle": {
+      "allowed": [
+        "proposed",
+        "confirmed",
+        "superseded",
+        "retired"
+      ],
+      "active": [
+        "confirmed"
+      ],
+      "pending": [
+        "proposed"
+      ],
+      "inactive": [
+        "superseded",
+        "retired"
+      ]
+    },
+    "tracking-binding-lifecycle": {
+      "allowed": [
+        "proposed",
+        "confirmed"
+      ],
+      "active": [
+        "confirmed"
+      ],
+      "pending": [
+        "proposed"
+      ],
+      "inactive": []
+    },
+    "tracking-mapping-lifecycle": {
+      "allowed": [
+        "unlinked",
+        "pending",
+        "synced",
+        "out-of-sync",
+        "conflict",
+        "failed",
+        "reconciliation-required"
+      ],
+      "active": [
+        "synced"
+      ],
+      "pending": [
+        "unlinked",
+        "pending",
+        "out-of-sync",
+        "failed",
+        "reconciliation-required"
+      ],
+      "inactive": [
+        "conflict"
+      ]
+    },
+    "tracking-operation-lifecycle": {
+      "allowed": [
+        "authorized",
+        "recorded",
+        "failed",
+        "conflict",
+        "reconciliation-required"
+      ],
+      "active": [
+        "recorded"
+      ],
+      "pending": [
+        "authorized",
+        "failed",
+        "reconciliation-required"
+      ],
+      "inactive": [
+        "conflict"
+      ]
+    },
+    "reporting-policy-lifecycle": {
+      "allowed": [
+        "proposed",
+        "confirmed",
+        "paused"
+      ],
+      "active": [
+        "confirmed",
+        "paused"
+      ],
+      "pending": [
+        "proposed"
+      ],
+      "inactive": []
+    },
+    "epistemic-adoption": {
+      "allowed": [
+        "fact",
+        "observation",
+        "inference",
+        "assumption",
+        "unknown",
+        "contradicted"
+      ],
+      "active": [
+        "fact",
+        "observation",
+        "inference",
+        "assumption",
+        "unknown",
+        "contradicted"
+      ],
+      "pending": [],
+      "inactive": []
+    }
+  },
+  "artifacts": {
+    "ART-STATUS": {
+      "artifact_type": "project-status",
+      "path": "docs/lks-sdd/00-control/project-status.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "status.summary",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Ruta",
+            "Fase",
+            "Puerta",
+            "Incremento activo",
+            "Readiness",
+            "Próximo paso"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1
+        },
+        {
+          "id": "status.coverage",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Dimensión",
+            "Estado",
+            "Alcance",
+            "Información disponible",
+            "Falta profundizar",
+            "Impacto"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1
+        }
+      ]
+    },
+    "ART-SCOPE": {
+      "artifact_type": "scope-register",
+      "path": "docs/lks-sdd/00-control/scope-register.md",
+      "required": true,
+      "tables": []
+    },
+    "ART-OPEN": {
+      "artifact_type": "open-points",
+      "path": "docs/lks-sdd/00-control/open-points.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "control.open-points",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Question",
+            "Impact",
+            "Scope",
+            "Blocking"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "OPEN"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "open-point"
+          }
+        }
+      ]
+    },
+    "ART-BRIEF": {
+      "artifact_type": "product-brief",
+      "path": "docs/lks-sdd/01-context/product-brief.md",
+      "required": true,
+      "tables": []
+    },
+    "ART-CONSTRAINTS": {
+      "artifact_type": "constraints",
+      "path": "docs/lks-sdd/01-context/constraints.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "context.constraints",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Type",
+            "Statement",
+            "Source",
+            "Impact"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "CON"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        }
+      ]
+    },
+    "ART-STAKEHOLDERS": {
+      "artifact_type": "stakeholders-and-users",
+      "path": "docs/lks-sdd/01-context/stakeholders-and-users.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "context.stakeholders",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Role or profile",
+            "Need",
+            "Authority",
+            "Source"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "STK",
+              "USR"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        }
+      ]
+    },
+    "ART-FR": {
+      "artifact_type": "functional-requirements",
+      "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "requirements.functional",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Statement",
+            "Source",
+            "Priority",
+            "Acceptance",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "FR",
+              "BR"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-NFR": {
+      "artifact_type": "non-functional-requirements",
+      "path": "docs/lks-sdd/02-requirements/non-functional-requirements.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "requirements.non-functional",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Statement",
+            "Source",
+            "Priority",
+            "Acceptance",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "NFR"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-TR": {
+      "artifact_type": "technical-requirements",
+      "path": "docs/lks-sdd/02-requirements/technical-requirements.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "requirements.technical",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Statement",
+            "Source",
+            "Priority",
+            "Acceptance",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "TR"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-AC": {
+      "artifact_type": "acceptance-criteria",
+      "path": "docs/lks-sdd/02-requirements/acceptance-criteria.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "requirements.acceptance",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Condition",
+            "Requirement",
+            "Evidence"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "AC"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirement": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Evidence": {
+              "targets": [
+                "EVID"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": false,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-SOLUTION": {
+      "artifact_type": "solution-overview",
+      "path": "docs/lks-sdd/03-solution/solution-overview.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "solution.options",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Option",
+            "Support",
+            "Fit",
+            "Risks",
+            "Alternative"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "ADR"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        },
+        {
+          "id": "solution.decisions",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Decision",
+            "Requirements",
+            "Impact"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "ADR"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-ARCH": {
+      "artifact_type": "architecture",
+      "path": "docs/lks-sdd/03-solution/architecture.md",
+      "required": false,
+      "required_schemas": [
+        "1.2"
+      ],
+      "tables": [
+        {
+          "id": "solution.architecture-legacy",
+          "schemas": [
+            "1.0"
+          ],
+          "headers": [
+            "Reference",
+            "State",
+            "Component",
+            "Responsibility",
+            "Interfaces",
+            "Requirements"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "solution.architecture",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Label",
+            "State",
+            "Component",
+            "Responsibility",
+            "Interfaces",
+            "Requirements"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "solution.architecture-units",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "Unit",
+            "State",
+            "Component",
+            "Responsibility",
+            "Runtime boundary",
+            "Interfaces",
+            "Data ownership",
+            "Requirements",
+            "Profile binding"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "Unit",
+            "prefixes": [
+              "UNIT"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Profile binding": {
+              "targets": [
+                "BIND"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": true,
+              "require_defined": false,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-DATA": {
+      "artifact_type": "data",
+      "path": "docs/lks-sdd/03-solution/data.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "solution.data",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Data concern",
+            "Classification",
+            "Retention",
+            "Migration",
+            "Requirements"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "DATA"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-INTEGRATIONS": {
+      "artifact_type": "integrations",
+      "path": "docs/lks-sdd/03-solution/integrations.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "solution.integrations",
+          "schemas": [
+            "1.0",
+            "1.1",
+            "1.5"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "System",
+            "Purpose",
+            "Contract",
+            "Authentication",
+            "Failure handling",
+            "Requirements"
+          ],
+          "min_occurs": 0,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "INT"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "solution.deployable-interfaces",
+          "schemas": [
+            "1.5"
+          ],
+          "headers": [
+            "Interface",
+            "State",
+            "Consumer unit",
+            "Producer unit",
+            "Profile bindings",
+            "Protocol",
+            "Contract",
+            "Operations",
+            "Required evidence",
+            "Primary owner",
+            "Verification task",
+            "Requirements",
+            "Exact composition"
+          ],
+          "min_occurs": 0,
+          "max_occurs": 1,
+          "key": {
+            "column": "Interface",
+            "prefixes": [
+              "INT"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Consumer unit": {
+              "targets": ["UNIT"],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Producer unit": {
+              "targets": ["UNIT"],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Profile bindings": {
+              "targets": ["BIND"],
+              "min": 2,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Verification task": {
+              "targets": ["TASK"],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Requirements": {
+              "targets": ["FR", "NFR", "TR", "BR"],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-SECURITY": {
+      "artifact_type": "security-privacy-identity",
+      "path": "docs/lks-sdd/03-solution/security-privacy-identity.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "solution.security-privacy",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Concern",
+            "Requirement",
+            "Risk",
+            "Control proposal",
+            "Evidence expected"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "SEC",
+              "PRIV"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirement": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-UX": {
+      "artifact_type": "ux-accessibility",
+      "path": "docs/lks-sdd/03-solution/ux-accessibility.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "ux.screens",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Screen",
+            "Purpose",
+            "Users",
+            "Content",
+            "Main actions",
+            "Requirements",
+            "Acceptance",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "UX"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "ux.screen-detail",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Screen",
+            "Entry and exit",
+            "Information hierarchy",
+            "Secondary actions",
+            "Permissions and role variants",
+            "Responsive and priority devices",
+            "Accessibility",
+            "Pending content"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "relations": {
+            "Screen": {
+              "targets": [
+                "UX"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "ux.screen-states",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Screen",
+            "Loading",
+            "Empty",
+            "Error",
+            "No permission",
+            "Confirmation",
+            "Recovery"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "relations": {
+            "Screen": {
+              "targets": [
+                "UX"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "ux.flows",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Flow or interaction",
+            "User",
+            "Screens",
+            "Entry or trigger",
+            "Expected steps or response",
+            "Alternate, error or recovery path",
+            "Dialog or confirmation",
+            "Accessibility",
+            "Acceptance",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "UX"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Screens": {
+              "targets": [
+                "UX"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "ux.direction",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Aspect",
+            "Proposal",
+            "Rationale",
+            "Constraints",
+            "Human validation",
+            "Decision",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "UX"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "ux.visual-prototypes",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Asset",
+            "Format",
+            "Viewport",
+            "Screens or flow",
+            "Requirements",
+            "Source",
+            "Generated on",
+            "Prompt or brief",
+            "SHA-256",
+            "Human validation",
+            "Confirmation scope",
+            "Limitations",
+            "Decision",
+            "Increment"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "VIS"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Screens or flow": {
+              "targets": [
+                "UX"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          },
+          "asset": {
+            "path_column": "Asset",
+            "hash_column": "SHA-256"
+          }
+        }
+      ]
+    },
+    "ART-INCREMENTS": {
+      "artifact_type": "increments",
+      "path": "docs/lks-sdd/04-delivery/increments.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "delivery.increments-legacy",
+          "schemas": [
+            "1.0"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "In scope",
+            "Out of scope",
+            "Requirements",
+            "Acceptance",
+            "Decisions",
+            "Data",
+            "Identity",
+            "Integrations",
+            "Tests"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "INC"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Decisions": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            },
+            "Data": {
+              "targets": [
+                "DATA"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            },
+            "Identity": {
+              "targets": [
+                "SEC",
+                "PRIV"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            },
+            "Integrations": {
+              "targets": [
+                "INT"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            },
+            "Tests": {
+              "targets": [
+                "TEST"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "delivery.increments",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "In scope",
+            "Out of scope",
+            "Requirements",
+            "Acceptance",
+            "Decisions",
+            "Tests"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "INC"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Decisions": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            },
+            "Tests": {
+              "targets": [
+                "TEST"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "id": "delivery.interface",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Increment",
+            "Interface applicability",
+            "UX contract",
+            "Visual mode",
+            "Visual prototype",
+            "Reason"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "scope_column": "Increment",
+          "relations": {
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "UX contract": {
+              "targets": [
+                "UX"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            },
+            "Visual prototype": {
+              "targets": [
+                "VIS"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "id": "delivery.domains",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Increment",
+            "Domain",
+            "Applicability",
+            "References",
+            "Reason"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "scope_column": "Increment",
+          "relations": {
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "References": {
+              "targets": [
+                "DATA",
+                "SEC",
+                "PRIV",
+                "INT"
+              ],
+              "targets_by": {
+                "column": "Domain",
+                "values": {
+                  "data": [
+                    "DATA"
+                  ],
+                  "identity": [
+                    "SEC"
+                  ],
+                  "security": [
+                    "SEC"
+                  ],
+                  "privacy": [
+                    "PRIV"
+                  ],
+                  "integrations": [
+                    "INT"
+                  ]
+                }
+              },
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          },
+          "applicability": {
+            "domain_column": "Domain",
+            "applicability_column": "Applicability",
+            "references_column": "References",
+            "reason_column": "Reason",
+            "domains": [
+              "data",
+              "identity",
+              "security",
+              "privacy",
+              "integrations"
+            ]
+          }
+        }
+      ]
+    },
+    "ART-GOVERNANCE": {
+      "artifact_type": "delivery-governance",
+      "path": "docs/lks-sdd/04-delivery/delivery-governance.md",
+      "required": false,
+      "required_schemas": [
+        "1.2"
+      ],
+      "tables": [
+        {
+          "id": "delivery.governance",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Effective from",
+            "Delivery model",
+            "Versioning",
+            "Branching",
+            "Artifact promotion",
+            "Deployment",
+            "Recovery",
+            "Decision",
+            "Review trigger"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "CHG"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "governance-lifecycle"
+          },
+          "relations": {
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "id": "delivery.environments",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Role",
+            "Promotion order",
+            "Deployables",
+            "Approval",
+            "Configuration",
+            "Data",
+            "Observability",
+            "Recovery"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "ENV"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "governance-lifecycle"
+          },
+          "relations": {
+            "Deployables": {
+              "targets": [
+                "UNIT"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-PLANS": {
+      "artifact_type": "delivery-plans",
+      "path": "docs/lks-sdd/04-delivery/plans.md",
+      "required": false,
+      "required_schemas": [
+        "1.2"
+      ],
+      "tables": [
+        {
+          "id": "delivery.plans",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Name",
+            "Delivery model",
+            "Major horizon",
+            "Objective",
+            "Increments",
+            "Dependencies",
+            "Owner",
+            "Review date"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "PLAN"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "plan-lifecycle"
+          },
+          "relations": {
+            "Increments": {
+              "targets": [
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Dependencies": {
+              "targets": [
+                "PLAN",
+                "DEP"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "not-applicable"
+              ]
+            }
+          }
+        },
+        {
+          "id": "delivery.releases",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Version",
+            "Plan",
+            "Target date",
+            "Branch or stream",
+            "Environments",
+            "Tasks",
+            "Commit",
+            "Artifact",
+            "Evidence"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "REL"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "release-lifecycle"
+          },
+          "relations": {
+            "Plan": {
+              "targets": [
+                "PLAN"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Environments": {
+              "targets": [
+                "ENV"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            },
+            "Tasks": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Evidence": {
+              "targets": [
+                "EVID"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": false,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-TASKS": {
+      "artifact_type": "development-task-board",
+      "path": "docs/lks-sdd/04-delivery/tasks.md",
+      "required": false,
+      "required_schemas": [
+        "1.2"
+      ],
+      "tables": [
+        {
+          "id": "delivery.tasks",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "ID",
+            "Plan",
+            "Title",
+            "Release",
+            "Increment",
+            "Unit",
+            "Profile binding",
+            "Workflow state",
+            "Health",
+            "Progress",
+            "Dependencies",
+            "Blockers",
+            "Owner",
+            "Detail",
+            "Updated"
+          ],
+          "min_occurs": 1,
+          "max_occurs": null,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "TASK"
+            ]
+          },
+          "state": {
+            "column": "Workflow state",
+            "policy": "task-workflow"
+          },
+          "scope_column": "Increment",
+          "relations": {
+            "Plan": {
+              "targets": [
+                "PLAN"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Release": {
+              "targets": [
+                "REL"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Unit": {
+              "targets": [
+                "UNIT"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Profile binding": {
+              "targets": [
+                "BIND"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": false,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Dependencies": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "not-applicable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-PLANNING": {
+      "artifact_type": "planning-coverage",
+      "path": "docs/lks-sdd/04-delivery/planning-coverage.md",
+      "required": false,
+      "required_schemas": [
+        "1.3"
+      ],
+      "tables": [
+        {
+          "id": "planning.targets",
+          "schemas": [
+            "1.3"
+          ],
+          "headers": [
+            "Target",
+            "Type",
+            "State",
+            "Objective",
+            "Increments",
+            "Planning policy",
+            "Decision",
+            "Integration task",
+            "Review trigger"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "planning-lifecycle"
+          },
+          "relations": {
+            "Target": {
+              "targets": [
+                "INC",
+                "REL"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Increments": {
+              "targets": [
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            },
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            },
+            "Integration task": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "id": "planning.coverage",
+          "schemas": [
+            "1.3"
+          ],
+          "headers": [
+            "Target",
+            "Increment",
+            "Contract items",
+            "Primary task",
+            "Contributing tasks",
+            "Responsibility",
+            "Rationale"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "relations": {
+            "Target": {
+              "targets": [
+                "INC",
+                "REL"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Contract items": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR",
+                "AC",
+                "TEST",
+                "CON",
+                "ADR",
+                "INT",
+                "DATA",
+                "SEC",
+                "PRIV",
+                "UX",
+                "VIS",
+                "RISK",
+                "DEP"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Primary task": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Contributing tasks": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "not-applicable"
+              ]
+            }
+          }
+        },
+        {
+          "id": "planning.authorizations",
+          "schemas": [
+            "1.3"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Target",
+            "Increment",
+            "Release",
+            "Tasks",
+            "Specification fingerprint",
+            "Planning fingerprint",
+            "Authorized by role",
+            "Authorized on",
+            "Decision",
+            "Constraints"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "AUTH"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "authorization-lifecycle"
+          },
+          "relations": {
+            "Target": {
+              "targets": [
+                "INC",
+                "REL"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Release": {
+              "targets": [
+                "REL"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Tasks": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "planning.changes",
+          "schemas": [
+            "1.3"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Classification",
+            "Affected contract",
+            "Affected tasks",
+            "Previous fingerprint",
+            "Current fingerprint",
+            "Decision",
+            "Reason"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "PCH"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "planning-change-lifecycle"
+          },
+          "relations": {
+            "Affected contract": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR",
+                "AC",
+                "TEST",
+                "CON",
+                "ADR",
+                "INT",
+                "DATA",
+                "SEC",
+                "PRIV",
+                "UX",
+                "VIS",
+                "RISK",
+                "DEP"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Affected tasks": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-TRACKING": {
+      "artifact_type": "task-tracking",
+      "path": "docs/lks-sdd/04-delivery/task-tracking.md",
+      "required": false,
+      "required_schemas": [
+        "1.4",
+        "1.5"
+      ],
+      "tables": [
+        {
+          "id": "tracking.binding",
+          "schemas": [
+            "1.4",
+            "1.5"
+          ],
+          "headers": [
+            "Binding",
+            "State",
+            "Mode",
+            "Provider",
+            "Site",
+            "Project",
+            "Issue type",
+            "Sync policy",
+            "Write policy",
+            "Decision",
+            "Last reviewed"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "Binding",
+            "prefixes": [
+              "TRK"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "tracking-binding-lifecycle"
+          },
+          "relations": {
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "id": "tracking.mapping",
+          "schemas": [
+            "1.4",
+            "1.5"
+          ],
+          "headers": [
+            "Task",
+            "State",
+            "External ID",
+            "External key",
+            "URL",
+            "Projection fingerprint",
+            "Remote status",
+            "Last synced",
+            "Last operation",
+            "Notes"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "tracking-mapping-lifecycle"
+          },
+          "relations": {
+            "Task": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Last operation": {
+              "targets": [
+                "SYNC"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        },
+        {
+          "id": "tracking.operations",
+          "schemas": [
+            "1.4",
+            "1.5"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Task",
+            "Action",
+            "Preview hash",
+            "Projection fingerprint",
+            "Duplicate check",
+            "Authorized by role",
+            "Authorized on",
+            "External ID",
+            "External key",
+            "Recorded on",
+            "Result",
+            "Notes"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "SYNC"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "tracking-operation-lifecycle"
+          },
+          "relations": {
+            "Task": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "tracking.reporting-policy",
+          "schemas": [
+            "1.5"
+          ],
+          "headers": [
+            "Reporting",
+            "State",
+            "Scope",
+            "Coordination gate",
+            "Comment policy",
+            "Decision",
+            "Last reviewed"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "Reporting",
+            "prefixes": [
+              "RPT"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "reporting-policy-lifecycle"
+          },
+          "relations": {
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "id": "tracking.workflow-mapping",
+          "schemas": [
+            "1.5"
+          ],
+          "headers": [
+            "Local state",
+            "State",
+            "Jira status ID",
+            "Jira status name",
+            "Decision",
+            "Last reviewed"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "tracking-binding-lifecycle"
+          },
+          "relations": {
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "tracking.milestone-operations",
+          "schemas": [
+            "1.5"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Task",
+            "Source ref",
+            "Event kind",
+            "Action",
+            "Event hash",
+            "Preview hash",
+            "Duplicate check",
+            "Authorized by role",
+            "Authorized on",
+            "External ID",
+            "External key",
+            "Recorded on",
+            "Result",
+            "Notes"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "SYNC"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "tracking-operation-lifecycle"
+          },
+          "relations": {
+            "Task": {
+              "targets": [
+                "TASK"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-RISK": {
+      "artifact_type": "risks-dependencies",
+      "path": "docs/lks-sdd/04-delivery/risks-dependencies.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "delivery.risks-dependencies",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Description",
+            "Scope",
+            "Impact",
+            "Treatment",
+            "Owner"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "RISK",
+              "DEP",
+              "DEV"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "risk-lifecycle"
+          }
+        }
+      ]
+    },
+    "ART-ROADMAP": {
+      "artifact_type": "roadmap",
+      "path": "docs/lks-sdd/04-delivery/roadmap.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "delivery.roadmap",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Increment",
+            "State",
+            "Outcome",
+            "Dependencies",
+            "Decision point",
+            "Target condition"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Dependencies": {
+              "targets": [
+                "DEP",
+                "INC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "not-applicable"
+              ]
+            },
+            "Decision point": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": [
+                "not-applicable",
+                "pending"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-QUALITY": {
+      "artifact_type": "quality-strategy",
+      "path": "docs/lks-sdd/05-quality/quality-strategy.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "quality.tests",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Purpose",
+            "Increment",
+            "Acceptance"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "TEST"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "test-plan"
+          },
+          "relations": {
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-TEST-STRATEGY": {
+      "artifact_type": "test-strategy",
+      "path": "docs/lks-sdd/05-quality/test-strategy.md",
+      "required": false,
+      "required_schemas": [
+        "1.2"
+      ],
+      "tables": [
+        {
+          "id": "quality.test-detail-legacy",
+          "schemas": [
+            "1.0"
+          ],
+          "headers": [
+            "ID",
+            "State",
+            "Level or type",
+            "Scope",
+            "Acceptance",
+            "Environment",
+            "Evidence"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "key": {
+            "column": "ID",
+            "prefixes": [
+              "TEST"
+            ]
+          },
+          "state": {
+            "column": "State",
+            "policy": "test-plan"
+          },
+          "relations": {
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Evidence": {
+              "targets": [
+                "EVID"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": false,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        },
+        {
+          "id": "quality.test-detail",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Test",
+            "Level or type",
+            "Scope",
+            "Acceptance",
+            "Environment",
+            "Evidence"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "relations": {
+            "Test": {
+              "targets": [
+                "TEST"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            },
+            "Evidence": {
+              "targets": [
+                "EVID"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": false,
+              "allow_empty": true,
+              "allow_applicability": [
+                "pending",
+                "not-applicable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ART-TRACE": {
+      "artifact_type": "traceability",
+      "path": "docs/lks-sdd/05-quality/traceability.md",
+      "required": true,
+      "tables": [
+        {
+          "id": "quality.traceability",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Requirement",
+            "Acceptance",
+            "Decision",
+            "Increment",
+            "Test",
+            "Evidence"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "scope_column": "Increment",
+          "relations": {
+            "Requirement": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Acceptance": {
+              "targets": [
+                "AC"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Decision": {
+              "targets": [
+                "ADR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": [
+                "not-applicable"
+              ]
+            },
+            "Increment": {
+              "targets": [
+                "INC"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": false,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Test": {
+              "targets": [
+                "TEST"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Evidence": {
+              "targets": [
+                "EVID"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": false,
+              "require_defined": false,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-DEPLOYMENT": {
+      "artifact_type": "deployment",
+      "path": "docs/lks-sdd/06-operation/deployment.md",
+      "required": false,
+      "required_schemas": [
+        "1.2"
+      ],
+      "tables": [
+        {
+          "id": "operation.deployment-legacy",
+          "schemas": [
+            "1.0"
+          ],
+          "headers": [
+            "Reference",
+            "State",
+            "Environment",
+            "Deployment unit",
+            "Configuration",
+            "Rollback",
+            "Requirements"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "operation.deployment",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Label",
+            "State",
+            "Environment",
+            "Deployment unit",
+            "Configuration",
+            "Rollback",
+            "Requirements"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        },
+        {
+          "id": "operation.deployment-units",
+          "schemas": [
+            "1.2"
+          ],
+          "headers": [
+            "Environment",
+            "State",
+            "Role",
+            "Deployment unit",
+            "Artifact strategy",
+            "Configuration",
+            "Deployment strategy",
+            "Recovery",
+            "Observability",
+            "Requirements"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          },
+          "relations": {
+            "Environment": {
+              "targets": [
+                "ENV"
+              ],
+              "min": 1,
+              "max": 1,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Deployment unit": {
+              "targets": [
+                "UNIT"
+              ],
+              "min": 1,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": false,
+              "allow_applicability": []
+            },
+            "Requirements": {
+              "targets": [
+                "FR",
+                "NFR",
+                "TR",
+                "BR"
+              ],
+              "min": 0,
+              "max": null,
+              "active_input": true,
+              "require_defined": true,
+              "allow_empty": true,
+              "allow_applicability": []
+            }
+          }
+        }
+      ]
+    },
+    "ART-OBSERVABILITY": {
+      "artifact_type": "observability",
+      "path": "docs/lks-sdd/06-operation/observability.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "operation.observability-legacy",
+          "schemas": [
+            "1.0"
+          ],
+          "headers": [
+            "Reference",
+            "State",
+            "Signal",
+            "Purpose",
+            "Threshold or query",
+            "Retention",
+            "Owner"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        },
+        {
+          "id": "operation.observability",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Label",
+            "State",
+            "Signal",
+            "Purpose",
+            "Threshold or query",
+            "Retention",
+            "Owner"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        }
+      ]
+    },
+    "ART-OPERATIONS": {
+      "artifact_type": "operations",
+      "path": "docs/lks-sdd/06-operation/operations.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "operation.scenarios-legacy",
+          "schemas": [
+            "1.0"
+          ],
+          "headers": [
+            "Reference",
+            "State",
+            "Scenario or task",
+            "Trigger",
+            "Response",
+            "Recovery objective",
+            "Owner"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        },
+        {
+          "id": "operation.scenarios",
+          "schemas": [
+            "1.1"
+          ],
+          "headers": [
+            "Label",
+            "State",
+            "Scenario or task",
+            "Trigger",
+            "Response",
+            "Recovery objective",
+            "Owner"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "content-lifecycle"
+          }
+        }
+      ]
+    },
+    "ART-ADOPT-INVENTORY": {
+      "artifact_type": "repository-inventory",
+      "path": "docs/lks-sdd/07-adoption/repository-inventory.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "adoption.inventory",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Aspecto",
+            "State",
+            "Hallazgo",
+            "Fuente",
+            "Naturaleza",
+            "Confianza",
+            "Limitaciones"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "epistemic-adoption"
+          }
+        }
+      ]
+    },
+    "ART-ADOPT-ARCHITECTURE": {
+      "artifact_type": "observed-architecture",
+      "path": "docs/lks-sdd/07-adoption/observed-architecture.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "adoption.observed-architecture",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Statement",
+            "State",
+            "Source",
+            "Nature",
+            "Confidence",
+            "Limitations"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1,
+          "state": {
+            "column": "State",
+            "policy": "epistemic-adoption"
+          }
+        }
+      ]
+    },
+    "ART-ADOPT-SCOPE": {
+      "artifact_type": "inspection-scope",
+      "path": "docs/lks-sdd/07-adoption/inspection-scope.md",
+      "required": false,
+      "tables": []
+    },
+    "ART-ADOPT-BEHAVIOR": {
+      "artifact_type": "observed-behavior",
+      "path": "docs/lks-sdd/07-adoption/observed-behavior.md",
+      "required": false,
+      "tables": []
+    },
+    "ART-ADOPT-GAPS": {
+      "artifact_type": "gaps-and-unknowns",
+      "path": "docs/lks-sdd/07-adoption/gaps-and-unknowns.md",
+      "required": false,
+      "tables": []
+    },
+    "ART-ADOPT-RECONCILIATION": {
+      "artifact_type": "reconciliation",
+      "path": "docs/lks-sdd/07-adoption/reconciliation.md",
+      "required": false,
+      "tables": []
+    },
+    "ART-ADOPT-STRATEGY": {
+      "artifact_type": "adoption-strategy",
+      "path": "docs/lks-sdd/07-adoption/adoption-strategy.md",
+      "required": false,
+      "tables": []
+    },
+    "ART-ADOPT-BASELINE": {
+      "artifact_type": "baseline-record",
+      "path": "docs/lks-sdd/07-adoption/baseline-record.md",
+      "required": false,
+      "tables": [
+        {
+          "id": "adoption.baseline-record",
+          "schemas": [
+            "1.0",
+            "1.1"
+          ],
+          "headers": [
+            "Campo",
+            "Valor"
+          ],
+          "min_occurs": 1,
+          "max_occurs": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "certification_context": {
+    "certification_run_id": "eb1953ac-67cd-4bb6-9e5e-74ca772ee068",
+    "profile_id": "WEB-ANGULAR-STATIC",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2d189549a99736c8c552b24881cb8b6c2f3a5e6aa8e8a3f302149d9929e022f4",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "81ca9a7ff7a163e877e3122588d07dfb9988c796bb7091e2f67b9f52d0de3408",
+      "scaffold_sha256": "e1664a4489a3c837330664690ef87afc86155ec0f1024c0b466710141b0e0826"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-angular-static-4sgc6k31/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'from pathlib import Path; p=Path('\"'\"'dist/lks-sdd-angular/browser/index.html'\"'\"'); assert p.is_file(); assert not any(Path('\"'\"'dist'\"'\"').rglob('\"'\"'*.map'\"'\"'))'"
+  ],
+  "duration_seconds": 2.53,
+  "exit_code": 0,
+  "gate_id": "GATE-STATIC-OUTPUT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "static-output",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

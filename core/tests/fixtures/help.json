@@ -1,0 +1,11 @@
+{
+  "id": "FX-M1-HELP",
+  "description": "Ayuda contextual sobre un proyecto inicializado.",
+  "project_id": "fixture-help",
+  "assertions": [
+    "help_reads_context",
+    "help_does_not_modify_files",
+    "help_does_not_start_an_action",
+    "help_returns_next_step_options"
+  ]
+}

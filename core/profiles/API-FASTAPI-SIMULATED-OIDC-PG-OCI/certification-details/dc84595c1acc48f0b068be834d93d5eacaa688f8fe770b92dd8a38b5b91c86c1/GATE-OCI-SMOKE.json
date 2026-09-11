@@ -1,0 +1,23 @@
+{
+  "command": [
+    "docker",
+    "compose",
+    "-f",
+    "infra/compose.yaml",
+    "up",
+    "-d",
+    "--wait"
+  ],
+  "duration_seconds": 16.408,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "oci-smoke",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": " Network lkssddgate403640a7cfaad_default Creating \n Network lkssddgate403640a7cfaad_default Created \n Volume lkssddgate403640a7cfaad_postgres-data Creating \n Volume lkssddgate403640a7cfaad_postgres-data Created \n Container lkssddgate403640a7cfaad-postgres-1 Creating \n Container lkssddgate403640a7cfaad-postgres-1 Created \n Container lkssddgate403640a7cfaad-api-1 Creating \n Container lkssddgate403640a7cfaad-api-1 Created \n Container lkssddgate403640a7cfaad-postgres-1 Starting \n Container lkssddgate403640a7cfaad-postgres-1 Started \n Container lkssddgate403640a7cfaad-postgres-1 Waiting \n Container lkssddgate403640a7cfaad-postgres-1 Healthy \n Container lkssddgate403640a7cfaad-api-1 Starting \n Container lkssddgate403640a7cfaad-api-1 Started \n Container lkssddgate403640a7cfaad-postgres-1 Waiting \n Container lkssddgate403640a7cfaad-api-1 Waiting \n Container lkssddgate403640a7cfaad-postgres-1 Healthy \n Container lkssddgate403640a7cfaad-api-1 Healthy \n",
+  "stdout_tail": ""
+}

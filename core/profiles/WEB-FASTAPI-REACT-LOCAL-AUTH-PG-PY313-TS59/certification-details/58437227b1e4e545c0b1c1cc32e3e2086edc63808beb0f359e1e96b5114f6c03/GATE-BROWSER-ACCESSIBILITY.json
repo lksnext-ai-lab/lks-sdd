@@ -1,0 +1,117 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-BROWSER-ACCESSIBILITY"
+  ],
+  "duration_seconds": 166.571,
+  "exit_code": 0,
+  "gate_id": "GATE-BROWSER-ACCESSIBILITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "browser-accessibility",
+  "observations": {
+    "api_restart": true,
+    "browser": "chromium",
+    "console_errors": [],
+    "credential_storage": false,
+    "database_unavailable": {
+      "fallback": false,
+      "identity": {
+        "outcome": "client-timeout",
+        "timeout_seconds": 15
+      },
+      "session": {
+        "outcome": "service-unavailable",
+        "status": 503
+      }
+    },
+    "multiple_tabs": true,
+    "mutation": {
+      "label": "synthetic-1788187114788",
+      "method": "POST",
+      "path": "/records",
+      "record_id": "7025a49a-4128-40ba-a2b4-9479fb3185a5"
+    },
+    "offline_logout_honest": true,
+    "participant_images": {
+      "api": "sha256:1291d9600cdeb295953d2dda14430b8b96988b1558c729ffabff7ecefd7d17c7",
+      "database": "sha256:88a1238ba4aea6636f52f2cee276dad9fc4bcd0b20d169d310f0bb16ed6db3d4",
+      "frontend": "sha256:fb4f6608fdcb084fe5fce9b27ab5d61d7126f013372c150db9e80544dd171ad6",
+      "migration": "sha256:b8de9ca4ef137d6db798e748de8ef92189d2f96acdb0387e7b614ce6ee412c7a"
+    },
+    "persistence": true,
+    "read_after_restart": {
+      "observer": "httpx-real-http",
+      "record_id": "7025a49a-4128-40ba-a2b4-9479fb3185a5",
+      "status": 200
+    },
+    "read_back": {
+      "matches": true,
+      "observer": "postgresql-psql",
+      "record_id": "7025a49a-4128-40ba-a2b4-9479fb3185a5",
+      "resource": "records"
+    },
+    "reload": true,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/records",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/records",
+        "status": 201
+      },
+      {
+        "method": "GET",
+        "path": "/records",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/records",
+        "status": 200
+      }
+    ],
+    "runtime_units": [
+      "frontend",
+      "api",
+      "database",
+      "migration"
+    ],
+    "screenshots": [
+      {
+        "credential_fields_absent": true,
+        "path": "before.png",
+        "sha256": "c5cf76296c3021007a6f73c74201b7738817550810bb401691d4e0d92270d52e",
+        "state": "before"
+      },
+      {
+        "credential_fields_absent": true,
+        "path": "after.png",
+        "sha256": "a40fe98b87d03e14ea4f1306ca0db2f6a0f4b40d7ef5ef6c466d0f81e1c4c93c",
+        "state": "after"
+      },
+      {
+        "credential_fields_absent": true,
+        "path": "reloaded.png",
+        "sha256": "8b23b525ef8db73a6d887ce957aeb47c8520034751b19da9871753e3ec50419e",
+        "state": "reloaded"
+      }
+    ],
+    "viewport": {
+      "height": 800,
+      "width": 1280
+    }
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-BROWSER-ACCESSIBILITY\", \"observations\": {\"runtime_units\": [\"frontend\", \"api\", \"database\", \"migration\"], \"browser\": \"chromium\", \"viewport\": {\"width\": 1280, \"height\": 800}, \"requests\": [{\"path\": \"/records\", \"method\": \"GET\", \"status\": 200}, {\"path\": \"/records\", \"method\": \"POST\", \"status\": 201}, {\"path\": \"/records\", \"method\": \"GET\", \"status\": 200}, {\"path\": \"/records\", \"method\": \"GET\", \"status\": 200}], \"mutation\": {\"method\": \"POST\", \"path\": \"/records\", \"record_id\": \"7025a49a-4128-40ba-a2b4-9479fb3185a5\", \"label\": \"synthetic-1788187114788\"}, \"read_back\": {\"observer\": \"postgresql-psql\", \"record_id\": \"7025a49a-4128-40ba-a2b4-9479fb3185a5\", \"resource\": \"records\", \"matches\": true}, \"reload\": true, \"persistence\": true, \"screenshots\": [{\"state\": \"before\", \"path\": \"before.png\", \"sha256\": \"c5cf76296c3021007a6f73c74201b7738817550810bb401691d4e0d92270d52e\", \"credential_fields_absent\": true}, {\"state\": \"after\", \"path\": \"after.png\", \"sha256\": \"a40fe98b87d03e14ea4f1306ca0db2f6a0f4b40d7ef5ef6c466d0f81e1c4c93c\", \"credential_fields_absent\": true}, {\"state\": \"reloaded\", \"path\": \"reloaded.png\", \"sha256\": \"8b23b525ef8db73a6d887ce957aeb47c8520034751b19da9871753e3ec50419e\", \"credential_fields_absent\": true}], \"console_errors\": [], \"multiple_tabs\": true, \"offline_logout_honest\": true, \"credential_storage\": false, \"read_after_restart\": {\"observer\": \"httpx-real-http\", \"record_id\": \"7025a49a-4128-40ba-a2b4-9479fb3185a5\", \"status\": 200}, \"api_restart\": true, \"participant_images\": {\"frontend\": \"sha256:fb4f6608fdcb084fe5fce9b27ab5d61d7126f013372c150db9e80544dd171ad6\", \"api\": \"sha256:1291d9600cdeb295953d2dda14430b8b96988b1558c729ffabff7ecefd7d17c7\", \"database\": \"sha256:88a1238ba4aea6636f52f2cee276dad9fc4bcd0b20d169d310f0bb16ed6db3d4\", \"migration\": \"sha256:b8de9ca4ef137d6db798e748de8ef92189d2f96acdb0387e7b614ce6ee412c7a\"}, \"database_unavailable\": {\"identity\": {\"outcome\": \"client-timeout\", \"timeout_seconds\": 15}, \"session\": {\"outcome\": \"service-unavailable\", \"status\": 503}, \"fallback\": false}}, \"status\": \"passed\"}\n"
+}

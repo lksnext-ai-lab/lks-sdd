@@ -1,0 +1,1 @@
+"""Kafka stream processor reference."""

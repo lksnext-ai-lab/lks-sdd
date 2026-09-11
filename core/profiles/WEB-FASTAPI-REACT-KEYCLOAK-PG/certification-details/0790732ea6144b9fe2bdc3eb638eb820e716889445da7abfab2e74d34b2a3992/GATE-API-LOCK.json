@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "fa2bff84-10ce-4ea6-a2d8-ddc0d8333dc9",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-fastapi-react-keycloak-pg-353lhswb/reference-app:/work",
+    "-v",
+    "lkssddgate39384a7ca61bcpython2198a041:/work/apps/backend/.venv",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "python -m pip install --disable-pip-version-check --quiet uv==0.12.5 && cd /work/apps/backend && uv sync --frozen"
+  ],
+  "duration_seconds": 13.367,
+  "exit_code": 0,
+  "gate_id": "GATE-API-LOCK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "backend-lock",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\nUsing CPython 3.14.7 interpreter at: /usr/local/bin/python3\nCreating virtual environment at: .venv\n   Building lks-sdd-reference-backend @ file:///work/apps/backend\nDownloading pygments (1.2MiB)\nDownloading pydantic-core (2.0MiB)\nDownloading ruff (10.5MiB)\nDownloading psycopg-binary (4.9MiB)\nDownloading mypy (14.5MiB)\nDownloading sqlalchemy (3.2MiB)\nDownloading cryptography (4.5MiB)\nDownloading uvloop (4.1MiB)\nDownloading ast-serialize (1.2MiB)\n      Built lks-sdd-reference-backend @ file:///work/apps/backend\n Downloaded pygments\n Downloaded ast-serialize\n Downloaded pydantic-core\n Downloaded sqlalchemy\n Downloaded uvloop\n Downloaded cryptography\n Downloaded psycopg-binary\n Downloaded ruff\n Downloaded mypy\nPrepared 45 packages in 5.51s\nwarning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.\n         If the cache and target directories are on different filesystems, hardlinking may not be supported.\n         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.\nInstalled 45 packages in 632ms\n + alembic==1.19.1\n + annotated-doc==0.0.5\n + annotated-types==0.8.0\n + anyio==4.14.2\n + ast-serialize==0.8.0\n + certifi==2026.7.22\n + cffi==2.1.1\n + click==8.4.2\n + cryptography==50.0.0\n + fastapi==0.141.1\n + greenlet==3.5.5\n + h11==0.16.0\n + httpcore==1.0.9\n + httptools==0.8.0\n + httpx==0.28.1\n + idna==3.19\n + iniconfig==2.3.0\n + librt==0.15.0\n + lks-sdd-reference-backend==0.1.0 (from file:///work/apps/backend)\n + mako==1.4.1\n + markupsafe==3.0.3\n + mypy==2.3.1\n + mypy-extensions==1.1.0\n + packaging==26.3\n + pathspec==1.1.1\n + pluggy==1.6.0\n + psycopg==3.3.4\n + psycopg-binary==3.3.4\n + pycparser==3.0\n + pydantic==2.13.4\n + pydantic-core==2.46.4\n + pygments==2.21.0\n + pyjwt==2.13.0\n + pytest==9.1.1\n + python-dotenv==1.2.3\n + pyyaml==6.0.3\n + ruff==0.16.3\n + sqlalchemy==2.0.52\n + starlette==1.6.0\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + uvicorn==0.52.4\n + uvloop==0.22.1\n + watchfiles==1.2.0\n + websockets==17.0.1\n",
+  "stdout_tail": ""
+}

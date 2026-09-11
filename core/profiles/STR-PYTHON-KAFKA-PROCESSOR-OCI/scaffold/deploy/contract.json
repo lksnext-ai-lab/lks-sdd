@@ -1,0 +1,1 @@
+{"status":"candidate","ordering":"per aggregate_id partition","offsets":"explicit commit","replay":"bounded authorized window","schema_compatibility":"required","lag_recovery":"observable"}

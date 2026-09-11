@@ -1,0 +1,13 @@
+{
+  "id": "FX-M1-SCOPED-BLOCKER",
+  "description": "Un bloqueo de otro incremento no detiene el incremento evaluado.",
+  "project_id": "fixture-scoped-blocker",
+  "increment": "INC-001",
+  "other_increment": "INC-002",
+  "assertions": [
+    "unrelated_blocker_is_preserved",
+    "active_increment_is_not_blocked",
+    "assessment_is_read_only",
+    "implementation_is_not_authorized"
+  ]
+}

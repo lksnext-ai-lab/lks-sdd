@@ -1,0 +1,36 @@
+{
+  "certification_context": {
+    "certification_run_id": "882cee7a-8bb9-4e01-80cc-c14f85bc51d5",
+    "profile_id": "JOB-ALEMBIC-PG-OCI-PY313",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "51fbffd4bba27352fbf23083601381feefa3a68fd8cef129695f5eb50a3cb1ba",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "d4ec765009469db9e14e7dbb1eac5d01e95beeccf4a4a590299984cc63508a5a",
+      "scaffold_sha256": "1c16389993c44fe79d53f01a198346e9976ddc956ae59ea069e2988f1446bea4"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-OCI-BUILD"
+  ],
+  "duration_seconds": 1.732,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "oci-build",
+  "observations": {
+    "image_digest": "sha256:02e8846e54b3d11244c09419e6dd928f7a16cc4ec43553a516eb2e9ea2073f66"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-OCI-BUILD\", \"observations\": {\"image_digest\": \"sha256:02e8846e54b3d11244c09419e6dd928f7a16cc4ec43553a516eb2e9ea2073f66\"}, \"status\": \"passed\"}\n"
+}

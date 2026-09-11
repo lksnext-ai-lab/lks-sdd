@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-FRONTEND-BUILD"
+  ],
+  "duration_seconds": 2.648,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "frontend-build",
+  "observations": {
+    "static_output": "v24.19.0"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-FRONTEND-BUILD\", \"observations\": {\"static_output\": \"v24.19.0\"}, \"status\": \"passed\"}\n"
+}

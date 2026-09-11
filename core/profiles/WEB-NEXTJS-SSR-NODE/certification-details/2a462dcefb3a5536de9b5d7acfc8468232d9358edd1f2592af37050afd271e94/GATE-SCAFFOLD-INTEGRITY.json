@@ -1,0 +1,25 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-nextjs-ssr-node-xw2bcw4i/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'from pathlib import Path; assert Path('\"'\"'next.config.ts'\"'\"').is_file(); assert Path('\"'\"'app/page.tsx'\"'\"').is_file()'"
+  ],
+  "duration_seconds": 3.695,
+  "exit_code": 0,
+  "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "scaffold-integrity",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

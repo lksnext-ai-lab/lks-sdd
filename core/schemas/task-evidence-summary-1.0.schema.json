@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/task-evidence-summary-1.0.json",
+  "title": "LKS-SDD deterministic TASK evidence summary 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "task_id", "objective", "code_state", "tests_executed", "technical_result", "visual_coverage", "behavior_demonstrated", "behavior_not_demonstrated", "findings", "limitations", "canonical_evidence", "verified_revision", "next_action", "health", "derived_from"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "kind": {"const": "derived-task-evidence-summary"},
+    "task_id": {"type": "string", "pattern": "^TASK-[0-9]{3}$"},
+    "objective": {"type": "string", "minLength": 1},
+    "code_state": {"type": "string", "minLength": 1},
+    "tests_executed": {"type": "array", "items": {"type": "object"}},
+    "technical_result": {"type": "string", "minLength": 1},
+    "visual_coverage": {"type": "object"},
+    "behavior_demonstrated": {"type": "array", "items": {"type": "string"}},
+    "behavior_not_demonstrated": {"type": "array", "items": {"type": "string"}},
+    "findings": {"type": "array", "items": {"type": "object"}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "canonical_evidence": {"type": "array", "items": {"type": "string", "pattern": "^EVID-[0-9]{3}$"}},
+    "verified_revision": {"type": ["string", "null"]},
+    "next_action": {"type": "string", "minLength": 1},
+    "health": {
+      "type": "object", "additionalProperties": false,
+      "required": ["historical_verification", "current_health", "open_findings", "pending_reverification", "next_action"],
+      "properties": {
+        "historical_verification": {"enum": ["verified", "not-verified"]},
+        "current_health": {"enum": ["healthy", "compromised", "pending-reverification", "not-verified"]},
+        "open_findings": {"type": "array", "items": {"type": "string", "pattern": "^PROB-[0-9]{3}$"}},
+        "pending_reverification": {"type": "boolean"},
+        "next_action": {"type": "string", "minLength": 1}
+      }
+    },
+    "derived_from": {"type": "object"}
+  }
+}

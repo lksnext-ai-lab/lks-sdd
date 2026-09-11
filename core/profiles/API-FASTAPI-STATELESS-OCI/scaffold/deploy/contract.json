@@ -1,0 +1,8 @@
+{
+  "artifact_type": "oci-image",
+  "promotion_identity": "sha256 digest",
+  "ports": [8000],
+  "health_path": "/health",
+  "readiness_path": "/ready",
+  "run_as_non_root": true
+}

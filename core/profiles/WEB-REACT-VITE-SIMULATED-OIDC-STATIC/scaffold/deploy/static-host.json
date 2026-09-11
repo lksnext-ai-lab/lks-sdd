@@ -1,0 +1,9 @@
+{
+  "artifact_directory": "dist",
+  "spa_fallback": "/index.html",
+  "immutable_assets": true,
+  "index_cache": "no-cache",
+  "required_headers": ["Content-Security-Policy", "X-Content-Type-Options", "Referrer-Policy"],
+  "runtime_dependencies": ["controlled non-production OIDC double", "protected API"],
+  "configuration": "build-time non-production issuer and synthetic identity values create a new artifact digest; production mode fails closed"
+}

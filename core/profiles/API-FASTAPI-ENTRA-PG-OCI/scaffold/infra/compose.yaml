@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:18.4@sha256:a02db8cac496f15b094798a38254f14d6e00741f709360e5e00bb6668ea31636
+    environment:
+      POSTGRES_USER: lks_sdd
+      POSTGRES_PASSWORD: reference-only-not-production
+      POSTGRES_DB: app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lks_sdd -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    environment:
+      APP_ENV: verification
+      DATABASE_URL: postgresql+psycopg://lks_sdd:reference-only-not-production@postgres:5432/app
+      OIDC_ISSUER: ${OIDC_ISSUER:-https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-api://lks-sdd-reference-api}
+      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-00000000-0000-0000-0000-000000000000}
+      ENTRA_REQUIRED_SCOPE: ${ENTRA_REQUIRED_SCOPE:-api.read}
+      ENTRA_REQUIRED_ROLE: ${ENTRA_REQUIRED_ROLE:-Api.Read.All}
+    ports:
+      - "18000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:

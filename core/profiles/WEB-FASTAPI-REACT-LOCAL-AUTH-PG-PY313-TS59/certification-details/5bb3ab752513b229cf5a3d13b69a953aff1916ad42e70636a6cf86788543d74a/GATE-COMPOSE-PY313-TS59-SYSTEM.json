@@ -1,0 +1,57 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-COMPOSE-PY313-TS59-SYSTEM"
+  ],
+  "duration_seconds": 0.312,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-PY313-TS59-SYSTEM",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "compose-py313-ts59-system",
+  "observations": {
+    "observed_gates": [
+      "GATE-API-LINT",
+      "GATE-API-LOCK",
+      "GATE-API-OPENAPI",
+      "GATE-API-TEST",
+      "GATE-API-TYPECHECK",
+      "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-BROWSER-FULLSTACK-E2E",
+      "GATE-BROWSER-SMOKE",
+      "GATE-DATA-INTEGRATION",
+      "GATE-DATA-MIGRATION",
+      "GATE-FRONTEND-BUILD",
+      "GATE-FRONTEND-LINT",
+      "GATE-FRONTEND-LOCK",
+      "GATE-FRONTEND-TEST",
+      "GATE-FRONTEND-TYPECHECK",
+      "GATE-HTTP-CONTRACT-INTEGRATION",
+      "GATE-LOCAL-CREDENTIALS",
+      "GATE-LOCAL-JWT",
+      "GATE-LOCAL-SESSION",
+      "GATE-LOCAL-SPA",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-PYTHON-LINT",
+      "GATE-PYTHON-LOCK",
+      "GATE-PYTHON-TEST",
+      "GATE-PYTHON-TYPECHECK",
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-SECURITY-AUDIT",
+      "GATE-SECURITY-CONFIG",
+      "GATE-STATIC-OUTPUT",
+      "GATE-TENANT-AUTHORIZATION"
+    ],
+    "profile": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-COMPOSE-PY313-TS59-SYSTEM\", \"observations\": {\"profile\": \"WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59\", \"observed_gates\": [\"GATE-API-LINT\", \"GATE-API-LOCK\", \"GATE-API-OPENAPI\", \"GATE-API-TEST\", \"GATE-API-TYPECHECK\", \"GATE-BROWSER-ACCESSIBILITY\", \"GATE-BROWSER-FULLSTACK-E2E\", \"GATE-BROWSER-SMOKE\", \"GATE-DATA-INTEGRATION\", \"GATE-DATA-MIGRATION\", \"GATE-FRONTEND-BUILD\", \"GATE-FRONTEND-LINT\", \"GATE-FRONTEND-LOCK\", \"GATE-FRONTEND-TEST\", \"GATE-FRONTEND-TYPECHECK\", \"GATE-HTTP-CONTRACT-INTEGRATION\", \"GATE-LOCAL-CREDENTIALS\", \"GATE-LOCAL-JWT\", \"GATE-LOCAL-SESSION\", \"GATE-LOCAL-SPA\", \"GATE-OCI-BUILD\", \"GATE-OCI-SMOKE\", \"GATE-PYTHON-LINT\", \"GATE-PYTHON-LOCK\", \"GATE-PYTHON-TEST\", \"GATE-PYTHON-TYPECHECK\", \"GATE-SCAFFOLD-INTEGRITY\", \"GATE-SECURITY-AUDIT\", \"GATE-SECURITY-CONFIG\", \"GATE-STATIC-OUTPUT\", \"GATE-TENANT-AUTHORIZATION\"]}, \"status\": \"passed\"}\n"
+}

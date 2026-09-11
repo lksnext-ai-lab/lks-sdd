@@ -1,0 +1,6 @@
+interface:
+  display_name: "Definir con LKS-SDD en Codex"
+  short_description: "Cierra la especificación y confirma el plan integral"
+  default_prompt: "Usa $lks-sdd-define para cerrar conmigo la especificación y proponer, confirmar y validar la cobertura completa de tareas sin generar código."
+policy:
+  allow_implicit_invocation: true

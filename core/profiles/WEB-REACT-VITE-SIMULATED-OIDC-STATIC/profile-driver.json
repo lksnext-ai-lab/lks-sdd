@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+  "profile_version": "1.0.0",
+  "prepare": {"strategy": "copy", "sources": [{"from": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/scaffold", "to": "."}]},
+  "verify": {
+    "checks": [
+      {"id": "GATE-SCAFFOLD-INTEGRITY", "name": "scaffold-integrity", "phase": "G2", "kind": "command", "cwd": ".", "command": ["python", "-c", "from pathlib import Path; assert Path('package.json').is_file(); text=Path('src/auth.ts').read_text(encoding='utf-8'); assert 'pkceChallenge' in text; assert 'disabled outside explicit non-production environments' in text; assert 'SIMULATED_OIDC_PATH' in text; assert '@azure/msal-browser' not in text; assert 'clientSecret' not in text"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-FRONTEND-LOCK", "name": "frontend-lock", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "ci", "--ignore-scripts"], "required": true, "requires_containers": false, "timeout_seconds": 600},
+      {"id": "GATE-FRONTEND-LINT", "name": "frontend-lint", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "run", "lint"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-FRONTEND-TYPECHECK", "name": "frontend-typecheck", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "run", "typecheck"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-FRONTEND-TEST", "name": "frontend-tests", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "test"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-FRONTEND-BUILD", "name": "frontend-build", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "run", "build"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-STATIC-OUTPUT", "name": "static-output", "phase": "G3", "kind": "command", "cwd": ".", "command": ["python", "-c", "from pathlib import Path; assert Path('dist/index.html').is_file(); assert not any(Path('dist').rglob('*.map'))"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-BROWSER-SMOKE", "name": "browser-smoke", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npx", "playwright", "test", "--grep", "smoke"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-BROWSER-ACCESSIBILITY", "name": "browser-accessibility", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npx", "playwright", "test", "--grep", "accessibility"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-OIDC-CONTRACT", "name": "oidc-contract", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "test", "--", "-t", "oidc contract"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-OIDC-SPA-PKCE", "name": "spa-pkce", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "test", "--", "-t", "spa pkce"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-OIDC-SPA-SESSION", "name": "spa-session", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "test", "--", "-t", "spa session"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-OIDC-SIMULATED-SAFETY", "name": "simulated-identity-safety", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npm", "test", "--", "-t", "simulated identity safety"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-OIDC-SIMULATED-INTEGRATION", "name": "browser-simulated-oidc-integration", "phase": "G3", "kind": "command", "cwd": ".", "command": ["npx", "playwright", "test", "e2e/simulated-oidc.spec.ts"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-DELIVERY-EVIDENCE", "name": "delivery-evidence", "phase": "G4", "kind": "delivery-evidence", "cwd": ".", "command": [], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-COMPOSE-REACT-SIMULATED-OIDC-STATIC", "name": "profile-composition", "phase": "G3", "kind": "command", "cwd": ".", "command": ["python", "-c", "import json; from pathlib import Path; p=json.load(open('package.json', encoding='utf-8')); assert '@azure/msal-browser' not in p.get('dependencies', {}); text=Path('src/auth.ts').read_text(encoding='utf-8'); assert 'sessionStorage' in text; assert 'localStorage' not in text; assert 'code_challenge_method: \"S256\"' in text"], "required": true, "requires_containers": false, "timeout_seconds": 30}
+    ]
+  }
+}

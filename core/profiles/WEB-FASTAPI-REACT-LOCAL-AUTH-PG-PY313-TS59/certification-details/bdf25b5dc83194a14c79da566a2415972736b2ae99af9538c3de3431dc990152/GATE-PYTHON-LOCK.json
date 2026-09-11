@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-PYTHON-LOCK"
+  ],
+  "duration_seconds": 4.005,
+  "exit_code": 0,
+  "gate_id": "GATE-PYTHON-LOCK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "python-lock",
+  "observations": {
+    "dependencies": "{\"fastapi\": \"0.125.0\", \"sqlalchemy\": \"2.0.45\", \"alembic\": \"1.17.2\", \"PyJWT\": \"2.10.1\", \"argon2-cffi\": \"25.1.0\"}"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-PYTHON-LOCK\", \"observations\": {\"dependencies\": \"{\\\"fastapi\\\": \\\"0.125.0\\\", \\\"sqlalchemy\\\": \\\"2.0.45\\\", \\\"alembic\\\": \\\"1.17.2\\\", \\\"PyJWT\\\": \\\"2.10.1\\\", \\\"argon2-cffi\\\": \\\"25.1.0\\\"}\"}, \"status\": \"passed\"}\n"
+}

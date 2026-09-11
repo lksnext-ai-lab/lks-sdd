@@ -1,0 +1,49 @@
+{
+  "name": "lks-sdd",
+  "version": "1.1.0",
+  "description": "Plugin Spec-anchored para Codex con evidencia tipada TASK-aware, composición full-stack fail-closed, trazabilidad y verificación incremental segura.",
+  "author": {
+    "name": "LKS"
+  },
+  "keywords": [
+    "sdd",
+    "specification-driven-development",
+    "spec-anchored",
+    "codex",
+    "jira",
+    "task-tracking",
+    "microsoft-entra",
+    "oidc",
+    "web-development",
+    "governance"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LKS-SDD para Codex",
+    "shortDescription": "Desarrollo Spec-anchored con Codex",
+    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene especificaciones Markdown versionadas como contrato para planificar, implementar y verificar. La verificación incremental selecciona los bindings y gates de las TASK solicitadas y conserva su reutilización segura mediante verification_subject. Para cada TASK con interfaz, la revisión visual aplica por defecto entre una y cinco imágenes con aceptación, interacción, comportamiento observado, viewport, navegador, revisión y hash; las TASK backend registran no aplicabilidad determinista. EVID permanece inmutable, mientras la salud actual distingue hallazgos posteriores y re-verificación. work verify genera en una sola pasada fichas TASK derivadas que no alteran fingerprints ni repiten gates. work status separa código, tests, verificación histórica, salud y entrega. Jira sigue siendo una proyección opcional y concisa de hitos; nunca sustituye la autoridad local ni convierte estados remotos en autorización o evidencia. Los perfiles exactos, la atomicidad, el rollback y los límites no productivos existentes se preservan.",
+    "developerName": "LKS",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Explícame el enfoque Spec-anchored de LKS-SDD con Codex sin modificar archivos.",
+      "Ayúdame en Codex a descubrir y definir esta aplicación sin presuponer su dominio ni generar código.",
+      "Muéstrame la cobertura de la definición y, si hay frontend, guía el diseño y prototipado visual.",
+      "Ayúdame a definir el modelo de entrega, las ramas, los entornos y un tablero de tareas para este horizonte.",
+      "Antes de planificar tareas, ayúdame a elegir explícitamente entre seguimiento en el repositorio y Jira híbrido.",
+      "Prepara una vista previa saneada para proyectar en Jira las tareas ya confirmadas, sin escribir todavía en el sistema externo.",
+      "Configura de forma opcional el reporting Jira por hitos y prepara un comentario o transición con una sola confirmación, sin escribir todavía.",
+      "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
+      "Muéstrame los perfiles activos y candidatos aplicables a cada unidad desplegable.",
+      "Explícame por binding la cobertura de automatización de esta arquitectura sin componer perfiles ni sustituir Microsoft Entra por Keycloak.",
+      "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",
+      "Implementa con Codex la siguiente tarea autorizada y deja checkpoints reanudables.",
+      "Reanuda con Codex la ejecución autorizada desde su último checkpoint.",
+      "Verifica con Codex las tareas implementadas sin confundir código escrito con evidencia superada."
+    ]
+  }
+}

@@ -1,0 +1,131 @@
+name: quality
+
+env:
+  LKS_SDD_RUNNER_CLASS: github-windows-latest
+  PYTHONDONTWRITEBYTECODE: "1"
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pull-request:
+    if: github.event_name == 'pull_request'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Fast and impacted validation
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python -X utf8 scripts/run_fast_validation.py --changed-from $env:BASE_SHA --json
+
+  main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Contract
+        run: python -X utf8 scripts/validate_plugin_contract.py .
+      - name: Integration suite
+        run: python -X utf8 tests/run_unit_tests.py --suite integration --json-out ${{ runner.temp }}\integration.json
+      - name: Installed-package suite
+        run: python -X utf8 tests/run_unit_tests.py --suite package --json-out ${{ runner.temp }}\package.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: main-quality-results
+          path: |
+            ${{ runner.temp }}\integration.json
+            ${{ runner.temp }}\package.json
+          retention-days: 30
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Clean preflight
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
+          $channel = if ($version.Contains('-')) { "candidate" } else { "stable" }
+          if ($env:GITHUB_REF_NAME -ne "v$version") { throw "La etiqueta no coincide con el manifest: $env:GITHUB_REF_NAME vs v$version" }
+          "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
+          "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+          "LKS_SDD_RELEASE_CHANNEL=$channel" >> $env:GITHUB_ENV
+          python -X utf8 scripts/run_quality_harness.py --channel $channel --date $date --preflight-only
+      - name: Release harness
+        shell: pwsh
+        run: |
+          $date = $env:LKS_SDD_CERTIFICATION_DATE
+          $channel = $env:LKS_SDD_RELEASE_CHANNEL
+          $approval = @()
+          if ($channel -eq "stable") { $approval = @("--release-approval", "quality\release-approval-v$env:LKS_SDD_RELEASE_VERSION.json") }
+          python -X utf8 scripts/run_quality_harness.py --channel $channel --date $date --baseline quality\baselines\v0.17.0.json --profile-mode reuse @approval --output "$env:RUNNER_TEMP\quality-report.json"
+      - name: Reproducible double build and clean install
+        shell: pwsh
+        run: |
+          $date = $env:LKS_SDD_CERTIFICATION_DATE
+          $commit = (git rev-parse HEAD).Trim()
+          python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-a"
+          if ($LASTEXITCODE -ne 0) { throw "Primer build inválido" }
+          python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-b"
+          if ($LASTEXITCODE -ne 0) { throw "Segundo build inválido" }
+          $assets = @(Get-ChildItem "$env:RUNNER_TEMP\candidate-a" -File)
+          $manifest = Get-Content "$env:RUNNER_TEMP\candidate-a\release-manifest.json" -Raw | ConvertFrom-Json
+          if ($assets.Count -ne ($manifest.artifacts.Count + 2) -or @(Get-ChildItem "$env:RUNNER_TEMP\candidate-b" -File).Count -ne $assets.Count) { throw "Inventario de assets incorrecto." }
+          foreach ($asset in $assets) {
+            $other = Join-Path "$env:RUNNER_TEMP\candidate-b" $asset.Name
+            if ((Get-FileHash -LiteralPath $asset.FullName).Hash -ne (Get-FileHash -LiteralPath $other).Hash) { throw "Asset no reproducible: $($asset.Name)" }
+          }
+          $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
+          foreach ($build in @('candidate-a', 'candidate-b')) {
+            python -X utf8 scripts/validate_copilot_package.py "$env:RUNNER_TEMP\$build\lks-sdd-copilot-plugin-v$version.zip"
+            if ($LASTEXITCODE -ne 0) { throw "Plugin Copilot inválido: $build" }
+            foreach ($kind in @('plugin', 'marketplace')) {
+              $install = "$env:RUNNER_TEMP\clean-install-$build-$kind"
+              Expand-Archive "$env:RUNNER_TEMP\$build\lks-sdd-$kind-v$version.zip" -DestinationPath $install
+              $validators = @(Get-ChildItem -LiteralPath $install -Filter validate_plugin_contract.py -File -Recurse)
+              if ($validators.Count -ne 1) { throw "Raíz de plugin ambigua." }
+              $pluginRoot = $validators[0].Directory.Parent.FullName
+              python -X utf8 $validators[0].FullName $pluginRoot
+              if ($LASTEXITCODE -ne 0) { throw "Bundle inválido: $build/$kind" }
+            }
+          }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-evidence
+          path: |
+            ${{ runner.temp }}\quality-report.json
+            ${{ runner.temp }}\candidate-a
+          retention-days: 90

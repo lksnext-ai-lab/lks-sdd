@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/profile-driver-1.0.json",
+  "title": "LKS-SDD profile prepare and verify driver",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "profile_id", "profile_version", "prepare", "verify"],
+  "properties": {
+    "schema_version": {"enum": ["1.0", "1.1"]},
+    "variant": {
+      "type": "object", "additionalProperties": false,
+      "required": ["contract_id", "resolution", "participants"],
+      "properties": {
+        "contract_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,95}$"},
+        "resolution": {"type": "string", "pattern": "^profiles/[A-Z0-9-]+/resolved-technology\\.json$"},
+        "participants": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "profile_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,95}$"},
+    "profile_version": {"type": "string", "minLength": 1},
+    "prepare": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "sources"],
+      "properties": {
+        "strategy": {"const": "copy"},
+        "adoption": {
+          "type": "object", "additionalProperties": false,
+          "required": ["strategy", "adapters"],
+          "properties": {
+            "strategy": {"const": "verification-only"},
+            "adapters": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["flat", "apps", "unit"]}}
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to"],
+            "properties": {
+              "from": {"type": "string", "minLength": 1},
+              "to": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "verify": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checks"],
+      "properties": {
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name", "phase", "kind", "cwd", "command", "required", "requires_containers", "timeout_seconds"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^GATE-[A-Z0-9-]{3,80}$"},
+              "name": {"type": "string", "minLength": 1},
+              "phase": {"enum": ["G2", "G3", "G4"]},
+              "kind": {"enum": ["command", "delivery-evidence"]},
+              "execution_context": {
+                "enum": ["runtime", "host"],
+                "default": "runtime",
+                "description": "host is reserved for checks against ports published by a managed composition; runtime keeps the selected isolated toolchain."
+              },
+              "evidence_path": {"type": "string", "minLength": 1},
+              "evidence_scopes": {"type": "array", "uniqueItems": true, "items": {"enum": ["component", "contract", "composition", "user-flow", "persistence", "visual"]}},
+              "cwd": {"type": "string", "minLength": 1},
+              "command": {"type": "array", "items": {"type": "string"}},
+              "required": {"type": "boolean"},
+              "requires_containers": {"type": "boolean"},
+              "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "schema_version": "2.0",
+  "id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+  "version": "1.0.0",
+  "family_id": "FAM-API-SERVICE",
+  "profile_scope": "deployable",
+  "lifecycle": "active",
+  "support_level": "H1",
+  "default_rigor": "P1",
+  "summary": "Closed API-FASTAPI-LOCAL-AUTH-PG-OCI technology variant PY314; isolated development and CI only.",
+  "units": [
+    {
+      "role": "api",
+      "runtime": "api isolated runtime",
+      "default_path": "."
+    }
+  ],
+  "dimensions": {
+    "frontend": [],
+    "backend": [],
+    "data": [],
+    "identity": [],
+    "integration": [],
+    "delivery": [],
+    "testing": [],
+    "observability": []
+  },
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY",
+    "CAP-DELIVERY-EVIDENCE",
+    "CAP-PYTHON-QUALITY",
+    "CAP-API-CONTRACT",
+    "CAP-LOCAL-CREDENTIALS",
+    "CAP-LOCAL-JWT-SESSION",
+    "CAP-TENANT-AUTHORIZATION",
+    "CAP-SECURITY-CONFIG-AUDIT",
+    "CAP-DATA-POSTGRES",
+    "CAP-OCI-RUNTIME"
+  ],
+  "excluded_capabilities": [],
+  "capability_bindings": [
+    {
+      "capability_id": "CAP-SCAFFOLD-COPY",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-DELIVERY-EVIDENCE",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-PYTHON-QUALITY",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-API-CONTRACT",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-LOCAL-CREDENTIALS",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-LOCAL-JWT-SESSION",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-TENANT-AUTHORIZATION",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-SECURITY-CONFIG-AUDIT",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-DATA-POSTGRES",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-OCI-RUNTIME",
+      "provider": "LKS-SDD packaged closed variant",
+      "version_range": "1.0.0"
+    }
+  ],
+  "compatibility_rules": [
+    "Only the exact resolved-technology.json combination can be certified.",
+    "Adoption never overwrites consumer functional code.",
+    "No production or native mobile client certification."
+  ],
+  "drivers": {
+    "prepare": "profile-driver.json",
+    "verify": "profile-driver.json"
+  },
+  "gates": {
+    "capability_gate_ids": [
+      "GATE-API-LINT",
+      "GATE-API-LOCK",
+      "GATE-API-OPENAPI",
+      "GATE-API-TEST",
+      "GATE-API-TYPECHECK",
+      "GATE-DATA-INTEGRATION",
+      "GATE-DATA-MIGRATION",
+      "GATE-DELIVERY-EVIDENCE",
+      "GATE-HTTP-CONTRACT-INTEGRATION",
+      "GATE-LOCAL-CREDENTIALS",
+      "GATE-LOCAL-JWT",
+      "GATE-LOCAL-SESSION",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-PYTHON-LINT",
+      "GATE-PYTHON-LOCK",
+      "GATE-PYTHON-TEST",
+      "GATE-PYTHON-TYPECHECK",
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-SECURITY-AUDIT",
+      "GATE-SECURITY-CONFIG",
+      "GATE-TENANT-AUTHORIZATION"
+    ],
+    "composition_gate_id": "GATE-COMPOSE-PY314-API"
+  },
+  "certification": {
+    "technical_gate": "passed",
+    "composition_gate": "passed",
+    "e2e_eval": "passed",
+    "human_review": "not-run",
+    "pilot": "not-run",
+    "validated_at": "2026-08-31",
+    "review_due": "2026-11-29",
+    "evidence": [
+      "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json",
+      "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
+    ]
+  },
+  "owner": "LKS-SDD maintainers"
+}

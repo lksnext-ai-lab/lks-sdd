@@ -1,0 +1,67 @@
+{
+  "certification_context": {
+    "certification_run_id": "26c01421-93c4-4693-8f5c-9bf59f3cd68a",
+    "profile_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "4624b26c4dffdc7408d5ac4c1c7371645cd846df5360381035d0ce6fe6b129b7",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "c6d07c6a0bf724357b72f5f235321129f78b7ac38e2353ddcbe189831d5a805b",
+      "scaffold_sha256": "d96a48091f6dc1270598bbc42941350c54c308e1a56b3658e79869b52da03ad4"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-HTTP-CONTRACT-INTEGRATION"
+  ],
+  "duration_seconds": 23.218,
+  "exit_code": 0,
+  "gate_id": "GATE-HTTP-CONTRACT-INTEGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "http-contract-integration",
+  "observations": {
+    "logout_revoked": true,
+    "mutation": {
+      "method": "POST",
+      "path": "/records",
+      "record_id": "eebb06d9-6d73-4402-8e3e-9dca60914f94"
+    },
+    "native_application_certified": false,
+    "persistence": true,
+    "read_back": {
+      "matches": true,
+      "observer": "postgresql-psql",
+      "record_id": "eebb06d9-6d73-4402-8e3e-9dca60914f94",
+      "resource": "records"
+    },
+    "record_id": "eebb06d9-6d73-4402-8e3e-9dca60914f94",
+    "requests": [
+      {
+        "method": "POST",
+        "path": "/records",
+        "status": 201
+      },
+      {
+        "method": "GET",
+        "path": "/records/eebb06d9-6d73-4402-8e3e-9dca60914f94",
+        "status": 200
+      }
+    ],
+    "response_bytes": 93,
+    "runtime_units": [
+      "api",
+      "database"
+    ]
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-HTTP-CONTRACT-INTEGRATION\", \"observations\": {\"requests\": [{\"method\": \"POST\", \"path\": \"/records\", \"status\": 201}, {\"method\": \"GET\", \"path\": \"/records/eebb06d9-6d73-4402-8e3e-9dca60914f94\", \"status\": 200}], \"response_bytes\": 93, \"record_id\": \"eebb06d9-6d73-4402-8e3e-9dca60914f94\", \"logout_revoked\": true, \"native_application_certified\": false, \"runtime_units\": [\"api\", \"database\"], \"mutation\": {\"method\": \"POST\", \"path\": \"/records\", \"record_id\": \"eebb06d9-6d73-4402-8e3e-9dca60914f94\"}, \"read_back\": {\"observer\": \"postgresql-psql\", \"record_id\": \"eebb06d9-6d73-4402-8e3e-9dca60914f94\", \"resource\": \"records\", \"matches\": true}, \"persistence\": true}, \"status\": \"passed\"}\n"
+}

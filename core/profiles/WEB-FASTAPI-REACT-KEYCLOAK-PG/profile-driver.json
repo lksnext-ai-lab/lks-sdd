@@ -1,0 +1,376 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+  "profile_version": "2.1.0",
+  "prepare": {
+    "strategy": "copy",
+    "sources": [
+      {
+        "from": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/scaffold",
+        "to": "."
+      }
+    ]
+  },
+  "verify": {
+    "checks": [
+      {
+        "id": "GATE-SCAFFOLD-INTEGRITY",
+        "name": "scaffold-integrity",
+        "phase": "G2",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "-c",
+          "from pathlib import Path; assert Path('apps/backend/pyproject.toml').is_file(); assert Path('apps/frontend/package.json').is_file()"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 30
+      },
+      {
+        "id": "GATE-API-LOCK",
+        "name": "backend-lock",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "sync",
+          "--frozen"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 600
+      },
+      {
+        "id": "GATE-API-LINT",
+        "name": "backend-lint",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "run",
+          "ruff",
+          "check",
+          "."
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 180
+      },
+      {
+        "id": "GATE-API-TYPECHECK",
+        "name": "backend-typecheck",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "run",
+          "mypy"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 180
+      },
+      {
+        "id": "GATE-API-TEST",
+        "name": "backend-tests",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "run",
+          "pytest"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 300
+      },
+      {
+        "id": "GATE-API-OPENAPI",
+        "name": "backend-openapi",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "run",
+          "python",
+          "-c",
+          "import sys; sys.path.insert(0, 'src'); from lks_sdd_app.main import app; assert app.openapi()['openapi'].startswith('3.1.')"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 60
+      },
+      {
+        "id": "GATE-OIDC-CONTRACT",
+        "name": "oidc-contract",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "run",
+          "pytest",
+          "-k",
+          "identity"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 180
+      },
+      {
+        "id": "GATE-DATA-MIGRATION",
+        "name": "migration-contract",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/backend",
+        "command": [
+          "uv",
+          "run",
+          "python",
+          "-c",
+          "import alembic; assert alembic.__version__"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 60
+      },
+      {
+        "id": "GATE-FRONTEND-LOCK",
+        "name": "frontend-lock",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "pnpm@10.34.5",
+          "install",
+          "--frozen-lockfile"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 600
+      },
+      {
+        "id": "GATE-FRONTEND-LINT",
+        "name": "frontend-lint",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "pnpm@10.34.5",
+          "lint"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 180
+      },
+      {
+        "id": "GATE-FRONTEND-TYPECHECK",
+        "name": "frontend-typecheck",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "pnpm@10.34.5",
+          "typecheck"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 180
+      },
+      {
+        "id": "GATE-FRONTEND-TEST",
+        "name": "frontend-tests",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "pnpm@10.34.5",
+          "test"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 300
+      },
+      {
+        "id": "GATE-FRONTEND-BUILD",
+        "name": "frontend-build",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "pnpm@10.34.5",
+          "build"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 300
+      },
+      {
+        "id": "GATE-STATIC-OUTPUT",
+        "name": "frontend-static-output",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "python",
+          "-c",
+          "from pathlib import Path; assert Path('dist/index.html').is_file()"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 30
+      },
+      {
+        "id": "GATE-BROWSER-SMOKE",
+        "name": "browser-smoke",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "playwright",
+          "test",
+          "--grep",
+          "smoke"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 300
+      },
+      {
+        "id": "GATE-BROWSER-ACCESSIBILITY",
+        "name": "browser-accessibility",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": "apps/frontend",
+        "command": [
+          "npx",
+          "--yes",
+          "playwright",
+          "test",
+          "--grep",
+          "accessibility"
+        ],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 300
+      },
+      {
+        "id": "GATE-OCI-BUILD",
+        "name": "compose-build",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "infra/compose/gate.env",
+          "-f",
+          "infra/compose/compose.yaml",
+          "build"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 1200
+      },
+      {
+        "id": "GATE-OCI-SMOKE",
+        "name": "compose-start",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "infra/compose/gate.env",
+          "-f",
+          "infra/compose/compose.yaml",
+          "up",
+          "-d",
+          "--wait"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 600
+      },
+      {
+        "id": "GATE-OIDC-INTEGRATION",
+        "name": "oidc-integration",
+        "phase": "G3",
+        "kind": "command",
+        "execution_context": "host",
+        "cwd": ".",
+        "command": [
+          "python",
+          "-c",
+          "import time, urllib.request\nurl = 'http://127.0.0.1:18080/realms/lks-sdd/.well-known/openid-configuration'\nopener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\nlast = None\nfor _ in range(30):\n    try:\n        if opener.open(url, timeout=5).status == 200:\n            raise SystemExit(0)\n    except Exception as exc:\n        last = exc\n    time.sleep(2)\nraise SystemExit(f'OIDC endpoint not ready: {last}')"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 90
+      },
+      {
+        "id": "GATE-DATA-INTEGRATION",
+        "name": "database-integration",
+        "phase": "G3",
+        "kind": "command",
+        "execution_context": "host",
+        "cwd": ".",
+        "command": [
+          "python",
+          "-c",
+          "import time, urllib.request\nurl = 'http://127.0.0.1:18000/ready'\nopener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\nlast = None\nfor _ in range(30):\n    try:\n        if opener.open(url, timeout=5).status == 200:\n            raise SystemExit(0)\n    except Exception as exc:\n        last = exc\n    time.sleep(2)\nraise SystemExit(f'Backend readiness endpoint not ready: {last}')"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 90
+      },
+      {
+        "id": "GATE-DELIVERY-EVIDENCE",
+        "name": "delivery-evidence",
+        "phase": "G4",
+        "kind": "delivery-evidence",
+        "cwd": ".",
+        "command": [],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 30
+      },
+      {
+        "id": "GATE-BROWSER-FULLSTACK-E2E",
+        "name": "browser-fullstack-e2e",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "scripts/observe_fullstack.py"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 600,
+        "execution_context": "host"
+      }
+    ]
+  }
+}

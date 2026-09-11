@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
+  "profile_version": "1.1.0",
+  "prepare": {
+    "strategy": "copy",
+    "sources": [
+      {"from": "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/scaffold/apps/backend", "to": "."},
+      {"from": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/scaffold/infra", "to": "infra"}
+    ]
+  },
+  "verify": {
+    "checks": [
+      {"id": "GATE-SCAFFOLD-INTEGRITY", "name": "scaffold-integrity", "phase": "G2", "kind": "command", "cwd": ".", "command": ["python", "-c", "from pathlib import Path; assert Path('pyproject.toml').is_file(); assert Path('infra/compose.yaml').is_file()"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-API-LOCK", "name": "api-lock", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "sync", "--frozen"], "required": true, "requires_containers": false, "timeout_seconds": 600},
+      {"id": "GATE-API-LINT", "name": "api-lint", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "ruff", "check", "."], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-API-TYPECHECK", "name": "api-typecheck", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "mypy"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-API-TEST", "name": "api-tests", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-API-OPENAPI", "name": "api-openapi", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "python", "-c", "import sys; sys.path.insert(0, 'src'); from lks_sdd_app.main import app; assert app.openapi()['openapi'].startswith('3.1.')"], "required": true, "requires_containers": false, "timeout_seconds": 60},
+      {"id": "GATE-OIDC-CONTRACT", "name": "oidc-contract", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest", "-k", "identity"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-DATA-MIGRATION", "name": "migration-contract", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "python", "-c", "import alembic; assert alembic.__version__"], "required": true, "requires_containers": false, "timeout_seconds": 60},
+      {"id": "GATE-OCI-BUILD", "name": "oci-build", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "-f", "infra/compose.yaml", "build"], "required": true, "requires_containers": true, "timeout_seconds": 1200},
+      {"id": "GATE-OCI-SMOKE", "name": "oci-smoke", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "-f", "infra/compose.yaml", "up", "-d", "--wait"], "required": true, "requires_containers": true, "timeout_seconds": 600},
+      {"id": "GATE-OIDC-INTEGRATION", "name": "oidc-integration", "phase": "G3", "kind": "command", "execution_context": "host", "cwd": ".", "command": ["python", "-c", "import time, urllib.request\nurl = 'http://127.0.0.1:18080/realms/lks-sdd/.well-known/openid-configuration'\nopener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\nlast = None\nfor _ in range(30):\n    try:\n        if opener.open(url, timeout=5).status == 200:\n            raise SystemExit(0)\n    except Exception as exc:\n        last = exc\n    time.sleep(2)\nraise SystemExit(f'OIDC endpoint not ready: {last}')"], "required": true, "requires_containers": true, "timeout_seconds": 90},
+      {"id": "GATE-DATA-INTEGRATION", "name": "data-integration", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "-f", "infra/compose.yaml", "exec", "-T", "postgres", "pg_isready", "-U", "lks_sdd", "-d", "app"], "required": true, "requires_containers": true, "timeout_seconds": 60},
+      {"id": "GATE-DELIVERY-EVIDENCE", "name": "delivery-evidence", "phase": "G4", "kind": "delivery-evidence", "cwd": ".", "command": [], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-COMPOSE-FASTAPI-OIDC-PG", "name": "profile-composition", "phase": "G3", "kind": "command", "execution_context": "host", "cwd": ".", "command": ["python", "-c", "import urllib.request; opener=urllib.request.build_opener(urllib.request.ProxyHandler({})); assert opener.open('http://127.0.0.1:18000/health', timeout=15).status == 200"], "required": true, "requires_containers": true, "timeout_seconds": 60}
+    ]
+  }
+}

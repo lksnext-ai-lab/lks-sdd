@@ -1,0 +1,27 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-nextjs-ssr-node-xw2bcw4i/reference-app:/work",
+    "-v",
+    "lkssddgate31932ed21f717noded935a3cd:/work/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work && npm run build"
+  ],
+  "duration_seconds": 51.083,
+  "exit_code": 0,
+  "gate_id": "GATE-SSR-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "ssr-build",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\n> lks-sdd-nextjs-ssr-reference@0.1.0 build\n> next build\n\n▲ Next.js 16.3.1 (Turbopack)\n✓ Running next.config.ts took 359ms\nAttention: Next.js now collects completely anonymous telemetry regarding usage.\nThis information is used to shape Next.js' roadmap and prioritize features.\nYou can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:\nhttps://nextjs.org/telemetry\n\n\n  Creating an optimized production build ...\n✓ Compiled successfully in 12.0s\n  Running TypeScript ...\n\n  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.\n  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:\n\n  \t- include was updated to add '.next/dev/types/**/*.ts'\n\n  Finished TypeScript in 9.8s ...\n  Collecting page data using 3 workers ...\n  Generating static pages using 3 workers (0/3) ...\n✓ Generating static pages using 3 workers (3/3) in 842ms\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n└ ○ /_not-found\n\n\n○  (Static)  prerendered as static content\n\n\n> lks-sdd-nextjs-ssr-reference@0.1.0 postbuild\n> node scripts/prepare-standalone.mjs\n\n"
+}

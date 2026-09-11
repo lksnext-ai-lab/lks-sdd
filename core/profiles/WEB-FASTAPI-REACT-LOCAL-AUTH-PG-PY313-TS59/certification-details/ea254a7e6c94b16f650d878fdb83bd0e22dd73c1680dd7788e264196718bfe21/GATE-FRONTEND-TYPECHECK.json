@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-FRONTEND-TYPECHECK"
+  ],
+  "duration_seconds": 4.612,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-TYPECHECK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "frontend-typecheck",
+  "observations": {
+    "component_only": true,
+    "result": "\n> lks-sdd-local-auth-spa@0.1.0 typecheck\n> tsc --noEmit\n\n"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-FRONTEND-TYPECHECK\", \"observations\": {\"component_only\": true, \"result\": \"\\n> lks-sdd-local-auth-spa@0.1.0 typecheck\\n> tsc --noEmit\\n\\n\"}, \"status\": \"passed\"}\n"
+}

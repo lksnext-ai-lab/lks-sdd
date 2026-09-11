@@ -1,0 +1,1 @@
+{"status":"candidate","units":["frontend","api","identity","database"],"promotion":"immutable per deployable unit","composition_gate":"required"}

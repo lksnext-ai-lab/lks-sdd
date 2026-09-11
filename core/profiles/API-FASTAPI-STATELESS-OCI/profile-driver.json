@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "API-FASTAPI-STATELESS-OCI",
+  "profile_version": "1.0.0",
+  "prepare": {"strategy": "copy", "sources": [{"from": "profiles/API-FASTAPI-STATELESS-OCI/scaffold", "to": "."}]},
+  "verify": {
+    "checks": [
+      {"id": "GATE-SCAFFOLD-INTEGRITY", "name": "scaffold-integrity", "phase": "G2", "kind": "command", "cwd": ".", "command": ["python", "-c", "from pathlib import Path; assert Path('pyproject.toml').is_file(); assert Path('Dockerfile').is_file()"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-API-LOCK", "name": "api-lock", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "sync", "--frozen"], "required": true, "requires_containers": false, "timeout_seconds": 600},
+      {"id": "GATE-API-LINT", "name": "api-lint", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "ruff", "check", "."], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-API-TYPECHECK", "name": "api-typecheck", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "mypy"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-API-TEST", "name": "api-tests", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-API-OPENAPI", "name": "api-openapi", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "python", "-c", "from lks_sdd_api.main import app; assert app.openapi()['openapi'].startswith('3.1.')"], "required": true, "requires_containers": false, "timeout_seconds": 60},
+      {"id": "GATE-OCI-BUILD", "name": "oci-build", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "build", "--tag", "lks-sdd/api-fastapi-stateless:verification", "."], "required": true, "requires_containers": true, "timeout_seconds": 1200},
+      {"id": "GATE-OCI-SMOKE", "name": "oci-smoke", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "run", "--rm", "lks-sdd/api-fastapi-stateless:verification", "python", "-c", "from lks_sdd_api.main import app; assert app.openapi()['info']['title']"], "required": true, "requires_containers": true, "timeout_seconds": 180},
+      {"id": "GATE-DELIVERY-EVIDENCE", "name": "delivery-evidence", "phase": "G4", "kind": "delivery-evidence", "cwd": ".", "command": [], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-COMPOSE-FASTAPI-STATELESS", "name": "profile-composition", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "python", "-c", "from lks_sdd_api.main import app; paths=app.openapi()['paths']; assert '/health' in paths and '/ready' in paths and '/api/v1/status' in paths"], "required": true, "requires_containers": false, "timeout_seconds": 60}
+    ]
+  }
+}

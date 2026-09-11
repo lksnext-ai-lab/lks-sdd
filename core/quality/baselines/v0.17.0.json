@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0", "plugin_version": "0.17.0",
+  "source_commit": "9b13616e9f9d67c7112ee620c65b8ea6831c50c2",
+  "recorded_on": "2026-08-31", "channel": "candidate",
+  "metrics": {
+    "automated_catalog_cases": 48, "automated_catalog_cases_failed": 0,
+    "automated_catalog_cases_incomplete": 0, "automated_catalog_cases_passed": 48,
+    "automated_eval_cases": 6, "automated_eval_pass_rate": 1.0, "critical_failures": 0,
+    "profile_complete_gate": 1, "profile_structure_gate": 1,
+    "unit_tests_executed": 311, "unit_tests_failed": 0, "unit_tests_passed": 311,
+    "unit_tests_skipped": 1, "unit_tests_total": 312
+  },
+  "limitations": [
+    "Derived from published v0.17.0 quality-report.json after verification of all five release assets on 2026-08-31.",
+    "Verified quality report SHA256: 681cfd2e53c6c531010cb86c622ad5a26eb0c7e8a59e3e329a83702d1f70cbbf.",
+    "Human, semantic, pilot and real external interoperability retain their original not-run states.",
+    "Historical durations are not fabricated or backfilled."
+  ]
+}

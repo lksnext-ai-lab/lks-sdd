@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "pilot_id": "pilot-lks-sdd-001",
+  "status": "prepared",
+  "duration_weeks": 8,
+  "projects": [],
+  "participants": [],
+  "roles": {
+    "method_owner": null,
+    "product_owner": null,
+    "maintainer": null,
+    "security_reviewer": null,
+    "quality_reviewer": null,
+    "workspace_admin": null,
+    "support_owner": null
+  },
+  "support": {
+    "non_sensitive_url": "https://github.com/lksnext-ai-lab/lks-sdd/issues",
+    "security_url": null
+  },
+  "rollback": {
+    "previous_version": "1.0.0",
+    "candidate_version": "1.1.0",
+    "package_sha256": null,
+    "procedure_confirmed": false
+  },
+  "privacy": {
+    "allow_client_content": false,
+    "allow_secrets": false,
+    "allow_personal_names": false,
+    "retention_days": 90
+  }
+}

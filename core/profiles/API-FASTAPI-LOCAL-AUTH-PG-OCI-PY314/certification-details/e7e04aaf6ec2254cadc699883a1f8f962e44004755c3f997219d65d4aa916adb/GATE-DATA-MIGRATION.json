@@ -1,0 +1,44 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-DATA-MIGRATION"
+  ],
+  "duration_seconds": 24.598,
+  "exit_code": 0,
+  "gate_id": "GATE-DATA-MIGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "data-migration",
+  "observations": {
+    "data_preserved": true,
+    "empty_database": true,
+    "forward_fix_rehearsed": true,
+    "from": "0001",
+    "mutation": {
+      "record_id": "30000000-0000-4000-8000-000000000001",
+      "resource": "records"
+    },
+    "observer": "alembic-postgresql",
+    "persistence": true,
+    "read_back": {
+      "matches": true,
+      "observer": "postgresql-psql",
+      "record_id": "30000000-0000-4000-8000-000000000001",
+      "resource": "records"
+    },
+    "runtime_units": [
+      "migration",
+      "database"
+    ],
+    "to": "0002"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-DATA-MIGRATION\", \"observations\": {\"observer\": \"alembic-postgresql\", \"runtime_units\": [\"migration\", \"database\"], \"from\": \"0001\", \"to\": \"0002\", \"empty_database\": true, \"data_preserved\": true, \"forward_fix_rehearsed\": true, \"mutation\": {\"record_id\": \"30000000-0000-4000-8000-000000000001\", \"resource\": \"records\"}, \"read_back\": {\"observer\": \"postgresql-psql\", \"resource\": \"records\", \"record_id\": \"30000000-0000-4000-8000-000000000001\", \"matches\": true}, \"persistence\": true}, \"status\": \"passed\"}\n"
+}

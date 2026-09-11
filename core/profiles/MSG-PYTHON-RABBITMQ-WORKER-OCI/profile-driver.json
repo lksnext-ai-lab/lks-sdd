@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "MSG-PYTHON-RABBITMQ-WORKER-OCI",
+  "profile_version": "1.0.0-candidate.1",
+  "prepare": {"strategy": "copy", "sources": [{"from": "profiles/MSG-PYTHON-RABBITMQ-WORKER-OCI/scaffold", "to": "."}]},
+  "verify": {
+    "checks": [
+      {"id": "GATE-SCAFFOLD-INTEGRITY", "name": "scaffold-integrity", "phase": "G2", "kind": "command", "cwd": ".", "command": ["python", "-c", "from pathlib import Path; assert Path('asyncapi.yaml').is_file(); assert Path('src/lks_sdd_worker/worker.py').is_file()"], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-PYTHON-LOCK", "name": "python-lock", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "sync", "--frozen"], "required": true, "requires_containers": false, "timeout_seconds": 600},
+      {"id": "GATE-PYTHON-LINT", "name": "python-lint", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "ruff", "check", "."], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-PYTHON-TYPECHECK", "name": "python-typecheck", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "mypy"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-PYTHON-TEST", "name": "python-tests", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest"], "required": true, "requires_containers": false, "timeout_seconds": 300},
+      {"id": "GATE-MSG-CONTRACT", "name": "message-contract", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest", "-k", "contract"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-MSG-RETRY", "name": "bounded-retry", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest", "-k", "retry"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-MSG-DLQ", "name": "dead-letter", "phase": "G3", "kind": "command", "cwd": ".", "command": ["uv", "run", "pytest", "-k", "dead_letter"], "required": true, "requires_containers": false, "timeout_seconds": 180},
+      {"id": "GATE-MSG-RECOVERY", "name": "message-recovery", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "run", "--rm", "worker", "python", "-m", "lks_sdd_worker.recovery"], "required": true, "requires_containers": true, "timeout_seconds": 300},
+      {"id": "GATE-OCI-BUILD", "name": "oci-build", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "build"], "required": true, "requires_containers": true, "timeout_seconds": 1200},
+      {"id": "GATE-OCI-SMOKE", "name": "broker-smoke", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "up", "-d", "--wait"], "required": true, "requires_containers": true, "timeout_seconds": 600},
+      {"id": "GATE-DELIVERY-EVIDENCE", "name": "delivery-evidence", "phase": "G4", "kind": "delivery-evidence", "cwd": ".", "command": [], "required": true, "requires_containers": false, "timeout_seconds": 30},
+      {"id": "GATE-COMPOSE-RABBITMQ-WORKER", "name": "worker-composition", "phase": "G3", "kind": "command", "cwd": ".", "command": ["docker", "compose", "exec", "-T", "rabbitmq", "rabbitmq-diagnostics", "-q", "ping"], "required": true, "requires_containers": true, "timeout_seconds": 60}
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/profile-certification-1.0.json",
+  "title": "LKS-SDD exact profile certification evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "profile_id", "profile_version", "certified_at",
+    "runtime", "containers_executed", "complete_gate", "passed",
+    "profile_sha256", "driver_sha256", "scaffold_sha256",
+    "composition_digest", "certification_engine_sha256", "checks",
+    "result_sha256", "command"
+  ],
+  "properties": {
+    "certification_run_id": {"type": "string", "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"},
+    "schema_version": {"enum": ["1.0", "1.1"]},
+    "evidence_manifest": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "object", "additionalProperties": false,
+        "required": ["path", "sha256", "gate_id", "size"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "gate_id": {"type": "string", "minLength": 1},
+          "size": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "profile_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,95}$"},
+    "profile_version": {"type": "string", "minLength": 1},
+    "certified_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "runtime": {"const": "docker"},
+    "containers_executed": {"type": "boolean"},
+    "complete_gate": {"type": "boolean"},
+    "passed": {"type": "boolean"},
+    "profile_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "driver_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "scaffold_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "composition_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "certification_engine_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gate_id", "status"],
+        "properties": {
+          "gate_id": {"type": "string", "pattern": "^GATE-[A-Z0-9-]{3,80}$"},
+          "status": {"enum": ["passed", "failed", "not-run", "blocked"]}
+        }
+      }
+    },
+    "result_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "command": {"type": "string", "minLength": 1}
+  }
+}

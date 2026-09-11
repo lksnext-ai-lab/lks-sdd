@@ -1,0 +1,13 @@
+{
+  "id": "FX-M1-NEW-PROJECT",
+  "description": "Inicialización y readiness de una aplicación nueva sintética.",
+  "project_id": "fixture-new-web",
+  "assertions": [
+    "dry_run_is_read_only",
+    "creates_exact_document_core",
+    "second_run_is_idempotent",
+    "manifest_and_markdown_validate",
+    "prepared_increment_can_be_ready",
+    "ready_does_not_authorize_implementation"
+  ]
+}

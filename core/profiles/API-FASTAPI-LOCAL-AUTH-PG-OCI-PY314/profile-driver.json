@@ -1,0 +1,429 @@
+{
+  "schema_version": "1.1",
+  "profile_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+  "profile_version": "1.0.0",
+  "variant": {
+    "contract_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI",
+    "resolution": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/resolved-technology.json",
+    "participants": {}
+  },
+  "prepare": {
+    "strategy": "copy",
+    "sources": [
+      {
+        "from": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/scaffold",
+        "to": "."
+      },
+      {
+        "from": "profiles/_shared/local-auth/verification",
+        "to": "verification"
+      },
+      {
+        "from": "profiles/_shared/local-auth/backend",
+        "to": "."
+      },
+      {
+        "from": "profiles/_shared/local-auth/lines/PY314/backend",
+        "to": "."
+      }
+    ],
+    "adoption": {
+      "strategy": "verification-only",
+      "adapters": [
+        "flat",
+        "apps",
+        "unit"
+      ]
+    }
+  },
+  "verify": {
+    "checks": [
+      {
+        "id": "GATE-API-LINT",
+        "name": "api-lint",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-API-LINT"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-API-LOCK",
+        "name": "api-lock",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-API-LOCK"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-API-OPENAPI",
+        "name": "api-openapi",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-API-OPENAPI"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-API-TEST",
+        "name": "api-test",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-API-TEST"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-API-TYPECHECK",
+        "name": "api-typecheck",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-API-TYPECHECK"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-DATA-INTEGRATION",
+        "name": "data-integration",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-DATA-INTEGRATION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-DATA-MIGRATION",
+        "name": "data-migration",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-DATA-MIGRATION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-DELIVERY-EVIDENCE",
+        "name": "delivery-evidence",
+        "phase": "G4",
+        "kind": "delivery-evidence",
+        "cwd": ".",
+        "command": [],
+        "required": true,
+        "requires_containers": false,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-LOCAL-CREDENTIALS",
+        "name": "local-credentials",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-LOCAL-CREDENTIALS"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-LOCAL-JWT",
+        "name": "local-jwt",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-LOCAL-JWT"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-LOCAL-SESSION",
+        "name": "local-session",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-LOCAL-SESSION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-OCI-BUILD",
+        "name": "oci-build",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-OCI-BUILD"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-OCI-SMOKE",
+        "name": "oci-smoke",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-OCI-SMOKE"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-PYTHON-LINT",
+        "name": "python-lint",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-PYTHON-LINT"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-PYTHON-LOCK",
+        "name": "python-lock",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-PYTHON-LOCK"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-PYTHON-TEST",
+        "name": "python-test",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-PYTHON-TEST"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-PYTHON-TYPECHECK",
+        "name": "python-typecheck",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-PYTHON-TYPECHECK"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-SCAFFOLD-INTEGRITY",
+        "name": "scaffold-integrity",
+        "phase": "G2",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-SCAFFOLD-INTEGRITY"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-SECURITY-AUDIT",
+        "name": "security-audit",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-SECURITY-AUDIT"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-SECURITY-CONFIG",
+        "name": "security-config",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-SECURITY-CONFIG"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-TENANT-AUTHORIZATION",
+        "name": "tenant-authorization",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-TENANT-AUTHORIZATION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-HTTP-CONTRACT-INTEGRATION",
+        "name": "http-contract-integration",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-HTTP-CONTRACT-INTEGRATION"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      },
+      {
+        "id": "GATE-COMPOSE-PY314-API",
+        "name": "compose-py314-api",
+        "phase": "G3",
+        "kind": "command",
+        "cwd": ".",
+        "command": [
+          "python",
+          "verification/gate.py",
+          "--gate",
+          "GATE-COMPOSE-PY314-API"
+        ],
+        "required": true,
+        "requires_containers": true,
+        "timeout_seconds": 900,
+        "execution_context": "host"
+      }
+    ]
+  }
+}

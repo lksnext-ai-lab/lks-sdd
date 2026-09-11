@@ -1,0 +1,26 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-LOCAL-JWT"
+  ],
+  "duration_seconds": 11.046,
+  "exit_code": 0,
+  "gate_id": "GATE-LOCAL-JWT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "local-jwt",
+  "observations": {
+    "observer": "pytest-real-postgresql",
+    "result": ".............                                                            [100%]\n",
+    "selection": "invalid_tokens or key_rotation"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-LOCAL-JWT\", \"observations\": {\"observer\": \"pytest-real-postgresql\", \"selection\": \"invalid_tokens or key_rotation\", \"result\": \".............                                                            [100%]\\n\"}, \"status\": \"passed\"}\n"
+}

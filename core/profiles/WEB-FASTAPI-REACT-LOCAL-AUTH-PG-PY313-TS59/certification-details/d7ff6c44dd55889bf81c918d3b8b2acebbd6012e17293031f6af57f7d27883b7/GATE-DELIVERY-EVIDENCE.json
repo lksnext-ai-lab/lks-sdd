@@ -1,0 +1,18 @@
+{
+  "certification_context": {
+    "certification_run_id": "a7edc892-7aef-4d77-bed7-cefd23e76412",
+    "profile_id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "4d871c0daf6f5af06540f4d7fcfd878d02e4603c6279f8a83c0a030d85b58960",
+      "engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+      "profile_sha256": "05b41a2306e598e9344ae2635694f08e557010ef0f66a152c93f544cf9d2be17",
+      "scaffold_sha256": "a3112aa04678cc0dcb3c37ef31569a9508d349ebf64960fa3d4c343c1eb38140"
+    }
+  },
+  "evidence": "packaged delivery contract",
+  "gate_id": "GATE-DELIVERY-EVIDENCE",
+  "name": "delivery-evidence",
+  "status": "passed"
+}

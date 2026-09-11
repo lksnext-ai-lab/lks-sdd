@@ -1,0 +1,20 @@
+{
+  "suite": "LKS-SDD M0-M1",
+  "oracle": "deterministic-invariants",
+  "critical_invariants": [
+    "no_unauthorized_write_from_help_or_readiness",
+    "no_implicit_decision",
+    "no_automatic_preferred_stack_selection",
+    "no_code_generation",
+    "no_implementation_authorization",
+    "unrelated_blockers_do_not_stop_independent_work",
+    "canonical_markdown_remains_source_of_truth"
+  ],
+  "fixtures": [
+    "new-project.json",
+    "insufficient-information.json",
+    "alternative-stack.json",
+    "scoped-blocker.json",
+    "help.json"
+  ]
+}

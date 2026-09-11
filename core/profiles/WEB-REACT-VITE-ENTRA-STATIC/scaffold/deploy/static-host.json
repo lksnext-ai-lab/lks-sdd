@@ -1,0 +1,9 @@
+{
+  "artifact_directory": "dist",
+  "spa_fallback": "/index.html",
+  "immutable_assets": true,
+  "index_cache": "no-cache",
+  "required_headers": ["Content-Security-Policy", "X-Content-Type-Options", "Referrer-Policy"],
+  "runtime_dependencies": ["Microsoft Entra ID", "protected API"],
+  "configuration": "build-time tenant, client, redirect and API scope values create a new artifact digest; no client secret is permitted"
+}

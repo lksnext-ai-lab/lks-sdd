@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.1",
+  "certification_run_id": "cdde441f-1a2f-4c50-a10e-286b7380a927",
+  "profile_id": "WEB-REACT-VITE-STATIC",
+  "profile_version": "1.0.0",
+  "certified_at": "2026-08-31",
+  "runtime": "docker",
+  "containers_executed": true,
+  "complete_gate": true,
+  "passed": true,
+  "profile_sha256": "cd81948f365c95308ef57e69ecd40e1a724d1176ea826fccc53e756d127576a6",
+  "driver_sha256": "3e40707745a4412693675877bfcb37b38baef7c52098a49f9f9d0f4dd9241f97",
+  "scaffold_sha256": "99fe52cd863d6ba8dcebcd0e64600841e61797050e13e2f0e61444fa618d5201",
+  "composition_digest": "85cc1a28f55c3b96686712439eac4dfa53c6b81203f867bb58eb1c31b57630cc",
+  "certification_engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+  "checks": [
+    {
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-BROWSER-SMOKE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-COMPOSE-REACT-STATIC",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-BUILD",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LINT",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-LOCK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TEST",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-FRONTEND-TYPECHECK",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "status": "passed"
+    },
+    {
+      "gate_id": "GATE-STATIC-OUTPUT",
+      "status": "passed"
+    }
+  ],
+  "evidence_manifest": [
+    {
+      "path": "certification-details/a4a2bd795361a50b72433be784ffcdb455d5a00727e7ef0ece57658fd30975a5/GATE-SCAFFOLD-INTEGRITY.json",
+      "sha256": "a4a2bd795361a50b72433be784ffcdb455d5a00727e7ef0ece57658fd30975a5",
+      "size": 1333,
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY"
+    },
+    {
+      "path": "certification-details/9129987d4946ce5271d28e50a8e457deab11797a4591f7ea24aca1cc83732138/GATE-FRONTEND-LOCK.json",
+      "sha256": "9129987d4946ce5271d28e50a8e457deab11797a4591f7ea24aca1cc83732138",
+      "size": 1653,
+      "gate_id": "GATE-FRONTEND-LOCK"
+    },
+    {
+      "path": "certification-details/77c90270b3278d1768d3c52f1fdf6c9622cfcac785704791d5e5b082e827ad4b/GATE-FRONTEND-LINT.json",
+      "sha256": "77c90270b3278d1768d3c52f1fdf6c9622cfcac785704791d5e5b082e827ad4b",
+      "size": 1556,
+      "gate_id": "GATE-FRONTEND-LINT"
+    },
+    {
+      "path": "certification-details/ca19df2cf2e1c485aa6048514194d3c9d8d818b4b003afdc54c38baa3f264654/GATE-FRONTEND-TYPECHECK.json",
+      "sha256": "ca19df2cf2e1c485aa6048514194d3c9d8d818b4b003afdc54c38baa3f264654",
+      "size": 1590,
+      "gate_id": "GATE-FRONTEND-TYPECHECK"
+    },
+    {
+      "path": "certification-details/5689df277715873f756f658a1a6014523c48f9efc17d57b99ab3411187f02235/GATE-FRONTEND-TEST.json",
+      "sha256": "5689df277715873f756f658a1a6014523c48f9efc17d57b99ab3411187f02235",
+      "size": 2224,
+      "gate_id": "GATE-FRONTEND-TEST"
+    },
+    {
+      "path": "certification-details/cd3a8ad924a5cfea0801167885dc3757d12fe29241c6b8db448d646a4e3557b6/GATE-FRONTEND-BUILD.json",
+      "sha256": "cd3a8ad924a5cfea0801167885dc3757d12fe29241c6b8db448d646a4e3557b6",
+      "size": 1930,
+      "gate_id": "GATE-FRONTEND-BUILD"
+    },
+    {
+      "path": "certification-details/aea0d643d607b4f3de30140b4f2afece51f76ccd403c8c5142c47e7d1971a65b/GATE-STATIC-OUTPUT.json",
+      "sha256": "aea0d643d607b4f3de30140b4f2afece51f76ccd403c8c5142c47e7d1971a65b",
+      "size": 1344,
+      "gate_id": "GATE-STATIC-OUTPUT"
+    },
+    {
+      "path": "certification-details/e280400f7014ee96025c8f8f2b05f6e4395dd987f8db60cf8462dde1528f83a3/GATE-BROWSER-SMOKE.json",
+      "sha256": "e280400f7014ee96025c8f8f2b05f6e4395dd987f8db60cf8462dde1528f83a3",
+      "size": 1679,
+      "gate_id": "GATE-BROWSER-SMOKE"
+    },
+    {
+      "path": "certification-details/7e88de99d5c140ae45d1861b32f8110e7a3b7185e9012ea8b49ed23f05d31f03/GATE-BROWSER-ACCESSIBILITY.json",
+      "sha256": "7e88de99d5c140ae45d1861b32f8110e7a3b7185e9012ea8b49ed23f05d31f03",
+      "size": 1722,
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY"
+    },
+    {
+      "path": "certification-details/4a718a51dad32ced4fab1fca0baa654bf84b3ad5d356770f40646a4033fd0087/GATE-DELIVERY-EVIDENCE.json",
+      "sha256": "4a718a51dad32ced4fab1fca0baa654bf84b3ad5d356770f40646a4033fd0087",
+      "size": 738,
+      "gate_id": "GATE-DELIVERY-EVIDENCE"
+    },
+    {
+      "path": "certification-details/1f6575214ff54701ebca0b5699fbd7947ce2fe69e09da5c062bf52044cc22000/GATE-COMPOSE-REACT-STATIC.json",
+      "sha256": "1f6575214ff54701ebca0b5699fbd7947ce2fe69e09da5c062bf52044cc22000",
+      "size": 1422,
+      "gate_id": "GATE-COMPOSE-REACT-STATIC"
+    }
+  ],
+  "result_sha256": "1d9b96c5c258a9d1cbc7f13794874bd8c01a435bf5486e8a5d89db3ed8934f3b",
+  "command": "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-STATIC --runtime docker --containers --record-certification"
+}

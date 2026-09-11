@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-SCAFFOLD-INTEGRITY"
+  ],
+  "duration_seconds": 0.438,
+  "exit_code": 0,
+  "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "scaffold-integrity",
+  "observations": {
+    "profile": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60",
+    "role": "frontend"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-SCAFFOLD-INTEGRITY\", \"observations\": {\"profile\": \"WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60\", \"role\": \"frontend\"}, \"status\": \"passed\"}\n"
+}

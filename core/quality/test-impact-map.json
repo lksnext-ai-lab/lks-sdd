@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "fallback_suite": "integration",
+  "rules": [
+    {
+      "paths": ["schemas/document-contracts.json", "scripts/delivery_engine.py", "scripts/evidence_contract.py"],
+      "modules": ["test_integrations_v018", "test_fullstack_integration_contract_v017"]
+    },
+    {
+      "paths": [".codex-plugin/**", "schemas/**", "quality/**", "scripts/validate_plugin_contract.py"],
+      "modules": ["test_contract_engine", "test_quality_harness", "test_quality_suite_registry", "test_v06_quality"]
+    },
+    {
+      "paths": ["scripts/run_quality_harness.py", "scripts/quality_execution.py", "scripts/run_fast_validation.py", "tests/run_unit_tests.py"],
+      "modules": ["test_managed_process", "test_quality_harness", "test_quality_suite_registry"]
+    },
+    {
+      "paths": ["scripts/build_candidate_package.py", "scripts/dual_distribution.py", "scripts/build_dual_distribution.py", "scripts/validate_copilot_package.py", "scripts/runtime_doctor.py", "distribution/**", ".github/plugin/**"],
+      "modules": ["test_checkout_portability", "test_m5_pilot", "test_dual_distribution"]
+    },
+    {
+      "paths": ["scripts/manage_visual_handoff.py", "schemas/visual-handoff.schema.json"],
+      "modules": ["test_visual_handoff", "test_visual_contract"]
+    },
+    {
+      "paths": ["scripts/jira_reporting_engine.py", "scripts/manage_task_tracking.py", "scripts/task_tracking_engine.py", "skills/**/references/jira-*.md"],
+      "modules": ["test_jira_reporting_v15", "test_task_tracking_v14", "test_task_tracking_v14_initial_tail", "test_task_tracking_v14_middle", "test_task_tracking_v14_extended", "test_task_tracking_v14_fourth", "test_task_tracking_v14_fifth", "test_task_tracking_v14_final", "test_validation_evidence_v016"]
+    },
+    {
+      "paths": ["scripts/validation_evidence.py", "schemas/visual-review-evidence-1.2.schema.json", "schemas/visual-evidence-policy.schema.json", "schemas/task-evidence-summary-1.0.schema.json"],
+      "modules": ["test_validation_evidence_v016", "test_incremental_verification_v014", "test_visual_contract", "test_jira_reporting_v15"]
+    },
+    {
+      "paths": ["scripts/delivery_engine.py", "scripts/manage_continuity.py", "skills/lks-sdd-verify/**", "skills/lks-sdd-implement/**"],
+      "modules": ["test_incremental_verification_v014", "test_incremental_verification_v014_middle", "test_incremental_verification_v014_third", "test_incremental_verification_v014_final", "test_multi_profile_delivery", "test_planning_continuity_v13", "test_product_experience_v015", "test_product_experience_v015_middle", "test_product_experience_v015_final", "test_validation_evidence_v016"]
+    },
+    {
+      "paths": ["scripts/experience_engine.py", "scripts/experience_fixture.py", "scripts/project_status.py", "scripts/work_task.py", "scripts/doctor_project.py", "scripts/benchmark_experience.py"],
+      "modules": ["test_product_experience_v015", "test_product_experience_v015_middle", "test_product_experience_v015_final", "test_public_cli"]
+    },
+    {
+      "paths": ["profiles/**", "scripts/profile_registry.py", "scripts/automation_coverage.py"],
+      "modules": ["test_multi_profile_delivery", "test_v06_quality"]
+    },
+    {
+      "paths": ["docs/**", "README.md", "CHANGELOG.md", "CONTRIBUTING.md", "GOVERNANCE.md"],
+      "modules": ["test_v06_quality"]
+    },
+    {
+      "paths": ["tests/test_*.py"],
+      "modules": ["test_quality_suite_registry"]
+    }
+  ]
+}

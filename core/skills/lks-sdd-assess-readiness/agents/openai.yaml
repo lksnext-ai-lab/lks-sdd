@@ -1,0 +1,6 @@
+interface:
+  display_name: "Readiness LKS-SDD para Codex"
+  short_description: "Separa plan integral, porción lista y autorización"
+  default_prompt: "Usa $lks-sdd-assess-readiness para evaluar a la vez la especificación, la cobertura completa, la porción TASK, la automatización y la autorización."
+policy:
+  allow_implicit_invocation: true

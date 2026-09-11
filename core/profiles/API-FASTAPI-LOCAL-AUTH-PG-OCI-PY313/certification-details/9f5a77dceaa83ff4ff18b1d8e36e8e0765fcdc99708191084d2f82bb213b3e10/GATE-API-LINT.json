@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-API-LINT"
+  ],
+  "duration_seconds": 80.642,
+  "exit_code": 0,
+  "gate_id": "GATE-API-LINT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "api-lint",
+  "observations": {
+    "lint": "All checks passed!"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-API-LINT\", \"observations\": {\"lint\": \"All checks passed!\"}, \"status\": \"passed\"}\n"
+}
