@@ -60,7 +60,12 @@ Sí. Es la ruta de entrada Spec-anchored para sistemas sin especificaciones conf
 
 ## ¿Funciona igual en GitHub Copilot o Claude?
 
-No se garantiza. LKS-SDD se implementa y soporta como plugin para Codex. Los documentos y algunos validadores pueden ser reutilizables, pero Copilot, Claude u otros asistentes necesitarían su propia integración y pruebas antes de declarar compatibilidad o resultados equivalentes.
+La distribución 1.1.0 incluye un plugin de agente para Copilot en VS Code y la
+distribución Codex desktop, con el mismo núcleo fijado por proyecto. Copilot usa un
+relevo a Codex para las imágenes; no genera mediante una API añadida. La paridad
+conversacional requiere el piloto real: empaquetar las skills no la demuestra.
+Claude y la extensión Codex de VS Code quedan fuera de alcance. Consulte
+[instalación](../../../docs/INSTALLATION.md) y [aceptación](../../../docs/DUAL-HOST-ACCEPTANCE.md).
 
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 

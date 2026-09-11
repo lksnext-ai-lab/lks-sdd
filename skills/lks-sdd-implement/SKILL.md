@@ -5,6 +5,14 @@ description: "Implement and safely resume an explicitly authorized LKS-SDD TASK 
 
 # Implement an LKS-SDD Increment with Codex
 
+For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
+and this workflow from that runtime, not a different global version. Run
+`<plugin-root>/scripts/lks_sdd.py runtime-doctor <project-root> --json` before work;
+integrity failure blocks affected actions. The invoking host adapter governs tools,
+not folder presence. Preserve all method gates below. On resumption, read applicable
+visual handoffs and validate their results; no handoff grants implementation authority.
+Help/status remain read-only. Native Codex work never creates or announces a handoff.
+
 Implement only the requested increment. A `ready` result is necessary but does not replace the user's explicit authorization to change code. For a blocked event, `tasks transition --to blocked` creates the open `PROB-###` used by the checkpoint and Jira preview; a resolved, foreign or missing problem is never a valid source.
 
 1. Read `.lks-sdd/project.json` and the indexed Markdown. Confirm the active increment and authorized `TASK-###` slice, plan/release, planning policy and fingerprints, delivery governance, units/bindings, scope, requirements, acceptance, tests, dependencies, blockers, interface applicability and confirmed `UX-###`/`VIS-###` inputs. The authorization defines the maximum scope; do not widen it.

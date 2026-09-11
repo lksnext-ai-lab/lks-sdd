@@ -1,8 +1,8 @@
-# Compatibilidad de LKS-SDD 0.17.0
+# Compatibilidad de LKS-SDD 1.1.0
 
 ## Contrato de proyecto soportado
 
-LKS-SDD 0.17.0 opera exclusivamente sobre proyectos con:
+LKS-SDD 1.1.0 opera exclusivamente sobre proyectos con:
 
 - `schema_version: "1.5"`;
 - `method_version: "1.5.0"`.
@@ -23,7 +23,24 @@ La evidencia técnica nueva usa schema 1.3 y registra bindings, scopes tipados e
 
 La compatibilidad tecnológica se declara por composición exacta de perfil, lock, scaffold, gates y certificación vigente. Una semejanza de nombres o capabilities no acredita soporte. Los perfiles candidate, la interoperabilidad real Microsoft Entra y Rovo/Jira y los canales humanos o de piloto permanecen `not-run` o `unsupported` hasta disponer de evidencia real.
 
-Codex es el único entorno objetivo soportado para el plugin. ChatGPT Work, GitHub Copilot y Claude no tienen integración ni equivalencia verificadas. ImageGen puede ser una ayuda visual cuando Codex lo expone, pero no forma parte del contrato del plugin ni sustituye revisión humana. Atlassian Rovo es el peer externo previsto para Jira y sigue sujeto a política, autorización, relectura e interoperabilidad real demostrada.
+La distribución dual incluye Codex desktop y un plugin nativo GitHub Copilot para VS Code
+Agent. Los scripts y contratos son comunes; la aceptación conversacional real sigue
+separada y se registra en [aceptación dual](DUAL-HOST-ACCEPTANCE.md). La extensión Codex
+de VS Code, ChatGPT Work y Claude quedan fuera de alcance. Copilot no genera imágenes:
+deriva ese paso a Codex mediante una ficha durable. Codex nativo sigue su flujo habitual
+sin avisos de relevo. Rovo sigue siendo un peer opcional, con permisos y evidencia propios.
+La generación integrada utiliza ImageGen cuando está disponible en Codex. Atlassian Rovo
+no se instala con este paquete ni se reemplaza por un cliente alternativo de Jira.
+
+Copilot utiliza Agent Plugins 1.0: manifiesto raíz `plugin.json`, seis skills y un
+setup explícito del consumidor. La alternativa `.github/skills` sigue disponible,
+pero no debe activarse junto al plugin. El registro local no implica publicación
+en Featured ni prueba de funcionamiento en todas las versiones de VS Code.
+
+El formato auxiliar de relevo es 1.0 y no añade campos al schema consumidor. Una solicitud
+activa exige la versión exacta del runtime: no se actualiza silenciosamente. El instalador
+no migra contratos, datos ni evidencia. La primera entrega soporta relevo secuencial entre
+personas/herramientas; no certifica escritores simultáneos sobre estado compartido.
 
 Jira es una proyección outbound-only opcional. Un proyecto `repository-only` mantiene la experiencia completa. Un backend sin frontend no recibe revisión visual por inferencia, y una tarea local no queda bloqueada por decisiones exclusivamente productivas.
 

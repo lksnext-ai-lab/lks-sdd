@@ -137,6 +137,10 @@ def quick_doctor(project_root: Path) -> dict[str, Any]:
         and tracking.get("sync_status") not in {"in-sync", "not-required"}
     )
     errors = []
+    from runtime_doctor import check as check_distribution
+    distribution = check_distribution(root)
+    if distribution["status"] == "blocked":
+        errors.extend(distribution["errors"])
     if not version_ok:
         errors.append("La versión del manifiesto del plugin no coincide con el runtime.")
     if missing:
@@ -156,6 +160,7 @@ def quick_doctor(project_root: Path) -> dict[str, Any]:
         "status": "operational" if not errors else "blocked",
         "plugin_version": plugin.get("version"),
         "package_integrity": integrity,
+        "distribution": distribution,
         "project_compatible": compatible,
         "schema_version": schema,
         "method_version": method,

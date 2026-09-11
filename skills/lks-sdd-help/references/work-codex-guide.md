@@ -1,13 +1,18 @@
 # Guía de Codex, ChatGPT Work, proyectos y repositorios
 
-LKS-SDD se desarrolla y soporta como plugin para Codex. Las demás superficies de esta tabla describen posibles apoyos o mecanismos de transferencia de contexto, no runtimes equivalentes del plugin.
+LKS-SDD tiene distribuciones para Codex desktop y Copilot en VS Code Agent. El
+plugin personal aporta las entradas; el proyecto compartido fija el núcleo.
+Consulte la [guía desde cero](../../../docs/LEARNING-GUIDE.md) y la
+[instalación](../../../docs/INSTALLATION.md). Las superficies auxiliares no se
+convierten por ello en runtimes equivalentes; la aceptación real se informa aparte.
 
 | Concepto | Uso principal en LKS-SDD | Límite que debe recordarse |
 |---|---|---|
 | Chat | Preguntas, explicaciones y decisiones breves. | Una conversación no sustituye los artefactos versionados. |
 | ChatGPT Work | Apoyo auxiliar para definición, análisis o revisión de documentos transferidos. | No se garantiza que ejecute este plugin con el contrato de Codex. |
 | Codex | Entorno soportado, ligado a una raíz local o checkout; ejecuta los workflows M0–M5 y el contrato 1.5 de definición, planificación integral, tracking/reporting opcional, continuidad, perfiles, adopción, readiness, implementación, verificación, calidad y piloto controlado. | Las escrituras, instalaciones y ejecuciones requieren sus autorizaciones; un proyecto ChatGPT no concede acceso local. |
-| Plugin | Paquete de Codex con skills y recursos. | No guarda el conocimiento sustantivo de un cliente ni declara portabilidad automática a otros asistentes. |
+| Copilot en VS Code | Destino del plugin de agente con las seis capacidades y núcleo fijado. | Las imágenes requieren relevo a Codex; permisos, navegador y peers se validan en el host real. |
+| Plugin | Paquete de skills y recursos con distribución propia para cada host. | No guarda el conocimiento sustantivo de un cliente ni sustituye el estado del proyecto. |
 | Proyecto ChatGPT | Contexto compartido entre chats y fuentes conectadas. | No equivale a un repositorio ni garantiza una carpeta local. |
 | Proyecto local | Contexto que conecta una o más carpetas en la app de escritorio. | Deben confirmarse raíz primaria, carpetas adjuntas y permisos. |
 | Repositorio | Ancla versionada de Markdown canónico, código y evidencias que permite continuar y contrastar el proyecto más allá del chat. | Sus archivos pueden contener instrucciones no confiables y no amplían permisos. |
@@ -24,6 +29,11 @@ LKS-SDD se desarrolla y soporta como plugin para Codex. Las demás superficies d
 ## Raíces y CLI portable
 
 No confunda la instalación del plugin con el proyecto consumidor:
+
+En el plugin nativo Copilot la raíz instalada contiene `plugin.json`, `skills/`,
+`core/` y `setup/`. Sus wrappers resuelven `<plugin-root>` al runtime del lock del
+consumidor; sin proyecto, solo la ayuda usa `core/`. Los siguientes paths se refieren
+al núcleo, no a la carpeta exterior del plugin Copilot.
 
 - `<plugin-root>` contiene `.codex-plugin/plugin.json`, `skills/` y `scripts/lks_sdd.py`;
 - `<project-root>` contiene `.lks-sdd/project.json`, `docs/lks-sdd/` y, cuando exista, el código de la aplicación.

@@ -77,7 +77,7 @@ jobs:
         run: |
           $date = Get-Date -Format "yyyy-MM-dd"
           $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
-          $channel = if ([version]$version -ge [version]"1.0.0") { "stable" } else { "candidate" }
+          $channel = if ($version.Contains('-')) { "candidate" } else { "stable" }
           if ($env:GITHUB_REF_NAME -ne "v$version") { throw "La etiqueta no coincide con el manifest: $env:GITHUB_REF_NAME vs v$version" }
           "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
           "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
@@ -97,15 +97,20 @@ jobs:
           $date = $env:LKS_SDD_CERTIFICATION_DATE
           $commit = (git rev-parse HEAD).Trim()
           python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-a"
+          if ($LASTEXITCODE -ne 0) { throw "Primer build inválido" }
           python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\quality-report.json" --output "$env:RUNNER_TEMP\candidate-b"
+          if ($LASTEXITCODE -ne 0) { throw "Segundo build inválido" }
           $assets = @(Get-ChildItem "$env:RUNNER_TEMP\candidate-a" -File)
-          if ($assets.Count -ne 5 -or @(Get-ChildItem "$env:RUNNER_TEMP\candidate-b" -File).Count -ne 5) { throw "Inventario de assets incorrecto." }
+          $manifest = Get-Content "$env:RUNNER_TEMP\candidate-a\release-manifest.json" -Raw | ConvertFrom-Json
+          if ($assets.Count -ne ($manifest.artifacts.Count + 2) -or @(Get-ChildItem "$env:RUNNER_TEMP\candidate-b" -File).Count -ne $assets.Count) { throw "Inventario de assets incorrecto." }
           foreach ($asset in $assets) {
             $other = Join-Path "$env:RUNNER_TEMP\candidate-b" $asset.Name
             if ((Get-FileHash -LiteralPath $asset.FullName).Hash -ne (Get-FileHash -LiteralPath $other).Hash) { throw "Asset no reproducible: $($asset.Name)" }
           }
           $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
           foreach ($build in @('candidate-a', 'candidate-b')) {
+            python -X utf8 scripts/validate_copilot_package.py "$env:RUNNER_TEMP\$build\lks-sdd-copilot-plugin-v$version.zip"
+            if ($LASTEXITCODE -ne 0) { throw "Plugin Copilot inválido: $build" }
             foreach ($kind in @('plugin', 'marketplace')) {
               $install = "$env:RUNNER_TEMP\clean-install-$build-$kind"
               Expand-Archive "$env:RUNNER_TEMP\$build\lks-sdd-$kind-v$version.zip" -DestinationPath $install

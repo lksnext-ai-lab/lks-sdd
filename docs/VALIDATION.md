@@ -1,5 +1,27 @@
 # Validación local
 
+## Distribución dual 1.1.0
+
+```powershell
+python -X utf8 tests/run_unit_tests.py --module test_dual_distribution --module test_visual_handoff
+python -X utf8 scripts/lks_sdd.py visual-handoff --help
+python -X utf8 scripts/lks_sdd.py runtime-doctor --help
+python -X utf8 scripts/validate_copilot_package.py RUTA_AL_ZIP_COPILOT_PLUGIN
+```
+
+Los módulos nuevos pertenecen a package e integration respectivamente. Comprueban
+núcleo idéntico, reproducibilidad, instalación/actualización/retirada aisladas,
+personalizaciones, integridad, recuperación y relevo con fuentes/approval canónicas.
+También comprueban el manifiesto y las seis entradas del plugin nativo Copilot,
+bootstrap sin skills duplicadas, migración en ambos sentidos y que actualizar
+el paquete personal no cambie el lock del consumidor. El test de runtime completo
+instala desde el setup nativo en un directorio temporal y ejecuta definición y
+validación; no registra un plugin en la configuración personal del host.
+No ejecutan sesiones reales de Copilot ni generan imágenes. Conservar `not-run` para
+los canales humanos descritos en [aceptación dual](DUAL-HOST-ACCEPTANCE.md).
+El harness estable usa `--channel stable` y `quality/release-approval-v1.1.0.json`,
+no la aprobación histórica 1.0.0.
+
 Ejecute las comprobaciones desde la raíz del repositorio con Python 3. Los comandos de estructura no requieren red; los gates completos descargan toolchains e imágenes bloqueadas y requieren Docker.
 
 ## Puerta rápida de estructura y contrato

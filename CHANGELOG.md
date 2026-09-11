@@ -1,5 +1,31 @@
 # Changelog
 
+La distribución dual 1.1.0 añade un plugin nativo de agente para Copilot,
+preparación explícita del proyecto sin skills duplicadas, migración reversible por
+recibos y una guía desde cero compartida por README y la skill de ayuda.
+
+## 1.1.0 — 2026-09-11 — distribución dual estable
+
+- Promoción estable aprobada por el responsable tras comunicar pruebas satisfactorias
+  en Copilot; aprobación propia, sin convertir canales detallados not-run en passed.
+- Instalación desde el panel mediante el catálogo del mismo repositorio, que fija
+  una etiqueta inmutable del paquete Copilot generado; no se mantiene un segundo código.
+- Instalación local alternativa desde la interfaz de ajustes, sin editar JSON.
+- Conserva el contrato consumidor, perfiles exactos y límites de la RC descrita debajo.
+
+## 1.1.0-rc.1 — 2026-09-11 — distribución dual en evaluación
+
+- Un núcleo y seis workflows para Codex desktop y GitHub Copilot VS Code Agent.
+- Instalador offline con preview/hash/apply, runtime fijado por proyecto, preservación
+  de instrucciones, detección de colisiones, retirada y recuperación durable.
+- Relevo visual Copilot→Codex con retorno opcional, sin API adicional. Codex nativo
+  conserva el proceso sin avisos ni fichas de relevo.
+- Validación de identidad, fuentes, imágenes y aprobación canónica al reanudar;
+  historial inmutable, nuevas revisiones y colaboración secuencial entre clones.
+- Paquetes duales y setup reproducibles, checksums y CI con inventario dinámico.
+- La aceptación humana de host, el piloto, la release limpia y publicación no se
+  presuponen por disponer de código o paquetes de evaluación.
+
 ## 1.0.0 — 2026-09-03 — primera release estable
 
 - Promueve LKS-SDD a su primera línea estable sin cambiar `schema_version: 1.5`

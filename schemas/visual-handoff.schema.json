@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Auxiliary visual handoff; never canonical approval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "schema_version", "plugin_version", "project_id", "increment", "task", "execution", "brief", "scope", "excluded_scope", "owner_role", "revision", "artifact_index", "sources", "known_decisions", "input_hashes"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^VH-[a-f0-9]{24}$"},
+    "schema_version": {"const": "1.0"},
+    "plugin_version": {"type": "string", "minLength": 1},
+    "project_id": {"type": "string", "minLength": 1},
+    "increment": {"type": "string", "pattern": "^INC-[0-9]{3}$"},
+    "task": {"type": ["string", "null"]},
+    "execution": {"type": ["string", "null"]},
+    "brief": {"type": "string", "minLength": 1},
+    "scope": {"type": "string", "minLength": 1},
+    "excluded_scope": {"type": "string", "minLength": 1},
+    "owner_role": {"type": "string", "minLength": 1},
+    "revision": {"type": "string", "minLength": 1},
+    "artifact_index": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}},
+    "sources": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}},
+    "known_decisions": {"type": "array", "items": {"type": "string", "pattern": "^ADR-[0-9]{3}$"}, "uniqueItems": true},
+    "input_hashes": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+  }
+}

@@ -5,6 +5,16 @@ description: "Use the LKS-SDD Codex plugin to start or continue a versioned soft
 
 # Define with LKS-SDD
 
+If `.lks-sdd/distribution-lock.json` exists, use its exact project-local runtime and
+workflow instead of a different global version. Run `runtime-doctor` before work.
+The invoking adapter identifies the host; folder presence does not. In native Codex,
+follow the visual process below without handoff prompts or files. In Copilot, the
+host adapter routes required image generation through the durable Codex handoff
+described in `<plugin-root>/docs/VISUAL-HANDOFF.md`; no image API or provider key.
+At resumption, inspect applicable `.lks-sdd/handoffs/visual/` requests read-only,
+select the requested scope explicitly and validate returned results before closure.
+An incoming handoff does not grant implementation authority or replace human approval.
+
 The Markdown artifacts in the application repository are authoritative; `.lks-sdd/project.json` is only their operational index. Never turn a proposal, inference, or ambiguous answer into a decision.
 
 1. Inspect the authorized root and current LKS-SDD state. If application code already exists and no materialized adoption baseline exists, stop definition changes and route the repository to `lks-sdd-adopt-existing`. Resume definition only after the adopted baseline is materialized and valid.

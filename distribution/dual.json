@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "hosts": ["codex", "copilot"],
+  "project_schema": "1.5",
+  "method_version": "1.5.0",
+  "collaboration": "sequential",
+  "additional_files": [
+    ".github/plugin/marketplace.json",
+    "quality/release-approval-v1.1.0.json",
+    "docs/releases/v1.1.0.md",
+    "distribution/dual.json",
+    "distribution/install.py",
+    "distribution/install.ps1",
+    "distribution/host-copilot.md",
+    "scripts/dual_distribution.py",
+    "scripts/build_dual_distribution.py",
+    "scripts/validate_copilot_package.py",
+    "scripts/runtime_doctor.py",
+    "scripts/manage_visual_handoff.py",
+    "schemas/visual-handoff.schema.json",
+    "specs/proposed/dual-host-visual-handoff-1.0.md",
+    "docs/INSTALLATION.md",
+    "docs/LEARNING-GUIDE.md",
+    "docs/COPILOT-PILOT.md",
+    "docs/plans/2026-09-10-codex-copilot-implementation.md",
+    "docs/proposals/2026-09-10-codex-copilot.md",
+    "docs/VISUAL-HANDOFF.md",
+    "docs/DUAL-HOST-ACCEPTANCE.md",
+    "docs/releases/v1.1.0-rc.1.md",
+    "tests/test_dual_distribution.py",
+    "tests/test_visual_handoff.py"
+  ]
+}
