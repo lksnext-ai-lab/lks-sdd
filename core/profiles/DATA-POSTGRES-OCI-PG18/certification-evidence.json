@@ -1,18 +1,7 @@
 {
-  "schema_version": "1.1",
-  "certification_run_id": "38b3c3d7-8d79-443f-b664-d0c71b8afd83",
-  "profile_id": "DATA-POSTGRES-OCI-PG18",
-  "profile_version": "1.0.0",
-  "certified_at": "2026-08-31",
-  "runtime": "docker",
-  "containers_executed": true,
-  "complete_gate": true,
-  "passed": true,
-  "profile_sha256": "e538ba4ab66604ea8bed693850c9c6f6a23d611d4793a3547268b6acab887172",
-  "driver_sha256": "4f2c93492d0c8a21e7ba7df50d5d9b968868d075d7cf1af9b682cddae46f5a5d",
-  "scaffold_sha256": "b2cf9522396ea277e9e59686378373ef5b7d929e7b322941b4b4403d8f2083ce",
-  "composition_digest": "495fb81db8ab110903758dd7a76f2a0f9c7447955774f99b7ff8616f60338b28",
   "certification_engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+  "certification_run_id": "38b3c3d7-8d79-443f-b664-d0c71b8afd83",
+  "certified_at": "2026-08-31",
   "checks": [
     {
       "gate_id": "GATE-COMPOSE-PG18-DATABASE",
@@ -43,50 +32,61 @@
       "status": "passed"
     }
   ],
+  "command": "python scripts/run_reference_profile_gate.py --profile DATA-POSTGRES-OCI-PG18 --runtime docker --containers --record-certification",
+  "complete_gate": true,
+  "composition_digest": "495fb81db8ab110903758dd7a76f2a0f9c7447955774f99b7ff8616f60338b28",
+  "containers_executed": true,
+  "driver_sha256": "4f2c93492d0c8a21e7ba7df50d5d9b968868d075d7cf1af9b682cddae46f5a5d",
   "evidence_manifest": [
     {
-      "path": "certification-details/f7f65210c1c30b4205c0d33a70576fc84d564d2cf7b59fcb7d48548d89fb780c/GATE-DATA-INTEGRATION.json",
+      "gate_id": "GATE-DATA-INTEGRATION",
+      "path": "certification-details/f7f65210c1c3.json",
       "sha256": "f7f65210c1c30b4205c0d33a70576fc84d564d2cf7b59fcb7d48548d89fb780c",
-      "size": 1957,
-      "gate_id": "GATE-DATA-INTEGRATION"
+      "size": 1957
     },
     {
-      "path": "certification-details/8c875c70a061a92cfa1db40a60f5835b5ac8c68a4cf0bb3a637bd6b0360f758b/GATE-DATA-MIGRATION.json",
+      "gate_id": "GATE-DATA-MIGRATION",
+      "path": "certification-details/8c875c70a061.json",
       "sha256": "8c875c70a061a92cfa1db40a60f5835b5ac8c68a4cf0bb3a637bd6b0360f758b",
-      "size": 2224,
-      "gate_id": "GATE-DATA-MIGRATION"
+      "size": 2224
     },
     {
-      "path": "certification-details/79cb35da8bb674a22302c35151aba2af39727a2c44509773741f88b11fedc4b3/GATE-DELIVERY-EVIDENCE.json",
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "path": "certification-details/79cb35da8bb6.json",
       "sha256": "79cb35da8bb674a22302c35151aba2af39727a2c44509773741f88b11fedc4b3",
-      "size": 739,
-      "gate_id": "GATE-DELIVERY-EVIDENCE"
+      "size": 739
     },
     {
-      "path": "certification-details/4fdd327bb192720e58304bffb8029a2fe30c2ee9ffdea5aed774d55c3c728252/GATE-OCI-BUILD.json",
+      "gate_id": "GATE-OCI-BUILD",
+      "path": "certification-details/4fdd327bb192.json",
       "sha256": "4fdd327bb192720e58304bffb8029a2fe30c2ee9ffdea5aed774d55c3c728252",
-      "size": 1272,
-      "gate_id": "GATE-OCI-BUILD"
+      "size": 1272
     },
     {
-      "path": "certification-details/61a644800c8dfa9780df365a98dffe6804e2a390284369f272be2c24a2dc7e2a/GATE-OCI-SMOKE.json",
+      "gate_id": "GATE-OCI-SMOKE",
+      "path": "certification-details/61a644800c8d.json",
       "sha256": "61a644800c8dfa9780df365a98dffe6804e2a390284369f272be2c24a2dc7e2a",
-      "size": 1929,
-      "gate_id": "GATE-OCI-SMOKE"
+      "size": 1929
     },
     {
-      "path": "certification-details/17640a7aeff1ad628dcbc36ff0bce928c7a7caa2b5c1286508eb985f11152715/GATE-SCAFFOLD-INTEGRITY.json",
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "path": "certification-details/17640a7aeff1.json",
       "sha256": "17640a7aeff1ad628dcbc36ff0bce928c7a7caa2b5c1286508eb985f11152715",
-      "size": 1248,
-      "gate_id": "GATE-SCAFFOLD-INTEGRITY"
+      "size": 1248
     },
     {
-      "path": "certification-details/665c6a50a12eb1f02a6b2c053f95a5015cf10ed3c49fcb58567f50460cf6af22/GATE-COMPOSE-PG18-DATABASE.json",
+      "gate_id": "GATE-COMPOSE-PG18-DATABASE",
+      "path": "certification-details/665c6a50a12e.json",
       "sha256": "665c6a50a12eb1f02a6b2c053f95a5015cf10ed3c49fcb58567f50460cf6af22",
-      "size": 1526,
-      "gate_id": "GATE-COMPOSE-PG18-DATABASE"
+      "size": 1526
     }
   ],
-  "result_sha256": "c2d940052a2fd3a71c6c827dcdfc3c14275345bd241ffd1f3f674262359449a2",
-  "command": "python scripts/run_reference_profile_gate.py --profile DATA-POSTGRES-OCI-PG18 --runtime docker --containers --record-certification"
+  "passed": true,
+  "profile_id": "DATA-POSTGRES-OCI-PG18",
+  "profile_sha256": "e538ba4ab66604ea8bed693850c9c6f6a23d611d4793a3547268b6acab887172",
+  "profile_version": "1.0.0",
+  "result_sha256": "99d024884873a013653f01a4878b60937a030cc9cd78ba3b8f8fbaa702c66f69",
+  "runtime": "docker",
+  "scaffold_sha256": "b2cf9522396ea277e9e59686378373ef5b7d929e7b322941b4b4403d8f2083ce",
+  "schema_version": "1.1"
 }

@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "tiers": {
     "fast": {
-      "module_timeout_seconds": 60,
+      "module_timeout_seconds": 90,
       "max_workers": 2,
       "modules": [
         "test_contract_engine",

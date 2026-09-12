@@ -4,8 +4,8 @@
 
 Codex desktop y Copilot VS Code Agent se distribuyen con una versión, un núcleo y dos
 adaptadores. El setup offline facilita instalar y actualizar sin tocar configuraciones
-personales. La versión estable es `1.1.0`; tiene aprobación propia del responsable
-en `quality/release-approval-v1.1.0.json`, sin reutilizar la de 1.0.0.
+personales. La versión estable es `1.1.1`; tiene aprobación propia del responsable
+en `quality/release-approval-v1.1.1.json`, sin reutilizar la de 1.0.0 ni la de 1.1.0.
 Los paquetes de desarrollo son diagnósticos, no atestaciones publicables. Antes de
 promover, registrar [aceptación dual](DUAL-HOST-ACCEPTANCE.md), superar gates técnicos, build
 reproducible limpio y autorización de publicación separada. El snapshot de evaluación
@@ -31,7 +31,7 @@ Antes de publicar una versión:
 1. Cerrar el alcance y actualizar versión, changelog, estado documental, ayudas y notas en `docs/releases/`.
 2. Ejecutar las validaciones de `docs/VALIDATION.md` y revisar el diff completo.
 3. Integrar mediante PR revisable con CI correcto y comprobar el SHA final de `main` y su coincidencia con `origin/main`.
-4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto, superar primero `--preflight-only` y generar allí un reporte 1.2 del canal de release que atestigüe `HEAD`, índice, bytes reales y presupuestos sin ningún archivo no versionado preexistente —también los ignorados— y valide las certificaciones exactas de todos los perfiles active. Para `stable`, el reporte incorpora además `release-approval`; después se generan dos veces los bundles, se verifican reproducibilidad, manifiesto y checksums y se mantienen fuera del árbol Git.
+4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto y generar allí una única vez el reporte 1.2 del canal de release. El harness atestigua antes de sus hijos `HEAD`, índice y bytes reales sin ningún archivo no versionado preexistente —también los ignorados—, aplica los presupuestos y valida las certificaciones exactas de todos los perfiles active. Para `stable`, el reporte incorpora además `release-approval`; después se generan dos veces los bundles, se verifican reproducibilidad, manifiesto y checksums y se mantienen fuera del árbol Git. `--preflight-only` queda disponible como diagnóstico completo opcional, no como paso previo redundante.
 5. Solo después de superar el harness limpio y el doble build, crear y subir una etiqueta anotada `vX.Y.Z` sobre ese commit.
 6. Esperar el workflow correcto de la etiqueta y crear la release desde esa etiqueta,
    como prerelease para `candidate` o normal para `stable`, con notas versionadas y
@@ -44,7 +44,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "1.1.0"
+$releaseVersion = "1.1.1"
 $releaseChannel = "stable"
 $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $releaseTag = "v$releaseVersion"

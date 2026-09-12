@@ -2,5 +2,5 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "description": "Desarrollo guiado por especificaciones, decisiones humanas y evidencia; imágenes mediante relevo a Codex.",
   "name": "lks-sdd",
-  "version": "1.1.0"
+  "version": "1.1.1"
 }

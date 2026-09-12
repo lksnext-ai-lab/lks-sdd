@@ -1,18 +1,7 @@
 {
-  "schema_version": "1.1",
-  "certification_run_id": "3231d734-9b0d-4b72-99d1-174ca08ca637",
-  "profile_id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59",
-  "profile_version": "1.0.0",
-  "certified_at": "2026-08-31",
-  "runtime": "docker",
-  "containers_executed": true,
-  "complete_gate": true,
-  "passed": true,
-  "profile_sha256": "1ec363cb0134ca65763b38ef3c347daf87b1d99d7e6e5b5b1f824fef95e9a7d3",
-  "driver_sha256": "fa2bc2889c3e719562ea4af90f84ae7fa0db730b55e368248ed40e932ef33d8d",
-  "scaffold_sha256": "7527089ffd6f46821780d103aecd5e9890106fc63cf35de6705b992f76cca640",
-  "composition_digest": "838885c33a86cbcac7a68cd4c0a2bf6cbf5ca9cb756c8003394ff5090c8bb975",
   "certification_engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+  "certification_run_id": "3231d734-9b0d-4b72-99d1-174ca08ca637",
+  "certified_at": "2026-08-31",
   "checks": [
     {
       "gate_id": "GATE-BROWSER-ACCESSIBILITY",
@@ -63,80 +52,91 @@
       "status": "passed"
     }
   ],
+  "command": "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59 --runtime docker --containers --record-certification",
+  "complete_gate": true,
+  "composition_digest": "838885c33a86cbcac7a68cd4c0a2bf6cbf5ca9cb756c8003394ff5090c8bb975",
+  "containers_executed": true,
+  "driver_sha256": "fa2bc2889c3e719562ea4af90f84ae7fa0db730b55e368248ed40e932ef33d8d",
   "evidence_manifest": [
     {
-      "path": "certification-details/21a6813d07475a60a8237ca5c4f4d6009e7f3995dd122ae1b2cbbd0b60c90d6a/GATE-BROWSER-ACCESSIBILITY.json",
+      "gate_id": "GATE-BROWSER-ACCESSIBILITY",
+      "path": "certification-details/21a6813d0747.json",
       "sha256": "21a6813d07475a60a8237ca5c4f4d6009e7f3995dd122ae1b2cbbd0b60c90d6a",
-      "size": 1355,
-      "gate_id": "GATE-BROWSER-ACCESSIBILITY"
+      "size": 1355
     },
     {
-      "path": "certification-details/62c6ab5fb9fd543e2eb1b49e297e8b5689890b430c278b15daadc4b542d65464/GATE-BROWSER-SMOKE.json",
+      "gate_id": "GATE-BROWSER-SMOKE",
+      "path": "certification-details/62c6ab5fb9fd.json",
       "sha256": "62c6ab5fb9fd543e2eb1b49e297e8b5689890b430c278b15daadc4b542d65464",
-      "size": 1324,
-      "gate_id": "GATE-BROWSER-SMOKE"
+      "size": 1324
     },
     {
-      "path": "certification-details/e1ee76566f66df85a6795902d66cbfe92683aafb4f52527f29a3811275069f4c/GATE-DELIVERY-EVIDENCE.json",
+      "gate_id": "GATE-DELIVERY-EVIDENCE",
+      "path": "certification-details/e1ee76566f66.json",
       "sha256": "e1ee76566f66df85a6795902d66cbfe92683aafb4f52527f29a3811275069f4c",
-      "size": 754,
-      "gate_id": "GATE-DELIVERY-EVIDENCE"
+      "size": 754
     },
     {
-      "path": "certification-details/7f934b4385c2b9fb32fdacf989fcef33021027e39ce143789080f74bb551ffe7/GATE-FRONTEND-BUILD.json",
+      "gate_id": "GATE-FRONTEND-BUILD",
+      "path": "certification-details/7f934b4385c2.json",
       "sha256": "7f934b4385c2b9fb32fdacf989fcef33021027e39ce143789080f74bb551ffe7",
-      "size": 1183,
-      "gate_id": "GATE-FRONTEND-BUILD"
+      "size": 1183
     },
     {
-      "path": "certification-details/a1fced3a2be83948dcad349de23dc2e4656be007423c604b1866214289cb01da/GATE-FRONTEND-LINT.json",
+      "gate_id": "GATE-FRONTEND-LINT",
+      "path": "certification-details/a1fced3a2be8.json",
       "sha256": "a1fced3a2be83948dcad349de23dc2e4656be007423c604b1866214289cb01da",
-      "size": 1313,
-      "gate_id": "GATE-FRONTEND-LINT"
+      "size": 1313
     },
     {
-      "path": "certification-details/d3641b5a6c419bf7ad06e9dfda35601fdddbad8d6c1392ada52a102cd0e0f7ba/GATE-FRONTEND-LOCK.json",
+      "gate_id": "GATE-FRONTEND-LOCK",
+      "path": "certification-details/d3641b5a6c41.json",
       "sha256": "d3641b5a6c419bf7ad06e9dfda35601fdddbad8d6c1392ada52a102cd0e0f7ba",
-      "size": 1179,
-      "gate_id": "GATE-FRONTEND-LOCK"
+      "size": 1179
     },
     {
-      "path": "certification-details/2fabc83f8231b27e975c604e692dbcb9cebc644ecb7022feb10364e3c39f6756/GATE-FRONTEND-TEST.json",
+      "gate_id": "GATE-FRONTEND-TEST",
+      "path": "certification-details/2fabc83f8231.json",
       "sha256": "2fabc83f8231b27e975c604e692dbcb9cebc644ecb7022feb10364e3c39f6756",
-      "size": 2697,
-      "gate_id": "GATE-FRONTEND-TEST"
+      "size": 2697
     },
     {
-      "path": "certification-details/04a2c0e6307c7696f39b1b945f92ff5b3656bb126c4ad1a9d72cd2e039bdce35/GATE-FRONTEND-TYPECHECK.json",
+      "gate_id": "GATE-FRONTEND-TYPECHECK",
+      "path": "certification-details/04a2c0e6307c.json",
       "sha256": "04a2c0e6307c7696f39b1b945f92ff5b3656bb126c4ad1a9d72cd2e039bdce35",
-      "size": 1351,
-      "gate_id": "GATE-FRONTEND-TYPECHECK"
+      "size": 1351
     },
     {
-      "path": "certification-details/48639eaf2079b2c3e4b0086b7b927b43ea82a8637778789f300aa2b535cccdb1/GATE-LOCAL-SPA.json",
+      "gate_id": "GATE-LOCAL-SPA",
+      "path": "certification-details/48639eaf2079.json",
       "sha256": "48639eaf2079b2c3e4b0086b7b927b43ea82a8637778789f300aa2b535cccdb1",
-      "size": 2681,
-      "gate_id": "GATE-LOCAL-SPA"
+      "size": 2681
     },
     {
-      "path": "certification-details/a9065b43bafb02ffa9695faf679c2fe63b948288a7538245aa50210410ccb91f/GATE-SCAFFOLD-INTEGRITY.json",
+      "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+      "path": "certification-details/a9065b43bafb.json",
       "sha256": "a9065b43bafb02ffa9695faf679c2fe63b948288a7538245aa50210410ccb91f",
-      "size": 1293,
-      "gate_id": "GATE-SCAFFOLD-INTEGRITY"
+      "size": 1293
     },
     {
-      "path": "certification-details/d1ffa03d85422e05c12b1a382f14ad3714be553083d2c64cea4c4e2466fb38c4/GATE-STATIC-OUTPUT.json",
+      "gate_id": "GATE-STATIC-OUTPUT",
+      "path": "certification-details/d1ffa03d8542.json",
       "sha256": "d1ffa03d85422e05c12b1a382f14ad3714be553083d2c64cea4c4e2466fb38c4",
-      "size": 1179,
-      "gate_id": "GATE-STATIC-OUTPUT"
+      "size": 1179
     },
     {
-      "path": "certification-details/aebdd9ec673f0f026565b08514e6c2b6571fd4a992373ca3d550a4833e398a7c/GATE-COMPOSE-TS59-FRONTEND.json",
+      "gate_id": "GATE-COMPOSE-TS59-FRONTEND",
+      "path": "certification-details/aebdd9ec673f.json",
       "sha256": "aebdd9ec673f0f026565b08514e6c2b6571fd4a992373ca3d550a4833e398a7c",
-      "size": 1859,
-      "gate_id": "GATE-COMPOSE-TS59-FRONTEND"
+      "size": 1859
     }
   ],
-  "result_sha256": "1d52570484f91b20aee8f389f50e70b3e41996a4dc334ed7eaf69587869e8771",
-  "command": "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59 --runtime docker --containers --record-certification"
+  "passed": true,
+  "profile_id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59",
+  "profile_sha256": "1ec363cb0134ca65763b38ef3c347daf87b1d99d7e6e5b5b1f824fef95e9a7d3",
+  "profile_version": "1.0.0",
+  "result_sha256": "031168850582793de908ac6e166e03ef2e722eb1975efd52abaa964986138efc",
+  "runtime": "docker",
+  "scaffold_sha256": "7527089ffd6f46821780d103aecd5e9890106fc63cf35de6705b992f76cca640",
+  "schema_version": "1.1"
 }

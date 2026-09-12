@@ -6,6 +6,8 @@
   "collaboration": "sequential",
   "additional_files": [
     ".github/plugin/marketplace.json",
+    "quality/release-approval-v1.1.1.json",
+    "docs/releases/v1.1.1.md",
     "quality/release-approval-v1.1.0.json",
     "docs/releases/v1.1.0.md",
     "distribution/dual.json",

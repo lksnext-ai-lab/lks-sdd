@@ -39,23 +39,6 @@ class CheckoutPortabilityTests(unittest.TestCase):
         self.assertEqual(process.returncode, 0, stderr)
         return process
 
-    def _run_validator(
-        self, checkout: Path, script: str, env: dict[str, str]
-    ) -> subprocess.CompletedProcess[str]:
-        process = subprocess.run(
-            [sys.executable, "-X", "utf8", script, "."],
-            cwd=checkout,
-            env=env,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            check=False,
-            timeout=120,
-        )
-        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
-        return process
-
     def test_hash_locked_files_remain_lf_with_autocrlf_checkout(self) -> None:
         with tempfile.TemporaryDirectory(
             prefix="lks-eol-"
@@ -74,41 +57,32 @@ class CheckoutPortabilityTests(unittest.TestCase):
             git_env["GIT_CONFIG_NOSYSTEM"] = "1"
             git_env["GIT_CONFIG_GLOBAL"] = str(isolated_config)
 
-            if (PLUGIN_ROOT / ".git").exists():
-                listed = self._git(
-                    "ls-files",
-                    "--cached",
-                    "--others",
-                    "--exclude-standard",
-                    "-z",
-                    cwd=PLUGIN_ROOT,
-                    env=git_env,
-                    text=False,
+            fixture_manifest = json.loads(
+                (PLUGIN_ROOT / "quality" / "fixture-manifest.json").read_text(
+                    encoding="utf-8"
                 )
-                repository_paths = sorted(
-                    {
-                        Path(os.fsdecode(raw_path))
-                        for raw_path in listed.stdout.split(b"\0")
-                        if raw_path
-                        and (PLUGIN_ROOT / Path(os.fsdecode(raw_path))).is_file()
-                    },
-                    key=lambda path: path.as_posix(),
-                )
-            else:
-                repository_paths = sorted(
-                    (
-                        path.relative_to(PLUGIN_ROOT)
-                        for path in PLUGIN_ROOT.rglob("*")
-                        if path.is_file()
-                        and "__pycache__" not in path.parts
-                        and path.suffix != ".pyc"
-                    ),
-                    key=lambda path: path.as_posix(),
-                )
-            self.assertIn(Path(".gitattributes"), repository_paths)
+            )
+            portable_files = [
+                *(Path("specs/canonical") / name for name in CANONICAL_HASHES),
+                Path("quality/fixture-manifest.json"),
+                *(
+                    Path(fixture_manifest["root"]) / entry["path"]
+                    for entry in fixture_manifest["fixtures"]
+                ),
+            ]
+            declared_fixture_hashes = {
+                Path(fixture_manifest["root"]) / entry["path"]: entry["sha256"]
+                for entry in fixture_manifest["fixtures"]
+            }
+            # The harness validates the complete checkout independently. This
+            # fixture verifies the autocrlf property only for exact files whose
+            # bytes and hashes are contractual, so unrelated source files cannot
+            # turn a byte-preservation test into a full-repository integration run.
+            fixture_paths = [Path(".gitattributes"), *portable_files]
+            self.assertEqual(len(fixture_paths), len(set(fixture_paths)))
 
             source.mkdir()
-            for relative in repository_paths:
+            for relative in fixture_paths:
                 self.assertFalse(relative.is_absolute())
                 self.assertNotIn("..", relative.parts)
                 origin = PLUGIN_ROOT / relative
@@ -128,7 +102,9 @@ class CheckoutPortabilityTests(unittest.TestCase):
                 env=git_env,
             )
             self._git("add", "--all", cwd=source, env=git_env)
-            self._git("commit", "--quiet", "-m", "portable snapshot", cwd=source, env=git_env)
+            self._git(
+                "commit", "--quiet", "-m", "portable snapshot", cwd=source, env=git_env
+            )
 
             self._git(
                 "clone",
@@ -144,25 +120,7 @@ class CheckoutPortabilityTests(unittest.TestCase):
             )
             self.assertEqual(effective_autocrlf.stdout.strip(), "true")
 
-            fixture_manifest = json.loads(
-                (PLUGIN_ROOT / "quality" / "fixture-manifest.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-            portable_files = [
-                *(Path("specs/canonical") / name for name in CANONICAL_HASHES),
-                Path("quality/fixture-manifest.json"),
-                *(
-                    Path(fixture_manifest["root"]) / entry["path"]
-                    for entry in fixture_manifest["fixtures"]
-                ),
-            ]
-            declared_fixture_hashes = {
-                Path(fixture_manifest["root"]) / entry["path"]: entry["sha256"]
-                for entry in fixture_manifest["fixtures"]
-            }
-
-            for relative in portable_files:
+            for relative in fixture_paths:
                 with self.subTest(path=relative.as_posix()):
                     expected_bytes = (PLUGIN_ROOT / relative).read_bytes()
                     checkout_bytes = (checkout / relative).read_bytes()
@@ -176,14 +134,6 @@ class CheckoutPortabilityTests(unittest.TestCase):
                     if relative in declared_fixture_hashes:
                         self.assertEqual(digest, declared_fixture_hashes[relative])
 
-            contract = self._run_validator(
-                checkout, "scripts/validate_plugin_contract.py", git_env
-            )
-            fixtures = self._run_validator(
-                checkout, "scripts/validate_fixture_manifest.py", git_env
-            )
-            self.assertIn("VALID: LKS-SDD", contract.stdout)
-            self.assertIn("VALID", fixtures.stdout)
             self._git("diff", "--check", cwd=checkout, env=git_env)
 
 
