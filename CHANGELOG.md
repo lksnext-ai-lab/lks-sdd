@@ -21,6 +21,10 @@ presupuesto de rutas de la distribución nativa de Windows.
   los evals y el doble build. El techo externo de 900 s sólo recupera el diagnóstico
   de un despachador bloqueado; los presupuestos bloqueantes de cada tier siguen
   aplicándose dentro de su runner.
+- Reduce la fixture Git de portabilidad a `.gitattributes` y los artefactos
+  contractuales hash-locked que el test compara realmente. Conserva clon local,
+  `core.autocrlf`, bytes, hashes y `git diff --check`, sin repetir sobre 1.307
+  archivos el contrato ya validado por el harness.
 - Actualiza la etiqueta de instalación nativa de Copilot a `copilot-v1.1.1` y la
   documentación de actualización, sin cambiar schema/método del consumidor ni
   activar instalaciones personales.
