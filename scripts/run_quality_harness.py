@@ -41,13 +41,12 @@ PILOT_SUMMARY_SCHEMA_PATH = PLUGIN_ROOT / "schemas" / "pilot-summary.schema.json
 RELEASE_APPROVAL_SCHEMA_PATH = (
     PLUGIN_ROOT / "schemas" / "release-approval.schema.json"
 )
+# This is only an emergency ceiling for the child dispatcher.  Each selected
+# suite applies its own blocking performance budget from
+# quality/performance-policy.json and returns JSON evidence before this ceiling
+# is relevant.  Keeping the two roles separate avoids an outer timeout
+# suppressing the child's useful failure diagnostics.
 UNIT_TEST_TIMEOUT_SECONDS = 900
-SUITE_TIMEOUT_SECONDS = {
-    "fast": 120,
-    "integration": 480,
-    "package": 240,
-    "profile": 180,
-}
 ALLOWED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
@@ -1252,7 +1251,7 @@ def run_automated(
                     suite,
                 ],
                 True,
-                SUITE_TIMEOUT_SECONDS[suite],
+                UNIT_TEST_TIMEOUT_SECONDS,
             )
             for suite in ("fast", "integration", "package", "profile")
         ],
@@ -1911,7 +1910,14 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--rerun-reason")
-    parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument(
+        "--preflight-only",
+        action="store_true",
+        help=(
+            "Diagnóstico opcional de la vinculación completa de fuente; la "
+            "ejecución integral ya realiza esta misma comprobación antes de los tests."
+        ),
+    )
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", args.evaluated_on):
         print("ERROR: --date debe usar YYYY-MM-DD.", file=sys.stderr)

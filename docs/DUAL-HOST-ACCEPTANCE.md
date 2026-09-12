@@ -1,6 +1,7 @@
 # Estado de aceptación de la distribución dual
 
-Versión de distribución actual: 1.1.1. Corrección compatible autorizada el 2026-09-11.
+Versión de distribución actual: 1.1.1. Corrección compatible autorizada el 2026-09-11
+y ajustada en la orquestación de su gate el 2026-09-12.
 No se puede presentar el resultado como paridad conversacional certificada hasta
 ejecutar pruebas reales en ambas herramientas. Este documento separa esos canales.
 

@@ -6,9 +6,9 @@
   "evidence_handling": "aggregated-no-identities",
   "decision": {
     "status": "approved",
-    "decided_on": "2026-09-11",
+    "decided_on": "2026-09-12",
     "authority_role": "project-owner",
-    "rationale": "El responsable del proyecto autoriza explícitamente publicar la corrección compatible 1.1.1 para evitar rutas de paquete demasiado largas durante la instalación de Copilot. La publicación incluye la calibración transparente del timeout interno fast a partir de una medición limpia de 60,191 s, sin ampliar el límite global de suite ni los umbrales funcionales. La publicación queda condicionada a superar los gates técnicos de release sobre el commit exacto.",
+    "rationale": "El responsable del proyecto autoriza explícitamente publicar la corrección compatible 1.1.1 para evitar rutas de paquete demasiado largas durante la instalación de Copilot. La publicación incluye la calibración transparente del timeout interno fast a partir de una medición limpia de 60,191 s y una simplificación de la orquestación que elimina ejecuciones redundantes, sin ampliar los límites bloqueantes de tier ni los umbrales funcionales. La publicación queda condicionada a superar los gates técnicos de release sobre el commit exacto.",
     "blocking_findings": []
   },
   "limitations": [
