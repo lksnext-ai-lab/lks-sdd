@@ -1,0 +1,1913 @@
+{
+  "script": "probe.py",
+  "measurement": "Unicode characters and UTF-8 bytes; no token estimate",
+  "classification": "synthetic-engine-study; not release or semantic acceptance",
+  "case_count": 6,
+  "source_integrity": {
+    "files_hashed": 6817,
+    "changed_paths": [
+      "tests/reports/dual-fast.json"
+    ]
+  },
+  "cases": [
+    {
+      "name": "visual_history",
+      "indexed_md_files": 7,
+      "all_md_files": 7,
+      "indexed_source_text_without_labels": {
+        "characters": 4540,
+        "utf8_bytes": 4540
+      },
+      "indexed_corpus_with_labels": {
+        "characters": 4917,
+        "utf8_bytes": 4917
+      },
+      "outside_table_stats_per_file": {
+        "docs/lks-sdd/02-requirements/acceptance-criteria.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/02-requirements/functional-requirements.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/03-solution/solution-overview.md": {
+          "non_table_body": {
+            "characters": 2,
+            "utf8_bytes": 2
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/03-solution/ux-accessibility.md": {
+          "non_table_body": {
+            "characters": 6,
+            "utf8_bytes": 6
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/04-delivery/increments.md": {
+          "non_table_body": {
+            "characters": 3,
+            "utf8_bytes": 3
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/05-quality/quality-strategy.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/05-quality/traceability.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        }
+      },
+      "model_rows": 19,
+      "model_nodes": 10,
+      "active_rows": 18,
+      "active_node_ids": [
+        "AC-001",
+        "ADR-001",
+        "FR-001",
+        "INC-001",
+        "TEST-001",
+        "UX-001",
+        "UX-002",
+        "UX-003",
+        "VIS-003"
+      ],
+      "active_projection": {
+        "characters": 3654,
+        "utf8_bytes": 3654
+      },
+      "tasks": {},
+      "bindings": [],
+      "all_assets": [
+        {
+          "owner": "VIS-001",
+          "state": "inactive",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/rejected.png"
+        },
+        {
+          "owner": "VIS-003",
+          "state": "active",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/active.png"
+        }
+      ],
+      "active_assets": [
+        "VIS-003"
+      ],
+      "baseline": {
+        "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+        "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+        "model_valid": false,
+        "model_errors": [
+          "LKS-ARTIFACT-MISSING"
+        ],
+        "active_errors": []
+      },
+      "planning_status": "not-started",
+      "planning_integrity": "invalid",
+      "mutation_observations": [
+        {
+          "kind": "normative_prose_outside_table",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "f8a80a10b8b9af9e6eb74e6a305ecd1796d75ee464864f02e159f4a42a4874ed",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "active_statement_cell",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "c9df15123326a6c60823d8b95790b029c662e102e743393e2828f7c4b063e4ee",
+            "active": "3aac56402349d73c45c042bf8bf3f0aaaf0fa41d6ba8574e3ddb26905e6ca368",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        },
+        {
+          "kind": "asset_bytes_VIS-001",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/rejected.png",
+          "baseline": {
+            "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "a4a3a7a32e6309973e0e89fda09d15b0ef507dda3084bb0d35f87373a5f2732f",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "asset_bytes_VIS-003",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/active.png",
+          "baseline": {
+            "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "82516f1d6b89500efb8fd4d8209614e6b70af1ed3721fd72d0511089a59d3d13",
+            "active": "5a83650059974adef67c8867d4a6291e4612b1dade4a683bd5281afee4b8ecab",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-ASSET-HASH"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        }
+      ],
+      "corpus_directory": "corpora/visual_history"
+    },
+    {
+      "name": "shared_increment",
+      "indexed_md_files": 7,
+      "all_md_files": 7,
+      "indexed_source_text_without_labels": {
+        "characters": 4868,
+        "utf8_bytes": 4868
+      },
+      "indexed_corpus_with_labels": {
+        "characters": 5245,
+        "utf8_bytes": 5245
+      },
+      "outside_table_stats_per_file": {
+        "docs/lks-sdd/02-requirements/acceptance-criteria.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/02-requirements/functional-requirements.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/03-solution/solution-overview.md": {
+          "non_table_body": {
+            "characters": 2,
+            "utf8_bytes": 2
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/03-solution/ux-accessibility.md": {
+          "non_table_body": {
+            "characters": 6,
+            "utf8_bytes": 6
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/04-delivery/increments.md": {
+          "non_table_body": {
+            "characters": 3,
+            "utf8_bytes": 3
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/05-quality/quality-strategy.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/05-quality/traceability.md": {
+          "non_table_body": {
+            "characters": 1,
+            "utf8_bytes": 1
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        }
+      },
+      "model_rows": 24,
+      "model_nodes": 14,
+      "active_rows": 18,
+      "active_node_ids": [
+        "AC-001",
+        "ADR-001",
+        "FR-001",
+        "INC-001",
+        "TEST-001",
+        "UX-001",
+        "UX-002",
+        "UX-003",
+        "VIS-003"
+      ],
+      "active_projection": {
+        "characters": 3654,
+        "utf8_bytes": 3654
+      },
+      "tasks": {},
+      "bindings": [],
+      "all_assets": [
+        {
+          "owner": "VIS-001",
+          "state": "inactive",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/rejected.png"
+        },
+        {
+          "owner": "VIS-003",
+          "state": "active",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/active.png"
+        }
+      ],
+      "active_assets": [
+        "VIS-003"
+      ],
+      "baseline": {
+        "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+        "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+        "model_valid": false,
+        "model_errors": [
+          "LKS-ARTIFACT-MISSING",
+          "LKS-DOMAIN-MISSING",
+          "LKS-REF-SYNTAX"
+        ],
+        "active_errors": []
+      },
+      "planning_status": "not-started",
+      "planning_integrity": "invalid",
+      "mutation_observations": [
+        {
+          "kind": "normative_prose_outside_table",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "bb79cedfb42ce8dde97cae0152fec3b7e675387dc3f5f747941a9b9007276462",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "active_statement_cell",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "0fa3a7b09b300c7f948660afaed1a8b139efce08b24f42db91d0c9bc17f31eec",
+            "active": "3aac56402349d73c45c042bf8bf3f0aaaf0fa41d6ba8574e3ddb26905e6ca368",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        },
+        {
+          "kind": "asset_bytes_VIS-001",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/rejected.png",
+          "baseline": {
+            "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "69bac499fde1734ccba5aa8cf2a16680bf29368e6bafc7f9e145f2a5ee3af84d",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "asset_bytes_VIS-003",
+          "path": "docs/lks-sdd/03-solution/ui-prototypes/active.png",
+          "baseline": {
+            "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+            "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "d286331b40ff0b2098b466f184427551daaf5a2ca37007be16956078015c35dc",
+            "active": "5a83650059974adef67c8867d4a6291e4612b1dade4a683bd5281afee4b8ecab",
+            "model_valid": false,
+            "model_errors": [
+              "LKS-ARTIFACT-MISSING",
+              "LKS-ASSET-HASH",
+              "LKS-DOMAIN-MISSING",
+              "LKS-REF-SYNTAX"
+            ],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        }
+      ],
+      "corpus_directory": "corpora/shared_increment"
+    },
+    {
+      "name": "ready_single_task",
+      "indexed_md_files": 22,
+      "all_md_files": 23,
+      "indexed_source_text_without_labels": {
+        "characters": 27297,
+        "utf8_bytes": 27423
+      },
+      "indexed_corpus_with_labels": {
+        "characters": 28440,
+        "utf8_bytes": 28566
+      },
+      "outside_table_stats_per_file": {
+        "docs/lks-sdd/00-control/open-points.md": {
+          "non_table_body": {
+            "characters": 20,
+            "utf8_bytes": 20
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/00-control/project-status.md": {
+          "non_table_body": {
+            "characters": 416,
+            "utf8_bytes": 421
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 340,
+            "utf8_bytes": 345
+          }
+        },
+        "docs/lks-sdd/00-control/scope-register.md": {
+          "non_table_body": {
+            "characters": 246,
+            "utf8_bytes": 251
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 170,
+            "utf8_bytes": 174
+          }
+        },
+        "docs/lks-sdd/01-context/constraints.md": {
+          "non_table_body": {
+            "characters": 108,
+            "utf8_bytes": 109
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 89,
+            "utf8_bytes": 90
+          }
+        },
+        "docs/lks-sdd/01-context/product-brief.md": {
+          "non_table_body": {
+            "characters": 974,
+            "utf8_bytes": 988
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 768,
+            "utf8_bytes": 781
+          }
+        },
+        "docs/lks-sdd/02-requirements/acceptance-criteria.md": {
+          "non_table_body": {
+            "characters": 154,
+            "utf8_bytes": 158
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 125,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/02-requirements/functional-requirements.md": {
+          "non_table_body": {
+            "characters": 120,
+            "utf8_bytes": 122
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 92,
+            "utf8_bytes": 94
+          }
+        },
+        "docs/lks-sdd/02-requirements/non-functional-requirements.md": {
+          "non_table_body": {
+            "characters": 115,
+            "utf8_bytes": 115
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 84,
+            "utf8_bytes": 84
+          }
+        },
+        "docs/lks-sdd/02-requirements/technical-requirements.md": {
+          "non_table_body": {
+            "characters": 131,
+            "utf8_bytes": 134
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 106,
+            "utf8_bytes": 108
+          }
+        },
+        "docs/lks-sdd/03-solution/architecture.md": {
+          "non_table_body": {
+            "characters": 335,
+            "utf8_bytes": 339
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 236,
+            "utf8_bytes": 239
+          }
+        },
+        "docs/lks-sdd/03-solution/solution-overview.md": {
+          "non_table_body": {
+            "characters": 199,
+            "utf8_bytes": 205
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 130,
+            "utf8_bytes": 133
+          }
+        },
+        "docs/lks-sdd/04-delivery/delivery-governance.md": {
+          "non_table_body": {
+            "characters": 655,
+            "utf8_bytes": 666
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 586,
+            "utf8_bytes": 597
+          }
+        },
+        "docs/lks-sdd/04-delivery/increments.md": {
+          "non_table_body": {
+            "characters": 1145,
+            "utf8_bytes": 1152
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 1046,
+            "utf8_bytes": 1053
+          }
+        },
+        "docs/lks-sdd/04-delivery/planning-coverage.md": {
+          "non_table_body": {
+            "characters": 1078,
+            "utf8_bytes": 1087
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 898,
+            "utf8_bytes": 903
+          }
+        },
+        "docs/lks-sdd/04-delivery/plans.md": {
+          "non_table_body": {
+            "characters": 436,
+            "utf8_bytes": 438
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 373,
+            "utf8_bytes": 375
+          }
+        },
+        "docs/lks-sdd/04-delivery/risks-dependencies.md": {
+          "non_table_body": {
+            "characters": 98,
+            "utf8_bytes": 99
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 70,
+            "utf8_bytes": 71
+          }
+        },
+        "docs/lks-sdd/04-delivery/task-tracking.md": {
+          "non_table_body": {
+            "characters": 349,
+            "utf8_bytes": 351
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 206
+          }
+        },
+        "docs/lks-sdd/04-delivery/tasks.md": {
+          "non_table_body": {
+            "characters": 605,
+            "utf8_bytes": 610
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 534,
+            "utf8_bytes": 538
+          }
+        },
+        "docs/lks-sdd/05-quality/quality-strategy.md": {
+          "non_table_body": {
+            "characters": 176,
+            "utf8_bytes": 177
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 127,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/05-quality/test-strategy.md": {
+          "non_table_body": {
+            "characters": 232,
+            "utf8_bytes": 234
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 207
+          }
+        },
+        "docs/lks-sdd/05-quality/traceability.md": {
+          "non_table_body": {
+            "characters": 172,
+            "utf8_bytes": 175
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 154,
+            "utf8_bytes": 157
+          }
+        },
+        "docs/lks-sdd/06-operation/deployment.md": {
+          "non_table_body": {
+            "characters": 242,
+            "utf8_bytes": 246
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 208,
+            "utf8_bytes": 212
+          }
+        }
+      },
+      "model_rows": 43,
+      "model_nodes": 15,
+      "active_rows": 18,
+      "active_node_ids": [
+        "AC-001",
+        "ADR-001",
+        "ENV-001",
+        "FR-001",
+        "INC-001",
+        "PLAN-001",
+        "TEST-001",
+        "UNIT-001"
+      ],
+      "active_projection": {
+        "characters": 4474,
+        "utf8_bytes": 4474
+      },
+      "tasks": {
+        "TASK-001": {
+          "assigned_item_ids": [
+            "AC-001",
+            "ADR-001",
+            "FR-001",
+            "TEST-001"
+          ],
+          "rows": 5,
+          "text": {
+            "characters": 1310,
+            "utf8_bytes": 1310
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        }
+      },
+      "bindings": [
+        {
+          "binding_id": "BIND-001",
+          "unit_id": "UNIT-001",
+          "unit_path": ".",
+          "profile_id": "API-FASTAPI-STATELESS-OCI",
+          "profile_scope": "deployable",
+          "selection_decision": "ADR-001",
+          "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+          "state": "confirmed"
+        }
+      ],
+      "all_assets": [],
+      "active_assets": [],
+      "baseline": {
+        "document": "26f459990351b7539f7f70250a5e49aef3e3c6b08c9ecf1e602a6b303318147c",
+        "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+        "model_valid": true,
+        "model_errors": [],
+        "active_errors": []
+      },
+      "planning_status": "partial",
+      "planning_integrity": "valid",
+      "mutation_observations": [
+        {
+          "kind": "normative_prose_outside_table",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "26f459990351b7539f7f70250a5e49aef3e3c6b08c9ecf1e602a6b303318147c",
+            "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "d4a5eeb8bf31655cd361878a4ad750c8df70f933949a149b27d6d3b5a6a87b3d",
+            "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "active_statement_cell",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "26f459990351b7539f7f70250a5e49aef3e3c6b08c9ecf1e602a6b303318147c",
+            "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "a702334a0d849c40006958601c6cc0b496de7096a097ddda18a86115c6584672",
+            "active": "224b3caae212aae735ad3521aee68b5a70c524dc9a7f7c5182ee4301cceb1145",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        }
+      ],
+      "corpus_directory": "corpora/ready_single_task"
+    },
+    {
+      "name": "parallel_three_tasks",
+      "indexed_md_files": 22,
+      "all_md_files": 25,
+      "indexed_source_text_without_labels": {
+        "characters": 28703,
+        "utf8_bytes": 28829
+      },
+      "indexed_corpus_with_labels": {
+        "characters": 29846,
+        "utf8_bytes": 29972
+      },
+      "outside_table_stats_per_file": {
+        "docs/lks-sdd/00-control/open-points.md": {
+          "non_table_body": {
+            "characters": 20,
+            "utf8_bytes": 20
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/00-control/project-status.md": {
+          "non_table_body": {
+            "characters": 416,
+            "utf8_bytes": 421
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 340,
+            "utf8_bytes": 345
+          }
+        },
+        "docs/lks-sdd/00-control/scope-register.md": {
+          "non_table_body": {
+            "characters": 246,
+            "utf8_bytes": 251
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 170,
+            "utf8_bytes": 174
+          }
+        },
+        "docs/lks-sdd/01-context/constraints.md": {
+          "non_table_body": {
+            "characters": 108,
+            "utf8_bytes": 109
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 89,
+            "utf8_bytes": 90
+          }
+        },
+        "docs/lks-sdd/01-context/product-brief.md": {
+          "non_table_body": {
+            "characters": 974,
+            "utf8_bytes": 988
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 768,
+            "utf8_bytes": 781
+          }
+        },
+        "docs/lks-sdd/02-requirements/acceptance-criteria.md": {
+          "non_table_body": {
+            "characters": 154,
+            "utf8_bytes": 158
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 125,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/02-requirements/functional-requirements.md": {
+          "non_table_body": {
+            "characters": 120,
+            "utf8_bytes": 122
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 92,
+            "utf8_bytes": 94
+          }
+        },
+        "docs/lks-sdd/02-requirements/non-functional-requirements.md": {
+          "non_table_body": {
+            "characters": 115,
+            "utf8_bytes": 115
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 84,
+            "utf8_bytes": 84
+          }
+        },
+        "docs/lks-sdd/02-requirements/technical-requirements.md": {
+          "non_table_body": {
+            "characters": 131,
+            "utf8_bytes": 134
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 106,
+            "utf8_bytes": 108
+          }
+        },
+        "docs/lks-sdd/03-solution/architecture.md": {
+          "non_table_body": {
+            "characters": 335,
+            "utf8_bytes": 339
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 236,
+            "utf8_bytes": 239
+          }
+        },
+        "docs/lks-sdd/03-solution/solution-overview.md": {
+          "non_table_body": {
+            "characters": 199,
+            "utf8_bytes": 205
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 130,
+            "utf8_bytes": 133
+          }
+        },
+        "docs/lks-sdd/04-delivery/delivery-governance.md": {
+          "non_table_body": {
+            "characters": 655,
+            "utf8_bytes": 666
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 586,
+            "utf8_bytes": 597
+          }
+        },
+        "docs/lks-sdd/04-delivery/increments.md": {
+          "non_table_body": {
+            "characters": 1145,
+            "utf8_bytes": 1152
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 1046,
+            "utf8_bytes": 1053
+          }
+        },
+        "docs/lks-sdd/04-delivery/planning-coverage.md": {
+          "non_table_body": {
+            "characters": 1078,
+            "utf8_bytes": 1087
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 898,
+            "utf8_bytes": 903
+          }
+        },
+        "docs/lks-sdd/04-delivery/plans.md": {
+          "non_table_body": {
+            "characters": 436,
+            "utf8_bytes": 438
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 373,
+            "utf8_bytes": 375
+          }
+        },
+        "docs/lks-sdd/04-delivery/risks-dependencies.md": {
+          "non_table_body": {
+            "characters": 98,
+            "utf8_bytes": 99
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 70,
+            "utf8_bytes": 71
+          }
+        },
+        "docs/lks-sdd/04-delivery/task-tracking.md": {
+          "non_table_body": {
+            "characters": 349,
+            "utf8_bytes": 351
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 206
+          }
+        },
+        "docs/lks-sdd/04-delivery/tasks.md": {
+          "non_table_body": {
+            "characters": 605,
+            "utf8_bytes": 610
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 534,
+            "utf8_bytes": 538
+          }
+        },
+        "docs/lks-sdd/05-quality/quality-strategy.md": {
+          "non_table_body": {
+            "characters": 176,
+            "utf8_bytes": 177
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 127,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/05-quality/test-strategy.md": {
+          "non_table_body": {
+            "characters": 232,
+            "utf8_bytes": 234
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 207
+          }
+        },
+        "docs/lks-sdd/05-quality/traceability.md": {
+          "non_table_body": {
+            "characters": 172,
+            "utf8_bytes": 175
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 154,
+            "utf8_bytes": 157
+          }
+        },
+        "docs/lks-sdd/06-operation/deployment.md": {
+          "non_table_body": {
+            "characters": 242,
+            "utf8_bytes": 246
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 208,
+            "utf8_bytes": 212
+          }
+        }
+      },
+      "model_rows": 54,
+      "model_nodes": 21,
+      "active_rows": 27,
+      "active_node_ids": [
+        "AC-001",
+        "AC-002",
+        "ADR-001",
+        "ENV-001",
+        "FR-001",
+        "FR-002",
+        "INC-001",
+        "PLAN-001",
+        "TASK-001",
+        "TASK-002",
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "UNIT-001"
+      ],
+      "active_projection": {
+        "characters": 5560,
+        "utf8_bytes": 5560
+      },
+      "tasks": {
+        "TASK-001": {
+          "assigned_item_ids": [
+            "AC-001",
+            "FR-001",
+            "TEST-001"
+          ],
+          "rows": 4,
+          "text": {
+            "characters": 1087,
+            "utf8_bytes": 1087
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        },
+        "TASK-002": {
+          "assigned_item_ids": [
+            "AC-002",
+            "FR-002",
+            "TEST-002"
+          ],
+          "rows": 4,
+          "text": {
+            "characters": 1051,
+            "utf8_bytes": 1051
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        },
+        "TASK-003": {
+          "assigned_item_ids": [
+            "ADR-001",
+            "TEST-003"
+          ],
+          "rows": 3,
+          "text": {
+            "characters": 808,
+            "utf8_bytes": 808
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        }
+      },
+      "bindings": [
+        {
+          "binding_id": "BIND-001",
+          "unit_id": "UNIT-001",
+          "unit_path": ".",
+          "profile_id": "API-FASTAPI-STATELESS-OCI",
+          "profile_scope": "deployable",
+          "selection_decision": "ADR-001",
+          "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+          "state": "confirmed"
+        }
+      ],
+      "all_assets": [],
+      "active_assets": [],
+      "baseline": {
+        "document": "e0b73b2361bf2932e814fce46b0b9b18c9dbb00ecdb904c1a72e8e804426d6fc",
+        "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+        "model_valid": true,
+        "model_errors": [],
+        "active_errors": []
+      },
+      "planning_status": "complete",
+      "planning_integrity": "valid",
+      "mutation_observations": [
+        {
+          "kind": "normative_prose_outside_table",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "e0b73b2361bf2932e814fce46b0b9b18c9dbb00ecdb904c1a72e8e804426d6fc",
+            "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "237d56c64a4b40786e83d3f9a02ad2894bbccc9d0bfbfff4a08070a2b44e3757",
+            "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "active_statement_cell",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "e0b73b2361bf2932e814fce46b0b9b18c9dbb00ecdb904c1a72e8e804426d6fc",
+            "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "c2f612af28c4c7efb404eab4c4d4c898b8706e3a28d8a23a5abd6d376f5eaa5c",
+            "active": "6913110af271b1048a54cc4904a095b3fe350268f2fe55c30d5a10658cf88708",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        }
+      ],
+      "corpus_directory": "corpora/parallel_three_tasks"
+    },
+    {
+      "name": "calculator_partial",
+      "indexed_md_files": 22,
+      "all_md_files": 23,
+      "indexed_source_text_without_labels": {
+        "characters": 32233,
+        "utf8_bytes": 32359
+      },
+      "indexed_corpus_with_labels": {
+        "characters": 33376,
+        "utf8_bytes": 33502
+      },
+      "outside_table_stats_per_file": {
+        "docs/lks-sdd/00-control/open-points.md": {
+          "non_table_body": {
+            "characters": 20,
+            "utf8_bytes": 20
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/00-control/project-status.md": {
+          "non_table_body": {
+            "characters": 416,
+            "utf8_bytes": 421
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 340,
+            "utf8_bytes": 345
+          }
+        },
+        "docs/lks-sdd/00-control/scope-register.md": {
+          "non_table_body": {
+            "characters": 246,
+            "utf8_bytes": 251
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 170,
+            "utf8_bytes": 174
+          }
+        },
+        "docs/lks-sdd/01-context/constraints.md": {
+          "non_table_body": {
+            "characters": 108,
+            "utf8_bytes": 109
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 89,
+            "utf8_bytes": 90
+          }
+        },
+        "docs/lks-sdd/01-context/product-brief.md": {
+          "non_table_body": {
+            "characters": 974,
+            "utf8_bytes": 988
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 768,
+            "utf8_bytes": 781
+          }
+        },
+        "docs/lks-sdd/02-requirements/acceptance-criteria.md": {
+          "non_table_body": {
+            "characters": 154,
+            "utf8_bytes": 158
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 125,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/02-requirements/functional-requirements.md": {
+          "non_table_body": {
+            "characters": 120,
+            "utf8_bytes": 122
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 92,
+            "utf8_bytes": 94
+          }
+        },
+        "docs/lks-sdd/02-requirements/non-functional-requirements.md": {
+          "non_table_body": {
+            "characters": 115,
+            "utf8_bytes": 115
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 84,
+            "utf8_bytes": 84
+          }
+        },
+        "docs/lks-sdd/02-requirements/technical-requirements.md": {
+          "non_table_body": {
+            "characters": 131,
+            "utf8_bytes": 134
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 106,
+            "utf8_bytes": 108
+          }
+        },
+        "docs/lks-sdd/03-solution/architecture.md": {
+          "non_table_body": {
+            "characters": 335,
+            "utf8_bytes": 339
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 236,
+            "utf8_bytes": 239
+          }
+        },
+        "docs/lks-sdd/03-solution/solution-overview.md": {
+          "non_table_body": {
+            "characters": 199,
+            "utf8_bytes": 205
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 130,
+            "utf8_bytes": 133
+          }
+        },
+        "docs/lks-sdd/04-delivery/delivery-governance.md": {
+          "non_table_body": {
+            "characters": 655,
+            "utf8_bytes": 666
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 586,
+            "utf8_bytes": 597
+          }
+        },
+        "docs/lks-sdd/04-delivery/increments.md": {
+          "non_table_body": {
+            "characters": 1145,
+            "utf8_bytes": 1152
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 1046,
+            "utf8_bytes": 1053
+          }
+        },
+        "docs/lks-sdd/04-delivery/planning-coverage.md": {
+          "non_table_body": {
+            "characters": 1078,
+            "utf8_bytes": 1087
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 898,
+            "utf8_bytes": 903
+          }
+        },
+        "docs/lks-sdd/04-delivery/plans.md": {
+          "non_table_body": {
+            "characters": 436,
+            "utf8_bytes": 438
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 373,
+            "utf8_bytes": 375
+          }
+        },
+        "docs/lks-sdd/04-delivery/risks-dependencies.md": {
+          "non_table_body": {
+            "characters": 98,
+            "utf8_bytes": 99
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 70,
+            "utf8_bytes": 71
+          }
+        },
+        "docs/lks-sdd/04-delivery/task-tracking.md": {
+          "non_table_body": {
+            "characters": 349,
+            "utf8_bytes": 351
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 206
+          }
+        },
+        "docs/lks-sdd/04-delivery/tasks.md": {
+          "non_table_body": {
+            "characters": 605,
+            "utf8_bytes": 610
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 534,
+            "utf8_bytes": 538
+          }
+        },
+        "docs/lks-sdd/05-quality/quality-strategy.md": {
+          "non_table_body": {
+            "characters": 176,
+            "utf8_bytes": 177
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 127,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/05-quality/test-strategy.md": {
+          "non_table_body": {
+            "characters": 232,
+            "utf8_bytes": 234
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 207
+          }
+        },
+        "docs/lks-sdd/05-quality/traceability.md": {
+          "non_table_body": {
+            "characters": 172,
+            "utf8_bytes": 175
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 154,
+            "utf8_bytes": 157
+          }
+        },
+        "docs/lks-sdd/06-operation/deployment.md": {
+          "non_table_body": {
+            "characters": 242,
+            "utf8_bytes": 246
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 208,
+            "utf8_bytes": 212
+          }
+        }
+      },
+      "model_rows": 98,
+      "model_nodes": 48,
+      "active_rows": 73,
+      "active_node_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "AC-009",
+        "AC-010",
+        "AC-011",
+        "AC-012",
+        "ADR-001",
+        "ENV-001",
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "INC-001",
+        "PLAN-001",
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "TEST-004",
+        "TEST-005",
+        "TEST-006",
+        "TEST-007",
+        "TEST-008",
+        "TEST-009",
+        "TEST-010",
+        "TEST-011",
+        "TEST-012",
+        "UNIT-001"
+      ],
+      "active_projection": {
+        "characters": 9146,
+        "utf8_bytes": 9146
+      },
+      "tasks": {
+        "TASK-001": {
+          "assigned_item_ids": [
+            "AC-001",
+            "ADR-001",
+            "FR-001",
+            "TEST-001"
+          ],
+          "rows": 5,
+          "text": {
+            "characters": 1310,
+            "utf8_bytes": 1310
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        }
+      },
+      "bindings": [
+        {
+          "binding_id": "BIND-001",
+          "unit_id": "UNIT-001",
+          "unit_path": ".",
+          "profile_id": "API-FASTAPI-STATELESS-OCI",
+          "profile_scope": "deployable",
+          "selection_decision": "ADR-001",
+          "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+          "state": "confirmed"
+        }
+      ],
+      "all_assets": [],
+      "active_assets": [],
+      "baseline": {
+        "document": "e7e8272291f1077a2848711b4170e50418a6a15da3e8d3bc40299443e225ed4a",
+        "active": "62e4970b24d1a39a136af75f7f5827b07937935d9b0a1d0970b7ef0118f1bb08",
+        "model_valid": true,
+        "model_errors": [],
+        "active_errors": []
+      },
+      "planning_status": "partial",
+      "planning_integrity": "valid",
+      "mutation_observations": [
+        {
+          "kind": "normative_prose_outside_table",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "e7e8272291f1077a2848711b4170e50418a6a15da3e8d3bc40299443e225ed4a",
+            "active": "62e4970b24d1a39a136af75f7f5827b07937935d9b0a1d0970b7ef0118f1bb08",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "cc95a74878de9204e4c85de6738aded111a4e6843d43eae0a588424e53000274",
+            "active": "62e4970b24d1a39a136af75f7f5827b07937935d9b0a1d0970b7ef0118f1bb08",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "active_statement_cell",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "e7e8272291f1077a2848711b4170e50418a6a15da3e8d3bc40299443e225ed4a",
+            "active": "62e4970b24d1a39a136af75f7f5827b07937935d9b0a1d0970b7ef0118f1bb08",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "3f461aaa7199b19e46c685f80e9627d5e1a43dc76170e60d3ff9df4cc48e135c",
+            "active": "e433a07ef36fea5b5f833a2fe84e92b736bb49ad14b9e9ba5fa7cf9208655eed",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        }
+      ],
+      "corpus_directory": "corpora/calculator_partial"
+    },
+    {
+      "name": "two_profile_bindings",
+      "indexed_md_files": 22,
+      "all_md_files": 24,
+      "indexed_source_text_without_labels": {
+        "characters": 27824,
+        "utf8_bytes": 27950
+      },
+      "indexed_corpus_with_labels": {
+        "characters": 28967,
+        "utf8_bytes": 29093
+      },
+      "outside_table_stats_per_file": {
+        "docs/lks-sdd/00-control/open-points.md": {
+          "non_table_body": {
+            "characters": 20,
+            "utf8_bytes": 20
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 0,
+            "utf8_bytes": 0
+          }
+        },
+        "docs/lks-sdd/00-control/project-status.md": {
+          "non_table_body": {
+            "characters": 416,
+            "utf8_bytes": 421
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 340,
+            "utf8_bytes": 345
+          }
+        },
+        "docs/lks-sdd/00-control/scope-register.md": {
+          "non_table_body": {
+            "characters": 246,
+            "utf8_bytes": 251
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 170,
+            "utf8_bytes": 174
+          }
+        },
+        "docs/lks-sdd/01-context/constraints.md": {
+          "non_table_body": {
+            "characters": 108,
+            "utf8_bytes": 109
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 89,
+            "utf8_bytes": 90
+          }
+        },
+        "docs/lks-sdd/01-context/product-brief.md": {
+          "non_table_body": {
+            "characters": 974,
+            "utf8_bytes": 988
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 768,
+            "utf8_bytes": 781
+          }
+        },
+        "docs/lks-sdd/02-requirements/acceptance-criteria.md": {
+          "non_table_body": {
+            "characters": 154,
+            "utf8_bytes": 158
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 125,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/02-requirements/functional-requirements.md": {
+          "non_table_body": {
+            "characters": 120,
+            "utf8_bytes": 122
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 92,
+            "utf8_bytes": 94
+          }
+        },
+        "docs/lks-sdd/02-requirements/non-functional-requirements.md": {
+          "non_table_body": {
+            "characters": 115,
+            "utf8_bytes": 115
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 84,
+            "utf8_bytes": 84
+          }
+        },
+        "docs/lks-sdd/02-requirements/technical-requirements.md": {
+          "non_table_body": {
+            "characters": 131,
+            "utf8_bytes": 134
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 106,
+            "utf8_bytes": 108
+          }
+        },
+        "docs/lks-sdd/03-solution/architecture.md": {
+          "non_table_body": {
+            "characters": 335,
+            "utf8_bytes": 339
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 236,
+            "utf8_bytes": 239
+          }
+        },
+        "docs/lks-sdd/03-solution/solution-overview.md": {
+          "non_table_body": {
+            "characters": 199,
+            "utf8_bytes": 205
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 130,
+            "utf8_bytes": 133
+          }
+        },
+        "docs/lks-sdd/04-delivery/delivery-governance.md": {
+          "non_table_body": {
+            "characters": 655,
+            "utf8_bytes": 666
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 586,
+            "utf8_bytes": 597
+          }
+        },
+        "docs/lks-sdd/04-delivery/increments.md": {
+          "non_table_body": {
+            "characters": 1145,
+            "utf8_bytes": 1152
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 1046,
+            "utf8_bytes": 1053
+          }
+        },
+        "docs/lks-sdd/04-delivery/planning-coverage.md": {
+          "non_table_body": {
+            "characters": 1078,
+            "utf8_bytes": 1087
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 898,
+            "utf8_bytes": 903
+          }
+        },
+        "docs/lks-sdd/04-delivery/plans.md": {
+          "non_table_body": {
+            "characters": 436,
+            "utf8_bytes": 438
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 373,
+            "utf8_bytes": 375
+          }
+        },
+        "docs/lks-sdd/04-delivery/risks-dependencies.md": {
+          "non_table_body": {
+            "characters": 98,
+            "utf8_bytes": 99
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 70,
+            "utf8_bytes": 71
+          }
+        },
+        "docs/lks-sdd/04-delivery/task-tracking.md": {
+          "non_table_body": {
+            "characters": 349,
+            "utf8_bytes": 351
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 206
+          }
+        },
+        "docs/lks-sdd/04-delivery/tasks.md": {
+          "non_table_body": {
+            "characters": 605,
+            "utf8_bytes": 610
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 534,
+            "utf8_bytes": 538
+          }
+        },
+        "docs/lks-sdd/05-quality/quality-strategy.md": {
+          "non_table_body": {
+            "characters": 176,
+            "utf8_bytes": 177
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 127,
+            "utf8_bytes": 128
+          }
+        },
+        "docs/lks-sdd/05-quality/test-strategy.md": {
+          "non_table_body": {
+            "characters": 232,
+            "utf8_bytes": 234
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 205,
+            "utf8_bytes": 207
+          }
+        },
+        "docs/lks-sdd/05-quality/traceability.md": {
+          "non_table_body": {
+            "characters": 172,
+            "utf8_bytes": 175
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 154,
+            "utf8_bytes": 157
+          }
+        },
+        "docs/lks-sdd/06-operation/deployment.md": {
+          "non_table_body": {
+            "characters": 242,
+            "utf8_bytes": 246
+          },
+          "non_table_non_heading_nonblank": {
+            "characters": 208,
+            "utf8_bytes": 212
+          }
+        }
+      },
+      "model_rows": 46,
+      "model_nodes": 18,
+      "active_rows": 20,
+      "active_node_ids": [
+        "AC-001",
+        "ADR-001",
+        "ENV-001",
+        "FR-001",
+        "INC-001",
+        "PLAN-001",
+        "TEST-001",
+        "UNIT-001",
+        "UNIT-002"
+      ],
+      "active_projection": {
+        "characters": 4855,
+        "utf8_bytes": 4855
+      },
+      "tasks": {
+        "TASK-001": {
+          "assigned_item_ids": [
+            "AC-001",
+            "ADR-001",
+            "FR-001",
+            "TEST-001"
+          ],
+          "rows": 5,
+          "text": {
+            "characters": 1310,
+            "utf8_bytes": 1310
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        },
+        "TASK-002": {
+          "assigned_item_ids": [],
+          "rows": 1,
+          "text": {
+            "characters": 412,
+            "utf8_bytes": 412
+          },
+          "sufficient_context": "not-assessed-seeds-only"
+        }
+      },
+      "bindings": [
+        {
+          "binding_id": "BIND-001",
+          "unit_id": "UNIT-001",
+          "unit_path": ".",
+          "profile_id": "API-FASTAPI-STATELESS-OCI",
+          "profile_scope": "deployable",
+          "selection_decision": "ADR-001",
+          "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
+          "state": "confirmed"
+        },
+        {
+          "binding_id": "BIND-002",
+          "unit_id": "UNIT-002",
+          "unit_path": "web",
+          "profile_id": "WEB-REACT-VITE-STATIC",
+          "profile_scope": "deployable",
+          "selection_decision": "ADR-003",
+          "lock_path": ".lks-sdd/profiles/BIND-002.lock.json",
+          "state": "confirmed"
+        }
+      ],
+      "all_assets": [],
+      "active_assets": [],
+      "baseline": {
+        "document": "f5cbb5daa4af4b0da08fbc7cbd5cfd8d6c76a55fef1b528a58eea8f22ea57c7f",
+        "active": "29e0cd0940bcd1b4622390c028d0b8150fed0164ed422a2b1c9ec9ac172ded2f",
+        "model_valid": true,
+        "model_errors": [],
+        "active_errors": []
+      },
+      "planning_status": "partial",
+      "planning_integrity": "valid",
+      "mutation_observations": [
+        {
+          "kind": "normative_prose_outside_table",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "f5cbb5daa4af4b0da08fbc7cbd5cfd8d6c76a55fef1b528a58eea8f22ea57c7f",
+            "active": "29e0cd0940bcd1b4622390c028d0b8150fed0164ed422a2b1c9ec9ac172ded2f",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "9be01d5fdfdb4d68a56e2b8bc5a70f0ce97e69f841de3c758b72f7df69a910f2",
+            "active": "29e0cd0940bcd1b4622390c028d0b8150fed0164ed422a2b1c9ec9ac172ded2f",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": false
+        },
+        {
+          "kind": "active_statement_cell",
+          "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+          "baseline": {
+            "document": "f5cbb5daa4af4b0da08fbc7cbd5cfd8d6c76a55fef1b528a58eea8f22ea57c7f",
+            "active": "29e0cd0940bcd1b4622390c028d0b8150fed0164ed422a2b1c9ec9ac172ded2f",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "observed": {
+            "document": "e789d5a1ab854e5142f28d66b86a2e6a6b4506cc884411edf433ba22d058f16a",
+            "active": "739d90f2f611876f413352e6543680c46d0ffea24f820085cb8807f54edbc668",
+            "model_valid": true,
+            "model_errors": [],
+            "active_errors": []
+          },
+          "document_changed": true,
+          "active_changed": true
+        }
+      ],
+      "corpus_directory": "corpora/two_profile_bindings"
+    }
+  ]
+}

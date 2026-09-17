@@ -1,0 +1,55 @@
+docs/lks-sdd/02-requirements/acceptance-criteria.md#requirements.acceptance
+ID | State | Condition | Requirement | Evidence
+AC-002 | confirmed | The second request path is acknowledged. | FR-002 | none
+AC-001 | confirmed | Given valid synthetic data, the request is acknowledged. | FR-001 | none
+docs/lks-sdd/02-requirements/functional-requirements.md#requirements.functional
+ID | State | Statement | Source | Priority | Acceptance | Increment
+FR-002 | confirmed | A second independent request path is available. | user-confirmed | must | AC-002 | INC-001
+FR-001 | confirmed | A user can submit one synthetic request. | user-confirmed | must | AC-001 | INC-001
+docs/lks-sdd/03-solution/architecture.md#solution.architecture-units
+Unit | State | Component | Responsibility | Runtime boundary | Interfaces | Data ownership | Requirements | Profile binding
+UNIT-001 | confirmed | Stateless acknowledgement API | Accept and acknowledge synthetic requests | OCI service boundary | HTTP/OpenAPI | none: stateless | FR-001 | BIND-001
+docs/lks-sdd/03-solution/solution-overview.md#solution.decisions
+ID | State | Decision | Requirements | Impact
+ADR-001 | confirmed | Select API-FASTAPI-STATELESS-OCI for UNIT-001. | FR-001 | Limited to INC-001 and BIND-001
+docs/lks-sdd/04-delivery/delivery-governance.md#delivery.environments
+ID | State | Role | Promotion order | Deployables | Approval | Configuration | Data | Observability | Recovery
+ENV-001 | confirmed | CI verification | 1 | UNIT-001 | automated gate plus human release authority | environment variables without secrets | synthetic and ephemeral | structured logs and health | discard environment and restore prior artifact
+docs/lks-sdd/04-delivery/increments.md#delivery.domains
+Increment | Domain | Applicability | References | Reason
+INC-001 | integrations | not-applicable | none | The fixture calls no external system.
+INC-001 | privacy | not-applicable | none | No personal data is processed by this fixture.
+INC-001 | security | not-applicable | none | No protected boundary is introduced by this fixture.
+INC-001 | identity | not-applicable | none | The synthetic fixture has no accounts.
+INC-001 | data | not-applicable | none | The fixture does not persist domain data.
+docs/lks-sdd/04-delivery/increments.md#delivery.increments
+ID | State | In scope | Out of scope | Requirements | Acceptance | Decisions | Tests
+INC-001 | confirmed | Submit two independent requests and verify their joint release | Reporting and administration | FR-001..FR-002 | AC-001..AC-002 | ADR-001 | TEST-001..TEST-003
+docs/lks-sdd/04-delivery/increments.md#delivery.interface
+Increment | Interface applicability | UX contract | Visual mode | Visual prototype | Reason
+INC-001 | not-applicable: API-only synthetic increment | not-applicable: no human-facing interface | none | not-applicable: no visual change | The fixture exercises a service acknowledgement without screens or interactions.
+docs/lks-sdd/04-delivery/plans.md#delivery.plans
+ID | State | Name | Delivery model | Major horizon | Objective | Increments | Dependencies | Owner | Review date
+PLAN-001 | active | Synthetic continuous delivery | continuous-evolution | 0.x | Deliver INC-001 with verifiable evidence | INC-001 | not-applicable: initial plan | fixture-owner | 2026-11-19
+docs/lks-sdd/04-delivery/tasks.md#delivery.tasks
+ID | Plan | Title | Release | Increment | Unit | Profile binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated
+TASK-003 | PLAN-001 | Integrate and verify release | REL-001 | INC-001 | UNIT-001 | BIND-001 | backlog | unknown | 0 | TASK-001, TASK-002 | none | fixture-owner | ./tasks/TASK-003.md | 2026-08-22
+TASK-002 | PLAN-001 | Implement second request path | REL-001 | INC-001 | UNIT-001 | BIND-001 | ready | on-track | 0 | not-applicable: independent root | none | fixture-owner | ./tasks/TASK-002.md | 2026-08-22
+TASK-001 | PLAN-001 | Implement synthetic acknowledgement | REL-001 | INC-001 | UNIT-001 | BIND-001 | ready | on-track | 0 | not-applicable: no prerequisite task | none | fixture-owner | ./tasks/TASK-001.md | 2026-08-19
+docs/lks-sdd/05-quality/quality-strategy.md#quality.tests
+ID | State | Purpose | Increment | Acceptance
+TEST-003 | planned | Verify joint release integration | INC-001 | AC-001, AC-002
+TEST-002 | planned | Verify the second request path | INC-001 | AC-002
+TEST-001 | planned | Verify acknowledgement for valid synthetic data | INC-001 | AC-001
+docs/lks-sdd/05-quality/test-strategy.md#quality.test-detail
+Test | Level or type | Scope | Acceptance | Environment | Evidence
+TEST-003 | integration | Verify joint release integration | AC-001, AC-002 | ENV-001 | pending: executed during G3
+TEST-002 | integration | Verify the second request path | AC-002 | ENV-001 | pending: executed during G3
+TEST-001 | API integration | INC-001 acknowledgement | AC-001 | ENV-001 | pending: executed during G3
+docs/lks-sdd/05-quality/traceability.md#quality.traceability
+Requirement | Acceptance | Decision | Increment | Test | Evidence
+FR-002 | AC-002 | ADR-001 | INC-001 | TEST-002, TEST-003 | none
+FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | none
+docs/lks-sdd/06-operation/deployment.md#operation.deployment-units
+Environment | State | Role | Deployment unit | Artifact strategy | Configuration | Deployment strategy | Recovery | Observability | Requirements
+ENV-001 | confirmed | CI verification | UNIT-001 | immutable OCI digest | environment variables without secrets | replace and smoke | restore previous digest | health and structured logs | FR-001

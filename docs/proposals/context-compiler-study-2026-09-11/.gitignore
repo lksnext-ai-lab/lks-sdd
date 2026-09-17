@@ -1,0 +1,7 @@
+.npm-cache/
+.vendor/
+.tmp/
+*.tgz
+__pycache__/
+repo-probe/temporary/
+repo-probe/.tmp/

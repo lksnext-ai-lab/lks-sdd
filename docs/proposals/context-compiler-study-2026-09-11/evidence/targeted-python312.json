@@ -1,0 +1,15 @@
+{
+  "command": [
+    "C:/Users/j.ormazabal/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe",
+    "-X",
+    "utf8",
+    "tests/run_unit_tests.py",
+    "--module",
+    "test_contract_engine",
+    "--module",
+    "test_planning_continuity_v13"
+  ],
+  "exit_code": 1,
+  "seconds": 12.058,
+  "temp_directory": "C:\\Users\\j.ormazabal\\Documents\\ChatGPT\\LKS SDD\\docs\\proposals\\context-compiler-study-2026-09-11\\.tmp\\targeted-python312"
+}

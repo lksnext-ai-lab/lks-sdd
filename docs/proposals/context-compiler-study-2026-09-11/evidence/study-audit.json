@@ -1,0 +1,399 @@
+{
+  "status": "evidence-consistency-not-semantic-certification",
+  "checks": [
+    {
+      "name": "sha256:code-experiment/evaluate.py",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/prompt-compact_complete.md",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/prompt-direct_only.md",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/prompt-full.md",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/prompt-contract_preserved.md",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/prompt-literal_selected.md",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-full.py",
+      "passed": true
+    },
+    {
+      "name": "oracle-identical:full",
+      "passed": true
+    },
+    {
+      "name": "observed-outcome:full",
+      "passed": true
+    },
+    {
+      "name": "assertion-totals:full",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-direct_only.py",
+      "passed": true
+    },
+    {
+      "name": "oracle-identical:direct_only",
+      "passed": true
+    },
+    {
+      "name": "observed-outcome:direct_only",
+      "passed": true
+    },
+    {
+      "name": "assertion-totals:direct_only",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-compact_complete.py",
+      "passed": true
+    },
+    {
+      "name": "oracle-identical:compact_complete",
+      "passed": true
+    },
+    {
+      "name": "observed-outcome:compact_complete",
+      "passed": true
+    },
+    {
+      "name": "assertion-totals:compact_complete",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-contract_preserved.py",
+      "passed": true
+    },
+    {
+      "name": "oracle-identical:contract_preserved",
+      "passed": true
+    },
+    {
+      "name": "observed-outcome:contract_preserved",
+      "passed": true
+    },
+    {
+      "name": "assertion-totals:contract_preserved",
+      "passed": true
+    },
+    {
+      "name": "36-distinct-input-cases",
+      "passed": true
+    },
+    {
+      "name": "matching-oracle-ids",
+      "passed": true
+    },
+    {
+      "name": "oracle-26-ready",
+      "passed": true
+    },
+    {
+      "name": "sha256:tools/selection_experiment.py",
+      "passed": true
+    },
+    {
+      "name": "sha256:cases/inputs.json",
+      "passed": true
+    },
+    {
+      "name": "sha256:cases/oracle.json",
+      "passed": true
+    },
+    {
+      "name": "sha256:tools/selection_revision.py",
+      "passed": true
+    },
+    {
+      "name": "sha256:cases/inputs.json",
+      "passed": true
+    },
+    {
+      "name": "sha256:cases/oracle.json",
+      "passed": true
+    },
+    {
+      "name": "180-stress-observations",
+      "passed": true
+    },
+    {
+      "name": "6-probe-cases",
+      "passed": true
+    },
+    {
+      "name": "probe-source-integrity",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-compact_complete.py",
+      "passed": true
+    },
+    {
+      "name": "posthoc-outcome:candidate-compact_complete.py",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-contract_preserved.py",
+      "passed": true
+    },
+    {
+      "name": "posthoc-outcome:candidate-contract_preserved.py",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-direct_only.py",
+      "passed": true
+    },
+    {
+      "name": "posthoc-outcome:candidate-direct_only.py",
+      "passed": true
+    },
+    {
+      "name": "sha256:code-experiment/candidate-full.py",
+      "passed": true
+    },
+    {
+      "name": "posthoc-outcome:candidate-full.py",
+      "passed": true
+    },
+    {
+      "name": "8-guard-checks",
+      "passed": true
+    },
+    {
+      "name": "syntax:build_code_experiment.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:build_revised_code_prompt.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:capture_baseline.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:check_context_integrity.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:measure_corpora.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:posthoc_code_checks.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:run_check.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:score_selection.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:selection_experiment.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:selection_revision.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:stress_selection.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:unpack_tokenizer.py",
+      "passed": true
+    },
+    {
+      "name": "syntax:verify_study.py",
+      "passed": true
+    },
+    {
+      "name": "unicode:INFORME.md",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:research/sources.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:research/notes.md",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:repo-probe/README.md",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:repo-probe/results.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:cases/README.md",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:selection-experiment/results-v1.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:selection-experiment/results-v2.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:selection-experiment/stress-results.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:tools/check_context_integrity.py",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:selection-experiment/integrity-guard-tests.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:code-experiment/design.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:code-experiment/revision-design.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:code-experiment/posthoc-results.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:evidence/format-results.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:evidence/tokenizer-provenance.json",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:evidence/",
+      "passed": true
+    },
+    {
+      "name": "link:INFORME.md:review.md",
+      "passed": true
+    },
+    {
+      "name": "unicode:README.md",
+      "passed": true
+    },
+    {
+      "name": "link:README.md:INFORME.md",
+      "passed": true
+    },
+    {
+      "name": "link:README.md:repo-probe/README.md",
+      "passed": true
+    },
+    {
+      "name": "receipt:targeted-native",
+      "passed": true
+    },
+    {
+      "name": "receipt:plugin-contract",
+      "passed": true
+    },
+    {
+      "name": "receipt:fixture-manifest",
+      "passed": true
+    },
+    {
+      "name": "receipt:plugin-ingestion",
+      "passed": true
+    },
+    {
+      "name": "receipt:reference-structure",
+      "passed": true
+    },
+    {
+      "name": "receipt:repo-probe-confirmed",
+      "passed": true
+    },
+    {
+      "name": "receipt:quick-adopt",
+      "passed": true
+    },
+    {
+      "name": "receipt:quick-define",
+      "passed": true
+    },
+    {
+      "name": "receipt:quick-help",
+      "passed": true
+    },
+    {
+      "name": "receipt:quick-implement",
+      "passed": true
+    },
+    {
+      "name": "receipt:quick-readiness",
+      "passed": true
+    },
+    {
+      "name": "receipt:quick-verify",
+      "passed": true
+    }
+  ],
+  "passed": 89,
+  "total": 89,
+  "git_diff_check_exit": 0,
+  "git_diff_check_output": "warning: in the working copy of 'docs/proposals/context-compiler-study-2026-09-11/selection-experiment/freeze-v1.json', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'docs/proposals/context-compiler-study-2026-09-11/selection-experiment/freeze-v2.json', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'docs/proposals/context-compiler-study-2026-09-11/selection-experiment/results-v1.json', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'docs/proposals/context-compiler-study-2026-09-11/selection-experiment/results-v2.json', CRLF will be replaced by LF the next time Git touches it\n",
+  "preexisting_files_changed_since_baseline": [
+    ".codex-plugin/plugin.json",
+    ".github/workflows/quality.yml",
+    "CHANGELOG.md",
+    "README.md",
+    "docs/ARCHITECTURE.md",
+    "docs/COMPATIBILITY.md",
+    "docs/DISTRIBUTION.md",
+    "docs/RELEASING.md",
+    "docs/VALIDATION.md",
+    "pilot/pilot-config.example.json",
+    "quality/test-suites.json",
+    "schemas/pilot-config.schema.json",
+    "scripts/build_candidate_package.py",
+    "scripts/experience_engine.py",
+    "scripts/validate_plugin_contract.py",
+    "skills/lks-sdd-adopt-existing/scripts/materialize_adoption.py",
+    "skills/lks-sdd-define/scripts/init_project.py",
+    "skills/lks-sdd-help/SKILL.md",
+    "skills/lks-sdd-help/references/capabilities-and-limits.md",
+    "tests/test_m5_pilot.py",
+    "distribution/dual.json",
+    "distribution/host-copilot.md",
+    "docs/DUAL-HOST-ACCEPTANCE.md",
+    "docs/INSTALLATION.md",
+    "docs/LKS-SDD-SITE-STORYBOARD.md",
+    "docs/releases/v1.1.0-rc.1.md",
+    "scripts/dual_distribution.py",
+    "scripts/manage_visual_handoff.py",
+    "scripts/runtime_doctor.py",
+    "tests/test_dual_distribution.py",
+    "tests/test_visual_handoff.py"
+  ],
+  "concurrent_changes_note": "Observed drift is not attributed to this study; no restoration or mutation is performed."
+}

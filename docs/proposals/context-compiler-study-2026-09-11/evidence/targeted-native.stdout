@@ -1,0 +1,374 @@
+{
+  "schema_version": "1.0",
+  "suite": "LKS-SDD unittest",
+  "selected_suite": "all",
+  "passed": true,
+  "duration_seconds": 86.353,
+  "runner_fingerprint": {
+    "os": "windows",
+    "architecture": "amd64",
+    "python": "3.14",
+    "implementation": "cpython",
+    "runner_class": "local"
+  },
+  "command": [
+    "run_unit_tests.py",
+    "--module",
+    "test_contract_engine",
+    "--module",
+    "test_planning_continuity_v13"
+  ],
+  "termination": "normal",
+  "counts": {
+    "total": 36,
+    "passed": 36,
+    "skipped": 0,
+    "failed": 0
+  },
+  "modules": [
+    {
+      "module": "test_contract_engine",
+      "tier": "fast",
+      "status": "passed",
+      "duration_seconds": 0.954,
+      "timeout_seconds": 60,
+      "termination": "normal",
+      "process_cleanup": "not-required"
+    },
+    {
+      "module": "test_planning_continuity_v13",
+      "tier": "integration",
+      "status": "passed",
+      "duration_seconds": 86.172,
+      "timeout_seconds": 180,
+      "termination": "normal",
+      "process_cleanup": "not-required"
+    }
+  ],
+  "slowest_tests": [
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_incremental_policy_authorizes_only_the_explicit_ready_slice",
+      "name": "test_incremental_policy_authorizes_only_the_explicit_ready_slice",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 21.343
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_checkpoint_reconstructs_partial_blocked_and_independent_work",
+      "name": "test_checkpoint_reconstructs_partial_blocked_and_independent_work",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 19.497
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_parallel_execution_start_preserves_existing_active_tasks",
+      "name": "test_parallel_execution_start_preserves_existing_active_tasks",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 14.188
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_scope_change_stales_planning_and_authorization",
+      "name": "test_scope_change_stales_planning_and_authorization",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 4.696
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_cancelled_dependency_does_not_unlock_task",
+      "name": "test_cancelled_dependency_does_not_unlock_task",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 4.155
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_authorization_constraints_cannot_diverge_from_canonical_markdown",
+      "name": "test_authorization_constraints_cannot_diverge_from_canonical_markdown",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 3.109
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_coverage_responsibility_change_stales_authorization",
+      "name": "test_coverage_responsibility_change_stales_authorization",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.75
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_calculator_release_remains_partial_when_only_task_001_is_ready",
+      "name": "test_calculator_release_remains_partial_when_only_task_001_is_ready",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.338
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_plan_change_stales_authorization_without_operational_noise",
+      "name": "test_plan_change_stales_authorization_without_operational_noise",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.317
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_complete_plan_exposes_parallel_frontier_and_authorization",
+      "name": "test_complete_plan_exposes_parallel_frontier_and_authorization",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.224
+    }
+  ],
+  "results": [
+    {
+      "id": "test_contract_engine.ContractRegistryTests.test_packaged_catalog_and_schema_are_json",
+      "name": "test_packaged_catalog_and_schema_are_json",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.003
+    },
+    {
+      "id": "test_contract_engine.ContractRegistryTests.test_registry_exposes_only_the_current_project_contract",
+      "name": "test_registry_exposes_only_the_current_project_contract",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.006
+    },
+    {
+      "id": "test_contract_engine.DiagnosticProjectionTests.test_structured_diagnostics_have_deduplicated_message_views",
+      "name": "test_structured_diagnostics_have_deduplicated_message_views",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.0
+    },
+    {
+      "id": "test_contract_engine.ProjectModelTests.test_active_contract_excludes_foreign_scoped_trace_and_keeps_ux_details",
+      "name": "test_active_contract_excludes_foreign_scoped_trace_and_keeps_ux_details",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.091
+    },
+    {
+      "id": "test_contract_engine.ProjectModelTests.test_active_fingerprint_excludes_rejected_assets",
+      "name": "test_active_fingerprint_excludes_rejected_assets",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.149
+    },
+    {
+      "id": "test_contract_engine.ProjectModelTests.test_active_reference_to_historical_node_has_one_root_diagnostic",
+      "name": "test_active_reference_to_historical_node_has_one_root_diagnostic",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.075
+    },
+    {
+      "id": "test_contract_engine.ProjectModelTests.test_domain_matrix_is_required_for_each_declared_increment",
+      "name": "test_domain_matrix_is_required_for_each_declared_increment",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.083
+    },
+    {
+      "id": "test_contract_engine.ProjectModelTests.test_ids_in_narrative_cells_are_not_treated_as_relations",
+      "name": "test_ids_in_narrative_cells_are_not_treated_as_relations",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.024
+    },
+    {
+      "id": "test_contract_engine.ProjectModelTests.test_table_owner_and_state_policy_are_enforced",
+      "name": "test_table_owner_and_state_policy_are_enforced",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.027
+    },
+    {
+      "id": "test_contract_engine.ReferenceParserTests.test_canonical_ranges_and_lists_expand_inclusively",
+      "name": "test_canonical_ranges_and_lists_expand_inclusively",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.0
+    },
+    {
+      "id": "test_contract_engine.ReferenceParserTests.test_invalid_ranges_are_atomic",
+      "name": "test_invalid_ranges_are_atomic",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.001
+    },
+    {
+      "id": "test_contract_engine.ReferenceParserTests.test_optional_cardinality_does_not_override_non_empty_contract",
+      "name": "test_optional_cardinality_does_not_override_non_empty_contract",
+      "module": "test_contract_engine",
+      "status": "passed",
+      "duration_seconds": 0.0
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_authorization_constraints_cannot_diverge_from_canonical_markdown",
+      "name": "test_authorization_constraints_cannot_diverge_from_canonical_markdown",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 3.109
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_authorization_rejects_a_proposed_decision",
+      "name": "test_authorization_rejects_a_proposed_decision",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 1.022
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_calculator_release_remains_partial_when_only_task_001_is_ready",
+      "name": "test_calculator_release_remains_partial_when_only_task_001_is_ready",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.338
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_cancelled_dependency_does_not_unlock_task",
+      "name": "test_cancelled_dependency_does_not_unlock_task",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 4.155
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_checkpoint_reconstructs_partial_blocked_and_independent_work",
+      "name": "test_checkpoint_reconstructs_partial_blocked_and_independent_work",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 19.497
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_complete_plan_exposes_parallel_frontier_and_authorization",
+      "name": "test_complete_plan_exposes_parallel_frontier_and_authorization",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.224
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_coverage_rejects_contributors_outside_the_release_objective",
+      "name": "test_coverage_rejects_contributors_outside_the_release_objective",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.621
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_coverage_responsibility_change_stales_authorization",
+      "name": "test_coverage_responsibility_change_stales_authorization",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.75
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_critical_path_is_undetermined_without_confirmed_durations",
+      "name": "test_critical_path_is_undetermined_without_confirmed_durations",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.341
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_explanatory_pending_placeholder_is_not_executable_content",
+      "name": "test_explanatory_pending_placeholder_is_not_executable_content",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.578
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_incremental_policy_authorizes_only_the_explicit_ready_slice",
+      "name": "test_incremental_policy_authorizes_only_the_explicit_ready_slice",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 21.343
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_migrated_ready_task_keeps_workflow_but_loses_executable_readiness",
+      "name": "test_migrated_ready_task_keeps_workflow_but_loses_executable_readiness",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.826
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_parallel_execution_start_preserves_existing_active_tasks",
+      "name": "test_parallel_execution_start_preserves_existing_active_tasks",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 14.188
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_plan_change_stales_authorization_without_operational_noise",
+      "name": "test_plan_change_stales_authorization_without_operational_noise",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 2.317
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_plan_is_partial_when_binding_contract_cannot_be_loaded",
+      "name": "test_plan_is_partial_when_binding_contract_cannot_be_loaded",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.463
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_planning_change_rejects_unknown_classification_and_bad_hashes",
+      "name": "test_planning_change_rejects_unknown_classification_and_bad_hashes",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.513
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_proposed_change_does_not_become_confirmed_impact",
+      "name": "test_proposed_change_does_not_become_confirmed_impact",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.686
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_readiness_cli_assesses_only_the_explicit_task_slice",
+      "name": "test_readiness_cli_assesses_only_the_explicit_task_slice",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 1.929
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_release_assessment_covers_every_declared_increment",
+      "name": "test_release_assessment_covers_every_declared_increment",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.427
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_release_objective_with_unassigned_scope_is_partial",
+      "name": "test_release_objective_with_unassigned_scope_is_partial",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.489
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_scope_change_stales_planning_and_authorization",
+      "name": "test_scope_change_stales_planning_and_authorization",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 4.696
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_task_capabilities_and_gates_must_belong_to_its_binding",
+      "name": "test_task_capabilities_and_gates_must_belong_to_its_binding",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.402
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_task_overlap_requires_explicit_contributor_responsibility",
+      "name": "test_task_overlap_requires_explicit_contributor_responsibility",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.382
+    },
+    {
+      "id": "test_planning_continuity_v13.PlanningContinuityV13Tests.test_verified_slice_does_not_invite_partial_release_promotion",
+      "name": "test_verified_slice_does_not_invite_partial_release_promotion",
+      "module": "test_planning_continuity_v13",
+      "status": "passed",
+      "duration_seconds": 0.0
+    }
+  ]
+}

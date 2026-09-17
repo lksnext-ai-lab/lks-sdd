@@ -1,0 +1,99 @@
+[
+  {
+    "kind": "normative_prose_outside_table",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "f8a80a10b8b9af9e6eb74e6a305ecd1796d75ee464864f02e159f4a42a4874ed",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": false
+  },
+  {
+    "kind": "active_statement_cell",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "c9df15123326a6c60823d8b95790b029c662e102e743393e2828f7c4b063e4ee",
+      "active": "3aac56402349d73c45c042bf8bf3f0aaaf0fa41d6ba8574e3ddb26905e6ca368",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": true
+  },
+  {
+    "kind": "asset_bytes_VIS-001",
+    "path": "docs/lks-sdd/03-solution/ui-prototypes/rejected.png",
+    "baseline": {
+      "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "a4a3a7a32e6309973e0e89fda09d15b0ef507dda3084bb0d35f87373a5f2732f",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": false
+  },
+  {
+    "kind": "asset_bytes_VIS-003",
+    "path": "docs/lks-sdd/03-solution/ui-prototypes/active.png",
+    "baseline": {
+      "document": "2cd35390a6da83a5bb17f65163087d0c339777f551a83f341ea6a5596a9e0f9c",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "82516f1d6b89500efb8fd4d8209614e6b70af1ed3721fd72d0511089a59d3d13",
+      "active": "5a83650059974adef67c8867d4a6291e4612b1dade4a683bd5281afee4b8ecab",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-ASSET-HASH"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": true
+  }
+]

@@ -1,0 +1,9 @@
+docs/lks-sdd/03-solution/solution-overview.md#solution.decisions
+ID | State | Decision | Requirements | Impact
+ADR-001 | confirmed | Select API-FASTAPI-STATELESS-OCI for UNIT-001. | FR-001 | Limited to INC-001 and BIND-001
+docs/lks-sdd/04-delivery/tasks.md#delivery.tasks
+ID | Plan | Title | Release | Increment | Unit | Profile binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated
+TASK-003 | PLAN-001 | Integrate and verify release | REL-001 | INC-001 | UNIT-001 | BIND-001 | backlog | unknown | 0 | TASK-001, TASK-002 | none | fixture-owner | ./tasks/TASK-003.md | 2026-08-22
+docs/lks-sdd/05-quality/quality-strategy.md#quality.tests
+ID | State | Purpose | Increment | Acceptance
+TEST-003 | planned | Verify joint release integration | INC-001 | AC-001, AC-002

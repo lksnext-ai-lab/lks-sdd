@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "-X",
+    "utf8",
+    "C:/Users/j.ormazabal/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py",
+    "."
+  ],
+  "exit_code": 0,
+  "seconds": 0.212,
+  "temp_directory": "C:\\Users\\j.ormazabal\\Documents\\ChatGPT\\LKS SDD\\docs\\proposals\\context-compiler-study-2026-09-11\\.tmp\\plugin-ingestion"
+}
