@@ -80,7 +80,8 @@ def main() -> int:
             forwarded = [forwarded[1], forwarded[0], *forwarded[2:]]
     # A shared project never silently runs a different global installation.
     migration_route = command == "migrate" or (command == "v2" and forwarded and forwarded[0] in {
-        "migration-diagnose", "migration-preview", "migrate", "recover", "rollback"})
+        "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
+        "migrate", "recover", "rollback"})
     if command not in {"runtime-doctor", "query"} and not migration_route:
         from runtime_doctor import check as check_runtime
         for argument in forwarded:

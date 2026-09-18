@@ -25,13 +25,14 @@ HISTORY = DOCS + "/00-control/history"
 KINDS = set("project feature group requirement acceptance rule constraint task increment plan release test decision interface binding environment authorization execution checkpoint problem change applicability legacy receipt visual".split())
 RELATIONS = set("parent uses depends_on requirements acceptance tests contributes_to implements modifies replaces splits merges increment release plan bindings interfaces environments decision authorizes execution verifies sources affects".split())
 OPERATIONAL = {"authorization", "execution", "checkpoint", "problem", "receipt"}
+NON_NORMATIVE_BY_DEFAULT = {"legacy"}
 ID = re.compile(r"[A-Z][A-Z0-9]*(?:-[A-Z]+)*-\d{3,}")
 BLOCK = re.compile(r"^<!-- lks-sdd: (\{[^\n]*\}) -->\s*\n(.*?)^<!-- /lks-sdd -->[ \t]*$", re.M | re.S)
 LINK = re.compile(r"(?<!!)\[([^\]]+)\]\((?:<([^>]+)>|([^\s)]+))\)")
 ASSET = re.compile(r"!\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))\)")
 ANCHOR = re.compile(r'<a\s+id=[\"\']([^\"\']+)[\"\']\s*></a>')
 DOMAINS = ("ux", "data", "identity", "security", "privacy", "interfaces", "quality", "operation")
-STATES = {"draft", "proposed", "confirmed", "approved", "active", "effective", "superseded", "retired", "cancelled", "unknown", "backlog", "ready", "in-progress", "in-review", "done", "blocked", "paused", "completed", "revoked", "open", "resolved", "reconciliation-required"}
+STATES = {"draft", "proposed", "confirmed", "approved", "active", "effective", "superseded", "retired", "cancelled", "unknown", "conflict", "backlog", "ready", "in-progress", "in-review", "done", "blocked", "paused", "completed", "revoked", "open", "resolved", "reconciliation-required"}
 
 
 class ContractError(ValueError):
@@ -140,6 +141,8 @@ class Element:
 
     def normative(self) -> dict:
         meta = dict(self.meta)
+        if self.kind in NON_NORMATIVE_BY_DEFAULT:
+            return {"meta": {}, "body": ""}
         if self.kind == "task":
             for key in ("state", "health", "execution_id", "evidence_ids", "progress", "updated_at"):
                 meta.pop(key, None)
@@ -257,7 +260,8 @@ class Model:
                         raise ContractError("Normative attachment changed during read: " + asset)
                     attachments[asset] = raw.decode("utf-8")
         return {"reader": READER, "project": self.manifest.get("project_id"),
-                "elements": [e.normative() for e in elements if e.kind not in OPERATIONAL],
+                "elements": [e.normative() for e in elements
+                             if e.kind not in OPERATIONAL and e.kind not in NON_NORMATIVE_BY_DEFAULT],
                 "preambles": {p: self.preambles[p] for p in sorted(paths)},
                 "assets": {p: self.assets.get(p, {}) for p in sorted(paths)},
                 "text_attachments": attachments}
@@ -435,11 +439,17 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             if entry.kind in {"plan", "increment", "release"}:
                 traversed -= {"requirements", "implements", "contributes_to"}
             for target in entry.targets(*traversed) if traversed else ():
-                if model.elements[target].kind not in OPERATIONAL:
+                if (model.elements[target].kind not in OPERATIONAL
+                        and model.elements[target].kind not in NON_NORMATIVE_BY_DEFAULT):
                     selected.add(target)
                     reasons.setdefault(target, []).append("relation:" + identifier)
         for e in model.elements.values():
-            if e.kind in OPERATIONAL:
+            if e.kind in OPERATIONAL or e.kind in NON_NORMATIVE_BY_DEFAULT:
+                continue
+            # Migration-created unknown applicability is preserved as data, but
+            # must not become a global v2 obligation before an explicit review.
+            if (e.kind == "applicability" and e.meta.get("state") == "unknown"
+                    and e.meta.get("migration")):
                 continue
             if e.targets("contributes_to", "implements", "requirements", "uses", "interfaces") & selected:
                 selected.add(e.id)
@@ -467,8 +477,14 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
         if domain in applicability:
             blockers.append("Conflicting/ambiguous applicability for domain: " + str(domain))
         applicability[domain] = e
+    migration_unknown_domains = {
+        e.meta.get("domain") for e in model.by_kind("applicability")
+        if e.meta.get("state") == "unknown" and e.meta.get("migration")
+    }
     for domain in DOMAINS:
         entry = applicability.get(domain)
+        if domain in migration_unknown_domains:
+            continue
         if not entry or entry.meta.get("applicability") not in {"applicable", "not-applicable"}:
             blockers.append("Applicability unresolved: " + domain)
         elif entry.meta["state"] not in {"confirmed", "approved"}:

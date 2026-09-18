@@ -33,6 +33,13 @@ y el [expediente v2](../quality/v2-acceptance.json) separan esos ensayos de la
 aceptación humana. Para una campaña completa use `tests/run_unit_tests.py --suite
 all --json-out <ruta-nueva.json>` y los evals; en un worktree de desarrollo siguen
 siendo diagnóstico, no atestación publicable.
+
+Las regresiones de migración deben comprobar además `migration-complete`, el
+manifiesto de disposición uno-a-uno, la negativa ante rutas activas 1.5,
+idempotencia, recuperación protegida frente a ediciones posteriores, runtime
+histórico/no gestionado y continuidad selectiva por TASK. `migration-status` y
+`migration-continuation` son observadores de solo lectura y no sustituyen la
+validación humana del preview.
 `v2_distribution_smoke.py` compara dos builds del mismo snapshot de desarrollo,
 valida el archivo nativo Copilot y ensaya migración/rollback con el núcleo 1.x de
 HEAD y el núcleo v2 completo en directorios temporales. `--baseline-commit

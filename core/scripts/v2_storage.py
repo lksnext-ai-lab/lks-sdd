@@ -21,7 +21,7 @@ def exists_hash(root: Path, relative: str):
     return sha(read_bytes(root, relative, limit=64 * 1024 * 1024, package_data=True))
 
 
-def protected_inventory(root):
+def protected_inventory(root, extra=()):
     """Include later evidence/assets, not only Markdown, in recovery safety."""
     base = path_at(root, DOCS, missing=True)
     result = []
@@ -34,14 +34,19 @@ def protected_inventory(root):
             result.extend((Path(directory) / f).relative_to(root).as_posix() for f in files)
             if len(result) > 10000:
                 raise ContractError("Protected document inventory exceeds recovery bounds")
-    return sorted(result)
+    for relative in extra:
+        if relative not in result:
+            path_at(root, relative, missing=True, package_data=True)
+            if path_at(root, relative, missing=True, package_data=True).exists():
+                result.append(relative)
+    return sorted(set(result))
 
 
 def preview(root: Path, changes: dict[str, bytes | None], *, sources: dict[str, str], operation: str) -> dict:
     paths = sorted(changes)
     before = {p: exists_hash(root, p) for p in paths}
     after = {p: sha(changes[p]) if changes[p] is not None else None for p in paths}
-    inventory = protected_inventory(root)
+    inventory = protected_inventory(root, sources)
     payload = {"operation": operation, "sources": sources, "before": before, "after": after,
                "document_inventory": inventory}
     return {**payload, "preview_hash": fingerprint(payload), "writes": paths, "status": "preview"}
@@ -186,7 +191,8 @@ def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt
         if relative not in expected["before"] and exists_hash(root, relative) != digest:
             raise ContractError("Recovery source conflict; later work preserved: " + relative)
     current_documents = set(protected_inventory(root))
-    allowed_documents = set(expected["document_inventory"]) | set(expected["after"])
+    allowed_documents = (set(expected["document_inventory"]) | set(expected["after"])
+                         | set(expected["sources"]))
     if current_documents - allowed_documents:
         raise ContractError("Recovery conflict: new documents were created after the transaction")
     if receipt and journal["state"] == "rolled-back":

@@ -14,6 +14,12 @@ do not combine v2 syntax with the legacy workflow below. Existing projects remai
 on their exact pinned runtime until explicitly migrated. Unknown schemas fail
 closed; a question never initiates adoption, migration or implementation.
 
+If the project is legacy 1.5, migration is a separate explicit workflow. Read
+its diagnosis and exact preview before defining new scope; after cutover use
+`migration-status` and `migration-continuation` so only the affected TASK is
+held by unresolved semantics. Do not rewrite history or treat legacy records as
+new v2 decisions.
+
 ## Workflow conservado para contrato 1.5
 
 When explaining existing requirements/specifications and related tasks, read

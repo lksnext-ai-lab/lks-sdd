@@ -14,6 +14,11 @@ do not combine v2 syntax with the legacy workflow below. Existing projects remai
 on their exact pinned runtime until explicitly migrated. Unknown schemas fail
 closed; a question never initiates adoption, migration or implementation.
 
+Readiness must report migration state separately from task readiness. A clean
+`migration-complete` cutover is necessary but does not approve business
+semantics; use TASK-scoped continuation and do not turn `legacy`, `unknown` or
+`conflict` records into active obligations implicitly.
+
 ## Workflow conservado para contrato 1.5
 
 Use `<plugin-root>/docs/PROJECT-QUERY.md` when explaining affected requirements,

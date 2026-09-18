@@ -1,4 +1,4 @@
-# Arquitectura y alcance de la versión 2.0.0
+# Arquitectura y alcance de la versión 2.0.1
 
 El contrato nuevo se implementa en `v2_contract` (modelo/identidades/obligaciones),
 `v2_authoring` y `v2_features` (documentos e historia), `v2_lifecycle` y

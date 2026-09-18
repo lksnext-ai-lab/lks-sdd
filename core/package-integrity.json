@@ -2,7 +2,7 @@
   "files": [
     {
       "path": ".codex-plugin/plugin.json",
-      "sha256": "6b40677c1c93022d5ad55ead171ea0ee246d8ba7b14f0659b636e13da4adae24",
+      "sha256": "c5acd146b51683fca28722871743b25135faa39eee0b0eb31adf6d40639f523e",
       "size": 3287
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "path": ".github/plugin/marketplace.json",
-      "sha256": "161bcd5291f650de2be75741de106654c2cd890e36bd06a706aae93d7bc69117",
+      "sha256": "5350b8eaadf90c55148e5ae2f22ab6d1c44c94d6f51e917622d86e80b19accc9",
       "size": 389
     },
     {
@@ -47,8 +47,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "0f9ae4669ec39be9a75f554fd0deccf8fa968b53716d9d48d602da2a7c92e654",
-      "size": 39751
+      "sha256": "1a74db78f602989a3a1ea2420feaa04bb114e088a2fee2030a8e90afa3d5568c",
+      "size": 40474
     },
     {
       "path": "CONTRIBUTING.md",
@@ -67,7 +67,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "9883e286f349deb9599b7097b142dc3d9ca696159e9d0193bc19d02f4907b7bb",
+      "sha256": "65bb924f4b97452521e06416e737d66b677cb13c71451a0687a1254eb3b2cdf6",
       "size": 7585
     },
     {
@@ -107,13 +107,13 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "2eb62adb1d55071b8ca3fcc5e3ba49a76424444a9232deaabe13a8bd180054cb",
+      "sha256": "e7df4cf833ba7c77a772cf1df4a32ae8d16a5f22c1b919383162373f802d4903",
       "size": 21662
     },
     {
       "path": "docs/COMPATIBILITY.md",
-      "sha256": "61b7dc0e78f9e4feb43b555e6b721e39a585ba4470956da5f61401ae8847c1f3",
-      "size": 3882
+      "sha256": "8a574fc52f0341809947fa99e089161a78aab9a8713e03440527efa1dfb6441c",
+      "size": 4612
     },
     {
       "path": "docs/COPILOT-PILOT.md",
@@ -122,7 +122,7 @@
     },
     {
       "path": "docs/DISTRIBUTION.md",
-      "sha256": "477ec2540fac10a86a1d6307d143951886bcd9e3f412b8989a1c14367301bd8f",
+      "sha256": "10c21aedd52b7dcddd28f890f5fc4f1543bbf6c4a951fc8496c09aa37877b677",
       "size": 11426
     },
     {
@@ -132,7 +132,7 @@
     },
     {
       "path": "docs/INSTALLATION.md",
-      "sha256": "f315da304adf4e62afec2281ae21e3e37c79e0fab4d6fd02a5584cc7d6920427",
+      "sha256": "9c035aa13fc94f5ecad43e39981c852c8df3f9a3cba2ec0bdef1d814b40b0970",
       "size": 15295
     },
     {
@@ -197,8 +197,8 @@
     },
     {
       "path": "docs/PROJECT-VARIANTS.md",
-      "sha256": "67f01569d2c7ff058500eff29875e06034a46f64b81e3b24da2b080c474611fe",
-      "size": 12305
+      "sha256": "424d6609ebaa7aab0b8f873541e18b5a02d5be03cb69b53bf5c940c89f9ea24c",
+      "size": 12719
     },
     {
       "path": "docs/QUALITY-HARNESS.md",
@@ -207,7 +207,7 @@
     },
     {
       "path": "docs/RELEASING.md",
-      "sha256": "226b19d160cac1f71d84ba7dda92e859cfc6aebc5e33c690f9348ff7f22e066c",
+      "sha256": "dc148bdfce19a67d7fcdc3e4ef42d770a3eb219faa19ca517eb794237b16538a",
       "size": 11331
     },
     {
@@ -292,23 +292,23 @@
     },
     {
       "path": "docs/V2-INDEX.md",
-      "sha256": "fa47685745923743599a787cbd47f1a9e6048f402e3c20c733a1ad370a5b975e",
+      "sha256": "189cd8d18bda150d9cf043897d3a659b4a060ff27324d8a9e767446083de9135",
       "size": 1509
     },
     {
       "path": "docs/V2-MIGRATION.md",
-      "sha256": "4e6f0c2479351438e083b0c4ca74c285ece528f71da125f1a5372e45c03a2495",
-      "size": 2579
+      "sha256": "fe4ed6ab5d2fbafcf371a079581dc051a264d9e86b6351c810cfe2591df4fadc",
+      "size": 4820
     },
     {
       "path": "docs/V2-WORKFLOWS.md",
-      "sha256": "0b022377d2fddd92dbe393259a3148891e6f18f8ac4a1bfc206cdd620d6d2314",
-      "size": 13218
+      "sha256": "7f8406266b7e2f00d612d216f1b53d388c5279c16eb1ee20c24f50677248a0cc",
+      "size": 14475
     },
     {
       "path": "docs/VALIDATION.md",
-      "sha256": "c8e79c9509f7492aa6a8bf920a9a882b344f69b98076537941c7d38007d03782",
-      "size": 23816
+      "sha256": "7370bc8997b33e1702f40c06d5553177a18371abebe6e4127ff0492def6c0d60",
+      "size": 24237
     },
     {
       "path": "docs/VISUAL-HANDOFF.md",
@@ -501,6 +501,11 @@
       "size": 6057
     },
     {
+      "path": "docs/releases/v2.0.1.md",
+      "sha256": "e75a447d92196c5d35b7da6905fae583ff12ed59eb2dee91f5184a4d061f0c93",
+      "size": 3641
+    },
+    {
       "path": "docs/validation/project-query-2026-09-17.md",
       "sha256": "0b8802f86b5e1666ea8d2102d457d4d7bc9c66f29a1ef4ec16f8c4dc453f75f7",
       "size": 9220
@@ -632,7 +637,7 @@
     },
     {
       "path": "pilot/pilot-config.example.json",
-      "sha256": "a619341a0c7dc281506a4a52419468d3230112b80cbedaeef44d4f9a4ec87b53",
+      "sha256": "77942d6074400c190728a79db50e95e937c18eb52ca50d01301a6c5d1f14e7ee",
       "size": 777
     },
     {
@@ -5551,6 +5556,11 @@
       "size": 1608
     },
     {
+      "path": "quality/release-approval-v2.0.1.json",
+      "sha256": "3378965dfd2cd7c521a4139593b31a886bb6225a941d3430e82024a628e52399",
+      "size": 1503
+    },
+    {
       "path": "quality/test-impact-map.json",
       "sha256": "d6bf510cbfe0c0564d40d4f92d532a8b7e930d12ca5f9c3872828423ca83d86c",
       "size": 5685
@@ -5622,12 +5632,12 @@
     },
     {
       "path": "schemas/migration-receipt-2.0.schema.json",
-      "sha256": "341072ac3f6a90305a0bdeec389918fe2f15a285236f914f485f6b43eb304b47",
-      "size": 872
+      "sha256": "d0dc9781ca5fd4610de4420abcfa73868150a7641dc987e0022b42a2a83806dc",
+      "size": 3944
     },
     {
       "path": "schemas/pilot-config.schema.json",
-      "sha256": "243f94032e06ff0269876cfc6fdbc801293657ff6a0d690e81157745e775a5fa",
+      "sha256": "72231b9b948a692a226e7707dcd73f480ba7be1edc6ae31e1157d71a32f927d8",
       "size": 4587
     },
     {
@@ -5662,8 +5672,8 @@
     },
     {
       "path": "schemas/project-2.0.schema.json",
-      "sha256": "04e674b0b73bc4a75ca9b6f15b1080a2e150bdbe56186e66bba98b55ecd2bbcf",
-      "size": 813
+      "sha256": "20109256237b79349948d2b1d3e6ad2678ed4aeb11c0f9f190b7073bab56a41f",
+      "size": 1836
     },
     {
       "path": "schemas/project-variants.schema.json",
@@ -5832,8 +5842,8 @@
     },
     {
       "path": "scripts/lks_sdd.py",
-      "sha256": "56d8f7aa5b99655b05e2e3f281b79ab9672ba0f411f547538bf797bcd2646c16",
-      "size": 8460
+      "sha256": "e84c9173ad8d3f9004cce3df853e89d68349ea33b0ab94d69d4ce876b98bd805",
+      "size": 8514
     },
     {
       "path": "scripts/manage_continuity.py",
@@ -6002,8 +6012,8 @@
     },
     {
       "path": "scripts/v2_cli.py",
-      "sha256": "c844ea77239c9fc31b87f6a3157ee0637441943bac04561ba2b62f1bb1bf7e2e",
-      "size": 15612
+      "sha256": "37671144f345fe4e23b6fb65af5d5256f290d58e55a47133a714111dd47d81b9",
+      "size": 16420
     },
     {
       "path": "scripts/v2_composition.py",
@@ -6012,8 +6022,8 @@
     },
     {
       "path": "scripts/v2_contract.py",
-      "sha256": "78ab6fdd553a86dfc6ba8fe65a507fd3cc22811294ca37b76986689674d3e2d6",
-      "size": 24830
+      "sha256": "c120bcc46f012f0ed8c54f34388fe0a5c36bedab739810e8d45e922b2ac1db66",
+      "size": 25738
     },
     {
       "path": "scripts/v2_controls.py",
@@ -6037,8 +6047,8 @@
     },
     {
       "path": "scripts/v2_migration.py",
-      "sha256": "18b2d0f34ea266aebd5ddfb91dd1972fc903bf0c569ee7b6d48d56e093a4b947",
-      "size": 28358
+      "sha256": "ad7fc79c948a7f79e82bf81349a191370a40f56f7718f32a7c75e24fb455b674",
+      "size": 42717
     },
     {
       "path": "scripts/v2_preparation.py",
@@ -6062,8 +6072,8 @@
     },
     {
       "path": "scripts/v2_storage.py",
-      "sha256": "c187df463e851922b86e22d3ab83d3d7a4ad30e70fb01ba54913932c12fadb3e",
-      "size": 10344
+      "sha256": "04734499cd7ba99339829fe95a5a3cbe4be51eb923f7460e23fcd72d5fa66c5e",
+      "size": 10675
     },
     {
       "path": "scripts/v2_tracking.py",
@@ -6322,8 +6332,8 @@
     },
     {
       "path": "skills/lks-sdd-adopt-existing/SKILL.md",
-      "sha256": "f3ab500bfa719ec71e7723c92037677c40cc7ba21adba8f12ceea1f0ffcba14f",
-      "size": 6708
+      "sha256": "31513ef8a7855b81b0b3c52e4b57c5519610dd099afc257f45bd65a6893f63b6",
+      "size": 7014
     },
     {
       "path": "skills/lks-sdd-adopt-existing/agents/openai.yaml",
@@ -6392,7 +6402,7 @@
     },
     {
       "path": "skills/lks-sdd-adopt-existing/scripts/materialize_adoption.py",
-      "sha256": "f73875843dd8f01405b423b1f8fb165ef509be63e395f41b637e8b079d44a6e7",
+      "sha256": "8eac167678b8895b65bda802dbe2b7aefce4996fda8dfc1c4c867ee1a74fa396",
       "size": 22251
     },
     {
@@ -6402,8 +6412,8 @@
     },
     {
       "path": "skills/lks-sdd-assess-readiness/SKILL.md",
-      "sha256": "10db68ddbf304baf33d43bb8b36e8901929b12f6a29893cf7b4f38bde677120b",
-      "size": 8643
+      "sha256": "fb19a4a3e151ffe05916bebddeff8d0de9f46bb69163243c0b43d681ca80ec30",
+      "size": 8928
     },
     {
       "path": "skills/lks-sdd-assess-readiness/agents/openai.yaml",
@@ -6427,8 +6437,8 @@
     },
     {
       "path": "skills/lks-sdd-define/SKILL.md",
-      "sha256": "2e051bf90dfd61f6bf90df07efd433225a5018d15a2a549d876342f53ad1c2a6",
-      "size": 13076
+      "sha256": "cc94d637af1da525acf5c11237851f20af861c1554864a94632680c525b49589",
+      "size": 13407
     },
     {
       "path": "skills/lks-sdd-define/agents/openai.yaml",
@@ -6642,7 +6652,7 @@
     },
     {
       "path": "skills/lks-sdd-define/scripts/init_project.py",
-      "sha256": "10ab7fa8ca90095c8032dc41876d143dbe21380143395c88e1d8ecda519db5c2",
+      "sha256": "cf2bf1a78995c0355930bf731dc2dbe7f70071740362d2bf6d65e61972ab7305",
       "size": 14423
     },
     {
@@ -6657,8 +6667,8 @@
     },
     {
       "path": "skills/lks-sdd-help/SKILL.md",
-      "sha256": "153692954a6b82a5e9f6b155745b2d54cccc8f26acbd88824ccd9d71a04824ab",
-      "size": 9456
+      "sha256": "b4f9eee8ac3aa43e679c0746a25925292f9d8c9347bb12227be80d9dbf1cd833",
+      "size": 9763
     },
     {
       "path": "skills/lks-sdd-help/agents/openai.yaml",
@@ -6667,7 +6677,7 @@
     },
     {
       "path": "skills/lks-sdd-help/references/capabilities-and-limits.md",
-      "sha256": "c354bc3692e611bd1720f4c928d4ae929c50e7841532b6fd2ef5318e05dcf638",
+      "sha256": "5e2d0b736c601f7b894c7f71298c01605677b17d3288b64fc1cfa828a4afd44f",
       "size": 10135
     },
     {
@@ -6727,8 +6737,8 @@
     },
     {
       "path": "skills/lks-sdd-implement/SKILL.md",
-      "sha256": "55ce2dcd22798813aa7a09ee0f574c6df433bd5c56c01c87e98d3849559dd34f",
-      "size": 10667
+      "sha256": "ad80886b71b4a89844529711ccd6789f9b1f500183dc1f7e85af57d2c8049060",
+      "size": 10999
     },
     {
       "path": "skills/lks-sdd-implement/agents/openai.yaml",
@@ -6752,8 +6762,8 @@
     },
     {
       "path": "skills/lks-sdd-verify/SKILL.md",
-      "sha256": "ebc001d112dfcc1401535a394a0ddfe65a14a1e6608a36e3b53fce5f21011225",
-      "size": 12505
+      "sha256": "5045593ade0e7d5f56c5dee8f4e58ebd5383172970d4b7d3e4d348425d07aea7",
+      "size": 12760
     },
     {
       "path": "skills/lks-sdd-verify/agents/openai.yaml",
@@ -6847,8 +6857,8 @@
     },
     {
       "path": "specs/proposed/project-contract-2.0.md",
-      "sha256": "c0096651016f3c00cc129e568db49b1a05b3ba6e92be97db1aa7bc5161b57443",
-      "size": 8866
+      "sha256": "11eb3f4a0a67439ce3a10114ed3de714c7aac0f5df3e65f384d324fc4f91b42e",
+      "size": 9793
     },
     {
       "path": "specs/proposed/project-variants-1.0.md",
@@ -7132,8 +7142,8 @@
     },
     {
       "path": "tests/test_v2_adoption_migration.py",
-      "sha256": "fa92de72c0db1a1cba3ec04b8dbba8280d9e313b397d8a5ee74b561d1a513e36",
-      "size": 9625
+      "sha256": "d5374a236d616566cdc5d2ffab6d3aa21afcca111da5fafac3015f94ac407362",
+      "size": 13443
     },
     {
       "path": "tests/test_v2_controls.py",
@@ -7226,7 +7236,7 @@
       "size": 5847
     }
   ],
-  "plugin_version": "2.0.0",
+  "plugin_version": "2.0.1",
   "schema_version": "1.0",
-  "source_commit": "1ac6a2f4a7ea7599ca744bca38bc18b648f4a078"
+  "source_commit": "47fd8add41f93d1872035e5c8341ec4763a8c14a"
 }

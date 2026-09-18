@@ -5,7 +5,7 @@ import unittest
 
 from v2_fixture import write
 from v2_contract import ContractError, DOCS, load, read_bytes
-from v2_migration import diagnose, plan, migrate
+from v2_migration import diagnose, plan, migrate, migration_status, continuation_status
 from v2_storage import recover
 from eval_support import initialize, materialize_ready_increment
 
@@ -42,6 +42,66 @@ class V2MigrationTests(unittest.TestCase):
         self.assertEqual(read_bytes(self.root, archive), before)
         self.assertEqual(model.by_kind("feature"), [])
         self.assertEqual(migrate(self.root, result["preview_hash"])["status"], "already-v2")
+
+    def test_migration_receipt_closes_every_source_and_records_clean_cutover(self):
+        write(self.root, DOCS + "/01-context/custom.md", "# Contexto\n\nTexto conservado.\n")
+        result, _ = plan(self.root)
+        self.assertEqual(result["migration_state"], "migration-complete")
+        self.assertTrue(result["audit"]["all_sources_accounted"])
+        self.assertEqual(sum(result["conservation_counts"].values()), len(result["conservation"]))
+        outcome = migrate(self.root, result["preview_hash"])
+        self.assertEqual(outcome["migration_state"], "migration-complete")
+        self.assertEqual(migration_status(self.root)["status"], "migration-complete")
+        receipt = json.loads(read_bytes(self.root, result["receipt"]))
+        self.assertEqual(receipt["migration_state"], "migration-complete")
+        self.assertEqual(receipt["closed_source_snapshot"], receipt["audit"]["closed_source_snapshot"])
+        self.assertEqual({item["source"] for item in receipt["conservation"]},
+                         set(receipt["mapping"]))
+        self.assertEqual(receipt["audit"]["source_count"], len(receipt["conservation"]))
+
+    def test_v2_header_alone_does_not_hide_mixed_legacy_documents(self):
+        write(self.root, DOCS + "/02-design/legacy.md", "# Legacy activo\n")
+        manifest = json.loads(read_bytes(self.root, ".lks-sdd/project.json"))
+        manifest["schema_version"] = "2.0"
+        manifest["method_version"] = "2.0.0"
+        write(self.root, ".lks-sdd/project.json", json.dumps(manifest))
+        status = migration_status(self.root)
+        self.assertEqual(status["status"], "blocked")
+        self.assertEqual(status["state"], "mixed-contract")
+        self.assertEqual(diagnose(self.root)["status"], "blocked")
+
+    def test_migration_status_detects_tampered_archived_source(self):
+        result, _ = plan(self.root)
+        migrate(self.root, result["preview_hash"])
+        receipt = json.loads(read_bytes(self.root, result["receipt"]))
+        archived = next(item["archive"] for item in receipt["conservation"] if item["archive"])
+        with (self.root / archived).open("ab") as stream:
+            stream.write(b"\ncorruption")
+        status = migration_status(self.root)
+        self.assertEqual(status["status"], "blocked")
+        self.assertTrue(any("Archived source hash mismatch" in error for error in status["errors"]))
+
+    def test_migration_status_detects_tampered_mapping_and_audit(self):
+        result, _ = plan(self.root)
+        migrate(self.root, result["preview_hash"])
+        receipt = json.loads(read_bytes(self.root, result["receipt"]))
+        source = receipt["conservation"][0]["source"]
+        receipt["mapping"][source]["destination"] = "docs/lks-sdd/02-specification/tampered.md"
+        receipt["conservation_counts"]["transformed"] = (
+            receipt["conservation_counts"].get("transformed", 0) + 1)
+        write(self.root, result["receipt"], json.dumps(receipt))
+        status = migration_status(self.root)
+        self.assertEqual(status["status"], "blocked")
+        self.assertTrue(any("mapping/conservation mismatch" in error for error in status["errors"]))
+        self.assertTrue(any("disposition counts mismatch" in error for error in status["errors"]))
+
+    def test_continuation_reports_only_migrated_task_semantics_as_pending(self):
+        materialize_ready_increment(self.root)
+        result, _ = plan(self.root)
+        migrate(self.root, result["preview_hash"])
+        continuation = continuation_status(self.root, ["TASK-001"])
+        self.assertEqual(continuation["status"], "blocked")
+        self.assertTrue(any("TASK-001" in blocker for blocker in continuation["blockers"]))
 
     def test_stale_preview_and_exact_rollback(self):
         before = read_bytes(self.root, ".lks-sdd/project.json")
@@ -105,6 +165,7 @@ class V2MigrationTests(unittest.TestCase):
             proposed, _ = plan(self.root, target_runtime=target)
             outcome = migrate(self.root, proposed["preview_hash"], target_runtime=target)
         self.assertEqual(check(self.root)["status"], "valid", check(self.root))
+        self.assertEqual(migration_status(self.root)["status"], "migration-complete")
         self.assertTrue((self.root / old_lock["runtime"]).is_dir())
         for name, raw in old.items():
             if name.startswith(old_lock["runtime"] + "/"):
