@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "release_version": "2.0.1",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-acceptance",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-18",
+    "authority_role": "project-owner",
+    "rationale": "El responsable del proyecto autoriza explícitamente integrar los cambios de migración 1.5→2.0 en main y publicar la versión 2.0.1 del plugin. La aprobación queda condicionada a superar los gates técnicos, la validación del paquete y el doble build reproducible del commit exacto. No convierte los canales humanos, de host, piloto o aceptación conversacional en evidencia superada.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La autorización de publicación no es evidencia de aceptación conversacional de Codex o Copilot, comprensión humana, navegación real, generación visual o piloto entre desarrolladores.",
+    "Las medidas de retrieval no acreditan coste total del agente, tokens ni tiempo humano.",
+    "La publicación no instala o activa plugins personales, migra consumidores reales ni autoriza operaciones externas de Jira, CI corporativa o producción.",
+    "Los roles son declarados, no autenticados; el guard local no intercepta toda escritura del host ni proporciona locks distribuidos.",
+    "La aprobación no equivale a política corporativa, SLA o certificación global de variantes tecnológicas."
+  ]
+}

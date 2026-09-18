@@ -1,4 +1,4 @@
-# Capacidades y límites de LKS-SDD 2.0.0
+# Capacidades y límites de LKS-SDD 2.0.1
 
 Para contrato 2.0 use [la política común v2](../../../docs/V2-WORKFLOWS.md).
 La versión 2 implementa el nuevo ciclo; la publicación técnica no acredita aceptación

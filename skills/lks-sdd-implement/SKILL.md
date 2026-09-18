@@ -14,6 +14,12 @@ do not combine v2 syntax with the legacy workflow below. Existing projects remai
 on their exact pinned runtime until explicitly migrated. Unknown schemas fail
 closed; a question never initiates adoption, migration or implementation.
 
+Before implementation on a migrated project, require `migration-status` to show
+`migration-complete` and check `migration-continuation` for the exact TASK slice.
+A historical 1.5 runtime cannot govern new work, and a pending semantic
+reconciliation blocks only the affected TASK. Do not bypass that guard by using
+legacy commands.
+
 ## Workflow conservado para contrato 1.5
 
 For explanations of the documented scope, requirements and related tasks, read

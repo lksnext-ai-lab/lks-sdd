@@ -14,6 +14,12 @@ do not combine v2 syntax with the legacy workflow below. Existing projects remai
 on their exact pinned runtime until explicitly migrated. Unknown schemas fail
 closed; a question never initiates adoption, migration or implementation.
 
+For a project reporting a 1.5→2.0 transition, use the read-only
+`v2 migration-status` guard and, when a TASK is named,
+`v2 migration-continuation`. Never treat `already-v2` as proof from the index
+header alone; explain the conservation receipt, clean cutover and any
+TASK-scoped reconciliation blockers.
+
 ## Workflow conservado para contrato 1.5
 
 For questions about project content, read `<plugin-root>/docs/PROJECT-QUERY.md`

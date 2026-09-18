@@ -26,15 +26,207 @@ RELATION_COLUMNS = {"requirements": "requirements", "requirement": "requirements
                     "tests": "tests", "dependencies": "depends_on", "increment": "increment", "release": "release",
                     "plan": "plan", "profile binding": "bindings", "profile bindings": "bindings",
                     "interfaces": "interfaces", "decisions": "decision", "decision": "decision"}
+MIGRATION_STATES = {"not-migrated", "preview-available", "migration-complete",
+                    "continuation-ready", "blocked", "mixed-contract", "rolled-back"}
+LEGACY_DOCUMENT_ROOTS = (
+    DOCS + "/01-definition",
+    DOCS + "/02-requirements",
+    DOCS + "/02-design",
+    DOCS + "/03-implementation",
+)
+MAX_SOURCE_FILES = 10000
+MAX_SOURCE_BYTES = 64 * 1024 * 1024
+
+
+def _legacy_documents(root: Path) -> list[str]:
+    """Return active 1.5 documents without touching history or migration receipts."""
+    result, total_bytes = [], 0
+    base = path_at(root, DOCS, missing=True)
+    if not base.exists():
+        return result
+    for current, folders, files in os.walk(base, followlinks=False):
+        folders[:] = sorted(folders)
+        for name in sorted(files):
+            relative = (Path(current) / name).relative_to(root).as_posix()
+            path_at(root, relative)
+            if not name.endswith(".md"):
+                continue
+            if (relative.startswith(HISTORY + "/")
+                    or relative.startswith(DOCS + "/00-control/migrations/")
+                    or relative.startswith(DOCS + "/00-control/technology-approvals/")
+                    or relative == DOCS + "/03-solution/technology-variants.md"):
+                continue
+            raw = read_bytes(root, relative, limit=4 * 1024 * 1024)
+            total_bytes += len(raw)
+            if len(result) >= MAX_SOURCE_FILES or total_bytes > MAX_SOURCE_BYTES:
+                raise ContractError("Legacy document audit exceeds bound")
+            if b'schema_version: "2.0"' not in raw[:4096] and b"schema_version: '2.0'" not in raw[:4096]:
+                result.append(relative)
+    return sorted(result)
+
+
+def _read_manifest(root: Path) -> dict:
+    try:
+        return json.loads(read_bytes(root, ".lks-sdd/project.json"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise ContractError("Invalid .lks-sdd/project.json: " + str(exc)) from exc
+
+
+def _receipt_path(manifest: dict) -> str | None:
+    migration = manifest.get("migration")
+    return migration.get("receipt_path") if isinstance(migration, dict) else None
+
+
+def migration_status(root: Path, tasks: list[str] | None = None) -> dict:
+    """Inspect the cutover without making decisions or changing files."""
+    ensure_idle(root)
+    manifest = _read_manifest(root)
+    schema = manifest.get("schema_version")
+    if schema == "1.5":
+        return {"status": "not-migrated", "schema_version": schema,
+                "method_version": manifest.get("method_version"), "writes": []}
+    if schema != VERSION:
+        return {"status": "blocked", "state": "blocked", "reason": "Unsupported project schema",
+                "schema_version": schema, "writes": []}
+    legacy = _legacy_documents(root)
+    migration = manifest.get("migration") if isinstance(manifest.get("migration"), dict) else {}
+    state = migration.get("state")
+    receipt_path = _receipt_path(manifest)
+    errors = []
+    if legacy:
+        errors.append("Active 1.5 documents remain outside history: " + ", ".join(legacy[:8]))
+    if migration.get("origin_schema") == "1.5":
+        if state != "migration-complete":
+            errors.append("Migration cutover is not complete: " + str(state or "missing-state"))
+        if not receipt_path:
+            errors.append("Migration receipt path is missing")
+        elif not path_at(root, receipt_path, missing=True).is_file():
+            errors.append("Migration receipt is missing: " + receipt_path)
+        else:
+            try:
+                receipt = json.loads(read_bytes(root, receipt_path, limit=128 * 1024 * 1024))
+                from v2_schema import validate
+                validate("migration-receipt", receipt)
+                conservation = receipt["conservation"]
+                expected_receipt = DOCS + "/00-control/migrations/" + receipt["source_snapshot"][:16] + ".json"
+                if receipt_path != expected_receipt:
+                    errors.append("Migration receipt path does not match source snapshot")
+                if receipt["source_snapshot"] != migration.get("source_snapshot"):
+                    errors.append("Migration receipt/source snapshot mismatch")
+                if receipt["closed_source_snapshot"] != migration.get("closed_source_snapshot"):
+                    errors.append("Migration closed-source snapshot mismatch")
+                if fingerprint({item["source"]: item["sha256"] for item in conservation}) != receipt["closed_source_snapshot"]:
+                    errors.append("Migration source closure fingerprint mismatch")
+                if fingerprint(conservation) != migration.get("conservation_fingerprint"):
+                    errors.append("Migration conservation fingerprint mismatch")
+                if receipt["audit"]["source_count"] != len(conservation):
+                    errors.append("Migration conservation count mismatch")
+                if migration.get("source_count") != len(conservation):
+                    errors.append("Migration manifest source count mismatch")
+                if {item["source"] for item in conservation} != set(receipt["mapping"]):
+                    errors.append("Migration receipt mapping is not source-closed")
+                expected_counts = {}
+                for item in conservation:
+                    expected_counts[item["disposition"]] = expected_counts.get(item["disposition"], 0) + 1
+                    mapped = receipt["mapping"].get(item["source"])
+                    if not isinstance(mapped, dict) or any(
+                            mapped.get(key) != item.get(key)
+                            for key in ("sha256", "archive", "destination")):
+                        errors.append("Migration mapping/conservation mismatch: " + item["source"])
+                    elif mapped.get("disposition") not in {None, item["disposition"]}:
+                        errors.append("Migration mapping disposition mismatch: " + item["source"])
+                if receipt["conservation_counts"] != expected_counts:
+                    errors.append("Migration conservation disposition counts mismatch")
+                if receipt["audit"]["closed_source_snapshot"] != receipt["closed_source_snapshot"]:
+                    errors.append("Migration audit source snapshot mismatch")
+                if receipt["audit"]["conservation_fingerprint"] != fingerprint(conservation):
+                    errors.append("Migration audit conservation fingerprint mismatch")
+                if any(item["disposition"] == "blocked" for item in conservation):
+                    errors.append("Migration receipt contains blocked conservation")
+                for item in conservation:
+                    archive = item.get("archive")
+                    if not archive:
+                        continue
+                    archived = read_bytes(root, archive, limit=64 * 1024 * 1024)
+                    if sha(archived) != item["sha256"]:
+                        errors.append("Archived source hash mismatch: " + item["source"])
+            except (ContractError, json.JSONDecodeError, UnicodeDecodeError, OSError) as exc:
+                errors.append("Invalid migration receipt: " + str(exc))
+    elif state not in {None, "migration-complete"}:
+        errors.append("Unknown v2 migration state: " + str(state))
+    if errors:
+        return {"status": "blocked", "state": "mixed-contract" if legacy else "blocked",
+                "schema_version": schema, "migration_state": state, "receipt_path": receipt_path,
+                "legacy_documents": legacy, "errors": errors, "writes": []}
+    result = {"status": "migration-complete" if migration.get("origin_schema") == "1.5" else "ready",
+              "state": "migration-complete" if migration.get("origin_schema") == "1.5" else "not-migrated",
+              "schema_version": schema, "migration_state": state, "receipt_path": receipt_path,
+              "legacy_documents": [], "writes": []}
+    if tasks:
+        result["continuation"] = continuation_status(root, tasks, _status=result)
+    return result
+
+
+def continuation_status(root: Path, tasks: list[str], *, _status: dict | None = None) -> dict:
+    """Assess only the requested TASK slice after a clean technical cutover."""
+    status = _status or migration_status(root)
+    if status.get("status") not in {"migration-complete", "ready"}:
+        return {"status": "blocked", "reason": "Project migration is not cut over",
+                "blockers": status.get("errors", [status.get("status")]), "tasks": tasks, "writes": []}
+    model = load(root)
+    blockers = []
+    selected = []
+    for identifier in tasks:
+        if identifier not in model.elements or model.elements[identifier].kind != "task":
+            blockers.append("Unknown TASK: " + identifier)
+            continue
+        selected.append(identifier)
+        if model.elements[identifier].meta.get("reconciliation_required"):
+            blockers.append("TASK requires semantic reconciliation: " + identifier)
+    if not blockers and selected:
+        from v2_lifecycle import planning
+        assessment = planning(model, selected)
+        blockers.extend(assessment["blockers"])
+    return {"status": "continuation-ready" if selected and not blockers else "blocked",
+            "state": "continuation-ready" if selected and not blockers else "blocked",
+            "tasks": selected, "blockers": sorted(set(blockers)), "writes": []}
+
+
+def _conservation_manifest(sources: dict[str, str], mapping: dict[str, dict]) -> tuple[list[dict], dict]:
+    entries = []
+    counts = {}
+    for relative in sorted(sources):
+        item = dict(mapping.get(relative, {}))
+        destination_path = item.get("destination", relative)
+        if item.get("disposition"):
+            disposition = item["disposition"]
+        elif relative == ".lks-sdd/project.json" or (
+                relative.startswith(DOCS + "/") and relative.endswith(".md")
+                and item.get("destination") not in {None, relative}):
+            disposition = "transformed"
+        elif "/technology-approvals/" in relative:
+            disposition = "archived"
+        else:
+            disposition = "preserved-out-of-scope"
+        entry = {"source": relative, "sha256": sources[relative], "disposition": disposition,
+                 "archive": item.get("archive"), "destination": destination_path}
+        entries.append(entry)
+        counts[disposition] = counts.get(disposition, 0) + 1
+    if sum(counts.values()) != len(sources):
+        raise ContractError("Conservation manifest does not account for every source")
+    return entries, counts
 
 
 def inventory(root: Path) -> dict[str, str]:
     result = {".lks-sdd/project.json": sha(read_bytes(root, ".lks-sdd/project.json"))}
+    total_bytes = len(read_bytes(root, ".lks-sdd/project.json"))
     manifest = json.loads(read_bytes(root, ".lks-sdd/project.json"))
     for binding in manifest.get("technology", {}).get("profile_bindings", []):
         for relative in (binding.get("lock_path"), ".lks-sdd/profiles/" + binding["binding_id"] + ".profile.json"):
             if relative and path_at(root, relative, missing=True).is_file():
-                result[relative] = sha(read_bytes(root, relative))
+                data = read_bytes(root, relative)
+                result[relative] = sha(data)
+                total_bytes += len(data)
     for directory, folders, files in os.walk(path_at(root, DOCS), followlinks=False):
         folders[:] = sorted(folders)
         for name in folders + files:
@@ -43,8 +235,10 @@ def inventory(root: Path) -> dict[str, str]:
             relative = (Path(directory) / name).relative_to(root).as_posix()
             if relative.startswith(HISTORY + "/") or relative.startswith(DOCS + "/00-control/migrations/"):
                 continue
-            result[relative] = sha(read_bytes(root, relative, limit=64 * 1024 * 1024))
-            if len(result) > 10000:
+            data = read_bytes(root, relative, limit=64 * 1024 * 1024)
+            result[relative] = sha(data)
+            total_bytes += len(data)
+            if len(result) > MAX_SOURCE_FILES or total_bytes > MAX_SOURCE_BYTES:
                 raise ContractError("Migration inventory exceeds bound")
     # Preserve explicitly linked attachments outside the document subtree too.
     pending = [p for p in result if p.endswith(".md")]
@@ -57,9 +251,12 @@ def inventory(root: Path) -> dict[str, str]:
         visited.add(source)
         raw = read_bytes(root, source)
         total += len(raw)
-        if total > 64 * 1024 * 1024:
+        if total + total_bytes > MAX_SOURCE_BYTES:
             raise ContractError("Migration linked-source budget exceeded")
-        text = raw.decode("utf-8")
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            raise ContractError("Linked Markdown source is not valid UTF-8: " + source)
         targets = [a or p for _, a, p in LINK.findall(text)] + [a or p for a, p in ASSET.findall(text)]
         for target in targets:
             if re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", target):
@@ -70,7 +267,8 @@ def inventory(root: Path) -> dict[str, str]:
                 continue
             data = read_bytes(root, relative, limit=64 * 1024 * 1024)
             result[relative] = sha(data)
-            if len(result) > 10000:
+            total_bytes += len(data)
+            if len(result) > MAX_SOURCE_FILES or total_bytes > MAX_SOURCE_BYTES:
                 raise ContractError("Migration linked inventory exceeds bound")
             if relative.endswith(".md"):
                 pending.append(relative)
@@ -93,10 +291,13 @@ def destination(relative: str) -> str:
 def diagnose(root: Path) -> dict:
     from runtime_doctor import check
     ensure_idle(root)
-    manifest = json.loads(read_bytes(root, ".lks-sdd/project.json"))
+    manifest = _read_manifest(root)
     version = manifest.get("schema_version")
     if version == VERSION:
-        return {"status": "already-v2", "writes": [], "source_schema": version}
+        cutover = migration_status(root)
+        if cutover["status"] == "blocked":
+            return {**cutover, "status": "blocked", "source_schema": version}
+        return {**cutover, "status": "already-v2", "source_schema": version}
     if version != "1.5" or manifest.get("method_version") != "1.5.0":
         return {"status": "blocked", "reason": "Only contract 1.5/method 1.5.0 is an implemented migration origin", "writes": []}
     runtime = check(root)
@@ -336,36 +537,76 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
     changes[app_path] = render_document("applicability", "Reconciliación de aplicabilidad", apps)
     manifest = {"schema_version": VERSION, "method_version": METHOD, "project_id": old.manifest["project_id"],
                 "plugin_version": json.loads((Path(__file__).resolve().parents[1] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))["version"], "name": old.manifest.get("name", "Proyecto migrado"),
-                "migration": {"origin_schema": "1.5", "source_snapshot": source_snapshot, "state": "reconciliation-required"},
+                "migration": {"origin_schema": "1.5", "source_snapshot": source_snapshot,
+                              "state": "migration-complete", "legacy_writers": "blocked",
+                              "semantic_reconciliation": "selective-per-task"},
                 "artifacts": [{"path": p} for p in sorted(set(active_paths.values()) | set(by_path) | {app_path})
                               if changes.get(p) is not None]}
-    runtime_info = _runtime_transition(root, target_runtime, diagnostic["runtime"], changes, sources)
+    runtime_info = _runtime_transition(root, target_runtime, diagnostic["runtime"], changes, sources, originals)
+    receipt_path = DOCS + "/00-control/migrations/" + source_snapshot[:16] + ".json"
     changes[".lks-sdd/project.json"] = canonical(manifest) + b"\n"
+    # Validate the complete prospective v2 tree before the preview is shown.
+    sources.update(stage_contract(root, changes, diagnostic["sources"]))
+    for relative in sorted(sources):
+        mapping.setdefault(relative, {
+            "archive": runtime_info.get("archives", {}).get(relative),
+            "destination": relative,
+            "sha256": sources[relative],
+            "disposition": "transformed" if relative in runtime_info.get("archives", {}) else "preserved-out-of-scope"})
+    conservation, disposition_counts = _conservation_manifest(sources, mapping)
+    if disposition_counts.get("blocked"):
+        raise ContractError("Migration has blocked conservation entries")
+    closed_source_snapshot = fingerprint(sources)
+    conservation_fingerprint = fingerprint(conservation)
+    manifest["migration"].update({
+        "receipt_path": receipt_path,
+        "closed_source_snapshot": closed_source_snapshot,
+        "conservation_fingerprint": conservation_fingerprint,
+        "source_count": len(conservation),
+        "runtime_mode": runtime_info.get("status"),
+    })
+    changes[".lks-sdd/project.json"] = canonical(manifest) + b"\n"
+    stage_contract(root, changes, sources)
     receipt = {"source_snapshot": source_snapshot, "origin": "1.5", "target": VERSION,
+               "closed_source_snapshot": closed_source_snapshot,
                "mapping": mapping, "elements": {identifier: {"path": p, "anchor": identifier.lower()} for identifier, p in identities.items()},
                "pending": sorted(set(pending)), "runtime": runtime_info,
                "open_executions": diagnostic["open_executions"], "authorization": "reconciliation-required",
-               "verification": "not-run", "feature_classification": "not-inferred"}
-    receipt_path = DOCS + "/00-control/migrations/" + source_snapshot[:16] + ".json"
+               "verification": "not-run", "feature_classification": "not-inferred",
+               "migration_state": "migration-complete",
+               "approval": {"mode": "exact-preview-hash", "status": "required-before-apply"},
+               "conservation": conservation, "conservation_counts": disposition_counts,
+               "audit": {"all_sources_accounted": True, "source_count": len(conservation),
+                         "closed_source_snapshot": closed_source_snapshot,
+                         "conservation_fingerprint": conservation_fingerprint,
+                         "prospective_contract": "passed", "external_observers": "not-run"},
+               "cutover": {"active_schema": VERSION, "active_method": METHOD,
+                           "legacy_writers": "blocked", "continuation": "selective-per-task"}}
     from v2_schema import validate
     validate("migration-receipt", receipt)
     changes[receipt_path] = canonical(receipt) + b"\n"
-    sources.update(stage_contract(root, changes, diagnostic["sources"]))
     result = preview(root, changes, sources=sources, operation="migrate-1.5-to-2.0")
     result.update(mapping=mapping, semantic_pending=receipt["pending"], runtime=runtime_info,
-                  receipt=receipt_path, evidence_policy="original-bytes-unchanged", feature_classification="not-inferred")
+                  receipt=receipt_path, evidence_policy="original-bytes-unchanged",
+                  feature_classification="not-inferred", migration_state="migration-complete",
+                  conservation=conservation, conservation_counts=disposition_counts,
+                  audit=receipt["audit"])
     return result, changes
 
 
-def _runtime_transition(root, target_runtime, old_runtime, changes, sources):
+def _runtime_transition(root, target_runtime, old_runtime, changes, sources, archive_root):
     if old_runtime["status"] == "unmanaged":
         if target_runtime is not None:
             raise ContractError("Unmanaged project: installing a runtime is a separate explicit operation")
-        return {"status": "unmanaged", "installation": "not-performed"}
-    if target_runtime is None:
-        raise ContractError("Pinned source requires an explicit validated target runtime")
+        return {"status": "unmanaged", "installation": "not-performed", "archives": {}}
     from dual_distribution import project_files
     from query_sources import lexical_root
+    if target_runtime is None:
+        bundled = Path(__file__).resolve().parents[1]
+        if (bundled / "package-integrity.json").is_file():
+            target_runtime = bundled
+        else:
+            raise ContractError("Pinned source requires an explicit validated target runtime")
     target_runtime = lexical_root(target_runtime)
     integrity = json.loads(read_bytes(target_runtime, "package-integrity.json", limit=16 * 1024 * 1024))
     records = integrity.get("files")
@@ -382,7 +623,11 @@ def _runtime_transition(root, target_runtime, old_runtime, changes, sources):
     if not json.loads(core[".codex-plugin/plugin.json"])["version"].startswith("2."):
         raise ContractError("Migration target must be an explicit v2 runtime")
     old_lock = json.loads(read_bytes(root, ".lks-sdd/distribution-lock.json"))
-    sources[".lks-sdd/distribution-lock.json"] = sha(read_bytes(root, ".lks-sdd/distribution-lock.json"))
+    old_lock_path = ".lks-sdd/distribution-lock.json"
+    old_lock_bytes = read_bytes(root, old_lock_path)
+    old_lock_archive = archive_root + "/.lks-sdd/distribution-lock.json"
+    changes[old_lock_archive] = old_lock_bytes
+    sources[old_lock_path] = sha(old_lock_bytes)
     generated = project_files(core, "migration:" + fingerprint({k: sha(v) for k, v in core.items()}),
                               "migration-not-release-acceptance", plugin_entrypoints=old_lock.get("entrypoints") == "plugin")
     from dual_distribution import BEGIN, END
@@ -398,9 +643,13 @@ def _runtime_transition(root, target_runtime, old_runtime, changes, sources):
             raise ContractError("Target runtime/adaptor collision: " + name)
         changes[name] = data
     installation = ".lks-sdd/installation.json"
+    archives = {old_lock_path: old_lock_archive}
     if path_at(root, installation, missing=True).exists():
         original_receipt = read_bytes(root, installation, limit=16 * 1024 * 1024)
         sources[installation] = sha(original_receipt)
+        installation_archive = archive_root + "/" + installation
+        changes[installation_archive] = original_receipt
+        archives[installation] = installation_archive
         old_receipt = json.loads(original_receipt)
         if old_receipt.get("host") != "copilot" or old_receipt.get("schema_version") != "1.0":
             raise ContractError("Installation receipt must be reconciled before runtime migration")
@@ -428,14 +677,19 @@ def _runtime_transition(root, target_runtime, old_runtime, changes, sources):
             "channel": new_lock["channel"], "runtime_digest": new_lock["runtime_digest"], "files": ownership,
             "preserved_historical_runtime": old_lock["runtime"], "history_is_not_active_installation": True})
     return {"status": "explicit-pinned-transition", "source": old_lock["runtime"],
-            "target": json.loads(generated[".lks-sdd/distribution-lock.json"])["runtime"]}
+            "target": json.loads(generated[".lks-sdd/distribution-lock.json"])["runtime"],
+            "archives": archives}
 
 
 def migrate(root: Path, authorized_hash: str, *, target_runtime: Path | None = None,
             interrupt_after: int | None = None) -> dict:
-    if diagnose(root)["status"] == "already-v2":
-        return {"status": "already-v2", "writes": [], "authorization": "not-granted"}
+    diagnostic = diagnose(root)
+    if diagnostic["status"] == "already-v2":
+        return {"status": "already-v2", "migration_state": diagnostic.get("migration_state"),
+                "writes": [], "authorization": "not-granted"}
     result, changes = plan(root, target_runtime=target_runtime)
     outcome = apply(root, changes, result, authorized_hash, validator=lambda: load(root).require_valid(), interrupt_after=interrupt_after)
     return {**outcome, "migration_receipt": result["receipt"], "semantic_pending": result["semantic_pending"],
-            "authorization": "reconciliation-required", "verification": "not-run"}
+            "authorization": "reconciliation-required", "verification": "not-run",
+            "migration_state": result["migration_state"],
+            "conservation_counts": result["conservation_counts"]}

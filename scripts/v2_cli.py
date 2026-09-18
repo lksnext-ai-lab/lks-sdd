@@ -23,7 +23,8 @@ def parser_for(command=None):
     if command is None:
         parser.add_argument("command", choices=("init", "author", "catalog", "history", "validate", "context", "readiness",
             "authorize", "start", "diff", "review-diff", "checkpoint", "resume", "verify", "close", "status",
-            "migration-diagnose", "migration-preview", "migrate", "rollback", "recover", "merge-preview", "guard", "adopt",
+            "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
+            "migrate", "rollback", "recover", "merge-preview", "guard", "adopt",
             "feature", "decompose", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "delivery", "authorize-delivery", "guard-review", "prepare",
             "tracking-status", "tracking-project", "tracking-authorize", "tracking-result", "tracking-reconcile", "tracking-milestone",
             "visual-request", "visual-inspect", "visual-observe", "visual-accept", "visual-cancel"))
@@ -77,10 +78,15 @@ def run(command, args):
     if command == "init":
         result, changes = initialize(root, args.name or args.project_id or "Proyecto", project_id=args.project_id)
         return apply(root, changes, result, authorized, validator=lambda: load(root).require_valid()) if args.apply else result
-    if command in {"migration-diagnose", "migration-preview", "migrate"}:
-        from v2_migration import diagnose, plan, migrate
+    if command in {"migration-diagnose", "migration-preview", "migration-status",
+                   "migration-continuation", "migrate"}:
+        from v2_migration import diagnose, plan, migrate, migration_status, continuation_status
         if command == "migration-diagnose":
             return diagnose(root)
+        if command == "migration-status":
+            return migration_status(root)
+        if command == "migration-continuation":
+            return continuation_status(root, args.task)
         if command == "migrate" and args.apply:
             return migrate(root, authorized, target_runtime=args.target_runtime)
         return plan(root, target_runtime=args.target_runtime)[0]
@@ -91,6 +97,10 @@ def run(command, args):
     if command == "adopt":
         from v2_adoption import adopt
         return adopt(root, args.source, name=args.name, description=args.summary, authorized_hash=authorized)
+    from v2_migration import migration_status
+    cutover = migration_status(root)
+    if cutover["status"] == "blocked" and command not in {"validate", "status", "catalog", "context", "readiness"}:
+        raise ContractError("; ".join(cutover.get("errors", ["Project migration is blocked"])))
     model = load(root)
     if command == "guard-review":
         from v2_integration_guard import review
@@ -107,12 +117,15 @@ def run(command, args):
                 "schema_version": "2.0", "errors": model.errors, "warnings": model.warnings,
                 "checked_files": sorted(model.hashes), "writes": []}
     if command == "status":
-        return {"status": "documented" if model.valid else "blocked", "project": model.manifest.get("name"),
+        diagnostics = list(model.errors) + list(cutover.get("errors", []))
+        return {"status": "documented" if model.valid and cutover["status"] != "blocked" else "blocked",
+                "project": model.manifest.get("name"),
+                "migration": cutover,
                 "features": len(model.by_kind("feature")),
                 "tasks": [{"id": t.id, "title": t.meta["title"], "state": t.meta["state"],
                            "health": t.meta.get("health", "unknown"), "evidence": t.meta.get("evidence_ids", [])} for t in model.by_kind("task")],
                 "problems": [{"id": p.id, "state": p.meta["state"], "description": p.body} for p in model.by_kind("problem")],
-                "delivery": "not-assessed", "diagnostics": model.errors, "writes": []}
+                "delivery": "not-assessed", "diagnostics": diagnostics, "writes": []}
     if command == "author":
         if not args.request:
             raise ContractError("Author requires a reviewed --request file")

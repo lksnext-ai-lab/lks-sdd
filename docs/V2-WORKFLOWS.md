@@ -50,6 +50,8 @@ python -B <plugin-root>/scripts/lks_sdd.py context <project-root> --task TASK-00
 python -B <plugin-root>/scripts/lks_sdd.py v2 readiness <project-root> --task TASK-001 --json
 python -B <plugin-root>/scripts/lks_sdd.py v2 diff <project-root> --json
 python -B <plugin-root>/scripts/lks_sdd.py v2 resume <project-root> --task TASK-001 --json
+python -B <plugin-root>/scripts/lks_sdd.py v2 migration-status <project-root> --json
+python -B <plugin-root>/scripts/lks_sdd.py v2 migration-continuation <project-root> --task TASK-001 --json
 ```
 
 Las mutaciones anteriores solo muestran preview. Añadir `--apply --authorize
@@ -57,6 +59,24 @@ Las mutaciones anteriores solo muestran preview. Añadir `--apply --authorize
 operaciones se pasan con `--at` en ISO-8601 con zona, iguales entre preview/apply.
 Los comandos de lectura no usan apply. `verify --execute --evidence-id EVID-###`
 ejecuta y registra el resultado real; no ejecutarlo durante una consulta.
+
+### Migración 1.5→2.0 y corte
+
+La migración soportada es explícita y cerrada: `migration-diagnose` inventaría
+fuentes acotadas, `migration-preview` genera el mapa y el manifiesto de
+conservación, y `migrate --apply --authorize HASH` aplica exactamente ese
+preview. El agente hace la conversión determinista, archiva originales y valida
+el árbol v2 prospectivo; el usuario valida una única vez el resumen completo.
+No se consulta red, Jira, CI, producción ni cuentas externas.
+
+El índice queda en `migration-complete` solo cuando todas las fuentes tienen
+disposición, el recibo es íntegro, no quedan rutas activas 1.5 y los escritores
+legacy quedan bloqueados. `legacy`, `unknown` y `conflict` se conservan como
+historia o incertidumbre no normativa. `migration-continuation` evalúa el TASK
+seleccionado y bloquea solo su alcance si falta reconciliación semántica; no
+convierte una autorización histórica en AUTH v2 ni arrastra un bloqueo global.
+`migration-status` es el guard de lectura para detectar cortes parciales o
+proyectos v2 mezclados.
 
 ### help: consultar y explicar
 

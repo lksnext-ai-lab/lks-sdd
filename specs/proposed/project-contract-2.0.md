@@ -13,6 +13,21 @@ Los Markdown versionados y los artefactos de evidencia son la autoridad.
 el estado de un requisito ni de una tarea. Las consultas no escriben este índice.
 Las vistas derivadas no pueden definir elementos ni otorgar aprobaciones.
 
+La migración soportada `1.5/1.5.0 → 2.0/2.0.0` es un corte explícito y
+preview-bound. El agente calcula un inventario cerrado, asigna cada fuente a
+`transformed`, `archived`, `preserved-out-of-scope` o `blocked`, valida un árbol
+v2 prospectivo y archiva los bytes originales. La única decisión humana
+obligatoria es autorizar el hash exacto del preview completo; esa autorización
+no crea decisiones de negocio ni reactiva autoridad histórica.
+
+Un proyecto migrado solo alcanza `migration-complete` cuando el recibo y su
+manifiesto son íntegros, no quedan rutas activas 1.5 y los escritores legacy
+están bloqueados. Los elementos `legacy`, `unknown` y `conflict` son no
+normativos por defecto. La continuidad se calcula por TASK con estado
+`continuation-ready`; la semántica pendiente bloquea solo el alcance que la
+necesita. El runtime 1.x conservado para recuperación es histórico y no gobierna
+trabajo futuro.
+
 Cada documento activo declara `schema_version: 2.0` y `artifact_type` en su
 frontmatter. Contiene bloques de prosa delimitados por un comentario JSON de una
 línea `<!-- lks-sdd: {...} -->` y `<!-- /lks-sdd -->`. El comentario es metadato,

@@ -14,6 +14,11 @@ do not combine v2 syntax with the legacy workflow below. Existing projects remai
 on their exact pinned runtime until explicitly migrated. Unknown schemas fail
 closed; a question never initiates adoption, migration or implementation.
 
+Verification must distinguish the migration cutover from TASK acceptance. Check
+the conservation receipt and clean v2 state first, then verify only a
+TASK-scoped continuation that is ready. Historical evidence is traceability,
+not fresh v2 verification.
+
 ## Workflow conservado para contrato 1.5
 
 For explaining requirements, tasks and existing evidence, read

@@ -14,6 +14,11 @@ do not combine v2 syntax with the legacy workflow below. Existing projects remai
 on their exact pinned runtime until explicitly migrated. Unknown schemas fail
 closed; a question never initiates adoption, migration or implementation.
 
+Adoption is not migration. For a 1.5 project, the migration agent must first
+close the bounded source inventory and exact preview, preserve every source
+disposition, and obtain one human authorization for that preview. Historical
+runtime and legacy evidence remain non-authoritative after the v2 cutover.
+
 ## Workflow conservado para contrato 1.5
 
 For questions about a legacy project's documented or observed behavior, read
