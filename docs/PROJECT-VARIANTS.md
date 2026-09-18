@@ -65,11 +65,19 @@ la imagen revisada y fijada por digest debe estar disponible en el daemon local.
 
 ## Documento canónico optativo
 
-`docs/lks-sdd/02-design/technology-variants.md` contiene exactamente un bloque
-`lks-sdd-variants` con el objeto validado por
+La ruta depende del contrato activo y no debe mezclarse durante una migración:
+
+| Contrato | Variantes | Aprobaciones |
+|---|---|---|
+| 1.5 / 1.5.0 | `docs/lks-sdd/02-design/technology-variants.md` | `docs/lks-sdd/02-design/technology-approvals/` |
+| 2.0 / 2.0.0 | `docs/lks-sdd/03-solution/technology-variants.md` | `docs/lks-sdd/00-control/technology-approvals/` |
+
+En ambos casos el documento contiene exactamente un bloque `lks-sdd-variants`
+con el objeto validado por
 [`project-variants.schema.json`](../schemas/project-variants.schema.json).
-El índice de proyecto 1.5 no necesita campos nuevos. Las aprobaciones se conservan
-como Markdown inmutable en el subdirectorio `technology-approvals/`.
+El índice de proyecto 1.5 no necesita campos nuevos. Durante 1.5→2.0 el
+documento se transforma a la ruta v2 y las aprobaciones históricas se archivan;
+ninguna aprobación histórica se reactiva como autoridad v2.
 
 Ejemplo conceptual (sustituir el hash, la imagen y el comando por entradas revisadas):
 

@@ -24,6 +24,47 @@
     "name": {
       "type": "string"
     },
+    "migration": {
+      "type": "object",
+      "properties": {
+        "origin_schema": {
+          "const": "1.5"
+        },
+        "source_snapshot": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "closed_source_snapshot": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "state": {
+          "enum": [
+            "migration-complete",
+            "continuation-ready",
+            "blocked",
+            "mixed-contract",
+            "rolled-back"
+          ]
+        },
+        "legacy_writers": {
+          "const": "blocked"
+        },
+        "receipt_path": {
+          "type": "string",
+          "pattern": "^docs/lks-sdd/00-control/migrations/[a-f0-9]{16}\\.json$"
+        },
+        "conservation_fingerprint": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "source_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    },
     "artifacts": {
       "type": "array",
       "items": {

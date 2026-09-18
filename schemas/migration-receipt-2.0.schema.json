@@ -3,6 +3,7 @@
   "type": "object",
   "required": [
     "source_snapshot",
+    "closed_source_snapshot",
     "origin",
     "target",
     "mapping",
@@ -10,10 +11,20 @@
     "pending",
     "runtime",
     "authorization",
-    "verification"
+    "verification",
+    "migration_state",
+    "conservation",
+    "conservation_counts",
+    "approval",
+    "audit",
+    "cutover"
   ],
   "properties": {
     "source_snapshot": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "closed_source_snapshot": {
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
     },
@@ -45,6 +56,134 @@
     },
     "verification": {
       "const": "not-run"
+    },
+    "migration_state": {
+      "const": "migration-complete"
+    },
+    "conservation": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "source",
+          "sha256",
+          "disposition"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "disposition": {
+            "enum": [
+              "transformed",
+              "archived",
+              "preserved-out-of-scope",
+              "blocked"
+            ]
+          },
+          "archive": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "destination": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "conservation_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": [
+        "mode",
+        "status"
+      ],
+      "properties": {
+        "mode": {
+          "const": "exact-preview-hash"
+        },
+        "status": {
+          "const": "required-before-apply"
+        }
+      },
+      "additionalProperties": true
+    },
+    "audit": {
+      "type": "object",
+      "required": [
+        "all_sources_accounted",
+        "source_count",
+        "closed_source_snapshot",
+        "conservation_fingerprint",
+        "prospective_contract",
+        "external_observers"
+      ],
+      "properties": {
+        "all_sources_accounted": {
+          "const": true
+        },
+        "source_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "closed_source_snapshot": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "conservation_fingerprint": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "prospective_contract": {
+          "const": "passed"
+        },
+        "external_observers": {
+          "const": "not-run"
+        }
+      },
+      "additionalProperties": true
+    },
+    "cutover": {
+      "type": "object",
+      "required": [
+        "active_schema",
+        "active_method",
+        "legacy_writers",
+        "continuation"
+      ],
+      "properties": {
+        "active_schema": {
+          "const": "2.0"
+        },
+        "active_method": {
+          "const": "2.0.0"
+        },
+        "legacy_writers": {
+          "const": "blocked"
+        },
+        "continuation": {
+          "const": "selective-per-task"
+        }
+      },
+      "additionalProperties": true
     }
   }
 }

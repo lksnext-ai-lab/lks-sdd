@@ -18,11 +18,22 @@ La única conversión oficial es 1.5/1.5.0 → 2.0/2.0.0, con
 No hay downgrade automático del contrato. El rollback transaccional usa el recibo
 exacto y se detiene si hay trabajo posterior.
 
+Una migración aplicada deja un corte técnico verificable: `migration-complete`,
+recibo con manifiesto de conservación cerrado, rutas activas exclusivamente v2 y
+escritores 1.5 bloqueados. `already-v2` solo se informa después de ese guard, no
+por el encabezado del índice. La continuidad se evalúa por TASK; una semántica
+legacy pendiente bloquea la TASK afectada, no todo el proyecto.
+
 ## Evidencia e historia
 
 Los originales, EVID y activos históricos se conservan. La migración no transforma
 autorizaciones antiguas en permiso v2 ni pruebas de componente en evidencia de
 integración. Los registros antiguos insuficientes requieren reconciliación.
+Los elementos `legacy`, `unknown` y `conflict` no adquieren autoridad normativa;
+una referencia v2 explícita solo permite localizarlos como antecedente para la
+reconciliación. El manifiesto registra para cada fuente si fue transformada,
+archivada, preservada fuera de alcance o bloqueada; una entrada no contabilizada
+impide el corte.
 Los quality reports históricos no certifican una nueva versión: cada release usa
 evidencia técnica propia ligada al commit exacto.
 

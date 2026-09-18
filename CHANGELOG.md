@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.1 — 2026-09-18 — migración 1.5→2.0
+
+- Añade migración oficial autónoma y reversible desde 1.5 a 2.0 con inventario
+  cerrado, preview autorizado por hash exacto, conservación uno-a-uno y recibo
+  auditable.
+- Impide cortes mixtos, conserva runtime/lock legacy como histórico y bloquea
+  solo las TASK que requieren reconciliación semántica antes de continuar.
+- Refuerza `migration-status` contra alteraciones de mapping, disposiciones,
+  contadores, fingerprints y recibos; mantiene separadas la migración técnica,
+  la autoridad de negocio y la aceptación por host.
+- Corrige la documentación de rutas de variantes 1.5/2.0 y actualiza el catálogo
+  de distribución Copilot a `copilot-v2.0.1`.
+
 ## 2.0.0 — 2026-09-18
 
 - Dependencias Python de validación declaradas con versiones/hashes, instalación
