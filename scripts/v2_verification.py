@@ -101,6 +101,7 @@ def engine_hash():
              "v2_composition.py", "v2_schema.py", "composition_contract.py", "integration_contract.py",
              "v2_features.py", "v2_authoring.py", "v2_storage.py", "v2_controls.py", "v2_preparation.py", "query_sources.py", "query_runtime.py")
     files = {"scripts/" + name: sha((ROOT / "scripts" / name).read_bytes()) for name in names}
+    files["requirements-runtime.txt"] = sha((ROOT / "requirements-runtime.txt").read_bytes())
     executor = "skills/lks-sdd-verify/scripts/run_verification.py"
     files[executor] = sha((ROOT / executor).read_bytes())
     for path in (ROOT / "schemas").glob("*-2.0.schema.json"):

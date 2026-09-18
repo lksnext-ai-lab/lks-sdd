@@ -8,7 +8,10 @@ from pathlib import Path
 def validator(name):
     if name not in {"project", "element", "verification-evidence", "migration-receipt"}:
         raise ValueError("Unknown local schema")
-    from jsonschema import Draft202012Validator, FormatChecker
+    try:
+        from jsonschema import Draft202012Validator, FormatChecker
+    except ImportError as exc:
+        raise ValueError("Runtime dependency unavailable: install requirements-runtime.txt in the Python environment used by LKS-SDD; validation was not skipped") from exc
     raw = (Path(__file__).resolve().parents[1] / "schemas" / (name + "-2.0.schema.json")).read_text(encoding="utf-8")
     schema = json.loads(raw)
     Draft202012Validator.check_schema(schema)

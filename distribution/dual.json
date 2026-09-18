@@ -15,6 +15,7 @@
   ],
   "collaboration": "sequential",
   "additional_files": [
+    "requirements-runtime.txt",
     "tests/v2_distribution_smoke.py",
     "quality/v2-traceability.json",
     "quality/v2-acceptance.json",

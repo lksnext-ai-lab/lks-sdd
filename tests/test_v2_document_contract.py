@@ -252,6 +252,34 @@ class V2DocumentTests(unittest.TestCase):
         self.assertEqual(result["status"], "valid", result["errors"])
         self.assertEqual(result["counts"], {"requirements": 67, "tasks": 48, "scenario_families": 60})
 
+    def test_missing_schema_dependency_blocks_cli_without_writes(self):
+        import subprocess
+        import sys
+        before = {p.relative_to(self.root).as_posix(): p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
+        cli = Path(__file__).resolve().parents[1] / "scripts/lks_sdd.py"
+        result = subprocess.run([sys.executable, "-S", "-B", "-X", "utf8", str(cli),
+                                 "validate-project", str(self.root), "--json"],
+                                capture_output=True, text=True, encoding="utf-8", timeout=30)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "blocked")
+        self.assertIn("requirements-runtime.txt", report["error"])
+        self.assertEqual(report["writes"], [])
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(before, {p.relative_to(self.root).as_posix(): p.read_bytes() for p in self.root.rglob("*") if p.is_file()})
+
+    def test_missing_variant_schema_dependency_is_actionable(self):
+        import builtins
+        from project_variants import VariantError, validate_schema
+        original = builtins.__import__
+        def unavailable(name, *args, **kwargs):
+            if name == "jsonschema":
+                raise ModuleNotFoundError("synthetic missing dependency")
+            return original(name, *args, **kwargs)
+        with patch("builtins.__import__", side_effect=unavailable):
+            with self.assertRaisesRegex(VariantError, "requirements-runtime.txt"):
+                validate_schema({}, "project-variants.schema.json")
+
 
 if __name__ == "__main__":
     unittest.main()

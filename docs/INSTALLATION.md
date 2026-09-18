@@ -24,7 +24,7 @@ certificadas. Consulte [la aceptación](DUAL-HOST-ACCEPTANCE.md) antes de distri
 
 ## Requisitos
 
-- Python 3.11 o posterior disponible como `python` (sin dependencias pip adicionales).
+- Python 3.11 o posterior y las dependencias fijadas en `requirements-runtime.txt`.
 - Codex desktop con acceso propio a las capacidades necesarias; o VS Code con GitHub
   Copilot, modo Agent y skills de proyecto permitidas por la organización.
 - Una copia local del repositorio por desarrollador y permisos sobre el destino elegido.
@@ -34,6 +34,25 @@ certificadas. Consulte [la aceptación](DUAL-HOST-ACCEPTANCE.md) antes de distri
 Verificar el SHA-256 del ZIP contra `SHA256SUMS` obtenido de la fuente de distribución
 de confianza. El inventario interno detecta corrupción, pero no es una firma de editor.
 Extraer el ZIP completo en una carpeta temporal/local; no ejecutar desde dentro del ZIP.
+
+### Preparar Python para el runtime v2
+
+La validación v2 utiliza [jsonschema](https://python-jsonschema.readthedocs.io/en/stable/).
+El setup no instala paquetes Python ni usa red por iniciativa propia. Antes de usar
+el runtime, prepara un entorno separado de las dependencias de la aplicación:
+
+```powershell
+python -m venv C:\LksSddTools\python-v2
+C:\LksSddTools\python-v2\Scripts\python.exe -m pip install --require-hashes -r "<plugin-root>\requirements-runtime.txt"
+```
+
+En el ZIP nativo Copilot, `<plugin-root>` es `lks-sdd/core`; en el marketplace Codex
+es `plugins/lks-sdd`. Usa ese intérprete para los comandos LKS-SDD o activa el entorno
+en la terminal donde trabaja el agente. No instales estos requisitos en el entorno
+de producción de la aplicación. Cada equipo prepara su propio entorno; no versiona
+la carpeta venv. En un entorno sin red usa un wheelhouse corporativo revisado con
+`--no-index --find-links <carpeta>` y el mismo lock con hashes. La distribución no
+incluye los wheels y no promete bootstrap offline sin esos prerrequisitos.
 
 ## GitHub Copilot: plugin en el panel Plugins (recomendado)
 

@@ -62,7 +62,7 @@ class V2VariantTests(unittest.TestCase):
         from v2_verification import engine_hash
         original = Path.read_bytes
         expected = engine_hash()
-        for changed in ("v2_features.py", "v2_storage.py", "v2_controls.py", "consumer-observation.schema.json"):
+        for changed in ("v2_features.py", "v2_storage.py", "v2_controls.py", "consumer-observation.schema.json", "requirements-runtime.txt"):
             def read(path, *, target=changed):
                 raw = original(path)
                 return raw + b"\nsynthetic-change" if path.name == target else raw

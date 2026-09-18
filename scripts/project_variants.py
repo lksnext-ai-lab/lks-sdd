@@ -91,7 +91,10 @@ def read_markdown(root: Path, relative: str) -> dict:
 
 
 def validate_schema(value: dict, name: str) -> None:
-    from jsonschema import Draft202012Validator
+    try:
+        from jsonschema import Draft202012Validator
+    except ImportError as exc:
+        raise VariantError("Runtime dependency unavailable: install requirements-runtime.txt in the Python environment used by LKS-SDD; validation was not skipped") from exc
 
     schema = read_json(ROOT / "schemas" / name)
     errors = sorted(

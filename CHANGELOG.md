@@ -2,6 +2,9 @@
 
 ## 2.0.0 — 2026-09-18
 
+- Dependencias Python de validación declaradas con versiones/hashes, instalación
+  explícita y CI limpio; ausencia de `jsonschema` bloquea con diagnóstico accionable.
+
 - Contrato documental 2.0 y método 2.0.0, separados de la versión del plugin.
 - Especificaciones humanas por funcionalidad, relaciones navegables, catálogo e
   historia recuperables; consulta documental de solo lectura y código condicionado.

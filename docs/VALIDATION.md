@@ -1,5 +1,10 @@
 # Validación local
 
+Preparar previamente el intérprete de mantenimiento con
+`python -m pip install --require-hashes -r requirements-runtime.txt`, preferiblemente
+en un venv externo. CI hace lo mismo en su intérprete aislado. No instalar dependencias
+dentro del checkout limpio ni suponer que las bibliotecas personales están disponibles.
+
 ## Versión 2: contrato y evidencias independientes
 
 La versión `2.0.0` añade contrato 2.0/método 2.0.0; los procedimientos que
