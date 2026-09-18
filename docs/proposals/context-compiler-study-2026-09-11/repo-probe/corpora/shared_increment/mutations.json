@@ -1,0 +1,115 @@
+[
+  {
+    "kind": "normative_prose_outside_table",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "bb79cedfb42ce8dde97cae0152fec3b7e675387dc3f5f747941a9b9007276462",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": false
+  },
+  {
+    "kind": "active_statement_cell",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "0fa3a7b09b300c7f948660afaed1a8b139efce08b24f42db91d0c9bc17f31eec",
+      "active": "3aac56402349d73c45c042bf8bf3f0aaaf0fa41d6ba8574e3ddb26905e6ca368",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": true
+  },
+  {
+    "kind": "asset_bytes_VIS-001",
+    "path": "docs/lks-sdd/03-solution/ui-prototypes/rejected.png",
+    "baseline": {
+      "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "69bac499fde1734ccba5aa8cf2a16680bf29368e6bafc7f9e145f2a5ee3af84d",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": false
+  },
+  {
+    "kind": "asset_bytes_VIS-003",
+    "path": "docs/lks-sdd/03-solution/ui-prototypes/active.png",
+    "baseline": {
+      "document": "8f245b147eb57397c18ab1023e9d867ae3dba4206fe629d10823cfbd0c42368f",
+      "active": "6ce1d43dee8e1fe9507346b0d7a20eba428acfcd870d339d6eebb648a565bb3e",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "d286331b40ff0b2098b466f184427551daaf5a2ca37007be16956078015c35dc",
+      "active": "5a83650059974adef67c8867d4a6291e4612b1dade4a683bd5281afee4b8ecab",
+      "model_valid": false,
+      "model_errors": [
+        "LKS-ARTIFACT-MISSING",
+        "LKS-ASSET-HASH",
+        "LKS-DOMAIN-MISSING",
+        "LKS-REF-SYNTAX"
+      ],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": true
+  }
+]

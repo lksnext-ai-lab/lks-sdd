@@ -1,5 +1,9 @@
 # Relevo visual Copilot → Codex → continuación opcional
 
+Referencia del contrato 1.5. Para contrato 2.0 use los comandos `v2 visual-request`,
+`visual-inspect`, `visual-observe`, `visual-accept` y `visual-cancel` documentados en
+[workflows v2](V2-WORKFLOWS.md); no mezcle formatos de solicitudes entre contratos.
+
 El relevo coordina archivos; no genera imágenes, llama APIs, crea sesiones ni abre apps.
 El schema consumidor sigue siendo 1.5. La solicitud auxiliar 1.0 no es una autorización
 de implementación ni un registro de aceptación. UX/VIS/ADR canónicos conservan autoridad.

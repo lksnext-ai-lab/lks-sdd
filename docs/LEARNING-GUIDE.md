@@ -1,5 +1,10 @@
 # Aprender a trabajar con LKS-SDD, Codex y Copilot
 
+Esta introducción conserva ejemplos del workflow 1.5. Para trabajar con la versión 2,
+continúa con el [índice v2](V2-INDEX.md), la [estructura documental](V2-AUTHORING.md)
+y el [ciclo de trabajo](V2-WORKFLOWS.md); no copies comandos 1.x sobre un proyecto v2.
+La instalación personal no migra el contrato del proyecto.
+
 Esta guía no presupone experiencia con agentes de IA. Su objetivo es que puedas
 entender qué estás aprobando, qué está haciendo la herramienta y cómo comprobar
 el resultado. No necesitas memorizar comandos ni identificadores para empezar.

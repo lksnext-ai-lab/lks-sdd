@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "-X",
+    "utf8",
+    "C:/Users/j.ormazabal/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+    "skills/lks-sdd-assess-readiness"
+  ],
+  "exit_code": 0,
+  "seconds": 0.223,
+  "temp_directory": "C:\\Users\\j.ormazabal\\Documents\\ChatGPT\\LKS SDD\\docs\\proposals\\context-compiler-study-2026-09-11\\.tmp\\quick-readiness"
+}

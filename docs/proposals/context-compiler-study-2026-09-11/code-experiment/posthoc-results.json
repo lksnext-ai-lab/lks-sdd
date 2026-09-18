@@ -1,0 +1,114 @@
+{
+  "status": "posthoc-new-tests-not-part-of-frozen-oracle",
+  "limitation": "Three targeted cases of one function, selected after review; not an independent benchmark.",
+  "rows": [
+    {
+      "candidate": "candidate-compact_complete.py",
+      "sha256": "8967b9b52fc2c89fde1a5a9326a01e5077212db41356ec3d429a04f228a7627a",
+      "tests": [
+        {
+          "name": "valid-date",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT",
+          "expected": 2,
+          "actual": 2,
+          "passed": true
+        },
+        {
+          "name": "trailing-junk",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT junk GMT",
+          "expected": null,
+          "actual": 2,
+          "passed": false
+        },
+        {
+          "name": "duplicated-zone",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT GMT",
+          "expected": null,
+          "actual": 2,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "candidate": "candidate-contract_preserved.py",
+      "sha256": "8373ab72461bfe12fcda0e18f9d72e0dd352e785da52063880ddcbd6b28527cd",
+      "tests": [
+        {
+          "name": "valid-date",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT",
+          "expected": 2,
+          "actual": 2,
+          "passed": true
+        },
+        {
+          "name": "trailing-junk",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT junk GMT",
+          "expected": null,
+          "actual": 2,
+          "passed": false
+        },
+        {
+          "name": "duplicated-zone",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT GMT",
+          "expected": null,
+          "actual": 2,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "candidate": "candidate-direct_only.py",
+      "sha256": "6a25621555b12500e888df5cb84c3dad1abb669b7c31c3be2d86c013c2d777dd",
+      "tests": [
+        {
+          "name": "valid-date",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT",
+          "expected": 2,
+          "actual": 2,
+          "passed": true
+        },
+        {
+          "name": "trailing-junk",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT junk GMT",
+          "expected": null,
+          "actual": 2,
+          "passed": false
+        },
+        {
+          "name": "duplicated-zone",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT GMT",
+          "expected": null,
+          "actual": 2,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "candidate": "candidate-full.py",
+      "sha256": "4359eb123ed9a1a229be782bb49c5c8185b68bf0a446b8a4a0ef7163ec24ab79",
+      "tests": [
+        {
+          "name": "valid-date",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT",
+          "expected": 2,
+          "actual": 2,
+          "passed": true
+        },
+        {
+          "name": "trailing-junk",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT junk GMT",
+          "expected": null,
+          "actual": null,
+          "passed": true
+        },
+        {
+          "name": "duplicated-zone",
+          "value": "Fri, 11 Sep 2026 12:00:02 GMT GMT",
+          "expected": null,
+          "actual": null,
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

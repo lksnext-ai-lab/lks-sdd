@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "-X",
+    "utf8",
+    "scripts/validate_reference_profile.py",
+    "--all",
+    "--allow-unvalidated"
+  ],
+  "exit_code": 0,
+  "seconds": 1.343,
+  "temp_directory": "C:\\Users\\j.ormazabal\\Documents\\ChatGPT\\LKS SDD\\docs\\proposals\\context-compiler-study-2026-09-11\\.tmp\\reference-structure"
+}

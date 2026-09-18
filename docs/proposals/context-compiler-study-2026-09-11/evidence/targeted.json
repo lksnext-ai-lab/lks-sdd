@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python",
+    "-X",
+    "utf8",
+    "tests/run_unit_tests.py",
+    "--module",
+    "test_contract_engine",
+    "--module",
+    "test_planning_continuity_v13"
+  ],
+  "exit_code": 1,
+  "seconds": 2.47,
+  "temp_directory": "C:\\Users\\j.ormazabal\\Documents\\ChatGPT\\LKS SDD\\docs\\proposals\\context-compiler-study-2026-09-11\\.tmp\\targeted"
+}

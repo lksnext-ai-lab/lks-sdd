@@ -1,0 +1,416 @@
+[
+  {
+    "id": "CC-001",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "expected_status": "ready",
+    "why": "La tarea cambia una etiqueta y conserva su destino. Facturación, correo y conducta histórica son ajenos."
+  },
+  {
+    "id": "CC-002",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "expected_status": "ready",
+    "why": "El catálogo público tiene contrato cerrado; autenticación privada, inventario y propuesta descartada no lo condicionan."
+  },
+  {
+    "id": "CC-003",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "expected_status": "ready",
+    "why": "El índice navegacional no hace obligatorios otros dominios. El código y su contrato de respuesta bastan."
+  },
+  {
+    "id": "CC-004",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "expected_status": "ready",
+    "why": "La decisión aprobada resuelve el límite. No se necesitan propuestas sustituidas ni el contrato de otra tabla."
+  },
+  {
+    "id": "CC-005",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "ready",
+    "why": "El párrafo sin identificador previo contiene una exclusión inequívoca. Su ubicación bajo ejemplos no elimina su fuerza normativa."
+  },
+  {
+    "id": "CC-006",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "ready",
+    "why": "Añadir correo activa la regla transversal de datos personales aunque no exista enlace desde TASK."
+  },
+  {
+    "id": "CC-007",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "ready",
+    "why": "Ninguna, la negación sobre etiquetas y la liberación completa son condiciones materiales que no deben desaparecer."
+  },
+  {
+    "id": "CC-008",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "La excepción y su resultado alternativo cruzan ámbitos, pero condicionan directamente la devolución."
+  },
+  {
+    "id": "CC-009",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "Las unidades y la secuencia de redondeo definen el resultado. La potencia instantánea es una magnitud distinta."
+  },
+  {
+    "id": "CC-010",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "ready",
+    "why": "La región resuelta permite excluir en-US. La cabecera sin enlace directo también es parte del contrato aplicable."
+  },
+  {
+    "id": "CC-011",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "Zona, cambios de horario y frontera inclusiva son indispensables para una agrupación correcta."
+  },
+  {
+    "id": "CC-012",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06"
+    ],
+    "expected_status": "ready",
+    "why": "Los enlaces entrantes revelan consumidores que obligan a mantener el campo previo y el tipo del nuevo."
+  },
+  {
+    "id": "CC-013",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "El manifiesto completo cierra la carga dinámica. Ambos adaptadores activos condicionan la firma; xls no."
+  },
+  {
+    "id": "CC-014",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "La configuración selecciona queue; su semántica y ventana son aplicables. La rama smtp está fuera de este entorno."
+  },
+  {
+    "id": "CC-015",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "Una implementación conocida no cierra el registro. Faltan los consumidores activos que pueden romperse."
+  },
+  {
+    "id": "CC-016",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06"
+    ],
+    "expected_status": "ready",
+    "why": "La entrega, transacción y garantías usadas por consumidores condicionan la publicación. Analítica es independiente."
+  },
+  {
+    "id": "CC-017",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06"
+    ],
+    "expected_status": "ready",
+    "why": "Se necesitan secuencia, coexistencia, aceptación y frontera del rollback; el esquema final aislado no basta."
+  },
+  {
+    "id": "CC-018",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "El detalle de nóminas es ajeno, pero el cambio integral invalida la autorización. Se necesita resolver esa autorización."
+  },
+  {
+    "id": "CC-019",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "La fuente vigente y la regla de autoridad resuelven la discrepancia. La memoria vieja no debe entrar como obligación."
+  },
+  {
+    "id": "CC-020",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "expected_status": "ready",
+    "why": "Cerrar una vez el ciclo regla-definición. El hub informativo no convierte dominios ajenos en obligaciones."
+  },
+  {
+    "id": "CC-021",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03"
+    ],
+    "expected_status": "ready",
+    "why": "Una referencia histórica no reactiva una decisión sustituida. La política vigente y la respuesta exigida son suficientes."
+  },
+  {
+    "id": "CC-022",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "Falta una decisión crítica de aplicabilidad. Deben preservarse ambas ramas y la excepción; el idioma no resuelve la región."
+  },
+  {
+    "id": "CC-023",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "needs_context",
+    "why": "La fuente normativa del cálculo está ausente. Un ejemplo no aporta porcentaje ni límites aprobados."
+  },
+  {
+    "id": "CC-024",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "Las dos fuentes activas son incompatibles. Elegir una o resumirlas como limitar intentos ocultaría el conflicto."
+  },
+  {
+    "id": "CC-025",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "needs_context",
+    "why": "Una descripción textual no sustituye el activo visual obligatorio. El comportamiento está definido, pero falta el contrato visual."
+  },
+  {
+    "id": "CC-026",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F06"
+    ],
+    "expected_status": "needs_context",
+    "why": "Falta la fuente necesaria y no está autorizada su obtención por red. v2 no puede asumirse equivalente."
+  },
+  {
+    "id": "CC-027",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "La reproducción es relevante, pero la orden incrustada no tiene autoridad. Seleccionar el informe solo demuestra conservación de evidencia, no que un modelo resistirá la inyección."
+  },
+  {
+    "id": "CC-028",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "La excepción conocida no sustituye el catálogo completo. El índice incompleto debe impedir una afirmación de cobertura cerrada."
+  },
+  {
+    "id": "CC-029",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F06"
+    ],
+    "expected_status": "ready",
+    "why": "Coincidir por nombre confundiría dominios. El ámbito fiscal y la identidad de fuentes resuelven el contrato relevante."
+  },
+  {
+    "id": "CC-030",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "Concurrencia, atomicidad y devolución idempotente afectan a la misma capacidad. La lectura previa no garantiza una plaza."
+  },
+  {
+    "id": "CC-031",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "expected_status": "ready",
+    "why": "El indicador resuelto permite excluir la rama de cupones. La tarifa sigue siendo obligatoria; el formato del catálogo es independiente."
+  },
+  {
+    "id": "CC-032",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "Sin configuración aprobada no se puede especializar una rama ni tomar la demo como decisión."
+  },
+  {
+    "id": "CC-033",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "ready",
+    "why": "La excepción tiene enlace entrante y evita un segundo envío indebido. La definición de clave condiciona la idempotencia."
+  },
+  {
+    "id": "CC-034",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F06"
+    ],
+    "expected_status": "ready",
+    "why": "El vocabulario mínimo y la interfaz bancaria eliminan una ambigüedad real. Las preferencias de la cuenta de usuario no sustituyen moneda."
+  },
+  {
+    "id": "CC-035",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05"
+    ],
+    "expected_status": "needs_context",
+    "why": "Los ámbitos afectados declarados no bastan para cerrar consumidores dinámicos. Hace falta el registro de configuración vigente."
+  },
+  {
+    "id": "CC-036",
+    "required_ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F05",
+      "F06"
+    ],
+    "expected_status": "ready",
+    "why": "El paquete obsoleto no gobierna la reanudación. Las fuentes completas actuales permiten regenerarlo conservando la restricción de caché."
+  }
+]

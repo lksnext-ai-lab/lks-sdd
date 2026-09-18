@@ -1,9 +1,30 @@
 ---
 name: lks-sdd-assess-readiness
-description: "Use the LKS-SDD Codex plugin to assess a documented increment by reporting specification closure, full-plan completeness, selected TASK-slice readiness, durable authorization, delivery governance, bindings and exact automation support as simultaneous states. Use when the user asks whether work can pass G2 or what remains; do not define, authorize, implement, or verify."
+description: "Use with Codex. Assess documented LKS-SDD scope before implementation: distinguish specification sufficiency, whole-plan coverage, selected task dependencies, technology approval and execution authorization; report actionable blockers without changing files or granting authority."
 ---
 
 # Assess LKS-SDD Readiness
+
+## Routing por contrato
+
+Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
+2.0 or a new v2 project. Responsibility: Evaluar suficiencia y ejes separados, sin reparar ni autorizar.
+Use only the relevant section of that shared workflow and its linked references;
+do not combine v2 syntax with the legacy workflow below. Existing projects remain
+on their exact pinned runtime until explicitly migrated. Unknown schemas fail
+closed; a question never initiates adoption, migration or implementation.
+
+## Workflow conservado para contrato 1.5
+
+Use `<plugin-root>/docs/PROJECT-QUERY.md` when explaining affected requirements,
+specifications and tasks. A content question remains a read-only help query,
+not a readiness assessment. Its partial context never replaces the strict
+assessment inputs or makes an invalid contract ready.
+
+When a consumer differs from the catalog, read
+`<plugin-root>/docs/PROJECT-VARIANTS.md`. Report reference certification
+and scoped consumer approval separately. A valid opt-in approval can use the
+variant preparation/verification route; do not label an unknown stack incompatible.
 
 For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
 and this workflow from that runtime, not a different global version. Run

@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "normative_prose_outside_table",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "26f459990351b7539f7f70250a5e49aef3e3c6b08c9ecf1e602a6b303318147c",
+      "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "d4a5eeb8bf31655cd361878a4ad750c8df70f933949a149b27d6d3b5a6a87b3d",
+      "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": false
+  },
+  {
+    "kind": "active_statement_cell",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "26f459990351b7539f7f70250a5e49aef3e3c6b08c9ecf1e602a6b303318147c",
+      "active": "74b33052f71edcece3e897bf939bab8fd984ccdd888fb852c53c62e725f4168d",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "a702334a0d849c40006958601c6cc0b496de7096a097ddda18a86115c6584672",
+      "active": "224b3caae212aae735ad3521aee68b5a70c524dc9a7f7c5182ee4301cceb1145",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": true
+  }
+]

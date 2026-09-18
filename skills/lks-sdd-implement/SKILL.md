@@ -1,9 +1,30 @@
 ---
 name: lks-sdd-implement
-description: "Implement and safely resume an explicitly authorized LKS-SDD TASK slice with Codex after G2, using exact profile bindings, the dependency plan, durable AUTH/EXEC/CKPT records, bounded code changes, tests and traceability. Use only for authorized implementation; do not define new scope, deploy, or claim verification."
+description: "Use with Codex. Implement or safely resume explicitly authorized LKS-SDD tasks using their complete literal specification, exact technology approval, real diff scope and durable checkpoints; preserve unrelated changes and stop affected work on stale authority or critical unknowns."
 ---
 
 # Implement an LKS-SDD Increment with Codex
+
+## Routing por contrato
+
+Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
+2.0 or a new v2 project. Responsibility: Ejecutar solo el ámbito autorizado con contexto íntegro y diff revisado.
+Use only the relevant section of that shared workflow and its linked references;
+do not combine v2 syntax with the legacy workflow below. Existing projects remain
+on their exact pinned runtime until explicitly migrated. Unknown schemas fail
+closed; a question never initiates adoption, migration or implementation.
+
+## Workflow conservado para contrato 1.5
+
+For explanations of the documented scope, requirements and related tasks, read
+`<plugin-root>/docs/PROJECT-QUERY.md`. A question alone authorizes no implementation.
+During authorized work reuse its source-linked human presentation, but never
+substitute selective query context for required implementation inputs or gates.
+
+For configured project variants, read `<plugin-root>/docs/PROJECT-VARIANTS.md`
+and use its approved preparation route (also selected by `work start`) to create
+only reference locks and EXEC/CKPT, preserving consumer code. Reuse a valid scoped
+approval without another question. AUTH and the canonical task contract still apply.
 
 For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
 and this workflow from that runtime, not a different global version. Run

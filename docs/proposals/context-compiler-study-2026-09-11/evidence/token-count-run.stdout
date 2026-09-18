@@ -1,0 +1,274 @@
+[
+  {
+    "id": "prompt-compact_complete",
+    "characters": 3635,
+    "utf8_bytes": 3724,
+    "o200k_base": 920,
+    "cl100k_base": 988,
+    "sha256": "3270e84906702abe33f8a90b8f55db022a2c97798db64254eaa1635dabab8db5"
+  },
+  {
+    "id": "prompt-contract_preserved",
+    "characters": 6068,
+    "utf8_bytes": 6164,
+    "o200k_base": 1488,
+    "cl100k_base": 1601,
+    "sha256": "b7e3b4a193fdbf73e9c792f3cedaf5e9d4f94f9b06f68cab24d698c07cdf3116"
+  },
+  {
+    "id": "prompt-direct_only",
+    "characters": 2867,
+    "utf8_bytes": 2905,
+    "o200k_base": 655,
+    "cl100k_base": 704,
+    "sha256": "22873aaf2caa52b8364dee66f15db4a2bb9a2c097268f72001981876056f920d"
+  },
+  {
+    "id": "prompt-full",
+    "characters": 11800,
+    "utf8_bytes": 11950,
+    "o200k_base": 2514,
+    "cl100k_base": 2832,
+    "sha256": "c24e9feb0871b88cb10328a18768be447b1378609ad96e9e0732dc63c7f5a12f"
+  },
+  {
+    "id": "prompt-literal_selected",
+    "characters": 7304,
+    "utf8_bytes": 7388,
+    "o200k_base": 1610,
+    "cl100k_base": 1778,
+    "sha256": "897e947643975ea775a11f25b89460ca0c157490f4792f57d238d5582c5141e1"
+  },
+  {
+    "id": "repo:calculator_partial\\active-rows.txt",
+    "characters": 9146,
+    "utf8_bytes": 9146,
+    "o200k_base": 2343,
+    "cl100k_base": 2365,
+    "sha256": "e69ed456e46008e2f57fa7f569859317599460e97ced4ad7bf0d3f792d7234d9"
+  },
+  {
+    "id": "repo:calculator_partial\\all-model-rows.txt",
+    "characters": 14912,
+    "utf8_bytes": 14947,
+    "o200k_base": 3642,
+    "cl100k_base": 3793,
+    "sha256": "39d8bc96c027b72431d6e4d3483d418a43cdcb46cc23b370004c70b091aeece2"
+  },
+  {
+    "id": "repo:calculator_partial\\indexed-documents.txt",
+    "characters": 33376,
+    "utf8_bytes": 33502,
+    "o200k_base": 8741,
+    "cl100k_base": 9163,
+    "sha256": "e6a6a311a7ef67ea492ce9d92ddfa79e06314855e55953212799f55211c021a4"
+  },
+  {
+    "id": "repo:calculator_partial\\TASK-001-seeds-only.txt",
+    "characters": 1310,
+    "utf8_bytes": 1310,
+    "o200k_base": 345,
+    "cl100k_base": 342,
+    "sha256": "12f8246692df6227b7a443cd12eb46dd876903d3d7f897b40b8db4602b055f64"
+  },
+  {
+    "id": "repo:parallel_three_tasks\\active-rows.txt",
+    "characters": 5560,
+    "utf8_bytes": 5560,
+    "o200k_base": 1385,
+    "cl100k_base": 1394,
+    "sha256": "14d633b324540a3f768b8c9ceab8ff65421f9a151b2d18dec8f3fd0597deaa9d"
+  },
+  {
+    "id": "repo:parallel_three_tasks\\all-model-rows.txt",
+    "characters": 11554,
+    "utf8_bytes": 11589,
+    "o200k_base": 2752,
+    "cl100k_base": 2890,
+    "sha256": "600f5f5d58802c30fa654f72ac16fac1eda12c6f10efd94f2d3f6379b5dda5fb"
+  },
+  {
+    "id": "repo:parallel_three_tasks\\indexed-documents.txt",
+    "characters": 29846,
+    "utf8_bytes": 29972,
+    "o200k_base": 7785,
+    "cl100k_base": 8194,
+    "sha256": "d9fb3557d195aa287c511be320161e409a25594234756b09717b830f3a643fe6"
+  },
+  {
+    "id": "repo:parallel_three_tasks\\TASK-001-seeds-only.txt",
+    "characters": 1087,
+    "utf8_bytes": 1087,
+    "o200k_base": 279,
+    "cl100k_base": 277,
+    "sha256": "384da4af4d497443f0544ea36ea01bb8858d72890950817771c37bb72032d51e"
+  },
+  {
+    "id": "repo:parallel_three_tasks\\TASK-002-seeds-only.txt",
+    "characters": 1051,
+    "utf8_bytes": 1051,
+    "o200k_base": 275,
+    "cl100k_base": 273,
+    "sha256": "118bd10f040d84bd231e615e6b3332e62dad433d992bdd7a8dd74f5c1f7a5869"
+  },
+  {
+    "id": "repo:parallel_three_tasks\\TASK-003-seeds-only.txt",
+    "characters": 808,
+    "utf8_bytes": 808,
+    "o200k_base": 231,
+    "cl100k_base": 230,
+    "sha256": "541ac96da19684b6bac09a08d2f2f0a741bed953d3cd98348138cbe040cec66d"
+  },
+  {
+    "id": "repo:ready_single_task\\active-rows.txt",
+    "characters": 4474,
+    "utf8_bytes": 4474,
+    "o200k_base": 1061,
+    "cl100k_base": 1071,
+    "sha256": "d63ca1a1e370c370f3bdacc873ac47e66dc32f2d83f2d687d10014ef6a976414"
+  },
+  {
+    "id": "repo:ready_single_task\\all-model-rows.txt",
+    "characters": 10240,
+    "utf8_bytes": 10275,
+    "o200k_base": 2360,
+    "cl100k_base": 2499,
+    "sha256": "af90b2282e6e35cefe546322e26ac11b2a46ef07e78ba4d67b4e3f1026f54d64"
+  },
+  {
+    "id": "repo:ready_single_task\\indexed-documents.txt",
+    "characters": 28440,
+    "utf8_bytes": 28566,
+    "o200k_base": 7382,
+    "cl100k_base": 7792,
+    "sha256": "2a4dd1ac616dcdc6ea5a91165b5344bbd4a342c496dd2c669465929bc4e98fed"
+  },
+  {
+    "id": "repo:ready_single_task\\TASK-001-seeds-only.txt",
+    "characters": 1310,
+    "utf8_bytes": 1310,
+    "o200k_base": 345,
+    "cl100k_base": 342,
+    "sha256": "12f8246692df6227b7a443cd12eb46dd876903d3d7f897b40b8db4602b055f64"
+  },
+  {
+    "id": "repo:shared_increment\\active-rows.txt",
+    "characters": 3654,
+    "utf8_bytes": 3654,
+    "o200k_base": 960,
+    "cl100k_base": 975,
+    "sha256": "676239870ddd02a1822782df51b128dace7b01b446bb58651ec718584c18ce1d"
+  },
+  {
+    "id": "repo:shared_increment\\all-model-rows.txt",
+    "characters": 4201,
+    "utf8_bytes": 4201,
+    "o200k_base": 1152,
+    "cl100k_base": 1170,
+    "sha256": "a5e3b2e5498d75ebc661011d79e136438f660be27b44ce1de1d6fecbecca10fc"
+  },
+  {
+    "id": "repo:shared_increment\\indexed-documents.txt",
+    "characters": 5245,
+    "utf8_bytes": 5245,
+    "o200k_base": 1471,
+    "cl100k_base": 1489,
+    "sha256": "94e661e477b9e36a6f5ddf881f2b4c0a79bc0a08069bc3c20a6813993d886479"
+  },
+  {
+    "id": "repo:two_profile_bindings\\active-rows.txt",
+    "characters": 4855,
+    "utf8_bytes": 4855,
+    "o200k_base": 1168,
+    "cl100k_base": 1176,
+    "sha256": "36d592a5a0b2de28692ed78666769bc423e4a6c25c5290d54bf36396b80fd84e"
+  },
+  {
+    "id": "repo:two_profile_bindings\\all-model-rows.txt",
+    "characters": 10755,
+    "utf8_bytes": 10790,
+    "o200k_base": 2510,
+    "cl100k_base": 2646,
+    "sha256": "0b0dec2b5b4546aad09e6992f9487f00597d9d63ec56ab289531ff9051e6fb88"
+  },
+  {
+    "id": "repo:two_profile_bindings\\indexed-documents.txt",
+    "characters": 28967,
+    "utf8_bytes": 29093,
+    "o200k_base": 7557,
+    "cl100k_base": 7943,
+    "sha256": "b1698b25759c7d62f09fd6a1b55d49d9e2c0c7497e6b27c50998c55163581c9c"
+  },
+  {
+    "id": "repo:two_profile_bindings\\TASK-001-seeds-only.txt",
+    "characters": 1310,
+    "utf8_bytes": 1310,
+    "o200k_base": 345,
+    "cl100k_base": 342,
+    "sha256": "12f8246692df6227b7a443cd12eb46dd876903d3d7f897b40b8db4602b055f64"
+  },
+  {
+    "id": "repo:two_profile_bindings\\TASK-002-seeds-only.txt",
+    "characters": 412,
+    "utf8_bytes": 412,
+    "o200k_base": 114,
+    "cl100k_base": 113,
+    "sha256": "ff887ba7f7d69dcbd99807802e0569336f9b822fddd9f35c18f504e1e4bd88d0"
+  },
+  {
+    "id": "repo:visual_history\\active-rows.txt",
+    "characters": 3654,
+    "utf8_bytes": 3654,
+    "o200k_base": 960,
+    "cl100k_base": 975,
+    "sha256": "676239870ddd02a1822782df51b128dace7b01b446bb58651ec718584c18ce1d"
+  },
+  {
+    "id": "repo:visual_history\\all-model-rows.txt",
+    "characters": 3893,
+    "utf8_bytes": 3893,
+    "o200k_base": 1054,
+    "cl100k_base": 1070,
+    "sha256": "28bba171a34e1778eb273ac6a17b0b5d7b815ca3569789ca4d7c99f6ef940584"
+  },
+  {
+    "id": "repo:visual_history\\indexed-documents.txt",
+    "characters": 4917,
+    "utf8_bytes": 4917,
+    "o200k_base": 1368,
+    "cl100k_base": 1383,
+    "sha256": "2ed6b1c64253e8c0fcafe6c38acebb2087dd77796589200b8bec67827de3bb0c"
+  },
+  {
+    "id": "candidate-compact_complete",
+    "characters": 7329,
+    "utf8_bytes": 7329,
+    "o200k_base": 1679,
+    "cl100k_base": 1653,
+    "sha256": "8967b9b52fc2c89fde1a5a9326a01e5077212db41356ec3d429a04f228a7627a"
+  },
+  {
+    "id": "candidate-contract_preserved",
+    "characters": 6770,
+    "utf8_bytes": 6770,
+    "o200k_base": 1565,
+    "cl100k_base": 1541,
+    "sha256": "8373ab72461bfe12fcda0e18f9d72e0dd352e785da52063880ddcbd6b28527cd"
+  },
+  {
+    "id": "candidate-direct_only",
+    "characters": 8424,
+    "utf8_bytes": 8424,
+    "o200k_base": 1892,
+    "cl100k_base": 1869,
+    "sha256": "6a25621555b12500e888df5cb84c3dad1abb669b7c31c3be2d86c013c2d777dd"
+  },
+  {
+    "id": "candidate-full",
+    "characters": 7155,
+    "utf8_bytes": 7155,
+    "o200k_base": 1715,
+    "cl100k_base": 1688,
+    "sha256": "4359eb123ed9a1a229be782bb49c5c8185b68bf0a446b8a4a0ef7163ec24ab79"
+  }
+]

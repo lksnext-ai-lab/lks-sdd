@@ -22,6 +22,8 @@
         "test_fullstack_integration_contract_v017",
         "test_integrations_v018",
         "test_variants_adoption_v018",
+        "test_project_variants",
+        "test_project_query",
         "test_handoff_guards",
         "test_jira_reporting_v15",
         "test_m3_workflows",
@@ -36,7 +38,14 @@
         "test_visual_contract_adversarial",
         "test_visual_contract",
         "test_visual_handoff",
-        "test_workflows"
+        "test_workflows",
+        "test_v2_query_context",
+        "test_v2_project_variants",
+        "test_v2_lifecycle",
+        "test_v2_document_contract",
+        "test_v2_controls",
+        "test_v2_integration_controls",
+        "test_v2_adoption_migration"
       ]
     },
     "package": {

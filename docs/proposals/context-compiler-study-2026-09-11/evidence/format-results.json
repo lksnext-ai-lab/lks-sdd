@@ -1,0 +1,228 @@
+{
+  "package": "gpt-tokenizer@3.4.0",
+  "scope": "reference text tokens; no host billing, visual tokens or comprehension measured",
+  "known_vectors": {
+    "hello_world": [
+      24912,
+      2375
+    ],
+    "cl100k_hello_world": [
+      15339,
+      1917
+    ]
+  },
+  "rows": [
+    {
+      "fixture": "small-flat",
+      "format": "json_pretty",
+      "utf8_bytes": 182,
+      "o200k_base": 70,
+      "cl100k_base": 70,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "small-flat",
+      "format": "json_compact",
+      "utf8_bytes": 121,
+      "o200k_base": 38,
+      "cl100k_base": 38,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "small-flat",
+      "format": "markdown_records",
+      "utf8_bytes": 152,
+      "o200k_base": 61,
+      "cl100k_base": 61,
+      "round_trip": "not-applicable-text-view"
+    },
+    {
+      "fixture": "small-flat",
+      "format": "tabular_json_cells",
+      "utf8_bytes": 133,
+      "o200k_base": 40,
+      "cl100k_base": 42,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "small-flat",
+      "format": "gzip_base64_not_directly_usable",
+      "utf8_bytes": 140,
+      "o200k_base": 89,
+      "cl100k_base": 93,
+      "decoded_tokens": {
+        "o200k_base": 70,
+        "cl100k_base": 70
+      },
+      "round_trip": "verified-by-code-not-LLM"
+    },
+    {
+      "fixture": "uniform-100",
+      "format": "json_pretty",
+      "utf8_bytes": 9151,
+      "o200k_base": 3402,
+      "cl100k_base": 3402,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "uniform-100",
+      "format": "json_compact",
+      "utf8_bytes": 6150,
+      "o200k_base": 1802,
+      "cl100k_base": 1802,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "uniform-100",
+      "format": "markdown_records",
+      "utf8_bytes": 7939,
+      "o200k_base": 3099,
+      "cl100k_base": 3099,
+      "round_trip": "not-applicable-text-view"
+    },
+    {
+      "fixture": "uniform-100",
+      "format": "tabular_json_cells",
+      "utf8_bytes": 3418,
+      "o200k_base": 1118,
+      "cl100k_base": 1120,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "uniform-100",
+      "format": "gzip_base64_not_directly_usable",
+      "utf8_bytes": 1016,
+      "o200k_base": 681,
+      "cl100k_base": 725,
+      "decoded_tokens": {
+        "o200k_base": 3402,
+        "cl100k_base": 3402
+      },
+      "round_trip": "verified-by-code-not-LLM"
+    },
+    {
+      "fixture": "nested-irregular",
+      "format": "json_pretty",
+      "utf8_bytes": 459,
+      "o200k_base": 143,
+      "cl100k_base": 145,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "nested-irregular",
+      "format": "json_compact",
+      "utf8_bytes": 229,
+      "o200k_base": 68,
+      "cl100k_base": 68,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "nested-irregular",
+      "format": "markdown_records",
+      "utf8_bytes": 274,
+      "o200k_base": 94,
+      "cl100k_base": 95,
+      "round_trip": "not-applicable-text-view"
+    },
+    {
+      "fixture": "nested-irregular",
+      "format": "gzip_base64_not_directly_usable",
+      "utf8_bytes": 308,
+      "o200k_base": 204,
+      "cl100k_base": 214,
+      "decoded_tokens": {
+        "o200k_base": 143,
+        "cl100k_base": 145
+      },
+      "round_trip": "verified-by-code-not-LLM"
+    },
+    {
+      "fixture": "unicode-and-escaping",
+      "format": "json_pretty",
+      "utf8_bytes": 245,
+      "o200k_base": 86,
+      "cl100k_base": 93,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "unicode-and-escaping",
+      "format": "json_compact",
+      "utf8_bytes": 196,
+      "o200k_base": 63,
+      "cl100k_base": 70,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "unicode-and-escaping",
+      "format": "markdown_records",
+      "utf8_bytes": 225,
+      "o200k_base": 81,
+      "cl100k_base": 88,
+      "round_trip": "not-applicable-text-view"
+    },
+    {
+      "fixture": "unicode-and-escaping",
+      "format": "tabular_json_cells",
+      "utf8_bytes": 216,
+      "o200k_base": 66,
+      "cl100k_base": 75,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "unicode-and-escaping",
+      "format": "gzip_base64_not_directly_usable",
+      "utf8_bytes": 276,
+      "o200k_base": 178,
+      "cl100k_base": 185,
+      "decoded_tokens": {
+        "o200k_base": 86,
+        "cl100k_base": 93
+      },
+      "round_trip": "verified-by-code-not-LLM"
+    },
+    {
+      "fixture": "conditions",
+      "format": "json_pretty",
+      "utf8_bytes": 538,
+      "o200k_base": 155,
+      "cl100k_base": 161,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "conditions",
+      "format": "json_compact",
+      "utf8_bytes": 417,
+      "o200k_base": 92,
+      "cl100k_base": 98,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "conditions",
+      "format": "markdown_records",
+      "utf8_bytes": 494,
+      "o200k_base": 143,
+      "cl100k_base": 149,
+      "round_trip": "not-applicable-text-view"
+    },
+    {
+      "fixture": "conditions",
+      "format": "tabular_json_cells",
+      "utf8_bytes": 325,
+      "o200k_base": 80,
+      "cl100k_base": 88,
+      "round_trip": "verified"
+    },
+    {
+      "fixture": "conditions",
+      "format": "gzip_base64_not_directly_usable",
+      "utf8_bytes": 272,
+      "o200k_base": 182,
+      "cl100k_base": 196,
+      "decoded_tokens": {
+        "o200k_base": 155,
+        "cl100k_base": 161
+      },
+      "round_trip": "verified-by-code-not-LLM"
+    }
+  ]
+}

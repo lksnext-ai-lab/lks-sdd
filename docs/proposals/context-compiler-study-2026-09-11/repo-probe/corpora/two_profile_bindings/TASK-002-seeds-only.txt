@@ -1,0 +1,3 @@
+docs/lks-sdd/04-delivery/tasks.md#delivery.tasks
+ID | Plan | Title | Release | Increment | Unit | Profile binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated
+TASK-002 | PLAN-001 | Implement synthetic web | REL-001 | INC-001 | UNIT-002 | BIND-002 | ready | on-track | 0 | not-applicable: no prerequisite task | none | fixture-owner | ./tasks/TASK-002.md | 2026-08-19

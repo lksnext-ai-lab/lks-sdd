@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Read-only project query context 1.0",
+  "type": "object",
+  "required": ["schema_version", "kind", "status", "writes", "consumer_executions"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "kind": {"const": "query-context"},
+    "status": {"enum": ["partial", "needs-clarification", "blocked"]},
+    "writes": {"type": "array", "maxItems": 0},
+    "consumer_executions": {"type": "array", "maxItems": 0},
+    "error": {"type": "string"},
+    "request": {
+      "type": "object", "additionalProperties": false,
+      "required": ["topic", "entity", "documents", "mode", "intent", "code_paths", "gap"],
+      "properties": {
+        "topic": {"type": "string"}, "entity": {"type": ["string", "null"]},
+        "documents": {"type": "array", "items": {"type": "string"}},
+        "mode": {"enum": ["docs-first", "docs-only", "compare"]},
+        "intent": {"enum": ["documented", "implementation", "normative", "impact"]},
+        "code_paths": {"type": "array", "items": {"type": "string"}},
+        "gap": {"type": ["string", "null"]}
+      }
+    },
+    "context_id": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "revision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "branch", "working_tree"],
+      "properties": {"revision": {"type": ["string", "null"]}, "branch": {"type": ["string", "null"]}, "working_tree": {"const": "not-compared"}}
+    },
+    "contract_validation": {"const": "not-run"}, "semantic_review": {"const": "required"},
+    "sources": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "kind", "line_count", "redacted", "authority"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "kind": {"enum": ["document", "code"]}, "line_count": {"type": "integer", "minimum": 0},
+        "redacted": {"type": "boolean"}, "authority": {"enum": ["mixed-or-unknown", "observation-only"]}
+      }
+    }},
+    "fragments": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "line", "end_line", "text", "nature", "authority", "included_because"],
+      "properties": {
+        "source": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1}, "end_line": {"type": "integer", "minimum": 1},
+        "text": {"type": "string"}, "nature": {"enum": ["documented", "observed-in-code"]},
+        "authority": {"enum": ["mixed-or-unknown", "observation-only"]},
+        "included_because": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    }},
+    "entities": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "source", "line", "cells", "declared_state", "authority", "nature", "typed"],
+      "properties": {
+        "id": {"type": "string"}, "source": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1},
+        "cells": {"type": "object", "additionalProperties": {"type": "string"}},
+        "declared_state": {"type": ["string", "null"]}, "authority": {"const": "declared-not-validated"},
+        "nature": {"const": "documented"}, "typed": {"type": "boolean"}
+      }
+    }},
+    "relations": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_id", "target_id", "relation", "nature", "source", "line"],
+      "properties": {
+        "source_id": {"type": "string"}, "target_id": {"type": "string"}, "relation": {"type": "string"},
+        "nature": {"enum": ["declared", "declared-co-reference", "explicit-mention"]}, "source": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1}
+      }
+    }},
+    "duplicates": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+    "dependency_candidates": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["source", "line", "text", "resolution", "nature"],
+      "properties": {"source": {"$ref": "#/$defs/path"}, "line": {"type": "integer", "minimum": 1}, "text": {"type": "string"}, "resolution": {"const": "not-followed"}, "nature": {"const": "lexical-candidate"}}
+    }},
+    "gaps": {"$ref": "#/$defs/strings"}, "warnings": {"$ref": "#/$defs/strings"},
+    "unselected_documents": {"$ref": "#/$defs/strings"},
+    "exclusions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["path", "reason"], "properties": {"path": {"type": "string"}, "reason": {"type": "string"}}}},
+    "limits": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "metrics": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+    "diagram": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false,
+  "allOf": [{"if": {"properties": {"status": {"const": "blocked"}}}, "then": {"required": ["error"]}, "else": {
+    "required": ["request", "context_id", "revision", "contract_validation", "semantic_review", "sources", "fragments", "entities", "relations", "duplicates", "dependency_candidates", "gaps", "warnings", "exclusions", "unselected_documents", "limits", "metrics", "diagram"]
+  }}],
+  "$defs": {
+    "strings": {"type": "array", "items": {"type": "string"}},
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^:\\\\]+$"}
+  }
+}

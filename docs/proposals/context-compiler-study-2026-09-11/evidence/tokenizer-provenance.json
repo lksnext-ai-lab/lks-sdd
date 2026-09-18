@@ -1,0 +1,9 @@
+{
+  "name": "gpt-tokenizer",
+  "version": "3.4.0",
+  "tarball": "https://registry.npmjs.org/gpt-tokenizer/-/gpt-tokenizer-3.4.0.tgz",
+  "sha512_base64": "wxFLnhIXTDjYebd9A9pGl3e31ZpSypbpIJSOswbgop5jLte/AsZVDvjlbEuVFlsqZixVKqbcoNmRlFDf6pz/UQ==",
+  "extracted_files": 564,
+  "installed": false,
+  "encodings_are_reference_not_host_billing": true
+}

@@ -4,7 +4,7 @@
 
 El harness integra FX-01–FX-45 históricos, el reporting Jira v0.11 FX-46–FX-51, la cobertura granular Entra v0.12 FX-52–FX-53, los perfiles OIDC simulados v0.13 en FX-54 y la verificación incremental reproducible v0.14 en FX-55. Cubre experiencia local sin Atlassian, hitos canónicos, comentario idempotente, una confirmación con recibos separados, workflow por IDs, reconciliación append-only, rechazo sin mutación de schemas de proyecto anteriores a 1.5, aplicabilidad visual por tarea, build estable, G4 no circular y CKPT/PROB consumibles. No convierte una prueba no ejecutada o saltada en un resultado satisfactorio.
 
-FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye estos resultados. El cierre estable puede basarse en una decisión agregada del responsable del proyecto sin transformar esos estados. El harness conserva como diagnóstico el corpus `quality/corpora/definition-v0.18.0.json`.
+FX-01, FX-20, FX-21, FX-36 y FX-53 conservan evaluación conversacional `not-run`. FX-45 y FX-51 mantienen la interoperabilidad real Rovo/Jira como piloto `not-run`; la interoperabilidad real Microsoft Entra también sigue `not-run` en los perfiles candidate. Los perfiles simulados declaran interoperabilidad externa `not-applicable`, no `passed`. Ninguna prueba offline sustituye estos resultados. El cierre estable puede basarse en una decisión agregada del responsable del proyecto sin transformar esos estados. El harness conserva como diagnóstico el corpus `quality/corpora/definition-v2.0.0.json`.
 
 ## Canales de evidencia
 
@@ -32,10 +32,10 @@ $reportPath = Join-Path (Resolve-Path "..") "quality-report.json"
 python (Join-Path $pluginRoot "scripts\run_quality_harness.py") --channel candidate --date (Get-Date -Format "yyyy-MM-dd") --baseline (Join-Path $pluginRoot "quality\baselines\v0.17.0.json") --profile-mode reuse --output $reportPath
 ```
 
-Para 1.1.1 estable, la misma puerta incorpora la decisión del responsable:
+Para 2.0.0 estable, la misma puerta incorpora la decisión del responsable:
 
 ```powershell
-python scripts\run_quality_harness.py --channel stable --date (Get-Date -Format "yyyy-MM-dd") --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.1.1.json --output $reportPath
+python scripts\run_quality_harness.py --channel stable --date (Get-Date -Format "yyyy-MM-dd") --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v2.0.0.json --output $reportPath
 ```
 
 `--profile-mode not-run` deja candidate `incomplete`. `--profile-mode reuse` es la opción normal cuando las certificaciones exactas tienen como máximo 90 días y siguen ligadas a todos sus bytes. `--profile-mode execute` vuelve a ejecutar Docker y el alias heredado `--include-complete-profile` conserva ese comportamiento. Use `execute` para recertificar, investigar el runtime o por petición explícita. El reporte usa el esquema 1.2, conserva 1.1 como contrato histórico, registra `HEAD`, ejecución y rendimiento, y falla en la atestación inicial si la fuente no coincide exactamente con Git. `--preflight-only` conserva esa atestación completa como diagnóstico opcional; no precede a la ruta estándar porque el harness la repite de forma segura antes de sus hijos. Una ruta de salida ya existente se rechaza antes de lanzar tests; `--force` requiere `--rerun-reason` y esa razón queda registrada en `execution.rerun_reason`.

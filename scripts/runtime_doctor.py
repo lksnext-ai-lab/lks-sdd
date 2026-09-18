@@ -18,7 +18,7 @@ def check(root: Path) -> dict:
     errors = []
     try:
         lock = json.loads(lock_path.read_text(encoding="utf-8"))
-        if lock.get("schema_version") != "1.0" or lock.get("project_schema") != "1.5":
+        if lock.get("schema_version") != "1.0" or lock.get("project_schema") not in {"1.5", "2.0"}:
             raise ValueError("Unsupported distribution contract")
         entrypoints = lock.get("entrypoints", "project")
         if entrypoints not in {"project", "plugin"}:
@@ -63,6 +63,9 @@ def check(root: Path) -> dict:
         manifest = json.loads((runtime / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
         if manifest.get("version") != lock["version"]:
             errors.append("Runtime version mismatch")
+        project_index = root / ".lks-sdd/project.json"
+        if project_index.is_file() and json.loads(project_index.read_text(encoding="utf-8")).get("schema_version") != lock["project_schema"]:
+            errors.append("Project schema differs from its pinned distribution; use explicit migration/recovery")
         return {"status": "valid" if not errors else "blocked", "errors": errors,
                 "runtime": runtime_name, "version": lock["version"], "channel": lock["channel"]}
     except (ValueError, OSError, KeyError, TypeError) as exc:

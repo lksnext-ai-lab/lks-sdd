@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "normative_prose_outside_table",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "e0b73b2361bf2932e814fce46b0b9b18c9dbb00ecdb904c1a72e8e804426d6fc",
+      "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "237d56c64a4b40786e83d3f9a02ad2894bbccc9d0bfbfff4a08070a2b44e3757",
+      "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": false
+  },
+  {
+    "kind": "active_statement_cell",
+    "path": "docs/lks-sdd/02-requirements/functional-requirements.md",
+    "baseline": {
+      "document": "e0b73b2361bf2932e814fce46b0b9b18c9dbb00ecdb904c1a72e8e804426d6fc",
+      "active": "7837e432f75c54b9aa28839f269d81243e625bcaac55aaae7db3c599ac9b6c9b",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "observed": {
+      "document": "c2f612af28c4c7efb404eab4c4d4c898b8706e3a28d8a23a5abd6d376f5eaa5c",
+      "active": "6913110af271b1048a54cc4904a095b3fe350268f2fe55c30d5a10658cf88708",
+      "model_valid": true,
+      "model_errors": [],
+      "active_errors": []
+    },
+    "document_changed": true,
+    "active_changed": true
+  }
+]
