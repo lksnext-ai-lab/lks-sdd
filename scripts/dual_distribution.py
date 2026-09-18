@@ -106,7 +106,10 @@ def compact_distribution_core(core: dict[str, bytes]) -> dict[str, bytes]:
     but use short, deterministic paths so a Copilot Git checkout can fit Windows
     path limits. Unreferenced historical observations are preserved separately.
     """
-    output = dict(core)
+    # Research corpora stay versioned in the development repository, not in the
+    # installed operational runtime. They are not profile certification evidence.
+    development_only = ("docs/proposals/context-compiler-study-2026-09-11/",)
+    output = {name: data for name, data in core.items() if not name.startswith(development_only)}
     evidence_files = sorted(
         name for name in core
         if name.startswith("profiles/") and name.endswith("/certification-evidence.json")
@@ -182,11 +185,10 @@ def compact_distribution_core(core: dict[str, bytes]) -> dict[str, bytes]:
     integrity_name = "package-integrity.json"
     if integrity_name in output:
         integrity = json.loads(output[integrity_name])
-        runtime_prefixes = (".codex-plugin/", "profiles/", "schemas/", "scripts/", "skills/")
         integrity["files"] = [
             {"path": name, "sha256": digest(content), "size": len(content)}
             for name, content in sorted(output.items())
-            if name == ".codex-plugin/plugin.json" or name.startswith(runtime_prefixes)
+            if name != "package-integrity.json"
         ]
         output[integrity_name] = json_bytes(integrity)
     return output
@@ -250,7 +252,7 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "runtime_digest": identity, "runtime_files": inventory(core),
         "managed_files": inventory({k: v for k, v in output.items() if not k.startswith(runtime + "/")}),
         "source": source, "channel": channel, "hosts": ["codex", "copilot"],
-        "project_schema": "1.5", "collaboration": "sequential",
+        "project_schema": json.loads(core["distribution/dual.json"])["project_schema"], "collaboration": "sequential",
         "entrypoints": "plugin" if plugin_entrypoints else "project",
     })
     return output

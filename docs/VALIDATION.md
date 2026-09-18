@@ -1,6 +1,75 @@
 # Validación local
 
-## Distribución dual 1.1.1
+## Versión 2: contrato y evidencias independientes
+
+La versión `2.0.0` añade contrato 2.0/método 2.0.0; los procedimientos que
+siguen identificados como 1.5 o 1.x se conservan para esa línea. No mezclar sus
+comandos con el nuevo ciclo. La migración oficial ahora existe, exclusivamente
+desde 1.5 y previa autorización; no se ejecuta por actualizar el plugin.
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_v2_document_contract --module test_v2_lifecycle --module test_v2_controls --module test_v2_integration_controls --module test_v2_adoption_migration --module test_v2_query_context --module test_v2_project_variants
+python -B -X utf8 scripts/v2_audit.py
+python -B -X utf8 tests/v2_benchmark.py --help
+python -B -X utf8 tests/v2_docker_smoke.py --help
+python -B -X utf8 tests/v2_distribution_smoke.py --help
+python -B -X utf8 scripts/lks_sdd.py v2 --help
+```
+
+La [matriz v2](plans/2026-09-18-lks-sdd-v2-coverage.md) conserva el alcance aprobado;
+el [informe de implementación](validation/v2-implementation.md) registra lo
+ejecutado. Un test sintético no cambia el estado `not-run` del piloto ni demuestra
+aceptación humana/Codex/Copilot. No aumentar presupuestos para ocultar regresiones.
+La auditoría enlaza 67 mejoras, 48 tareas y 60 familias con código y pruebas reales;
+`--report <informe-unitario.json>` añade resultados observados, no aceptación semántica.
+El smoke Docker se ejecuta explícitamente con el motor Linux y la imagen local
+fijada; no opera un proyecto real. El protocolo [por host](V2-HOST-ACCEPTANCE.md)
+y el [expediente v2](../quality/v2-acceptance.json) separan esos ensayos de la
+aceptación humana. Para una campaña completa use `tests/run_unit_tests.py --suite
+all --json-out <ruta-nueva.json>` y los evals; en un worktree de desarrollo siguen
+siendo diagnóstico, no atestación publicable.
+`v2_distribution_smoke.py` compara dos builds del mismo snapshot de desarrollo,
+valida el archivo nativo Copilot y ensaya migración/rollback con el núcleo 1.x de
+HEAD y el núcleo v2 completo en directorios temporales. `--baseline-commit
+<sha-completo>` selecciona una referencia histórica 1.x sin checkout; por defecto
+usa HEAD mientras siga siendo 1.x. No registra ni activa instalaciones personales.
+
+Para medir consultas de un consumidor con el paquete completo fijado, ejecutar
+`tests/v2_benchmark.py --pinned --json-out <ruta-nueva.json>`: incluye la comprobación
+fresca de todos los hashes en cada consulta. Sin `--pinned` mide un proyecto sin
+runtime gestionado; ese resultado no acredita el coste del runtime fijado. Ambos
+modos exigen al menos veinte muestras por tamaño, sin caché persistente de confianza.
+
+## Consultas humanas del proyecto (incluidas en v2)
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_project_query
+python -B -X utf8 tests/query_benchmark.py
+python -B -X utf8 scripts/lks_sdd.py query --help
+```
+
+Las pruebas de consulta pertenecen a integration. Cubren recuperación documental,
+ampliación condicionada al código, seguridad de rutas, prosa/relaciones, deriva,
+readonly y runtime fijado sin bytecode. El benchmark crea y limpia fixtures temporales
+y separa sus tiempos de la latencia del asistente. La guía es [PROJECT-QUERY.md](PROJECT-QUERY.md).
+No atribuir comprensión humana ni aceptación de host a estas pruebas automáticas.
+Resultados y límites de esta entrega en
+[validación de consultas](validation/project-query-2026-09-17.md).
+
+## Variantes tecnológicas de proyecto (incluidas en v2)
+
+```powershell
+python -X utf8 tests/run_unit_tests.py --module test_project_variants
+python -X utf8 tests/variant_docker_smoke.py
+```
+
+La primera prueba pertenece a integration y no ejecuta Docker. La segunda es una
+aceptación explícita con Docker Linux e imagen Python fijada por digest ya local:
+aprobación única, preparación sin scaffold, observer aislado real, reutilización
+sin procesos, cierre TASK/EXEC/CKPT y validación canónica. No equivale a una release.
+El procedimiento y los límites están en [PROJECT-VARIANTS.md](PROJECT-VARIANTS.md).
+
+## Distribución dual
 
 ```powershell
 python -X utf8 tests/run_unit_tests.py --module test_dual_distribution --module test_visual_handoff
@@ -19,8 +88,9 @@ instala desde el setup nativo en un directorio temporal y ejecuta definición y
 validación; no registra un plugin en la configuración personal del host.
 No ejecutan sesiones reales de Copilot ni generan imágenes. Conservar `not-run` para
 los canales humanos descritos en [aceptación dual](DUAL-HOST-ACCEPTANCE.md).
-El harness estable usa `--channel stable` y `quality/release-approval-v1.1.1.json`,
-no la aprobación histórica 1.0.0.
+La release estable v2 usa `--channel stable` y su aprobación específica
+`quality/release-approval-v2.0.0.json`. La aceptación humana/host permanece separada
+con su estado observado; publicar no la convierte en superada.
 
 Ejecute las comprobaciones desde la raíz del repositorio con Python 3. Los comandos de estructura no requieren red; los gates completos descargan toolchains e imágenes bloqueadas y requieren Docker.
 
@@ -73,10 +143,14 @@ Repita el comando para cada perfil afectado. No use `--allow-unvalidated` como s
 
 ## Puerta de release, pruebas y evals
 
+El siguiente comando corresponde a la release 2.0.0 y su aprobación específica.
+Ejecutarlo en un checkout limpio con resultados externos. Una versión posterior
+necesita su propia aprobación y no puede reutilizar este fichero.
+
 ```powershell
 $validationDate = Get-Date -Format "yyyy-MM-dd"
 $qualityReport = Join-Path ([System.IO.Path]::GetTempPath()) ("lks-sdd-quality-{0}.json" -f [guid]::NewGuid().ToString("N"))
-python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v1.1.1.json --output $qualityReport
+python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v2.0.0.json --output $qualityReport
 ```
 
 El harness es la única ejecución integral requerida para una release: valida fixtures,
@@ -161,7 +235,7 @@ Los resultados actualizan únicamente `ART-TRACKING` y su índice; nunca cambian
 
 La confirmación del plan, la autorización, la preparación, los checkpoints y las transiciones que escriben usan preview, hash y apply explícito. El apply de preparación sincroniza las tareas seleccionadas a `in-progress`, crea `EXEC-###` y un checkpoint inicial; no crea commit. La verificación G3/G4 debe vincularse a revisión, árbol, build, artefactos y entorno. Ningún comando de validación autoriza merge o despliegue.
 
-## Corte de contrato de proyecto
+## Corte histórico de contrato de proyecto 1.x
 
 1.0 valida únicamente `schema_version: 1.5` y `method_version: 1.5.0`. Compruebe el corte y la procedencia histórica sin escribir:
 
@@ -171,7 +245,10 @@ python "<plugin-root>\scripts\lks_sdd.py" validate-project "<project-root>"
 python "<plugin-root>\scripts\lks_sdd.py" status "<project-root>" --view audit --json
 ```
 
-No existe comando `migrate` en el paquete. Un schema anterior debe fallar cerrado. Un proyecto 1.5 materializado por una versión anterior puede conservar ese valor en `plugin_version`; el runtime activo se presenta por separado.
+Los paquetes 1.x no tenían comando `migrate`. La versión 2 incorpora la ruta
+oficial explícita 1.5→2.0, descrita en [V2-MIGRATION.md](V2-MIGRATION.md); los demás
+orígenes siguen fallando cerrados. Un proyecto 1.5 puede conservar su valor
+histórico de `plugin_version`; el runtime activo se presenta por separado.
 
 ## Piloto y distribución
 

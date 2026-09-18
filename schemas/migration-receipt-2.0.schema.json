@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "source_snapshot",
+    "origin",
+    "target",
+    "mapping",
+    "elements",
+    "pending",
+    "runtime",
+    "authorization",
+    "verification"
+  ],
+  "properties": {
+    "source_snapshot": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "origin": {
+      "const": "1.5"
+    },
+    "target": {
+      "const": "2.0"
+    },
+    "mapping": {
+      "type": "object"
+    },
+    "elements": {
+      "type": "object"
+    },
+    "pending": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "runtime": {
+      "type": "object"
+    },
+    "authorization": {
+      "const": "reconciliation-required"
+    },
+    "verification": {
+      "const": "not-run"
+    }
+  }
+}

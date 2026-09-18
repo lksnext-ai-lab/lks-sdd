@@ -1,6 +1,33 @@
-# Arquitectura y alcance de la versión 1.1.1
+# Arquitectura y alcance de la versión 2.0.0
+
+El contrato nuevo se implementa en `v2_contract` (modelo/identidades/obligaciones),
+`v2_authoring` y `v2_features` (documentos e historia), `v2_lifecycle` y
+`v2_controls` (autoridad, diff y continuidad), `v2_verification` y `v2_quality`
+(sujeto técnico y evidencia), `v2_migration` (conversión) y `v2_storage`
+(preview, journal y recuperación). `v2_cli` enruta operaciones explícitas.
+`v2_query` proyecta el contrato sobre el lector de consultas ya acotado.
+No se ejecuta código consumidor al consultar ni se usa una síntesis humana como
+contrato de ejecución. Los lectores y motores 1.5 se mantienen separados.
+
+Véanse [contrato v2](../specs/proposed/project-contract-2.0.md),
+[guías por ciclo](V2-WORKFLOWS.md) e [índice de cinco conjuntos](V2-INDEX.md).
+Los apartados siguientes conservan la arquitectura compatible de la línea 1.x.
+
+La ampliación de variantes está descrita en
+[variantes tecnológicas de proyecto](PROJECT-VARIANTS.md): añade aprobación local,
+preparación sin scaffold y verificación proporcional en una ruta optativa. Conserva
+los motores, locks y certificados de la ruta estricta descrita a continuación.
 
 ## Distribución dual
+
+La [consulta humana](PROJECT-QUERY.md) usa `query_sources`
+para lecturas acotadas, `query_context` para proyectar tipos/relaciones del motor
+contractual sobre snapshots seguros, `query_code` para observación estática y
+`query_render` como vista de extractos. `query_project` expone la CLI; las skills
+realizan la síntesis y el juicio de suficiencia. No usa el constructor completo
+del contrato para evitar lecturas fuera del alcance ni valida readiness al preguntar.
+Su schema auxiliar no cambia `project.json`, las fuentes canónicas ni los motores
+certificados. El modo predeterminado no lee código hasta evaluar una carencia.
 
 `scripts/dual_distribution.py` genera los adaptadores desde las seis skills comunes.
 Codex conserva el manifiesto y marketplace; Copilot usa un plugin Agent Plugins 1.0

@@ -36,6 +36,7 @@ class PublicCliTests(unittest.TestCase):
 
     def test_every_documented_subcommand_resolves_from_consumer_directory(self):
         expected = {
+            "query",
             "help",
             "define",
             "adopt-inspect",

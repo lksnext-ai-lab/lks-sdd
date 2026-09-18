@@ -371,7 +371,7 @@ class M3WorkflowTests(unittest.TestCase):
             self.assertEqual(collision.read_text(encoding="utf-8"), "human collision\n")
             self.assertFalse(result["changed"])
 
-    def test_project_migration_runtime_is_not_shipped(self):
+    def test_v2_migration_is_explicit_without_changing_the_legacy_initializer(self):
         plugin_root = Path(__file__).resolve().parents[1]
         self.assertFalse((plugin_root / "scripts" / "migrate_project.py").exists())
         process = subprocess.run(
@@ -387,7 +387,12 @@ class M3WorkflowTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(process.returncode, 0, process.stderr)
-        self.assertNotIn("migrate", process.stdout)
+        self.assertIn("migrate", process.stdout)
+        self.assertTrue((plugin_root / "scripts" / "v2_migration.py").is_file())
+        with tempfile.TemporaryDirectory(prefix="lks-v2-legacy-init-") as directory:
+            root = Path(directory)
+            initialize(root, "synthetic-legacy-contract")
+            self.assertEqual(json.loads((root / ".lks-sdd/project.json").read_text())["schema_version"], "1.5")
 
     def test_invalid_evidence_record_does_not_satisfy_the_contract(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:

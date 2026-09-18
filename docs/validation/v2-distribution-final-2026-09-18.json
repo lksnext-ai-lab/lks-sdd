@@ -1,0 +1,40 @@
+{
+  "kind": "development-distribution-smoke-not-release-attestation",
+  "status": "passed",
+  "source": "working-tree:21693be94abd29544bc05b7effbb52189a97695f5505c2a2ec885d141409a3cf",
+  "source_commit_baseline": "3b6e247ca994a92e508ef110a4da5793d865cc6b",
+  "version": "2.0.0-rc.1",
+  "historical_runtime_version": "1.1.1",
+  "core_files": 1391,
+  "reproducibility": "identical-bytes-two-builds",
+  "artifacts": {
+    "lks-sdd-plugin-v2.0.0-rc.1.zip": "c306c10b8210a4ad8f5d66b9a1374a9abf90ae583c4efe9086b8af8afbdf1bde",
+    "lks-sdd-marketplace-v2.0.0-rc.1.zip": "2db0a5a11c9444b3d68e747188d902187d56821c2da43216fd256dc78fdccf99",
+    "lks-sdd-copilot-v2.0.0-rc.1.zip": "cebde01aaa219622cbbb7a05ea2d09e0c306ee5032010e426c2b64d2c067b71a",
+    "lks-sdd-setup-v2.0.0-rc.1.zip": "333022a308f953cb28fc5dfef021e65e034aba17b50ee23c8ba1f767f977e017",
+    "lks-sdd-copilot-plugin-v2.0.0-rc.1.zip": "1959257bde214111bfa4be00b9c8bddf066cb6ec70ed9edf858ddecd9df570a4",
+    "distribution-manifest.json": "af70f8c304de9a2f0cd63165006deddbcfb15e080fb7173cca26bc0f2d7d3b38",
+    "SHA256SUMS": "538f6d638248e13a96dc38425c4f22388ed1858282ac9e796a8bc92b5f3dbad0"
+  },
+  "pinned_migration": "passed",
+  "rollback": "exact-original-bytes",
+  "native_archive": "valid",
+  "full_pinned_query": "passed",
+  "query_metrics": {
+    "entries_listed": 110,
+    "document_files_read": 33,
+    "code_files_read": 0,
+    "bytes_read": 67811,
+    "code_bytes_read": 0,
+    "revalidation_bytes": 67811,
+    "runtime_seconds": 0.657676,
+    "document_seconds": 0.276101,
+    "code_seconds": 0.0,
+    "revalidation_seconds": 0.036287,
+    "elapsed_seconds": 0.971045
+  },
+  "seconds": 148.25881849999132,
+  "active_installation": "not-performed",
+  "host_acceptance": "not-run",
+  "clean_release_attestation": "not-claimed"
+}

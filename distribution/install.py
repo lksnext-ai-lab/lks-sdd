@@ -115,9 +115,15 @@ def plan(bundle, destination, host, remove=False):
     if remove and previous is None:
         raise ValueError("No managed installation to remove")
     metadata, payload = ({}, {}) if remove else load_payload(bundle, host)
+    if not remove and host == "copilot" and (destination / ".lks-sdd/project.json").is_file():
+        origin = json.loads(read(destination, ".lks-sdd/project.json"))["schema_version"]
+        incoming = json.loads(payload[".lks-sdd/distribution-lock.json"])["project_schema"]
+        if origin != incoming:
+            raise ValueError("Changing project contract requires the explicit v2 migrator, not runtime setup")
     if previous and (remove or old.get("runtime_digest") != metadata.get("runtime_digest")):
         handoffs = destination / ".lks-sdd/handoffs/visual"
-        for request in handoffs.glob("VH-*/request.json") if handoffs.exists() else []:
+        requests = [request for pattern in ("VH-*/request.json", "v2/VH-*/request.json") for request in handoffs.glob(pattern)]
+        for request in requests:
             if not (request.parent / "result.json").exists() and not (request.parent / "cancelled.json").exists():
                 raise ValueError("Close or reconcile pending visual handoffs before changing/removing the runtime")
     desired, ownership = {}, {}

@@ -1,6 +1,15 @@
 # Estado de aceptación de la distribución dual
 
-Versión de distribución actual: 1.1.1. Corrección compatible autorizada el 2026-09-11
+## Candidate v2
+
+La versión 2.0.0 tiene un expediente independiente en
+[validación v2](validation/v2-implementation.md). Ninguna aprobación descrita más
+abajo se reutiliza como aceptación de v2. Sus recorridos reales por host y con
+varios usuarios siguen pendientes de ejecución autorizada.
+
+## Historial 1.1.1
+
+Versión de distribución de este registro histórico: 1.1.1. Corrección compatible autorizada el 2026-09-11
 y ajustada en la orquestación de su gate el 2026-09-12.
 No se puede presentar el resultado como paridad conversacional certificada hasta
 ejecutar pruebas reales en ambas herramientas. Este documento separa esos canales.

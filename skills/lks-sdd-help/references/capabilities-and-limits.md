@@ -1,4 +1,9 @@
-# Capacidades y límites de LKS-SDD 1.1.1
+# Capacidades y límites de LKS-SDD 2.0.0
+
+Para contrato 2.0 use [la política común v2](../../../docs/V2-WORKFLOWS.md).
+La versión 2 implementa el nuevo ciclo; la publicación técnica no acredita aceptación
+real de host. Los detalles siguientes conservan capacidades de contrato 1.5;
+no deben mezclarse sus comandos ni sus tablas con las operaciones v2.
 
 La evidencia visual nueva aplica una política predeterminada de una a cinco imágenes por TASK con interfaz. Cada captura debe enlazar aceptación e interacción, conservar contexto reproducible y declarar un resultado; el archivo por sí solo nunca acredita `passed`. `work verify` genera fichas TASK derivadas sin convertirlas en autoridad ni alterar el sujeto técnico. Una EVID conserva el hecho histórico y los hallazgos posteriores cambian la salud actual hasta una corrección y re-verificación gobernadas.
 

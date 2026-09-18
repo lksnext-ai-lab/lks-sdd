@@ -1,5 +1,9 @@
 # Piloto guiado: plugin LKS-SDD en Copilot
 
+Este recorrido conserva el workflow 1.5. Para aceptar la versión 2 use el
+[protocolo v2 por host](V2-HOST-ACCEPTANCE.md) y sus [workflows](V2-WORKFLOWS.md).
+Instalación, aceptación conversacional y publicación tienen evidencias distintas.
+
 Objetivo: comprobar tanto instalación como comportamiento, sin usar un proyecto real.
 No basta con que aparezca el plugin: hay que observar que lee las instrucciones,
 conserva decisiones y respeta límites. Requiere VS Code/Copilot autorizados y Python 3.11+.

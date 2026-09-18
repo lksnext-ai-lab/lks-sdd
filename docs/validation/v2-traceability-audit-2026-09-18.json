@@ -1,0 +1,661 @@
+{
+  "kind": "development-traceability-audit-not-release-attestation",
+  "status": "valid",
+  "counts": {
+    "requirements": 67,
+    "tasks": 48,
+    "scenario_families": 60
+  },
+  "errors": [],
+  "source_hashes": {
+    "scripts/v2_contract.py": "78ab6fdd553a86dfc6ba8fe65a507fd3cc22811294ca37b76986689674d3e2d6",
+    "scripts/v2_authoring.py": "cc58031274ea9a01ad52aa12e72d67f572ed0c6d984c38ac795eec60c36784a3",
+    "scripts/v2_features.py": "0b2acf3b7ffe0343a734fae6da7d07f6bfcf5af20c7108a2db06da365fc8e6b9",
+    "scripts/v2_query.py": "1d49f23bb6c1de777ab08b4c4408fc9f8abd771c5b6e9ffb33e3c74a97421d4b",
+    "scripts/query_sources.py": "abb972f942b060d3fa758bdad5ca70eba0db36b3e1ca786965d8d554d7e720e2",
+    "scripts/query_project.py": "31a316e5de8208e171ce67b3e42bc272494a45bd6bdea6b3ae3c289e42dcea60",
+    "scripts/query_context.py": "a624b4d7d161a005eca60033855f440f0dcf3ac835424a8b358269d1665bb088",
+    "scripts/query_code.py": "f8546fb099180b7026eaaeeac855cbfaef132a19ee97119799ce381cfd2d87c6",
+    "scripts/query_render.py": "50e47130a9646a622c8a371702abddd265b9cda435a52ebd19e19ebe560d3fbf",
+    "scripts/v2_lifecycle.py": "7927f84b1583be10fff8d9e66560b44c67ae3d1feb216e1bac802073e5d1e14b",
+    "scripts/v2_verification.py": "eb83ba56b1c07cf22ae9de16a25acc30a11ffafb31d895f651dc13527503cbe7",
+    "scripts/v2_controls.py": "40658abec84b4f17db1b3a66464e4a0deffa1c00edd0c449bc631ec21b9f666e",
+    "scripts/v2_quality.py": "da79749d7698061113cfa20f83981b0120ad3e62f7e0943f21cc2f1eedfaa912",
+    "scripts/project_variants.py": "602b5d4168de2764a90c22ef5f3a029e212d1a100bea27a3efec65597a7d9142",
+    "scripts/consumer_observer.py": "a27eea4138cec8d157d7b4d2af0f2352da06198d766fa1390ebfe160cd7524d2",
+    "scripts/v2_adoption.py": "f174d9c6713f93c92652a28367ed078485a217aaaa9593a1dd105bb54e74ee3a",
+    "scripts/v2_migration.py": "18b2d0f34ea266aebd5ddfb91dd1972fc903bf0c569ee7b6d48d56e093a4b947",
+    "scripts/v2_storage.py": "c187df463e851922b86e22d3ab83d3d7a4ad30e70fb01ba54913932c12fadb3e",
+    "scripts/runtime_doctor.py": "b171e222948f9db93d654ee55472b013c3eb8ad2eeaa8ca3b7df117a4ad1f6a3",
+    "docs/V2-WORKFLOWS.md": "0b022377d2fddd92dbe393259a3148891e6f18f8ac4a1bfc206cdd620d6d2314",
+    "scripts/lks_sdd.py": "56d8f7aa5b99655b05e2e3f281b79ab9672ba0f411f547538bf797bcd2646c16",
+    "scripts/dual_distribution.py": "cdeef78a925641fd5132dc5a19fdf64d5d646cd539c590e7b3ff16a5571ee67c",
+    "scripts/validate_plugin_contract.py": "db9f07757a6d91f915e3d07b999da91dbed282184465f505c3e51f685600f8d8",
+    "scripts/v2_integration_guard.py": "77a674b1009df8a9a86b6535578295443217c4bf5d04149d0d63fb79527483b7",
+    "docs/V2-GUARDRAILS.md": "d386abefe9854f4048e20e46a5473531badd12dff77da1a64c7a2bdb57279f75",
+    "scripts/v2_tracking.py": "92fae7a4bda0afe76e811726b4e439b03945cd78138a6ba92ee3a88416386d0e",
+    "docs/V2-INDEX.md": "b9cd906d53a36e858cf01898233956eab5ac379350a26d05541c3e7faa23e1a4",
+    "specs/proposed/project-contract-2.0.md": "c0096651016f3c00cc129e568db49b1a05b3ba6e92be97db1aa7bc5161b57443",
+    "docs/V2-HOST-ACCEPTANCE.md": "696adb2a7aaa3c3f81c247fde4559334120f0f58cdefaacdec77e090bc6059d1",
+    "tests/v2_benchmark.py": "9c6f86543363b2533b0bd74e11d546d49820b215ab7506c42aaf7b8f12a47609",
+    "tests/v2_docker_smoke.py": "c7163aab043cee2952bafda7ee841271feae1a5b99b41fed9c2b08fb67f86100",
+    "scripts/build_dual_distribution.py": "20d541f7c9b12128aad960e47520bbf09d46b8b88bc1ad1ad9c1345203563089",
+    "scripts/build_candidate_package.py": "dafed977365d425c6ec72e4f5b27b343633af17ec9c0068d6b4434daa8079d7e",
+    "distribution/install.py": "e0963e6863eb3b838d6f5772ea165d400ccff817cbd994f5987037dbd5a53da9",
+    "scripts/v2_visual.py": "2dde18a3d6f59aa4655d8c0b876b9f7c49dfd53cecbd1c0ef785a9ba9e940f10",
+    "scripts/v2_composition.py": "bb7585b4cf0799aeeffea9bb5799d73872224b5f45bf8630e44c1e12a43b8a6b"
+  },
+  "report_hashes": {
+    "v2-unit-final-2026-09-18.json": "12807215af494636a3e8ba21bde1b186c74476e3eb8f7203afd56171b1499df2",
+    "v2-final-review-2026-09-18.json": "b8003c3f03e612ee20491e748e311330a0a52ba393ccbbd44828ac86b3a05eff",
+    "v2-pinned-query-2026-09-18.json": "d4cd8a7f3245594dd003082ff1436c0343031f811eb9df7e843efbadd544f87a"
+  },
+  "scenarios": [
+    {
+      "id": "C001",
+      "tests": {
+        "test_v2_document_contract.test_hybrid_literal_obligations_and_sources": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C002",
+      "tests": {
+        "test_v2_document_contract.test_prose_changes_fingerprint_even_outside_blocks": "passed",
+        "test_v2_document_contract.test_external_text_attachment_is_literal_and_change_invalidates_context": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C003",
+      "tests": {
+        "test_v2_document_contract.test_duplicate_id_and_uid_rejected": "passed",
+        "test_v2_document_contract.test_orphan_and_cycle_rejected": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C004",
+      "tests": {
+        "test_v2_document_contract.test_initialization_no_empty_feature_or_fictional_approval": "passed",
+        "test_v2_document_contract.test_shared_unknown_critical_obligation_blocks": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C005",
+      "tests": {
+        "test_v2_document_contract.test_parent_is_navigation_not_inherited_scope_or_approval": "passed",
+        "test_v2_document_contract.test_orphan_and_cycle_rejected": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C006",
+      "tests": {
+        "test_v2_document_contract.test_author_requires_revision_and_preserves_identity": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C007",
+      "tests": {
+        "test_v2_document_contract.test_future_replacement_does_not_retire_current": "passed",
+        "test_v2_document_contract.test_partial_replacement_requires_residual_and_effectivity": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C008",
+      "tests": {
+        "test_v2_document_contract.test_total_replacement_split_merge_and_cancel_preserve_old_identity": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C009",
+      "tests": {
+        "test_v2_controls.test_decomposition_requires_primary_and_checks_both_directions": "passed",
+        "test_v2_lifecycle.test_feature_membership_does_not_claim_unplanned_requirement_coverage": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C010",
+      "tests": {
+        "test_v2_controls.test_high_risk_requires_result_review_and_primary_feature_is_mandatory": "passed",
+        "test_v2_controls.test_corrective_handoff_keeps_problem_open_until_new_evidence": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C011",
+      "tests": {
+        "test_v2_document_contract.test_contributor_task_and_consumer_included": "passed",
+        "test_v2_document_contract.test_shared_unknown_critical_obligation_blocks": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C012",
+      "tests": {
+        "test_v2_document_contract.test_catalog_keeps_previous_definition_when_future_revision_is_approved": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C013",
+      "tests": {
+        "test_v2_document_contract.test_snapshot_available_after_authoring": "passed",
+        "test_v2_query_context.test_historical_archive_not_active_or_duplicate": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C014",
+      "tests": {
+        "test_project_query.test_qc11_links_unicode_spaces_lines_and_clone_root": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C015",
+      "tests": {
+        "test_v2_document_contract.test_link_target_id_and_anchor_must_match": "passed",
+        "test_v2_document_contract.test_links_cannot_escape_or_read_secrets": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C016",
+      "tests": {
+        "test_v2_document_contract.test_contributor_task_and_consumer_included": "passed",
+        "test_v2_controls.test_decomposition_requires_primary_and_checks_both_directions": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C017",
+      "tests": {
+        "test_project_query.test_qc01_sufficient_documents_never_read_code": "passed",
+        "test_project_query.test_qc05_docs_only_rejects_code_and_returns_partial": "passed",
+        "test_v2_query_context.test_human_query_integrates_feature_requirements_tasks_and_sources": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C018",
+      "tests": {
+        "test_v2_query_context.test_code_gap_requires_exact_context_and_never_executes": "passed",
+        "test_project_query.test_qc04_explicit_compare_preserves_document_and_code": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C019",
+      "tests": {
+        "test_project_query.test_qc03_missing_normative_decision_cannot_use_gap_to_authorize_code": "passed",
+        "test_project_query.test_qc08_discrepancy_never_resolves_or_rewrites_itself": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C020",
+      "tests": {
+        "test_project_query.test_qc06_legacy_partial_neither_adopts_nor_invents_completeness": "passed",
+        "test_project_query.test_qc07_no_ids_or_tasks_still_returns_text": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C021",
+      "tests": {
+        "test_project_query.test_qc14_no_subprocess_or_write_and_entire_snapshot_unchanged": "passed",
+        "test_project_query.test_qc28_pinned_cli_suppresses_bytecode_without_B": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C022",
+      "tests": {
+        "test_project_query.test_qc15_secret_paths_redaction_escape_and_nested_repository": "passed",
+        "test_project_query.test_qc15_real_link_is_not_followed": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C023",
+      "tests": {
+        "test_project_query.test_qc13_cycles_output_and_depth_are_bounded": "passed",
+        "test_project_query.test_truncated_indexes_are_explicit_not_silently_complete": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C024",
+      "tests": {
+        "test_project_query.test_qc22_concurrent_edit_drops_stale_fragments": "passed",
+        "test_project_query.test_qc23_deleted_source_is_invalidated": "passed",
+        "test_project_query.test_qc31_next_query_discovers_new_document": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C025",
+      "tests": {
+        "test_v2_lifecycle.test_cancelled_dependency_is_not_done": "passed",
+        "test_v2_controls.test_decomposition_requires_primary_and_checks_both_directions": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C026",
+      "tests": {
+        "test_v2_lifecycle.test_normative_edit_invalidates_auth": "passed",
+        "test_v2_document_contract.test_derived_catalog_does_not_change_execution_fingerprint": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C027",
+      "tests": {
+        "test_v2_lifecycle.test_ready_is_not_authorized": "passed",
+        "test_v2_lifecycle.test_authorization_reused_and_not_authentication": "passed",
+        "test_v2_lifecycle.test_stale_expired_wrong_environment_and_revoked": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C028",
+      "tests": {
+        "test_v2_lifecycle.test_direct_out_of_scope_change_detected": "passed",
+        "test_v2_lifecycle.test_test_edits_need_exact_review_and_cannot_hide_new_scope": "passed",
+        "test_v2_integration_controls.test_trusted_guard_rejects_self_approved_test_weakening": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C029",
+      "tests": {
+        "test_dual_distribution.test_modified_owned_file_blocks_update_and_remove": "passed",
+        "test_dual_distribution.test_preserve_instructions_and_uninstall_keeps_consumer_data": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C030",
+      "tests": {
+        "test_v2_controls.test_persistence_labels_and_mocked_integration_do_not_pass": "passed",
+        "test_v2_integration_controls.test_successful_unrelated_http_route_is_not_business_contract_evidence": "passed",
+        "test_v2_integration_controls.test_exact_composition_uses_certified_participants_and_immutable_locks": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C031",
+      "tests": {
+        "test_v2_project_variants.test_observer_changed_or_artifact_tampered_invalidates_reuse": "passed",
+        "test_v2_integration_controls.test_visual_asset_or_source_change_rejects_reuse": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C032",
+      "tests": {
+        "test_v2_controls.test_corrective_handoff_keeps_problem_open_until_new_evidence": "passed",
+        "test_project_query.test_qc18_historical_evidence_and_later_problem_both_present": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C033",
+      "tests": {
+        "test_v2_project_variants.test_cache_reuses_without_refreshing_observation_age": "passed",
+        "test_v2_project_variants.test_engine_identity_covers_transitive_guard_and_observation_contract": "passed",
+        "test_project_variants.test_cache_retains_observation_age_and_expired_ids_are_immutable": "passed",
+        "test_project_variants.test_nondeterministic_checks_cannot_use_same_id_or_cache_as_new_execution": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C034",
+      "tests": {
+        "test_v2_lifecycle.test_diagnostic_never_executes": "passed",
+        "test_v2_project_variants.test_development_omission_never_closes_critical_gate": "passed",
+        "test_project_variants.test_release_expands_required_gates_and_never_inherits_development": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C035",
+      "tests": {
+        "test_project_variants.test_unknown_version_and_additional_dependency_are_not_incompatible": "passed",
+        "test_project_variants.test_approval_is_durable_and_idempotent_and_never_global": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C036",
+      "tests": {
+        "test_project_variants.test_exact_profile_diagnosis_retains_certification_without_approval": "passed",
+        "test_project_variants.test_cli_does_not_accept_allow_unvalidated_as_approval": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C037",
+      "tests": {
+        "test_project_variants.test_changed_dependency_scope_observer_policy_require_review": "passed",
+        "test_v2_project_variants.test_missing_technology_approval_blocks_start": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C038",
+      "tests": {
+        "test_project_variants.test_observer_contract_rejects_forged_scopes_nonce_and_artifacts": "passed",
+        "test_project_variants.test_snapshot_cannot_mount_canonical_or_private_inputs": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C039",
+      "tests": {
+        "test_v2_project_variants.test_full_synthetic_verification_records_and_closes_reserved_only": "passed",
+        "test_v2_project_variants.test_failed_gate_never_passes_or_enters_cache": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C040",
+      "tests": {
+        "test_v2_query_context.test_bounded_adoption_does_not_invent_features_or_tasks": "passed",
+        "test_v2_query_context.test_existing_project_adoption_is_incremental_and_keeps_prior_sources": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C041",
+      "tests": {
+        "test_v2_adoption_migration.test_canonical_task_ids_and_raw_source_are_preserved": "passed",
+        "test_v2_adoption_migration.test_migration_archives_linked_external_attachment_with_navigable_tree": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C042",
+      "tests": {
+        "test_v2_adoption_migration.test_migration_preserves_custom_prose_and_evidence_bytes": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C043",
+      "tests": {
+        "test_v2_adoption_migration.test_interruption_recover_and_protect_later_edits": "passed",
+        "test_v2_adoption_migration.test_stale_preview_and_exact_rollback": "passed",
+        "test_v2_document_contract.test_invalid_author_preview_is_read_only_and_staged": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C044",
+      "tests": {
+        "test_v2_controls.test_rollback_preserves_new_documents_not_in_the_original_write_set": "passed",
+        "test_v2_controls.test_rollback_preserves_new_evidence_not_in_the_original_write_set": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C045",
+      "tests": {
+        "test_v2_adoption_migration.test_open_legacy_authority_and_execution_are_preserved_but_not_reauthorized": "passed",
+        "test_v2_adoption_migration.test_migration_preserves_custom_prose_and_evidence_bytes": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C046",
+      "tests": {
+        "test_v2_adoption_migration.test_pinned_transition_preserves_runtime_instructions_and_installation_ownership": "passed",
+        "test_v2_adoption_migration.test_unsupported_origin_is_diagnostic_not_conversion": "passed",
+        "test_dual_distribution.test_personal_plugin_update_does_not_change_pinned_project": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C047",
+      "tests": {
+        "test_v2_controls.test_two_clones_same_alias_different_creation_intents_have_distinct_uids": "passed",
+        "test_v2_controls.test_explicit_alias_collision_repair_preserves_uid_and_history": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C048",
+      "tests": {
+        "test_v2_lifecycle.test_clean_text_merge_still_requires_semantic_review": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C049",
+      "tests": {
+        "test_v2_lifecycle.test_pause_and_changed_base_requires_reconciliation": "passed",
+        "test_v2_lifecycle.test_block_durable_problem_and_cancel_not_completion": "passed",
+        "test_v2_controls.test_replan_preserves_code_cancels_execution_and_revokes_auth": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C050",
+      "tests": {
+        "test_public_cli.test_every_documented_subcommand_resolves_from_consumer_directory": "passed",
+        "test_v2_query_context.test_public_cli_detects_contract_and_remains_readonly": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C051",
+      "tests": {
+        "test_dual_distribution.test_native_plugin_layout_and_project_bootstrap": "passed",
+        "test_dual_distribution.test_preserve_instructions_and_uninstall_keeps_consumer_data": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C052",
+      "tests": {
+        "test_v2_integration_controls.test_trusted_guard_rejects_self_approved_test_weakening": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C053",
+      "tests": {
+        "test_v2_controls.test_uncertain_remote_attempt_must_reconcile_and_history_is_append_only": "passed",
+        "test_v2_controls.test_remote_receipts_block_silent_rebind": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C054",
+      "tests": {
+        "test_public_cli.test_every_documented_subcommand_resolves_from_consumer_directory": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C055",
+      "tests": {
+        "test_v2_query_context.test_prompt_injection_has_no_action_side_effects": "passed",
+        "test_project_query.test_qc16_prompt_injection_is_inert_data_in_fallback": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C056",
+      "tests": {
+        "test_dual_distribution.test_full_runtime_installs_initializes_and_rejects_wrong_global_cli": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C057",
+      "tests": {
+        "test_v2_project_variants.test_cache_reuses_without_refreshing_observation_age": "passed",
+        "test_v2_lifecycle.test_diagnostic_never_executes": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C058",
+      "tests": {
+        "test_dual_distribution.test_deterministic_archives_and_equal_runtime": "passed",
+        "test_dual_distribution.test_native_plugin_paths_fit_a_windows_plugin_cache": "passed",
+        "test_dual_distribution.test_release_builder_compacts_the_codex_and_copilot_cores_equally": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C059",
+      "tests": {
+        "test_v2_integration_controls.test_visual_transfer_is_bound_proposal_not_execution_authority": "passed",
+        "test_v2_integration_controls.test_visual_verification_needs_every_state_and_exact_artifacts": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    },
+    {
+      "id": "C060",
+      "tests": {
+        "test_v2_integration_controls.test_delivery_rollback_and_flags_are_separate_exact_observations": "passed",
+        "test_v2_integration_controls.test_delivery_approval_cannot_be_substituted_by_a_successful_log": "passed"
+      },
+      "automatic_contract_checks": "passed",
+      "semantic_or_host_acceptance": "not-run",
+      "whole_family_acceptance": "not-claimed"
+    }
+  ],
+  "limitations": [
+    "A named passing test does not prove all semantic obligations in a family",
+    "Real hosts, human comprehension, model cost and external enforcement remain separate"
+  ]
+}

@@ -1,9 +1,30 @@
 ---
 name: lks-sdd-adopt-existing
-description: "Adopt an existing software system into LKS-SDD with Codex by statically inspecting repositories and deployable boundaries, reconciling observed implementation with confirmed intent, detecting drift, and materializing an additive schema 1.5 baseline whose delivery, planning coverage, task-tracking and optional Jira-reporting choices and profile bindings remain proposed or pending human confirmation, without changing code or behavior."
+description: "Use with Codex. Adopt an existing software system into LKS-SDD through bounded static inspection and reconciliation of observed behavior with confirmed intent; preserve partial coverage and unknowns, without changing implementation or inventing undocumented history."
 ---
 
 # Adoptar una aplicación existente
+
+## Routing por contrato
+
+Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
+2.0 or a new v2 project. Responsibility: Adopción acotada y reconciliación, sin cambiar comportamiento.
+Use only the relevant section of that shared workflow and its linked references;
+do not combine v2 syntax with the legacy workflow below. Existing projects remain
+on their exact pinned runtime until explicitly migrated. Unknown schemas fail
+closed; a question never initiates adoption, migration or implementation.
+
+## Workflow conservado para contrato 1.5
+
+For questions about a legacy project's documented or observed behavior, read
+`<plugin-root>/docs/PROJECT-QUERY.md`. Partial documentation does not require
+adoption to answer a question. Keep that consultation in help; materialize a
+baseline only when adoption itself is requested and authorized below.
+
+For an uncatalogued consumer stack or custom observer, read
+`<plugin-root>/docs/PROJECT-VARIANTS.md`. Diagnose statically and present
+differences before proposing the scoped approval route. Preserve consumer files;
+absence of an exact catalog match is not demonstrated incompatibility.
 
 For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
 and this workflow from that runtime, not a different global version. Run

@@ -70,6 +70,14 @@ def _verification_arguments(root: Path, task: str, supplied: list[str]) -> list[
     arguments = list(supplied)
     if arguments and arguments[0] == "--":
         arguments.pop(0)
+    if (root / "docs/lks-sdd/02-design/technology-variants.md").exists():
+        from project_variants import selected_variant, VariantError
+        try:
+            variant = selected_variant(root, task)
+            if variant and "--variant" not in arguments:
+                arguments.extend(["--variant", variant["id"]])
+        except VariantError as exc:
+            raise ExperienceError(str(exc)) from exc
     status = load_status(root, task_id=task)
     if "--task" not in arguments:
         arguments.extend(["--task", task])
@@ -84,7 +92,7 @@ def _verification_arguments(root: Path, task: str, supplied: list[str]) -> list[
         arguments.extend(["--execute", "--authorize"])
     if "--record-evidence" not in arguments and "--plan" not in arguments:
         arguments.extend(["--record-evidence", _next_evidence_id(root)])
-    if "--reuse-evidence" not in arguments and "--plan" not in arguments:
+    if "--variant" not in arguments and "--reuse-evidence" not in arguments and "--plan" not in arguments:
         verification = status["audit"]["manifest"].get("verification", {})
         for evidence_id in reversed(verification.get("evidence_ids", [])):
             path = root / "docs/lks-sdd/evidence" / f"{evidence_id}.json"
@@ -317,6 +325,15 @@ def _compose_checkpoint_transaction(
 
 def _completion_fields(root: Path, status: dict[str, Any]) -> dict[str, Any]:
     verification = status["audit"].get("verification", {})
+    if verification.get("status") == "verified-with-reservations":
+        from variant_verification import completion_fields
+        from project_variants import VariantError
+        try:
+            fields = completion_fields(root, status["audit"]["manifest"])
+            if fields is not None:
+                return fields
+        except VariantError as exc:
+            raise ExperienceError(str(exc)) from exc
     if verification.get("status") != "verified":
         raise ExperienceError(
             "work complete requiere una verificación superada y evidencia canónica."
@@ -545,6 +562,20 @@ def _correct_problem(
 
 
 def _start(root: Path, increment: str, task: str, actor: str) -> tuple[int, dict[str, Any]]:
+    if (root / "docs/lks-sdd/02-design/technology-variants.md").exists():
+        from project_variants import selected_variant, VariantError
+        from variant_preparation import prepare as prepare_variant
+        try:
+            variant = selected_variant(root, task)
+            if variant:
+                if variant["increment"] != increment or variant["task_ids"] != [task]:
+                    raise VariantError("work start requires the exact single TASK variant scope")
+                preview = prepare_variant(root, variant["id"], actor=actor)
+                if preview["status"] == "already-started":
+                    return 0, preview
+                return 0, prepare_variant(root, variant["id"], actor=actor, apply=True, preview_hash=preview["preview_hash"])
+        except VariantError as exc:
+            raise ExperienceError(str(exc)) from exc
     status = load_status(root, task_id=task)
     if status["current_task"]["human_decision"] != "Ninguna":
         return 3, {

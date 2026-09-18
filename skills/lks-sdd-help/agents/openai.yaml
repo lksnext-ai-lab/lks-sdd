@@ -1,6 +1,6 @@
 interface:
-  display_name: "Ayuda LKS-SDD para Codex"
-  short_description: "Explica el método Spec-anchored sin cambios"
-  default_prompt: "Usa $lks-sdd-help para explicarme cómo LKS-SDD mantiene una especificación confiable junto al código sin modificar nada."
+  display_name: "LKS-SDD · help en Codex"
+  short_description: "Consulta el proyecto con fuentes y sin modificarlo"
+  default_prompt: "Usa $lks-sdd-help para explicar esta funcionalidad, sus requisitos, tareas y relaciones con lenguaje profesional y enlaces a las fuentes, sin modificar el proyecto."
 policy:
   allow_implicit_invocation: true

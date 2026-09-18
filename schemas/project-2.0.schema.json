@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "method_version",
+    "project_id",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "method_version": {
+      "const": "2.0.0"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plugin_version": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^docs/lks-sdd/.*\\.md$"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

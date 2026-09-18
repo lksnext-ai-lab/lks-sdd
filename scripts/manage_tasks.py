@@ -260,6 +260,19 @@ def _require_verified_done_evidence(
     """Reject a 1.3/1.4 done claim unless it matches recorded verification bytes."""
 
     verification = manifest.get("verification")
+    if isinstance(verification, dict) and verification.get("status") == "verified-with-reservations":
+        from variant_verification import completion_fields
+        from project_variants import VariantError
+        try:
+            fields = completion_fields(root, manifest, task_id)
+            if fields is not None:
+                expected = {"evidence": evidence_id, "revision": revision, "build": build_id,
+                            "artifact_digest": artifact_digest, "environment": environment, "gate": sorted(gate_ids)}
+                if fields != expected:
+                    raise VariantError("The closure request differs from current variant evidence")
+                return
+        except VariantError as exc:
+            raise TaskManagementError(str(exc)) from exc
     if not isinstance(verification, dict) or verification.get("status") != "verified":
         raise TaskManagementError(
             "done en schema 1.5 exige una verificación canónica con status=verified."
