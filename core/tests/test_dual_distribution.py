@@ -23,6 +23,7 @@ spec.loader.exec_module(installer)
 
 def core_fixture(version="1.1.0-rc.1"):
     core = {".codex-plugin/plugin.json": json.dumps({"name": "lks-sdd", "version": version}).encode()}
+    core["distribution/dual.json"] = json.dumps({"project_schema": "2.0" if version.startswith("2.") else "1.5"}).encode()
     for path in ("distribution/host-copilot.md", "distribution/install.py", "distribution/install.ps1",
                  "distribution/marketplace.template.json", "docs/INSTALLATION.md",
                  "docs/LEARNING-GUIDE.md", "docs/COPILOT-PILOT.md"):
@@ -295,7 +296,7 @@ class DualDistributionTests(unittest.TestCase):
         from dual_distribution import json_bytes
         import build_candidate_package as builder
         report = {"gate": {"status": "passed"}, "channel": "candidate", "comparison": {"baseline_commit": "synthetic"}}
-        core = {**self.core, "distribution/dual.json": b'{"schema_version":"1.0"}'}
+        core = {**self.core, "distribution/dual.json": b'{"schema_version":"1.0","project_schema":"1.5"}'}
         output = self.root / "release"
         source = self.root / "source"
         source.mkdir()
@@ -359,7 +360,7 @@ class DualDistributionTests(unittest.TestCase):
         active_hash, historical_hash = digest(active), digest(historical)
         core = {
             **self.core,
-            "distribution/dual.json": b'{"schema_version":"1.0"}',
+            "distribution/dual.json": b'{"schema_version":"1.0","project_schema":"1.5"}',
             "profiles/DEMO/certification-evidence.json": json.dumps({
                 "profile_id": "DEMO",
                 "evidence_manifest": [{
@@ -444,8 +445,13 @@ class DualDistributionTests(unittest.TestCase):
         def command(path, *args):
             return subprocess.run([sys.executable, "-X", "utf8", str(path), *args], capture_output=True,
                                   text=True, encoding="utf-8", cwd=self.consumer)
-        defined = command(cli, "define", str(self.consumer), "--project-id", "synthetic-dual")
+        proposed = command(cli, "define", str(self.consumer), "--project-id", "synthetic-dual", "--json")
+        self.assertEqual(proposed.returncode, 0, proposed.stdout + proposed.stderr)
+        self.assertFalse((self.consumer / ".lks-sdd/project.json").exists())
+        defined = command(cli, "define", str(self.consumer), "--project-id", "synthetic-dual", "--json",
+                          "--apply", "--authorize", json.loads(proposed.stdout)["preview_hash"])
         self.assertEqual(defined.returncode, 0, defined.stdout + defined.stderr)
+        self.assertEqual(json.loads((self.consumer / ".lks-sdd/project.json").read_text())["schema_version"], "2.0")
         validated = command(cli, "validate-project", str(self.consumer), "--json")
         self.assertEqual(validated.returncode, 0, validated.stdout + validated.stderr)
         wrong = command(ROOT / "scripts/lks_sdd.py", "validate-project", str(self.consumer), "--json")

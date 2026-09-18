@@ -1,14 +1,15 @@
 # Releases técnicas
 
-## Línea dual 1.1
+## Línea dual 2.0
 
 Codex desktop y Copilot VS Code Agent se distribuyen con una versión, un núcleo y dos
 adaptadores. El setup offline facilita instalar y actualizar sin tocar configuraciones
-personales. La versión estable es `1.1.1`; tiene aprobación propia del responsable
-en `quality/release-approval-v1.1.1.json`, sin reutilizar la de 1.0.0 ni la de 1.1.0.
+personales. La versión estable es `2.0.0`; tiene aprobación propia del responsable
+en `quality/release-approval-v2.0.0.json`, sin reutilizar las aprobaciones de 1.x.
 Los paquetes de desarrollo son diagnósticos, no atestaciones publicables. Antes de
-promover, registrar [aceptación dual](DUAL-HOST-ACCEPTANCE.md), superar gates técnicos, build
-reproducible limpio y autorización de publicación separada. El snapshot de evaluación
+promover, declarar el estado real de la [aceptación v2](V2-HOST-ACCEPTANCE.md), superar
+gates técnicos, build reproducible limpio y autorización de publicación separada.
+La autorización de publicación v2 no acredita los ensayos humanos/host pendientes. El snapshot de evaluación
 no debe publicarse como estable aunque permita una instalación local satisfactoria.
 
 ## Propósito
@@ -44,7 +45,7 @@ El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el c
 Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
 
 ```powershell
-$releaseVersion = "1.1.1"
+$releaseVersion = "2.0.0"
 $releaseChannel = "stable"
 $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $releaseTag = "v$releaseVersion"

@@ -1,9 +1,34 @@
 ---
 name: lks-sdd-help
-description: "Explain the Spec-anchored LKS-SDD method and how to use its Codex plugin, including durable specifications, adoption from existing code, client-facing contrast, planning, readiness, authorization, continuity, gates, evidence, status, compatibility, and troubleshooting without changing files. Do not define, assess, adopt, implement, verify, deploy, or mutate project state."
+description: "Use with Codex. Explain LKS-SDD or answer questions about documented project behavior, requirements, features, tasks and history in clear, source-linked language, without changing canonical files; inspect code only for an explicit comparison or a bounded implementation gap."
 ---
 
 # LKS-SDD Help
+
+## Routing por contrato
+
+Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
+2.0 or a new v2 project. Responsibility: Consultar y explicar, sin escritura.
+Use only the relevant section of that shared workflow and its linked references;
+do not combine v2 syntax with the legacy workflow below. Existing projects remain
+on their exact pinned runtime until explicitly migrated. Unknown schemas fail
+closed; a question never initiates adoption, migration or implementation.
+
+## Workflow conservado para contrato 1.5
+
+For questions about project content, read `<plugin-root>/docs/PROJECT-QUERY.md`
+and use `python -B <plugin-root>/scripts/lks_sdd.py query <project-root> --json`
+with the relevant topic/entity/document. This query path checks the pinned runtime
+itself; it does not require project initialization or a readiness assessment.
+Synthesize a human explanation with source links; consult code only after a
+concrete implementation gap or an explicit request. Missing SDD documentation
+does not mean missing functionality. Do not run the lifecycle/status steps below
+unless the question actually concerns them.
+
+For non-catalogued versions/compositions or project-approved observers, read
+`<plugin-root>/docs/PROJECT-VARIANTS.md`. Explain the opt-in route and its
+separate certification, approval, verification, TASK and delivery axes. Diagnosis
+is static; an unknown combination is not automatically incompatible.
 
 For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
 and this workflow from that runtime, not a different global version. Run

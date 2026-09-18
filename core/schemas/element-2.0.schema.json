@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "id",
+    "uid",
+    "kind",
+    "title",
+    "revision",
+    "state",
+    "nature",
+    "relations"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z]+)*-[0-9]{3,}$"
+    },
+    "uid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "kind": {
+      "enum": [
+        "project",
+        "feature",
+        "group",
+        "requirement",
+        "acceptance",
+        "rule",
+        "constraint",
+        "task",
+        "increment",
+        "plan",
+        "release",
+        "test",
+        "decision",
+        "interface",
+        "binding",
+        "environment",
+        "authorization",
+        "execution",
+        "checkpoint",
+        "problem",
+        "change",
+        "applicability",
+        "legacy",
+        "receipt",
+        "visual"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "state": {
+      "type": "string"
+    },
+    "nature": {
+      "enum": [
+        "fact",
+        "inference",
+        "proposal",
+        "decision",
+        "unknown"
+      ]
+    },
+    "relations": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "parent",
+          "uses",
+          "depends_on",
+          "requirements",
+          "acceptance",
+          "tests",
+          "contributes_to",
+          "implements",
+          "modifies",
+          "replaces",
+          "splits",
+          "merges",
+          "increment",
+          "release",
+          "plan",
+          "bindings",
+          "interfaces",
+          "environments",
+          "decision",
+          "authorizes",
+          "execution",
+          "verifies",
+          "sources",
+          "affects"
+        ]
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z]+)*-[0-9]{3,}$"
+        },
+        "uniqueItems": true
+      }
+    },
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "evidence_scopes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "component",
+          "contract",
+          "composition",
+          "user-flow",
+          "persistence",
+          "visual"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "human_review_required": {
+      "type": "boolean"
+    },
+    "critical": {
+      "type": "boolean"
+    },
+    "reconciliation_required": {
+      "type": "boolean"
+    }
+  }
+}

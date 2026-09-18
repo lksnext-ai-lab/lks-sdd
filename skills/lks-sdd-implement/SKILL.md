@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-implement
-description: "Implement and safely resume an explicitly authorized LKS-SDD TASK slice with GitHub Copilot after G2, using exact profile bindings, the dependency plan, durable AUTH/EXEC/CKPT records, bounded code changes, tests and traceability. Use only for authorized implementation; do not define new scope, deploy, or claim verification."
+description: "Use with GitHub Copilot. Implement or safely resume explicitly authorized LKS-SDD tasks using their complete literal specification, exact technology approval, real diff scope and durable checkpoints; preserve unrelated changes and stop affected work on stale authority or critical unknowns."
 ---
 
 # Copilot plugin entrypoint

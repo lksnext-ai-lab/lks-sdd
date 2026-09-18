@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-adopt-existing
-description: "Adopt an existing software system into LKS-SDD with GitHub Copilot by statically inspecting repositories and deployable boundaries, reconciling observed implementation with confirmed intent, detecting drift, and materializing an additive schema 1.5 baseline whose delivery, planning coverage, task-tracking and optional Jira-reporting choices and profile bindings remain proposed or pending human confirmation, without changing code or behavior."
+description: "Use with GitHub Copilot. Adopt an existing software system into LKS-SDD through bounded static inspection and reconciliation of observed behavior with confirmed intent; preserve partial coverage and unknowns, without changing implementation or inventing undocumented history."
 ---
 
 # Copilot plugin entrypoint

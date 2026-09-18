@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "1.1.1",
-  "description": "Plugin Spec-anchored para Codex con evidencia tipada TASK-aware, composición full-stack fail-closed, trazabilidad y verificación incremental segura.",
+  "version": "2.0.0",
+  "description": "Plugin Spec-anchored para Codex: LKS-SDD 2 con especificaciones humanas, funcionalidades con historia, ejecución autorizada, evidencia tipada y migración explícita.",
   "author": {
     "name": "LKS"
   },
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo Spec-anchored con Codex",
-    "longDescription": "Plugin Spec-anchored de desarrollo SDD para Codex. Mantiene especificaciones Markdown versionadas como contrato para planificar, implementar y verificar. La verificación incremental selecciona los bindings y gates de las TASK solicitadas y conserva su reutilización segura mediante verification_subject. Para cada TASK con interfaz, la revisión visual aplica por defecto entre una y cinco imágenes con aceptación, interacción, comportamiento observado, viewport, navegador, revisión y hash; las TASK backend registran no aplicabilidad determinista. EVID permanece inmutable, mientras la salud actual distingue hallazgos posteriores y re-verificación. work verify genera en una sola pasada fichas TASK derivadas que no alteran fingerprints ni repiten gates. work status separa código, tests, verificación histórica, salud y entrega. Jira sigue siendo una proyección opcional y concisa de hitos; nunca sustituye la autoridad local ni convierte estados remotos en autorización o evidencia. Los perfiles exactos, la atomicidad, el rollback y los límites no productivos existentes se preservan.",
+    "longDescription": "LKS-SDD Spec-anchored para Codex. La versión 2 mantiene documentación Markdown humana y navegable, consulta de solo lectura centrada en fuentes, catálogo e historia de funcionalidades, contexto literal para ejecutar y autorización por tareas y entorno. Distingue definición, plan, implementación, verificación, aceptación humana y entrega. Registra evidencia tipada inmutable y variantes tecnológicas aprobadas dentro del proyecto, sin atribuirles certificación global. Conserva runtime fijado, seis skills y compatibilidad 1.5; migrar exige diagnóstico, preview, autorización y reconciliación. Los cambios locales son recuperables, no una transacción distribuida. Jira continúa siendo proyección opcional con recibos, sin autorización remota implícita. La aceptación real por host y la publicación se acreditan por separado.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [

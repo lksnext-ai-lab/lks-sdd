@@ -1,9 +1,30 @@
 ---
 name: lks-sdd-define
-description: "Use the LKS-SDD Codex plugin to start or continue a versioned software specification and turn confirmed scope into a human-approved, fully traced implementation plan, including delivery governance, architecture, deployable units, profiles, releases, executable tasks, coverage, dependencies, and transition summaries while separating facts, proposals, decisions, assumptions, and open points. Do not generate code or verify implementation."
+description: "Use with Codex. Define or evolve a human-readable LKS-SDD specification, decompose features and shared requirements, reconcile feature history and prepare a fully traced human-approved plan without generating application code; use the project-pinned document contract."
 ---
 
 # Define with LKS-SDD
+
+## Routing por contrato
+
+Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
+2.0 or a new v2 project. Responsibility: Definir/evolucionar y conducir migración solicitada, sin código.
+Use only the relevant section of that shared workflow and its linked references;
+do not combine v2 syntax with the legacy workflow below. Existing projects remain
+on their exact pinned runtime until explicitly migrated. Unknown schemas fail
+closed; a question never initiates adoption, migration or implementation.
+
+## Workflow conservado para contrato 1.5
+
+When explaining existing requirements/specifications and related tasks, read
+`<plugin-root>/docs/PROJECT-QUERY.md`. A question alone stays read-only in help;
+it never starts or resumes definition. Reuse its human presentation and sources
+within an authorized definition without turning observations into approved scope.
+
+When the intended stack differs from a reference, read
+`<plugin-root>/docs/PROJECT-VARIANTS.md`. Keep the base binding as a
+reference and document the actual composition. Offer the opt-in approval policy;
+do not require global certification for every consumer variant or approve it yourself.
 
 If `.lks-sdd/distribution-lock.json` exists, use its exact project-local runtime and
 workflow instead of a different global version. Run `runtime-doctor` before work.

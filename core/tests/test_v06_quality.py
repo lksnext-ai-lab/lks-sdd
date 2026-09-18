@@ -32,10 +32,10 @@ class DefinitionQualityContractTests(unittest.TestCase):
         self.assertEqual(fx01["mode"], "semantic")
         self.assertEqual(fx01["evidence"], [])
 
-    def test_definition_cases_are_versioned_for_v013_and_not_run(self) -> None:
-        self.assertEqual(self.corpus["plugin_version"], "0.18.0")
+    def test_definition_cases_are_versioned_for_v2_and_not_run(self) -> None:
+        self.assertEqual(self.corpus["plugin_version"], "2.0.0")
         self.assertEqual(
-            self.corpus["corpus_id"], "lks-sdd-definition-local-auth-variants-es-0.18.0"
+            self.corpus["corpus_id"], "lks-sdd-v2-definition-and-consultation-es"
         )
         self.assertEqual(
             {case["id"] for case in self.catalog["extension_cases"]},
@@ -53,6 +53,8 @@ class DefinitionQualityContractTests(unittest.TestCase):
     def test_historical_definition_corpus_remains_readable(self) -> None:
         historical = _load_json(PLUGIN_ROOT / "quality/corpora/definition-v0.17.0.json")
         self.assertEqual(validate_definition_corpus(historical, self.catalog), historical)
+        previous = _load_json(PLUGIN_ROOT / "quality/corpora/definition-v0.18.0.json")
+        self.assertEqual(validate_definition_corpus(previous, self.catalog), previous)
 
     def test_definition_evidence_cannot_be_invented(self) -> None:
         changed = copy.deepcopy(self.corpus)

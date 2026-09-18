@@ -1,6 +1,6 @@
 interface:
-  display_name: "Implementar LKS-SDD con Codex"
-  short_description: "Implementa o reanuda tareas con checkpoints durables"
-  default_prompt: "Usa $lks-sdd-implement para implementar o reanudar la selección TASK autorizada con bindings exactos y checkpoints en el repositorio."
+  display_name: "LKS-SDD · implement en Codex"
+  short_description: "Implementa tareas autorizadas con continuidad"
+  default_prompt: "Usa $lks-sdd-implement para implementar o reanudar las tareas autorizadas, leer su contrato completo, revisar el diff real y conservar un checkpoint seguro."
 policy:
   allow_implicit_invocation: true

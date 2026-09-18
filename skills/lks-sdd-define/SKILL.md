@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-define
-description: "Use the LKS-SDD plugin to start or continue a versioned software specification and turn confirmed scope into a human-approved, fully traced implementation plan, including delivery governance, architecture, deployable units, profiles, releases, executable tasks, coverage, dependencies, and transition summaries while separating facts, proposals, decisions, assumptions, and open points. Do not generate code or verify implementation."
+description: "Use with GitHub Copilot. Define or evolve a human-readable LKS-SDD specification, decompose features and shared requirements, reconcile feature history and prepare a fully traced human-approved plan without generating application code; use the project-pinned document contract."
 ---
 
 # Copilot plugin entrypoint

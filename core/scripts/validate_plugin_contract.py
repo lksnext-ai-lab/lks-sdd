@@ -100,6 +100,13 @@ REQUIRED_ROOT_FILES = {
     "scripts/doctor_project.py",
     "scripts/benchmark_experience.py",
     "scripts/lks_sdd.py",
+    "scripts/query_project.py",
+    "scripts/query_sources.py",
+    "scripts/query_context.py",
+    "scripts/query_code.py",
+    "scripts/query_render.py",
+    "schemas/query-context.schema.json",
+    "docs/PROJECT-QUERY.md",
     "scripts/profile_registry.py",
     "scripts/automation_coverage.py",
     "scripts/delivery_engine.py",
@@ -128,6 +135,7 @@ REQUIRED_ROOT_FILES = {
     "quality/corpora/definition-v0.16.0.json",
     "quality/corpora/definition-v0.17.0.json",
     "quality/corpora/definition-v0.18.0.json",
+    "quality/corpora/definition-v2.0.0.json",
     "quality/fixture-manifest.json",
     "quality/test-suites.json",
     "quality/v0.15-e2e-matrix.json",
@@ -288,7 +296,13 @@ FORBIDDEN_RUNTIME_IMPORTS = {
     "urllib",
 }
 RUNTIME_IMPORT_ALLOWLIST = {
+    "scripts/v2_contract.py": {"urllib.parse"},
+    "scripts/v2_storage.py": {"urllib.parse"},
+    "scripts/consumer_observer.py": {"subprocess"},
     "scripts/integration_contract.py": {"urllib.parse"},
+    # Pure URL/path encoding, not network access. Query execution stays offline.
+    "scripts/query_context.py": {"urllib.parse"},
+    "scripts/query_render.py": {"urllib.parse"},
     "scripts/build_candidate_package.py": {"subprocess"},
     "scripts/build_dual_distribution.py": {"subprocess"},
     "scripts/benchmark_experience.py": {"subprocess"},
@@ -1264,6 +1278,7 @@ def validate(root: Path) -> list[str]:
     shared_help_docs = {(root / "docs" / name).resolve() for name in (
         "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "DUAL-HOST-ACCEPTANCE.md",
     )}
+    shared_v2_policy = (root / "docs/V2-WORKFLOWS.md").resolve()
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
         for markdown in [
@@ -1280,7 +1295,7 @@ def validate(root: Path) -> list[str]:
                 try:
                     destination.relative_to(skill_root.resolve())
                 except ValueError:
-                    if skill != "lks-sdd-help" or destination not in shared_help_docs:
+                    if destination != shared_v2_policy and (skill != "lks-sdd-help" or destination not in shared_help_docs):
                         errors.append(f"Referencia fuera de la skill {skill}: {target}")
                         continue
                 if not destination.is_file():
@@ -1325,7 +1340,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} contract (M0-M5 + schema 1.5 evolution)")
+    print(f"VALID: LKS-SDD {version} contract (frozen M0-M5; readers 1.5/2.0; six skills)")
     return 0
 
 

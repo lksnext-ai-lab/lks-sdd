@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-verify
-description: "Verify an implemented LKS-SDD TASK slice or joint release checkpoint with GitHub Copilot by running exact profile gates, linking acceptance to immutable evidence, preserving task/checkpoint state and never treating written code or unexecuted checks as passed. Use after implementation; do not define new scope, deploy, or authorize delivery."
+description: "Use with GitHub Copilot. Verify a completed LKS-SDD task slice against agreed acceptance and typed evidence using exact-subject gates and approved observers; preserve immutable history, original observation age and the separation of technical verification, human acceptance and delivery."
 ---
 
 # Copilot plugin entrypoint

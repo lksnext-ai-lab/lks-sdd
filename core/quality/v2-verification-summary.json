@@ -1,0 +1,150 @@
+{
+  "schema_version": "2.0",
+  "kind": "local-verification-summary-not-release-approval",
+  "candidate_version": "2.0.0-rc.1",
+  "baseline_commit": "3b6e247ca994a92e508ef110a4da5793d865cc6b",
+  "source_state": "working-tree-with-authorized-and-preexisting-changes",
+  "canonical_sources": "unchanged-and-validated-by-original-hashes",
+  "reports": [
+    {
+      "path": "tests/reports/v2/v2-unit-final-2026-09-18.json",
+      "sha256": "12807215af494636a3e8ba21bde1b186c74476e3eb8f7203afd56171b1499df2",
+      "passed": true,
+      "counts": {
+        "total": 545,
+        "passed": 544,
+        "skipped": 1,
+        "failed": 0
+      },
+      "duration_seconds": 537.581,
+      "result_count": 545
+    },
+    {
+      "path": "tests/reports/v2/v2-final-review-2026-09-18.json",
+      "sha256": "b8003c3f03e612ee20491e748e311330a0a52ba393ccbbd44828ac86b3a05eff",
+      "passed": true,
+      "counts": {
+        "total": 95,
+        "passed": 95,
+        "skipped": 0,
+        "failed": 0
+      },
+      "duration_seconds": 121.387,
+      "result_count": 95
+    },
+    {
+      "path": "tests/reports/v2/v2-query-reviewed-2026-09-18.json",
+      "sha256": "8ca68af5435a2cb8a97016359c95a39d04ebc0a7b917ea0ddd3cffc57ca7f6a8",
+      "passed": true,
+      "counts": {
+        "total": 61,
+        "passed": 61,
+        "skipped": 0,
+        "failed": 0
+      },
+      "duration_seconds": 48.105,
+      "result_count": 61
+    },
+    {
+      "path": "tests/reports/v2/v2-evals-2026-09-18.json",
+      "sha256": "48ed7db885bbdf71970101f1b1803b794b4857b9ed20959fad20ba46ebcf4491",
+      "passed": true,
+      "counts": null,
+      "duration_seconds": null,
+      "result_count": 6
+    }
+  ],
+  "report_policy": "Raw reports retained byte-for-byte in maintenance-only tests/reports/v2; not packaged; counts overlap and must not be added",
+  "skips": [
+    {
+      "test": "test_visual_contract.VisualContractTests.test_visual_asset_symlink_is_rejected_when_supported",
+      "reason": "Windows denied symlink creation (WinError 1314)",
+      "status": "not-run"
+    }
+  ],
+  "traceability": {
+    "report": "docs/validation/v2-traceability-final-2026-09-18.json",
+    "requirements": 67,
+    "tasks": 48,
+    "scenario_families": 60,
+    "associated_automatic_checks": "passed",
+    "whole_family_acceptance": "not-claimed"
+  },
+  "structure": {
+    "skills": 6,
+    "plugin": "valid",
+    "fixtures": 14,
+    "profiles": 23,
+    "profile_check": "structure-and-existing-exact-certification-not-new-certification"
+  },
+  "retrieval": {
+    "report": "docs/validation/v2-query-benchmark-pinned-text-2026-09-18.json",
+    "sha256": "e9bc171399523f2a30dde05c0f0de55cb1ec055ded2d4b106bc51eca55699b9d",
+    "status": "passed-on-measured-snapshot",
+    "queries_per_size": 20,
+    "p95_seconds_100_documents": 1.340242299993406,
+    "p95_seconds_1000_documents": 4.750485099997604,
+    "targets_seconds": [2.0, 5.0],
+    "os_cache": "uncontrolled",
+    "other_our_validations_concurrent": false,
+    "cli_process_startup_included": false,
+    "persistent_trust_cache": false,
+    "model_latency": "not-run",
+    "model_tokens": "not-run",
+    "human_question_cost": "not-run"
+  },
+  "docker": {
+    "report": "docs/validation/v2-docker-accepted-2026-09-18.json",
+    "sha256": "aaddc9bb67df1c473f162297cb8c53f778930f969b2d4c49414d6797a2213d93",
+    "status": "passed-isolated-observers-not-host-acceptance",
+    "actual_processes": 2,
+    "processes_on_reuse": 0,
+    "seconds": 18.750359000012395,
+    "delivery": "not-assessed"
+  },
+  "distribution": {
+    "report": "docs/validation/v2-distribution-final-2026-09-18.json",
+    "sha256": "ac6bcfeb872aa02d82367761da81c5c5a49c9a68d4ce6cec013cb5ea228a3382",
+    "source": "working-tree:21693be94abd29544bc05b7effbb52189a97695f5505c2a2ec885d141409a3cf",
+    "status": "passed-on-recorded-development-snapshot-not-clean-release",
+    "core_files": 1391,
+    "two_builds": "identical-bytes",
+    "native_archive": "valid",
+    "pinned_migration": "1.5-to-2.0-passed",
+    "rollback": "exact-original-bytes",
+    "full_pinned_query_seconds": 0.971045,
+    "later_changes": "evidence annotations and package report inventory; no runtime-code changes"
+  },
+  "release_preflight": {
+    "status": "blocked-before-tests",
+    "reason": "source.tree_state=dirty",
+    "report_created": false,
+    "commit_created": false
+  },
+  "pending": [
+    "Codex real-session acceptance",
+    "Copilot real-session acceptance",
+    "three-developer handoff",
+    "human comprehension",
+    "real visual acceptance",
+    "end-to-end agent cost",
+    "clean release evidence and release approval"
+  ],
+  "not_performed": [
+    "real-consumer migration",
+    "external CI or Jira writes",
+    "active host installation",
+    "workspace commit",
+    "tag",
+    "push",
+    "publication",
+    "production operation"
+  ],
+  "limits": [
+    "Local guardrail is not a host security boundary",
+    "Actor roles are declared, not authenticated",
+    "No distributed locking",
+    "Historical 1.x approvals do not approve v2",
+    "Failed trials are retained; thresholds were not increased"
+  ]
+}

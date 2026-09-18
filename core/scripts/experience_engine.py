@@ -25,7 +25,7 @@ from evidence_contract import integration_gate_applicability, visual_gate_applic
 from validation_evidence import load_evidence_index, task_health
 
 
-PLUGIN_VERSION = "1.1.1"
+PLUGIN_VERSION = json.loads((Path(__file__).resolve().parents[1] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))["version"]
 CACHE_SCHEMA = "lks-sdd-experience-cache-1"
 PENDING = {"", "none", "pending", "not-run", "not-started", "unknown"}
 ACTIVE_PROBLEM_STATES = {"active"}

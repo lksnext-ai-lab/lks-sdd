@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-assess-readiness
-description: "Use the LKS-SDD plugin to assess a documented increment by reporting specification closure, full-plan completeness, selected TASK-slice readiness, durable authorization, delivery governance, bindings and exact automation support as simultaneous states. Use when the user asks whether work can pass G2 or what remains; do not define, authorize, implement, or verify."
+description: "Use with GitHub Copilot. Assess documented LKS-SDD scope before implementation: distinguish specification sufficiency, whole-plan coverage, selected task dependencies, technology approval and execution authorization; report actionable blockers without changing files or granting authority."
 ---
 
 # Copilot plugin entrypoint

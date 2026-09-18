@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-help
-description: "Explain the Spec-anchored LKS-SDD method and how to use its plugin, including durable specifications, adoption from existing code, client-facing contrast, planning, readiness, authorization, continuity, gates, evidence, status, compatibility, and troubleshooting without changing files. Do not define, assess, adopt, implement, verify, deploy, or mutate project state."
+description: "Use with GitHub Copilot. Explain LKS-SDD or answer questions about documented project behavior, requirements, features, tasks and history in clear, source-linked language, without changing canonical files; inspect code only for an explicit comparison or a bounded implementation gap."
 ---
 
 # Copilot plugin entrypoint

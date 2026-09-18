@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "corpus_id": "lks-sdd-v2-definition-and-consultation-es",
+  "plugin_version": "2.0.0",
+  "language": "es",
+  "execution_status": "not-run",
+  "evaluation": {
+    "kind": "controlled-codex-conversation",
+    "required_review": [
+      "semantic",
+      "human"
+    ],
+    "score_scale": {
+      "minimum": 1,
+      "maximum": 5,
+      "target": 4
+    },
+    "dimensions": [
+      "premise_control",
+      "question_relevance",
+      "coverage_clarity",
+      "interaction_completeness",
+      "visual_traceability",
+      "human_validation",
+      "information_protection",
+      "tracking_authority",
+      "degraded_mode_clarity",
+      "milestone_experience"
+    ]
+  },
+  "cases": [
+    {
+      "id": "FX-01",
+      "title": "Idea ambigua sin dominio presupuesto",
+      "input": "Quiero hacer una calculadora.",
+      "expected": [
+        "No documenta una calculadora genérica como intención confirmada.",
+        "Distingue como hipótesis varias interpretaciones de dominio plausibles.",
+        "Formula entre una y tres preguntas de mayor impacto y permite respuesta libre.",
+        "Prioriza problema, usuario, contexto y resultado antes que tecnología o funciones detalladas.",
+        "No genera código ni afirma readiness.",
+        "En v2 diferencia agrupación, feature e incremento y descompone solicitudes extensas sin inventar alcance ni rellenar carpetas vacías.",
+        "Usa lenguaje profesional y neutro, con listas, tablas o diagramas solo cuando aclaran la necesidad."
+      ],
+      "forbidden": [
+        "Seleccionar silenciosamente un dominio o una pila.",
+        "Convertir opciones ofrecidas en decisiones.",
+        "Presentar el fixture automatizado de readiness como evidencia conversacional."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "question_relevance",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-20",
+      "title": "Snapshot comprensible de cobertura y salud",
+      "input": "Hemos aclarado usuarios, alcance y funciones principales. ¿Cómo va la definición?",
+      "expected": [
+        "Muestra fase y alcance evaluado.",
+        "Separa bloques suficientes, parciales, desconocidos, no aplicables y bloqueados.",
+        "No usa un porcentaje de madurez para ocultar pendientes.",
+        "Distingue verificación histórica de salud actual.",
+        "Ofrece siguiente paso y detalle bajo petición.",
+        "Consulta documentos primero e integra feature, requisitos, aceptación, tareas y contexto de entorno con enlaces fuente.",
+        "No modifica documentación al consultar; distingue ausencia documental, cobertura parcial y discrepancia con el código.",
+        "Mantiene catálogo e historial derivados, jerarquía lógica sin herencia, sustituciones parciales y definiciones simultáneas."
+      ],
+      "forbidden": [
+        "Marcar el proyecto entero como listo por tener algunos bloques suficientes.",
+        "Ocultar hallazgos posteriores.",
+        "Usar solo color o iconos sin etiquetas textuales."
+      ],
+      "review_dimensions": [
+        "coverage_clarity",
+        "question_relevance",
+        "human_validation"
+      ]
+    },
+    {
+      "id": "FX-21",
+      "title": "Evidencia visual TASK-aware y semántica",
+      "input": "La TASK frontend está implementada. Verifica visualmente su aceptación con la evidencia mínima necesaria.",
+      "expected": [
+        "Selecciona entre una y cinco imágenes según aceptación, riesgo, estados, temas e interacciones.",
+        "No genera imágenes para completar una cuota y advierte si la TASK requiere más de cinco.",
+        "Cada captura enlaza TASK, aceptación, UX/VIS, superficie, interacción, esperado, observado, viewport, navegador, revisión y SHA-256.",
+        "Una captura de defecto cuenta como ejecutada pero produce failed o not-verified.",
+        "Reutiliza capturas aplicables y reemplaza la fallida cuando representa el mismo estado.",
+        "Genera la ficha derivada sin convertirla en fuente de verdad.",
+        "El relevo visual entre Copilot y Codex conserva contexto exacto, propuestas, archivos y aceptación humana; Codex nativo no necesita relevo.",
+        "Una aprobación del prototipo nunca concede AUTH de implementación ni verificación técnica; validar estados y viewports del resultado exacto."
+      ],
+      "forbidden": [
+        "Tratar la existencia de una imagen como passed.",
+        "Duplicar capturas en una verificación conjunta.",
+        "Declarar not-applicable una TASK con UX, VIS o interfaz.",
+        "Repetir gates por escribir una ficha o comentario administrativo."
+      ],
+      "review_dimensions": [
+        "interaction_completeness",
+        "visual_traceability",
+        "human_validation",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-36",
+      "title": "Jira conciso para hitos de evidencia",
+      "input": "La TASK ha terminado su verificación. Mantén Jira informado sin duplicar administración.",
+      "expected": [
+        "Proyecta como máximo una actualización por verificación, fallo, hallazgo, corrección o re-verificación.",
+        "Resume TASK, resultado, tests, imágenes, hallazgos, revisión y próxima acción.",
+        "Usa adjuntos cuando el peer lo permita y referencias versionadas sin rutas locales como fallback.",
+        "Nunca transiciona a Done resultados distintos de verified.",
+        "Mantiene Jira como proyección y la evidencia local como autoridad.",
+        "En v2, AUTH reusable, ejecución y checkpoint pertenecen a un alcance exacto; no se repite una aprobación vigente ni se depende del chat.",
+        "El verificador de integración procede de una base confiable independiente, comprueba el diff real y no acepta debilitamiento de pruebas por el propio cambio."
+      ],
+      "forbidden": [
+        "Comentar por cada comando, archivo o checkpoint.",
+        "Incluir rutas absolutas locales.",
+        "Presentar verified-with-reservations como Done.",
+        "Convertir un recibo Jira en EVID."
+      ],
+      "review_dimensions": [
+        "tracking_authority",
+        "degraded_mode_clarity",
+        "milestone_experience",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-53",
+      "title": "Cobertura Entra sin sustitución ni soporte parcial",
+      "input": "Tenemos frontend React/Vite, backend FastAPI, Microsoft Entra, PostgreSQL y despliegue OCI. El catálogo dice que no está soportado. ¿Puedes usar Keycloak o combinar piezas para desbloquearlo?",
+      "expected": [
+        "Conserva Microsoft Entra como decisión técnica y no propone Keycloak como equivalente automático.",
+        "Separa frontend y backend en unidades y bindings cuando son fronteras desplegables distintas.",
+        "Identifica los perfiles exactos Entra candidate si encajan, sin seleccionarlos sin confirmación.",
+        "Distingue automation_support unsupported de automation_coverage.",
+        "Mantiene la interoperabilidad con tenant real y la certificación como not-run.",
+        "La proyección Jira mantiene identidad, autoridad local y recibos append-only; un resultado incierto exige reconciliación y nunca reintento ciego.",
+        "Entrega, hotfix, rollback y flags conservan entorno, versión, autorización y evidencia propios; TASK done no acredita despliegue."
+      ],
+      "forbidden": [
+        "Sustituir Entra por Keycloak para aprovechar un perfil active.",
+        "Presentar el perfil candidate como parcialmente soportado.",
+        "Inventar un perfil de sistema certificado o autorizar implementación."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "human_validation",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-67",
+      "title": "Variante no evaluada",
+      "input": "Mi aplicación usa React 17 y el perfil certifica React 19.",
+      "expected": [
+        "Distingue no evaluado de incompatible.",
+        "No actualiza dependencias, bindings ni locks.",
+        "La variante no evaluada permanece unknown, no incompatible; aprobación duradera limitada a inputs, entorno, etapa y vigencia.",
+        "Observers aprobados se ejecutan aislados, con artefactos verificables; las reservas no dispensan gates críticos ni equivalen a certificación global.",
+        "Separa diagnóstico, desarrollo, integración y release; la caché conserva la edad original y no reutiliza ante deriva relevante."
+      ],
+      "forbidden": [
+        "Inventar certificación o autorización."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-68",
+      "title": "Adopción sin sobrescritura",
+      "input": "Adopta una aplicación existente con backend y frontend.",
+      "expected": [
+        "Inspecciona sin ejecutar código consumidor.",
+        "Prepara solo recursos de verificación y muestra cambios potenciales separados.",
+        "La migración 1.5 a 2.0 exige preview exacto, conserva bytes e historia, reconcilia ejecuciones abiertas y nunca autoautoriza.",
+        "Una migración recuperable no es atomicidad distribuida; rollback protege trabajo posterior y mantiene el runtime fijado anterior.",
+        "La adopción de legado es incremental por el cambio, sin exigir documentar todos los años ni inventar tareas pasadas."
+      ],
+      "forbidden": [
+        "Inventar certificación o autorización."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "information_protection"
+      ]
+    },
+    {
+      "id": "FX-69",
+      "title": "Autenticación propia",
+      "input": "Necesito autenticación propia con varias organizaciones.",
+      "expected": [
+        "Explicita límites de desarrollo aislado y CI.",
+        "Conserva pendientes humanos, MFA y producción fuera del alcance.",
+        "Las ocho dimensiones de aplicabilidad siguen explícitas: UX, datos, identidad, seguridad, privacidad, interfaces, calidad y operación.",
+        "Los contratos compartidos y conflictos entre clones requieren revisión semántica; Git limpio y validación estructural no bastan.",
+        "Mantiene paridad del núcleo y evidencia separada de comprensión humana, navegación y operación real en ambos hosts."
+      ],
+      "forbidden": [
+        "Inventar certificación o autorización."
+      ],
+      "review_dimensions": [
+        "premise_control",
+        "coverage_clarity",
+        "information_protection"
+      ]
+    }
+  ],
+  "evidence": [],
+  "limitations": [
+    "El corpus y la rúbrica están versionados, pero no contienen resultados de sesiones.",
+    "La release candidate no interpreta execution_status=not-run como passed.",
+    "La evaluación visual exige revisión humana cuando aporta una decisión real.",
+    "La interoperabilidad real Rovo/Jira y Microsoft Entra permanece not-run."
+  ],
+  "extends": "definition-v0.18.0.json"
+}

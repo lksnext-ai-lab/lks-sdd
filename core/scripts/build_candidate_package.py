@@ -1181,7 +1181,6 @@ def _package_integrity_bytes(
 ) -> bytes:
     """Create the digest inventory consumed by ``doctor --quick``."""
 
-    runtime_prefixes = (".codex-plugin/", "profiles/", "schemas/", "scripts/", "skills/")
     runtime_files = [
         {
             "path": relative,
@@ -1189,8 +1188,7 @@ def _package_integrity_bytes(
             "size": len(content),
         }
         for relative, content in files
-        if relative == ".codex-plugin/plugin.json"
-        or relative.startswith(runtime_prefixes)
+        if relative != "package-integrity.json"
     ]
     return _canonical_json_bytes(
         {

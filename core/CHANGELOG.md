@@ -1,5 +1,44 @@
 # Changelog
 
+## 2.0.0 — 2026-09-18
+
+- Dependencias Python de validación declaradas con versiones/hashes, instalación
+  explícita y CI limpio; ausencia de `jsonschema` bloquea con diagnóstico accionable.
+
+- Contrato documental 2.0 y método 2.0.0, separados de la versión del plugin.
+- Especificaciones humanas por funcionalidad, relaciones navegables, catálogo e
+  historia recuperables; consulta documental de solo lectura y código condicionado.
+- Contexto literal de ejecución, alcance autorizado, diff real, continuidad,
+  corrección, evidencia tipada y variantes de proyecto con cierre controlado.
+- Migración explícita desde 1.5, originales conservados, recuperación y rollback
+  protegidos, reconciliación de identidades y recibos de seguimiento remoto.
+- Se conservan seis skills, runtime fijado y motor de perfiles. La aprobación de
+  publicación v2 es independiente; no hereda aceptación 1.x ni activa instalaciones.
+- Guías v2, compatibilidad/migración e instalación actualizadas; temporales y salidas
+  regenerables retirados del checkout, conservando contratos y evidencias.
+
+### Consultas humanas del proyecto
+
+- Añade `query`, un lector documental de solo lectura con relaciones en ambos
+  sentidos, prosa, procedencia y enlaces; admite documentación anterior o parcial a SDD.
+- Permite contraste estático con código por petición expresa o carencia documental
+  ligada al contexto previo; no ejecuta ni modifica el consumidor.
+- Integra una guía de respuesta profesional y comprensible en las seis skills,
+  con separación entre lo acordado, propuesto, observado, inferido y desconocido.
+- Mantiene validación contractual, autorización, evidencia histórica, runtime
+  fijado y aceptación humana como estados separados. No publica ni activa el plugin.
+
+### Variantes tecnológicas de proyecto
+
+- Añade diagnóstico por niveles y aprobación local durable preview/hash/apply,
+  con caducidad y alcance ligado a stack, manifests/locks, observer, AUTH y entorno.
+- Conserva el modo estricto y las certificaciones/locks; una variante aprobada no
+  se convierte en un perfil global. Preparación optativa sin copiar el scaffold.
+- Ejecuta observers revisados en Docker aislado y registra artefactos, hashes,
+  gates ejecutados/reutilizados/omitidos y reservas en evidencia canónica.
+- Permite cierre de TASK con política explícita y todos sus gates críticos pasados,
+  manteniendo entrega, release y producción como decisiones separadas.
+
 La distribución dual 1.1.1 conserva un plugin nativo de agente para Copilot,
 preparación explícita del proyecto sin skills duplicadas, migración reversible por
 recibos, una guía desde cero compartida por README y la skill de ayuda, y corrige el

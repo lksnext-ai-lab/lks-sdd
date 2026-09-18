@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "material",
+    "subject",
+    "checks",
+    "classification",
+    "integrity_sha256",
+    "task_ids",
+    "execution_id",
+    "environment",
+    "stage",
+    "artifact_digests",
+    "workspace_revision",
+    "build_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^EVID-[0-9]{3,}$"
+    },
+    "subject": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "integrity_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "material": {
+      "type": "object"
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "gate_id",
+          "status",
+          "observed_at",
+          "disposition",
+          "input_key"
+        ],
+        "properties": {
+          "gate_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "blocked",
+              "not-run",
+              "not-applicable"
+            ]
+          },
+          "disposition": {
+            "enum": [
+              "executed",
+              "reused",
+              "omitted"
+            ]
+          },
+          "input_key": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "classification": {
+      "enum": [
+        "verified",
+        "verified-with-reservations",
+        "not-verified"
+      ]
+    },
+    "task_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z]+)*-[0-9]{3,}$"
+      },
+      "uniqueItems": true
+    },
+    "artifact_digests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "uniqueItems": true
+    }
+  }
+}

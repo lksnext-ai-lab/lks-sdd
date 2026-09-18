@@ -1,9 +1,33 @@
 ---
 name: lks-sdd-verify
-description: "Verify an implemented LKS-SDD TASK slice or joint release checkpoint with Codex by running exact profile gates, linking acceptance to immutable evidence, preserving task/checkpoint state and never treating written code or unexecuted checks as passed. Use after implementation; do not define new scope, deploy, or authorize delivery."
+description: "Use with Codex. Verify a completed LKS-SDD task slice against agreed acceptance and typed evidence using exact-subject gates and approved observers; preserve immutable history, original observation age and the separation of technical verification, human acceptance and delivery."
 ---
 
 # Verify an LKS-SDD Increment with Codex
+
+## Routing por contrato
+
+Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
+2.0 or a new v2 project. Responsibility: Verificar sujeto exacto y conservar evidencia inmutable, sin aprobar entrega.
+Use only the relevant section of that shared workflow and its linked references;
+do not combine v2 syntax with the legacy workflow below. Existing projects remain
+on their exact pinned runtime until explicitly migrated. Unknown schemas fail
+closed; a question never initiates adoption, migration or implementation.
+
+## Workflow conservado para contrato 1.5
+
+For explaining requirements, tasks and existing evidence, read
+`<plugin-root>/docs/PROJECT-QUERY.md`. A query reads historical evidence without
+executing verification or creating EVID/CKPT. Separate prior results, current
+health and production; this presentation policy never replaces verification gates.
+
+For configured project variants, read `<plugin-root>/docs/PROJECT-VARIANTS.md`.
+Its opt-in route governs technology approval, consumer observers and proportional
+gates; the strict profile workflow below remains the default otherwise. `work verify`
+selects the declared variant, retains AUTH/EXEC and reuses valid evidence. Present
+one grouped approval only when required. A policy-authorized TASK may close with
+reserved variant evidence, while release, Jira Done and deployment retain their
+separate conditions. Never convert consumer approval into global certification.
 
 For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
 and this workflow from that runtime, not a different global version. Run
