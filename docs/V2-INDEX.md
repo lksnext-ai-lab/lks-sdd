@@ -1,7 +1,7 @@
 # Documentación de LKS-SDD 2
 
-Versión del plugin: **2.0.1**. Empieza por [instalación](INSTALLATION.md),
-[compatibilidad](COMPATIBILITY.md) y [notas de release](releases/v2.0.1.md).
+Versión del plugin: **2.0.2**. Empieza por [instalación](INSTALLATION.md),
+[compatibilidad](COMPATIBILITY.md) y [notas de release](releases/v2.0.2.md).
 La autorización de publicación no sustituye los ensayos humanos/host pendientes.
 
 | Conjunto | Fuente y propósito |

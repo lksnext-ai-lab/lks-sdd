@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.2 — 2026-09-18 — rutas largas Windows
+
+- Normaliza internamente raíces Windows mediante rutas extended-length sin persistir
+  el prefijo `\\?\` en contratos, recibos, hashes, mappings ni mensajes de negocio.
+- Mantiene las comprobaciones de symlinks, junctions, escapes, `.git`, repositorios
+  anidados y secretos; los fallos reales de `MAX_PATH` ahora son explícitos y accionables.
+- Añade una regresión Windows que compara instalación corta/larga, contrato, perfiles,
+  todas las entradas de integridad del runtime, diagnóstico, preview y ausencia de
+  escrituras en el proyecto consumidor.
+
 ## 2.0.1 — 2026-09-18 — migración 1.5→2.0
 
 - Añade migración oficial autónoma y reversible desde 1.5 a 2.0 con inventario

@@ -12,6 +12,7 @@ import re
 import stat
 
 from dual_distribution import BEGIN, END, SKILLS, digest, filesystem_root, json_bytes, safe_name
+from path_utils import same_filesystem_path
 from query_sources import QueryError, SECRET_NAME, safe_path
 
 
@@ -75,7 +76,7 @@ def validate(root, plugin_root):
     if not runtime_name.startswith(".lks-sdd/runtime/"):
         raise QueryError("Runtime fuera de su ubicación contractual.")
     runtime = safe_path(root, runtime_name)
-    if filesystem_root(runtime) != filesystem_root(plugin_root):
+    if not same_filesystem_path(runtime, plugin_root):
         raise QueryError("Utilice la CLI exacta del runtime fijado: " + runtime_name + "/scripts/lks_sdd.py")
     mode = lock.get("entrypoints", "project")
     if mode not in {"project", "plugin"}:

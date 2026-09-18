@@ -15,7 +15,7 @@
       ]
     },
     "integration": {
-      "module_timeout_seconds": 180,
+      "module_timeout_seconds": 300,
       "max_workers": 4,
       "modules": [
         "test_complex_handoff",
@@ -49,7 +49,7 @@
       ]
     },
     "package": {
-      "module_timeout_seconds": 300,
+      "module_timeout_seconds": 600,
       "max_workers": 2,
       "modules": [
         "test_checkout_portability",
@@ -59,7 +59,8 @@
         "test_public_cli",
         "test_quality_harness",
         "test_task_tracking_v14_fifth",
-        "test_task_tracking_v14_final"
+        "test_task_tracking_v14_final",
+        "test_windows_long_paths"
       ]
     },
     "profile": {

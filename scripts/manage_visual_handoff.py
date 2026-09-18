@@ -10,7 +10,8 @@ import re
 import sys
 import tempfile
 
-from dual_distribution import digest, json_bytes, safe_name, filesystem_root
+from dual_distribution import digest, json_bytes, safe_name
+from path_utils import filesystem_root, is_within_filesystem_path
 from runtime_doctor import check as check_runtime
 from validate_project import load_project_manifest, validate_project, validate_json_schema
 
@@ -30,7 +31,7 @@ def safe(root, relative):
             break
         if candidate.is_symlink() or (hasattr(candidate, "is_junction") and candidate.is_junction()):
             raise ValueError(f"Linked path is not allowed: {relative}")
-    if not path.resolve().is_relative_to(root):
+    if not is_within_filesystem_path(path.resolve(), root):
         raise ValueError(f"Path outside project: {relative}")
     return path
 

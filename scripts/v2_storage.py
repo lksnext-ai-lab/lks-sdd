@@ -9,12 +9,14 @@ import tempfile
 from contextvars import ContextVar
 
 from v2_contract import ContractError, DOCS, canonical, document_paths, fingerprint, path_at, read_bytes, sha
+from path_utils import filesystem_root
 
 PENDING = ".lks-sdd/transaction.json"
 VALIDATING = ContextVar("lks_v2_validating_transaction", default=False)
 
 
 def exists_hash(root: Path, relative: str):
+    root = filesystem_root(root)
     path = path_at(root, relative, missing=True, package_data=True)
     if not path.exists():
         return None
@@ -23,6 +25,7 @@ def exists_hash(root: Path, relative: str):
 
 def protected_inventory(root, extra=()):
     """Include later evidence/assets, not only Markdown, in recovery safety."""
+    root = filesystem_root(root)
     base = path_at(root, DOCS, missing=True)
     result = []
     if base.exists():
@@ -43,6 +46,7 @@ def protected_inventory(root, extra=()):
 
 
 def preview(root: Path, changes: dict[str, bytes | None], *, sources: dict[str, str], operation: str) -> dict:
+    root = filesystem_root(root)
     paths = sorted(changes)
     before = {p: exists_hash(root, p) for p in paths}
     after = {p: sha(changes[p]) if changes[p] is not None else None for p in paths}
@@ -53,6 +57,7 @@ def preview(root: Path, changes: dict[str, bytes | None], *, sources: dict[str, 
 
 
 def write_one(root: Path, relative: str, data: bytes | None):
+    root = filesystem_root(root)
     path = path_at(root, relative, missing=True, package_data=True)
     if data is None:
         if path.exists():
@@ -73,12 +78,14 @@ def write_one(root: Path, relative: str, data: bytes | None):
 
 
 def ensure_idle(root: Path):
+    root = filesystem_root(root)
     if path_at(root, PENDING, missing=True).exists():
         raise ContractError("Interrupted transaction: recover or rollback before any other mutation")
 
 
 def stage_contract(root, changes, sources):
     """Validate prospective Markdown in an isolated temporary tree, not the consumer."""
+    root = filesystem_root(root)
     from v2_contract import load, LINK, ASSET, BLOCK, resolve_link
     from urllib.parse import urlsplit
     checked = dict(sources)
@@ -117,6 +124,7 @@ def stage_contract(root, changes, sources):
 
 def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authorized_hash: str,
           *, validator=None, interrupt_after: int | None = None) -> dict:
+    root = filesystem_root(root)
     ensure_idle(root)
     fresh = preview(root, changes, sources=expected["sources"], operation=expected["operation"])
     if fresh["preview_hash"] != authorized_hash or expected["preview_hash"] != authorized_hash:
@@ -165,6 +173,7 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
 
 
 def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt: str | None = None) -> dict:
+    root = filesystem_root(root)
     source = receipt or PENDING
     if receipt != ".lks-sdd/transactions/" + authorized_hash + ".json" and receipt is not None:
         raise ContractError("Receipt must identify the exact authorized transaction")

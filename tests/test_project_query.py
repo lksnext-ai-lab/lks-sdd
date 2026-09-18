@@ -350,7 +350,7 @@ No se permiten duplicados. El límite es de tres intentos, no cinco.
 
     def test_qc28_pinned_cli_suppresses_bytecode_without_B(self):
         from dual_distribution import project_files
-        files = ["scripts/lks_sdd.py", "scripts/query_project.py", "scripts/query_sources.py", "scripts/query_runtime.py", "scripts/query_context.py",
+        files = ["scripts/lks_sdd.py", "scripts/import_bootstrap.py", "scripts/path_utils.py", "scripts/query_project.py", "scripts/query_sources.py", "scripts/query_runtime.py", "scripts/query_context.py",
                  "scripts/query_code.py", "scripts/query_render.py", "scripts/contract_engine.py", "scripts/runtime_doctor.py",
                  "scripts/dual_distribution.py", "schemas/document-contracts.json", "docs/PROJECT-QUERY.md", ".codex-plugin/plugin.json",
                  "distribution/host-copilot.md"]

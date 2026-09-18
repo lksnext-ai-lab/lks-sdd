@@ -15,6 +15,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from path_utils import is_within_filesystem_path
+
 from contract_engine import build_project_model, diagnostic_messages
 from evidence_contract import (
     evidence_gate_applicability_errors,
@@ -521,9 +523,7 @@ def _safe_relative_file(root: Path, relative: str) -> tuple[Path | None, str | N
     if candidate.is_absolute() or ".." in candidate.parts:
         return None, f"ruta no permitida: {relative}"
     resolved = (root / candidate).resolve()
-    try:
-        resolved.relative_to(root)
-    except ValueError:
+    if not is_within_filesystem_path(resolved, root):
         return None, f"ruta fuera de la raíz: {relative}"
     current = root
     for part in candidate.parts:
