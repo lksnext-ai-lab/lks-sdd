@@ -68,6 +68,7 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
         if part.casefold() == ".git" or (SECRET_NAME.search(part) and not benign_package_leaf):
             raise ContractError("Sensitive or Git path is not a contract input: " + relative)
         current /= part
+        current = filesystem_root(current)
         try:
             if os.path.lexists(current):
                 if is_link(current):

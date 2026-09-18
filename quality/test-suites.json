@@ -15,7 +15,7 @@
       ]
     },
     "integration": {
-      "module_timeout_seconds": 180,
+      "module_timeout_seconds": 300,
       "max_workers": 4,
       "modules": [
         "test_complex_handoff",

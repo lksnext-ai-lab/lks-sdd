@@ -39,9 +39,7 @@ def _write_tree(root: Path, files: dict[str, bytes]) -> None:
 class WindowsLongPathTests(unittest.TestCase):
     @unittest.skipUnless(os.name == "nt", "Windows extended-length path regression")
     def test_long_plugin_and_migration_paths_match_short_paths(self):
-        temp = tempfile.TemporaryDirectory(prefix="lks-long-path-")
-        self.addCleanup(temp.cleanup)
-        container = Path(temp.name)
+        container = Path(tempfile.mkdtemp(prefix="lks-long-path-"))
         self.addCleanup(lambda: shutil.rmtree(filesystem_root(container), ignore_errors=True))
         long_container = filesystem_root(
             container

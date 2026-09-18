@@ -10,11 +10,20 @@ def filesystem_root(path: Path) -> Path:
     """Return a filesystem-safe absolute root without changing logical paths."""
     expanded = Path(path).expanduser()
     absolute = os.path.abspath(os.fspath(expanded))
-    if os.name != "nt" or absolute.startswith("\\\\?\\"):
+    if os.name != "nt":
         return Path(absolute)
-    if absolute.startswith("\\\\"):
-        return Path("\\\\?\\UNC\\" + absolute[2:])
-    return Path("\\\\?\\" + absolute)
+    logical = absolute
+    if logical.startswith("\\\\?\\UNC\\"):
+        logical = "\\\\" + logical[8:]
+    elif logical.startswith("\\\\?\\"):
+        logical = logical[4:]
+    if len(logical) < 248:
+        return Path(logical)
+    if absolute.startswith("\\\\?\\"):
+        return Path(absolute)
+    if logical.startswith("\\\\"):
+        return Path("\\\\?\\UNC\\" + logical[2:])
+    return Path("\\\\?\\" + logical)
 
 
 def same_filesystem_path(left: Path, right: Path) -> bool:
