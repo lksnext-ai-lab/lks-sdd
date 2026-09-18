@@ -1,6 +1,6 @@
 # Estado de aceptación de la distribución dual
 
-## Candidate v2
+## Versión 2
 
 La versión 2.0.0 tiene un expediente independiente en
 [validación v2](validation/v2-implementation.md). Ninguna aprobación descrita más

@@ -1,14 +1,14 @@
 {
   "schema_version": "2.0",
   "kind": "release-readiness-dossier-not-approval",
-  "candidate_version": "2.0.0-rc.1",
+  "candidate_version": "2.0.0",
   "project_schema": "2.0",
   "method_version": "2.0.0",
   "implementation_authority": "User approved the complete plan and D01-D07 in this task",
-  "release_authority": "not-requested",
+  "release_authority": "quality/release-approval-v2.0.0.json; explicit publication approval conditional on exact technical gates",
   "historical_approvals_reused": [],
   "traceability": "quality/v2-traceability.json",
-  "technical_verification": "quality/v2-verification-summary.json",
+  "technical_verification": "quality/v2-verification-summary.json (historical development); published quality-report.json binds the exact release commit",
   "human_protocol": "docs/V2-HOST-ACCEPTANCE.md",
   "acceptance": {
     "codex_real_session": "not-run",
@@ -19,11 +19,11 @@
     "external_ci_enforcement": "not-configured",
     "external_jira_operations": "not-run"
   },
-  "separate_authorizations": ["real consumer migration", "active installation", "commit", "tag", "push", "publication", "production operation"],
+  "separate_authorizations": ["real consumer migration", "active installation", "production operation", "external consumer CI/Jira operations"],
   "claims": {
     "local_guardrail": "Detects and rejects documented transition violations; does not intercept every host write",
     "actor_identity": "declared-not-authenticated",
     "distributed_locks": false,
-    "stable_release": false
+    "stable_release": "authorized-subject-to-exact-technical-gates; see published quality-report.json"
   }
 }

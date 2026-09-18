@@ -6,7 +6,7 @@ es parte de la entrega; ejecutarlo necesita entornos y personas autorizados.
 
 ## Preparación
 
-Seleccionar la candidate exacta por hash de distribución; registrar versión del
+Seleccionar el paquete exacto por hash de distribución; registrar versión del
 host, extensión, modelo, permisos y sistema operativo. Emplear copias sintéticas
 o anonimizadas autorizadas. Mantener separados el runtime global, el fijado en el
 proyecto, el schema y el método. No guardar nombres personales, tokens ni chats
@@ -46,5 +46,8 @@ Medir lectura documental, relecturas, preguntas necesarias/repetidas, procesos,
 tiempo total y tokens disponibles; no convertir métricas no observadas en cero.
 Revisar comprensibilidad y suficiencia con quien desarrolla, no solo con el agente.
 Todo defecto crítico bloquea aceptación; no-run, omitido o escenario simulado no
-equivale a pasado. La aprobación de release se solicita después, para la versión
-y artefactos exactos. La configuración real de CI/Jira y producción es separada.
+equivale a pasado. La publicación técnica autorizada por el responsable para
+2.0.0 no cierra este protocolo ni acredita sus recorridos: su aprobación específica
+mantiene esos límites y exige gates técnicos del commit exacto. Una aceptación
+de uso posterior debe identificar la versión y artefactos observados.
+La configuración real de CI/Jira y producción es separada.
