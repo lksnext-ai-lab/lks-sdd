@@ -26,7 +26,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import validate_project  # noqa: E402
 
-PLUGIN_VERSION = "2.0.1"
+PLUGIN_VERSION = "2.0.2"
 METHOD_VERSION = "1.5.0"
 SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"

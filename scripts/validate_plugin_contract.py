@@ -11,6 +11,15 @@ import re
 import sys
 from pathlib import Path
 
+if str(__file__).startswith("\\\\?\\"):
+    _bootstrap = Path(__file__).with_name("import_bootstrap.py")
+    _namespace = {}
+    exec(compile(_bootstrap.read_bytes(), str(_bootstrap), "exec"), _namespace)
+    _namespace["ensure_import_path"](__file__)
+    del _bootstrap, _namespace
+
+from path_utils import filesystem_root
+
 EXPECTED_SKILLS = {
     "lks-sdd-help",
     "lks-sdd-define",
@@ -1326,7 +1335,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("plugin_root", nargs="?", type=Path, default=Path.cwd())
     args = parser.parse_args()
-    root = args.plugin_root.expanduser().resolve()
+    root = filesystem_root(args.plugin_root)
     errors = validate(root)
     if errors:
         print("INVALID")

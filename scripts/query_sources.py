@@ -14,6 +14,15 @@ from pathlib import Path, PurePosixPath
 import re
 import stat
 
+if str(__file__).startswith("\\\\?\\"):
+    _bootstrap = Path(__file__).with_name("import_bootstrap.py")
+    _namespace = {}
+    exec(compile(_bootstrap.read_bytes(), str(_bootstrap), "exec"), _namespace)
+    _namespace["ensure_import_path"](__file__)
+    del _bootstrap, _namespace
+
+from path_utils import filesystem_root, is_max_path_error, max_path_message
+
 
 DOCUMENT_SUFFIXES = {".md", ".mdx", ".txt", ".rst"}
 CODE_SUFFIXES = {".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".sql", ".cs",
@@ -67,13 +76,18 @@ def is_link(path: Path) -> bool:
 
 
 def lexical_root(root: Path) -> Path:
-    root = Path(os.path.abspath(root.expanduser()))
-    for part in [*reversed(root.parents), root]:
-        if is_link(part):
-            raise QueryError("La raíz atraviesa un enlace simbólico o junction.")
-    if not root.is_dir():
-        raise QueryError("La raíz del proyecto no es un directorio accesible.")
-    return root
+    try:
+        root = filesystem_root(root)
+        for part in [*reversed(root.parents), root]:
+            if is_link(part):
+                raise QueryError("La raíz atraviesa un enlace simbólico o junction.")
+        if not root.is_dir():
+            raise QueryError("La raíz del proyecto no es un directorio accesible.")
+        return root
+    except OSError as exc:
+        if is_max_path_error(exc):
+            raise QueryError(max_path_message(root)) from exc
+        raise
 
 
 def safe_path(root: Path, relative: str, *, allow_git: bool = False) -> Path:
@@ -89,7 +103,12 @@ def safe_path(root: Path, relative: str, *, allow_git: bool = False) -> Path:
         if not allow_git and part.casefold() == ".git":
             raise QueryError("Los objetos Git no son fuentes de consulta.")
         current = os.path.join(current, part)
-        info = os.lstat(current)
+        try:
+            info = os.lstat(current)
+        except OSError as exc:
+            if is_max_path_error(exc):
+                raise QueryError(max_path_message(Path(current))) from exc
+            raise
         if stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400):
             raise QueryError("No se siguen enlaces simbólicos ni junctions.")
         if index < len(parts) - 1 and stat.S_ISDIR(info.st_mode) and os.path.lexists(os.path.join(current, ".git")):
@@ -204,7 +223,9 @@ class SourceReader:
                         found.append(rel)
                     elif not code and os.path.splitext(entry.name)[1].lower() in {".pdf", ".docx", ".png", ".jpg"}:
                         self.exclude(rel, "unsupported-format")
-            except OSError:
+            except OSError as exc:
+                if is_max_path_error(exc):
+                    raise QueryError(max_path_message(folder)) from exc
                 self.exclude(relative, "unreadable-directory")
         self.metrics["entries_listed"] += count
         return sorted(found)

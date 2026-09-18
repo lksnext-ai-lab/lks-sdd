@@ -5,6 +5,12 @@ Preparar previamente el intérprete de mantenimiento con
 en un venv externo. CI hace lo mismo en su intérprete aislado. No instalar dependencias
 dentro del checkout limpio ni suponer que las bibliotecas personales están disponibles.
 
+En Windows, la regresión `test_windows_long_paths` copia el plugin a una instalación
+de más de 260 caracteres y compara contrato, perfiles, integridad completa, diagnóstico
+y preview de migración con una instalación corta. Ejecutarla con
+`python -B -X utf8 tests/run_unit_tests.py --suite package --module test_windows_long_paths`;
+en otros sistemas queda explícitamente omitida.
+
 ## Versión 2: contrato y evidencias independientes
 
 La versión `2.0.0` añade contrato 2.0/método 2.0.0; los procedimientos que

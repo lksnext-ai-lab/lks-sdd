@@ -8,10 +8,18 @@ import json
 import runpy
 import sys
 from pathlib import Path
+
+if str(__file__).startswith("\\\\?\\"):
+    _bootstrap = Path(__file__).with_name("import_bootstrap.py")
+    _namespace = {}
+    exec(compile(_bootstrap.read_bytes(), str(_bootstrap), "exec"), _namespace)
+    _namespace["ensure_import_path"](__file__)
+    del _bootstrap, _namespace
+
 # A query may run from a consumer-local pinned runtime. Disable bytecode before
 # importing any plugin module, not only after dispatching to query_project.
 sys.dont_write_bytecode = True
-from dual_distribution import filesystem_root
+from path_utils import filesystem_root, same_filesystem_path
 
 
 PLUGIN_ROOT = filesystem_root(Path(__file__).resolve().parents[1])
@@ -99,7 +107,7 @@ def main() -> int:
                 print(json.dumps(runtime, ensure_ascii=False))
                 return 2
             pinned = (candidate / runtime["runtime"]).resolve()
-            if pinned != PLUGIN_ROOT:
+            if not same_filesystem_path(pinned, PLUGIN_ROOT):
                 print(json.dumps({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
                                   "cli": str(pinned / "scripts/lks_sdd.py")}, ensure_ascii=False))
                 return 2

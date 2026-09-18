@@ -43,7 +43,7 @@ def check(root: Path) -> dict:
         for relative, expected in checks.items():
             path = root / safe_name(relative)
             links = [p for p in [path, *path.parents] if p != root and root in p.parents]
-            if not path.resolve().is_relative_to(root) or any(
+            if not path.is_relative_to(root) or any(
                 p.is_symlink() or (hasattr(p, "is_junction") and p.is_junction()) for p in links
             ):
                 raise ValueError(f"Unsafe managed path: {relative}")

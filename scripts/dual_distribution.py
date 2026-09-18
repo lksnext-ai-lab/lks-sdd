@@ -9,20 +9,14 @@ import re
 import zipfile
 from pathlib import Path, PurePosixPath
 
+from path_utils import filesystem_root
+
 SKILLS = ("help", "define", "adopt-existing", "assess-readiness", "implement", "verify")
 BEGIN = "<!-- LKS-SDD:BEGIN -->"
 END = "<!-- LKS-SDD:END -->"
 _EVIDENCE_DIRECTORY = "certification-details/"
 _EVIDENCE_HASH = re.compile(r"^[0-9a-f]{64}$")
 _GATE_ID = re.compile(r"^[A-Z0-9][A-Z0-9-]*$")
-
-
-def filesystem_root(path: Path) -> Path:
-    """Use extended-length Windows paths without persisting them in shared state."""
-    resolved = str(path.resolve())
-    if os.name == "nt" and not resolved.startswith("\\\\?\\"):
-        resolved = "\\\\?\\UNC\\" + resolved[2:] if resolved.startswith("\\\\") else "\\\\?\\" + resolved
-    return Path(resolved)
 
 
 def digest(data: bytes) -> str:

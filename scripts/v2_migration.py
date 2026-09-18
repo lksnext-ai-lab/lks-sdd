@@ -15,6 +15,7 @@ import uuid
 from v2_contract import (ContractError, DOCS, HISTORY, VERSION, METHOD, DOMAINS, ID, LINK,
                          ASSET, canonical, fingerprint, load, make_element, path_at, read_bytes,
                          render_document, resolve_link, sha)
+from path_utils import filesystem_root
 from v2_storage import apply, ensure_idle, preview, recover, stage_contract
 
 PREFIX_KIND = {"FR": "requirement", "NFR": "requirement", "TR": "requirement", "BR": "rule",
@@ -79,6 +80,7 @@ def _receipt_path(manifest: dict) -> str | None:
 
 def migration_status(root: Path, tasks: list[str] | None = None) -> dict:
     """Inspect the cutover without making decisions or changing files."""
+    root = filesystem_root(root)
     ensure_idle(root)
     manifest = _read_manifest(root)
     schema = manifest.get("schema_version")
@@ -168,6 +170,7 @@ def migration_status(root: Path, tasks: list[str] | None = None) -> dict:
 
 
 def continuation_status(root: Path, tasks: list[str], *, _status: dict | None = None) -> dict:
+    root = filesystem_root(root)
     """Assess only the requested TASK slice after a clean technical cutover."""
     status = _status or migration_status(root)
     if status.get("status") not in {"migration-complete", "ready"}:
@@ -218,6 +221,7 @@ def _conservation_manifest(sources: dict[str, str], mapping: dict[str, dict]) ->
 
 
 def inventory(root: Path) -> dict[str, str]:
+    root = filesystem_root(root)
     result = {".lks-sdd/project.json": sha(read_bytes(root, ".lks-sdd/project.json"))}
     total_bytes = len(read_bytes(root, ".lks-sdd/project.json"))
     manifest = json.loads(read_bytes(root, ".lks-sdd/project.json"))
@@ -289,6 +293,7 @@ def destination(relative: str) -> str:
 
 
 def diagnose(root: Path) -> dict:
+    root = filesystem_root(root)
     from runtime_doctor import check
     ensure_idle(root)
     manifest = _read_manifest(root)
@@ -337,6 +342,7 @@ def _rewrite_links(text: str, source: str, target: str, paths: dict, identities:
 
 
 def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]:
+    root = filesystem_root(root)
     ensure_idle(root)
     diagnostic = diagnose(root)
     if diagnostic["status"] != "preview-available":
@@ -683,6 +689,7 @@ def _runtime_transition(root, target_runtime, old_runtime, changes, sources, arc
 
 def migrate(root: Path, authorized_hash: str, *, target_runtime: Path | None = None,
             interrupt_after: int | None = None) -> dict:
+    root = filesystem_root(root)
     diagnostic = diagnose(root)
     if diagnostic["status"] == "already-v2":
         return {"status": "already-v2", "migration_state": diagnostic.get("migration_state"),

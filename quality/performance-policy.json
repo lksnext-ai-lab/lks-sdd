@@ -3,7 +3,7 @@
   "budgets_seconds": {
     "fast": 120,
     "integration": 480,
-    "package": 240,
+    "package": 600,
     "profile": 180,
     "candidate": 900,
     "profile_execute": 1800

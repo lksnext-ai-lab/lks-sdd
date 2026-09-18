@@ -16,6 +16,7 @@ from urllib.parse import unquote, urlsplit
 import uuid
 
 from query_sources import is_link, lexical_root, SECRET_NAME
+from path_utils import filesystem_root, is_max_path_error, max_path_message
 
 VERSION = "2.0"
 METHOD = "2.0.0"
@@ -56,6 +57,7 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
             PurePosixPath(relative).is_absolute() or
             any(p in {"", ".", ".."} for p in relative.split("/"))):
         raise ContractError("Unsafe project-relative path: " + relative)
+    root = filesystem_root(root)
     current = root
     parts = relative.split("/")
     for index, part in enumerate(parts):
@@ -66,13 +68,18 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
         if part.casefold() == ".git" or (SECRET_NAME.search(part) and not benign_package_leaf):
             raise ContractError("Sensitive or Git path is not a contract input: " + relative)
         current /= part
-        if os.path.lexists(current):
-            if is_link(current):
-                raise ContractError("Link/junction rejected: " + relative)
-            if current.is_dir() and current != root and (current / ".git").exists():
-                raise ContractError("Nested repository rejected: " + relative)
-        elif not missing:
-            raise ContractError("Missing source: " + relative)
+        try:
+            if os.path.lexists(current):
+                if is_link(current):
+                    raise ContractError("Link/junction rejected: " + relative)
+                if current.is_dir() and current != root and (current / ".git").exists():
+                    raise ContractError("Nested repository rejected: " + relative)
+            elif not missing:
+                raise ContractError("Missing source: " + relative)
+        except OSError as exc:
+            if is_max_path_error(exc):
+                raise ContractError(max_path_message(current)) from exc
+            raise
     return current
 
 
