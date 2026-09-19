@@ -51,6 +51,7 @@ class QualitySuiteRegistryTests(unittest.TestCase):
         self.assertIn(
             "test_visual_contract", registry["tiers"]["integration"]["modules"]
         )
+        self.assertEqual(registry["tiers"]["fast"]["max_workers"], 1)
         self.assertEqual(registry["tiers"]["integration"]["max_workers"], 2)
         self.assertNotIn("test_m5_pilot", registry["tiers"]["fast"]["modules"])
         self.assertNotIn("test_windows_long_paths", all_modules)
