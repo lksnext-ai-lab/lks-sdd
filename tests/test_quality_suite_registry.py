@@ -16,7 +16,6 @@ from quality_execution import (  # noqa: E402
     impacted_modules,
     load_impact_map,
     load_performance_policy,
-    load_release_core_selection,
     load_suite_registry,
     modules_for_suite,
     performance_assessment,
@@ -73,36 +72,6 @@ class QualitySuiteRegistryTests(unittest.TestCase):
                 QualityExecutionError, "módulos y timeouts válidos"
             ):
                 load_suite_registry(path)
-
-    def test_release_core_is_bounded_and_covers_critical_automated_cases(self):
-        selection = load_release_core_selection()
-        catalog = json.loads(
-            (PLUGIN_ROOT / "quality/catalog.json").read_text(encoding="utf-8")
-        )
-        cases = {
-            item["id"]: item
-            for item in [*catalog["cases"], *catalog["extension_cases"]]
-        }
-        selected = {entry["case_id"]: entry["selector"] for entry in selection["tests"]}
-        expected = {
-            case_id: case
-            for case_id, case in cases.items()
-            if case["mode"] == "automated"
-            and case["critical"]
-            and any(reference.startswith("test:") for reference in case["evidence"])
-        }
-        self.assertEqual(selection["max_tests"], 50)
-        self.assertEqual(len(selected), 50)
-        self.assertEqual(set(selected), set(expected))
-        for case_id, selector in selected.items():
-            self.assertIn(
-                f"test:{selector.rsplit('.', 1)[-1]}",
-                expected[case_id]["evidence"],
-            )
-        self.assertEqual(
-            {entry["case_id"] for entry in selection["excluded_noncritical_cases"]},
-            {"FX-12", "FX-34"},
-        )
 
     def test_registry_rejects_unassigned_module(self):
         registry = load_suite_registry()

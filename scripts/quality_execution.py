@@ -7,7 +7,6 @@ import fnmatch
 import json
 import os
 import platform
-import re
 import signal
 import subprocess
 import sys
@@ -21,7 +20,6 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 SUITE_REGISTRY_PATH = PLUGIN_ROOT / "quality" / "test-suites.json"
 IMPACT_MAP_PATH = PLUGIN_ROOT / "quality" / "test-impact-map.json"
 PERFORMANCE_POLICY_PATH = PLUGIN_ROOT / "quality" / "performance-policy.json"
-RELEASE_CORE_SELECTION_PATH = PLUGIN_ROOT / "quality" / "release-core-tests.json"
 
 
 class QualityExecutionError(Exception):
@@ -136,91 +134,6 @@ def load_suite_registry(
     return registry
 
 
-def load_release_core_selection(
-    path: Path = RELEASE_CORE_SELECTION_PATH,
-) -> dict[str, Any]:
-    """Load the bounded stable-release test selection."""
-
-    selection = _load_object(path)
-    expected_keys = {
-        "schema_version",
-        "name",
-        "max_tests",
-        "selection_basis",
-        "tests",
-        "excluded_noncritical_cases",
-    }
-    if set(selection) != expected_keys or selection.get("schema_version") != "1.0":
-        raise QualityExecutionError(
-            "La selección release-core debe usar el contrato 1.0 completo."
-        )
-    if selection.get("name") != "release-core":
-        raise QualityExecutionError("La selección debe llamarse release-core.")
-    max_tests = selection.get("max_tests")
-    if not isinstance(max_tests, int) or not 1 <= max_tests <= 50:
-        raise QualityExecutionError(
-            "release-core debe declarar un máximo entre 1 y 50 pruebas."
-        )
-    if not isinstance(selection.get("selection_basis"), str) or not selection[
-        "selection_basis"
-    ].strip():
-        raise QualityExecutionError("release-core debe explicar su criterio de selección.")
-    tests = selection.get("tests")
-    if not isinstance(tests, list) or not tests or len(tests) > max_tests:
-        raise QualityExecutionError(
-            "release-core debe declarar entre una y max_tests pruebas."
-        )
-    case_ids: set[str] = set()
-    selectors: set[str] = set()
-    selector_pattern = re.compile(
-        r"test_[A-Za-z0-9_]+\.[A-Za-z0-9_]+\.test_[A-Za-z0-9_]+"
-    )
-    for entry in tests:
-        if (
-            not isinstance(entry, dict)
-            or set(entry) != {"case_id", "selector"}
-            or not isinstance(entry.get("case_id"), str)
-            or not re.fullmatch(r"FX-[0-9]{2}", entry["case_id"])
-            or not isinstance(entry.get("selector"), str)
-            or not selector_pattern.fullmatch(entry["selector"])
-        ):
-            raise QualityExecutionError(
-                "Cada prueba release-core debe declarar case_id y selector válidos."
-            )
-        if entry["case_id"] in case_ids or entry["selector"] in selectors:
-            raise QualityExecutionError(
-                "release-core no puede repetir casos ni selectores."
-            )
-        case_ids.add(entry["case_id"])
-        selectors.add(entry["selector"])
-    excluded = selection.get("excluded_noncritical_cases")
-    if not isinstance(excluded, list):
-        raise QualityExecutionError(
-            "release-core debe declarar los casos no críticos excluidos."
-        )
-    excluded_ids: set[str] = set()
-    for entry in excluded:
-        if (
-            not isinstance(entry, dict)
-            or set(entry) != {"case_id", "selector", "rationale"}
-            or not isinstance(entry.get("case_id"), str)
-            or not re.fullmatch(r"FX-[0-9]{2}", entry["case_id"])
-            or not isinstance(entry.get("selector"), str)
-            or not selector_pattern.fullmatch(entry["selector"])
-            or not isinstance(entry.get("rationale"), str)
-            or not entry["rationale"].strip()
-        ):
-            raise QualityExecutionError(
-                "Cada exclusión release-core debe declarar caso, selector y motivo."
-            )
-        if entry["case_id"] in case_ids or entry["case_id"] in excluded_ids:
-            raise QualityExecutionError(
-                "release-core no puede solapar pruebas y exclusiones."
-            )
-        excluded_ids.add(entry["case_id"])
-    return selection
-
-
 def modules_for_suite(
     suite: str,
     registry: dict[str, Any],
@@ -308,7 +221,6 @@ def load_performance_policy(path: Path = PERFORMANCE_POLICY_PATH) -> dict[str, A
         "integration",
         "package",
         "profile",
-        "release-core",
         "candidate",
         "profile_execute",
     }

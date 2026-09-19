@@ -106,26 +106,6 @@
       ]
     },
     {
-      "id": "FX-34",
-      "title": "Camino crítico sin duraciones confirmadas",
-      "input": "El plan confirma dependencias, pero no hay duraciones fiables. ¿Cuál es el camino crítico?",
-      "expected": [
-        "Declara que el camino crítico es indeterminado mientras falten duraciones confirmadas.",
-        "Distingue dependencias confirmadas, estimaciones ausentes y el siguiente dato necesario.",
-        "No inventa fechas, capacidad ni una priorización automática.",
-        "Mantiene la autoridad de la planificación canónica y no modifica tareas al responder."
-      ],
-      "forbidden": [
-        "Presentar una ruta estimada como camino crítico confirmado.",
-        "Convertir una respuesta de consulta en autorización de ejecución."
-      ],
-      "review_dimensions": [
-        "premise_control",
-        "coverage_clarity",
-        "human_validation"
-      ]
-    },
-    {
       "id": "FX-36",
       "title": "Jira conciso para hitos de evidencia",
       "input": "La TASK ha terminado su verificación. Mantén Jira informado sin duplicar administración.",

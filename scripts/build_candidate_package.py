@@ -23,7 +23,10 @@ EXPECTED_CANDIDATE_CHECKS = {
     "fixture-integrity",
     "plugin-contract",
     "reference-profile-structure",
-    "unit-tests-release-core",
+    "unit-tests-fast",
+    "unit-tests-integration",
+    "unit-tests-package",
+    "unit-tests-profile",
     "deterministic-evals",
     "reference-profile-complete",
 }
@@ -65,6 +68,7 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-09",
     "FX-10",
     "FX-11",
+    "FX-12",
     "FX-13",
     "FX-14",
     "FX-15",
@@ -81,6 +85,7 @@ EXPECTED_AUTOMATED_CASE_IDS = (
     "FX-31",
     "FX-32",
     "FX-33",
+    "FX-34",
     "FX-35",
     "FX-37",
     "FX-38",
@@ -742,29 +747,6 @@ def _validated_quality_report(
         )
     gate = report["gate"]
     catalog = _committed_json(committed_files, "quality/catalog.json")
-    release_core = _committed_json(
-        committed_files, "quality/release-core-tests.json"
-    )
-    release_core_tests = release_core.get("tests")
-    if (
-        release_core.get("schema_version") != "1.0"
-        or release_core.get("name") != "release-core"
-        or release_core.get("max_tests") != 50
-        or not isinstance(release_core_tests, list)
-        or len(release_core_tests) != 50
-    ):
-        raise PackageError("La selección release-core comprometida es inválida.")
-    release_core_by_case: dict[str, str] = {}
-    for entry in release_core_tests:
-        if (
-            not isinstance(entry, dict)
-            or set(entry) != {"case_id", "selector"}
-            or not isinstance(entry.get("case_id"), str)
-            or not isinstance(entry.get("selector"), str)
-            or entry["case_id"] in release_core_by_case
-        ):
-            raise PackageError("La selección release-core contiene una entrada inválida.")
-        release_core_by_case[entry["case_id"]] = entry["selector"]
     corpus = _committed_json(committed_files, "quality/corpora/activation.json")
     definition_corpus_path = _definition_corpus_relative(plugin_version)
     definition_corpus = _committed_json(committed_files, definition_corpus_path)
@@ -922,13 +904,12 @@ def _validated_quality_report(
         for item in comparisons
         if isinstance(item, dict)
     }
-    release_core_duration = check_by_id["unit-tests-release-core"][
-        "duration_seconds"
-    ]
-    if actual_by_suite.get("release-core") != release_core_duration:
-        raise PackageError(
-            "La duración declarada de release-core no coincide con su check."
-        )
+    for suite in ("fast", "integration", "package", "profile"):
+        check_duration = check_by_id[f"unit-tests-{suite}"]["duration_seconds"]
+        if actual_by_suite.get(suite) != check_duration:
+            raise PackageError(
+                f"La duración declarada de {suite} no coincide con su check."
+            )
     expected_candidate_duration = round(
         sum(
             float(check["duration_seconds"])
@@ -974,19 +955,6 @@ def _validated_quality_report(
     ]
     if tuple(case.get("id") for case in automated_cases) != EXPECTED_AUTOMATED_CASE_IDS:
         raise PackageError("El inventario comprometido de casos automatizados cambió.")
-    critical_test_cases = {
-        case["id"]
-        for case in automated_cases
-        if case["critical"]
-        and any(
-            isinstance(reference, str) and reference.startswith("test:")
-            for reference in case["evidence"]
-        )
-    }
-    if set(release_core_by_case) != critical_test_cases:
-        raise PackageError(
-            "La selección release-core no cubre exactamente los casos críticos."
-        )
     automated = channels.get("automated")
     if not isinstance(automated, dict) or set(automated) != {
         "status",
@@ -1021,28 +989,12 @@ def _validated_quality_report(
             )
         ):
             raise PackageError("El catálogo contiene evidencia automatizada inválida.")
-        selector = release_core_by_case.get(expected_case["id"])
-        expected_references = (
-            [
-                f"test:{selector.rsplit('.', 1)[-1]}",
-                *[
-                    reference
-                    for reference in references
-                    if not reference.startswith("test:")
-                ],
-            ]
-            if selector is not None
-            else references
-        )
-        expected_case_fields = {
+        if not isinstance(case_result, dict) or set(case_result) != {
             "id",
             "critical",
             "status",
             "evidence",
-        }
-        if selector is not None:
-            expected_case_fields.add("release_core")
-        if not isinstance(case_result, dict) or set(case_result) != expected_case_fields:
+        }:
             raise PackageError("Un caso automatizado no respeta el contrato del harness.")
         outcomes = case_result.get("evidence")
         if (
@@ -1050,32 +1002,12 @@ def _validated_quality_report(
             or case_result.get("critical") is not expected_case.get("critical")
             or case_result.get("status") != "passed"
             or not isinstance(outcomes, list)
-            or len(outcomes) != len(expected_references)
+            or len(outcomes) != len(references)
         ):
             raise PackageError(
                 f"Evidencia automatizada incompleta para {expected_case.get('id')}."
             )
-        if selector is not None:
-            selection = case_result["release_core"]
-            if not isinstance(selection, dict) or set(selection) != {
-                "selected_reference",
-                "supplemental_references",
-            }:
-                raise PackageError("La selección release-core del reporte es inválida.")
-            if (
-                selection.get("selected_reference") != expected_references[0]
-                or selection.get("supplemental_references")
-                != [
-                    reference
-                    for reference in references
-                    if reference.startswith("test:")
-                    and reference != expected_references[0]
-                ]
-            ):
-                raise PackageError(
-                    "El reporte release-core no conserva sus pruebas suplementarias."
-                )
-        for reference, outcome in zip(expected_references, outcomes, strict=True):
+        for reference, outcome in zip(references, outcomes, strict=True):
             if not isinstance(outcome, dict) or not {
                 "reference",
                 "status",

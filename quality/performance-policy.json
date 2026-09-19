@@ -5,7 +5,6 @@
     "integration": 480,
     "package": 240,
     "profile": 180,
-    "release-core": 240,
     "candidate": 900,
     "profile_execute": 1800
   },

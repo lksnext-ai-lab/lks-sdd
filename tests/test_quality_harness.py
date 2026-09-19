@@ -39,7 +39,6 @@ from run_quality_harness import (  # noqa: E402
     main,
     repository_binding,
     run_automated,
-    validate_release_core_selection,
     validate_catalog,
     validate_corpus,
     validate_fixture_manifest,
@@ -451,65 +450,6 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(result["status"], "failed")
         self.assertIn("evidence-not-found", result["failures"][0])
 
-    def test_release_core_uses_one_selected_test_without_hiding_supplemental_evidence(self):
-        catalog = {
-            "cases": [
-                {
-                    "id": "FX-90",
-                    "mode": "automated",
-                    "critical": True,
-                    "evidence": ["test:test_release_contract", "test:test_supplemental"],
-                }
-            ]
-        }
-        selection = {
-            "tests": [
-                {
-                    "case_id": "FX-90",
-                    "selector": "test_module.ReleaseTests.test_release_contract",
-                }
-            ]
-        }
-        result = evaluate_automated_evidence(
-            catalog,
-            {
-                "results": [
-                    {
-                        "id": "test_module.ReleaseTests.test_release_contract",
-                        "name": "test_release_contract",
-                        "status": "passed",
-                    }
-                ]
-            },
-            {"results": []},
-            None,
-            selection,
-        )
-        self.assertEqual(result["status"], "passed")
-        self.assertEqual(
-            result["cases"][0]["release_core"]["supplemental_references"],
-            ["test:test_supplemental"],
-        )
-
-    def test_release_core_rejects_missing_critical_case(self):
-        catalog = {
-            "cases": [
-                {
-                    "id": "FX-90",
-                    "mode": "automated",
-                    "critical": True,
-                    "evidence": ["test:test_release_contract"],
-                }
-            ],
-            "extension_cases": [],
-        }
-        selection = {
-            "tests": [],
-            "excluded_noncritical_cases": [],
-        }
-        with self.assertRaisesRegex(HarnessError, "missing=.*FX-90"):
-            validate_release_core_selection(catalog, selection)
-
     def test_every_catalog_test_and_eval_reference_resolves(self):
         suite = unittest.defaultTestLoader.discover(
             str(PLUGIN_ROOT / "tests"),
@@ -779,8 +719,10 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(
             command[profile_index + 1], "WEB-FASTAPI-REACT-KEYCLOAK-PG"
         )
+        unit_suites = ("fast", "integration", "package", "profile")
         self.assertEqual(
-            timeouts["unit-tests-release-core"], UNIT_TEST_TIMEOUT_SECONDS
+            {name: timeouts[f"unit-tests-{name}"] for name in unit_suites},
+            {name: UNIT_TEST_TIMEOUT_SECONDS for name in unit_suites},
         )
         self.assertEqual(UNIT_TEST_TIMEOUT_SECONDS, 900)
 
@@ -861,9 +803,6 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(
             commands["windows-long-path-regression"][-2:],
             ["--module", "test_windows_long_paths"],
-        )
-        self.assertEqual(
-            commands["unit-tests-release-core"][-1], "--release-core"
         )
 
     def test_dirty_source_fails_candidate_gate_without_running_real_suite(self):

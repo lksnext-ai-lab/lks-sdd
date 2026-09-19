@@ -149,7 +149,6 @@ def _create_package_repository(root: Path) -> str:
         "quality/corpora/definition-v0.9.0.json",
         "quality/fixture-manifest.json",
         "quality/performance-policy.json",
-        "quality/release-core-tests.json",
         "quality/release-approval-v1.0.0.json",
         "schemas/quality-report-1.1.schema.json",
         "schemas/quality-report.schema.json",
@@ -303,13 +302,16 @@ def _harness_quality_report(
         check_id, _command, _json_output=False, _timeout=600, **_kwargs
     ):
         payload = None
-        if check_id == "unit-tests-release-core":
+        if check_id == "unit-tests-fast":
             payload = {
                 "passed": True,
                 "duration_seconds": 0.1,
                 "results": unit_results,
             }
         elif check_id in {
+            "unit-tests-integration",
+            "unit-tests-package",
+            "unit-tests-profile",
             "windows-long-path-regression",
         }:
             payload = {"passed": True, "duration_seconds": 0.1, "results": []}
