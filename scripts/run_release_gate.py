@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import json
 import subprocess
 import sys
@@ -207,6 +208,41 @@ def _release_core() -> dict[str, Any]:
     return result
 
 
+def _technical_checks(channel: str) -> list[dict[str, Any]]:
+    """Run independent technical release checks concurrently."""
+
+    checks = [
+        ("static-integrity", _static_integrity),
+        ("release-core", _release_core),
+    ]
+    if channel == "stable":
+        checks.append(
+            (
+                "windows-long-path-regression",
+                lambda: _run(
+                    "windows-long-path-regression",
+                    [
+                        sys.executable,
+                        "-B",
+                        "-X",
+                        "utf8",
+                        "tests/run_unit_tests.py",
+                        "--module",
+                        "test_windows_long_paths",
+                    ],
+                    timeout_seconds=600,
+                ),
+            )
+        )
+    with ThreadPoolExecutor(max_workers=len(checks)) as executor:
+        futures = {
+            check_id: executor.submit(operation)
+            for check_id, operation in checks
+        }
+        results = {check_id: futures[check_id].result() for check_id, _ in checks}
+    return [results[check_id] for check_id, _ in checks]
+
+
 def build_report(
     *, channel: str, evaluated_on: str, approval_path: Path | None
 ) -> dict[str, Any]:
@@ -231,28 +267,8 @@ def build_report(
                 "command": str(approval_path),
             }
         )
-    checks.extend(
-        [
-            _static_integrity(),
-            _release_core(),
-        ]
-    )
-    if channel == "stable":
-        checks.append(
-            _run(
-                "windows-long-path-regression",
-                [
-                    sys.executable,
-                    "-B",
-                    "-X",
-                    "utf8",
-                    "tests/run_unit_tests.py",
-                    "--module",
-                    "test_windows_long_paths",
-                ],
-                timeout_seconds=600,
-            )
-        )
+    technical_checks = _technical_checks(channel)
+    checks.extend(technical_checks)
     for check in checks:
         check.pop("_stdout", None)
     failed = [check["id"] for check in checks if check["status"] != "passed"]
@@ -262,6 +278,10 @@ def build_report(
         "evaluated_on": evaluated_on,
         "channel": channel,
         "source": source,
+        "execution": {
+            "technical_checks": "parallel",
+            "worker_count": len(technical_checks),
+        },
         "checks": checks,
         "gate": {
             "status": "passed" if not failed else "failed",

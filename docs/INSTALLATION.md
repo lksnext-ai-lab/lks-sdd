@@ -20,7 +20,7 @@ Para preparar Codex o usar la alternativa de skills de proyecto, el ZIP es
 `lks-sdd-setup-v2.0.2.zip`: incluye instalador, manifiesto de integridad y ambos
 payloads. No instala Python, extensiones, MCP, credenciales ni herramientas de terceros.
 Los paquetes `development-unreleased` son instalables para evaluación, no releases
-certificadas. Consulte [la aceptación](DUAL-HOST-ACCEPTANCE.md) antes de distribuirlos.
+certificadas. Consulte [la aceptación por host](V2-HOST-ACCEPTANCE.md) antes de distribuirlos.
 
 ## Requisitos
 

@@ -21,7 +21,7 @@ aceptar y entregar son estados distintos.
 | Adoptar un sistema con documentación parcial | [Adopción acotada](docs/V2-WORKFLOWS.md#adopt-existing-ámbito-legado-suficiente) |
 | Pasar un proyecto 1.5 a v2 | [Migración explícita y rollback](docs/V2-MIGRATION.md) |
 | Entender controles y tecnología aprobable | [Guardrails](docs/V2-GUARDRAILS.md) y [variantes](docs/PROJECT-VARIANTS.md) |
-| Comprobar la entrega | [Notas 2.0.2](docs/releases/v2.0.2.md), [validación](docs/VALIDATION.md) y [aceptación por host](docs/V2-HOST-ACCEPTANCE.md) |
+| Comprobar la entrega | [Historial de versiones](CHANGELOG.md), [estado actual](docs/STATUS.md), [validación](docs/VALIDATION.md) y [aceptación por host](docs/V2-HOST-ACCEPTANCE.md) |
 
 ## Qué cambia
 
@@ -77,8 +77,8 @@ garantía de escritores simultáneos sobre el mismo alcance.
 
 Plugin 2.0.2, schema 2.0 y método 2.0.0 son versiones distintas. Los consumidores
 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar una migración.
-Las guías 0.x/1.x y notas históricas se conservan para esos proyectos; no sustituyen
-las reglas v2.
+La compatibilidad 1.5 se limita al runtime fijado y a su migración explícita; no
+sustituye las reglas v2.
 
 ## Distribución y límites
 

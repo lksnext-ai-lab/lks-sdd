@@ -14,7 +14,7 @@ para VS Code Agent. Copilot deriva la generación de prototipos a Codex sin API 
 Codex nativo no muestra avisos de relevo. La aceptación conversacional real por host
 permanece separada de las pruebas automatizadas. Otros asistentes y la extensión Codex
 de VS Code están fuera de alcance. Consultar `<plugin-root>/docs/INSTALLATION.md` y
-`<plugin-root>/docs/DUAL-HOST-ACCEPTANCE.md` para instalación, evidencia y límites.
+`<plugin-root>/docs/V2-HOST-ACCEPTANCE.md` para instalación, evidencia y límites.
 
 ## Disponibles
 
@@ -71,4 +71,6 @@ de VS Code están fuera de alcance. Consultar `<plugin-root>/docs/INSTALLATION.m
 La baseline normativa es candidata. Puede orientar un piloto, pero no debe presentarse como política corporativa, certificación ni aprobación formal.
 
 
-La ampliación de autenticación local, variantes y preparación de adopción se detalla en `docs/releases/0.18.0/TECHNOLOGY-AND-ADOPTION.md`. Los cinco contratos añaden nueve variantes; el catálogo contiene 23 perfiles. Cada soporte vigente requiere evidencia exacta del motor actual.
+La aprobación de variantes y la preparación de adopción se describen en
+`docs/PROJECT-VARIANTS.md`. Cada soporte vigente requiere evidencia exacta del motor
+actual.

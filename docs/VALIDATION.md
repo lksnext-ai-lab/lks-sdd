@@ -22,6 +22,10 @@ humo, sus fixtures compartidos y la regresión Windows. Se han retirado los mód
 fragmentados y las pruebas históricas que no forman parte de este contrato de
 publicación.
 
+Los checks técnicos independientes del gate se ejecutan en paralelo para reducir el
+tiempo activo del runner. Esta concurrencia no elimina checks, no acorta sus timeouts
+ni cambia los estados que bloquean una release.
+
 Las suites extensas, evals conversacionales, benchmarks, pilotos y aceptación de host
 no forman parte de la publicación ni se mantienen como batería paralela.
 
@@ -37,6 +41,34 @@ python -B -X utf8 scripts\validate_plugin_contract.py .
 
 Ejecute una vez desde un checkout limpio del commit ya integrado. El comando no acepta
 un árbol con cambios ni reutiliza un informe existente.
+
+El camino normal es ejecutar manualmente `stable-preflight` dentro de **Actions →
+quality** sobre `main`. El job ejecuta el preflight ligero, el gate estable y un
+único build de todos los paquetes de distribución; valida los paquetes Copilot,
+plugin y marketplace, y publica `stable-preflight-evidence` durante 30 días. Solo un
+informe de readiness y gate superados permite crear la etiqueta; el job no crea ni
+publica nada.
+
+La instalación de dependencias puede restaurar la caché pip ligada a
+`requirements-runtime.txt`, pero siempre ejecuta `pip install --require-hashes`. La
+caché no acredita una release ni contiene paquetes generados, candidates o evidencia.
+
+La evidencia incluye la procedencia del run manual, vinculada a su SHA, rama, versión
+e intento. Al recibir una etiqueta stable, `quality` reutiliza ese candidate solo si
+el run correcto, su procedencia, readiness, gate, manifiesto, checksums, paquetes y
+sección acreditada del changelog acreditan el mismo SHA. Si falta esa evidencia, ejecuta el gate y
+build completos y declara `revalidated-after-missing-preflight`. Una evidencia
+presente pero inválida, ambigua o no descargable bloquea la etiqueta: nunca se acepta
+ni se reconstruye silenciosamente.
+
+Para diagnosticar un bloqueo sin iniciar CI, puede ejecutar solo el preflight local:
+
+```powershell
+$releaseReadiness = Join-Path $env:TEMP 'lks-sdd-release-readiness.json'
+python -B -X utf8 scripts\release_readiness.py `
+  --channel stable `
+  --output $releaseReadiness
+```
 
 ```powershell
 $releaseDate = Get-Date -Format 'yyyy-MM-dd'
@@ -68,13 +100,56 @@ python -B -X utf8 scripts\build_candidate_package.py `
   --quality-report $releaseGate `
   --output $artifacts
 
-python -B -X utf8 scripts\validate_copilot_package.py `
-  (Join-Path $artifacts 'lks-sdd-copilot-plugin-v2.0.2.zip')
+python -B -X utf8 scripts\validate_release_artifacts.py `
+  --candidate $artifacts `
+  --output (Join-Path $artifacts 'release-package-validation.json')
 ```
 
-La automatización de etiqueta valida además una extracción limpia de los ZIP de plugin
-y marketplace. No se instala ni activa un plugin personal, no se registran identidades
-y no se realizan operaciones sobre proyectos consumidores.
+El preflight y la ruta de reconstrucción de la etiqueta validan además una extracción
+limpia de los ZIP de plugin y marketplace. La ruta reutilizada exige el informe
+acreditado por esa misma validación. No se instala ni activa un plugin personal, no se
+registran identidades y no se realizan operaciones sobre proyectos consumidores.
+
+## Promoción a draft release
+
+El workflow `release-draft` se activa después de una ejecución correcta de `quality`
+sobre una etiqueta stable. Antes de solicitar aprobación de entorno, descarga el
+artefacto de esa ejecución exacta y verifica gate, versión, SHA, manifiesto,
+checksums, ZIP Copilot y referencia Copilot. La procedencia del candidate ya fue
+verificada por la etiqueta; el draft no repite gate ni build. La promoción requiere
+el entorno `release-draft` con revisores configurados fuera de este repositorio.
+
+El único job con `contents: write` crea una draft y adjunta los assets ya acreditados.
+No vuelve a ejecutar gate o build, no modifica tags y no publica la release. Una
+release/draft existente bloquea el flujo para reconciliación humana.
+
+## Observabilidad de release
+
+El workflow `release-observability` se ejecuta después de un workflow `quality`
+correcto sobre una etiqueta `v*`. Recopila los timestamps expuestos por GitHub
+Actions para medir cola, dependencias, carga del artefacto y la ruta de validación.
+Para una reutilización, registra resolución/verificación del preflight y declara
+gate/build del tag como `not-run`; para una reconstrucción, conserva las métricas de
+gate y build. El informe declara expresamente la revisión humana como `not-observed`:
+no es una evidencia de aceptación ni un requisito superado.
+
+También valida que la referencia GitHub declarada para Copilot en el catálogo del
+commit etiquetado resuelva al mismo SHA. Esta comprobación es de observación y
+trazabilidad; no crea ni modifica referencias remotas. Un fallo se muestra de forma
+explícita en el workflow separado y conserva sus diagnósticos como artefacto.
+
+Ejecute sus pruebas unitarias específicas al modificar el preflight u observadores:
+
+```powershell
+python -B -X utf8 tests\run_unit_tests.py `
+  --module test_release_gate `
+  --module test_release_readiness `
+  --module test_release_observability `
+  --module test_distribution_reference `
+  --module test_draft_promotion `
+  --module test_release_package_validation `
+  --module test_preflight_provenance
+```
 
 ## Diagnóstico opcional
 

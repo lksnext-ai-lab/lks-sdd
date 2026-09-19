@@ -1,5 +1,0 @@
-{
-  "status": "failed",
-  "error": "{\n  \"status\": \"blocked\",\n  \"error\": \"Sensitive or Git path is not a contract input: profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/scaffold/.env.example\",\n  \"writes\": []\n}\n",
-  "host_acceptance": "not-run"
-}

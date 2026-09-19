@@ -9,6 +9,7 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,6 +30,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-runtime.txt
       - name: Install locked runtime dependencies
         run: python -m pip install --require-hashes -r requirements-runtime.txt
       - name: Plugin contract
@@ -45,6 +48,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-runtime.txt
       - name: Install locked runtime dependencies
         run: python -m pip install --require-hashes -r requirements-runtime.txt
       - name: Compact candidate gate
@@ -57,8 +62,8 @@ jobs:
           path: ${{ runner.temp }}\release-gate.json
           retention-days: 30
 
-  release:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+  stable-preflight:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -68,6 +73,88 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-runtime.txt
+      - name: Install locked runtime dependencies
+        run: python -m pip install --require-hashes -r requirements-runtime.txt
+      - name: Stable preflight context
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
+          $sourceCommit = (git rev-parse HEAD).Trim()
+          if ($version.Contains('-')) { throw "El preflight estable exige una versión estable." }
+          "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
+          "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+          "LKS_SDD_SOURCE_COMMIT=$sourceCommit" >> $env:GITHUB_ENV
+          @{
+            schema_version = "preflight-provenance-1.0"
+            workflow = $env:GITHUB_WORKFLOW
+            event = $env:GITHUB_EVENT_NAME
+            run_id = [int]$env:GITHUB_RUN_ID
+            run_attempt = [int]$env:GITHUB_RUN_ATTEMPT
+            source_commit = $sourceCommit
+            source_ref = $env:GITHUB_REF_NAME
+            plugin_version = $version
+            channel = "stable"
+          } | ConvertTo-Json | Set-Content -LiteralPath "$env:RUNNER_TEMP\preflight-provenance.json" -Encoding utf8
+      - name: Release readiness
+        shell: pwsh
+        run: |
+          python -B -X utf8 scripts/release_readiness.py `
+            --channel stable `
+            --output "$env:RUNNER_TEMP\release-readiness.json"
+      - name: Stable release gate
+        shell: pwsh
+        run: |
+          python -B -X utf8 scripts/run_release_gate.py `
+            --channel stable `
+            --date $env:LKS_SDD_CERTIFICATION_DATE `
+            --release-approval "quality\release-approval-v$env:LKS_SDD_RELEASE_VERSION.json" `
+            --output "$env:RUNNER_TEMP\release-gate.json"
+      - name: Build and validate preflight package
+        shell: pwsh
+        run: |
+          python -B -X utf8 scripts/build_candidate_package.py `
+            --date $env:LKS_SDD_CERTIFICATION_DATE `
+            --source-commit $env:LKS_SDD_SOURCE_COMMIT `
+            --quality-report "$env:RUNNER_TEMP\release-gate.json" `
+            --output "$env:RUNNER_TEMP\candidate"
+          if ($LASTEXITCODE -ne 0) { throw "Build inválido" }
+          python -B -X utf8 scripts/validate_release_artifacts.py `
+            --candidate "$env:RUNNER_TEMP\candidate" `
+            --output "$env:RUNNER_TEMP\release-package-validation.json"
+          if ($LASTEXITCODE -ne 0) { throw "Paquetes de preflight inválidos" }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stable-preflight-evidence
+          path: |
+            ${{ runner.temp }}\release-readiness.json
+            ${{ runner.temp }}\release-gate.json
+            ${{ runner.temp }}\candidate
+            ${{ runner.temp }}\preflight-provenance.json
+            ${{ runner.temp }}\release-package-validation.json
+          retention-days: 30
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+    env:
+      LKS_SDD_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-runtime.txt
       - name: Install locked runtime dependencies
         run: python -m pip install --require-hashes -r requirements-runtime.txt
       - name: Release context
@@ -76,42 +163,120 @@ jobs:
           $date = Get-Date -Format "yyyy-MM-dd"
           $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
           $channel = if ($version.Contains('-')) { "candidate" } else { "stable" }
+          $sourceCommit = (git rev-parse HEAD).Trim()
           if ($env:GITHUB_REF_NAME -ne "v$version") { throw "La etiqueta no coincide con el manifest: $env:GITHUB_REF_NAME vs v$version" }
           "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
           "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
           "LKS_SDD_RELEASE_CHANNEL=$channel" >> $env:GITHUB_ENV
-      - name: Compact release gate
+          "LKS_SDD_SOURCE_COMMIT=$sourceCommit" >> $env:GITHUB_ENV
+      - name: Resolve reusable stable preflight
+        id: preflight
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ($env:LKS_SDD_RELEASE_CHANNEL -ne "stable") {
+            "mode=rebuild" >> $env:GITHUB_OUTPUT
+            "reason=candidate-channel" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          $runs = "$env:RUNNER_TEMP\preflight-workflow-runs.json"
+          gh api --paginate `
+            "repos/$env:GITHUB_REPOSITORY/actions/workflows/quality.yml/runs?event=workflow_dispatch&status=completed&per_page=100" `
+            --jq ".workflow_runs[]" > $runs
+          if ($LASTEXITCODE -ne 0) { throw "No se pudieron consultar los stable-preflight." }
+          $selection = "$env:RUNNER_TEMP\preflight-selection.json"
+          python -B -X utf8 scripts/verify_preflight_provenance.py select `
+            --workflow-runs $runs `
+            --source-commit $env:LKS_SDD_SOURCE_COMMIT `
+            --default-branch $env:LKS_SDD_DEFAULT_BRANCH `
+            --repository $env:GITHUB_REPOSITORY `
+            --output $selection
+          if ($LASTEXITCODE -ne 0) { throw "No se pudo seleccionar el stable-preflight." }
+          $selected = Get-Content -LiteralPath $selection -Raw | ConvertFrom-Json
+          if ($selected.status -eq "missing") {
+            "mode=rebuild" >> $env:GITHUB_OUTPUT
+            "reason=preflight-missing" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          if ($selected.status -ne "found") { throw "La selección de preflight es inválida." }
+          $runId = $selected.run.id
+          $artifactIndex = "$env:RUNNER_TEMP\preflight-artifacts.json"
+          gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$runId/artifacts?per_page=100" > $artifactIndex
+          if ($LASTEXITCODE -ne 0) { throw "No se pudo comprobar la evidencia del stable-preflight." }
+          $artifacts = Get-Content -LiteralPath $artifactIndex -Raw | ConvertFrom-Json
+          $matches = @($artifacts.artifacts | Where-Object { $_.name -eq "stable-preflight-evidence" -and -not $_.expired })
+          if ($matches.Count -eq 0) {
+            "mode=rebuild" >> $env:GITHUB_OUTPUT
+            "reason=preflight-artifact-unavailable" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          if ($matches.Count -ne 1) { throw "La evidencia del stable-preflight es ambigua." }
+          "mode=reuse" >> $env:GITHUB_OUTPUT
+          "run_id=$runId" >> $env:GITHUB_OUTPUT
+          "selection=$selection" >> $env:GITHUB_OUTPUT
+      - name: Download reusable stable preflight
+        if: steps.preflight.outputs.mode == 'reuse'
+        uses: actions/download-artifact@v8
+        with:
+          name: stable-preflight-evidence
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.preflight.outputs.run_id }}
+          path: ${{ runner.temp }}\preflight-evidence
+      - name: Verify reusable preflight evidence
+        if: steps.preflight.outputs.mode == 'reuse'
         shell: pwsh
         run: |
+          python -B -X utf8 scripts/verify_preflight_provenance.py verify `
+            --evidence "$env:RUNNER_TEMP\preflight-evidence" `
+            --selection "${{ steps.preflight.outputs.selection }}" `
+            --tag $env:GITHUB_REF_NAME `
+            --source-commit $env:LKS_SDD_SOURCE_COMMIT `
+            --changelog "CHANGELOG.md" `
+            --output "$env:RUNNER_TEMP\release-provenance.json"
+          if ($LASTEXITCODE -ne 0) { throw "La evidencia del stable-preflight no acredita la etiqueta." }
+          $releaseEvidence = "$env:RUNNER_TEMP\release-evidence"
+          New-Item -ItemType Directory -Path $releaseEvidence | Out-Null
+          Copy-Item -LiteralPath "$env:RUNNER_TEMP\preflight-evidence\release-gate.json" -Destination $releaseEvidence
+          Copy-Item -LiteralPath "$env:RUNNER_TEMP\preflight-evidence\candidate" -Destination $releaseEvidence -Recurse
+          Copy-Item -LiteralPath "$env:RUNNER_TEMP\preflight-evidence\release-package-validation.json" -Destination $releaseEvidence
+          Copy-Item -LiteralPath "$env:RUNNER_TEMP\release-provenance.json" -Destination $releaseEvidence
+      - name: Compact release gate
+        if: steps.preflight.outputs.mode == 'rebuild'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "$env:RUNNER_TEMP\release-evidence" | Out-Null
           $date = $env:LKS_SDD_CERTIFICATION_DATE
           $channel = $env:LKS_SDD_RELEASE_CHANNEL
           $approval = @()
           if ($channel -eq "stable") { $approval = @("--release-approval", "quality\release-approval-v$env:LKS_SDD_RELEASE_VERSION.json") }
-          python -X utf8 scripts/run_release_gate.py --channel $channel --date $date @approval --output "$env:RUNNER_TEMP\release-gate.json"
+          python -X utf8 scripts/run_release_gate.py --channel $channel --date $date @approval --output "$env:RUNNER_TEMP\release-evidence\release-gate.json"
       - name: Build and validate release package
+        if: steps.preflight.outputs.mode == 'rebuild'
         shell: pwsh
         run: |
           $date = $env:LKS_SDD_CERTIFICATION_DATE
-          $commit = (git rev-parse HEAD).Trim()
-          python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $commit --quality-report "$env:RUNNER_TEMP\release-gate.json" --output "$env:RUNNER_TEMP\candidate"
+          python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $env:LKS_SDD_SOURCE_COMMIT --quality-report "$env:RUNNER_TEMP\release-evidence\release-gate.json" --output "$env:RUNNER_TEMP\release-evidence\candidate"
           if ($LASTEXITCODE -ne 0) { throw "Build inválido" }
-          $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
-          python -X utf8 scripts/validate_copilot_package.py "$env:RUNNER_TEMP\candidate\lks-sdd-copilot-plugin-v$version.zip"
-          if ($LASTEXITCODE -ne 0) { throw "Plugin Copilot inválido" }
-          foreach ($kind in @('plugin', 'marketplace')) {
-            $install = "$env:RUNNER_TEMP\clean-install-$kind"
-            Expand-Archive "$env:RUNNER_TEMP\candidate\lks-sdd-$kind-v$version.zip" -DestinationPath $install
-            $validators = @(Get-ChildItem -LiteralPath $install -Filter validate_plugin_contract.py -File -Recurse)
-            if ($validators.Count -ne 1) { throw "Raíz de plugin ambigua." }
-            $pluginRoot = $validators[0].Directory.Parent.FullName
-            python -X utf8 $validators[0].FullName $pluginRoot
-            if ($LASTEXITCODE -ne 0) { throw "Bundle inválido: $kind" }
-          }
+          python -B -X utf8 scripts/validate_release_artifacts.py `
+            --candidate "$env:RUNNER_TEMP\release-evidence\candidate" `
+            --output "$env:RUNNER_TEMP\release-evidence\release-package-validation.json"
+          if ($LASTEXITCODE -ne 0) { throw "Paquetes de release inválidos" }
+          python -B -X utf8 scripts/verify_preflight_provenance.py fallback `
+            --tag $env:GITHUB_REF_NAME `
+            --source-commit $env:LKS_SDD_SOURCE_COMMIT `
+            --plugin-version $env:LKS_SDD_RELEASE_VERSION `
+            --reason "${{ steps.preflight.outputs.reason }}" `
+            --output "$env:RUNNER_TEMP\release-evidence\release-provenance.json"
+          if ($LASTEXITCODE -ne 0) { throw "No se pudo registrar la procedencia de reconstrucción." }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: release-evidence
           path: |
-            ${{ runner.temp }}\release-gate.json
-            ${{ runner.temp }}\candidate
+            ${{ runner.temp }}\release-evidence\release-gate.json
+            ${{ runner.temp }}\release-evidence\candidate
+            ${{ runner.temp }}\release-evidence\release-package-validation.json
+            ${{ runner.temp }}\release-evidence\release-provenance.json
           retention-days: 90
