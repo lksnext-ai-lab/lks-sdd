@@ -1,0 +1,37 @@
+{
+  "certification_context": {
+    "certification_run_id": "76151392-05f1-4f16-a1c0-82a080433a15",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-fastapi-react-keycloak-pg-ki_qr7q0/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'from pathlib import Path; assert Path('\"'\"'apps/backend/pyproject.toml'\"'\"').is_file(); assert Path('\"'\"'apps/frontend/package.json'\"'\"').is_file()'"
+  ],
+  "duration_seconds": 1.253,
+  "exit_code": 0,
+  "gate_id": "GATE-SCAFFOLD-INTEGRITY",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "scaffold-integrity",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

@@ -1,0 +1,18 @@
+{
+  "certification_context": {
+    "certification_run_id": "133c186d-94eb-431e-9811-c73a8e7fc742",
+    "profile_id": "WEB-ANGULAR-STATIC",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2d189549a99736c8c552b24881cb8b6c2f3a5e6aa8e8a3f302149d9929e022f4",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "81ca9a7ff7a163e877e3122588d07dfb9988c796bb7091e2f67b9f52d0de3408",
+      "scaffold_sha256": "e1664a4489a3c837330664690ef87afc86155ec0f1024c0b466710141b0e0826"
+    }
+  },
+  "evidence": "packaged delivery contract",
+  "gate_id": "GATE-DELIVERY-EVIDENCE",
+  "name": "delivery-evidence",
+  "status": "passed"
+}

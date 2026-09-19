@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "8f88246d-90bb-482e-b448-2f7fdda8b045",
+    "profile_id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS59",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "fa2bc2889c3e719562ea4af90f84ae7fa0db730b55e368248ed40e932ef33d8d",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "1ec363cb0134ca65763b38ef3c347daf87b1d99d7e6e5b5b1f824fef95e9a7d3",
+      "scaffold_sha256": "7527089ffd6f46821780d103aecd5e9890106fc63cf35de6705b992f76cca640"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-BROWSER-SMOKE"
+  ],
+  "duration_seconds": 10.212,
+  "exit_code": 0,
+  "gate_id": "GATE-BROWSER-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "browser-smoke",
+  "observations": {
+    "a11y_violations": 0,
+    "browser": "chromium",
+    "component_only": true,
+    "login_surface": true
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-BROWSER-SMOKE\", \"observations\": {\"browser\": \"chromium\", \"component_only\": true, \"login_surface\": true, \"a11y_violations\": 0}, \"status\": \"passed\"}\n"
+}

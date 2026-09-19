@@ -1,5 +1,8 @@
 {
   "schema_version": "1.0",
+  "release_only_modules": {
+    "test_windows_long_paths": 600
+  },
   "tiers": {
     "fast": {
       "module_timeout_seconds": 90,
@@ -16,7 +19,7 @@
     },
     "integration": {
       "module_timeout_seconds": 300,
-      "max_workers": 4,
+      "max_workers": 2,
       "modules": [
         "test_complex_handoff",
         "test_fullstack_integration_contract_v017",
@@ -49,8 +52,8 @@
       ]
     },
     "package": {
-      "module_timeout_seconds": 600,
-      "max_workers": 2,
+      "module_timeout_seconds": 300,
+      "max_workers": 3,
       "modules": [
         "test_checkout_portability",
         "test_dual_distribution",

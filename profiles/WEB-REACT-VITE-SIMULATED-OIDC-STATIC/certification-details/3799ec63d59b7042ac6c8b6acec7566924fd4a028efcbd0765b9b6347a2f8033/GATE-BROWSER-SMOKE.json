@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "ab7b44a7-fa8f-4d1e-ab77-9b426de20eae",
+    "profile_id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "d951963bf0d38fe0abdbcbb0775c82b4675651e3da90ccaeedd7c9b2e25f5498",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "fcfd9eb0c9783402c6b1d6c6dde8e0c8153e59095e772aeb76db75ccadc3aba9",
+      "scaffold_sha256": "a8b80956c19a1e8ef8b5de20d6aa49aac19730f833d1c119f288468f4a844c26"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-react-vite-simulated-oidc-static-o9xzml4w/reference-app:/work",
+    "-v",
+    "lkssddgate33620c4d616aenoded935a3cd:/work/node_modules",
+    "mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e",
+    "sh",
+    "-lc",
+    "cd /work && npx playwright test --grep smoke"
+  ],
+  "duration_seconds": 5.825,
+  "exit_code": 0,
+  "gate_id": "GATE-BROWSER-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "browser-smoke",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.16.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › e2e/profile.spec.ts:4:1 › smoke: renders the application shell (970ms)\n\n  1 passed (3.3s)\n"
+}

@@ -36,6 +36,24 @@ def _write_tree(root: Path, files: dict[str, bytes]) -> None:
         target.write_bytes(data)
 
 
+def _runtime_core() -> dict[str, bytes]:
+    core = collect_development(ROOT)
+    for evidence_name, evidence_bytes in tuple(core.items()):
+        if not evidence_name.endswith("/certification-evidence.json"):
+            continue
+        evidence = json.loads(evidence_bytes)
+        profile_root = Path(evidence_name).parent
+        for artifact in evidence.get("evidence_manifest", []):
+            relative = Path(artifact["path"])
+            source = ROOT / profile_root / relative
+            if relative.is_absolute() or ".." in relative.parts or not source.is_file():
+                raise AssertionError(
+                    f"Invalid active certification artifact: {source}"
+                )
+            core[(profile_root / relative).as_posix()] = source.read_bytes()
+    return core
+
+
 class WindowsLongPathTests(unittest.TestCase):
     @unittest.skipUnless(os.name == "nt", "Windows extended-length path regression")
     def test_long_plugin_and_migration_paths_match_short_paths(self):
@@ -52,16 +70,27 @@ class WindowsLongPathTests(unittest.TestCase):
         long_container.mkdir(parents=True)
         self.addCleanup(lambda: shutil.rmtree(long_container, ignore_errors=True))
 
-        short_plugin = container / "short-plugin"
         long_plugin = long_container / "plugin"
         ignore = shutil.ignore_patterns(".git", "site", "__pycache__", "*.pyc")
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            list(pool.map(lambda destination: shutil.copytree(ROOT, destination, ignore=ignore),
-                          (short_plugin, long_plugin)))
-        self.assertGreater(len(str(long_plugin / "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json")), 260)
+        shutil.copytree(ROOT, long_plugin, ignore=ignore)
+        profile_relative = Path(
+            "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+        )
+        short_plugin = ROOT
+        if len(os.fspath(short_plugin / profile_relative)) >= 260:
+            short_plugin = container / "short-plugin"
+            shutil.copytree(ROOT, short_plugin, ignore=ignore)
+        self.assertLess(len(os.fspath(short_plugin / profile_relative)), 260)
+        self.assertGreater(len(os.fspath(long_plugin / profile_relative)), 260)
 
-        def command(plugin: Path, *args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-            script = plugin / args[0] if args[0].startswith(("scripts/", "skills/")) else plugin / "scripts" / args[0]
+        def command(
+            plugin: Path, *args: str, cwd: Path | None = None
+        ) -> subprocess.CompletedProcess[str]:
+            script = (
+                plugin / args[0]
+                if args[0].startswith(("scripts/", "skills/"))
+                else plugin / "scripts" / args[0]
+            )
             return subprocess.run(
                 [sys.executable, "-B", "-X", "utf8", str(script), *args[1:]],
                 cwd=cwd or ROOT,
@@ -82,31 +111,30 @@ class WindowsLongPathTests(unittest.TestCase):
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             profiles_short, profiles_long = pool.map(
-                # The public dispatcher runs validate_reference_profile.py with its long-path import bootstrap.
-                lambda item: command(item, "scripts/lks_sdd.py", "profiles", "--all", "--allow-unvalidated"),
+                lambda item: command(item, "validate_reference_profile.py", "--all"),
                 (short_plugin, long_plugin),
             )
-        self.assertEqual(profiles_short.returncode, 0, profiles_short.stdout + profiles_short.stderr)
         self.assertEqual(
             profiles_short.returncode,
             profiles_long.returncode,
             profiles_long.stdout + profiles_long.stderr,
         )
         self.assertEqual(profiles_short.stdout, profiles_long.stdout)
+        self.assertEqual(profiles_short.returncode, 2)
         self.assertNotIn("MAX_PATH", profiles_long.stdout + profiles_long.stderr)
         self.assertNotIn("Missing source", profiles_long.stdout + profiles_long.stderr)
 
-        core = collect_development(ROOT)
+        core = _runtime_core()
         core["scripts/path_utils.py"] = (ROOT / "scripts/path_utils.py").read_bytes()
         core["scripts/import_bootstrap.py"] = (ROOT / "scripts/import_bootstrap.py").read_bytes()
         version = json.loads(core[".codex-plugin/plugin.json"])["version"]
         core["package-integrity.json"] = _package_integrity_bytes(
             list(core.items()), version, "windows-long-path-regression"
         )
-        short_runtime = short_plugin / "runtime-v2"
         long_runtime = long_plugin / "runtime-v2"
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            list(pool.map(lambda runtime: _write_tree(runtime, core), (short_runtime, long_runtime)))
+        _write_tree(long_runtime, core)
+        short_runtime = container / "short-runtime-v2"
+        _write_tree(short_runtime, core)
 
         def integrity(runtime: Path) -> tuple[int, list[str], list[str]]:
             manifest = json.loads((runtime / "package-integrity.json").read_bytes())
@@ -130,7 +158,6 @@ class WindowsLongPathTests(unittest.TestCase):
             self.assertEqual(missing, [])
             self.assertEqual(mismatched, [])
 
-        short_project = container / "short-project"
         long_project = long_container / "project"
         source_core = dict(core)
         source_core["distribution/dual.json"] = source_core["distribution/dual.json"].replace(
@@ -141,8 +168,9 @@ class WindowsLongPathTests(unittest.TestCase):
             list(source_core.items()), version, "windows-long-path-legacy-source"
         )
         source_files = project_files(source_core, "windows-long-path-legacy-source", "regression")
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            list(pool.map(lambda project: _write_tree(project, source_files), (short_project, long_project)))
+        _write_tree(long_project, source_files)
+        short_project = container / "short-project"
+        _write_tree(short_project, source_files)
         def initialize(item):
             plugin, project = item
             return command(

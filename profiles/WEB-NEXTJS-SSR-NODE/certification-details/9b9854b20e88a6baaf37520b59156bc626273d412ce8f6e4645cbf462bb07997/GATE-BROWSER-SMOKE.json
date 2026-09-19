@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "4e5a8a09-51a5-46be-bbd4-4398f5890021",
+    "profile_id": "WEB-NEXTJS-SSR-NODE",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2a7f5a8872c88d3c74d34b3010eeb939d50cca416816166af0c6621e89c43346",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "c0667fba6b7adf00e16ecbc9a3f9815518ddadec20693628c435fc72da42b13d",
+      "scaffold_sha256": "0976471e791f6ec2586b429cc4ca32f1c9a875fa01904daff528bc2aae5a40c0"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-nextjs-ssr-node-94nai42l/reference-app:/work",
+    "-v",
+    "lkssddgate39216ed21f717noded935a3cd:/work/node_modules",
+    "mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e",
+    "sh",
+    "-lc",
+    "cd /work && npx playwright test --grep smoke"
+  ],
+  "duration_seconds": 26.576,
+  "exit_code": 0,
+  "gate_id": "GATE-BROWSER-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "browser-smoke",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.16.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › e2e/profile.spec.ts:4:1 › smoke: server-rendered content is available (355ms)\n\n  1 passed (24.5s)\n"
+}

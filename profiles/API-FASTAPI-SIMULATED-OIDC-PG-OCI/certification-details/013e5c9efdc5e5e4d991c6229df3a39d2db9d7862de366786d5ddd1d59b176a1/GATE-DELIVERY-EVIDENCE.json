@@ -1,0 +1,18 @@
+{
+  "certification_context": {
+    "certification_run_id": "0e74b8d8-3bb2-48d8-bb83-fc7fa7f34681",
+    "profile_id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2d39e4e2a0b41719794a73ccaa9841cda262d02ec61b70af77d6bc12bbe07d3d",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "ebd379aa22b116fa0ca149657b3ceff72949aba7e12f3b3c41daf6384d7f4fbf",
+      "scaffold_sha256": "2af461578ac77bc2b8e6c42f9ba8330391b57f88747a198ace915f5c688a9fbd"
+    }
+  },
+  "evidence": "packaged delivery contract",
+  "gate_id": "GATE-DELIVERY-EVIDENCE",
+  "name": "delivery-evidence",
+  "status": "passed"
+}

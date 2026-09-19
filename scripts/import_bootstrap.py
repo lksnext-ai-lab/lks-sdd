@@ -23,7 +23,8 @@ def ensure_import_path(script_file: str) -> None:
         if result == 0:
             raise OSError(
                 "Windows MAX_PATH prevented Python from importing the plugin "
-                f"entrypoint: {script_path}"
+                f"entrypoint: {script_path}. Enable 8.3 names for this volume or "
+                "install the plugin under a shorter root."
             )
         if result < size:
             break

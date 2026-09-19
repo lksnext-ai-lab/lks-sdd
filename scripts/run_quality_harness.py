@@ -906,7 +906,11 @@ def evaluate_release_approval(
 
 
 def _run_command(
-    check_id: str, command: list[str], json_output: bool = False, timeout: int = 600
+    check_id: str,
+    command: list[str],
+    json_output: bool = False,
+    timeout: int = 600,
+    require_executed_tests: bool = False,
 ) -> tuple[dict[str, Any], Any | None, str]:
     process = run_managed_command(
         command,
@@ -923,10 +927,26 @@ def _run_command(
         except json.JSONDecodeError as exc:
             parse_error = f"salida JSON inválida: {exc}"
     passed = process.returncode == 0 and not process.timed_out and not parse_error
+    execution_error = ""
+    if passed and require_executed_tests:
+        results = payload.get("results") if isinstance(payload, dict) else None
+        statuses = (
+            [result.get("status") for result in results if isinstance(result, dict)]
+            if isinstance(results, list)
+            else []
+        )
+        if not statuses:
+            execution_error = "release-only-without-results"
+        elif any(status != "passed" for status in statuses):
+            execution_error = "release-only-not-fully-executed"
+        if execution_error:
+            passed = False
     summary = "exit=0" if passed else (
         f"timeout={timeout}s" if process.timed_out else f"exit={process.returncode}"
     )
-    if parse_error:
+    if execution_error:
+        summary = f"exit=0; {execution_error}"
+    elif parse_error:
         summary = f"{summary}; {parse_error}"
     elif not passed and isinstance(payload, dict):
         failed_checks = [
@@ -1190,7 +1210,11 @@ def _merge_unit_payloads(payloads: list[dict[str, Any]]) -> dict[str, Any] | Non
 
 
 def run_automated(
-    catalog: dict[str, Any], profile_mode: str | bool, evaluated_on: str = "2026-08-26"
+    catalog: dict[str, Any],
+    profile_mode: str | bool,
+    evaluated_on: str = "2026-08-26",
+    *,
+    channel: str = "candidate",
 ) -> tuple[
     list[dict[str, Any]],
     dict[str, float | int],
@@ -1262,6 +1286,25 @@ def run_automated(
             600,
         ),
     ]
+    if channel == "stable":
+        commands.insert(
+            -1,
+            (
+                "windows-long-path-regression",
+                [
+                    sys.executable,
+                    "-X",
+                    "utf8",
+                    "tests/run_unit_tests.py",
+                    "--suite",
+                    "package",
+                    "--module",
+                    "test_windows_long_paths",
+                ],
+                True,
+                600,
+            ),
+        )
     if profile_mode == "reuse":
         commands.append(
             (
@@ -1305,9 +1348,22 @@ def run_automated(
     eval_payload: dict[str, Any] | None = None
     profile_payload: dict[str, Any] | None = None
     for check_id, command, json_output, timeout in commands:
-        check, payload, _output = _run_command(check_id, command, json_output, timeout)
+        if check_id == "windows-long-path-regression":
+            check, payload, _output = _run_command(
+                check_id,
+                command,
+                json_output,
+                timeout,
+                require_executed_tests=True,
+            )
+        else:
+            check, payload, _output = _run_command(
+                check_id, command, json_output, timeout
+            )
         checks.append(check)
         if check_id.startswith("unit-tests-") and isinstance(payload, dict):
+            unit_payloads.append(payload)
+        elif check_id == "windows-long-path-regression" and isinstance(payload, dict):
             unit_payloads.append(payload)
         elif check_id == "deterministic-evals" and isinstance(payload, dict):
             eval_payload = payload
@@ -1691,7 +1747,7 @@ def build_report(
     if pilot_summary_path is not None:
         pilot_summary = validate_pilot_summary(_load_json(pilot_summary_path))
     checks, metrics, critical_failures, automated_evidence = run_automated(
-        catalog, profile_mode, evaluated_on
+        catalog, profile_mode, evaluated_on, channel=channel
     )
     suite_actual = {
         check["id"].removeprefix("unit-tests-"): float(

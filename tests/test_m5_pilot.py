@@ -298,7 +298,9 @@ def _harness_quality_report(
             {"id": "validation-evidence-management-v016", "passed": True}
         )
 
-    def executed_check(check_id, _command, _json_output=False, _timeout=600):
+    def executed_check(
+        check_id, _command, _json_output=False, _timeout=600, **_kwargs
+    ):
         payload = None
         if check_id == "unit-tests-fast":
             payload = {
@@ -310,6 +312,7 @@ def _harness_quality_report(
             "unit-tests-integration",
             "unit-tests-package",
             "unit-tests-profile",
+            "windows-long-path-regression",
         }:
             payload = {"passed": True, "duration_seconds": 0.1, "results": []}
         elif check_id == "deterministic-evals":

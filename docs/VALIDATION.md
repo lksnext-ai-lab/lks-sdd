@@ -7,9 +7,16 @@ dentro del checkout limpio ni suponer que las bibliotecas personales están disp
 
 En Windows, la regresión `test_windows_long_paths` copia el plugin a una instalación
 de más de 260 caracteres y compara contrato, perfiles, integridad completa, diagnóstico
-y preview de migración con una instalación corta. Ejecutarla con
-`python -B -X utf8 tests/run_unit_tests.py --suite package --module test_windows_long_paths`;
-en otros sistemas queda explícitamente omitida.
+y preview de migración con una instalación corta. Ejecuta directamente
+`validate_reference_profile.py --all`: las diferencias de certificación existentes se
+conservan como errores reales, pero nunca como falsos archivos ausentes. La ruta
+externa permanece normal y el runtime la normaliza internamente antes de acceder al
+sistema de archivos. Es un módulo `release_only` para no
+distorsionar el presupuesto histórico de `package`; ejecutarla explícitamente con
+`python -B -X utf8 tests/run_unit_tests.py --suite package --module test_windows_long_paths`.
+La release stable la invoca como gate separado, con timeout de 600 s, y requiere que
+se ejecute realmente; un resultado `skipped` en un host no Windows no acredita la
+release.
 
 ## Versión 2: contrato y evidencias independientes
 
@@ -96,7 +103,9 @@ python -X utf8 scripts/lks_sdd.py runtime-doctor --help
 python -X utf8 scripts/validate_copilot_package.py RUTA_AL_ZIP_COPILOT_PLUGIN
 ```
 
-Los módulos nuevos pertenecen a package e integration respectivamente. Comprueban
+Los módulos nuevos pertenecen a package e integration respectivamente; la regresión
+Windows de rutas largas se ejecuta aparte como comprobación `release_only` de toda
+release estable. Comprueban
 núcleo idéntico, reproducibilidad, instalación/actualización/retirada aisladas,
 personalizaciones, integridad, recuperación y relevo con fuentes/approval canónicas.
 También comprueban el manifiesto y las seis entradas del plugin nativo Copilot,
@@ -161,14 +170,14 @@ Repita el comando para cada perfil afectado. No use `--allow-unvalidated` como s
 
 ## Puerta de release, pruebas y evals
 
-El siguiente comando corresponde a la release 2.0.0 y su aprobación específica.
+El siguiente comando corresponde a la release 2.0.2 y su aprobación específica.
 Ejecutarlo en un checkout limpio con resultados externos. Una versión posterior
 necesita su propia aprobación y no puede reutilizar este fichero.
 
 ```powershell
 $validationDate = Get-Date -Format "yyyy-MM-dd"
 $qualityReport = Join-Path ([System.IO.Path]::GetTempPath()) ("lks-sdd-quality-{0}.json" -f [guid]::NewGuid().ToString("N"))
-python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v2.0.0.json --output $qualityReport
+python scripts\run_quality_harness.py --channel stable --date $validationDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval quality\release-approval-v2.0.2.json --output $qualityReport
 ```
 
 El harness es la única ejecución integral requerida para una release: valida fixtures,
@@ -187,7 +196,7 @@ python scripts\run_fast_validation.py --changed-from origin/main
 
 El fast gate no acredita una release. El harness integral emite quality report 1.2; el schema 1.1 se conserva únicamente para leer evidencia histórica. Cada módulo pertenece exactamente a un tier, stdout permanece JSON y el progreso se escribe en stderr. `--profile-mode reuse` comprueba todos los perfiles active contra certificaciones exactas con un máximo de 90 días; cualquier deriva o caducidad falla y requiere `--profile-mode execute` o recertificación Docker. `not-run`, `skipped` y timeout nunca cuentan como `passed`.
 
-Los límites bloqueantes son 120 s para `fast`, 480 s para `integration`, 600 s para `package`, 180 s para `profile` en reutilización y 900 s para candidate sin Docker `execute`. Un módulo dispone de 90/300/600 s según tier; Docker `execute` conserva un máximo separado de 30 minutos. Los 90 s de `fast` dejan margen para el shard de experiencia medido en 60,191 s en un checkout limpio bajo Windows; no amplían el límite bloqueante de 120 s de la suite ni las aserciones de rendimiento del producto. Cada tier aplica su presupuesto dentro de `tests/run_unit_tests.py`; el harness reserva 900 s únicamente como techo de emergencia del despachador para que el hijo pueda devolver su JSON y limpiar procesos. Si un tier supera su propio presupuesto, sigue fallando. El timeout mata el árbol de procesos y registra si la limpieza quedó confirmada. `--preflight-only` conserva la atestación completa como diagnóstico opcional, pero la ruta estándar invoca directamente el harness: éste toma esa misma atestación exacta una sola vez antes de lanzar hijos. `--force` exige `--rerun-reason`.
+Los límites bloqueantes son 120 s para `fast`, 480 s para `integration`, 240 s para `package`, 180 s para `profile` en reutilización y 900 s para candidate sin Docker `execute`. Un módulo dispone de 90/300/300 s según tier; la regresión `release_only` de rutas largas conserva un timeout aislado de 600 s y se añade a la duración `candidate` de la release stable. Docker `execute` conserva un máximo separado de 30 minutos. Los 90 s de `fast` dejan margen para el shard de experiencia medido en 60,191 s en un checkout limpio bajo Windows; no amplían el límite bloqueante de 120 s de la suite ni las aserciones de rendimiento del producto. Cada tier aplica su presupuesto dentro de `tests/run_unit_tests.py`; el harness reserva 900 s únicamente como techo de emergencia del despachador para que el hijo pueda devolver su JSON y limpiar procesos. Si un tier supera su propio presupuesto, sigue fallando. El timeout mata el árbol de procesos y registra si la limpieza quedó confirmada. `--preflight-only` conserva la atestación completa como diagnóstico opcional, pero la ruta estándar invoca directamente el harness: éste toma esa misma atestación exacta una sola vez antes de lanzar hijos. `--force` exige `--rerun-reason`.
 
 El reporte publicable debe crearse desde un checkout dedicado, limpio y sin archivos no versionados preexistentes, incluso ignorados. Una ejecución sobre el árbol de desarrollo es diagnóstico, no atestación publicable. Los tests sintéticos de tracking no ejecutan Rovo; `definition-conversation` y `pilot` conservan su estado real, incluido `not-run`. La promoción stable se apoya en gates técnicos y `release-approval`; no convierte esos canales opcionales en superados. El procedimiento reproducible y el doble build están en `docs/DISTRIBUTION.md`.
 
