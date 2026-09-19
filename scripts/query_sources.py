@@ -75,6 +75,11 @@ def is_link(path: Path) -> bool:
     return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400)
 
 
+def is_root_git_metadata(root: Path, parent: Path, name: str) -> bool:
+    """Exclude only the repository's own Git control entry from an inventory."""
+    return parent == root and name.casefold() == ".git"
+
+
 def lexical_root(root: Path) -> Path:
     try:
         root = filesystem_root(root)
@@ -211,6 +216,8 @@ class SourceReader:
                     entry_info = entry.stat(follow_symlinks=False)
                     if stat.S_ISLNK(entry_info.st_mode) or bool(getattr(entry_info, "st_file_attributes", 0) & 0x400):
                         self.exclude(rel, "link-excluded")
+                    elif is_root_git_metadata(self.root, folder, entry.name):
+                        continue
                     elif SECRET_NAME.search(entry.name):
                         self.exclude(rel, "sensitive-path")
                     elif entry.is_dir(follow_symlinks=False):

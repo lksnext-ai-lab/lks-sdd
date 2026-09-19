@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.1.2 — 2026-09-20 — verificación v2 por sujeto exacto
+
+- Excluye únicamente el metadato raíz `.git` —archivo de worktree o directorio—
+  de los inventarios contractuales compartidos, sin relajar el rechazo de enlaces,
+  junctions, secretos ni repositorios anidados.
+- Cierra `--task` sobre relaciones normativas: conserva release, plan, incremento y
+  parent como trazabilidad administrativa, pero no incorpora TASKs hermanas ni sus
+  gates; las dependencias normativas directas y obligaciones globales confirmadas
+  siguen aplicándose.
+- Materializa checks exclusivamente desde observers aprobados y aplicables en la
+  declaración tecnológica local. Valida imagen fijada, argv, timeout, scopes,
+  interfaces e inputs hasheados antes y después de ejecutar; ausencia o deriva
+  bloquea sin inferir comandos ni generar evidencia.
+- Añade fixtures sintéticos para inventario Git, cierre de contexto, observers,
+  evidencia inmutable, aceptación humana y cierre separados.
+
 ## 2.1.1 — 2026-09-19 — continuidad de ejecuciones migradas
 
 - Distingue ejecuciones v2 activas de registros históricos

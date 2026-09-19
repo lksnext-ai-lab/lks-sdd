@@ -8,7 +8,9 @@ SCOPES = {"component", "contract", "composition", "user-flow", "persistence", "v
 
 def obligations(model, tasks):
     context = execution_context(model, tasks)
-    entries = [model.elements[e["meta"]["id"]] for e in context["elements"]]
+    selected_tasks = set(context["task_ids"])
+    entries = [model.elements[e["meta"]["id"]] for e in context["elements"]
+               if e["meta"]["kind"] != "task" or e["meta"]["id"] in selected_tasks]
     scopes, gates, interfaces, blockers = set(), set(), set(), []
     human = False
     for entry in entries:

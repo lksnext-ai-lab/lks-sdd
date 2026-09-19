@@ -13,7 +13,7 @@ from pathlib import Path
 import re
 import uuid
 
-from query_sources import SKIP_DIRS, SECRET_NAME, is_link
+from query_sources import SKIP_DIRS, SECRET_NAME, is_link, is_root_git_metadata
 from v2_contract import (ContractError, DOCS, Element, Model, canonical, execution_context, fingerprint,
                          load, make_element, path_at, read_bytes, render_document, sha)
 from v2_authoring import edit_elements
@@ -134,7 +134,11 @@ def work_inventory(root: Path) -> dict[str, str]:
     hashes, entries, size = {}, 0, 0
     for directory, folders, files in os.walk(root, followlinks=False):
         parent = Path(directory)
-        folders[:] = sorted(d for d in folders if d not in SKIP_DIRS and d != ".lks-sdd"
+        for name in folders:
+            path = parent / name
+            if is_root_git_metadata(root, parent, name) and is_link(path):
+                raise ContractError("Working tree link/junction requires explicit reconciliation")
+        folders[:] = sorted(d for d in folders if d.casefold() not in SKIP_DIRS and d != ".lks-sdd"
                             and (parent / d).relative_to(root).as_posix() != DOCS)
         for name in folders + files:
             entries += 1
@@ -143,9 +147,13 @@ def work_inventory(root: Path) -> dict[str, str]:
             path = parent / name
             if is_link(path):
                 raise ContractError("Working tree link/junction requires explicit reconciliation")
+            if is_root_git_metadata(root, parent, name):
+                continue
             if path.is_dir() and (path / ".git").exists():
                 raise ContractError("Nested repository needs its own explicit scope")
         for name in sorted(files):
+            if is_root_git_metadata(root, parent, name):
+                continue
             if SECRET_NAME.search(name):
                 continue
             path = parent / name
