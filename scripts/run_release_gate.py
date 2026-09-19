@@ -247,8 +247,6 @@ def build_report(
                     "-X",
                     "utf8",
                     "tests/run_unit_tests.py",
-                    "--suite",
-                    "package",
                     "--module",
                     "test_windows_long_paths",
                 ],
