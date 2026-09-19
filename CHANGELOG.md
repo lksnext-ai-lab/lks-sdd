@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.1 — 2026-09-19 — continuidad de ejecuciones migradas
+
+- Distingue ejecuciones v2 activas de registros históricos
+  `reconciliation-required`: estos últimos se preservan como antecedentes
+  auditables, no bloquean una ejecución autorizada ni pueden producir evidencia.
+- Resuelve `checkpoint`, `diff` y `review-diff` dentro del `--task` solicitado,
+  igual que las demás transiciones de continuidad, y conserva el bloqueo explícito
+  cuando dos ejecuciones normativas activas comparten el mismo ámbito.
+
 ## 2.1.0 — 2026-09-19 — declaración tecnológica local
 
 - Sustituye perfiles, recetas, variantes, locks y certificaciones tecnológicas

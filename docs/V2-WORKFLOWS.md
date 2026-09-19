@@ -155,10 +155,14 @@ locales antes de escribir. `v2 authorize` requiere tareas, actor/rol declarados,
 entorno, motivo y vigencia; no autentica a una persona. `v2 start` exige tareas
 ready, autorización vigente y declaraciones tecnológicas críticas confirmadas. No basta la aprobación del plan o una observación tecnológica. Trabajar solo en las rutas autorizadas.
 
-Conservar cambios ajenos. `v2 diff` detecta desviaciones y cambios de tests/gates;
-`v2 review-diff` registra revisión explícita del diff exacto, no nueva autorización
-de alcance. Registrar checkpoint al pausar, bloquear o pasar a revisión, no por
-cada comando. Código completo pasa a in-review; done exige evidencia adecuada.
+Conservar cambios ajenos. `v2 diff --task TASK-###` detecta desviaciones y cambios
+de tests/gates dentro de la ejecución normativa seleccionada; `v2 review-diff
+--task TASK-###` registra revisión explícita del diff exacto, no nueva autorización
+de alcance. `v2 checkpoint --task TASK-###` usa el mismo selector. Registrar
+checkpoint al pausar, bloquear o pasar a revisión, no por cada comando. Código
+completo pasa a in-review; done exige evidencia adecuada. Un registro migrado
+`reconciliation-required` es historial auditable, nunca una ejecución continuable
+ni una fuente de evidencia.
 Nuevos requisitos reabren solo las decisiones afectadas y requieren nueva base.
 Cambios de base entre usuarios exigen reconciliación; no hay lock distribuido.
 `v2 prepare` solo crea registros locales de composición dentro de las rutas aprobadas; no materializa recetas, scaffolds, locks ni adaptadores tecnológicos.

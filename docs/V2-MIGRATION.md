@@ -85,6 +85,27 @@ localizarlos como antecedente para la reconciliación.
 continuar. Solo se bloquea el alcance afectado por semántica pendiente; una TASK
 independiente no hereda automáticamente el bloqueo de otra.
 
+### Registros históricos y ejecución v2 vigente
+
+Una ejecución v2 activa está exclusivamente en uno de estos estados:
+`in-progress`, `in-review`, `paused` o `blocked`. Los dos últimos siguen en el
+ciclo de trabajo y por ello impiden iniciar otra ejecución normativa para el mismo
+ámbito. `reconciliation-required`, `completed` y `cancelled` no son ejecuciones
+activas. En particular, un `EXEC` histórico en
+`reconciliation-required` no puede autorizar, reanudar, producir checkpoints,
+generar evidencia ni aceptar resultados.
+
+El runtime selecciona una ejecución vigente por la relación normativa
+`implements`, dentro del `--task` solicitado. Una relación histórica `affects`
+permanece como antecedente auditable, pero no convierte el registro en la
+ejecución de esa TASK. Dos ejecuciones normativas activas para el mismo ámbito
+siguen bloqueando la operación: el runtime no escoge una arbitrariamente.
+
+No edite, cancele ni borre manualmente los documentos históricos para continuar.
+Permanecen visibles en `catalog`, `status`, snapshots e informes de migración. Para
+resolver su significado use `migration-continuation`, `correct` o `replan`, que
+conservan los recibos y snapshots correspondientes.
+
 Un runtime 1.x conservado para rollback queda marcado como histórico y nunca
 gobierna trabajo futuro. Para un proyecto sin runtime gestionado se realiza la
 conversión documental, pero la instalación/activación de un runtime se mantiene

@@ -14,10 +14,12 @@ import re
 import uuid
 
 from query_sources import SKIP_DIRS, SECRET_NAME, is_link
-from v2_contract import (ContractError, DOCS, Model, canonical, execution_context, fingerprint,
+from v2_contract import (ContractError, DOCS, Element, Model, canonical, execution_context, fingerprint,
                          load, make_element, path_at, read_bytes, render_document, sha)
 from v2_authoring import edit_elements
 from v2_storage import apply, ensure_idle, preview
+
+ACTIVE_EXECUTION_STATES = frozenset({"in-progress", "in-review", "paused", "blocked"})
 
 
 def now() -> str:
@@ -206,9 +208,20 @@ def authorize(model: Model, tasks: list[str], *, actor: str, role: str, environm
     return apply(model.root, changes, result, authorized_hash, validator=lambda: load(model.root).require_valid()) if authorized_hash else result
 
 
+def is_active_execution(execution: Element) -> bool:
+    """Whether a v2 execution remains in its normative, continuable lifecycle."""
+    return execution.kind == "execution" and execution.meta.get("state") in ACTIVE_EXECUTION_STATES
+
+
+def is_active_execution_state(state: str) -> bool:
+    """Classify a serialized execution state without granting record authority."""
+    return state in ACTIVE_EXECUTION_STATES
+
+
 def active_execution(model: Model, tasks: list[str] | None = None):
-    matches = [e for e in model.by_kind("execution") if e.meta["state"] not in {"completed", "cancelled"}
-               and (not tasks or set(tasks) <= e.targets("implements"))]
+    scope = set(tasks or [])
+    matches = [e for e in model.by_kind("execution") if is_active_execution(e)
+               and (not scope or scope <= e.targets("implements"))]
     if len(matches) != 1:
         raise ContractError("Exactly one active execution is required for this TASK scope")
     return matches[0]
@@ -218,7 +231,7 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
           authorized_hash: str | None = None, technology=None) -> dict:
     auth = current_authorization(model, tasks, environment)
     for existing in model.by_kind("execution"):
-        if existing.meta["state"] not in {"completed", "cancelled"} and existing.targets("implements") & set(tasks):
+        if is_active_execution(existing) and existing.targets("implements") & set(tasks):
             raise ContractError("Existing execution: resume or reconcile; do not create another")
     if any(model.elements[t].meta["state"] != "ready" for t in tasks):
         raise ContractError("Only ready TASKs may start")
@@ -248,8 +261,8 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
     return apply(model.root, changes, result, authorized_hash, validator=lambda: load(model.root).require_valid()) if authorized_hash else result
 
 
-def diff_guard(model: Model, execution=None) -> dict:
-    execution = execution or active_execution(model)
+def diff_guard(model: Model, execution=None, *, tasks: list[str] | None = None) -> dict:
+    execution = execution or active_execution(model, tasks)
     if "baseline_files" not in execution.meta:
         raise ContractError("Historical execution has no v2 baseline: reconcile and authorize a new execution")
     current = work_inventory(model.root)
@@ -277,9 +290,9 @@ def diff_guard(model: Model, execution=None) -> dict:
             "semantic_review": "required", "identity_assurance": "not-authenticated"}
 
 
-def review_diff(model: Model, *, actor: str, reason: str, observed_diff: str,
+def review_diff(model: Model, *, tasks: list[str] | None = None, actor: str, reason: str, observed_diff: str,
                 authorized_hash: str | None = None) -> dict:
-    execution = active_execution(model)
+    execution = active_execution(model, tasks)
     guard = diff_guard(model, execution)
     if guard["unauthorized"] or guard["contract_changed"] or guard["diff_fingerprint"] != observed_diff:
         raise ContractError("A diff review cannot authorize changed scope or stale material")
@@ -300,7 +313,7 @@ def resume(model: Model, tasks: list[str]) -> dict:
         reasons.append(str(exc))
     guard = diff_guard(model, execution)
     reasons += guard["blockers"]
-    if execution.meta["state"] in {"blocked", "reconciliation-required"}:
+    if execution.meta["state"] == "blocked":
         reasons.append("Execution requires reconciliation")
     for problem in model.by_kind("problem"):
         if problem.meta["state"] != "resolved" and problem.targets("affects") & set(tasks):
@@ -315,11 +328,11 @@ def resume(model: Model, tasks: list[str]) -> dict:
             "writes": []}
 
 
-def checkpoint(model: Model, *, state: str, actor: str, at: str, summary: str, next_action: str,
+def checkpoint(model: Model, *, tasks: list[str] | None = None, state: str, actor: str, at: str, summary: str, next_action: str,
                authorized_hash: str | None = None) -> dict:
     if state not in {"paused", "blocked", "in-progress", "in-review", "cancelled"}:
         raise ContractError("Unsupported continuity state")
-    execution = active_execution(model)
+    execution = active_execution(model, tasks)
     tasks = sorted(execution.targets("implements"))
     if state in {"in-progress", "in-review"}:
         current_authorization(model, tasks, execution.meta["environment"])

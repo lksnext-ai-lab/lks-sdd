@@ -4,7 +4,8 @@ from __future__ import annotations
 import uuid
 from v2_contract import ContractError, DOCS, load, make_element, render_document
 from v2_authoring import edit_elements, history_changes
-from v2_lifecycle import (active_execution, current_authorization, diff_guard, next_id, timestamp, now)
+from v2_lifecycle import (active_execution, current_authorization, diff_guard, is_active_execution,
+                          next_id, timestamp, now)
 from v2_storage import apply, preview
 
 
@@ -46,7 +47,7 @@ def correction(model, tasks, *, actor, reason, at, replan=False, authorized_hash
     problems = [p for p in model.by_kind("problem") if p.meta["state"] != "resolved" and p.targets("affects") & set(tasks)]
     if not replan and not problems:
         raise ContractError("Record the problem before reopening/correcting work")
-    executions = [e for e in model.by_kind("execution") if e.meta["state"] not in {"completed", "cancelled"}
+    executions = [e for e in model.by_kind("execution") if is_active_execution(e)
                   and e.targets("implements") & set(tasks)]
     if len(executions) > 1 or any(e.targets("implements") != set(tasks) for e in executions):
         raise ContractError("Reconcile the complete affected execution scope explicitly")

@@ -521,9 +521,13 @@ def diagnose(root: Path) -> dict:
         for request in handoffs.glob(pattern):
             if not (request.parent / "result.json").exists() and not (request.parent / "cancelled.json").exists():
                 problems.append("Close or reconcile the pending visual handoff before migration: " + request.parent.name)
+    from v2_lifecycle import is_active_execution_state
+    executions = [e for e in manifest.get("executions", []) if isinstance(e, dict)]
     return {"status": "blocked" if problems else "preview-available", "source_schema": "1.5", "target_schema": VERSION,
             "source_snapshot": fingerprint(sources), "sources": sources, "runtime": runtime,
-            "errors": problems, "open_executions": [e for e in manifest.get("executions", []) if e.get("status") not in {"completed", "cancelled"}],
+            "errors": problems,
+            "open_executions": [e for e in executions if is_active_execution_state(e.get("status", ""))],
+            "historical_executions": [e for e in executions if e.get("status") == "reconciliation-required"],
             "semantic_reconciliation": "Feature boundaries, paths, applicability and authority require explicit review", "writes": []}
 
 
@@ -817,7 +821,9 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
                "closed_source_snapshot": closed_source_snapshot,
                "mapping": mapping, "elements": {identifier: {"path": p, "anchor": identifier.lower()} for identifier, p in identities.items()},
                "pending": sorted(set(pending)), "runtime": runtime_info,
-               "open_executions": diagnostic["open_executions"], "authorization": "reconciliation-required",
+               "open_executions": diagnostic["open_executions"],
+               "historical_executions": diagnostic["historical_executions"],
+               "authorization": "reconciliation-required",
                "verification": "not-run", "feature_classification": "not-inferred",
                "technology_declaration": {"path": TECHNOLOGY_DECLARATION_PATH,
                                           "state": "transition",

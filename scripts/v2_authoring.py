@@ -179,6 +179,8 @@ def commit(model: Model, request: dict, authorized_hash: str) -> dict:
 
 
 def catalog(model: Model) -> dict:
+    from v2_lifecycle import is_active_execution
+
     items = []
     versions, history_diagnostics = feature_versions(model)
     for element in model.by_kind("feature") + model.by_kind("group"):
@@ -197,8 +199,17 @@ def catalog(model: Model) -> dict:
                       "maintained_versions": element.meta.get("maintained_versions", []),
                       "definitions": versions.get(element.meta["uid"], []),
                       "verification": "see-task-evidence-not-inferred"})
+    executions = [{
+        "id": execution.id,
+        "state": execution.meta["state"],
+        "active": is_active_execution(execution),
+        "normative_tasks": sorted(execution.targets("implements")),
+        "historical_antecedents": sorted(execution.targets("affects")),
+        "source": execution.source(),
+    } for execution in model.by_kind("execution")]
     return {"schema_version": VERSION, "kind": "derived-catalog", "snapshot": model.snapshot(),
             "coverage": "partial-unless-explicitly-documented", "features": sorted(items, key=lambda e: e["id"]),
+            "executions": sorted(executions, key=lambda e: e["id"]),
             "diagnostics": [*model.errors, *history_diagnostics], "writes": []}
 
 
@@ -257,6 +268,15 @@ def catalog_markdown(model: Model) -> str:
         tasks = ", ".join(t["id"] + ": " + t["state"] for t in item["tasks"]) or "No documentadas"
         evolution = ", ".join(s["id"] + " (" + (s["effectivity"] or {}).get("state", "no determinada") + ")" for s in item["successors"])
         rows.append(f'| [{item["id"]} · {title}](<{link}>) | {item["definition_state"]} · revisión {item["revision"]} | {tasks} | {evolution or "Sin sustitución documentada"} |')
+    if result["executions"]:
+        rows += ['', '## Historial operativo', '',
+                 'Los registros `reconciliation-required` se conservan como antecedentes auditables y no autorizan trabajo v2.',
+                 '', '| Ejecución | Estado | Ámbito normativo | Antecedentes históricos |',
+                 '|---|---|---|---|']
+        for execution in result["executions"]:
+            normative = ", ".join(execution["normative_tasks"]) or "Ninguno"
+            antecedents = ", ".join(execution["historical_antecedents"]) or "Ninguno"
+            rows.append(f'| {execution["id"]} | {execution["state"]} | {normative} | {antecedents} |')
     rows += ['', 'Origen: snapshot `' + result["snapshot"] + '`.', '']
     return "\n".join(rows)
 
