@@ -117,6 +117,7 @@ def run(command, args):
                 "schema_version": "2.0", "errors": model.errors, "warnings": model.warnings,
                 "checked_files": sorted(model.hashes), "writes": []}
     if command == "status":
+        from v2_lifecycle import is_active_execution
         diagnostics = list(model.errors) + list(cutover.get("errors", []))
         return {"status": "documented" if model.valid and cutover["status"] != "blocked" else "blocked",
                 "project": model.manifest.get("name"),
@@ -124,6 +125,10 @@ def run(command, args):
                 "features": len(model.by_kind("feature")),
                 "tasks": [{"id": t.id, "title": t.meta["title"], "state": t.meta["state"],
                            "health": t.meta.get("health", "unknown"), "evidence": t.meta.get("evidence_ids", [])} for t in model.by_kind("task")],
+                "executions": [{"id": e.id, "state": e.meta["state"], "active": is_active_execution(e),
+                                "normative_tasks": sorted(e.targets("implements")),
+                                "historical_antecedents": sorted(e.targets("affects"))}
+                               for e in model.by_kind("execution")],
                 "problems": [{"id": p.id, "state": p.meta["state"], "description": p.body} for p in model.by_kind("problem")],
                 "delivery": "not-assessed", "diagnostics": diagnostics, "writes": []}
     if command == "author":
@@ -151,13 +156,14 @@ def run(command, args):
             raise ContractError("Start requires explicit --at and --actor")
         return start(model, args.task, args.environment, actor=args.actor, at=args.at, authorized_hash=authorized)
     if command == "diff":
-        return diff_guard(model)
+        return diff_guard(model, tasks=args.task)
     if command == "review-diff":
-        return review_diff(model, actor=args.actor, reason=args.reason, observed_diff=args.diff_fingerprint, authorized_hash=authorized)
+        return review_diff(model, tasks=args.task, actor=args.actor, reason=args.reason,
+                           observed_diff=args.diff_fingerprint, authorized_hash=authorized)
     if command == "checkpoint":
         if not args.at:
             raise ContractError("Checkpoint requires explicit --at")
-        return checkpoint(model, state=args.state, actor=args.actor, at=args.at, summary=args.summary,
+        return checkpoint(model, tasks=args.task, state=args.state, actor=args.actor, at=args.at, summary=args.summary,
                           next_action=args.next_action, authorized_hash=authorized)
     if command == "resume":
         return resume(model, args.task)
