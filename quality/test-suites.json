@@ -6,7 +6,7 @@
   "tiers": {
     "fast": {
       "module_timeout_seconds": 90,
-      "max_workers": 2,
+      "max_workers": 1,
       "modules": [
         "test_contract_engine",
         "test_definition_experience",
