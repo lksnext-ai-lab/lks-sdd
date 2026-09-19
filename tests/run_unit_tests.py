@@ -21,6 +21,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 from quality_execution import (  # noqa: E402
     QualityExecutionError,
     load_performance_policy,
+    load_release_core_selection,
     load_suite_registry,
     modules_for_suite,
     performance_assessment,
@@ -377,6 +378,30 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     temporary.replace(target)
 
 
+def _run_release_core() -> tuple[int, dict[str, Any]]:
+    selection = load_release_core_selection()
+    selectors = [entry["selector"] for entry in selection["tests"]]
+    code, payload = _run_parent("all", [], selectors)
+    result_ids = {
+        result["id"]
+        for result in payload["results"]
+        if isinstance(result, dict) and isinstance(result.get("id"), str)
+    }
+    if (
+        payload["counts"]["total"] != len(selectors)
+        or result_ids != set(selectors)
+    ):
+        raise QualityExecutionError(
+            "release-core no ejecutó exactamente la selección declarada."
+        )
+    payload["selected_suite"] = "release-core"
+    payload["release_core"] = {
+        "max_tests": selection["max_tests"],
+        "case_ids": [entry["case_id"] for entry in selection["tests"]],
+    }
+    return code, payload
+
+
 def main() -> int:
     global PROGRESS_STREAM
     if hasattr(sys.stdout, "reconfigure"):
@@ -392,12 +417,19 @@ def main() -> int:
     )
     parser.add_argument("--module", action="append", default=[])
     parser.add_argument("--test", action="append", default=[])
+    parser.add_argument("--release-core", action="store_true")
     parser.add_argument("--json-out", type=Path)
     parser.add_argument("--module-worker", help=argparse.SUPPRESS)
     args = parser.parse_args()
     try:
         if args.module_worker:
             code, payload = _run_worker(args.module_worker, args.test)
+        elif args.release_core:
+            if args.module or args.test or args.suite != "all":
+                raise QualityExecutionError(
+                    "--release-core no admite --suite, --module ni --test."
+                )
+            code, payload = _run_release_core()
         else:
             code, payload = _run_parent(args.suite, args.module, args.test)
     except QualityExecutionError as exc:

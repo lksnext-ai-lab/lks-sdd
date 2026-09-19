@@ -24,6 +24,7 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 from quality_execution import (
     load_performance_policy,
+    load_release_core_selection,
     performance_assessment,
     run_managed_command,
     runner_fingerprint,
@@ -1033,6 +1034,7 @@ def evaluate_automated_evidence(
     unit_payload: dict[str, Any] | None,
     eval_payload: dict[str, Any] | None,
     profile_payload: dict[str, Any] | None,
+    release_core_selection: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Resolve every automated catalog claim to one concrete executed result."""
 
@@ -1046,11 +1048,31 @@ def evaluate_automated_evidence(
     cases: list[dict[str, Any]] = []
     failures = list(errors)
     critical_incomplete: list[str] = []
+    release_core_by_case = (
+        {
+            entry["case_id"]: entry["selector"]
+            for entry in release_core_selection["tests"]
+        }
+        if release_core_selection is not None
+        else {}
+    )
     for case in [*catalog["cases"], *catalog.get("extension_cases", [])]:
         if case.get("mode") != "automated":
             continue
         outcomes: list[dict[str, Any]] = []
-        for reference in case["evidence"]:
+        evidence = case["evidence"]
+        selected_selector = release_core_by_case.get(case["id"])
+        if selected_selector is not None:
+            selected_reference = f"test:{selected_selector.rsplit('.', 1)[-1]}"
+            evidence = [
+                selected_reference,
+                *(
+                    reference
+                    for reference in case["evidence"]
+                    if not reference.startswith("test:")
+                ),
+            ]
+        for reference in evidence:
             kind, evidence_id = reference.split(":", 1)
             matches: list[dict[str, Any]] = []
             if kind == "test":
@@ -1126,6 +1148,21 @@ def evaluate_automated_evidence(
             "critical": case["critical"],
             "status": case_status,
             "evidence": outcomes,
+            **(
+                {
+                    "release_core": {
+                        "selected_reference": selected_reference,
+                        "supplemental_references": [
+                            reference
+                            for reference in case["evidence"]
+                            if reference.startswith("test:")
+                            and reference != selected_reference
+                        ],
+                    }
+                }
+                if selected_selector is not None
+                else {}
+            ),
         }
         cases.append(case_result)
         if failed:
@@ -1157,6 +1194,56 @@ def evaluate_automated_evidence(
         "pending": sorted(incomplete_cases),
         "failures": sorted(set(failures)),
     }
+
+
+def validate_release_core_selection(
+    catalog: dict[str, Any], selection: dict[str, Any]
+) -> dict[str, Any]:
+    """Ensure the bounded release core covers every critical automated case."""
+
+    cases = {
+        case["id"]: case
+        for case in [*catalog["cases"], *catalog.get("extension_cases", [])]
+    }
+    selected = {entry["case_id"]: entry["selector"] for entry in selection["tests"]}
+    expected = {
+        case_id: case
+        for case_id, case in cases.items()
+        if case["mode"] == "automated"
+        and case["critical"]
+        and any(reference.startswith("test:") for reference in case["evidence"])
+    }
+    if set(selected) != set(expected):
+        raise HarnessError(
+            "release-core debe cubrir exactamente todos los casos automáticos críticos "
+            f"con prueba; missing={sorted(set(expected) - set(selected))}; "
+            f"unexpected={sorted(set(selected) - set(expected))}"
+        )
+    for case_id, selector in selected.items():
+        references = expected[case_id]["evidence"]
+        if f"test:{selector.rsplit('.', 1)[-1]}" not in references:
+            raise HarnessError(
+                f"release-core selecciona una prueba ajena a {case_id}: {selector}"
+            )
+    excluded = {
+        entry["case_id"]: entry for entry in selection["excluded_noncritical_cases"]
+    }
+    expected_excluded = {
+        case_id: case
+        for case_id, case in cases.items()
+        if case.get("release_core_excluded") is True
+    }
+    if set(excluded) != set(expected_excluded):
+        raise HarnessError(
+            "release-core debe declarar exactamente los casos no críticos excluidos."
+        )
+    for case_id in excluded:
+        case = expected_excluded[case_id]
+        if case["critical"] or case["mode"] == "automated":
+            raise HarnessError(
+                f"release-core no puede excluir un caso automático crítico: {case_id}"
+            )
+    return selection
 
 
 def _unit_test_metrics(payload: dict[str, Any] | None) -> dict[str, int]:
@@ -1223,6 +1310,9 @@ def run_automated(
 ]:
     if isinstance(profile_mode, bool):
         profile_mode = "execute" if profile_mode else "not-run"
+    release_core_selection = validate_release_core_selection(
+        catalog, load_release_core_selection(PLUGIN_ROOT / "quality/release-core-tests.json")
+    )
     checks: list[dict[str, Any]] = []
     metrics: dict[str, float | int] = {}
     critical_failures: list[str] = []
@@ -1263,22 +1353,18 @@ def run_automated(
             False,
             120,
         ),
-        *[
-            (
-                f"unit-tests-{suite}",
-                [
-                    sys.executable,
-                    "-X",
-                    "utf8",
-                    "tests/run_unit_tests.py",
-                    "--suite",
-                    suite,
-                ],
-                True,
-                UNIT_TEST_TIMEOUT_SECONDS,
-            )
-            for suite in ("fast", "integration", "package", "profile")
-        ],
+        (
+            "unit-tests-release-core",
+            [
+                sys.executable,
+                "-X",
+                "utf8",
+                "tests/run_unit_tests.py",
+                "--release-core",
+            ],
+            True,
+            UNIT_TEST_TIMEOUT_SECONDS,
+        ),
         (
             "deterministic-evals",
             [sys.executable, "-X", "utf8", "tests/run_evals.py"],
@@ -1398,7 +1484,11 @@ def run_automated(
     unit_payload = _merge_unit_payloads(unit_payloads)
     metrics.update(_unit_test_metrics(unit_payload))
     automated_evidence = evaluate_automated_evidence(
-        catalog, unit_payload, eval_payload, profile_payload
+        catalog,
+        unit_payload,
+        eval_payload,
+        profile_payload,
+        release_core_selection,
     )
     critical_failures.extend(automated_evidence["failures"])
     metrics.update(
