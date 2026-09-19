@@ -17,12 +17,16 @@ ROOT = Path(__file__).resolve().parents[1]
 def collect_development(root):
     tracked = subprocess.run(["git", "ls-files", "-z", "--cached"], cwd=root,
                              capture_output=True, check=True).stdout.decode("utf-8").split("\0")
-    extra = json.loads((root / "distribution/dual.json").read_text(encoding="utf-8"))["additional_files"]
+    extra = json.loads((root / "distribution/dual.json").read_text(encoding="utf-8")).get(
+        "additional_files", []
+    )
     files = {}
     for name in sorted(set(filter(None, tracked)) | set(extra)):
         safe_name(name)
         path = root / name
         if EXCLUDED_PARTS.intersection(path.relative_to(root).parts) or name.startswith(("tests/reports/", "pilot/runs/", "site/")):
+            continue
+        if not path.exists():
             continue
         if not path.is_file() or path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
             raise ValueError(f"Missing or unsafe source: {name}")
@@ -55,7 +59,7 @@ def main():
             raise ValueError("Choose a new directory under an existing output parent")
         core = collect_development(ROOT)
         source = "working-tree:" + digest(json.dumps({k: digest(v) for k, v in core.items()}, sort_keys=True).encode())
-        result = artifacts(core, source, "development-not-certified")
+        result = artifacts(core, source, "development-unreleased")
         output.mkdir()
         for name, data in result.items():
             (output / name).write_bytes(data)

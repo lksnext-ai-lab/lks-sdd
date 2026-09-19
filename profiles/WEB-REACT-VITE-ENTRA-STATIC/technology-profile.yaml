@@ -8,43 +8,150 @@
   "support_level": "H1",
   "default_rigor": "P1",
   "summary": "Candidate React and Vite static SPA using Microsoft Entra Authorization Code with PKCE and browser-safe token handling.",
-  "units": [{"role": "frontend", "runtime": "browser and static host with external Microsoft Entra ID", "default_path": "."}],
+  "units": [
+    {
+      "role": "frontend",
+      "runtime": "browser and static host with external Microsoft Entra ID",
+      "default_path": "."
+    }
+  ],
   "dimensions": {
     "frontend": [
-      {"name": "Node.js", "version_range": "24.x LTS", "required": true},
-      {"name": "React", "version_range": "19.2.x", "required": true},
-      {"name": "TypeScript", "version_range": "6.0.x", "required": true},
-      {"name": "Vite", "version_range": "8.2.x", "required": true}
+      {
+        "name": "Node.js",
+        "version_range": "24.x LTS",
+        "required": true
+      },
+      {
+        "name": "React",
+        "version_range": "19.2.x",
+        "required": true
+      },
+      {
+        "name": "TypeScript",
+        "version_range": "6.0.x",
+        "required": true
+      },
+      {
+        "name": "Vite",
+        "version_range": "8.2.x",
+        "required": true
+      }
     ],
     "backend": [],
     "data": [],
     "identity": [
-      {"name": "Microsoft Entra ID", "version_range": "v2.0 tenant-specific authority", "required": true},
-      {"name": "MSAL Browser", "version_range": "5.19.x", "required": true}
+      {
+        "name": "Microsoft Entra ID",
+        "version_range": "v2.0 tenant-specific authority",
+        "required": true
+      },
+      {
+        "name": "MSAL Browser",
+        "version_range": "5.19.x",
+        "required": true
+      }
     ],
-    "integration": [{"name": "protected API", "version_range": "confirmed delegated scope contract", "required": true}],
-    "delivery": [{"name": "static hosting", "version_range": "immutable-bundle contract 1.0", "required": true}],
+    "integration": [
+      {
+        "name": "protected API",
+        "version_range": "confirmed delegated scope contract",
+        "required": true
+      }
+    ],
+    "delivery": [
+      {
+        "name": "static hosting",
+        "version_range": "immutable-bundle contract 1.0",
+        "required": true
+      }
+    ],
     "testing": [
-      {"name": "Vitest", "version_range": "4.1.x", "required": true},
-      {"name": "Playwright", "version_range": "1.62.x", "required": true},
-      {"name": "axe-core", "version_range": "4.13.x", "required": true}
+      {
+        "name": "Vitest",
+        "version_range": "4.1.x",
+        "required": true
+      },
+      {
+        "name": "Playwright",
+        "version_range": "1.62.x",
+        "required": true
+      },
+      {
+        "name": "axe-core",
+        "version_range": "4.13.x",
+        "required": true
+      }
     ],
-    "observability": [{"name": "client auth failures, client errors and delivery monitoring", "version_range": "project decision", "required": true}]
+    "observability": [
+      {
+        "name": "client auth failures, client errors and delivery monitoring",
+        "version_range": "project decision",
+        "required": true
+      }
+    ]
   },
   "required_capabilities": [
-    "CAP-SCAFFOLD-COPY", "CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE", "CAP-BROWSER-PLAYWRIGHT",
-    "CAP-IDENTITY-OIDC", "CAP-OIDC-SPA-PKCE", "CAP-ENTRA-CLAIMS", "CAP-DELIVERY-EVIDENCE"
+    "CAP-SCAFFOLD-COPY",
+    "CAP-FRONTEND-QUALITY",
+    "CAP-STATIC-BUNDLE",
+    "CAP-BROWSER-PLAYWRIGHT",
+    "CAP-IDENTITY-OIDC",
+    "CAP-OIDC-SPA-PKCE",
+    "CAP-ENTRA-CLAIMS",
+    "CAP-DELIVERY-EVIDENCE"
   ],
-  "excluded_capabilities": ["CAP-API-CONTRACT", "CAP-OIDC-DISCOVERY-JWKS", "CAP-OIDC-API-BEARER", "CAP-DATA-POSTGRES", "CAP-OCI-RUNTIME", "CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "excluded_capabilities": [
+    "CAP-API-CONTRACT",
+    "CAP-OIDC-DISCOVERY-JWKS",
+    "CAP-OIDC-API-BEARER",
+    "CAP-DATA-POSTGRES",
+    "CAP-OCI-RUNTIME",
+    "CAP-SSR-RUNTIME",
+    "CAP-MESSAGE-RABBITMQ",
+    "CAP-STREAM-KAFKA"
+  ],
   "capability_bindings": [
-    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD copy driver", "version_range": "1.0.0"},
-    {"capability_id": "CAP-FRONTEND-QUALITY", "provider": "ESLint, TypeScript and Vitest", "version_range": "10 / 6 / 4"},
-    {"capability_id": "CAP-STATIC-BUNDLE", "provider": "React, Vite and npm", "version_range": "React 19.2 / Vite 8.2"},
-    {"capability_id": "CAP-BROWSER-PLAYWRIGHT", "provider": "Playwright and axe-core", "version_range": "1.62 / 4.13"},
-    {"capability_id": "CAP-IDENTITY-OIDC", "provider": "MSAL Browser", "version_range": "5.19"},
-    {"capability_id": "CAP-OIDC-SPA-PKCE", "provider": "MSAL Browser Authorization Code with PKCE", "version_range": "5.19"},
-    {"capability_id": "CAP-ENTRA-CLAIMS", "provider": "Microsoft Entra tenant and delegated scopes", "version_range": "tenant-specific v2.0"},
-    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+    {
+      "capability_id": "CAP-SCAFFOLD-COPY",
+      "provider": "LKS-SDD copy driver",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-FRONTEND-QUALITY",
+      "provider": "ESLint, TypeScript and Vitest",
+      "version_range": "10 / 6 / 4"
+    },
+    {
+      "capability_id": "CAP-STATIC-BUNDLE",
+      "provider": "React, Vite and npm",
+      "version_range": "React 19.2 / Vite 8.2"
+    },
+    {
+      "capability_id": "CAP-BROWSER-PLAYWRIGHT",
+      "provider": "Playwright and axe-core",
+      "version_range": "1.62 / 4.13"
+    },
+    {
+      "capability_id": "CAP-IDENTITY-OIDC",
+      "provider": "MSAL Browser",
+      "version_range": "5.19"
+    },
+    {
+      "capability_id": "CAP-OIDC-SPA-PKCE",
+      "provider": "MSAL Browser Authorization Code with PKCE",
+      "version_range": "5.19"
+    },
+    {
+      "capability_id": "CAP-ENTRA-CLAIMS",
+      "provider": "Microsoft Entra tenant and delegated scopes",
+      "version_range": "tenant-specific v2.0"
+    },
+    {
+      "capability_id": "CAP-DELIVERY-EVIDENCE",
+      "provider": "LKS-SDD G4 evidence",
+      "version_range": "1.0.0"
+    }
   ],
   "compatibility_rules": [
     "This candidate is visible for planning but is not selectable as supported automation.",
@@ -55,25 +162,30 @@
     "A local browser test does not certify sign-in, conditional access, consent, logout or silent renewal against a real tenant.",
     "Build-time Entra configuration produces an environment-specific static artifact with its own digest."
   ],
-  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "drivers": {
+    "prepare": "profile-driver.json",
+    "verify": "profile-driver.json"
+  },
   "gates": {
     "capability_gate_ids": [
-      "GATE-SCAFFOLD-INTEGRITY", "GATE-FRONTEND-LOCK", "GATE-FRONTEND-LINT", "GATE-FRONTEND-TYPECHECK", "GATE-FRONTEND-TEST",
-      "GATE-FRONTEND-BUILD", "GATE-STATIC-OUTPUT", "GATE-BROWSER-SMOKE", "GATE-BROWSER-ACCESSIBILITY",
-      "GATE-OIDC-CONTRACT", "GATE-OIDC-INTEGRATION", "GATE-OIDC-SPA-PKCE", "GATE-OIDC-SPA-SESSION",
-      "GATE-ENTRA-TENANT", "GATE-ENTRA-PERMISSIONS", "GATE-DELIVERY-EVIDENCE"
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-FRONTEND-LOCK",
+      "GATE-FRONTEND-LINT",
+      "GATE-FRONTEND-TYPECHECK",
+      "GATE-FRONTEND-TEST",
+      "GATE-FRONTEND-BUILD",
+      "GATE-STATIC-OUTPUT",
+      "GATE-BROWSER-SMOKE",
+      "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-OIDC-CONTRACT",
+      "GATE-OIDC-INTEGRATION",
+      "GATE-OIDC-SPA-PKCE",
+      "GATE-OIDC-SPA-SESSION",
+      "GATE-ENTRA-TENANT",
+      "GATE-ENTRA-PERMISSIONS",
+      "GATE-DELIVERY-EVIDENCE"
     ],
     "composition_gate_id": "GATE-COMPOSE-REACT-ENTRA-STATIC"
-  },
-  "certification": {
-    "technical_gate": "not-run",
-    "composition_gate": "not-run",
-    "e2e_eval": "not-run",
-    "human_review": "not-run",
-    "pilot": "not-run",
-    "validated_at": null,
-    "review_due": null,
-    "evidence": ["Candidate scaffold, local auth-contract gates and an opt-in real-browser interoperability gate are packaged; exact certification is pending."]
   },
   "owner": "LKS-SDD maintainers"
 }

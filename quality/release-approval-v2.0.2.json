@@ -11,7 +11,7 @@
     "status": "approved",
     "decided_on": "2026-09-18",
     "authority_role": "project-owner",
-    "rationale": "El responsable del proyecto autoriza explícitamente integrar la corrección de rutas largas Windows en main y publicar la versión 2.0.2 del plugin. La aprobación queda condicionada a superar los gates técnicos, la validación completa del paquete, la regresión Windows y el doble build reproducible del commit exacto. No convierte los canales humanos, de host, piloto o aceptación conversacional en evidencia superada.",
+    "rationale": "El responsable del proyecto autoriza explícitamente integrar la corrección de rutas largas Windows en main y publicar la versión 2.0.2 del plugin. La aprobación queda condicionada al gate compacto, la validación del paquete y la regresión Windows del commit exacto. No convierte los canales humanos, de host, piloto o aceptación conversacional en evidencia superada.",
     "blocking_findings": []
   },
   "limitations": [

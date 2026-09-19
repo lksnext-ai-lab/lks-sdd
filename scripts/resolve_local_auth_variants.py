@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 from profile_registry import load_catalog, load_profile_bundle
-from run_reference_profile_gate import _materialize
+from profile_materialization import materialize_profile
 from technology_resolution import inspect_dependencies
 from update_profile_locks import build_lock
 
@@ -20,7 +20,7 @@ def main():
             raise ValueError("Active variants require an explicit new certification cycle")
         with tempfile.TemporaryDirectory(prefix="lks-resolution-") as temp:
             work = Path(temp)
-            _materialize(entry["id"], work)
+            materialize_profile(entry["id"], work)
             inventory = inspect_dependencies(work)
             if inventory["errors"]:
                 raise ValueError("; ".join(inventory["errors"]))

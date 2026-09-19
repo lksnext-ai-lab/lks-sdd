@@ -46,7 +46,7 @@ Copie también archivos ocultos. El manifiesto de integridad no debe regenerarse
 ocultar modificaciones accidentales: reconstruya el paquete desde fuentes revisadas.
 
 `build_dual_distribution.py --development` permite preparar paquetes locales de
-evaluación sin commit ni quality report publicable, marcados `development-not-certified`.
+evaluación sin commit ni quality report publicable, marcados `development-unreleased`.
 No sustituye los requisitos de release limpia descritos abajo. Las instalaciones de
 prueba son aisladas; no se registra un marketplace ni se modifica el plugin activo.
 Un candidato instalable no acredita aceptación conversacional ni autoriza publicación.
@@ -63,11 +63,17 @@ Un candidato instalable no acredita aceptación conversacional ni autoriza publi
 
 `X.Y.Z` se deriva del manifiesto del plugin; el builder no mantiene una segunda versión hardcodeada. La entrada del marketplace usa la forma estándar `local`, ruta `./plugins/lks-sdd`, instalación `AVAILABLE`, autenticación `ON_INSTALL` y categoría `Developer Tools`.
 
-El builder solo acepta la raíz exacta de un repositorio Git, comprueba que `--source-commit` exista y coincida con `HEAD`, y exige un árbol de trabajo limpio. Además exige un quality report 1.2 `candidate` o `stable` del mismo commit, versión y fecha; los reportes 1.1 solo se validan como históricos y no empaquetan la release actual. Recalcula hashes del catálogo, corpus, fixtures, baseline, política temporal y, para stable, aprobación del responsable; exige los inventarios exactos de checks, canales, casos y métricas y contrasta las duraciones con cada check.
+El builder solo acepta la raíz exacta de un repositorio Git, comprueba que
+`--source-commit` exista y coincida con `HEAD`, y exige un árbol de trabajo limpio.
+Para publicar acepta el informe compacto del mismo commit, versión y fecha. Ese
+informe acredita la aprobación, integridad estática, pruebas de humo y, en stable,
+la regresión de rutas largas Windows.
 
 Los bytes del plugin se leen del commit mediante objetos Git, no del working tree. Esto impide atribuir a un SHA contenido sin confirmar, incluso si Git oculta localmente un cambio mediante `assume-unchanged`. También rechaza enlaces, submódulos, salidas dentro del repositorio y patrones de secretos conocidos.
 
-El repositorio fija `eol=lf` para todo texto mediante `.gitattributes` y excluye de esa conversión los formatos binarios declarados. La regresión de portabilidad crea y clona un repositorio real bajo una configuración Git aislada con `core.autocrlf=true`, y exige que las fuentes canónicas, `quality/fixture-manifest.json` y todos los fixtures con hash conserven exactamente sus bytes LF y superen ambos validadores desde el checkout resultante.
+El repositorio fija `eol=lf` para todo texto mediante `.gitattributes` y excluye de
+esa conversión los formatos binarios declarados. El builder lee los bytes exactos del
+commit acreditado y los manifiestos de integridad detectan cualquier alteración.
 
 El reporte publicable se genera desde un checkout dedicado, recién creado y sin archivos no versionados preexistentes, incluidos los ignorados. Desde la raíz del repositorio principal, una vez integrado y revisado el commit de release:
 
@@ -84,35 +90,27 @@ git worktree add --detach $releaseCheckout $sourceCommit
 
 Push-Location $releaseCheckout
 try {
-  python scripts\run_quality_harness.py --channel stable --date $releaseDate --baseline quality\baselines\v0.17.0.json --profile-mode reuse --release-approval "quality\release-approval-v$releaseVersion.json" --output $qualityReport
-  python scripts\build_candidate_package.py --date $releaseDate --source-commit $sourceCommit --quality-report $qualityReport --output "$artifactBase-a"
-  python scripts\build_candidate_package.py --date $releaseDate --source-commit $sourceCommit --quality-report $qualityReport --output "$artifactBase-b"
+  python scripts\run_release_gate.py --channel stable --date $releaseDate --release-approval "quality\release-approval-v$releaseVersion.json" --output $qualityReport
+  python scripts\build_candidate_package.py --date $releaseDate --source-commit $sourceCommit --quality-report $qualityReport --output $artifactBase
 } finally {
   Pop-Location
 }
 ```
 
-El harness toma el snapshot antes de ejecutar sus comprobaciones. Un artefacto
-creado después no invalida retroactivamente ese reporte; sí invalidaría una nueva
-atestación si ya existiera al comenzarla. Reporte y carpetas de salida deben ser
-nuevos. Dos compilaciones con igual fecha, commit y reporte deben producir hashes
-idénticos para todos los assets declarados. `SHA256SUMS` cubre todos los ZIP, reportes
-y manifiestos; el de release enumera fuentes, tamaños, hashes y vinculación del gate.
-No ejecute antes las cuatro suites, los evals ni `--preflight-only`: el harness ya
-realiza cada gate obligatorio una vez y toma la atestación completa de fuente antes
-de sus hijos. Las ejecuciones directas son diagnósticas y no sustituyen ese reporte.
+El gate toma el snapshot antes de ejecutar sus comprobaciones. Un artefacto creado
+después no invalida retroactivamente ese reporte; sí invalidaría una nueva atestación
+si ya existiera al comenzarla. Reporte y carpeta de salida deben ser nuevos.
+`SHA256SUMS` cubre todos los ZIP, reportes y manifiestos; el de release enumera
+fuentes, tamaños, hashes y vinculación del gate. No ejecute suites amplias ni evals
+antes de publicar: son diagnósticos y no sustituyen este reporte.
 
 ```powershell
-$hashesA = Get-ChildItem "$artifactBase-a" -File | Sort-Object Name | ForEach-Object { "$($_.Name):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" }
-$hashesB = Get-ChildItem "$artifactBase-b" -File | Sort-Object Name | ForEach-Object { "$($_.Name):$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash)" }
-if (Compare-Object $hashesA $hashesB) { throw "Los dos builds no son reproducibles." }
-
-$manifest = Get-Content -Raw "$artifactBase-a\release-manifest.json" | ConvertFrom-Json
+$manifest = Get-Content -Raw "$artifactBase\release-manifest.json" | ConvertFrom-Json
 if ($manifest.source_commit -ne $sourceCommit) { throw "El manifiesto no corresponde al commit de release." }
 if ($manifest.plugin_version -ne $releaseVersion) { throw "El manifiesto no corresponde a la versión de release." }
 if ($manifest.quality.gate -ne "passed") { throw "El manifiesto no acredita el gate de release." }
 
-Push-Location "$artifactBase-a"
+Push-Location $artifactBase
 try {
   Get-Content SHA256SUMS | ForEach-Object {
     $expected, $relative = $_ -split "\s+", 2
@@ -124,8 +122,8 @@ try {
 }
 ```
 
-Conserve un build como conjunto publicable; el segundo es evidencia de comparación.
-El inventario se obtiene de `release-manifest.json`, no de una cantidad fija de archivos.
+El inventario se obtiene de `release-manifest.json`, no de una cantidad fija de
+archivos. El build único es el conjunto publicable.
 
 ## Marketplace y activación
 

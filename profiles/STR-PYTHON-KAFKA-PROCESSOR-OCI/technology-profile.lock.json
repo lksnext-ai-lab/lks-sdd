@@ -3,8 +3,7 @@
   "profile_id": "STR-PYTHON-KAFKA-PROCESSOR-OCI",
   "profile_version": "1.0.0-candidate.1",
   "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "278fccef1db72922246b763b3be476b3bb99f89be1c0842cb4af89fe2b74a66a",
+  "profile_sha256": "e02028539e38f845194916a8c023c1769c774deab0788d05340518cdc66f3411",
   "driver_sha256": "0733737146b091d0e9132fa64080d685a0385e610b45c029d939622c5341bdd9",
   "scaffold_sha256": "7a11a9e4a430ae660cf666d33c6ee269118f9224a752fe0a195701fbadad4998",
   "capabilities": [
@@ -82,101 +81,72 @@
     {
       "id": "GATE-COMPOSE-KAFKA-PROCESSOR",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-STR-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-STR-OFFSETS",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-STR-RECOVERY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-STR-REPLAY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile STR-PYTHON-KAFKA-PROCESSOR-OCI: exact certification not available"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-KAFKA-PROCESSOR",
-    "status": "not-run",
-    "digest": "c7e51b7986c1f68bcfed5ac11dd65bb5212d76eed67ff1c317396523fca0c6d9"
+    "digest": "31975542a3a8688a4219b98af76230091679b209d14762ab30f86211899b79fc"
   },
-  "evidence": [
-    "Candidate contract, scaffold and Kafka gates are packaged; certification is pending."
-  ]
+  "structural": false
 }

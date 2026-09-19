@@ -3,8 +3,7 @@
   "profile_id": "WEB-REACT-VITE-STATIC",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-21",
-  "validated": true,
-  "profile_sha256": "cd81948f365c95308ef57e69ecd40e1a724d1176ea826fccc53e756d127576a6",
+  "profile_sha256": "1c5200db34f06463ec8c747377e6db9de22613558725a978312f93ff48fd3740",
   "driver_sha256": "3e40707745a4412693675877bfcb37b38baef7c52098a49f9f9d0f4dd9241f97",
   "scaffold_sha256": "99fe52cd863d6ba8dcebcd0e64600841e61797050e13e2f0e61444fa618d5201",
   "capabilities": [
@@ -94,89 +93,62 @@
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-REACT-STATIC",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-STATIC/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-REACT-STATIC",
-    "status": "passed",
-    "digest": "85cc1a28f55c3b96686712439eac4dfa53c6b81203f867bb58eb1c31b57630cc"
+    "digest": "dcc27b350e91b0fd551e289748ba96381735c464cff5abc36806aa5175a893de"
   },
-  "evidence": [
-    "python scripts/validate_reference_profile.py --profile WEB-REACT-VITE-STATIC",
-    "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-STATIC --runtime local",
-    "tests/test_multi_profile_delivery.py"
-  ]
+  "structural": true
 }

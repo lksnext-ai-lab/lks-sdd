@@ -330,13 +330,13 @@ class EvidenceHealthAndSummaryV016Tests(unittest.TestCase):
 
 class JiraEvidenceMilestoneV016Tests(unittest.TestCase):
     def test_not_verified_milestone_never_transitions_to_done(self):
-        import test_jira_reporting_v15 as jira_fixture
+        import jira_reporting_fixture as jira_fixture
         from eval_support import run_json
         from jira_reporting_engine import build_milestone_preview
 
         with tempfile.TemporaryDirectory(prefix="lks-sdd-v016-jira-") as temporary:
             root = Path(temporary)
-            jira_fixture._prepare_started_project(root, "jira-v016-failed")
+            jira_fixture.prepare_started_project(root, "jira-v016-failed")
             transition_args = (
                 str(root), "transition", "--task", "TASK-001", "--to", "in-review",
                 "--reason", "generic implementation ready", "--actor", "synthetic-agent",
@@ -349,7 +349,7 @@ class JiraEvidenceMilestoneV016Tests(unittest.TestCase):
                 PLUGIN_ROOT / "scripts/manage_tasks.py", *transition_args,
                 "--apply", "--authorize", "--preview-hash", task_preview["preview_hash"],
             )
-            jira_fixture._apply_preview(
+            jira_fixture.apply_preview(
                 root,
                 "configure-workflow",
                 "--local-state", "in-review",

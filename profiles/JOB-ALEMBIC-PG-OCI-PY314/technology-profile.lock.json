@@ -3,10 +3,9 @@
   "profile_id": "JOB-ALEMBIC-PG-OCI-PY314",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-31",
-  "validated": true,
-  "profile_sha256": "deb34c677ecd1c1350a0d2122a42fcdc81673cdfdd43b4683219335178074e46",
+  "profile_sha256": "11789c64aa2c6b83be72f19f4740f806843031b253004726784fee8e564e282d",
   "driver_sha256": "17eaabcb04a5313695c57a79db5dd074bad87a3b0455fd4d57dc10a6e3ec77a7",
-  "scaffold_sha256": "2fbacbfcdecaaa32475326cfc8c2147be8abe8fdc568534da59958496181d44f",
+  "scaffold_sha256": "22ec6652bcdc4dcf84edab37b17f439766ae9dacfe5953cbf6c85c940a8e0ddc",
   "capabilities": [
     {
       "id": "CAP-DATA-POSTGRES",
@@ -329,60 +328,42 @@
     {
       "id": "GATE-COMPOSE-PY314-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PY314-MIGRATION",
-    "status": "passed",
-    "digest": "94eca94863810d90f09caf2864e484e9b2ecbbcbf29bac3261bd6650e41b18d9"
+    "digest": "68f7c36f692ca33a41a3fead1b6f7fe378af19f85ea8574b385a10299ba77da4"
   },
-  "evidence": [
-    "profiles/JOB-ALEMBIC-PG-OCI-PY314/certification-evidence.json",
-    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
-  ]
+  "structural": true
 }

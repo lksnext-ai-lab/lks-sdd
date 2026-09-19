@@ -3,8 +3,7 @@
   "profile_id": "WEB-ANGULAR-SSR-NODE",
   "profile_version": "1.0.0-candidate.1",
   "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "f043d25b8146c6ba0dc8a07a6c6820c7c0115b036c32250a18cde628d242a9df",
+  "profile_sha256": "efa2bbd47d37772e8d5bc201a2d9752affa78f9245a2f67a410c7867a47d848a",
   "driver_sha256": "e76ab48efa9ec86b308ac63b79aa6236b0e52eecf2138877c45d26ee3e5b7323",
   "scaffold_sha256": "cd97ded1966e4023c5876bf02298bf718affb6abfb7950a960d8e41248dfe658",
   "capabilities": [
@@ -88,94 +87,67 @@
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-ANGULAR-SSR",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SSR-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SSR-HYDRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SSR-RUNTIME",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-ANGULAR-SSR-NODE: exact certification not available"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-ANGULAR-SSR",
-    "status": "not-run",
-    "digest": "932b1d11b4863f89004f99910c977d25cf82e45666475095696cd40c855e5117"
+    "digest": "2b819a048c5032568c0fa7818f827d4567f09f399219fffec9108a1cc9855d3c"
   },
-  "evidence": [
-    "Candidate scaffold and gates are packaged; certification is pending."
-  ]
+  "structural": false
 }

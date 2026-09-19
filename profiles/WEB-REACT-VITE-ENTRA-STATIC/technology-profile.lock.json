@@ -3,8 +3,7 @@
   "profile_id": "WEB-REACT-VITE-ENTRA-STATIC",
   "profile_version": "1.0.0-candidate.1",
   "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "547f4fdd8e3d9a108b7d32e2c0568df0df7ca3da49baf05c580ca6d0271e43d4",
+  "profile_sha256": "f7fe8c5b4af9b88b776f4821727b7d05ea2e6d33395c7b0d6a26ad525a83029d",
   "driver_sha256": "6140977614ea57ea5d393664de2ec482d049c267e02b432be0a05302ec00345a",
   "scaffold_sha256": "9a835ca16abfc3ae409f0ceda06b840850d0c86e92504488195a7d846f6b236a",
   "capabilities": [
@@ -127,129 +126,92 @@
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-REACT-ENTRA-STATIC",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-ENTRA-PERMISSIONS",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-ENTRA-TENANT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SPA-PKCE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SPA-SESSION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile WEB-REACT-VITE-ENTRA-STATIC: exact certification not available"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-REACT-ENTRA-STATIC",
-    "status": "not-run",
-    "digest": "2054d453d9a1d3423bac181c37eade528eef00d3f2b91f908307613c6740feca"
+    "digest": "26572f1a5111959fa553ee7f58742939e220313d4173cc2fd43becaac49b98e1"
   },
-  "evidence": [
-    "Candidate scaffold, local auth-contract gates and an opt-in real-browser interoperability gate are packaged; exact certification is pending."
-  ]
+  "structural": false
 }

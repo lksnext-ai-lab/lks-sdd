@@ -136,9 +136,9 @@
     }
   ],
   "compatibility_rules": [
-    "Only the exact resolved-technology.json combination can be certified.",
+    "Only the exact resolved-technology.json combination can be selected.",
     "Adoption never overwrites consumer functional code.",
-    "No production or native mobile client certification."
+    "No production or native mobile client support."
   ],
   "drivers": {
     "prepare": "profile-driver.json",
@@ -180,19 +180,6 @@
       "GATE-TENANT-AUTHORIZATION"
     ],
     "composition_gate_id": "GATE-COMPOSE-PY314-TS60-SYSTEM"
-  },
-  "certification": {
-    "technical_gate": "passed",
-    "composition_gate": "passed",
-    "e2e_eval": "passed",
-    "human_review": "not-run",
-    "pilot": "not-run",
-    "validated_at": "2026-08-31",
-    "review_due": "2026-11-29",
-    "evidence": [
-      "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json",
-      "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
-    ]
   },
   "owner": "LKS-SDD maintainers"
 }

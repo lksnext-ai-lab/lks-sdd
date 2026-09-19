@@ -708,6 +708,14 @@ def _validated_quality_report(
     report = _load_json_bytes(content, str(report_path))
     if not isinstance(report, dict):
         raise PackageError("El reporte de calidad debe ser un objeto JSON.")
+    if report.get("schema_version") == "simple-release-gate-1.0":
+        return _validated_simple_release_gate(
+            report,
+            content,
+            plugin_version=plugin_version,
+            source_commit=source_commit,
+            build_date=build_date,
+        )
     report_schema_version = report.get("schema_version")
     schema_relative = (
         "schemas/quality-report-1.1.schema.json"
@@ -1159,6 +1167,64 @@ def _validated_quality_report(
             f"El gate {release_channel} no es consistente con su evidencia."
         )
     return report, content
+
+
+def _validated_simple_release_gate(
+    report: dict[str, Any],
+    content: bytes,
+    *,
+    plugin_version: str,
+    source_commit: str,
+    build_date: str,
+) -> tuple[dict[str, Any], bytes]:
+    """Validate the compact release gate without reintroducing broad-suite policy."""
+
+    channel = report.get("channel")
+    expected_checks = {
+        "candidate": {
+            "static-integrity",
+            "release-core",
+        },
+        "stable": {
+            "release-approval",
+            "static-integrity",
+            "release-core",
+            "windows-long-path-regression",
+        },
+    }
+    source = report.get("source")
+    checks = report.get("checks")
+    gate = report.get("gate")
+    if (
+        report.get("plugin_version") != plugin_version
+        or report.get("evaluated_on") != build_date
+        or channel not in expected_checks
+        or source != {"commit": source_commit, "tree_state": "clean"}
+        or not isinstance(checks, list)
+        or not isinstance(gate, dict)
+        or gate != {"status": "passed", "blockers": []}
+    ):
+        raise PackageError("El gate compacto no acredita la release solicitada.")
+    check_ids = [check.get("id") for check in checks if isinstance(check, dict)]
+    if len(check_ids) != len(checks) or set(check_ids) != expected_checks[channel]:
+        raise PackageError("El gate compacto no contiene el inventario exacto de checks.")
+    for check in checks:
+        if (
+            check.get("status") != "passed"
+            or not _matches_json_type(check.get("duration_seconds"), "number")
+            or not isinstance(check.get("command"), (str, list))
+        ):
+            raise PackageError(
+                f"El gate compacto no acredita éxito: {check.get('id', 'unknown')}."
+            )
+    return (
+        {
+            "gate": {"status": "passed"},
+            "channel": channel,
+            "comparison": {"baseline_commit": None},
+        },
+        content,
+    )
 
 
 def _zip_bytes(

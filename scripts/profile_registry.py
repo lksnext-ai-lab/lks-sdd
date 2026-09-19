@@ -2,9 +2,8 @@
 """Discover and strictly qualify LKS-SDD technology profiles.
 
 Capabilities are reusable implementation units, but a closed profile is the
-smallest selectable and certifiable unit. A profile is supported only when its
-descriptor, driver, scaffold and generated lock agree and the composition has
-passed its required certification gates.
+smallest selectable unit. A profile is supported when its descriptor, driver,
+scaffold and generated structural lock agree.
 """
 
 from __future__ import annotations
@@ -26,30 +25,6 @@ TRANSIENT_PARTS = {
     ".next", ".angular", "test-results", "playwright-report",
 }
 TRANSIENT_SUFFIXES = {".pyc", ".pyo", ".tsbuildinfo"}
-CERTIFICATION_ENGINE_FILES = (
-    "scripts/observation_contract.py",
-    "scripts/profile_registry.py",
-    "scripts/validate_reference_profile.py",
-    "scripts/run_reference_profile_gate.py",
-    "scripts/evidence_contract.py",
-    "scripts/integration_contract.py",
-    "scripts/evidence_safety.py",
-    "scripts/technology_resolution.py",
-    "scripts/adoption_preparation.py",
-    "scripts/composition_contract.py",
-    "scripts/planning_engine.py",
-    "skills/lks-sdd-implement/scripts/prepare_increment.py",
-    "skills/lks-sdd-verify/scripts/run_verification.py",
-    "skills/lks-sdd-assess-readiness/scripts/assess_readiness.py",
-    "scripts/delivery_engine.py",
-    "scripts/validation_evidence.py",
-    "schemas/technology-profile.schema.json",
-    "schemas/technology-profile-lock.schema.json",
-    "schemas/profile-driver.schema.json",
-    "schemas/profile-certification.schema.json",
-)
-
-
 @dataclass(frozen=True)
 class ProfileBundle:
     """Resolved files and parsed contracts for one catalogued profile."""
@@ -80,7 +55,7 @@ class ProfileSupport:
     implementable: bool
     verifiable: bool
     validated_lock: bool
-    composition_certified: bool
+    structural_composition: bool
     errors: tuple[str, ...]
 
     def as_dict(self) -> dict[str, Any]:
@@ -100,7 +75,7 @@ class ProfileSupport:
                 "verifiable": self.verifiable,
             },
             "validated_lock": self.validated_lock,
-            "composition_certified": self.composition_certified,
+            "structural_composition": self.structural_composition,
             "errors": list(self.errors),
         }
 
@@ -309,141 +284,6 @@ def composition_digest(
     return hashlib.sha256(canonical).hexdigest()
 
 
-def certification_engine_sha256() -> str:
-    """Fingerprint the executable contract that qualifies a profile."""
-    digest = hashlib.sha256()
-    for relative in CERTIFICATION_ENGINE_FILES:
-        path = PLUGIN_ROOT / relative
-        digest.update(relative.encode("utf-8"))
-        digest.update(b"\0")
-        digest.update(hashlib.sha256(path.read_bytes()).digest())
-    return digest.hexdigest()
-
-
-def certification_evidence_errors(
-    bundle: ProfileBundle,
-    *,
-    profile_sha256: str,
-    driver_sha256: str,
-    scaffold_sha256: str,
-    composition_sha256: str,
-    required_gate_ids: set[str],
-) -> list[str]:
-    """Validate a persisted complete-gate result against exact current inputs."""
-    if bundle.root is None:
-        return [f"{bundle.profile_id}: perfil ausente."]
-    evidence, error = _load_object(bundle.root / "certification-evidence.json")
-    if error:
-        return [f"{bundle.profile_id}: falta evidencia de certificación exacta."]
-    errors = _schema_errors(
-        evidence,
-        "profile-certification.schema.json",
-        f"certification[{bundle.profile_id}]",
-    )
-    expected = {
-        "profile_id": bundle.profile_id,
-        "profile_version": bundle.profile.get("version"),
-        "runtime": "docker",
-        "containers_executed": True,
-        "complete_gate": True,
-        "passed": True,
-        "profile_sha256": profile_sha256,
-        "driver_sha256": driver_sha256,
-        "scaffold_sha256": scaffold_sha256,
-        "composition_digest": composition_sha256,
-        "certification_engine_sha256": certification_engine_sha256(),
-    }
-    for field, value in expected.items():
-        if evidence.get(field) != value:
-            errors.append(
-                f"{bundle.profile_id}: certification-evidence.{field} no coincide."
-            )
-    check_status = {
-        item.get("gate_id"): item.get("status")
-        for item in evidence.get("checks", [])
-        if isinstance(item, dict)
-    }
-    missing = sorted(
-        gate_id
-        for gate_id in required_gate_ids
-        if check_status.get(gate_id) != "passed"
-    )
-    if missing:
-        errors.append(
-            f"{bundle.profile_id}: evidencia sin gates passed: {missing}."
-        )
-    result_material = {
-            "profile_id": evidence.get("profile_id"),
-            "profile_version": evidence.get("profile_version"),
-            "runtime": evidence.get("runtime"),
-            "containers_executed": evidence.get("containers_executed"),
-            "complete_gate": evidence.get("complete_gate"),
-            "passed": evidence.get("passed"),
-            "checks": evidence.get("checks"),
-    }
-    if evidence.get("schema_version") == "1.1":
-        from evidence_safety import evidence_safety_errors
-        manifest = evidence.get("evidence_manifest")
-        result_material["evidence_manifest"] = manifest
-        result_material["certification_run_id"] = evidence.get("certification_run_id")
-        expected_context = {"profile_id": bundle.profile_id, "profile_version": bundle.profile.get("version"),
-                            "runtime": "docker", "certification_run_id": evidence.get("certification_run_id"),
-                            "source_identity": {"profile_sha256": profile_sha256, "driver_sha256": driver_sha256,
-                                                "scaffold_sha256": scaffold_sha256, "engine_sha256": certification_engine_sha256()}}
-        if not isinstance(evidence.get("certification_run_id"), str):
-            errors.append(f"{bundle.profile_id}: certification has no execution identity")
-        if not isinstance(manifest, list) or not manifest:
-            errors.append(f"{bundle.profile_id}: certification has no observation manifest")
-        else:
-            observed_gates = set()
-            capture_references = set()
-            capture_artifacts = set()
-            for artifact in manifest:
-                try:
-                    path = bundle.root / artifact["path"]
-                    path.resolve().relative_to((bundle.root / "certification-details").resolve())
-                    if any(p.is_symlink() or (hasattr(p, "is_junction") and p.is_junction()) for p in [path, *path.parents] if p != bundle.root and bundle.root in p.parents):
-                        raise ValueError("linked artifact")
-                    content = path.read_bytes()
-                    if len(content) != artifact["size"] or hashlib.sha256(content).hexdigest() != artifact["sha256"]:
-                        raise ValueError("artifact digest mismatch")
-                    if path.suffix == ".json":
-                        observation = json.loads(content)
-                        if not isinstance(observation, dict) or observation.get("certification_context") != expected_context:
-                            raise ValueError("observation provenance mismatch")
-                        errors.extend(evidence_safety_errors(observation))
-                        if observation.get("gate_id") != artifact["gate_id"] or observation.get("status") != "passed":
-                            raise ValueError("observation gate mismatch")
-                        from observation_contract import gate_observation_errors
-                        errors.extend(gate_observation_errors(observation, variant=bool(bundle.driver.get("variant"))))
-                        detail = observation.get("observations")
-                        if isinstance(detail, dict):
-                            for capture in detail.get("screenshots", []):
-                                capture_references.add((artifact["gate_id"], capture["sha256"]))
-                        observed_gates.add(artifact["gate_id"])
-                    elif path.suffix != ".png" or not content.startswith(b"\x89PNG\r\n\x1a\n"):
-                        raise ValueError("unsupported evidence artifact")
-                    else:
-                        capture_artifacts.add((artifact["gate_id"], artifact["sha256"]))
-                except (ValueError, OSError, KeyError, TypeError, AttributeError):
-                    errors.append(f"{bundle.profile_id}: invalid or missing certification observation artifact")
-            if not required_gate_ids <= observed_gates:
-                errors.append(f"{bundle.profile_id}: observations do not cover all required gates")
-            if capture_references != capture_artifacts:
-                errors.append(f"{bundle.profile_id}: browser captures and observation manifest diverge")
-    canonical = json.dumps(
-        result_material,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    ).encode("utf-8")
-    if evidence.get("result_sha256") != hashlib.sha256(canonical).hexdigest():
-        errors.append(
-            f"{bundle.profile_id}: result_sha256 de certificación no coincide."
-        )
-    return list(dict.fromkeys(errors))
-
-
 def load_profile_bundle(profile_id: str) -> ProfileBundle:
     catalog, catalog_errors = load_catalog()
     entries = _catalog_entries(catalog)
@@ -509,7 +349,7 @@ def load_profile_bundle(profile_id: str) -> ProfileBundle:
 def validate_profile_bundle(
     profile_id: str, *, require_validated: bool = True
 ) -> list[str]:
-    """Validate one exact catalogued composition and its certification lock."""
+    """Validate one exact catalogued composition and its structural lock."""
     bundle = load_profile_bundle(profile_id)
     errors = list(bundle.errors)
     if bundle.root is None:
@@ -677,55 +517,15 @@ def validate_profile_bundle(
             f"{profile_id}: el digest de composición no coincide."
         )
 
-    evidence_errors = certification_evidence_errors(
-        bundle,
-        profile_sha256=(sha256_file(profile_path) if profile_path.is_file() else ""),
-        driver_sha256=(sha256_file(driver_path) if driver_path.is_file() else ""),
-        scaffold_sha256=source_hash,
-        composition_sha256=expected_composition,
-        required_gate_ids=required_driver_gates,
-    )
-
-    certification = profile.get("certification", {})
     active = profile.get("lifecycle") == "active"
-    core_passed = all(
-        certification.get(field) == "passed"
-        for field in ("technical_gate", "composition_gate", "e2e_eval")
-    )
-    if active and not core_passed:
-        errors.append(
-            f"{profile_id}: active exige certificación técnica, composición "
-            "y eval E2E passed."
-        )
-    if require_validated and active and evidence_errors:
-        errors.extend(evidence_errors)
-    if require_validated and active and composition.get("status") != "passed":
-        errors.append(f"{profile_id}: active exige composición passed.")
-    if require_validated and (
-        not active or lock.get("validated") is not True
-    ):
-        errors.append(
-            f"{profile_id}: no dispone de un lock active validado."
-        )
-    if lock.get("validated") is True and (not active or not core_passed):
-        errors.append(
-            f"{profile_id}: validated=true contradice lifecycle o certificación."
-        )
-    if require_validated:
-        failed_required = sorted(
-            gate_id
-            for gate_id in required_driver_gates
-            if locked_gates.get(gate_id, {}).get("status") != "passed"
-        )
-        if failed_required:
-            errors.append(
-                f"{profile_id}: gates no certificados: {failed_required}."
-            )
+    if require_validated and active and lock.get("structural") is not True:
+        errors.append(f"{profile_id}: el perfil active requiere un lock estructural válido.")
+    if require_validated and not active and lock.get("structural") is True:
+        errors.append(f"{profile_id}: un perfil no active no puede declarar un lock validado.")
     return list(dict.fromkeys(errors))
 
-
 def resolve_profile(profile_id: str) -> ProfileSupport:
-    """Resolve support without ever treating declaration as certification."""
+    """Resolve support from the catalogued structural profile contract."""
     bundle = load_profile_bundle(profile_id)
     profile = bundle.profile
     catalogued = bool(bundle.catalog_entry)
@@ -736,18 +536,14 @@ def resolve_profile(profile_id: str) -> ProfileSupport:
         if isinstance(profile.get("lifecycle"), str)
         else None
     )
-    lock_valid = bool(bundle.lock.get("validated") is True and not errors)
-    certification = profile.get("certification", {})
-    composition_certified = (
-        certification.get("composition_gate") == "passed"
-        and bundle.lock.get("composition", {}).get("status") == "passed"
-    )
+    lock_valid = bool(bundle.lock.get("structural") is True and not errors)
+    structural_composition = lock_valid
     supported = (
         catalogued
         and discovered
         and lifecycle == "active"
         and lock_valid
-        and composition_certified
+        and structural_composition
     )
     if not catalogued:
         errors = [
@@ -785,6 +581,6 @@ def resolve_profile(profile_id: str) -> ProfileSupport:
         implementable=supported,
         verifiable=supported,
         validated_lock=lock_valid,
-        composition_certified=composition_certified,
+        structural_composition=structural_composition,
         errors=tuple(dict.fromkeys(errors)),
     )

@@ -3,10 +3,9 @@
   "profile_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-31",
-  "validated": true,
-  "profile_sha256": "c6d07c6a0bf724357b72f5f235321129f78b7ac38e2353ddcbe189831d5a805b",
+  "profile_sha256": "1775289567a29bc1000ab3bc41beb7ce9c07327bf473fc9ce5eff9da672cd98c",
   "driver_sha256": "4624b26c4dffdc7408d5ac4c1c7371645cd846df5360381035d0ce6fe6b129b7",
-  "scaffold_sha256": "d96a48091f6dc1270598bbc42941350c54c308e1a56b3658e79869b52da03ad4",
+  "scaffold_sha256": "cb35ba75ebcc25d24bc332629230baf80b6db5025ff1c5fc4ce945d7f82fc8b5",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -359,172 +358,122 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-PY314-API",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-HTTP-CONTRACT-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-CREDENTIALS",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-JWT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-SESSION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SECURITY-AUDIT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SECURITY-CONFIG",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-TENANT-AUTHORIZATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PY314-API",
-    "status": "passed",
-    "digest": "1bf9836faaf4ef1f2ea5a87e576f6208b822d8db836910eb4b848a8ed5e5b6de"
+    "digest": "7650da0f438ec5dd546d509e7ac1b5e8d06887d52e5ee18b6b4039b61bd4fc05"
   },
-  "evidence": [
-    "profiles/API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314/certification-evidence.json",
-    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
-  ]
+  "structural": true
 }

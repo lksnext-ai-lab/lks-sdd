@@ -3,8 +3,7 @@
   "profile_id": "MSG-PYTHON-RABBITMQ-WORKER-OCI",
   "profile_version": "1.0.0-candidate.1",
   "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "d92620fbfcb80981a9f0440bd1ebe1f82a26011e14f1649e905ece9411c9ef78",
+  "profile_sha256": "e7814576020da7b13c62e654368d1b723f22501e4676d75de452fd3af67deefa",
   "driver_sha256": "ca96284d8e464d74c65f21ad192b2ce8eb83040df9c1afc7a7e32b5b1598b440",
   "scaffold_sha256": "af2ea935eb21e8dda9906991b94559e4eac05ae3b576ed6fc4d44465d829b10e",
   "capabilities": [
@@ -82,101 +81,72 @@
     {
       "id": "GATE-COMPOSE-RABBITMQ-WORKER",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-MSG-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-MSG-DLQ",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-MSG-RECOVERY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-MSG-RETRY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile MSG-PYTHON-RABBITMQ-WORKER-OCI: exact certification not available"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-RABBITMQ-WORKER",
-    "status": "not-run",
-    "digest": "69d8fff0604c51aafa633caf2281051533ef3c9070d4c466c861d1c7bfd96eb2"
+    "digest": "2e70021b91e783520c47a0e8657297b4b74746c49e7a634ef9d987d3565b205b"
   },
-  "evidence": [
-    "Candidate contract, scaffold and broker gates are packaged; certification is pending."
-  ]
+  "structural": false
 }

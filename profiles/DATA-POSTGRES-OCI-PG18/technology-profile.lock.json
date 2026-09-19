@@ -3,8 +3,7 @@
   "profile_id": "DATA-POSTGRES-OCI-PG18",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-31",
-  "validated": true,
-  "profile_sha256": "e538ba4ab66604ea8bed693850c9c6f6a23d611d4793a3547268b6acab887172",
+  "profile_sha256": "184488fb0b2d45acfb7bda27e09bc162420187f22588a5af0ecc2a94dd486138",
   "driver_sha256": "4f2c93492d0c8a21e7ba7df50d5d9b968868d075d7cf1af9b682cddae46f5a5d",
   "scaffold_sha256": "b2cf9522396ea277e9e59686378373ef5b7d929e7b322941b4b4403d8f2083ce",
   "capabilities": [
@@ -71,60 +70,42 @@
     {
       "id": "GATE-COMPOSE-PG18-DATABASE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PG18-DATABASE",
-    "status": "passed",
-    "digest": "495fb81db8ab110903758dd7a76f2a0f9c7447955774f99b7ff8616f60338b28"
+    "digest": "34326492dcc22d59ca01712884e91b000336a7a8bc074a691574849c627cf3a5"
   },
-  "evidence": [
-    "profiles/DATA-POSTGRES-OCI-PG18/certification-evidence.json",
-    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
-  ]
+  "structural": true
 }

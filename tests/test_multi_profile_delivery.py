@@ -25,7 +25,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 from delivery_engine import load_delivery_evidence  # noqa: E402
 from profile_registry import load_catalog, resolve_profile  # noqa: E402
 from automation_coverage import describe_profile_coverage  # noqa: E402
-from run_reference_profile_gate import _dockerized  # noqa: E402
+from profile_materialization import docker_command  # noqa: E402
 
 
 class MultiProfileDeliveryTests(unittest.TestCase):
@@ -52,7 +52,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             work = Path(temporary)
             frontend = work / "apps" / "frontend"
             frontend.mkdir(parents=True)
-            command = _dockerized(
+            command = docker_command(
                 ["npx", "--yes", "pnpm@10.34.5", "test"],
                 work,
                 frontend,
@@ -71,7 +71,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
             work = Path(temporary)
             backend = work / "apps" / "backend"
             backend.mkdir(parents=True)
-            command = _dockerized(
+            command = docker_command(
                 ["uv", "run", "mypy"],
                 work,
                 backend,
@@ -89,7 +89,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
     def test_plain_python_gate_does_not_install_uv(self) -> None:
         with tempfile.TemporaryDirectory(prefix="lks-sdd-python-command-") as temporary:
             work = Path(temporary)
-            command = _dockerized(
+            command = docker_command(
                 ["python", "-c", "print('ok')"],
                 work,
                 work,
@@ -98,7 +98,7 @@ class MultiProfileDeliveryTests(unittest.TestCase):
 
         self.assertNotIn("pip install", " ".join(command))
 
-    def test_only_exactly_certified_active_profiles_are_supported(self) -> None:
+    def test_active_profiles_with_structural_locks_are_supported(self) -> None:
         catalog, catalog_errors = load_catalog()
         self.assertEqual(catalog_errors, [])
         active = {
@@ -120,7 +120,6 @@ class MultiProfileDeliveryTests(unittest.TestCase):
                 support = resolve_profile(profile_id)
                 self.assertEqual(support.errors, ())
                 self.assertTrue(support.validated_lock)
-                self.assertTrue(support.composition_certified)
                 self.assertTrue(support.implementable)
                 self.assertTrue(support.verifiable)
                 self.assertEqual(support.support_level, "H1")
@@ -131,7 +130,6 @@ class MultiProfileDeliveryTests(unittest.TestCase):
                 self.assertTrue(support.documentable)
                 self.assertTrue(support.analyzable)
                 self.assertFalse(support.validated_lock)
-                self.assertFalse(support.composition_certified)
                 self.assertFalse(support.implementable)
                 self.assertFalse(support.verifiable)
                 expected_level = "H1" if "ENTRA" in profile_id else "H2"
