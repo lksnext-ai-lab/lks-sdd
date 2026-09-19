@@ -8,67 +8,183 @@
   "support_level": "H1",
   "default_rigor": "P1",
   "summary": "Candidate FastAPI API with tenant-bound Microsoft Entra bearer identity, PostgreSQL migrations and digest-pinned OCI delivery.",
-  "units": [{"role": "api", "runtime": "Python ASGI with PostgreSQL and external Microsoft Entra OIDC", "default_path": "."}],
+  "units": [
+    {
+      "role": "api",
+      "runtime": "Python ASGI with PostgreSQL and external Microsoft Entra OIDC",
+      "default_path": "."
+    }
+  ],
   "dimensions": {
     "frontend": [],
     "backend": [
-      {"name": "Python", "version_range": "3.14.x", "required": true},
-      {"name": "FastAPI", "version_range": "0.141.x", "required": true},
-      {"name": "SQLAlchemy", "version_range": "2.0.x", "required": true},
-      {"name": "Alembic", "version_range": "1.19.x", "required": true}
+      {
+        "name": "Python",
+        "version_range": "3.14.x",
+        "required": true
+      },
+      {
+        "name": "FastAPI",
+        "version_range": "0.141.x",
+        "required": true
+      },
+      {
+        "name": "SQLAlchemy",
+        "version_range": "2.0.x",
+        "required": true
+      },
+      {
+        "name": "Alembic",
+        "version_range": "1.19.x",
+        "required": true
+      }
     ],
-    "data": [{"name": "PostgreSQL", "version_range": "18.x", "required": true}],
-    "identity": [{"name": "Microsoft Entra ID OIDC", "version_range": "v2.0 tenant-specific endpoint", "required": true}],
-    "integration": [{"name": "OpenAPI", "version_range": "3.1.x", "required": true}],
-    "delivery": [{"name": "OCI image", "version_range": "digest-pinned base", "required": true}],
-    "testing": [{"name": "pytest", "version_range": "9.1.x", "required": true}],
-    "observability": [{"name": "health, readiness, identity failures and structured logs", "version_range": "candidate contract 1.0", "required": true}]
+    "data": [
+      {
+        "name": "PostgreSQL",
+        "version_range": "18.x",
+        "required": true
+      }
+    ],
+    "identity": [
+      {
+        "name": "Microsoft Entra ID OIDC",
+        "version_range": "v2.0 tenant-specific endpoint",
+        "required": true
+      }
+    ],
+    "integration": [
+      {
+        "name": "OpenAPI",
+        "version_range": "3.1.x",
+        "required": true
+      }
+    ],
+    "delivery": [
+      {
+        "name": "OCI image",
+        "version_range": "digest-pinned base",
+        "required": true
+      }
+    ],
+    "testing": [
+      {
+        "name": "pytest",
+        "version_range": "9.1.x",
+        "required": true
+      }
+    ],
+    "observability": [
+      {
+        "name": "health, readiness, identity failures and structured logs",
+        "version_range": "candidate contract 1.0",
+        "required": true
+      }
+    ]
   },
   "required_capabilities": [
-    "CAP-SCAFFOLD-COPY", "CAP-API-CONTRACT", "CAP-IDENTITY-OIDC",
-    "CAP-OIDC-DISCOVERY-JWKS", "CAP-OIDC-API-BEARER", "CAP-ENTRA-CLAIMS",
-    "CAP-DATA-POSTGRES", "CAP-OCI-RUNTIME", "CAP-DELIVERY-EVIDENCE"
+    "CAP-SCAFFOLD-COPY",
+    "CAP-API-CONTRACT",
+    "CAP-IDENTITY-OIDC",
+    "CAP-OIDC-DISCOVERY-JWKS",
+    "CAP-OIDC-API-BEARER",
+    "CAP-ENTRA-CLAIMS",
+    "CAP-DATA-POSTGRES",
+    "CAP-OCI-RUNTIME",
+    "CAP-DELIVERY-EVIDENCE"
   ],
-  "excluded_capabilities": ["CAP-FRONTEND-QUALITY", "CAP-STATIC-BUNDLE", "CAP-BROWSER-PLAYWRIGHT", "CAP-OIDC-SPA-PKCE", "CAP-SSR-RUNTIME", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "excluded_capabilities": [
+    "CAP-FRONTEND-QUALITY",
+    "CAP-STATIC-BUNDLE",
+    "CAP-BROWSER-PLAYWRIGHT",
+    "CAP-OIDC-SPA-PKCE",
+    "CAP-SSR-RUNTIME",
+    "CAP-MESSAGE-RABBITMQ",
+    "CAP-STREAM-KAFKA"
+  ],
   "capability_bindings": [
-    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD copy driver", "version_range": "1.0.0"},
-    {"capability_id": "CAP-API-CONTRACT", "provider": "FastAPI and pytest", "version_range": "0.141 / 9.1"},
-    {"capability_id": "CAP-IDENTITY-OIDC", "provider": "PyJWT bearer-token validation", "version_range": "2.13"},
-    {"capability_id": "CAP-OIDC-DISCOVERY-JWKS", "provider": "OpenID discovery and PyJWKClient", "version_range": "OIDC Discovery 1.0 / PyJWT 2.13"},
-    {"capability_id": "CAP-OIDC-API-BEARER", "provider": "FastAPI HTTPBearer and explicit authorization", "version_range": "0.141"},
-    {"capability_id": "CAP-ENTRA-CLAIMS", "provider": "Microsoft Entra v2 access-token claims", "version_range": "tenant-specific v2.0"},
-    {"capability_id": "CAP-DATA-POSTGRES", "provider": "PostgreSQL, SQLAlchemy and Alembic", "version_range": "18 / 2.0 / 1.19"},
-    {"capability_id": "CAP-OCI-RUNTIME", "provider": "Docker Compose or compatible OCI engine", "version_range": "OCI 1.x"},
-    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+    {
+      "capability_id": "CAP-SCAFFOLD-COPY",
+      "provider": "LKS-SDD copy driver",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-API-CONTRACT",
+      "provider": "FastAPI and pytest",
+      "version_range": "0.141 / 9.1"
+    },
+    {
+      "capability_id": "CAP-IDENTITY-OIDC",
+      "provider": "PyJWT bearer-token validation",
+      "version_range": "2.13"
+    },
+    {
+      "capability_id": "CAP-OIDC-DISCOVERY-JWKS",
+      "provider": "OpenID discovery and PyJWKClient",
+      "version_range": "OIDC Discovery 1.0 / PyJWT 2.13"
+    },
+    {
+      "capability_id": "CAP-OIDC-API-BEARER",
+      "provider": "FastAPI HTTPBearer and explicit authorization",
+      "version_range": "0.141"
+    },
+    {
+      "capability_id": "CAP-ENTRA-CLAIMS",
+      "provider": "Microsoft Entra v2 access-token claims",
+      "version_range": "tenant-specific v2.0"
+    },
+    {
+      "capability_id": "CAP-DATA-POSTGRES",
+      "provider": "PostgreSQL, SQLAlchemy and Alembic",
+      "version_range": "18 / 2.0 / 1.19"
+    },
+    {
+      "capability_id": "CAP-OCI-RUNTIME",
+      "provider": "Docker Compose or compatible OCI engine",
+      "version_range": "OCI 1.x"
+    },
+    {
+      "capability_id": "CAP-DELIVERY-EVIDENCE",
+      "provider": "LKS-SDD G4 evidence",
+      "version_range": "1.0.0"
+    }
   ],
   "compatibility_rules": [
     "This candidate is visible for planning but is not selectable as supported automation.",
-    "This exact profile targets the Microsoft Entra public-cloud authority login.microsoftonline.com; sovereign-cloud authorities require a separate profile decision and certification.",
+    "This exact profile targets the Microsoft Entra public-cloud authority login.microsoftonline.com; sovereign-cloud authorities require a separate profile decision.",
     "The issuer must be tenant-specific; common, organizations and consumers authorities are not accepted for this API profile.",
     "Signing keys are resolved only from the jwks_uri returned by the exact OpenID discovery document; no Keycloak endpoint convention is used.",
     "Audience, tenant ID and at least one delegated scope or application role require confirmed project decisions.",
     "A synthetic token or public discovery check does not certify interoperability with a real Microsoft Entra tenant.",
     "Every database change requires a migration and rollback, restore or forward-fix analysis; production promotes one immutable OCI digest."
   ],
-  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "drivers": {
+    "prepare": "profile-driver.json",
+    "verify": "profile-driver.json"
+  },
   "gates": {
     "capability_gate_ids": [
-      "GATE-SCAFFOLD-INTEGRITY", "GATE-API-LOCK", "GATE-API-LINT", "GATE-API-TYPECHECK", "GATE-API-TEST", "GATE-API-OPENAPI",
-      "GATE-OIDC-CONTRACT", "GATE-OIDC-INTEGRATION", "GATE-OIDC-DISCOVERY", "GATE-OIDC-JWKS",
-      "GATE-OIDC-API-AUTHN", "GATE-OIDC-API-AUTHZ", "GATE-ENTRA-TENANT", "GATE-ENTRA-PERMISSIONS",
-      "GATE-DATA-MIGRATION", "GATE-DATA-INTEGRATION", "GATE-OCI-BUILD", "GATE-OCI-SMOKE", "GATE-DELIVERY-EVIDENCE"
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-API-LOCK",
+      "GATE-API-LINT",
+      "GATE-API-TYPECHECK",
+      "GATE-API-TEST",
+      "GATE-API-OPENAPI",
+      "GATE-OIDC-CONTRACT",
+      "GATE-OIDC-INTEGRATION",
+      "GATE-OIDC-DISCOVERY",
+      "GATE-OIDC-JWKS",
+      "GATE-OIDC-API-AUTHN",
+      "GATE-OIDC-API-AUTHZ",
+      "GATE-ENTRA-TENANT",
+      "GATE-ENTRA-PERMISSIONS",
+      "GATE-DATA-MIGRATION",
+      "GATE-DATA-INTEGRATION",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-DELIVERY-EVIDENCE"
     ],
     "composition_gate_id": "GATE-COMPOSE-FASTAPI-ENTRA-PG"
-  },
-  "certification": {
-    "technical_gate": "not-run",
-    "composition_gate": "not-run",
-    "e2e_eval": "not-run",
-    "human_review": "not-run",
-    "pilot": "not-run",
-    "validated_at": null,
-    "review_due": null,
-    "evidence": ["Candidate scaffold, capability gates and external interoperability gate are packaged; exact certification is pending."]
   },
   "owner": "LKS-SDD maintainers"
 }

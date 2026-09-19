@@ -3,8 +3,7 @@
   "profile_id": "SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG",
   "profile_version": "1.0.0-candidate.2",
   "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "c87036c6f91765ec105468198494c219e88b12ef643b39cc28e38d1f29524159",
+  "profile_sha256": "483c68312f8aab1349af4930f1aaed6b3960040afaf66ad1bb1259926564fd47",
   "driver_sha256": "8d72e6abb9e8220df1fe1a10b5ddddbeb92fa1bf9d306fed55c6b0292428ca1a",
   "scaffold_sha256": "6eeda2cb436c50bcadd386653c2fab681075668e5df8ce58d05655bccc0df2c7",
   "capabilities": [
@@ -132,164 +131,117 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-ANGULAR-FULL-WEB",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile SYS-WEB-ANGULAR-FASTAPI-KEYCLOAK-PG: exact certification not available"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-ANGULAR-FULL-WEB",
-    "status": "not-run",
-    "digest": "b4271c839b8bad51ff4df60fd310c23ce49f327e93915db480fc7e2b61e6fbb5"
+    "digest": "ac1e6cb9809d4b464caf9d1d1a8bc479e5a34fdeb69c039dd7867b4598a7fde7"
   },
-  "evidence": [
-    "Candidate composition is packaged; end-to-end certification is pending."
-  ]
+  "structural": false
 }

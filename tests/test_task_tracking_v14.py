@@ -2499,20 +2499,5 @@ class TaskTrackingV14Tests(unittest.TestCase):
             self.assertIn("exactamente un único", rejected["error"])
 
 
-TASK_TRACKING_SHARD_BOUNDARY = 4
-
-
-def load_tests(
-    loader: unittest.TestLoader,
-    standard_tests: unittest.TestSuite,
-    pattern: str | None,
-) -> unittest.TestSuite:
-    """Keep the first deterministic shard below the integration module budget."""
-    del standard_tests, pattern
-    names = loader.getTestCaseNames(TaskTrackingV14Tests)
-    return unittest.TestSuite(
-        TaskTrackingV14Tests(name) for name in names[:TASK_TRACKING_SHARD_BOUNDARY]
-    )
-
 if __name__ == "__main__":
     unittest.main()

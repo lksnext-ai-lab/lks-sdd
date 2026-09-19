@@ -3,8 +3,7 @@
   "profile_id": "WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-27",
-  "validated": true,
-  "profile_sha256": "fcfd9eb0c9783402c6b1d6c6dde8e0c8153e59095e772aeb76db75ccadc3aba9",
+  "profile_sha256": "c2c72c9ea7b7312d6d121011ff2ad71500bfd8933a28976024e88addca95ed51",
   "driver_sha256": "d951963bf0d38fe0abdbcbb0775c82b4675651e3da90ccaeedd7c9b2e25f5498",
   "scaffold_sha256": "a8b80956c19a1e8ef8b5de20d6aa49aac19730f833d1c119f288468f4a844c26",
   "capabilities": [
@@ -116,124 +115,87 @@
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-REACT-SIMULATED-OIDC-STATIC",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SIMULATED-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SIMULATED-SAFETY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SPA-PKCE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SPA-SESSION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-SIMULATED-OIDC-STATIC/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-REACT-SIMULATED-OIDC-STATIC",
-    "status": "passed",
-    "digest": "918d1bd32bcc038e6ac33b06245ca74ee180a3faa18329a9775c97227dab44f9"
+    "digest": "960146559c54f1099116e75dd3a81f5455645c46488534c9ec66292f403b4de7"
   },
-  "evidence": [
-    "python scripts/validate_reference_profile.py --profile WEB-REACT-VITE-SIMULATED-OIDC-STATIC",
-    "python scripts/run_reference_profile_gate.py --profile WEB-REACT-VITE-SIMULATED-OIDC-STATIC --runtime docker --containers",
-    "tests/test_multi_profile_delivery.py"
-  ]
+  "structural": true
 }

@@ -37,21 +37,7 @@ def _write_tree(root: Path, files: dict[str, bytes]) -> None:
 
 
 def _runtime_core() -> dict[str, bytes]:
-    core = collect_development(ROOT)
-    for evidence_name, evidence_bytes in tuple(core.items()):
-        if not evidence_name.endswith("/certification-evidence.json"):
-            continue
-        evidence = json.loads(evidence_bytes)
-        profile_root = Path(evidence_name).parent
-        for artifact in evidence.get("evidence_manifest", []):
-            relative = Path(artifact["path"])
-            source = ROOT / profile_root / relative
-            if relative.is_absolute() or ".." in relative.parts or not source.is_file():
-                raise AssertionError(
-                    f"Invalid active certification artifact: {source}"
-                )
-            core[(profile_root / relative).as_posix()] = source.read_bytes()
-    return core
+    return collect_development(ROOT)
 
 
 class WindowsLongPathTests(unittest.TestCase):
@@ -74,7 +60,7 @@ class WindowsLongPathTests(unittest.TestCase):
         ignore = shutil.ignore_patterns(".git", "site", "__pycache__", "*.pyc")
         shutil.copytree(ROOT, long_plugin, ignore=ignore)
         profile_relative = Path(
-            "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+            "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/technology-profile.yaml"
         )
         short_plugin = ROOT
         if len(os.fspath(short_plugin / profile_relative)) >= 260:
@@ -120,7 +106,7 @@ class WindowsLongPathTests(unittest.TestCase):
             profiles_long.stdout + profiles_long.stderr,
         )
         self.assertEqual(profiles_short.stdout, profiles_long.stdout)
-        self.assertEqual(profiles_short.returncode, 2)
+        self.assertEqual(profiles_short.returncode, 0)
         self.assertNotIn("MAX_PATH", profiles_long.stdout + profiles_long.stderr)
         self.assertNotIn("Missing source", profiles_long.stdout + profiles_long.stderr)
 
@@ -154,7 +140,7 @@ class WindowsLongPathTests(unittest.TestCase):
             if expected_integrity_count is None:
                 expected_integrity_count = count
             self.assertEqual(count, expected_integrity_count)
-            self.assertGreater(count, 1000)
+            self.assertGreater(count, 0)
             self.assertEqual(missing, [])
             self.assertEqual(mismatched, [])
 

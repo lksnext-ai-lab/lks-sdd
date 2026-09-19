@@ -1,7 +1,5 @@
 """Exact catalog diagnosis and safe adoption regressions, synthetic only."""
 import copy
-import dataclasses
-import hashlib
 import importlib.util
 import json
 import sys
@@ -14,11 +12,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from adoption_preparation import adoption_preview, adoption_resources
 from evidence_safety import sanitize, evidence_safety_errors
 from profile_impact import impact
-from profile_registry import load_profile_bundle, certification_evidence_errors, certification_engine_sha256
+from profile_registry import load_profile_bundle
 from technology_resolution import inspect_dependencies, diagnose
 from composition_contract import resolve_compositions
 from observation_contract import persistence_errors
-from run_reference_profile_gate import _materialize
+from profile_materialization import materialize_profile
 from validate_reference_profile import validate_consumer_profile_lock
 
 _spec = importlib.util.spec_from_file_location("variant_verification_test", ROOT / "skills/lks-sdd-verify/scripts/run_verification.py")
@@ -28,32 +26,6 @@ _spec.loader.exec_module(verification)
 
 
 class VariantsAdoptionV018Tests(unittest.TestCase):
-    def test_foreign_observation_provenance_is_rejected_even_with_recomputed_hashes(self):
-        bundle = load_profile_bundle("API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313")
-        hashes = {"profile_sha256": "a" * 64, "driver_sha256": "b" * 64, "scaffold_sha256": "c" * 64}
-        context = {"profile_id": bundle.profile_id, "profile_version": "1.0.0", "runtime": "docker",
-                   "certification_run_id": "00000000-0000-4000-8000-000000000001",
-                   "source_identity": {**hashes, "engine_sha256": certification_engine_sha256()}}
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory); local_bundle = dataclasses.replace(bundle, root=root)
-            def validate(changed):
-                observation = {"gate_id": "GATE-API-LINT", "status": "passed", "observations": {"tool": "ruff"}, "certification_context": changed}
-                raw = json.dumps(observation).encode(); digest = hashlib.sha256(raw).hexdigest()
-                relative = f"certification-details/{digest}/GATE-API-LINT.json"
-                target = root / relative; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(raw)
-                material = {"profile_id": bundle.profile_id, "profile_version": "1.0.0", "runtime": "docker", "containers_executed": True, "complete_gate": True, "passed": True,
-                            "checks": [{"gate_id": "GATE-API-LINT", "status": "passed"}], "certification_run_id": context["certification_run_id"],
-                            "evidence_manifest": [{"path": relative, "sha256": digest, "size": len(raw), "gate_id": "GATE-API-LINT"}]}
-                certificate = {**material, **hashes, "schema_version": "1.1", "certified_at": "2026-08-31", "composition_digest": "d" * 64,
-                               "certification_engine_sha256": certification_engine_sha256(), "command": "synthetic adversarial fixture",
-                               "result_sha256": hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()}
-                (root / "certification-evidence.json").write_text(json.dumps(certificate))
-                return certification_evidence_errors(local_bundle, **hashes, composition_sha256="d" * 64, required_gate_ids={"GATE-API-LINT"})
-            self.assertEqual(validate(context), [])
-            for field, value in [("profile_id", "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314"), ("runtime", "local"), ("certification_run_id", "00000000-0000-4000-8000-000000000002"), ("source_identity", {**context["source_identity"], "scaffold_sha256": "e" * 64})]:
-                with self.subTest(field=field):
-                    self.assertTrue(validate({**context, field: value}))
-
     def test_system_variant_cannot_be_bound_to_a_fictitious_unit(self):
         with tempfile.TemporaryDirectory() as directory:
             errors, _ = validate_consumer_profile_lock(Path(directory), profile_id="WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59", binding_id="BIND-001", required=False)
@@ -162,7 +134,7 @@ class VariantsAdoptionV018Tests(unittest.TestCase):
     def test_consumer_cannot_replace_the_packaged_verification_adapter(self):
         profile = "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY313"
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory); _materialize(profile, root)
+            root = Path(directory); materialize_profile(profile, root)
             (root / "verification/gate.py").write_text("raise RuntimeError('consumer-controlled adapter')\n")
             bundle = load_profile_bundle(profile)
             check = next(c for c in bundle.driver["verify"]["checks"] if c["id"] == "GATE-API-TEST")

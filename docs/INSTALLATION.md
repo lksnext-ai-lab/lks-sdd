@@ -19,7 +19,7 @@ Si no conoces estas herramientas, empieza por la [guía desde cero](LEARNING-GUI
 Para preparar Codex o usar la alternativa de skills de proyecto, el ZIP es
 `lks-sdd-setup-v2.0.2.zip`: incluye instalador, manifiesto de integridad y ambos
 payloads. No instala Python, extensiones, MCP, credenciales ni herramientas de terceros.
-Los paquetes `development-not-certified` son instalables para evaluación, no releases
+Los paquetes `development-unreleased` son instalables para evaluación, no releases
 certificadas. Consulte [la aceptación](DUAL-HOST-ACCEPTANCE.md) antes de distribuirlos.
 
 ## Requisitos
@@ -277,5 +277,5 @@ python scripts/build_dual_distribution.py --development --output dist/dual-evalu
 La carpeta de salida debe ser nueva y su padre debe existir. Este comando toma archivos
 versionados más las adiciones explícitas de `distribution/dual.json`, excluye temporales
 y no arrastra el sitio web o archivos no versionados ajenos. Emite checksums y etiqueta
-el snapshot como `development-not-certified`. El builder de release existente conserva
+el snapshot como `development-unreleased`. El builder de release existente conserva
 el requisito de commit limpio, quality report y autorización; ahora añade Copilot y setup.

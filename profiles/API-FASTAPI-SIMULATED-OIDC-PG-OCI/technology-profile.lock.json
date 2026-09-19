@@ -3,8 +3,7 @@
   "profile_id": "API-FASTAPI-SIMULATED-OIDC-PG-OCI",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-27",
-  "validated": true,
-  "profile_sha256": "ebd379aa22b116fa0ca149657b3ceff72949aba7e12f3b3c41daf6384d7f4fbf",
+  "profile_sha256": "931edb1a51bf3ec6f42c46c9377aa5f9f95ac8b1eaeee00ced4c86eb380c6f2f",
   "driver_sha256": "2d39e4e2a0b41719794a73ccaa9841cda262d02ec61b70af77d6bc12bbe07d3d",
   "scaffold_sha256": "2af461578ac77bc2b8e6c42f9ba8330391b57f88747a198ace915f5c688a9fbd",
   "capabilities": [
@@ -115,145 +114,102 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-API-AUTHN",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-API-AUTHZ",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-DISCOVERY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-JWKS",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SIMULATED-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-SIMULATED-SAFETY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-FASTAPI-SIMULATED-OIDC-PG",
-    "status": "passed",
-    "digest": "d592a00ba01e7cdd9bbb1a1e9e96cde3b4478c48b0a43688936f867af4870427"
+    "digest": "54109aa577398ee89b141fa060671eaadf2445d66213c69aa86a796e6918ce02"
   },
-  "evidence": [
-    "python scripts/validate_reference_profile.py --profile API-FASTAPI-SIMULATED-OIDC-PG-OCI",
-    "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-SIMULATED-OIDC-PG-OCI --runtime docker --containers",
-    "tests/test_multi_profile_delivery.py"
-  ]
+  "structural": true
 }

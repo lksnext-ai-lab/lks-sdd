@@ -3,10 +3,9 @@
   "profile_id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-31",
-  "validated": true,
-  "profile_sha256": "af607e99af52784db6eba46fac13ecf625182d107d4887dd670812979246f6d2",
+  "profile_sha256": "ab7b8ebf04e872417b378ecfc725e6e95008d29e576adda12d3678dd857362e1",
   "driver_sha256": "78d17ebc271caaf2cdd1135af107c2a2c00a225d64185eb07f68042b0f741b98",
-  "scaffold_sha256": "2b0844fca7188bf97f9222a0660ee55f3b2ec8681d58ffa7fecfbaabf01e179c",
+  "scaffold_sha256": "1c5216d2845fa885e7254f35234ef6dd75d2546c5a08bf45a5d6524eefbb89fe",
   "capabilities": [
     {
       "id": "CAP-API-CONTRACT",
@@ -1764,242 +1763,172 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-FULLSTACK-E2E",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-PY314-TS60-SYSTEM",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-HTTP-CONTRACT-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-CREDENTIALS",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-JWT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-SESSION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-SPA",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-PYTHON-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SECURITY-AUDIT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SECURITY-CONFIG",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-TENANT-AUTHORIZATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-PY314-TS60-SYSTEM",
-    "status": "passed",
-    "digest": "aba94ac89cff02f467f6ba5a7dc0c0b5323a8c43829643e43cd2525610f39400"
+    "digest": "0827248f77111bb9f4684084f12420086cef3d5725655c04e3286f19f3774b59"
   },
-  "evidence": [
-    "profiles/WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY314-TS60/certification-evidence.json",
-    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
-  ]
+  "structural": true
 }

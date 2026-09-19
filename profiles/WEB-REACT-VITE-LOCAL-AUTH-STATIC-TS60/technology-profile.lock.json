@@ -3,8 +3,7 @@
   "profile_id": "WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-31",
-  "validated": true,
-  "profile_sha256": "57080f532e04e1935f470707ebd090638db16621c940d5013b0e2321ea7e4134",
+  "profile_sha256": "bc8de76e05735be33cff548d40b444c6db37071187367a87ad94d623cd5ffa4f",
   "driver_sha256": "6f01f3eef72780d3b4f6d151cf8ba33a734768191820ed2ee4c0359567f3c54a",
   "scaffold_sha256": "faf13110ddba4503c8d0bc49e1fb211e1f6bf17706c97ed381906abdf5bd6150",
   "capabilities": [
@@ -1449,95 +1448,67 @@
     {
       "id": "GATE-BROWSER-ACCESSIBILITY",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-BROWSER-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-TS60-FRONTEND",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-FRONTEND-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-LOCAL-SPA",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-STATIC-OUTPUT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-TS60-FRONTEND",
-    "status": "passed",
-    "digest": "32931443a620e9c9e52aac70ff2dff186c25ae910046fbc45eb8f1c51c3208f7"
+    "digest": "1a500db59d3b333aef6cd195edc3c9bfb043b2f7372be19e4ea98ece21ecd7a0"
   },
-  "evidence": [
-    "profiles/WEB-REACT-VITE-LOCAL-AUTH-STATIC-TS60/certification-evidence.json",
-    "docs/releases/0.18.0/IMPLEMENTATION-MAP.md"
-  ]
+  "structural": true
 }

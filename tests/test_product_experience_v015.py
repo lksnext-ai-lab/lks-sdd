@@ -652,23 +652,5 @@ class ProductExperienceV015Tests(unittest.TestCase):
         )
 
 
-PRODUCT_EXPERIENCE_SHARD_BOUNDARY = 7
-PRODUCT_EXPERIENCE_SECOND_BOUNDARY = 14
-
-
-def load_tests(
-    loader: unittest.TestLoader,
-    standard_tests: unittest.TestSuite,
-    pattern: str | None,
-) -> unittest.TestSuite:
-    """Keep the first deterministic shard below the fast module budget."""
-    del standard_tests, pattern
-    names = loader.getTestCaseNames(ProductExperienceV015Tests)
-    return unittest.TestSuite(
-        ProductExperienceV015Tests(name)
-        for name in names[:PRODUCT_EXPERIENCE_SHARD_BOUNDARY]
-    )
-
-
 if __name__ == "__main__":
     unittest.main()

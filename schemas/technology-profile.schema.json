@@ -5,113 +5,284 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version", "id", "version", "family_id", "profile_scope",
-    "lifecycle", "support_level", "default_rigor", "summary", "units",
-    "dimensions", "required_capabilities", "excluded_capabilities",
-    "capability_bindings", "compatibility_rules", "drivers", "gates",
-    "certification", "owner"
+    "schema_version",
+    "id",
+    "version",
+    "family_id",
+    "profile_scope",
+    "lifecycle",
+    "support_level",
+    "default_rigor",
+    "summary",
+    "units",
+    "dimensions",
+    "required_capabilities",
+    "excluded_capabilities",
+    "capability_bindings",
+    "compatibility_rules",
+    "drivers",
+    "gates",
+    "owner"
   ],
   "properties": {
-    "schema_version": {"const": "2.0"},
-    "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,95}$"},
-    "version": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"},
-    "family_id": {"type": "string", "pattern": "^FAM-[A-Z0-9-]{3,80}$"},
-    "profile_scope": {"enum": ["deployable", "system"]},
-    "lifecycle": {"enum": ["candidate", "active", "withdrawn", "retired"]},
-    "support_level": {"enum": ["H0", "H1", "H2", "H3"]},
-    "default_rigor": {"enum": ["P0", "P1", "P2"]},
-    "summary": {"type": "string", "minLength": 20},
+    "schema_version": {
+      "const": "2.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9-]{2,95}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "family_id": {
+      "type": "string",
+      "pattern": "^FAM-[A-Z0-9-]{3,80}$"
+    },
+    "profile_scope": {
+      "enum": [
+        "deployable",
+        "system"
+      ]
+    },
+    "lifecycle": {
+      "enum": [
+        "candidate",
+        "active",
+        "withdrawn",
+        "retired"
+      ]
+    },
+    "support_level": {
+      "enum": [
+        "H0",
+        "H1",
+        "H2",
+        "H3"
+      ]
+    },
+    "default_rigor": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 20
+    },
     "units": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["role", "runtime", "default_path"],
+        "required": [
+          "role",
+          "runtime",
+          "default_path"
+        ],
         "properties": {
-          "role": {"type": "string", "minLength": 1},
-          "runtime": {"type": "string", "minLength": 1},
-          "default_path": {"type": "string", "minLength": 1}
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtime": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default_path": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
     "dimensions": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["frontend", "backend", "data", "identity", "integration", "delivery", "testing", "observability"],
+      "required": [
+        "frontend",
+        "backend",
+        "data",
+        "identity",
+        "integration",
+        "delivery",
+        "testing",
+        "observability"
+      ],
       "properties": {
-        "frontend": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "backend": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "data": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "identity": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "integration": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "delivery": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "testing": {"type": "array", "items": {"$ref": "#/$defs/component"}},
-        "observability": {"type": "array", "items": {"$ref": "#/$defs/component"}}
+        "frontend": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "backend": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "identity": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "integration": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "delivery": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "testing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        },
+        "observability": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        }
       }
     },
-    "required_capabilities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^CAP-[A-Z0-9-]{3,80}$"}},
-    "excluded_capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^CAP-[A-Z0-9-]{3,80}$"}},
+    "required_capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^CAP-[A-Z0-9-]{3,80}$"
+      }
+    },
+    "excluded_capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^CAP-[A-Z0-9-]{3,80}$"
+      }
+    },
     "capability_bindings": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["capability_id", "provider", "version_range"],
+        "required": [
+          "capability_id",
+          "provider",
+          "version_range"
+        ],
         "properties": {
-          "capability_id": {"type": "string", "pattern": "^CAP-[A-Z0-9-]{3,80}$"},
-          "provider": {"type": "string", "minLength": 1},
-          "version_range": {"type": "string", "minLength": 1}
+          "capability_id": {
+            "type": "string",
+            "pattern": "^CAP-[A-Z0-9-]{3,80}$"
+          },
+          "provider": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version_range": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
-    "compatibility_rules": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "compatibility_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
     "drivers": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["prepare", "verify"],
+      "required": [
+        "prepare",
+        "verify"
+      ],
       "properties": {
-        "prepare": {"type": "string", "pattern": "^profile-driver\\.json$"},
-        "verify": {"type": "string", "pattern": "^profile-driver\\.json$"}
+        "prepare": {
+          "type": "string",
+          "pattern": "^profile-driver\\.json$"
+        },
+        "verify": {
+          "type": "string",
+          "pattern": "^profile-driver\\.json$"
+        }
       }
     },
     "gates": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["capability_gate_ids", "composition_gate_id"],
+      "required": [
+        "capability_gate_ids",
+        "composition_gate_id"
+      ],
       "properties": {
-        "capability_gate_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^GATE-[A-Z0-9-]{3,80}$"}},
-        "composition_gate_id": {"type": "string", "pattern": "^GATE-[A-Z0-9-]{3,80}$"}
+        "capability_gate_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^GATE-[A-Z0-9-]{3,80}$"
+          }
+        },
+        "composition_gate_id": {
+          "type": "string",
+          "pattern": "^GATE-[A-Z0-9-]{3,80}$"
+        }
       }
     },
-    "certification": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["technical_gate", "composition_gate", "e2e_eval", "human_review", "pilot", "validated_at", "review_due", "evidence"],
-      "properties": {
-        "technical_gate": {"$ref": "#/$defs/certificationStatus"},
-        "composition_gate": {"$ref": "#/$defs/certificationStatus"},
-        "e2e_eval": {"$ref": "#/$defs/certificationStatus"},
-        "human_review": {"$ref": "#/$defs/certificationStatus"},
-        "pilot": {"$ref": "#/$defs/certificationStatus"},
-        "validated_at": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
-        "review_due": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
-        "evidence": {"type": "array", "items": {"type": "string", "minLength": 1}}
-      }
-    },
-    "owner": {"type": "string", "minLength": 1}
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    }
   },
   "$defs": {
-    "certificationStatus": {"enum": ["passed", "failed", "not-run", "not-applicable"]},
     "component": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version_range", "required"],
+      "required": [
+        "name",
+        "version_range",
+        "required"
+      ],
       "properties": {
-        "name": {"type": "string", "minLength": 1},
-        "version_range": {"type": "string", "minLength": 1},
-        "required": {"type": "boolean"}
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version_range": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        }
       }
     }
   }

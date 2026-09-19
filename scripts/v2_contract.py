@@ -62,9 +62,10 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
     parts = relative.split("/")
     for index, part in enumerate(parts):
         # Explicit package/scaffold operations may carry a placeholder template or
-        # a named certification result. Ordinary document/code reads never opt in.
+        # a declared template. Ordinary document/code reads never opt in.
         benign_package_leaf = package_data and index == len(parts) - 1 and (
-            part == ".env.example" or (part == "GATE-LOCAL-CREDENTIALS.json" and "certification-details" in parts))
+            part == ".env.example"
+        )
         if part.casefold() == ".git" or (SECRET_NAME.search(part) and not benign_package_leaf):
             raise ContractError("Sensitive or Git path is not a contract input: " + relative)
         current /= part

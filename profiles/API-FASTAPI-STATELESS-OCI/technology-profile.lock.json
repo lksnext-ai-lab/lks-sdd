@@ -3,8 +3,7 @@
   "profile_id": "API-FASTAPI-STATELESS-OCI",
   "profile_version": "1.0.0",
   "generated_at": "2026-08-21",
-  "validated": true,
-  "profile_sha256": "032c0dac58180ca6f080143a98aca7726b17e5d88d2de0554160de884609b5ae",
+  "profile_sha256": "f35da0351ade7586724f665937f8060bd7ee44742a9b423a7326ee6b42a1cfa2",
   "driver_sha256": "5eaea0bb9362e23c2a197e6c49e85f81a0e8a013069309e88692d51ce3cfc991",
   "scaffold_sha256": "a69c123a5b99f43db5058474fe74076da8c8d6a28140fa0ad07054da15d9aa7f",
   "capabilities": [
@@ -77,82 +76,57 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-FASTAPI-STATELESS",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-STATELESS-OCI/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-FASTAPI-STATELESS",
-    "status": "passed",
-    "digest": "b69a9192f09950a951f281490a8a33dfa0e45abd1217d2d1427a368b92872e03"
+    "digest": "6ea680a29578b3f1cb6a8aed1f475cfbd8211d9549f8c06fe56ea61d71f2af37"
   },
-  "evidence": [
-    "python scripts/validate_reference_profile.py --profile API-FASTAPI-STATELESS-OCI",
-    "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-STATELESS-OCI --runtime docker --containers",
-    "tests/test_multi_profile_delivery.py"
-  ]
+  "structural": true
 }

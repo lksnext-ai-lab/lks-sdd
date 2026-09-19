@@ -3,8 +3,7 @@
   "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
   "profile_version": "1.1.0",
   "generated_at": "2026-08-31",
-  "validated": true,
-  "profile_sha256": "715370fd509e5d79c8bb0c625cd8630e3a222660ea37b5948a8cb574b00cce82",
+  "profile_sha256": "c3a12782666a74737f895d38cfd2480b6a59b645a18f95b2f0a93c1b1b26bf5e",
   "driver_sha256": "9e01ccb460da5daa9ac94b4a8997332682f7b6f8bca96427224c0ca03b1f4ee1",
   "scaffold_sha256": "e74a791dd51b4efd68888c6137a51cc9ed6196dc80353b784874b7392263f5c7",
   "capabilities": [
@@ -105,110 +104,77 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-FASTAPI-OIDC-PG",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-OIDC-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "passed",
-      "evidence": "profiles/API-FASTAPI-KEYCLOAK-PG-OCI/certification-evidence.json"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-FASTAPI-OIDC-PG",
-    "status": "passed",
-    "digest": "eb6a3c7ca5775f585e7483433e37c80c70d8e8ee9ad9cf1d40f941d89fc95e04"
+    "digest": "7b0b9849710757b477c675c7c1bbd68fffb6925eb796b2ee3ebc542a38f55c2e"
   },
-  "evidence": [
-    "python scripts/validate_reference_profile.py --profile API-FASTAPI-KEYCLOAK-PG-OCI",
-    "python scripts/run_reference_profile_gate.py --profile API-FASTAPI-KEYCLOAK-PG-OCI --runtime docker --containers",
-    "tests/test_multi_profile_delivery.py"
-  ]
+  "structural": true
 }

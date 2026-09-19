@@ -79,7 +79,6 @@ REQUIRED_ROOT_FILES = {
     "docs/releases/v0.18.0.md",
     "docs/releases/v1.0.0.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
-    "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
     "docs/RELEASING.md",
     "docs/VALIDATION.md",
@@ -95,7 +94,6 @@ REQUIRED_ROOT_FILES = {
     "scripts/validate_spec.py",
     "scripts/check_traceability.py",
     "scripts/render_client_view.py",
-    "scripts/run_quality_harness.py",
     "scripts/validate_fixture_manifest.py",
     "scripts/manage_pilot.py",
     "scripts/build_candidate_package.py",
@@ -125,43 +123,8 @@ REQUIRED_ROOT_FILES = {
     "scripts/task_tracking_engine.py",
     "scripts/manage_task_tracking.py",
     "scripts/jira_reporting_engine.py",
-    "scripts/run_fast_validation.py",
-    "scripts/quality_execution.py",
-    "scripts/update_performance_baseline.py",
-    "scripts/verify_profile_certifications.py",
     "scripts/manage_continuity.py",
-    "scripts/update_profile_locks.py",
-    "quality/catalog.json",
-    "quality/corpora/activation.json",
-    "quality/corpora/definition-v0.6.0.json",
-    "quality/corpora/definition-v0.8.0.json",
-    "quality/corpora/definition-v0.9.0.json",
-    "quality/corpora/definition-v0.10.0.json",
-    "quality/corpora/definition-v0.11.0.json",
-    "quality/corpora/definition-v0.12.0.json",
-    "quality/corpora/definition-v0.14.0.json",
-    "quality/corpora/definition-v0.15.0.json",
-    "quality/corpora/definition-v0.16.0.json",
-    "quality/corpora/definition-v0.17.0.json",
-    "quality/corpora/definition-v0.18.0.json",
-    "quality/corpora/definition-v2.0.0.json",
     "quality/fixture-manifest.json",
-    "quality/test-suites.json",
-    "quality/v0.15-e2e-matrix.json",
-    "quality/test-impact-map.json",
-    "quality/performance-policy.json",
-    "quality/baselines/v0.3.0.json",
-    "quality/baselines/v0.4.0.json",
-    "quality/baselines/v0.6.1.json",
-    "quality/baselines/v0.10.0.json",
-    "quality/baselines/v0.11.0.json",
-    "quality/baselines/v0.12.0.json",
-    "quality/baselines/v0.13.0.json",
-    "quality/baselines/v0.14.2.json",
-    "quality/baselines/v0.15.0.json",
-    "schemas/quality-observations.schema.json",
-    "schemas/quality-report.schema.json",
-    "schemas/quality-report-1.1.schema.json",
     "schemas/verification-evidence-1.2.schema.json",
     "schemas/verification-evidence-1.3.schema.json",
     "schemas/visual-review-evidence-1.2.schema.json",
@@ -170,18 +133,15 @@ REQUIRED_ROOT_FILES = {
     "schemas/pilot-config.schema.json",
     "schemas/pilot-observation.schema.json",
     "schemas/pilot-summary.schema.json",
-    "schemas/release-approval.schema.json",
     "schemas/document-contracts.json",
     "schemas/document-contracts.schema.json",
     "schemas/project-1.5.schema.json",
     "schemas/frontmatter-1.5.schema.json",
     "schemas/profile-catalog.schema.json",
     "schemas/profile-driver.schema.json",
-    "schemas/profile-certification.schema.json",
     "schemas/delivery-evidence.schema.json",
     "distribution/marketplace.template.json",
     "pilot/pilot-config.example.json",
-    "quality/release-approval-v1.0.0.json",
     "pilot/PLAN.md",
     "pilot/ONBOARDING.md",
     "pilot/ROLLBACK.md",
@@ -191,7 +151,6 @@ REQUIRED_ROOT_FILES = {
     ".github/workflows/quality.yml",
     "templates/client/client-deliverable.md",
     "tests/test_task_tracking_v14.py",
-    "tests/test_jira_reporting_v15.py",
     "tests/test_validation_evidence_v016.py",
     "tests/fixtures/validation-evidence-v016.json",
 }
@@ -319,11 +278,7 @@ RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/experience_engine.py": {"subprocess"},
     "scripts/manage_continuity.py": {"subprocess"},
     "scripts/manage_task_tracking.py": {"urllib.parse"},
-    "scripts/run_reference_profile_gate.py": {"subprocess"},
-    "scripts/run_quality_harness.py": {"subprocess"},
-    "scripts/run_fast_validation.py": {"subprocess"},
-    "scripts/quality_execution.py": {"subprocess"},
-    "scripts/update_performance_baseline.py": {"subprocess"},
+    "scripts/run_release_gate.py": {"subprocess"},
     "scripts/work_task.py": {"subprocess"},
     "scripts/task_tracking_engine.py": {"urllib.parse"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {
@@ -753,8 +708,6 @@ def validate(root: Path) -> list[str]:
     for schema_name in (
         "technology-profile.schema.json",
         "technology-profile-lock.schema.json",
-        "quality-observations.schema.json",
-        "quality-report.schema.json",
         "pilot-config.schema.json",
         "pilot-observation.schema.json",
         "pilot-summary.schema.json",
@@ -763,7 +716,6 @@ def validate(root: Path) -> list[str]:
         "frontmatter-1.5.schema.json",
         "profile-catalog.schema.json",
         "profile-driver.schema.json",
-        "profile-certification.schema.json",
         "delivery-evidence.schema.json",
         "document-contracts.json",
         "document-contracts.schema.json",
@@ -808,13 +760,6 @@ def validate(root: Path) -> list[str]:
                     errors.append(f"{profile_id}: falta {filename}.")
             if not (profile_root / "scaffold").is_dir():
                 errors.append(f"{profile_id}: falta scaffold/.")
-            if (
-                entry.get("lifecycle") == "active"
-                and not (profile_root / "certification-evidence.json").is_file()
-            ):
-                errors.append(
-                    f"{profile_id}: active exige certification-evidence.json."
-                )
         from profile_registry import validate_profile_bundle
 
         for profile_id, entry in sorted(catalog_profiles.items()):
@@ -900,40 +845,24 @@ def validate(root: Path) -> list[str]:
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
-    try:
-        release_approval = json.loads(
-            (root / "quality" / "release-approval-v1.0.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        decision = release_approval.get("decision", {})
-        if release_approval.get("release_version") != "1.0.0":
-            errors.append("La aprobación histórica estable debe seguir vinculada a 1.0.0.")
-        # A candidate must not inherit a previous stable release authorization.
-        if plugin_version and "-" not in plugin_version and plugin_version != "1.0.0":
-            current_path = root / "quality" / f"release-approval-v{plugin_version}.json"
-            from run_quality_harness import validate_release_approval
-            try:
-                current = json.loads(current_path.read_text(encoding="utf-8"))
-                validate_release_approval(current, plugin_version)
-                if current.get("decision", {}).get("status") != "approved":
-                    errors.append("La release stable actual requiere aprobación explícita.")
-            except (OSError, ValueError, RuntimeError) as exc:
-                errors.append(f"Falta aprobación estable vigente: {exc}")
-        if release_approval.get("scope") != "stable-release":
-            errors.append("La aprobación debe limitarse al cierre de la release stable.")
-        if release_approval.get("evidence_handling") != "aggregated-no-identities":
-            errors.append("La aprobación debe conservar evidencia agregada sin identidades.")
-        if (
-            decision.get("status") != "approved"
-            or decision.get("authority_role") != "project-owner"
-            or decision.get("blocking_findings") != []
-        ):
-            errors.append(
-                "La release stable requiere aprobación sin bloqueantes del project-owner."
-            )
-    except (OSError, json.JSONDecodeError, AttributeError):
-        errors.append("La aprobación estable 1.0.0 no es legible o válida.")
+    if plugin_version and "-" not in plugin_version:
+        current_path = root / "quality" / f"release-approval-v{plugin_version}.json"
+        try:
+            approval = json.loads(current_path.read_text(encoding="utf-8"))
+            decision = approval.get("decision", {})
+            if (
+                approval.get("release_version") != plugin_version
+                or approval.get("scope") != "stable-release"
+                or approval.get("evidence_handling") != "aggregated-no-identities"
+                or decision.get("status") != "approved"
+                or decision.get("authority_role") != "project-owner"
+                or decision.get("blocking_findings") != []
+            ):
+                errors.append(
+                    "La release stable requiere aprobación vigente sin bloqueantes."
+                )
+        except (OSError, json.JSONDecodeError, AttributeError):
+            errors.append("La aprobación estable vigente no es legible o válida.")
 
     package_builder = root / "scripts" / "build_candidate_package.py"
     if package_builder.is_file():
@@ -946,10 +875,8 @@ def validate(root: Path) -> list[str]:
             "--quality-report",
             "QUALITY_REPORT_NAME",
             "tree_state",
-            "baseline_sha256",
-            "baseline_version",
-            "baseline_relative",
-            "_definition_corpus_relative",
+            "simple-release-gate-1.0",
+            "package-integrity.json",
         ):
             if marker not in package_text:
                 errors.append(
@@ -1086,188 +1013,6 @@ def validate(root: Path) -> list[str]:
             errors.append("ART-TRACKING debe conservar exactamente sus seis tablas cerradas.")
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         errors.append("document-contracts.json no expone ART-TRACKING 1.4/1.5.")
-
-    try:
-        quality_report = json.loads(
-            (root / "schemas" / "quality-report.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        quality_required = set(quality_report["required"])
-        source_contract = quality_report["properties"]["source"]
-        if quality_report["properties"]["schema_version"].get("const") != "1.2":
-            errors.append("quality-report.schema.json debe fijar schema_version 1.2.")
-        if "source" not in quality_required or set(source_contract["required"]) != {
-            "commit",
-            "tree_state",
-        }:
-            errors.append(
-                "El reporte de calidad debe exigir commit y estado del árbol fuente."
-            )
-        if source_contract["properties"]["tree_state"].get("enum") != [
-            "clean",
-            "dirty",
-        ]:
-            errors.append("El estado fuente debe distinguir clean y dirty.")
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("quality-report.schema.json no expone el vínculo de release 1.1.")
-
-    try:
-        baseline_061 = json.loads(
-            (root / "quality" / "baselines" / "v0.6.1.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        expected_metrics = {
-            "automated_eval_cases": 5,
-            "automated_eval_pass_rate": 1.0,
-            "unit_tests_total": 81,
-            "unit_tests_executed": 80,
-            "unit_tests_passed": 80,
-            "unit_tests_skipped": 1,
-            "unit_tests_failed": 0,
-            "critical_failures": 0,
-            "profile_structure_gate": 1,
-            "profile_complete_gate": 1,
-        }
-        if (
-            baseline_061.get("plugin_version") != "0.6.1"
-            or baseline_061.get("source_commit")
-            != "7318ccc337570e296bffda68a8e49724bed94c99"
-            or baseline_061.get("metrics") != expected_metrics
-        ):
-            errors.append("La baseline v0.6.1 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.6.1.json no es una baseline válida.")
-
-    try:
-        baseline_010 = json.loads(
-            (root / "quality" / "baselines" / "v0.10.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_010 = baseline_010.get("metrics", {})
-        if (
-            baseline_010.get("plugin_version") != "0.10.0"
-            or baseline_010.get("source_commit")
-            != "9e8d6ed2a22073d11a50b303db884b9938e4e2c1"
-            or metrics_010.get("unit_tests_total") != 231
-            or metrics_010.get("unit_tests_passed") != 230
-            or metrics_010.get("unit_tests_failed") != 0
-            or metrics_010.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.10.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.10.0.json no es una baseline válida.")
-
-    try:
-        baseline_011 = json.loads(
-            (root / "quality" / "baselines" / "v0.11.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_011 = baseline_011.get("metrics", {})
-        if (
-            baseline_011.get("plugin_version") != "0.11.0"
-            or baseline_011.get("source_commit")
-            != "ace1d2e95f0f7267f99e9e64da23160abccf1cfb"
-            or metrics_011.get("unit_tests_total") != 237
-            or metrics_011.get("unit_tests_passed") != 236
-            or metrics_011.get("unit_tests_failed") != 0
-            or metrics_011.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.11.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.11.0.json no es una baseline válida.")
-
-    try:
-        baseline_012 = json.loads(
-            (root / "quality" / "baselines" / "v0.12.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_012 = baseline_012.get("metrics", {})
-        if (
-            baseline_012.get("plugin_version") != "0.12.0"
-            or baseline_012.get("source_commit")
-            != "64d83cd1389e765521c698a35df90da61428d870"
-            or metrics_012.get("automated_catalog_cases") != 41
-            or metrics_012.get("unit_tests_total") != 239
-            or metrics_012.get("unit_tests_passed") != 238
-            or metrics_012.get("unit_tests_skipped") != 1
-            or metrics_012.get("unit_tests_failed") != 0
-            or metrics_012.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.12.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.12.0.json no es una baseline válida.")
-
-    try:
-        baseline_013 = json.loads(
-            (root / "quality" / "baselines" / "v0.13.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_013 = baseline_013.get("metrics", {})
-        if (
-            baseline_013.get("plugin_version") != "0.13.0"
-            or baseline_013.get("source_commit")
-            != "accb675d7fb66ebf19e151064acc88ae9d4a8c44"
-            or metrics_013.get("automated_catalog_cases") != 42
-            or metrics_013.get("unit_tests_total") != 240
-            or metrics_013.get("unit_tests_passed") != 239
-            or metrics_013.get("unit_tests_skipped") != 1
-            or metrics_013.get("unit_tests_failed") != 0
-            or metrics_013.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.13.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.13.0.json no es una baseline válida.")
-
-    try:
-        baseline_0142 = json.loads(
-            (root / "quality" / "baselines" / "v0.14.2.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_0142 = baseline_0142.get("metrics", {})
-        if (
-            baseline_0142.get("plugin_version") != "0.14.2"
-            or baseline_0142.get("source_commit")
-            != "a303370c2555236c1778f276e187a4bb3c1926f5"
-            or metrics_0142.get("automated_catalog_cases") != 43
-            or metrics_0142.get("unit_tests_total") != 263
-            or metrics_0142.get("unit_tests_passed") != 262
-            or metrics_0142.get("unit_tests_skipped") != 1
-            or metrics_0142.get("unit_tests_failed") != 0
-            or metrics_0142.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.14.2 no coincide con la medición del commit publicado.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.14.2.json no es una baseline válida.")
-
-    try:
-        baseline_015 = json.loads(
-            (root / "quality" / "baselines" / "v0.15.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_015 = baseline_015.get("metrics", {})
-        if (
-            baseline_015.get("plugin_version") != "0.15.0"
-            or baseline_015.get("source_commit")
-            != "4d1c6374f1b4b1ee4f107d8e0f5ed765ca799ab9"
-            or metrics_015.get("automated_catalog_cases") != 43
-            or metrics_015.get("automated_eval_cases") != 6
-            or metrics_015.get("unit_tests_total") != 276
-            or metrics_015.get("unit_tests_passed") != 275
-            or metrics_015.get("unit_tests_skipped") != 1
-            or metrics_015.get("unit_tests_failed") != 0
-            or metrics_015.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.15.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.15.0.json no es una baseline válida.")
 
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:

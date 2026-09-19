@@ -3,8 +3,7 @@
   "profile_id": "API-FASTAPI-ENTRA-PG-OCI",
   "profile_version": "1.0.0-candidate.1",
   "generated_at": "2026-08-21",
-  "validated": false,
-  "profile_sha256": "765893997d8a830855951f07e6155bada809889d7e4635f9d9623100aba8eabb",
+  "profile_sha256": "964aa894d4237f9a37a6fcc42f0d124671117b027ccea9f8a7d6066d9f893b81",
   "driver_sha256": "6b3ab0e22d5a155eae59d35090010f7ea90cd093f11fbfaa1288af243d38a478",
   "scaffold_sha256": "01749269760abbb4ab58aa61ed6836388bbaeb1d4373c7945b58ee6134fc8770",
   "capabilities": [
@@ -120,150 +119,107 @@
     {
       "id": "GATE-API-LINT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-LOCK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-OPENAPI",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-TEST",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-API-TYPECHECK",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-COMPOSE-FASTAPI-ENTRA-PG",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DATA-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DATA-MIGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-DELIVERY-EVIDENCE",
       "phase": "G4",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-ENTRA-PERMISSIONS",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-ENTRA-TENANT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-BUILD",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OCI-SMOKE",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-API-AUTHN",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-API-AUTHZ",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-CONTRACT",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-DISCOVERY",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-INTEGRATION",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-OIDC-JWKS",
       "phase": "G3",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     },
     {
       "id": "GATE-SCAFFOLD-INTEGRITY",
       "phase": "G2",
-      "required": true,
-      "status": "not-run",
-      "evidence": "profile API-FASTAPI-ENTRA-PG-OCI: exact certification not available"
+      "required": true
     }
   ],
   "composition": {
     "gate_id": "GATE-COMPOSE-FASTAPI-ENTRA-PG",
-    "status": "not-run",
-    "digest": "9c25f0d4eb70a96bee47a7084952b1f6dc07acb8641d4e8acf0453772a13ef62"
+    "digest": "3aa82fe241099eb4b47a2a0761bdad8a3ecaa98709ca32bbb2fca69949be0ab2"
   },
-  "evidence": [
-    "Candidate scaffold, capability gates and external interoperability gate are packaged; exact certification is pending."
-  ]
+  "structural": false
 }

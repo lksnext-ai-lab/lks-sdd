@@ -8,32 +8,109 @@
   "support_level": "H1",
   "default_rigor": "P1",
   "summary": "Next.js App Router application with a persistent Node.js server runtime, server rendering and browser hydration.",
-  "units": [{"role": "web-ssr", "runtime": "Node.js server and browser hydration", "default_path": "."}],
+  "units": [
+    {
+      "role": "web-ssr",
+      "runtime": "Node.js server and browser hydration",
+      "default_path": "."
+    }
+  ],
   "dimensions": {
     "frontend": [
-      {"name": "Next.js", "version_range": "16.3.x", "required": true},
-      {"name": "React", "version_range": "19.2.x", "required": true},
-      {"name": "TypeScript", "version_range": "6.0.x", "required": true}
+      {
+        "name": "Next.js",
+        "version_range": "16.3.x",
+        "required": true
+      },
+      {
+        "name": "React",
+        "version_range": "19.2.x",
+        "required": true
+      },
+      {
+        "name": "TypeScript",
+        "version_range": "6.0.x",
+        "required": true
+      }
     ],
-    "backend": [{"name": "Node.js", "version_range": "24.x LTS", "required": true}],
+    "backend": [
+      {
+        "name": "Node.js",
+        "version_range": "24.x LTS",
+        "required": true
+      }
+    ],
     "data": [],
     "identity": [],
     "integration": [],
-    "delivery": [{"name": "Node.js server artifact", "version_range": "Next standalone contract", "required": true}],
-    "testing": [
-      {"name": "Vitest", "version_range": "4.1.x", "required": true},
-      {"name": "Playwright", "version_range": "1.62.x", "required": true}
+    "delivery": [
+      {
+        "name": "Node.js server artifact",
+        "version_range": "Next standalone contract",
+        "required": true
+      }
     ],
-    "observability": [{"name": "server and client telemetry", "version_range": "project decision", "required": true}]
+    "testing": [
+      {
+        "name": "Vitest",
+        "version_range": "4.1.x",
+        "required": true
+      },
+      {
+        "name": "Playwright",
+        "version_range": "1.62.x",
+        "required": true
+      }
+    ],
+    "observability": [
+      {
+        "name": "server and client telemetry",
+        "version_range": "project decision",
+        "required": true
+      }
+    ]
   },
-  "required_capabilities": ["CAP-SCAFFOLD-COPY", "CAP-FRONTEND-QUALITY", "CAP-SSR-RUNTIME", "CAP-BROWSER-PLAYWRIGHT", "CAP-DELIVERY-EVIDENCE"],
-  "excluded_capabilities": ["CAP-STATIC-BUNDLE", "CAP-API-CONTRACT", "CAP-IDENTITY-OIDC", "CAP-DATA-POSTGRES", "CAP-MESSAGE-RABBITMQ", "CAP-STREAM-KAFKA"],
+  "required_capabilities": [
+    "CAP-SCAFFOLD-COPY",
+    "CAP-FRONTEND-QUALITY",
+    "CAP-SSR-RUNTIME",
+    "CAP-BROWSER-PLAYWRIGHT",
+    "CAP-DELIVERY-EVIDENCE"
+  ],
+  "excluded_capabilities": [
+    "CAP-STATIC-BUNDLE",
+    "CAP-API-CONTRACT",
+    "CAP-IDENTITY-OIDC",
+    "CAP-DATA-POSTGRES",
+    "CAP-MESSAGE-RABBITMQ",
+    "CAP-STREAM-KAFKA"
+  ],
   "capability_bindings": [
-    {"capability_id": "CAP-SCAFFOLD-COPY", "provider": "LKS-SDD copy driver", "version_range": "1.0.0"},
-    {"capability_id": "CAP-FRONTEND-QUALITY", "provider": "ESLint + TypeScript + Vitest", "version_range": "9 / 6 / 4"},
-    {"capability_id": "CAP-SSR-RUNTIME", "provider": "Next.js App Router", "version_range": "16.3"},
-    {"capability_id": "CAP-BROWSER-PLAYWRIGHT", "provider": "Playwright and axe-core", "version_range": "1.62 / 4.13"},
-    {"capability_id": "CAP-DELIVERY-EVIDENCE", "provider": "LKS-SDD G4 evidence", "version_range": "1.0.0"}
+    {
+      "capability_id": "CAP-SCAFFOLD-COPY",
+      "provider": "LKS-SDD copy driver",
+      "version_range": "1.0.0"
+    },
+    {
+      "capability_id": "CAP-FRONTEND-QUALITY",
+      "provider": "ESLint + TypeScript + Vitest",
+      "version_range": "9 / 6 / 4"
+    },
+    {
+      "capability_id": "CAP-SSR-RUNTIME",
+      "provider": "Next.js App Router",
+      "version_range": "16.3"
+    },
+    {
+      "capability_id": "CAP-BROWSER-PLAYWRIGHT",
+      "provider": "Playwright and axe-core",
+      "version_range": "1.62 / 4.13"
+    },
+    {
+      "capability_id": "CAP-DELIVERY-EVIDENCE",
+      "provider": "LKS-SDD G4 evidence",
+      "version_range": "1.0.0"
+    }
   ],
   "compatibility_rules": [
     "This is a server-runtime profile; static export is a different profile and delivery contract.",
@@ -41,29 +118,25 @@
     "Secrets remain server-side and NEXT_PUBLIC values are treated as public build inputs.",
     "The same built server artifact is promoted through environments by immutable identity."
   ],
-  "drivers": {"prepare": "profile-driver.json", "verify": "profile-driver.json"},
+  "drivers": {
+    "prepare": "profile-driver.json",
+    "verify": "profile-driver.json"
+  },
   "gates": {
     "capability_gate_ids": [
-      "GATE-SCAFFOLD-INTEGRITY", "GATE-FRONTEND-LOCK", "GATE-FRONTEND-LINT",
-      "GATE-FRONTEND-TYPECHECK", "GATE-FRONTEND-TEST", "GATE-SSR-BUILD",
-      "GATE-SSR-RUNTIME", "GATE-SSR-HYDRATION", "GATE-BROWSER-SMOKE",
-      "GATE-BROWSER-ACCESSIBILITY", "GATE-DELIVERY-EVIDENCE"
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-FRONTEND-LOCK",
+      "GATE-FRONTEND-LINT",
+      "GATE-FRONTEND-TYPECHECK",
+      "GATE-FRONTEND-TEST",
+      "GATE-SSR-BUILD",
+      "GATE-SSR-RUNTIME",
+      "GATE-SSR-HYDRATION",
+      "GATE-BROWSER-SMOKE",
+      "GATE-BROWSER-ACCESSIBILITY",
+      "GATE-DELIVERY-EVIDENCE"
     ],
     "composition_gate_id": "GATE-COMPOSE-NEXTJS-SSR"
-  },
-  "certification": {
-    "technical_gate": "passed",
-    "composition_gate": "passed",
-    "e2e_eval": "passed",
-    "human_review": "not-applicable",
-    "pilot": "not-applicable",
-    "validated_at": "2026-08-21",
-    "review_due": "2026-11-21",
-    "evidence": [
-      "python scripts/validate_reference_profile.py --profile WEB-NEXTJS-SSR-NODE",
-      "python scripts/run_reference_profile_gate.py --profile WEB-NEXTJS-SSR-NODE --runtime docker",
-      "tests/test_multi_profile_delivery.py"
-    ]
   },
   "owner": "LKS-SDD maintainers"
 }
