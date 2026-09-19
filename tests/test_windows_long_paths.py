@@ -59,15 +59,15 @@ class WindowsLongPathTests(unittest.TestCase):
         long_plugin = long_container / "plugin"
         ignore = shutil.ignore_patterns(".git", "site", "__pycache__", "*.pyc")
         shutil.copytree(ROOT, long_plugin, ignore=ignore)
-        profile_relative = Path(
-            "profiles/API-FASTAPI-SIMULATED-OIDC-PG-OCI/technology-profile.yaml"
+        source_relative = Path(
+            "schemas/technology-declaration-2.0.schema.json"
         )
         short_plugin = ROOT
-        if len(os.fspath(short_plugin / profile_relative)) >= 260:
+        if len(os.fspath(short_plugin / source_relative)) >= 260:
             short_plugin = container / "short-plugin"
             shutil.copytree(ROOT, short_plugin, ignore=ignore)
-        self.assertLess(len(os.fspath(short_plugin / profile_relative)), 260)
-        self.assertGreater(len(os.fspath(long_plugin / profile_relative)), 260)
+        self.assertLess(len(os.fspath(short_plugin / source_relative)), 260)
+        self.assertGreater(len(os.fspath(long_plugin / source_relative)), 260)
 
         def command(
             plugin: Path, *args: str, cwd: Path | None = None
@@ -95,20 +95,7 @@ class WindowsLongPathTests(unittest.TestCase):
         self.assertEqual(contract_short.returncode, 0, contract_short.stdout + contract_short.stderr)
         self.assertEqual(contract_long.returncode, 0, contract_long.stdout + contract_long.stderr)
 
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            profiles_short, profiles_long = pool.map(
-                lambda item: command(item, "validate_reference_profile.py", "--all"),
-                (short_plugin, long_plugin),
-            )
-        self.assertEqual(
-            profiles_short.returncode,
-            profiles_long.returncode,
-            profiles_long.stdout + profiles_long.stderr,
-        )
-        self.assertEqual(profiles_short.stdout, profiles_long.stdout)
-        self.assertEqual(profiles_short.returncode, 0)
-        self.assertNotIn("MAX_PATH", profiles_long.stdout + profiles_long.stderr)
-        self.assertNotIn("Missing source", profiles_long.stdout + profiles_long.stderr)
+
 
         core = _runtime_core()
         core["scripts/path_utils.py"] = (ROOT / "scripts/path_utils.py").read_bytes()

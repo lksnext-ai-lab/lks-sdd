@@ -2,7 +2,7 @@
 
 ## Objetivo y muestra
 
-El piloto valida utilidad, coherencia y carga documental con tres a cinco proyectos y cinco a ocho participantes. Debe incluir una ruta greenfield con perfil active certificado, una adopción de repositorio existente y una arquitectura/perfil alternativo; un caso de riesgo reforzado es opcional. La muestra debe representar al menos dos modelos de entrega entre `bounded-release`, `continuous-evolution` y `maintenance-stream`, incluir `repository-only` y, si se autoriza la interoperabilidad externa, al menos un proyecto `jira-hybrid` con site de prueba y peer Rovo separado. Solo se admiten proyectos sintéticos, copias sanitizadas o entornos no productivos con autorización confirmada.
+El piloto valida utilidad, coherencia y carga documental con tres a cinco proyectos y cinco a ocho participantes. Debe incluir una ruta greenfield con tecnología confirmada localmente, una adopción de repositorio existente y, cuando proceda, una transición tecnológica explícita; un caso de riesgo reforzado es opcional. La muestra debe representar al menos dos modelos de entrega entre `bounded-release`, `continuous-evolution` y `maintenance-stream`, incluir `repository-only` y, si se autoriza la interoperabilidad externa, al menos un proyecto `jira-hybrid` con site de prueba y peer Rovo separado. Solo se admiten proyectos sintéticos, copias sanitizadas o entornos no productivos con autorización confirmada.
 
 ## Duración
 

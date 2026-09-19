@@ -91,7 +91,7 @@ def validate(root, plugin_root):
         if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
             raise QueryError("Hash de runtime inválido.")
         parts = name.split("/")
-        template = name in files and re.fullmatch(r"profiles/[A-Z0-9-]+/scaffold/(?:[A-Za-z0-9_-]+/)*\.env\.example", name)
+        template = False
         if any(SECRET_NAME.search(p) for p in parts[:-1]) or SECRET_NAME.search(parts[-1]) and not template:
             raise QueryError("El lock no puede convertir un secreto en fuente de consulta.")
     allowed_managed = {"AGENTS.md", ".github/copilot-instructions.md", ".github/lks-sdd-host.md",

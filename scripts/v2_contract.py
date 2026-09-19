@@ -23,7 +23,8 @@ METHOD = "2.0.0"
 READER = "lks-sdd-v2/1"
 DOCS = "docs/lks-sdd"
 HISTORY = DOCS + "/00-control/history"
-KINDS = set("project feature group requirement acceptance rule constraint task increment plan release test decision interface binding environment authorization execution checkpoint problem change applicability legacy receipt visual".split())
+TECHNOLOGY_DECLARATION_PATH = DOCS + "/03-solution/technology-declaration.md"
+KINDS = set("project feature group requirement acceptance rule constraint task increment plan release test decision interface binding environment authorization execution checkpoint problem change applicability legacy receipt visual technology".split())
 RELATIONS = set("parent uses depends_on requirements acceptance tests contributes_to implements modifies replaces splits merges increment release plan bindings interfaces environments decision authorizes execution verifies sources affects".split())
 OPERATIONAL = {"authorization", "execution", "checkpoint", "problem", "receipt"}
 NON_NORMATIVE_BY_DEFAULT = {"legacy"}
@@ -33,7 +34,7 @@ LINK = re.compile(r"(?<!!)\[([^\]]+)\]\((?:<([^>]+)>|([^\s)]+))\)")
 ASSET = re.compile(r"!\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))\)")
 ANCHOR = re.compile(r'<a\s+id=[\"\']([^\"\']+)[\"\']\s*></a>')
 DOMAINS = ("ux", "data", "identity", "security", "privacy", "interfaces", "quality", "operation")
-STATES = {"draft", "proposed", "confirmed", "approved", "active", "effective", "superseded", "retired", "cancelled", "unknown", "conflict", "backlog", "ready", "in-progress", "in-review", "done", "blocked", "paused", "completed", "revoked", "open", "resolved", "reconciliation-required"}
+STATES = {"draft", "proposed", "confirmed", "approved", "active", "effective", "superseded", "retired", "cancelled", "unknown", "conflict", "backlog", "ready", "in-progress", "in-review", "done", "blocked", "paused", "completed", "revoked", "open", "resolved", "reconciliation-required", "observed", "transition"}
 
 
 class ContractError(ValueError):
@@ -243,6 +244,7 @@ class Model:
     preambles: dict[str, str] = field(default_factory=dict)
     hashes: dict[str, str] = field(default_factory=dict)
     assets: dict[str, dict[str, str]] = field(default_factory=dict)
+    technology_declarations: list[Element] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
@@ -299,6 +301,77 @@ def resolve_link(source: str, target: str) -> tuple[str, str]:
     return resolved, unquote(parsed.fragment)
 
 
+def _validate_technology_declaration(model: Model) -> None:
+    """Validate the canonical local declaration and its immutable local evidence."""
+    declaration_path = TECHNOLOGY_DECLARATION_PATH
+    declared_paths = {
+        artifact.get("path") for artifact in model.manifest.get("artifacts", [])
+        if isinstance(artifact, dict)
+    }
+    if declaration_path not in declared_paths:
+        model.errors.append("Project technology declaration is not indexed")
+        return
+    if declaration_path not in model.documents:
+        model.errors.append("Project technology declaration is missing: " + declaration_path)
+        return
+    declarations = [
+        element for element in model.elements.values() if element.kind == "technology"
+    ]
+    misplaced = [element.id for element in declarations if element.path != declaration_path]
+    if misplaced:
+        model.errors.append("Technology declarations must be local to " + declaration_path + ": " + ", ".join(sorted(misplaced)))
+        return
+    try:
+        from v2_schema import validate
+        validate("technology-declaration", {
+            "schema_version": VERSION,
+            "project_id": model.manifest["project_id"],
+            "declarations": [element.meta for element in declarations],
+        })
+        for element in declarations:
+            technology = element.meta["technology"]
+            if technology["state"] != element.meta["state"]:
+                raise ContractError("Technology state must match element state: " + element.id)
+            scope = set(technology["scope"])
+            if "global" in scope and len(scope) != 1:
+                raise ContractError("Technology scope cannot mix global and TASK selectors: " + element.id)
+            if "global" not in scope:
+                for task_id in sorted(scope):
+                    task = model.elements.get(task_id)
+                    if task is None or task.kind != "task":
+                        raise ContractError(
+                            "Technology scope must reference an existing TASK element: "
+                            + task_id
+                        )
+            for evidence in [*technology["evidence"], *technology["provenance"]]:
+                relative = evidence["path"]
+                expected = evidence["sha256"]
+                if sha(read_bytes(model.root, relative, limit=16 * 1024 * 1024)) != expected:
+                    raise ContractError("Technology evidence hash mismatch: " + relative)
+                model.hashes[relative] = expected
+        model.technology_declarations = sorted(declarations, key=lambda element: element.id)
+    except (ContractError, KeyError, TypeError, ValueError) as exc:
+        model.errors.append("Invalid project technology declaration: " + str(exc))
+
+
+def technology_readiness(model: Model, tasks: list[str]) -> dict:
+    """Report local technology uncertainty without treating an observation as approval."""
+    selected = set(tasks)
+    blockers, unresolved = [], []
+    for element in model.technology_declarations:
+        technology = element.meta["technology"]
+        scope = set(technology["scope"])
+        if "global" not in scope and not (scope & selected):
+            continue
+        if element.meta["state"] != "confirmed":
+            unresolved.append(element.id)
+        if technology["critical"] and element.meta["state"] != "confirmed":
+            blockers.append("Critical technology declaration unresolved: " + element.id)
+    return {"status": "blocked" if blockers else "documented",
+            "blockers": sorted(set(blockers)),
+            "unresolved": sorted(set(unresolved))}
+
+
 def load(root: Path) -> Model:
     root = lexical_root(root)
     from v2_storage import VALIDATING, ensure_idle
@@ -323,18 +396,6 @@ def load(root: Path) -> Model:
         text = raw.decode("utf-8").replace("\r\n", "\n")
         model.documents[relative] = text
         model.hashes[relative] = sha(raw)
-        if relative == DOCS + "/03-solution/technology-variants.md":
-            from project_variants import read_markdown, validate_schema
-            validate_schema(read_markdown(root, relative), "project-variants.schema.json")
-            model.preambles[relative] = text
-            continue
-        if relative.startswith(DOCS + "/00-control/technology-approvals/"):
-            from project_variants import read_markdown, digest
-            approval = read_markdown(root, relative)
-            if digest({k: v for k, v in approval.items() if k != "approval_id"}) != approval.get("approval_id"):
-                model.errors.append("Technology approval integrity mismatch")
-            model.preambles[relative] = ""
-            continue
         try:
             elements, preamble = parse_document(text, relative)
             model.preambles[relative] = preamble
@@ -346,6 +407,7 @@ def load(root: Path) -> Model:
                 uids[element.meta["uid"]] = element.id
         except ContractError as exc:
             model.errors.append(str(exc))
+    _validate_technology_declaration(model)
     for element in model.elements.values():
         for target in element.targets():
             if target not in model.elements:
@@ -438,6 +500,11 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             raise ContractError("Inactive TASK cannot be an execution root: " + task)
     selected = set(tasks)
     reasons = {t: ["selected-task"] for t in tasks}
+    for declaration in model.technology_declarations:
+        scope = set(declaration.meta["technology"]["scope"])
+        if "global" in scope or scope & selected:
+            selected.add(declaration.id)
+            reasons.setdefault(declaration.id, []).append("local-technology-declaration")
     changed = True
     # Include complete relation closure and inverse contributors/consumers.
     while changed:
@@ -502,6 +569,7 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             blockers.append("Applicability exclusion needs reason: " + domain)
         elif entry.meta["applicability"] == "applicable" and not entry.targets("requirements"):
             blockers.append("Applicable domain has no documented obligations: " + domain)
+    blockers.extend(technology_readiness(model, tasks)["blockers"])
     material = model.normative(selected)
     return {"schema_version": VERSION, "kind": "execution-context", "task_ids": tasks,
             "status": "blocked" if blockers else "sufficient", "blockers": sorted(set(blockers)),

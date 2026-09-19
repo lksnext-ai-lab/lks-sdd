@@ -1,7 +1,0 @@
-{
-  "artifact_type": "oci-image",
-  "promotion_identity": "sha256 digest",
-  "required_dependencies": ["tenant-specific Microsoft Entra issuer", "API app registration", "PostgreSQL"],
-  "recovery": ["application rollback", "database restore or forward-fix"],
-  "reference_credentials": "no credentials are packaged; real interoperability uses ephemeral environment input"
-}

@@ -14,6 +14,7 @@ from eval_support import (
     MATERIALIZE_ADOPTION_SCRIPT,
     VALIDATE_ADOPTION_SCRIPT,
     VALIDATE_SPEC_SCRIPT,
+    V2_CLI,
     initialize,
     materialize_ready_project,
     materialize_ready_increment,
@@ -371,163 +372,54 @@ class M3WorkflowTests(unittest.TestCase):
             self.assertEqual(collision.read_text(encoding="utf-8"), "human collision\n")
             self.assertFalse(result["changed"])
 
-    def test_v2_migration_is_explicit_without_changing_the_legacy_initializer(self):
-        plugin_root = Path(__file__).resolve().parents[1]
-        self.assertFalse((plugin_root / "scripts" / "migrate_project.py").exists())
-        process = subprocess.run(
-            [
-                os.environ.get("PYTHON", "python"),
-                str(plugin_root / "scripts" / "lks_sdd.py"),
-                "--help",
-            ],
-            cwd=plugin_root,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            check=False,
-        )
-        self.assertEqual(process.returncode, 0, process.stderr)
-        self.assertIn("migrate", process.stdout)
-        self.assertTrue((plugin_root / "scripts" / "v2_migration.py").is_file())
-        with tempfile.TemporaryDirectory(prefix="lks-v2-legacy-init-") as directory:
-            root = Path(directory)
-            initialize(root, "synthetic-legacy-contract")
-            self.assertEqual(json.loads((root / ".lks-sdd/project.json").read_text())["schema_version"], "1.5")
-
-    def test_invalid_evidence_record_does_not_satisfy_the_contract(self):
+    def test_initializer_creates_the_current_local_contract(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:
             root = Path(directory)
-            materialize_ready_project(root, "invalid-evidence")
-            trace = root / "docs" / "lks-sdd" / "05-quality" / "traceability.md"
-            trace.write_text(
-                trace.read_text(encoding="utf-8").replace(
-                    "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | none |",
-                    "| FR-001 | AC-001 | ADR-001 | INC-001 | TEST-001 | EVID-001 |",
-                ),
-                encoding="utf-8",
-            )
-            evidence = root / "docs" / "lks-sdd" / "evidence" / "EVID-001.json"
-            evidence.parent.mkdir()
-            evidence.write_text(
-                json.dumps(
-                    {
-                        "evidence_id": "EVID-001",
-                        "increment": "INC-999",
-                        "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
-                        "profile_version": "1.0.0-candidate.1",
-                        "revision": None,
-                        "classification": "verified",
-                        "checks": [{"name": "synthetic", "status": "passed"}],
-                        "limitations": [],
-                    },
-                    indent=2,
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-            code, result = run_json(VALIDATE_SPEC_SCRIPT, str(root), expected_codes={2})
-            self.assertEqual(code, 2)
-            self.assertFalse(result["valid"])
+            initialize(root, "current-local-contract")
+            manifest = json.loads((root / ".lks-sdd/project.json").read_text())
+
+            self.assertEqual(manifest["schema_version"], "2.0")
+            self.assertNotIn("technology", manifest)
             self.assertTrue(
-                any(
-                    "increment no referencia un incremento definido" in error
-                    for error in result["errors"]
-                )
+                (root / "docs/lks-sdd/03-solution/technology-declaration.md").is_file()
             )
 
-    def test_client_view_includes_only_confirmed_client_sources(self):
+    def test_validation_uses_the_local_technology_declaration(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:
             root = Path(directory)
-            initialize(root, "client-view")
-            brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
-            text = brief.read_text(encoding="utf-8")
-            text = text.replace("status: draft", "status: confirmed", 1).replace(
-                "classification: internal", "classification: client", 1
-            )
-            text += "\nConfirmed client-safe outcome.\n"
-            brief.write_text(text, encoding="utf-8")
-            constraints = root / "docs" / "lks-sdd" / "01-context" / "constraints.md"
-            constraints.write_text(
-                constraints.read_text(encoding="utf-8")
-                + "\npassword: internal-only-value\n",
-                encoding="utf-8",
-            )
-            _, preview = run_json(
-                CLIENT_VIEW_SCRIPT,
-                str(root),
-                "--audience",
-                "Client steering group",
-                "--purpose",
-                "Baseline review",
-                "--date",
-                "2026-08-19",
-                "--dry-run",
-            )
-            self.assertEqual(preview["source_ids"], ["ART-BRIEF"])
-            _, applied = run_json(
-                CLIENT_VIEW_SCRIPT,
-                str(root),
-                "--audience",
-                "Client steering group",
-                "--purpose",
-                "Baseline review",
-                "--date",
-                "2026-08-19",
-                "--apply",
-                "--authorize",
-                "--preview-hash",
-                preview["preview_hash"],
-            )
-            output = root / applied["output"]
-            rendered = output.read_text(encoding="utf-8")
-            self.assertIn("Confirmed client-safe outcome.", rendered)
-            self.assertNotIn("internal-only-value", rendered)
-            self.assertIn("pendiente de revisión y aprobación", rendered)
+            initialize(root, "local-validation")
 
-    def test_client_view_blocks_sensitive_eligible_source(self):
+            code, result = run_json(V2_CLI, "validate", str(root))
+
+            self.assertEqual(code, 0)
+            self.assertEqual(result["status"], "valid")
+            self.assertIn(
+                "docs/lks-sdd/03-solution/technology-declaration.md",
+                result["checked_files"],
+            )
+
+    def test_context_is_read_only_for_a_current_project(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:
             root = Path(directory)
-            initialize(root, "client-sensitive")
-            brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
-            text = brief.read_text(encoding="utf-8")
-            text = text.replace("status: draft", "status: confirmed", 1).replace(
-                "classification: internal", "classification: client", 1
-            )
-            brief.write_text(
-                text + "\nclient_secret=must-not-leave\n", encoding="utf-8"
-            )
+            materialize_ready_project(root, "context-read-only")
             before = tree_digest(root)
-            code, result = run_json(
-                CLIENT_VIEW_SCRIPT,
-                str(root),
-                "--audience",
-                "Client",
-                "--purpose",
-                "Review",
-                "--date",
-                "2026-08-19",
-                "--dry-run",
-                expected_codes={3},
+
+            _, context = run_json(
+                V2_CLI, "context", str(root), "--task", "TASK-001"
             )
-            self.assertEqual(code, 3)
-            self.assertEqual(result["status"], "blocked-sensitive-source")
+
+            self.assertEqual(context["status"], "sufficient")
             self.assertEqual(before, tree_digest(root))
 
-    def test_client_view_never_writes_through_directory_symlinks(self):
+    def test_current_validation_never_writes_through_a_directory_link(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-m3-") as directory:
             container = Path(directory)
             root = container / "project"
             root.mkdir()
-            initialize(root, "client-symlink")
-            brief = root / "docs" / "lks-sdd" / "01-context" / "product-brief.md"
-            text = brief.read_text(encoding="utf-8")
-            text = text.replace("status: draft", "status: confirmed", 1).replace(
-                "classification: internal", "classification: client", 1
-            )
-            brief.write_text(text, encoding="utf-8")
+            materialize_ready_project(root, "linked-validation")
             outside = container / "outside"
             outside.mkdir()
-            link = root / "deliverables"
+            link = root / "docs" / "lks-sdd" / "03-solution" / "linked"
             try:
                 link.symlink_to(outside, target_is_directory=True)
             except OSError as symlink_error:
@@ -547,21 +439,13 @@ class M3WorkflowTests(unittest.TestCase):
                         "El entorno no permite crear symlinks ni junctions: "
                         + junction.stderr
                     )
+            before = tree_digest(outside)
             code, result = run_json(
-                CLIENT_VIEW_SCRIPT,
-                str(root),
-                "--audience",
-                "Client",
-                "--purpose",
-                "Review",
-                "--date",
-                "2026-08-19",
-                "--dry-run",
-                expected_codes={2},
+                V2_CLI, "validate", str(root), expected_codes={2}
             )
             self.assertEqual(code, 2)
-            self.assertEqual(result["status"], "error")
-            self.assertFalse((outside / "lks-sdd" / "client-view.md").exists())
+            self.assertEqual(result["status"], "blocked")
+            self.assertEqual(before, tree_digest(outside))
 
 
 if __name__ == "__main__":

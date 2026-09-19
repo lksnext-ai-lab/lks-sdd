@@ -19,7 +19,7 @@ docs/lks-sdd/
         specification.md
     shared/                  reglas transversales y aplicabilidad
     catalog.md               solo si se solicita exportar la vista derivada
-  03-solution/               decisiones técnicas, interfaces, bindings y entornos
+  03-solution/               declaración tecnológica local, decisiones, interfaces, bindings y entornos
   04-delivery/               planes, TASK, ejecución, checkpoints y recibos
   evidence/                  resultados y artefactos inmutables
 ```
@@ -29,6 +29,28 @@ vacíos. La anidación es lógica: `parent` identifica un padre principal; `uses
 capacidad utilizada; `depends_on` una dependencia. La impresión puede pertenecer a
 pedidos y ser utilizada por expediciones, manteniendo una sola definición.
 No se heredan aprobación, requisitos o estado por ser hija de otra funcionalidad.
+
+## Declaración tecnológica local
+
+Todo proyecto v2 contiene
+`03-solution/technology-declaration.md`, indexado en `project.json`. Es Markdown
+canónico: cada `TECH-###` declara un asunto, su alcance (`global` o TASK
+explícitas), criticidad, evidencia local con hash y procedencia histórica cuando
+exista. Los únicos estados admitidos son `observed`, `proposed`, `confirmed`,
+`unknown` y `transition`.
+
+Una observación procede de documentación, locks o manifiestos locales y no confirma
+una selección. Una propuesta tampoco concede preparación. Solo una declaración
+`confirmed`, con evidencia local vigente, puede satisfacer una necesidad tecnológica
+crítica. Los `unknown` no críticos pueden permanecer visibles; no acreditan
+preparación para una TASK de su alcance. Un `unknown`, `observed`, `proposed` o
+`transition` crítico bloquea ese alcance hasta su confirmación explícita.
+
+Las fuentes tecnológicas 1.x retiradas no son conceptos v2 activos en esta
+declaración. El recibo de migración conserva su antecedente histórico, pero no
+copia su ID o estado como valor confirmado. Los `binding` genéricos siguen
+representando relaciones no tecnológicas y no sustituyen una declaración
+tecnológica local.
 
 ## Formato de un documento
 

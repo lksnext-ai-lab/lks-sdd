@@ -134,72 +134,12 @@ def inspect_dependencies(root: Path) -> dict[str, Any]:
     return clean
 
 
-def diagnose(root: Path, profile_id: str, *, snapshot: dict[str, Any] | None = None) -> dict[str, Any]:
-    from profile_registry import load_profile_bundle, resolve_profile
-    result = inspect_dependencies(root)
-    bundle = load_profile_bundle(profile_id)
-    variant = bundle.driver.get("variant", {})
-    relative = variant.get("resolution")
-    if not relative:
-        return {**result, "profile_id": profile_id, "compatibility": "not-evaluated",
-                "certified": False, "reasons": ["profile has no exact technology resolution; version_range is descriptive"]}
-    try:
-        expected = json.loads(safe_file(ROOT, relative).read_text(encoding="utf-8"))
-    except (ValueError, OSError):
-        return {**result, "profile_id": profile_id, "compatibility": "insufficient-information",
-                "certified": False, "reasons": ["exact resolution is unavailable"]}
-    missing, different = [], []
-    different.extend(set(result["resolved"]) - set(expected.get("packages", {})))
-    for package, version in expected.get("packages", {}).items():
-        actual = result["resolved"].get(package)
-        if actual is None:
-            missing.append(package)
-        elif actual != version:
-            different.append(package)
-    contradictions = [key for key, val in result["declared"].items()
-                      if EXACT.fullmatch(val) and key in result["resolved"]
-                      and val not in (result["resolved"][key] if isinstance(result["resolved"][key], list) else [result["resolved"][key]])]
-    for runtime, expected_version in expected.get("runtimes", {}).items():
-        actual = result["runtime_declared"].get(runtime)
-        if actual is None:
-            missing.append("runtime:" + runtime)
-        elif actual != expected_version and not str(expected_version).startswith(actual + "."):
-            different.append("runtime:" + runtime)
-    for tool, version in expected.get("tools", {}).items():
-        if tool not in result["tools_declared"]:
-            missing.append("tool:" + tool)
-        elif result["tools_declared"][tool] != version:
-            different.append("tool:" + tool)
-    if contradictions or result["errors"]:
-        compatibility = "incompatible" if contradictions else "insufficient-information"
-    elif different:
-        compatibility = "not-evaluated"
-    elif missing or not expected.get("runtimes"):
-        compatibility = "insufficient-information"
-    else:
-        compatibility = "catalog-match"
-    reasons = [f"missing resolved dependency: {p}" for p in missing] + [f"outside certified combination: {p}" for p in different]
-    reasons += [f"manifest/lock disagreement: {p}" for p in contradictions] + result["errors"]
-    changed = snapshot is not None and snapshot.get("dependency_fingerprint") != result["dependency_fingerprint"]
-    if changed:
-        reasons.append("consumer dependencies changed despite profile lock; revalidation required")
-    support = resolve_profile(profile_id)
-    return {**result, "profile_id": profile_id, "contract_id": variant.get("contract_id"),
-            "compatibility": compatibility, "certified": compatibility == "catalog-match" and support.verifiable and not changed,
-            "runtime_certified": False, "dependency_drift": changed, "reasons": reasons,
-            "resolution_sha256": digest(expected), "support_errors": list(support.errors)}
-
-
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description="Inspect local dependency declarations without executing them.")
     parser.add_argument("project_root", type=Path)
-    parser.add_argument("--profile")
-    parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
-    value = diagnose(args.project_root, args.profile) if args.profile else inspect_dependencies(args.project_root)
-    print(json.dumps(value, ensure_ascii=False, indent=2))
+    print(json.dumps(inspect_dependencies(args.project_root), ensure_ascii=False, indent=2))
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

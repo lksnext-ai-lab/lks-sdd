@@ -84,7 +84,7 @@ jobs:
           $version = (Get-Content .codex-plugin\plugin.json -Raw | ConvertFrom-Json).version
           $sourceCommit = (git rev-parse HEAD).Trim()
           if ($version.Contains('-')) { throw "El preflight estable exige una versión estable." }
-          "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
+          "LKS_SDD_RELEASE_DATE=$date" >> $env:GITHUB_ENV
           "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
           "LKS_SDD_SOURCE_COMMIT=$sourceCommit" >> $env:GITHUB_ENV
           @{
@@ -109,14 +109,14 @@ jobs:
         run: |
           python -B -X utf8 scripts/run_release_gate.py `
             --channel stable `
-            --date $env:LKS_SDD_CERTIFICATION_DATE `
+            --date $env:LKS_SDD_RELEASE_DATE `
             --release-approval "quality\release-approval-v$env:LKS_SDD_RELEASE_VERSION.json" `
             --output "$env:RUNNER_TEMP\release-gate.json"
       - name: Build and validate preflight package
         shell: pwsh
         run: |
           python -B -X utf8 scripts/build_candidate_package.py `
-            --date $env:LKS_SDD_CERTIFICATION_DATE `
+            --date $env:LKS_SDD_RELEASE_DATE `
             --source-commit $env:LKS_SDD_SOURCE_COMMIT `
             --quality-report "$env:RUNNER_TEMP\release-gate.json" `
             --output "$env:RUNNER_TEMP\candidate"
@@ -165,7 +165,7 @@ jobs:
           $channel = if ($version.Contains('-')) { "candidate" } else { "stable" }
           $sourceCommit = (git rev-parse HEAD).Trim()
           if ($env:GITHUB_REF_NAME -ne "v$version") { throw "La etiqueta no coincide con el manifest: $env:GITHUB_REF_NAME vs v$version" }
-          "LKS_SDD_CERTIFICATION_DATE=$date" >> $env:GITHUB_ENV
+          "LKS_SDD_RELEASE_DATE=$date" >> $env:GITHUB_ENV
           "LKS_SDD_RELEASE_VERSION=$version" >> $env:GITHUB_ENV
           "LKS_SDD_RELEASE_CHANNEL=$channel" >> $env:GITHUB_ENV
           "LKS_SDD_SOURCE_COMMIT=$sourceCommit" >> $env:GITHUB_ENV
@@ -247,7 +247,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "$env:RUNNER_TEMP\release-evidence" | Out-Null
-          $date = $env:LKS_SDD_CERTIFICATION_DATE
+          $date = $env:LKS_SDD_RELEASE_DATE
           $channel = $env:LKS_SDD_RELEASE_CHANNEL
           $approval = @()
           if ($channel -eq "stable") { $approval = @("--release-approval", "quality\release-approval-v$env:LKS_SDD_RELEASE_VERSION.json") }
@@ -256,7 +256,7 @@ jobs:
         if: steps.preflight.outputs.mode == 'rebuild'
         shell: pwsh
         run: |
-          $date = $env:LKS_SDD_CERTIFICATION_DATE
+          $date = $env:LKS_SDD_RELEASE_DATE
           python -X utf8 scripts/build_candidate_package.py --date $date --source-commit $env:LKS_SDD_SOURCE_COMMIT --quality-report "$env:RUNNER_TEMP\release-evidence\release-gate.json" --output "$env:RUNNER_TEMP\release-evidence\candidate"
           if ($LASTEXITCODE -ne 0) { throw "Build inválido" }
           python -B -X utf8 scripts/validate_release_artifacts.py `

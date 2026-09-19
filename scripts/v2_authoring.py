@@ -9,7 +9,8 @@ import uuid
 
 from v2_contract import (ContractError, DOCS, HISTORY, DOMAINS, BLOCK, ID, VERSION, METHOD,
                          Model, OPERATIONAL, canonical, fingerprint, load, make_element, metadata,
-                         parse_document, path_at, read_bytes, render_block, render_document, sha)
+                         parse_document, path_at, read_bytes, render_block, render_document, sha,
+                         TECHNOLOGY_DECLARATION_PATH)
 from v2_storage import apply, ensure_idle, preview, stage_contract
 
 
@@ -33,11 +34,34 @@ def initialize(root: Path, name: str, *, project_id: str | None = None) -> tuple
                           nature="unknown", state="unknown") for i, domain in enumerate(DOMAINS, 1)]
     project_path = DOCS + "/01-context/project.md"
     rules_path = DOCS + "/02-specification/shared/applicability.md"
+    project_document = render_document("project", name, [project])
+    technology = entity(
+        "TECH-001", "technology", "Tecnología pendiente de confirmar",
+        "No se presume una pila tecnológica. Registre observaciones locales y confirme una decisión antes de usarla para preparar trabajo.",
+        state="unknown", nature="unknown", relations={}, technology={
+            "subject": "project technology decision",
+            "state": "unknown",
+            "critical": True,
+            "scope": ["global"],
+            "evidence": [{
+                "kind": "consumer-document",
+                "path": project_path,
+                "sha256": sha(project_document),
+            }],
+            "provenance": [],
+        },
+    )
+    technology_document = render_document(
+        "technology-declaration", "Declaración tecnológica local", [technology],
+        preamble="La declaración es local al proyecto. Una observación o una propuesta no equivale a una selección confirmada.",
+    )
     index = {"schema_version": VERSION, "method_version": METHOD, "project_id": project_id,
              "plugin_version": json.loads((Path(__file__).resolve().parents[1] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))["version"], "name": name, "artifacts": [
-                 {"id": "PRJ-001", "path": project_path}, {"id": "APP-001", "path": rules_path}]}
-    changes = {project_path: render_document("project", name, [project]),
+                 {"id": "PRJ-001", "path": project_path}, {"id": "APP-001", "path": rules_path},
+                 {"id": "TECH-001", "path": TECHNOLOGY_DECLARATION_PATH}]}
+    changes = {project_path: project_document,
                rules_path: render_document("applicability", "Aplicabilidad del cambio", obligations),
+               TECHNOLOGY_DECLARATION_PATH: technology_document,
                ".lks-sdd/project.json": canonical(index) + b"\n"}
     return preview(root, changes, sources={}, operation="initialize-v2"), changes
 

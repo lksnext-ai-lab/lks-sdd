@@ -25,7 +25,7 @@ last_updated: "{{DATE}}"
 
 ## Detalle contractual por pantalla
 
-| Screen | Entry and exit | Information hierarchy | Secondary actions | Permissions and role variants | Responsive and priority devices | Accessibility | Pending content |
+| Screen | Entry and exit | Information hierarchy | Secondary actions | Permissions and role documented scope | Responsive and priority devices | Accessibility | Pending content |
 |---|---|---|---|---|---|---|---|
 
 ## Estados por pantalla

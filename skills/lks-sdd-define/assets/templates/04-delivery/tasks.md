@@ -20,7 +20,7 @@ last_updated: "{{DATE}}"
 
 ## PLAN-001 · Horizonte inicial
 
-| ID | Plan | Title | Release | Increment | Unit | Profile binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated |
+| ID | Plan | Title | Release | Increment | Unit | Binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 
 Use una tabla por `PLAN-###` o versión mayor para mantener el seguimiento legible. `Workflow state` admite `backlog`, `ready`, `in-progress`, `in-review`, `done`, `blocked` y `cancelled`; `Health` admite `on-track`, `at-risk`, `blocked` y `unknown`; `Progress` usa un entero de 0 a 100. Cada fila enlaza un detalle independiente en `./tasks/TASK-###.md`.

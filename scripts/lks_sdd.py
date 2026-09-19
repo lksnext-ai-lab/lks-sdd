@@ -42,10 +42,6 @@ COMMANDS = {
     "planning": "scripts/manage_planning.py",
     "tracking": "scripts/manage_task_tracking.py",
     "continuity": "scripts/manage_continuity.py",
-    "profiles": "scripts/validate_reference_profile.py",
-    "compatibility": "scripts/technology_resolution.py",
-    "variants": "scripts/manage_project_variants.py",
-    "profile-impact": "scripts/profile_impact.py",
     "validate-project": "scripts/validate_project.py",
     "validate-spec": "scripts/validate_spec.py",
     "traceability": "scripts/check_traceability.py",
@@ -115,7 +111,7 @@ def main() -> int:
     if command in {"catalog", "context", "history", "migrate"}:
         from v2_cli import main as v2_main
         return v2_main(forwarded, command=command)
-    if command not in {"v2", "query", "variants", "profiles", "compatibility", "profile-impact", "runtime-doctor", "visual-handoff"} and forwarded and not forwarded[0].startswith("-"):
+    if command not in {"v2", "query", "runtime-doctor", "visual-handoff"} and forwarded and not forwarded[0].startswith("-"):
         from v2_cli import is_v2, main as v2_main
         project = Path(forwarded[0])
         if command == "define" and project.is_dir() and not (project / ".lks-sdd/project.json").exists():
@@ -141,12 +137,9 @@ def main() -> int:
                 if action == "review":
                     arguments += ["--state", "in-review"]
                 return v2_main(arguments, command=action_route[action])
-            if command not in {"query", "compatibility", "profiles", "profile-impact", "runtime-doctor", "visual-handoff"}:
+            if command not in {"query", "runtime-doctor", "visual-handoff"}:
                 print(json.dumps({"status": "blocked", "error": "This legacy command does not write contract 2.0; use lks_sdd.py v2 --help"}))
                 return 2
-    if command == "verify" and "--variant" in forwarded:
-        from manage_project_variants import forward_verify
-        return forward_verify(forwarded)
     target = (PLUGIN_ROOT / COMMANDS[command]).resolve()
     try:
         target.relative_to(PLUGIN_ROOT)

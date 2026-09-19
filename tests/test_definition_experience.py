@@ -1,188 +1,66 @@
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from eval_support import (
-    HELP_SCRIPT,
-    PLUGIN_ROOT,
-    VALIDATE_SCRIPT,
-    _append_row,
-    initialize,
-    run_json,
-    tree_digest,
-)
+from eval_support import V2_CLI, initialize, run_json, tree_digest
 
 
 class DefinitionExperienceTests(unittest.TestCase):
-    def test_templates_expose_discovery_coverage_and_visual_contracts(self):
+    def test_initializer_creates_a_local_mandatory_technology_declaration(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-definition-") as directory:
             root = Path(directory)
-            initialize(root, "definition-experience")
-            docs = root / "docs" / "lks-sdd"
+            initialized = initialize(root, "definition-experience")
 
-            brief = (docs / "01-context" / "product-brief.md").read_text(
-                encoding="utf-8"
-            )
-            self.assertIn("## Dominio y contexto profesional", brief)
-            self.assertIn("## Usuario, tarea, proceso o decisión", brief)
-            self.assertIn("## Entradas, reglas y fuentes", brief)
-            self.assertNotIn("aplicación genérica confirmada", brief)
-
-            open_points = (docs / "00-control" / "open-points.md").read_text(
-                encoding="utf-8"
-            )
-            for term in (
-                "dominio",
-                "quién",
-                "tarea",
-                "reglas",
-                "fuentes",
-                "resultado",
-            ):
-                self.assertIn(term, open_points)
-
-            status = (docs / "00-control" / "project-status.md").read_text(
-                encoding="utf-8"
-            )
-            self.assertIn(
-                "| Dimensión | Estado | Alcance | Información disponible | "
-                "Falta profundizar | Impacto |",
-                status,
-            )
-            self.assertIn(
-                "Completar encuadre inicial: dominio, usuario, tarea y resultado",
-                status,
-            )
-            self.assertNotIn("%", status)
-
-            increments = (docs / "04-delivery" / "increments.md").read_text(
-                encoding="utf-8"
-            )
-            self.assertIn(
-                "| Increment | Interface applicability | UX contract | "
-                "Visual mode | Visual prototype | Reason |",
-                increments,
-            )
-            self.assertIn("elementos `UX-###`", increments)
-
-            ux_template = (
-                PLUGIN_ROOT
-                / "skills"
-                / "lks-sdd-define"
-                / "assets"
-                / "templates"
-                / "03-solution"
-                / "ux-accessibility.md"
+            declaration = (
+                root / "docs/lks-sdd/03-solution/technology-declaration.md"
             ).read_text(encoding="utf-8")
-            self.assertIn(
-                "| ID | State | Asset | Format | Viewport | Screens or flow | "
-                "Requirements | Source | Generated on | Prompt or brief | SHA-256 | "
-                "Human validation | Confirmation scope | Limitations | Decision | Increment |",
-                ux_template,
+            manifest = json.loads(
+                (root / ".lks-sdd/project.json").read_text(encoding="utf-8")
             )
-            self.assertIn("docs/lks-sdd/03-solution/ui-prototypes/", ux_template)
-            self.assertIn("rol-o-alias-no-identificativo", ux_template)
-            self.assertIn("una y tres propuestas", ux_template)
-            self.assertIn("no cree una fila `VIS-###`", ux_template)
 
-    def test_context_help_groups_coverage_without_writing(self):
+            self.assertEqual(initialized["status"], "applied")
+            self.assertIn("Declaración tecnológica local", declaration)
+            self.assertIn('"id":"TECH-001"', declaration)
+            self.assertNotIn("profile", declaration.lower())
+            self.assertNotIn("technology", manifest)
+            self.assertIn(
+                {"id": "TECH-001", "path": "docs/lks-sdd/03-solution/technology-declaration.md"},
+                manifest["artifacts"],
+            )
+
+    def test_cli_preview_is_json_and_does_not_write(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-definition-") as directory:
             root = Path(directory)
-            initialize(root, "coverage-summary")
-            status_path = (
-                root
-                / "docs"
-                / "lks-sdd"
-                / "00-control"
-                / "project-status.md"
-            )
-            status = status_path.read_text(encoding="utf-8")
-            status = status.replace(
-                "| Contexto profesional, problema y valor | unknown | project | "
-                "No confirmado durante la inicialización | Dominio, proceso, "
-                "problema, tarea o decisión y resultado esperado | Impide "
-                "confirmar el propósito y el valor |",
-                "| Contexto profesional, problema y valor | sufficient | project | "
-                "ART-BRIEF: dominio y problema confirmados | Ninguno para el "
-                "encuadre actual | Permite avanzar a delimitar el alcance |",
-                1,
-            )
-            status = status.replace(
-                "| Stakeholders, usuarios y uso | unknown | project | No "
-                "confirmado durante la inicialización | Perfiles, necesidades y "
-                "situación de uso | Impide priorizar experiencia y requisitos |",
-                "| Stakeholders, usuarios y uso | partial | project | ART-BRIEF: "
-                "perfil principal identificado | Falta confirmar la situación de "
-                "uso | Limita la priorización de experiencia |",
-                1,
-            )
-            status = status.replace(
-                "| Operación | unknown | project | Aplicabilidad no confirmada | "
-                "Despliegue, observabilidad y continuidad | Puede dejar requisitos "
-                "operativos sin tratar |",
-                "| Operación | not-applicable: prototipo sin operación | project | "
-                "El alcance no incluye explotación | Ninguno para este alcance | "
-                "No condiciona el encuadre actual |",
-                1,
-            )
-            status_path.write_text(status, encoding="utf-8", newline="\n")
-
             before = tree_digest(root)
-            _, result = run_json(HELP_SCRIPT, str(root))
-            after = tree_digest(root)
 
-            self.assertEqual(result["structural_validity"]["status"], "valid")
-            coverage = result["definition_coverage"]
-            self.assertTrue(coverage["available"])
-            self.assertEqual(coverage["source"], "ART-STATUS")
-            self.assertIn(
-                "Contexto profesional, problema y valor", coverage["sufficient"]
+            _, preview = run_json(
+                V2_CLI,
+                "init",
+                str(root),
+                "--name",
+                "Preview project",
+                "--project-id",
+                "preview-project",
             )
-            self.assertIn("Stakeholders, usuarios y uso", coverage["needs_depth"])
-            self.assertIn("Alcance", coverage["unknown"])
-            self.assertIn(
-                "Operación: prototipo sin operación", coverage["not_applicable"]
-            )
-            self.assertEqual(
-                result["next_decision"],
-                "Completar encuadre inicial: dominio, usuario, tarea y resultado",
-            )
-            self.assertFalse(result["readiness_snapshot"]["revalidated"])
-            self.assertEqual(before, after)
 
-            process = subprocess.run(
-                [sys.executable, "-X", "utf8", str(HELP_SCRIPT), str(root)],
-                cwd=PLUGIN_ROOT,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="strict",
-                check=False,
+            self.assertEqual(preview["status"], "preview")
+            self.assertEqual(preview["operation"], "initialize-v2")
+            self.assertIn(
+                "docs/lks-sdd/03-solution/technology-declaration.md",
+                preview["writes"],
             )
-            self.assertEqual(process.returncode, 0, process.stderr)
-            self.assertIn("✓ sufficient — suficiente para avanzar", process.stdout)
-            self.assertIn("△ partial — requiere profundización", process.stdout)
-            self.assertIn("○ unknown — aún desconocido", process.stdout)
-            self.assertIn("⛔ blocked — bloqueos", process.stdout)
-            self.assertIn("fase=definition", process.stdout)
-            self.assertIn("alcance=coverage-summary", process.stdout)
-            self.assertIn("→ Siguiente decisión", process.stdout)
-            self.assertIn("no se persiste", process.stdout)
             self.assertEqual(before, tree_digest(root))
 
-    def test_unsupported_project_schema_is_rejected_without_mutation(self):
+    def test_invalid_v2_index_is_rejected_without_mutation(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-definition-") as directory:
             root = Path(directory)
             initialize(root, "unsupported-schema")
-            manifest_path = root / ".lks-sdd" / "project.json"
+            manifest_path = root / ".lks-sdd/project.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            manifest["method_version"] = "1.4.0"
-            manifest["schema_version"] = "1.4"
+            manifest["schema_version"] = "1.5"
             manifest_path.write_text(
                 json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8",
@@ -191,13 +69,11 @@ class DefinitionExperienceTests(unittest.TestCase):
             before = tree_digest(root)
 
             code, validation = run_json(
-                VALIDATE_SCRIPT, str(root), expected_codes={2}
+                V2_CLI, "validate", str(root), expected_codes={2}
             )
 
             self.assertEqual(code, 2)
-            self.assertFalse(validation["valid"])
-            self.assertEqual(validation["checked_files"], [".lks-sdd/project.json"])
-            self.assertTrue(any("se requiere schema 1.5" in item for item in validation["errors"]))
+            self.assertEqual(validation["status"], "blocked")
             self.assertEqual(before, tree_digest(root))
 
 

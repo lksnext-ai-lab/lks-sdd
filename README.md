@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `2.0.2` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `2.1.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -20,7 +20,7 @@ aceptar y entregar son estados distintos.
 | Consultar requisitos, especificaciones y tareas | [Consultas para personas](docs/PROJECT-QUERY.md) |
 | Adoptar un sistema con documentación parcial | [Adopción acotada](docs/V2-WORKFLOWS.md#adopt-existing-ámbito-legado-suficiente) |
 | Pasar un proyecto 1.5 a v2 | [Migración explícita y rollback](docs/V2-MIGRATION.md) |
-| Entender controles y tecnología aprobable | [Guardrails](docs/V2-GUARDRAILS.md) y [variantes](docs/PROJECT-VARIANTS.md) |
+| Entender controles y tecnología aprobable | [Guardrails](docs/V2-GUARDRAILS.md) y la declaración tecnológica local |
 | Comprobar la entrega | [Historial de versiones](CHANGELOG.md), [estado actual](docs/STATUS.md), [validación](docs/VALIDATION.md) y [aceptación por host](docs/V2-HOST-ACCEPTANCE.md) |
 
 ## Qué cambia
@@ -42,8 +42,7 @@ aceptar y entregar son estados distintos.
 - **Evidencia por alcance.** Una prueba de componente no acredita integración,
   persistencia, aceptación humana ni producción. La evidencia conserva su sujeto
   técnico, procedencia y limitaciones; una incidencia posterior no reescribe la historia.
-- **Variantes tecnológicas aprobables.** Una aprobación local y delimitada permite
-  verificar una variante sin atribuirle certificación global ni dispensar gates críticos.
+- **Declaración tecnológica local.** Las observaciones y decisiones técnicas permanecen en el proyecto; ninguna selección global habilita trabajo ni verificación.
 - **Migración controlada.** La ruta 1.5 → 2.0 ofrece diagnóstico, preview, aplicación
   autorizada, originales conservados y recuperación. Actualizar el plugin no migra
   automáticamente ningún proyecto.
@@ -72,10 +71,10 @@ funcionalidades sin duplicarse; un incremento y una release no son funcionalidad
 
 Cada desarrollador usa su clon y el runtime fijado en el proyecto. Las decisiones,
 fuentes y evidencias se comparten mediante Git, no mediante el chat de una persona.
-Los conflictos requieren reconciliación semántica; no hay locks distribuidos ni
-garantía de escritores simultáneos sobre el mismo alcance.
+Los conflictos requieren reconciliación semántica; no hay garantía de escritores
+simultáneos sobre el mismo alcance.
 
-Plugin 2.0.2, schema 2.0 y método 2.0.0 son versiones distintas. Los consumidores
+Plugin 2.1.0, schema 2.0 y método 2.0.0 son versiones distintas. Los consumidores
 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar una migración.
 La compatibilidad 1.5 se limita al runtime fijado y a su migración explícita; no
 sustituye las reglas v2.
@@ -99,23 +98,24 @@ Los controles locales detectan incumplimientos, pero no interceptan toda escritu
 del host. La [guía de guardrails](docs/V2-GUARDRAILS.md) explica cómo comprobar un
 cambio desde una base confiable sin permitir que se autoapruebe.
 
-La release técnica estable exige gates y [aprobación propia](quality/release-approval-v2.0.2.json).
+La release técnica estable exige gates y [aprobación propia](quality/release-approval-v2.1.0.json).
 No equivale a aceptación humana, política corporativa, despliegue ni soporte
 universal. Los ensayos reales de host, piloto, comprensión humana e interoperabilidad
-Rovo/Jira o Entra sin evidencia siguen `not-run`. El soporte tecnológico estricto
-exige perfil, lock y certificación exactos; las variantes tienen autoridad local.
+Rovo/Jira o Entra sin evidencia siguen `not-run`. La tecnología se documenta y
+confirma localmente.
 
 ## Mantenimiento
 
 `skills/` contiene los seis workflows; `scripts/`, los motores y validadores;
-`schemas/`, los contratos versionados; `profiles/`, perfiles, gates y certificaciones;
-`tests/` y `quality/`, pruebas y evidencia. `specs/canonical/` permanece congelado:
-el contrato v2 está en [specs/proposed](specs/proposed/project-contract-2.0.md), aprobado
-para implementar el producto, no como política corporativa.
+`schemas/`, los contratos versionados; las declaraciones tecnológicas viven en cada proyecto;
+`tests/` y `quality/`, pruebas y evidencia. `specs/canonical/` permanece congelado.
+El [contrato de proyecto v2](specs/proposed/project-contract-2.0.md) es la
+propuesta vigente para declaraciones tecnológicas locales; no es política
+corporativa.
 
 Consulte [arquitectura](docs/ARCHITECTURE.md), [validación](docs/VALIDATION.md),
 [distribución](docs/DISTRIBUTION.md) y [releases](docs/RELEASING.md).
 Las salidas regenerables no se versionan; se conservan fuentes, fixtures,
-certificaciones, planes y contraejemplos relevantes. [Licencia](LICENSE.md),
+planes y contraejemplos relevantes. [Licencia](LICENSE.md),
 [contribución](CONTRIBUTING.md), [soporte](SUPPORT.md) y [gobierno](GOVERNANCE.md)
 mantienen sus condiciones, sin añadir SLA ni responsables no confirmados.

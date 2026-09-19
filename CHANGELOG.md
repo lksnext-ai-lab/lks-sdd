@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.0 — 2026-09-19 — declaración tecnológica local
+
+- Sustituye perfiles, recetas, variantes, locks y certificaciones tecnológicas
+  globales por una declaración tecnológica obligatoria, local y confirmada en cada
+  proyecto.
+- Integra el contexto tecnológico aplicable en definición, adopción, readiness,
+  planificación, implementación y verificación; las tecnologías desconocidas
+  críticas bloquean solo el trabajo afectado.
+- Migra directamente consumidores 1.5 y 2.0 anteriores al contrato local,
+  archivando los datos de perfiles exclusivamente como procedencia histórica.
+- Añade transiciones explícitas de tecnología origen→destino, conserva solo el
+  destino cuando se completan y actualiza los bundles de Codex y Copilot.
+
 ## 2.0.2 — 2026-09-18 — rutas largas Windows
 
 - Normaliza internamente raíces Windows mediante rutas extended-length sin persistir
@@ -188,7 +201,7 @@ en `quality-report.json`, `release-manifest.json` y `SHA256SUMS`.
 
 ## 0.14.2 — 2026-08-28 — evidencia autoconsumible y registro transaccional
 
-- Hace canónica la identidad de perfil del EVID 1.2: una ejecución con un solo binding registra arriba su `profile_id` y `profile_version` exactos; una ejecución multiperfil omite ese resumen y conserva la identidad completa en `profile_bindings`, `profile_locks` y `build_identity_material`.
+- Reemplaza la identidad tecnológica global de EVID 1.2 por bindings genéricos y una declaración tecnológica local; las fuentes 1.x se conservan únicamente en la migración histórica.
 - Valida conjuntamente bindings, perfiles/versiones, locks, material canónico y `build_id`; mantiene legibles las evidencias 1.2 heredadas cuando esa identidad se puede reconstruir sin ambigüedad, sin reescribirlas.
 - Unifica la aplicabilidad de `visual-browser-review` entre runner, EVID y `validate-project` mediante la selección exacta de TASK. La no aplicabilidad backend se registra fuera de `checks`; un slice visual sigue exigiendo exactamente una revisión ejecutada y `passed`.
 - Añade `traceability --task TASK-###` para verificar el alcance exacto de requisitos del slice sin acreditar tareas futuras del mismo incremento.

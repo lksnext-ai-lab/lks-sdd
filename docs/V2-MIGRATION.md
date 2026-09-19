@@ -11,8 +11,9 @@ No convertir esquemas desconocidos mediante cambios de encabezado.
    fijado, el agente usa automáticamente el runtime v2 empaquetado cuando su
    `package-integrity.json` es íntegro; si no está disponible, añadir
    `--target-runtime <runtime-v2-verificado>` explícito.
-4. Revisar mapa documento/elemento, originales archivados, personalizaciones y
-   pendientes semánticos. La conversión no inventa límites de funcionalidades.
+4. Revisar mapa documento/elemento, originales archivados, personalizaciones,
+   la nueva declaración tecnológica local y pendientes semánticos. La conversión
+   no inventa límites de funcionalidades ni decisiones tecnológicas.
 5. Aplicar exactamente ese preview mediante `v2 migrate <proyecto> --apply
    --authorize <hash>` y los mismos argumentos. Cambios de origen invalidan el hash.
 6. Validar el resultado. Reconciliar aplicabilidad, TASK, bindings, interfaces,
@@ -39,11 +40,24 @@ históricos, sin que una AUTH antigua autorice el nuevo contrato. No hay reasign
 automática de todas las filas a features: esa clasificación requiere comprensión
 del producto y aprobación.
 
-La conversión incluye los registros que en 1.5 solo estaban en el índice:
-bindings y ejecuciones se convierten en Markdown con el registro original y
-reconciliación pendiente. AUTH queda revocada y EXEC/CKPT requieren revisión;
-sus IDs y relaciones se conservan. Los metadatos originales, perfiles y locks
-se preservan, sin convertir sus estados históricos en aprobaciones v2.
+La conversión incluye los registros no tecnológicos que en 1.5 solo estaban en el
+índice: bindings genéricos y ejecuciones se convierten en Markdown con el registro
+original y reconciliación pendiente. AUTH queda revocada y EXEC/CKPT requieren
+revisión; sus IDs y relaciones se conservan.
+
+La migración genera directamente
+`03-solution/technology-declaration.md`. Solo deriva observaciones de documentos
+del consumidor y manifiestos estáticos locales acotados; no consulta catálogos ni
+ejecuta detectores. Las fuentes tecnológicas 1.x retiradas se archivan como
+procedencia histórica y no se copian como bindings, decisiones ni autorizaciones
+v2 activas. Un componente observado no es una tecnología confirmada.
+
+La declaración distingue `observed`, `proposed`, `confirmed`, `unknown` y
+`transition`. La migración deja una transición y cualquier incertidumbre crítica
+explícitas. La conversión técnica puede quedar registrada, pero una tecnología
+crítica ambigua bloquea la preparación y continuación de la TASK afectada hasta
+confirmación humana. Los unknown no críticos siguen visibles sin conceder
+preparación.
 
 Una interrupción deja `.lks-sdd/transaction.json`. `v2 recover --apply --authorize
 <hash>` completa la transacción exacta; `v2 rollback --apply --authorize <hash>`

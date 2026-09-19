@@ -5,6 +5,7 @@ All unidentified semantics remain visible reconciliation work.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -13,8 +14,8 @@ import re
 import uuid
 
 from v2_contract import (ContractError, DOCS, HISTORY, VERSION, METHOD, DOMAINS, ID, LINK,
-                         ASSET, canonical, fingerprint, load, make_element, path_at, read_bytes,
-                         render_document, resolve_link, sha)
+                         ASSET, TECHNOLOGY_DECLARATION_PATH, canonical, fingerprint, load,
+                         make_element, path_at, read_bytes, render_document, resolve_link, sha)
 from path_utils import filesystem_root
 from v2_storage import apply, ensure_idle, preview, recover, stage_contract
 
@@ -25,7 +26,7 @@ PREFIX_KIND = {"FR": "requirement", "NFR": "requirement", "TR": "requirement", "
                "CKPT": "checkpoint", "PROB": "problem", "CHG": "change", "PCH": "change"}
 RELATION_COLUMNS = {"requirements": "requirements", "requirement": "requirements", "acceptance": "acceptance",
                     "tests": "tests", "dependencies": "depends_on", "increment": "increment", "release": "release",
-                    "plan": "plan", "profile binding": "bindings", "profile bindings": "bindings",
+                    "plan": "plan",
                     "interfaces": "interfaces", "decisions": "decision", "decision": "decision"}
 MIGRATION_STATES = {"not-migrated", "preview-available", "migration-complete",
                     "continuation-ready", "blocked", "mixed-contract", "rolled-back"}
@@ -37,11 +38,110 @@ LEGACY_DOCUMENT_ROOTS = (
 )
 MAX_SOURCE_FILES = 10000
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
+MAX_TECHNOLOGY_OBSERVATIONS = 500
+STATIC_TECHNOLOGY_INPUTS = ("package.json", "requirements.txt")
+
+
+@dataclass(frozen=True)
+class LegacyTechnologySource:
+    """Historical 1.x technology material to archive, never to re-authorize."""
+
+    binding_ids: frozenset[str]
+    local_paths: frozenset[str]
+    retired_exact_paths: frozenset[str]
+    retired_prefixes: tuple[str, ...]
+
+    def disposes(self, relative: str) -> bool:
+        return relative in self.retired_exact_paths or relative.startswith(
+            self.retired_prefixes
+        )
+
+    def active_record(self, value: dict, retired_binding_ids: frozenset[str] = frozenset()) -> dict:
+        """Keep only non-technology fields in an active v2 historical record."""
+        result = dict(value)
+        for field in ("profile_bindings", "locks"):
+            result.pop(field, None)
+        bindings = result.get("bindings")
+        if isinstance(bindings, list):
+            retained = [item for item in bindings if item not in retired_binding_ids]
+            if retained:
+                result["bindings"] = retained
+            else:
+                result.pop("bindings", None)
+        elif bindings in retired_binding_ids:
+            result.pop("bindings", None)
+        return result
+
+
+def _retired_technology_binding_ids(cells: dict[str, str]) -> set[str]:
+    """Return BIND IDs from retired Profile/Recipe/Variant table rows."""
+    values = " ".join(str(value) for value in cells.values())
+    has_retired_technology_marker = any(
+        token in str(column).casefold() for column in cells for token in ("profile", "recipe", "variant")
+    ) or bool(re.search(r"\b(?:profile|recipe|variant)\b", values, re.IGNORECASE))
+    if not has_retired_technology_marker:
+        return set()
+    return set(re.findall(r"\bBIND-[0-9]{3,}\b", values))
+
+
+def _import_1x_technology_source(root: Path, manifest: dict) -> LegacyTechnologySource:
+    """Read 1.x-only profile material exclusively to archive it as provenance.
+
+    This is the sole compatibility boundary for retired profile fields and
+    paths. Its result only selects files for archival/disposal and legacy IDs
+    for omission from active v2 relations; it never grants technology approval.
+    """
+
+    retired_exact_paths = frozenset(
+        {
+            DOCS + "/02-design/technology-variants.md",
+            DOCS + "/03-solution/technology-variants.md",
+        }
+    )
+    retired_prefixes = (
+        DOCS + "/02-design/technology-approvals/",
+        DOCS + "/00-control/technology-approvals/",
+    )
+    binding_ids: set[str] = set()
+    local_paths: set[str] = set()
+    technology = manifest.get("technology")
+    if isinstance(technology, dict):
+        for binding in technology.get("profile_bindings", []):
+            if not isinstance(binding, dict):
+                continue
+            binding_id = binding.get("binding_id")
+            lock_path = binding.get("lock_path")
+            if isinstance(binding_id, str):
+                binding_ids.add(binding_id)
+                local_paths.add(".lks-sdd/profiles/" + binding_id + ".profile.json")
+            if isinstance(lock_path, str):
+                local_paths.add(lock_path)
+    return LegacyTechnologySource(
+        binding_ids=frozenset(binding_ids),
+        local_paths=frozenset(
+            relative
+            for relative in local_paths
+            if path_at(root, relative, missing=True).is_file()
+        ),
+        retired_exact_paths=retired_exact_paths,
+        retired_prefixes=retired_prefixes,
+    )
+
+
+def _static_technology_inputs(root: Path) -> set[str]:
+    """Limit observations to small, explicit local dependency declarations."""
+    result = set()
+    for relative in STATIC_TECHNOLOGY_INPUTS:
+        path = path_at(root, relative, missing=True)
+        if path.is_file() and path.stat().st_size <= 1024 * 1024:
+            result.add(relative)
+    return result
 
 
 def _legacy_documents(root: Path) -> list[str]:
     """Return active 1.5 documents without touching history or migration receipts."""
     result, total_bytes = [], 0
+    legacy_technology = _import_1x_technology_source(root, _read_manifest(root))
     base = path_at(root, DOCS, missing=True)
     if not base.exists():
         return result
@@ -54,8 +154,7 @@ def _legacy_documents(root: Path) -> list[str]:
                 continue
             if (relative.startswith(HISTORY + "/")
                     or relative.startswith(DOCS + "/00-control/migrations/")
-                    or relative.startswith(DOCS + "/00-control/technology-approvals/")
-                    or relative == DOCS + "/03-solution/technology-variants.md"):
+                    or legacy_technology.disposes(relative)):
                 continue
             raw = read_bytes(root, relative, limit=4 * 1024 * 1024)
             total_bytes += len(raw)
@@ -156,6 +255,11 @@ def migration_status(root: Path, tasks: list[str] | None = None) -> dict:
                 errors.append("Invalid migration receipt: " + str(exc))
     elif state not in {None, "migration-complete"}:
         errors.append("Unknown v2 migration state: " + str(state))
+    if not errors:
+        try:
+            load(root).require_valid()
+        except ContractError as exc:
+            errors.append("Invalid active v2 technology declaration or contract: " + str(exc))
     if errors:
         return {"status": "blocked", "state": "mixed-contract" if legacy else "blocked",
                 "schema_version": schema, "migration_state": state, "receipt_path": receipt_path,
@@ -207,8 +311,6 @@ def _conservation_manifest(sources: dict[str, str], mapping: dict[str, dict]) ->
                 relative.startswith(DOCS + "/") and relative.endswith(".md")
                 and item.get("destination") not in {None, relative}):
             disposition = "transformed"
-        elif "/technology-approvals/" in relative:
-            disposition = "archived"
         else:
             disposition = "preserved-out-of-scope"
         entry = {"source": relative, "sha256": sources[relative], "disposition": disposition,
@@ -220,17 +322,119 @@ def _conservation_manifest(sources: dict[str, str], mapping: dict[str, dict]) ->
     return entries, counts
 
 
+def _technology_declaration(root: Path, sources: dict[str, str],
+                            mapping: dict[str, dict], namespace: uuid.UUID,
+                            legacy_technology: LegacyTechnologySource) -> tuple[list[dict], list[str]]:
+    """Derive local observations without interpreting retired technology sources."""
+    declarations, pending = [], []
+    documents = sorted(
+        path
+        for path in sources
+        if path.startswith(DOCS + "/")
+        and path.endswith(".md")
+        and not legacy_technology.disposes(path)
+    )
+    document_source = documents[0] if documents else None
+
+    def source_path(relative: str) -> str:
+        archive = mapping.get(relative, {}).get("archive")
+        return archive or relative
+
+    def evidence(relative: str, kind: str) -> dict:
+        return {"kind": kind, "path": source_path(relative), "sha256": sources[relative]}
+
+    def append(title: str, state: str, nature: str, technology: dict) -> None:
+        if len(declarations) >= MAX_TECHNOLOGY_OBSERVATIONS:
+            raise ContractError("Technology declaration exceeds the observation bound")
+        identifier = f"TECH-{len(declarations) + 1:03}"
+        declarations.append(make_element(
+            identifier, "technology", title,
+            "Declaración local migrada; requiere confirmación humana antes de conceder preparación.",
+            uid=str(uuid.uuid5(namespace, identifier)), state=state, nature=nature,
+            relations={}, technology=technology,
+        ))
+
+    package_path = "package.json"
+    if package_path in sources:
+        try:
+            package = json.loads(read_bytes(root, package_path, limit=1024 * 1024))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            pending.append(package_path + ": declaración estática no interpretable")
+            package = {}
+        if isinstance(package, dict):
+            for field, critical in (("dependencies", True), ("devDependencies", False)):
+                dependencies = package.get(field, {})
+                if not isinstance(dependencies, dict):
+                    continue
+                for name, version in sorted(dependencies.items()):
+                    if not isinstance(name, str) or not name or not isinstance(version, str) or not version:
+                        pending.append(package_path + ": dependencia estática no interpretable")
+                        continue
+                    append("Dependencia npm observada", "observed", "fact", {
+                        "subject": "npm dependency",
+                        "value": name + "@" + version,
+                        "state": "observed",
+                        "critical": critical,
+                        "scope": ["global"],
+                        "evidence": [evidence(package_path, "static-observation")],
+                        "provenance": [],
+                    })
+
+    requirements_path = "requirements.txt"
+    if requirements_path in sources:
+        raw = read_bytes(root, requirements_path, limit=1024 * 1024).decode("utf-8")
+        for line in sorted({
+                value.strip() for value in raw.splitlines()
+                if value.strip() and not value.lstrip().startswith(("#", "-"))
+        }):
+            append("Dependencia Python observada", "observed", "fact", {
+                "subject": "python dependency",
+                "value": line,
+                "state": "observed",
+                "critical": True,
+                "scope": ["global"],
+                "evidence": [evidence(requirements_path, "static-observation")],
+                "provenance": [],
+            })
+
+    project_source = ".lks-sdd/project.json"
+    basis = evidence(document_source, "consumer-document") if document_source else evidence(project_source, "consumer-lock")
+    append("Transición desde tecnología histórica", "transition", "fact", {
+        "subject": "technology declaration migration",
+        "value": "local declaration",
+        "state": "transition",
+        "critical": False,
+        "scope": ["global"],
+        "evidence": [basis],
+        "provenance": [],
+        "transition": {
+            "from": "historical technology sources",
+            "to": "local project technology declaration",
+            "reason": "Historical technology data is archived and is not active authority.",
+        },
+    })
+    append("Tecnología crítica pendiente de confirmar", "unknown", "unknown", {
+        "subject": "project technology decision",
+        "state": "unknown",
+        "critical": True,
+        "scope": ["global"],
+        "evidence": [basis],
+        "provenance": [],
+    })
+    pending.append("technology declaration: observations are not confirmed technology decisions")
+    return declarations, pending
+
+
 def inventory(root: Path) -> dict[str, str]:
     root = filesystem_root(root)
     result = {".lks-sdd/project.json": sha(read_bytes(root, ".lks-sdd/project.json"))}
     total_bytes = len(read_bytes(root, ".lks-sdd/project.json"))
     manifest = json.loads(read_bytes(root, ".lks-sdd/project.json"))
-    for binding in manifest.get("technology", {}).get("profile_bindings", []):
-        for relative in (binding.get("lock_path"), ".lks-sdd/profiles/" + binding["binding_id"] + ".profile.json"):
-            if relative and path_at(root, relative, missing=True).is_file():
-                data = read_bytes(root, relative)
-                result[relative] = sha(data)
-                total_bytes += len(data)
+    legacy_technology = _import_1x_technology_source(root, manifest)
+    for relative in sorted(legacy_technology.local_paths | _static_technology_inputs(root)):
+        data = read_bytes(root, relative, limit=1024 * 1024)
+        result[relative] = sha(data)
+        total_bytes += len(data)
     for directory, folders, files in os.walk(path_at(root, DOCS), followlinks=False):
         folders[:] = sorted(folders)
         for name in folders + files:
@@ -354,31 +558,57 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
     originals = HISTORY + "/migration-" + source_snapshot[:16]
     changes, mapping, active_paths, pending = {}, {}, {}, []
     sources = dict(diagnostic["sources"])
+    static_inputs = _static_technology_inputs(root)
+    legacy_technology = _import_1x_technology_source(root, old.manifest)
     for relative in sources:
         raw = read_bytes(root, relative, limit=64 * 1024 * 1024)
-        archive = originals + "/tree/" + relative
-        changes[archive] = raw
-        if relative.startswith(DOCS + "/") and relative.endswith(".md") and not relative.startswith(DOCS + "/evidence/"):
+        archive = None if relative in static_inputs else originals + "/tree/" + relative
+        if archive:
+            changes[archive] = raw
+        if (relative.startswith(DOCS + "/") and relative.endswith(".md")
+                and not relative.startswith(DOCS + "/evidence/")
+                and not legacy_technology.disposes(relative)):
             active_paths[relative] = destination(relative)
         mapping[relative] = {"archive": archive, "destination": active_paths.get(relative, relative), "sha256": sources[relative]}
+    for relative in sorted(
+        path
+        for path in sources
+        if path in legacy_technology.local_paths
+        or legacy_technology.disposes(path)
+    ):
+        changes[relative] = None
+        mapping[relative].update(
+            destination=mapping[relative]["archive"],
+            disposition="archived",
+        )
     if len(set(active_paths.values())) != len(active_paths):
         raise ContractError("Migration destination collision between source documents")
     for origin, target in active_paths.items():
         if target != origin and target in sources:
             raise ContractError("Migration would overwrite an existing customization: " + target)
+    # Retired technology bindings can also appear only in Markdown tables,
+    # without a matching manifest profile binding. They are historical
+    # provenance, never active v2 binding elements or record relations.
+    technology_binding_ids = set(legacy_technology.binding_ids)
+    for relative in active_paths:
+        text = read_bytes(root, relative).decode("utf-8").replace("\r\n", "\n")
+        _, body, offset = _parse_frontmatter(text) if text.startswith("---\n") else ({}, text, 1)
+        for table in _parse_markdown_tables(body, offset):
+            for _, cells in table.rows:
+                technology_binding_ids.update(_retired_technology_binding_ids(cells))
+    technology_binding_ids = frozenset(technology_binding_ids)
     # Task identity belongs in its detail, never in both board and detail.
     identities = {}
     for identifier, row in old.nodes.items():
         relative = active_paths.get(row.path)
-        if relative:
+        if relative and identifier not in technology_binding_ids:
             if identifier.startswith("TASK-"):
                 relative = DOCS + "/04-delivery/tasks/" + identifier + ".md"
             identities[identifier] = relative
-    # 1.5 indexes executions and bindings outside the table-node graph. Preserve
+    # 1.5 indexes executions outside the table-node graph. Preserve
     # those declared records explicitly, without granting their old authority.
     indexed = {}
     for kind, field, records, directory in (
-        ("binding", "binding_id", old.manifest.get("technology", {}).get("profile_bindings", []), "03-solution/bindings"),
         ("execution", "execution_id", old.manifest.get("executions", []), "04-delivery/executions"),
         ("authorization", "authorization_id", old.manifest.get("authorizations", []), "00-control/authorizations"),
     ):
@@ -439,15 +669,17 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
     for identifier, (kind, value) in indexed.items():
         existing = next((item for items in by_path.values() for item in items if item["meta"]["id"] == identifier), None)
         if existing is not None:
-            existing["meta"]["legacy_index_record"] = value
+            existing["meta"]["legacy_index_record"] = legacy_technology.active_record(value, technology_binding_ids)
             continue
+        active_record = legacy_technology.active_record(value, technology_binding_ids)
         relations = {}
         for field, relation in (("task_ids", "affects"), ("increment", "increment"), ("release", "release"),
-                                ("profile_bindings", "bindings"), ("authorization_id", "sources"),
+                                ("bindings", "bindings"), ("authorization_id", "sources"),
                                 ("selection_decision", "decision"), ("unit_id", "sources")):
-            targets = value.get(field, [])
+            targets = active_record.get(field, [])
             if isinstance(targets, str):
                 targets = [targets]
+            targets = [ref for ref in targets if ref not in technology_binding_ids]
             for ref in targets:
                 if ref not in identities:
                     raise ContractError("Unresolved legacy index reference: " + identifier + " -> " + str(ref))
@@ -461,10 +693,10 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
             relations.setdefault("sources", []).extend(refs)
         item = make_element(identifier, kind, "Registro histórico " + identifier,
             "Registro declarado por el índice 1.5; no constituye autoridad ni verificación v2.\n\n" +
-            "\n\n".join("**" + key + ":** " + json.dumps(raw, ensure_ascii=False) for key, raw in value.items()),
+            "\n\n".join("**" + key + ":** " + json.dumps(raw, ensure_ascii=False) for key, raw in active_record.items()),
             uid=str(uuid.uuid5(namespace, identifier)), nature="fact",
             state="revoked" if kind == "authorization" else "reconciliation-required",
-            relations={k: sorted(set(v)) for k, v in relations.items()}, legacy_index_record=value,
+            relations={k: sorted(set(v)) for k, v in relations.items()}, legacy_index_record=active_record,
             reconciliation_required=True, migration={"origin": ".lks-sdd/project.json", "snapshot": source_snapshot,
                                                      "semantics": "preserved-not-reauthorized"})
         by_path.setdefault(identities[identifier], []).append(item)
@@ -480,14 +712,6 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
     # Preserve every table cell and custom prose, including keyless/historical rows.
     for relative, target in active_paths.items():
         text = read_bytes(root, relative).decode("utf-8").replace("\r\n", "\n")
-        if relative.endswith("technology-variants.md"):
-            changes[target] = text.encode()
-            continue
-        if "/technology-approvals/" in relative:
-            # Historical approvals remain byte-identical archives, not current authority.
-            changes[relative] = None
-            mapping[relative]["destination"] = mapping[relative]["archive"]
-            continue
         front, body, line = _parse_frontmatter(text) if text.startswith("---\n") else ({}, text, 1)
         if front:
             identifier = "LEG-" + str(int(sha((relative + ":frontmatter").encode())[:12], 16))
@@ -506,6 +730,10 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
                     continue
                 existing = next((r for r in old.rows.values() if r.path == relative and r.line == row_line), None)
                 if existing and existing.key in identities and old.nodes.get(existing.key) is existing:
+                    continue
+                if _retired_technology_binding_ids(cells):
+                    # Exact source bytes already live in migration history; never
+                    # reintroduce retired technology rows as active LEG elements.
                     continue
                 identifier = "LEG-" + str(int(sha((relative + ":" + str(row_line)).encode())[:12], 16))
                 item = make_element(identifier, "legacy", "Contenido conservado de " + Path(relative).stem,
@@ -541,12 +769,24 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
     if app_path in changes or path_at(root, app_path, missing=True).exists():
         raise ContractError("Migration destination collision: " + app_path)
     changes[app_path] = render_document("applicability", "Reconciliación de aplicabilidad", apps)
+    if (TECHNOLOGY_DECLARATION_PATH in changes
+            or path_at(root, TECHNOLOGY_DECLARATION_PATH, missing=True).exists()):
+        raise ContractError("Migration destination collision: " + TECHNOLOGY_DECLARATION_PATH)
+    technology_declarations, technology_pending = _technology_declaration(
+        root, sources, mapping, namespace, legacy_technology)
+    pending.extend(technology_pending)
+    changes[TECHNOLOGY_DECLARATION_PATH] = render_document(
+        "technology-declaration", "Declaración tecnológica local", technology_declarations,
+        preamble="Las observaciones locales no confirman una selección tecnológica. "
+                 "Las fuentes tecnológicas retiradas se archivan únicamente como procedencia histórica.",
+    )
     manifest = {"schema_version": VERSION, "method_version": METHOD, "project_id": old.manifest["project_id"],
                 "plugin_version": json.loads((Path(__file__).resolve().parents[1] / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))["version"], "name": old.manifest.get("name", "Proyecto migrado"),
                 "migration": {"origin_schema": "1.5", "source_snapshot": source_snapshot,
                               "state": "migration-complete", "legacy_writers": "blocked",
                               "semantic_reconciliation": "selective-per-task"},
-                "artifacts": [{"path": p} for p in sorted(set(active_paths.values()) | set(by_path) | {app_path})
+                "artifacts": [{"path": p} for p in sorted(set(active_paths.values()) | set(by_path) | {
+                    app_path, TECHNOLOGY_DECLARATION_PATH})
                               if changes.get(p) is not None]}
     runtime_info = _runtime_transition(root, target_runtime, diagnostic["runtime"], changes, sources, originals)
     receipt_path = DOCS + "/00-control/migrations/" + source_snapshot[:16] + ".json"
@@ -579,6 +819,9 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
                "pending": sorted(set(pending)), "runtime": runtime_info,
                "open_executions": diagnostic["open_executions"], "authorization": "reconciliation-required",
                "verification": "not-run", "feature_classification": "not-inferred",
+               "technology_declaration": {"path": TECHNOLOGY_DECLARATION_PATH,
+                                          "state": "transition",
+                                          "readiness": "reconciliation-required"},
                "migration_state": "migration-complete",
                "approval": {"mode": "exact-preview-hash", "status": "required-before-apply"},
                "conservation": conservation, "conservation_counts": disposition_counts,
@@ -595,6 +838,7 @@ def plan(root: Path, *, target_runtime: Path | None = None) -> tuple[dict, dict]
     result.update(mapping=mapping, semantic_pending=receipt["pending"], runtime=runtime_info,
                   receipt=receipt_path, evidence_policy="original-bytes-unchanged",
                   feature_classification="not-inferred", migration_state="migration-complete",
+                  technology_declaration=receipt["technology_declaration"],
                   conservation=conservation, conservation_counts=disposition_counts,
                   audit=receipt["audit"])
     return result, changes

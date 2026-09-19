@@ -1,8 +1,0 @@
-{
-  "artifact": ".next/standalone",
-  "artifact_type": "node-server",
-  "build_identity": ".next/BUILD_ID",
-  "health_route": "/",
-  "runtime_configuration": "server-only environment",
-  "promotion": "same immutable artifact"
-}

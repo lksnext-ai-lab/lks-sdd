@@ -1,7 +1,0 @@
-{
-  "artifact_type": "oci-image",
-  "promotion_identity": "sha256 digest",
-  "required_dependencies": ["OIDC issuer", "PostgreSQL"],
-  "recovery": ["application rollback", "database restore or forward-fix"],
-  "reference_credentials": "synthetic verification only"
-}

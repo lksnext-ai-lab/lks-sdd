@@ -5,8 +5,8 @@
   "project_id": "construction-calculator-fixture",
   "date": "2026-08-20",
   "increment": "INC-001",
-  "profile": {
-    "id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+  "technology_declaration": {
+    "id": "TECH-001",
     "decision": "ADR-001"
   },
   "optional_artifacts": [
@@ -59,7 +59,7 @@
       "path": "03-solution/solution-overview.md",
       "header": "| ID | State | Decision | Requirements | Impact |",
       "rows": [
-        ["ADR-001", "confirmed", "Se selecciona explícitamente el perfil WEB-FASTAPI-REACT-KEYCLOAK-PG para este fixture multiusuario.", "FR-001..FR-004, NFR-001..NFR-002, TR-001..TR-002", "Baseline técnica bloqueada para INC-001"],
+        ["ADR-001", "confirmed", "Se confirma una declaración tecnológica local para este fixture multiusuario.", "FR-001..FR-004, NFR-001..NFR-002, TR-001..TR-002", "Base técnica documentada para INC-001"],
         ["ADR-002", "confirmed", "Se confirma una experiencia de cálculo guiada y una regla decimal canónica.", "FR-001..FR-004, NFR-001, TR-001", "La imagen solo fija jerarquía y flujo; no constituye evidencia ejecutada"]
       ]
     },

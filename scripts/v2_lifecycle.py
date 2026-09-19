@@ -227,23 +227,20 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
         from v2_verification import technology_readiness
         technology = technology_readiness
     technical = technology(model, tasks, environment)
-    if technical["status"] not in {"exact-certified", "approved-project-variant"}:
+    if technical["status"] != "documented":
         raise ContractError("Technology is not authorized: " + str(technical))
     inventory = work_inventory(model.root)
     identifier, checkpoint = next_id(model, "EXEC"), next_id(model, "CKPT")
     path, data = record(model, identifier, "execution", "Ejecución autorizada", "Ámbito y base fijados antes de modificar código.",
                         state="in-progress", actor=actor, environment=environment, started_at=at,
                         contract_fingerprint=auth["fingerprint"], baseline_files=inventory,
-                        source_hashes=dict(model.hashes), technology=technical,
+                        source_hashes=dict(model.hashes), technology_assessment=technical,
                         relations={"implements": tasks, "authorizes": [auth["authorization_id"]]})
     ckpath, ckdata = record(model, checkpoint, "checkpoint", "Inicio de trabajo", "Implementación pendiente; no hay verificación ni entrega acreditadas.",
                             state="active", recorded_at=at, next_action="Implementar las tareas autorizadas", files=inventory,
                             relations={"execution": [identifier], "implements": tasks})
     changes = {path: data, ckpath: ckdata, **edit_elements(model, {
         t: dict(model.elements[t].meta, state="in-progress", execution_id=identifier) for t in tasks})}
-    if technology.__module__ == "v2_verification":
-        from v2_preparation import reference_locks
-        changes.update(reference_locks(model, tasks))
     corrective = {p.id: dict(p.meta, correction_execution=identifier) for p in model.by_kind("problem")
                   if p.meta.get("correction_authorized") and p.targets("affects") <= set(tasks) and p.meta["state"] != "resolved"}
     changes.update(edit_elements(model, corrective))

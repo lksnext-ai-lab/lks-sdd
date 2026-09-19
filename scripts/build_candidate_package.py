@@ -22,13 +22,13 @@ QUALITY_REPORT_NAME = "quality-report.json"
 EXPECTED_CANDIDATE_CHECKS = {
     "fixture-integrity",
     "plugin-contract",
-    "reference-profile-structure",
+    "static-contract-integrity",
     "unit-tests-fast",
     "unit-tests-integration",
     "unit-tests-package",
-    "unit-tests-profile",
+    "unit-tests-v2",
     "deterministic-evals",
-    "reference-profile-complete",
+    "explicit-verification-complete",
 }
 EXPECTED_STABLE_CHECKS = (
     EXPECTED_CANDIDATE_CHECKS | {"windows-long-path-regression"}
@@ -36,7 +36,7 @@ EXPECTED_STABLE_CHECKS = (
 EXPECTED_CANDIDATE_REQUIRED_CHANNELS = {
     "automated",
     "fixture-integrity",
-    "profile-complete",
+    "contract-complete",
     "regression",
 }
 EXPECTED_CANDIDATE_OPTIONAL_CHANNELS = {
@@ -49,7 +49,7 @@ EXPECTED_CANDIDATE_OPTIONAL_CHANNELS = {
 EXPECTED_STABLE_REQUIRED_CHANNELS = {
     "automated",
     "fixture-integrity",
-    "profile-complete",
+    "contract-complete",
     "regression",
     "release-approval",
 }
@@ -136,8 +136,8 @@ EXPECTED_RELEASE_METRICS = {
     "automated_eval_cases",
     "automated_eval_pass_rate",
     "critical_failures",
-    "profile_complete_gate",
-    "profile_structure_gate",
+    "contract_complete_gate",
+    "contract_structure_gate",
     "unit_tests_executed",
     "unit_tests_failed",
     "unit_tests_passed",
@@ -152,8 +152,8 @@ METRIC_DIRECTIONS = {
     "automated_eval_cases": "neutral",
     "automated_eval_pass_rate": "higher",
     "critical_failures": "lower",
-    "profile_complete_gate": "higher",
-    "profile_structure_gate": "higher",
+    "contract_complete_gate": "higher",
+    "contract_structure_gate": "higher",
     "unit_tests_executed": "neutral",
     "unit_tests_failed": "lower",
     "unit_tests_passed": "higher",
@@ -923,8 +923,8 @@ def _validated_quality_report(
             float(check["duration_seconds"])
             for check in checks
             if not (
-                execution.get("profile_mode") == "execute"
-                and check["id"] == "reference-profile-complete"
+                execution.get("verification_mode") == "execute"
+                and check["id"] == "explicit-verification-complete"
             )
         ),
         3,
@@ -1035,7 +1035,7 @@ def _validated_quality_report(
             resolved = isinstance(resolved_id, str) and (
                 (kind == "test" and resolved_id.rsplit(".", 1)[-1] == evidence_id)
                 or (kind == "eval" and resolved_id == evidence_id)
-                or (kind == "profile" and resolved_id == "complete-gate")
+                or (kind == "contract" and resolved_id == "complete-gate")
             )
             if not resolved:
                 raise PackageError(
@@ -1051,15 +1051,15 @@ def _validated_quality_report(
         raise PackageError("Los totales del canal automated no son consistentes.")
     if channels.get("fixture-integrity") != check_by_id["fixture-integrity"]:
         raise PackageError("El canal fixture-integrity no coincide con su check.")
-    profile_channel = channels.get("profile-complete")
+    contract_channel = channels.get("contract-complete")
     if (
-        not isinstance(profile_channel, dict)
-        or profile_channel.get("status") != "passed"
-        or set(profile_channel) - {"status", "evidence_mode"}
-        or profile_channel.get("evidence_mode", "execute")
+        not isinstance(contract_channel, dict)
+        or contract_channel.get("status") != "passed"
+        or set(contract_channel) - {"status", "evidence_mode"}
+        or contract_channel.get("evidence_mode", "execute")
         not in {"reuse", "execute"}
     ):
-        raise PackageError("El canal profile-complete no quedó superado.")
+        raise PackageError("El canal contract-complete no quedó superado.")
     if channels.get("regression") != {"status": "passed"}:
         raise PackageError("El canal regression no quedó superado.")
     expected_optional_channels = {
@@ -1140,8 +1140,8 @@ def _validated_quality_report(
         + metrics["unit_tests_failed"]
         or metrics["automated_eval_cases"] != deterministic_eval_count
         or metrics["automated_eval_pass_rate"] != 1
-        or metrics["profile_structure_gate"] != 1
-        or metrics["profile_complete_gate"] != 1
+        or metrics["contract_structure_gate"] != 1
+        or metrics["contract_complete_gate"] != 1
         or metrics["automated_catalog_cases"] != expected_automated_total
         or metrics["automated_catalog_cases_passed"] != expected_automated_total
         or metrics["automated_catalog_cases_failed"] != 0

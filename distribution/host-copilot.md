@@ -4,7 +4,7 @@ This adapter is for GitHub Copilot Agent mode in VS Code. It is not a VSIX and
 does not configure MCP, hooks, agents, providers or personal settings.
 `<plugin-root>` is `{{RUNTIME}}`, relative to the consumer project root.
 Read the exact shared workflow from that runtime, including its linked references.
-Resolve its `scripts/`, `profiles/`, `schemas/`, `assets/` against that runtime.
+Resolve its `scripts/`, `schemas/`, `assets/` against that runtime.
 
 Before LKS-SDD work run `python {{RUNTIME}}/scripts/lks_sdd.py runtime-doctor . --json`.
 Failure blocks affected work. Never download or choose a different runtime silently.
@@ -44,7 +44,7 @@ availability and authorization before any read/write. Follow the shared preview,
 receipt and reconciliation contracts verbatim. Do not add an alternative Jira client.
 Repository-only remains complete and must not prompt for Atlassian access.
 
-Preserve all six skill boundaries, exact profiles, plan/readiness, authorization,
+Preserve all six skill boundaries, local technology declarations, plan/readiness, authorization,
 tracking, checkpoints, verification and delivery gates. Sharing a repository grants
 no additional authority. One writer per shared scope; transfer files via approved
 Git workflow. Never synchronize account configuration, credentials or conversations.

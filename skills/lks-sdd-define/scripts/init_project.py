@@ -11,7 +11,7 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "2.0.2"
+PLUGIN_VERSION = "2.1.0"
 METHOD_VERSION = "1.5.0"
 SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"
@@ -189,12 +189,6 @@ def build_manifest(
             {"id": artifact_id, "path": f"docs/lks-sdd/{relative}", "required": True}
             for artifact_id, relative in ARTIFACTS
         ],
-        "technology": {
-            "preferred_stack_assessed": False,
-            "selected_profile": None,
-            "selection_decision": None,
-            "profile_bindings": [],
-        },
         "active_increment": None,
         "active_plan": "PLAN-001",
         "active_task": None,

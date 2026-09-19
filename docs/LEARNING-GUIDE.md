@@ -109,9 +109,7 @@ cambios propones antes de ejecutarlos». Tras revisar la propuesta, autorizas el
 concreto. El agente registra esa autorización mediante el procedimiento del método.
 Si cambian las condiciones relevantes, la autorización anterior puede dejar de ser válida.
 
-No elijas una pila porque aparezca en un ejemplo. Un perfil es una combinación
-técnica exacta con reglas y comprobaciones propias. Que un perfil exista en el catálogo
-no significa que esté certificado: los candidatos no habilitan automáticamente implementación.
+No elijas una pila porque aparezca en un ejemplo. Registra observaciones y confirma la decisión tecnológica localmente antes de usarla; no existe un catálogo o certificación global que habilite implementación.
 
 ### Verificar y entregar
 

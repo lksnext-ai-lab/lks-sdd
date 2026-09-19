@@ -24,7 +24,7 @@ Pendiente de confirmar para el alcance aplicable.
 
 ## Componentes y relaciones
 
-| Unit | State | Component | Responsibility | Runtime boundary | Interfaces | Data ownership | Requirements | Profile binding |
+| Unit | State | Component | Responsibility | Runtime boundary | Interfaces | Data ownership | Requirements | Binding |
 |---|---|---|---|---|---|---|---|---|
 
 ## Decisiones relacionadas

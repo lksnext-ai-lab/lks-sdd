@@ -10,23 +10,44 @@ import time
 import uuid
 from pathlib import Path
 
-from project_variants import VariantError, checked_path, validate_schema
 from evidence_safety import evidence_safety_errors, sanitize
 from observation_contract import gate_observation_errors, persistence_errors
+
+
+class ObserverError(ValueError):
+    """Invalid explicit local observer input or output."""
+
+
+def checked_path(root: Path, relative: str) -> Path:
+    path = root / relative
+    try:
+        path.resolve().relative_to(root.resolve())
+    except ValueError as exc:
+        raise ObserverError("Observer path escapes its root") from exc
+    return path
+
+
+def validate_schema(value: dict, name: str) -> None:
+    import jsonschema
+    schema = json.loads((Path(__file__).resolve().parents[1] / "schemas" / name).read_text(encoding="utf-8"))
+    try:
+        jsonschema.validate(value, schema)
+    except jsonschema.ValidationError as exc:
+        raise ObserverError("Observer schema validation failed: " + exc.message) from exc
 
 
 def validate_output(output: dict, gate: dict, nonce: str, output_root: Path) -> dict:
     validate_schema(output, "consumer-observation.schema.json")
     if output["run_nonce"] != nonce or output["gate_id"] != gate["id"]:
-        raise VariantError("Observer output is not from this invocation")
+        raise ObserverError("Observer output is not from this invocation")
     if set(output["scopes"]) != set(gate["scopes"]) or set(output["interfaces"]) != set(
         gate["interfaces"]
     ):
-        raise VariantError(
+        raise ObserverError(
             "Observer scopes/interfaces differ from the approved contract"
         )
     if evidence_safety_errors(output):
-        raise VariantError("Observer output contains sensitive evidence")
+        raise ObserverError("Observer output contains sensitive evidence")
     check = {
         "name": "visual-browser-review"
         if gate["id"] == "GATE-VISUAL-BROWSER-REVIEW"
@@ -50,7 +71,7 @@ def validate_output(output: dict, gate: dict, nonce: str, output_root: Path) -> 
                     "Integration requires an explicit absence of domain mocks"
                 )
         if errors:
-            raise VariantError(
+            raise ObserverError(
                 "Insufficient runtime observations: " + "; ".join(errors)
             )
     artifacts = []
@@ -63,28 +84,26 @@ def validate_output(output: dict, gate: dict, nonce: str, output_root: Path) -> 
             or path.stat().st_size > 16 * 1024 * 1024
             or artifact["path"] in paths
         ):
-            raise VariantError("Invalid or duplicate observer artifact")
+            raise ObserverError("Invalid or duplicate observer artifact")
         paths.add(artifact["path"])
         data = path.read_bytes()
         total += len(data)
         if total > 32 * 1024 * 1024:
-            raise VariantError("Observer artifacts exceed 32 MB")
+            raise ObserverError("Observer artifacts exceed 32 MB")
         if hashlib.sha256(data).hexdigest() != artifact["sha256"]:
-            raise VariantError("Observer artifact hash mismatch")
+            raise ObserverError("Observer artifact hash mismatch")
         artifacts.append({**artifact, "size": len(data)})
     return {**check, "artifacts": artifacts}
 
 
-def execute(
-    root: Path, gate: dict, hashes: dict[str, str], *, profile_id: str
-) -> tuple[dict, dict[str, bytes]]:
+def execute(root: Path, gate: dict, hashes: dict[str, str]) -> tuple[dict, dict[str, bytes]]:
     """No shell, network, canonical mounts, host environment or unpinned images."""
-    if gate["source"] not in {"approved-consumer", "packaged"}:
-        raise VariantError("Experimental observer is not executable officially")
+    if gate["source"] != "approved-consumer":
+        raise ObserverError("Only an explicit approved consumer observer is executable")
     nonce = uuid.uuid4().hex
-    name = "lkssdd-variant-" + nonce
+    name = "lkssdd-observer-" + nonce
     started = time.monotonic()
-    with tempfile.TemporaryDirectory(prefix="lks-variant-observer-") as directory:
+    with tempfile.TemporaryDirectory(prefix="lks-observer-") as directory:
         temp = Path(directory)
         inputs, outputs = temp / "input", temp / "output"
         inputs.mkdir()
@@ -93,29 +112,13 @@ def execute(
             source = checked_path(root, relative)
             data = source.read_bytes()
             if hashlib.sha256(data).hexdigest() != expected:
-                raise VariantError("Inputs changed before isolated execution")
+                raise ObserverError("Inputs changed before isolated execution")
             destination = inputs / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(data)
-        if gate["source"] == "approved-consumer":
-            command = list(gate["observer"]["command"])
-        else:
-            from profile_registry import load_profile_bundle
-
-            bundle = load_profile_bundle(profile_id)
-            check = next(
-                c for c in bundle.driver["verify"]["checks"] if c["id"] == gate["id"]
-            )
-            command = list(check["command"])
-            if (
-                any("{plugin" in x or "{project" in x for x in command)
-                or check.get("cwd") != "."
-            ):
-                raise VariantError(
-                    "Packaged gate requires an explicit reviewed consumer adapter for this layout"
-                )
+        command = list(gate["observer"]["command"])
         if not command or any("\x00" in x for x in command):
-            raise VariantError("Invalid observer command")
+            raise ObserverError("Invalid observer command")
         docker = [
             "docker",
             "run",
@@ -207,9 +210,9 @@ def execute(
         artifacts: dict[str, bytes] = {}
         try:
             if failure:
-                raise VariantError(failure)
+                raise ObserverError(failure)
             if returncode != 0:
-                raise VariantError(f"Observer exited with code {returncode}")
+                raise ObserverError(f"Observer exited with code {returncode}")
             if gate["source"] == "approved-consumer":
                 output = json.loads(stdout.decode("utf-8"))
                 check = validate_output(output, gate, nonce, outputs)
@@ -225,7 +228,7 @@ def execute(
                         "stderr": stderr.decode("utf-8", "replace"),
                     }
                 ):
-                    raise VariantError("Sensitive command output")
+                    raise ObserverError("Sensitive command output")
                 sha = hashlib.sha256(stdout + stderr).hexdigest()
                 artifacts[sha] = stdout + stderr
                 check = {
@@ -245,10 +248,10 @@ def execute(
                     ],
                 }
                 if set(gate["scopes"]) != {"component"}:
-                    raise VariantError(
+                    raise ObserverError(
                         "Structured scopes need an approved observer output"
                     )
-        except (VariantError, ValueError, UnicodeError, TypeError) as exc:
+        except (ObserverError, ValueError, UnicodeError, TypeError) as exc:
             safe, _ = sanitize(str(exc))
             check = {
                 "name": gate["id"],

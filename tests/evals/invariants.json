@@ -13,7 +13,6 @@
   "fixtures": [
     "new-project.json",
     "insufficient-information.json",
-    "alternative-stack.json",
     "scoped-blocker.json",
     "help.json"
   ]

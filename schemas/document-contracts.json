@@ -38,6 +38,7 @@
     "REL",
     "UNIT",
     "BIND",
+    "TECH",
     "CHG",
     "ENV",
     "PCH",
@@ -953,7 +954,7 @@
             "Interfaces",
             "Data ownership",
             "Requirements",
-            "Profile binding"
+            "Binding"
           ],
           "min_occurs": 1,
           "max_occurs": 1,
@@ -984,7 +985,7 @@
                 "pending"
               ]
             },
-            "Profile binding": {
+            "Binding": {
               "targets": [
                 "BIND"
               ],
@@ -1114,7 +1115,7 @@
             "State",
             "Consumer unit",
             "Producer unit",
-            "Profile bindings",
+            "Bindings",
             "Protocol",
             "Contract",
             "Operations",
@@ -1155,7 +1156,7 @@
               "allow_empty": false,
               "allow_applicability": []
             },
-            "Profile bindings": {
+            "Bindings": {
               "targets": ["BIND"],
               "min": 2,
               "max": null,
@@ -2223,7 +2224,7 @@
             "Release",
             "Increment",
             "Unit",
-            "Profile binding",
+            "Binding",
             "Workflow state",
             "Health",
             "Progress",
@@ -2293,7 +2294,7 @@
               "allow_empty": false,
               "allow_applicability": []
             },
-            "Profile binding": {
+            "Binding": {
               "targets": [
                 "BIND"
               ],

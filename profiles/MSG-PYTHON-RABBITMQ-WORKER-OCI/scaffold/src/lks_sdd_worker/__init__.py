@@ -1,1 +1,0 @@
-"""RabbitMQ message worker reference."""
