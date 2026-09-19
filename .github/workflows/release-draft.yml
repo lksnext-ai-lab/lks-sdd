@@ -88,6 +88,9 @@ jobs:
       SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
       RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v8
         with:
           name: draft-promotion-plan
