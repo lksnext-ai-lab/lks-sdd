@@ -1,0 +1,59 @@
+{
+  "certification_context": {
+    "certification_run_id": "902ecbb3-1d3d-45a2-a9ca-c40ea03f9a56",
+    "profile_id": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "4624b26c4dffdc7408d5ac4c1c7371645cd846df5360381035d0ce6fe6b129b7",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "c6d07c6a0bf724357b72f5f235321129f78b7ac38e2353ddcbe189831d5a805b",
+      "scaffold_sha256": "d96a48091f6dc1270598bbc42941350c54c308e1a56b3658e79869b52da03ad4"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-COMPOSE-PY314-API"
+  ],
+  "duration_seconds": 0.215,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-PY314-API",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "compose-py314-api",
+  "observations": {
+    "observed_gates": [
+      "GATE-API-LINT",
+      "GATE-API-LOCK",
+      "GATE-API-OPENAPI",
+      "GATE-API-TEST",
+      "GATE-API-TYPECHECK",
+      "GATE-DATA-INTEGRATION",
+      "GATE-DATA-MIGRATION",
+      "GATE-HTTP-CONTRACT-INTEGRATION",
+      "GATE-LOCAL-CREDENTIALS",
+      "GATE-LOCAL-JWT",
+      "GATE-LOCAL-SESSION",
+      "GATE-OCI-BUILD",
+      "GATE-OCI-SMOKE",
+      "GATE-PYTHON-LINT",
+      "GATE-PYTHON-LOCK",
+      "GATE-PYTHON-TEST",
+      "GATE-PYTHON-TYPECHECK",
+      "GATE-SCAFFOLD-INTEGRITY",
+      "GATE-SECURITY-AUDIT",
+      "GATE-SECURITY-CONFIG",
+      "GATE-TENANT-AUTHORIZATION"
+    ],
+    "profile": "API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-COMPOSE-PY314-API\", \"observations\": {\"profile\": \"API-FASTAPI-LOCAL-AUTH-PG-OCI-PY314\", \"observed_gates\": [\"GATE-API-LINT\", \"GATE-API-LOCK\", \"GATE-API-OPENAPI\", \"GATE-API-TEST\", \"GATE-API-TYPECHECK\", \"GATE-DATA-INTEGRATION\", \"GATE-DATA-MIGRATION\", \"GATE-HTTP-CONTRACT-INTEGRATION\", \"GATE-LOCAL-CREDENTIALS\", \"GATE-LOCAL-JWT\", \"GATE-LOCAL-SESSION\", \"GATE-OCI-BUILD\", \"GATE-OCI-SMOKE\", \"GATE-PYTHON-LINT\", \"GATE-PYTHON-LOCK\", \"GATE-PYTHON-TEST\", \"GATE-PYTHON-TYPECHECK\", \"GATE-SCAFFOLD-INTEGRITY\", \"GATE-SECURITY-AUDIT\", \"GATE-SECURITY-CONFIG\", \"GATE-TENANT-AUTHORIZATION\"]}, \"status\": \"passed\"}\n"
+}

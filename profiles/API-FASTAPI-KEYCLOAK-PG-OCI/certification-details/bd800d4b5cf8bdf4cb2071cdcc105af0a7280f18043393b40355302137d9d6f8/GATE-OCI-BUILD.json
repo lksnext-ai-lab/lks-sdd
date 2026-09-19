@@ -1,0 +1,33 @@
+{
+  "certification_context": {
+    "certification_run_id": "97257417-1e9a-4854-8b7f-1e80decddabc",
+    "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
+    "profile_version": "1.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "9e01ccb460da5daa9ac94b4a8997332682f7b6f8bca96427224c0ca03b1f4ee1",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "715370fd509e5d79c8bb0c625cd8630e3a222660ea37b5948a8cb574b00cce82",
+      "scaffold_sha256": "e74a791dd51b4efd68888c6137a51cc9ed6196dc80353b784874b7392263f5c7"
+    }
+  },
+  "command": [
+    "docker",
+    "compose",
+    "-f",
+    "infra/compose.yaml",
+    "build"
+  ],
+  "duration_seconds": 26.369,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-BUILD",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "oci-build",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": " Image lkssddgate32132b9ccdc70-api Building \n Image lkssddgate32132b9ccdc70-api Built \n",
+  "stdout_tail": "R /app\n#7 CACHED\n\n#8 [3/7] RUN python -m pip install --no-cache-dir uv==0.12.5\n#8 CACHED\n\n#9 [4/7] COPY pyproject.toml uv.lock ./\n#9 CACHED\n\n#10 [5/7] COPY src ./src\n#10 DONE 0.1s\n\n#11 [6/7] RUN uv sync --frozen --no-dev\n#11 0.492 Using CPython 3.14.7 interpreter at: /usr/local/bin/python3\n#11 0.492 Creating virtual environment at: .venv\n#11 0.510    Building lks-sdd-reference-backend @ file:///app\n#11 0.708 Downloading pydantic-core (2.0MiB)\n#11 0.714 Downloading sqlalchemy (3.2MiB)\n#11 0.718 Downloading uvloop (4.1MiB)\n#11 0.721 Downloading cryptography (4.5MiB)\n#11 0.722 Downloading psycopg-binary (4.9MiB)\n#11 1.920  Downloaded pydantic-core\n#11 2.387  Downloaded sqlalchemy\n#11 2.620  Downloaded uvloop\n#11 2.654  Downloaded psycopg-binary\n#11 2.682  Downloaded cryptography\n#11 3.556       Built lks-sdd-reference-backend @ file:///app\n#11 3.559 Prepared 31 packages in 3.06s\n#11 3.593 Installed 31 packages in 34ms\n#11 3.593  + alembic==1.19.1\n#11 3.593  + annotated-doc==0.0.5\n#11 3.593  + annotated-types==0.8.0\n#11 3.593  + anyio==4.14.2\n#11 3.593  + cffi==2.1.1\n#11 3.593  + click==8.4.2\n#11 3.593  + cryptography==50.0.0\n#11 3.593  + fastapi==0.141.1\n#11 3.593  + greenlet==3.5.5\n#11 3.593  + h11==0.16.0\n#11 3.593  + httptools==0.8.0\n#11 3.593  + idna==3.19\n#11 3.593  + lks-sdd-reference-backend==0.1.0 (from file:///app)\n#11 3.594  + mako==1.4.1\n#11 3.594  + markupsafe==3.0.3\n#11 3.594  + psycopg==3.3.4\n#11 3.594  + psycopg-binary==3.3.4\n#11 3.594  + pycparser==3.0\n#11 3.594  + pydantic==2.13.4\n#11 3.594  + pydantic-core==2.46.4\n#11 3.594  + pyjwt==2.13.0\n#11 3.594  + python-dotenv==1.2.3\n#11 3.594  + pyyaml==6.0.3\n#11 3.594  + sqlalchemy==2.0.52\n#11 3.594  + starlette==1.6.0\n#11 3.594  + typing-extensions==4.16.0\n#11 3.594  + typing-inspection==0.4.4\n#11 3.594  + uvicorn==0.52.4\n#11 3.594  + uvloop==0.22.1\n#11 3.594  + watchfiles==1.2.0\n#11 3.594  + websockets==17.0.1\n#11 DONE 4.0s\n\n#12 [7/7] RUN useradd --create-home --uid 10001 appuser && chown -R appuser:appuser /app\n#12 DONE 12.1s\n\n#13 exporting to image\n#13 exporting layers\n#13 exporting layers 4.0s done\n#13 exporting manifest sha256:108ff6e48d33a03de2f22ad79ba167bf00b5f533d63d82c74b253c42b7c01ed2 0.0s done\n#13 exporting config sha256:728fcdb2c8056df24a5db7d79eecc6e17925b93cc187f58cb12e11d4dc6fe8c0 0.0s done\n#13 exporting attestation manifest sha256:72db01c5277f4bba23192511a9fc205d5cba36567f877a7d0f28391cbec43fda\n#13 exporting attestation manifest sha256:72db01c5277f4bba23192511a9fc205d5cba36567f877a7d0f28391cbec43fda 0.1s done\n#13 exporting manifest list sha256:b5072853bac2f82f11d3e8bd34a503f1fc8a377cca1d88eaea8003ebb277dfec 0.0s done\n#13 naming to docker.io/library/lkssddgate32132b9ccdc70-api:latest\n#13 naming to docker.io/library/lkssddgate32132b9ccdc70-api:latest done\n#13 unpacking to docker.io/library/lkssddgate32132b9ccdc70-api:latest\n#13 unpacking to docker.io/library/lkssddgate32132b9ccdc70-api:latest 2.1s done\n#13 DONE 6.5s\n\n#14 resolving provenance for metadata file\n#14 DONE 0.0s\n"
+}

@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "133c186d-94eb-431e-9811-c73a8e7fc742",
+    "profile_id": "WEB-ANGULAR-STATIC",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2d189549a99736c8c552b24881cb8b6c2f3a5e6aa8e8a3f302149d9929e022f4",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "81ca9a7ff7a163e877e3122588d07dfb9988c796bb7091e2f67b9f52d0de3408",
+      "scaffold_sha256": "e1664a4489a3c837330664690ef87afc86155ec0f1024c0b466710141b0e0826"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-angular-static-qtw9zp1t/reference-app:/work",
+    "-v",
+    "lkssddgate275520a067a43noded935a3cd:/work/node_modules",
+    "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+    "sh",
+    "-lc",
+    "cd /work && npm run typecheck"
+  ],
+  "duration_seconds": 3.197,
+  "exit_code": 0,
+  "gate_id": "GATE-FRONTEND-TYPECHECK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "frontend-typecheck",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "npm notice\nnpm notice New major version of npm available! 11.17.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": "\n> lks-sdd-angular-static-reference@0.1.0 typecheck\n> tsc -p tsconfig.app.json --noEmit --pretty false\n\n"
+}

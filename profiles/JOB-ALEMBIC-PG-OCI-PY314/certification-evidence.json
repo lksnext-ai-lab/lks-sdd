@@ -1,9 +1,9 @@
 {
   "schema_version": "1.1",
-  "certification_run_id": "73d28c57-7af7-49f4-b96b-5722318985e8",
+  "certification_run_id": "267354b2-6bf9-40a7-b842-f5099cb78066",
   "profile_id": "JOB-ALEMBIC-PG-OCI-PY314",
   "profile_version": "1.0.0",
-  "certified_at": "2026-08-31",
+  "certified_at": "2026-09-19",
   "runtime": "docker",
   "containers_executed": true,
   "complete_gate": true,
@@ -12,7 +12,7 @@
   "driver_sha256": "17eaabcb04a5313695c57a79db5dd074bad87a3b0455fd4d57dc10a6e3ec77a7",
   "scaffold_sha256": "2fbacbfcdecaaa32475326cfc8c2147be8abe8fdc568534da59958496181d44f",
   "composition_digest": "94eca94863810d90f09caf2864e484e9b2ecbbcbf29bac3261bd6650e41b18d9",
-  "certification_engine_sha256": "84590b07fcb4413cc0389cd05a7f7d9a060d7b54e20f4bb330bacc0cdd9989ce",
+  "certification_engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
   "checks": [
     {
       "gate_id": "GATE-COMPOSE-PY314-MIGRATION",
@@ -45,48 +45,48 @@
   ],
   "evidence_manifest": [
     {
-      "path": "certification-details/e506bad41264402b9940b68ae1d5b27ee309d03b48ea673c250af94863165411/GATE-DATA-INTEGRATION.json",
-      "sha256": "e506bad41264402b9940b68ae1d5b27ee309d03b48ea673c250af94863165411",
+      "path": "certification-details/7ac3221cba749f35c093ffeecdf2ef17824268e4818a3d5004e4a7d0a80a12de/GATE-DATA-INTEGRATION.json",
+      "sha256": "7ac3221cba749f35c093ffeecdf2ef17824268e4818a3d5004e4a7d0a80a12de",
       "size": 1958,
       "gate_id": "GATE-DATA-INTEGRATION"
     },
     {
-      "path": "certification-details/cb7234059386025e38ebc5a0b8a8991b93e6d9f4eff79112a40e4bdab03f2063/GATE-DATA-MIGRATION.json",
-      "sha256": "cb7234059386025e38ebc5a0b8a8991b93e6d9f4eff79112a40e4bdab03f2063",
+      "path": "certification-details/02ef6445d2867e9092a27b67171200fd9fb2445afcc033231ac3ff063544d76f/GATE-DATA-MIGRATION.json",
+      "sha256": "02ef6445d2867e9092a27b67171200fd9fb2445afcc033231ac3ff063544d76f",
       "size": 2137,
       "gate_id": "GATE-DATA-MIGRATION"
     },
     {
-      "path": "certification-details/785e81d30af09ba9e0cf8ed5f9a497ad16e05adee1ef59a76a3a5579c1bd7184/GATE-DELIVERY-EVIDENCE.json",
-      "sha256": "785e81d30af09ba9e0cf8ed5f9a497ad16e05adee1ef59a76a3a5579c1bd7184",
+      "path": "certification-details/2d8dfb624a2da5ae64c4c36d3eae84180454b8d2258f1677d16471275bb6a4d8/GATE-DELIVERY-EVIDENCE.json",
+      "sha256": "2d8dfb624a2da5ae64c4c36d3eae84180454b8d2258f1677d16471275bb6a4d8",
       "size": 741,
       "gate_id": "GATE-DELIVERY-EVIDENCE"
     },
     {
-      "path": "certification-details/af4451cdf896933e014f85049112c06fb1df2f9e4b78b4b157d6964656355bdb/GATE-OCI-BUILD.json",
-      "sha256": "af4451cdf896933e014f85049112c06fb1df2f9e4b78b4b157d6964656355bdb",
-      "size": 1274,
+      "path": "certification-details/2f056af6cd651b5968b01226b8d0f73bb10ea97b23b84327c02672114a900b05/GATE-OCI-BUILD.json",
+      "sha256": "2f056af6cd651b5968b01226b8d0f73bb10ea97b23b84327c02672114a900b05",
+      "size": 1272,
       "gate_id": "GATE-OCI-BUILD"
     },
     {
-      "path": "certification-details/710e3fd8fb285ba1669f59eec8e954efcd9ba2b2526e06bad4f4e0f70c78d518/GATE-OCI-SMOKE.json",
-      "sha256": "710e3fd8fb285ba1669f59eec8e954efcd9ba2b2526e06bad4f4e0f70c78d518",
+      "path": "certification-details/3d1eca366b54d5d4ed14664df84d900d7110246689e2f8e97c1836b2517a8d64/GATE-OCI-SMOKE.json",
+      "sha256": "3d1eca366b54d5d4ed14664df84d900d7110246689e2f8e97c1836b2517a8d64",
       "size": 1146,
       "gate_id": "GATE-OCI-SMOKE"
     },
     {
-      "path": "certification-details/edc7f529d0fd2e83f9f3d2d88d128d705549c3c01781863c6c5f315bc027785f/GATE-SCAFFOLD-INTEGRITY.json",
-      "sha256": "edc7f529d0fd2e83f9f3d2d88d128d705549c3c01781863c6c5f315bc027785f",
+      "path": "certification-details/d5816fa63c75e8e12e279e1eb7bddbdfa4e511b74d4aafe8b848064935b10de7/GATE-SCAFFOLD-INTEGRITY.json",
+      "sha256": "d5816fa63c75e8e12e279e1eb7bddbdfa4e511b74d4aafe8b848064935b10de7",
       "size": 1256,
       "gate_id": "GATE-SCAFFOLD-INTEGRITY"
     },
     {
-      "path": "certification-details/6e200298c69be05e5b1e32ec769eee6b720d631905dc6dc9df81891c6002d57b/GATE-COMPOSE-PY314-MIGRATION.json",
-      "sha256": "6e200298c69be05e5b1e32ec769eee6b720d631905dc6dc9df81891c6002d57b",
+      "path": "certification-details/dbf227a62ee502d34f299572c5eb39bf582a81ac75a9763c2682f5d6d6c8b87e/GATE-COMPOSE-PY314-MIGRATION.json",
+      "sha256": "dbf227a62ee502d34f299572c5eb39bf582a81ac75a9763c2682f5d6d6c8b87e",
       "size": 1540,
       "gate_id": "GATE-COMPOSE-PY314-MIGRATION"
     }
   ],
-  "result_sha256": "5478fc9023fe483e63fbde8befd73bb7cafe1d5c9a237298c7aae159361b253d",
+  "result_sha256": "f29daeb5481d02b62762161282032926fa31242f5e8b5caa2fe58921b5c31be7",
   "command": "python scripts/run_reference_profile_gate.py --profile JOB-ALEMBIC-PG-OCI-PY314 --runtime docker --containers --record-certification"
 }

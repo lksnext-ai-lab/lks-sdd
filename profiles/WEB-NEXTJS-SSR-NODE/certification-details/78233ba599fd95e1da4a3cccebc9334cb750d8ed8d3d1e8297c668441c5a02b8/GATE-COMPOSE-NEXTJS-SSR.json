@@ -1,0 +1,37 @@
+{
+  "certification_context": {
+    "certification_run_id": "4e5a8a09-51a5-46be-bbd4-4398f5890021",
+    "profile_id": "WEB-NEXTJS-SSR-NODE",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "2a7f5a8872c88d3c74d34b3010eeb939d50cca416816166af0c6621e89c43346",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "c0667fba6b7adf00e16ecbc9a3f9815518ddadec20693628c435fc72da42b13d",
+      "scaffold_sha256": "0976471e791f6ec2586b429cc4ca32f1c9a875fa01904daff528bc2aae5a40c0"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-web-nextjs-ssr-node-94nai42l/reference-app:/work",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "cd /work && python -c 'import json; p=json.load(open('\"'\"'package.json'\"'\"', encoding='\"'\"'utf-8'\"'\"')); assert '\"'\"'next'\"'\"' in p['\"'\"'dependencies'\"'\"']; assert json.load(open('\"'\"'.next/routes-manifest.json'\"'\"', encoding='\"'\"'utf-8'\"'\"'))'"
+  ],
+  "duration_seconds": 1.298,
+  "exit_code": 0,
+  "gate_id": "GATE-COMPOSE-NEXTJS-SSR",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "profile-composition",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": ""
+}

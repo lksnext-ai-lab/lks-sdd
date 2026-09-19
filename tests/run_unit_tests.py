@@ -194,7 +194,11 @@ def _run_parent(
     selectors: list[str],
 ) -> tuple[int, dict[str, Any]]:
     registry = load_suite_registry()
-    configured = modules_for_suite(selected_suite, registry)
+    configured = modules_for_suite(
+        selected_suite,
+        registry,
+        include_release_only=bool(selected_modules or selectors),
+    )
     if selected_modules:
         unknown = sorted(set(selected_modules) - {module for module, _, _ in configured})
         if unknown:

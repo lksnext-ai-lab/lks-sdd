@@ -81,6 +81,17 @@ def load_suite_registry(
         raise QualityExecutionError(
             "El registro debe declarar fast, integration, package y profile."
         )
+    release_only = registry.get("release_only_modules", {})
+    if not isinstance(release_only, dict) or not all(
+        isinstance(module, str)
+        and module.startswith("test_")
+        and isinstance(timeout, int)
+        and timeout >= 1
+        for module, timeout in release_only.items()
+    ):
+        raise QualityExecutionError(
+            "release_only_modules debe declarar módulos y timeouts válidos."
+        )
     assigned: dict[str, str] = {}
     for tier, config in tiers.items():
         if not isinstance(config, dict):
@@ -114,11 +125,23 @@ def load_suite_registry(
             f"missing={sorted(discovered - configured)}; "
             f"unknown={sorted(configured - discovered)}"
         )
+    unknown_release_only = sorted(set(release_only) - configured)
+    if unknown_release_only:
+        raise QualityExecutionError(
+            "release_only_modules contiene módulos no asignados: "
+            f"{unknown_release_only}"
+        )
     return registry
 
 
-def modules_for_suite(suite: str, registry: dict[str, Any]) -> list[tuple[str, str, int]]:
+def modules_for_suite(
+    suite: str,
+    registry: dict[str, Any],
+    *,
+    include_release_only: bool = False,
+) -> list[tuple[str, str, int]]:
     tiers = registry["tiers"]
+    release_only = registry.get("release_only_modules", {})
     selected = (
         [suite]
         if suite != "all"
@@ -127,9 +150,14 @@ def modules_for_suite(suite: str, registry: dict[str, Any]) -> list[tuple[str, s
     if any(tier not in tiers for tier in selected):
         raise QualityExecutionError(f"Suite no soportada: {suite}")
     return [
-        (module, tier, int(tiers[tier]["module_timeout_seconds"]))
+        (
+            module,
+            tier,
+            int(release_only.get(module, tiers[tier]["module_timeout_seconds"])),
+        )
         for tier in selected
         for module in tiers[tier]["modules"]
+        if include_release_only or module not in release_only
     ]
 
 

@@ -1,0 +1,35 @@
+{
+  "certification_context": {
+    "certification_run_id": "97257417-1e9a-4854-8b7f-1e80decddabc",
+    "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
+    "profile_version": "1.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "9e01ccb460da5daa9ac94b4a8997332682f7b6f8bca96427224c0ca03b1f4ee1",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "715370fd509e5d79c8bb0c625cd8630e3a222660ea37b5948a8cb574b00cce82",
+      "scaffold_sha256": "e74a791dd51b4efd68888c6137a51cc9ed6196dc80353b784874b7392263f5c7"
+    }
+  },
+  "command": [
+    "docker",
+    "compose",
+    "-f",
+    "infra/compose.yaml",
+    "up",
+    "-d",
+    "--wait"
+  ],
+  "duration_seconds": 64.062,
+  "exit_code": 0,
+  "gate_id": "GATE-OCI-SMOKE",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "oci-smoke",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": " Network lkssddgate32132b9ccdc70_default Creating \n Network lkssddgate32132b9ccdc70_default Created \n Volume lkssddgate32132b9ccdc70_postgres-data Creating \n Volume lkssddgate32132b9ccdc70_postgres-data Created \n Container lkssddgate32132b9ccdc70-postgres-1 Creating \n Container lkssddgate32132b9ccdc70-postgres-1 Created \n Container lkssddgate32132b9ccdc70-keycloak-1 Creating \n Container lkssddgate32132b9ccdc70-keycloak-1 Created \n Container lkssddgate32132b9ccdc70-api-1 Creating \n Container lkssddgate32132b9ccdc70-api-1 Created \n Container lkssddgate32132b9ccdc70-postgres-1 Starting \n Container lkssddgate32132b9ccdc70-postgres-1 Started \n Container lkssddgate32132b9ccdc70-postgres-1 Waiting \n Container lkssddgate32132b9ccdc70-postgres-1 Healthy \n Container lkssddgate32132b9ccdc70-keycloak-1 Starting \n Container lkssddgate32132b9ccdc70-keycloak-1 Started \n Container lkssddgate32132b9ccdc70-keycloak-1 Waiting \n Container lkssddgate32132b9ccdc70-postgres-1 Waiting \n Container lkssddgate32132b9ccdc70-postgres-1 Healthy \n Container lkssddgate32132b9ccdc70-keycloak-1 Healthy \n Container lkssddgate32132b9ccdc70-api-1 Starting \n Container lkssddgate32132b9ccdc70-api-1 Started \n Container lkssddgate32132b9ccdc70-keycloak-1 Waiting \n Container lkssddgate32132b9ccdc70-api-1 Waiting \n Container lkssddgate32132b9ccdc70-postgres-1 Waiting \n Container lkssddgate32132b9ccdc70-keycloak-1 Healthy \n Container lkssddgate32132b9ccdc70-postgres-1 Healthy \n Container lkssddgate32132b9ccdc70-api-1 Healthy \n",
+  "stdout_tail": ""
+}

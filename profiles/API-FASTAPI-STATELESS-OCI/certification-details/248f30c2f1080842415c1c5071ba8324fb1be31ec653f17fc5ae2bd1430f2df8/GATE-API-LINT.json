@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "b5cb2768-19cc-477f-b92e-0d646149f646",
+    "profile_id": "API-FASTAPI-STATELESS-OCI",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "5eaea0bb9362e23c2a197e6c49e85f81a0e8a013069309e88692d51ce3cfc991",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "032c0dac58180ca6f080143a98aca7726b17e5d88d2de0554160de884609b5ae",
+      "scaffold_sha256": "a69c123a5b99f43db5058474fe74076da8c8d6a28140fa0ad07054da15d9aa7f"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-api-fastapi-stateless-oci-hwql5u60/reference-app:/work",
+    "-v",
+    "lkssddgate32884e785eb93python22b112d0:/work/.venv",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "python -m pip install --disable-pip-version-check --quiet uv==0.12.5 && cd /work && uv run ruff check ."
+  ],
+  "duration_seconds": 6.078,
+  "exit_code": 0,
+  "gate_id": "GATE-API-LINT",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "api-lint",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\n",
+  "stdout_tail": "All checks passed!\n"
+}

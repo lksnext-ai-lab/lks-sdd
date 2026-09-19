@@ -255,6 +255,39 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertEqual(check["status"], "failed")
         self.assertEqual(check["summary"], "exit=1; failed=test_first,test_second")
 
+    def test_release_only_check_rejects_a_skipped_result(self):
+        payload = {
+            "passed": True,
+            "results": [
+                {
+                    "name": "test_long_path",
+                    "status": "skipped",
+                }
+            ],
+        }
+        managed = ManagedCommandResult(
+            returncode=0,
+            stdout=json.dumps(payload),
+            stderr="",
+            duration_seconds=0.1,
+            timed_out=False,
+            termination="normal",
+            process_cleanup="not-required",
+        )
+        with patch("run_quality_harness.run_managed_command", return_value=managed):
+            check, parsed, _ = _run_command(
+                "windows-long-path-regression",
+                ["synthetic"],
+                json_output=True,
+                require_executed_tests=True,
+            )
+
+        self.assertEqual(parsed, payload)
+        self.assertEqual(check["status"], "failed")
+        self.assertEqual(
+            check["summary"], "exit=0; release-only-not-fully-executed"
+        )
+
     def test_perfect_activation_and_document_observations_pass(self):
         observations = validate_observations(self._observations(), self.corpus)
         activation, metrics, critical = evaluate_activation(
@@ -726,6 +759,51 @@ class QualityHarnessTests(unittest.TestCase):
         self.assertIn("scripts/verify_profile_certifications.py", command)
         self.assertIn("--max-age-days", command)
         self.assertNotIn("--containers", command)
+
+    def test_stable_runs_windows_long_path_regression_as_an_executed_gate(self):
+        commands: dict[str, list[str]] = {}
+        timeouts: dict[str, int] = {}
+
+        def fake_run(check_id, command, json_output=False, timeout=600, **_kwargs):
+            commands[check_id] = command
+            timeouts[check_id] = timeout
+            payload = (
+                {
+                    "results": [
+                        {"id": f"{check_id}.passed", "status": "passed"}
+                    ],
+                    "passed": True,
+                    "duration_seconds": 0,
+                }
+                if check_id.startswith("unit-tests-")
+                or check_id == "windows-long-path-regression"
+                or check_id == "deterministic-evals"
+                else {"complete_gate": True, "passed": True}
+                if check_id == "reference-profile-complete"
+                else None
+            )
+            return (
+                {
+                    "id": check_id,
+                    "status": "passed",
+                    "critical": True,
+                    "summary": "exit=0",
+                },
+                payload,
+                "",
+            )
+
+        with patch(
+            "run_quality_harness.validate_fixture_manifest",
+            return_value={"status": "passed", "fixture_count": 6, "errors": []},
+        ), patch("run_quality_harness._run_command", side_effect=fake_run):
+            run_automated(self.catalog, "reuse", "2026-08-26", channel="stable")
+
+        self.assertEqual(timeouts["windows-long-path-regression"], 600)
+        self.assertEqual(
+            commands["windows-long-path-regression"][-2:],
+            ["--module", "test_windows_long_paths"],
+        )
 
     def test_dirty_source_fails_candidate_gate_without_running_real_suite(self):
         automated = (

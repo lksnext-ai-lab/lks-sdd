@@ -30,6 +30,9 @@ EXPECTED_CANDIDATE_CHECKS = {
     "deterministic-evals",
     "reference-profile-complete",
 }
+EXPECTED_STABLE_CHECKS = (
+    EXPECTED_CANDIDATE_CHECKS | {"windows-long-path-regression"}
+)
 EXPECTED_CANDIDATE_REQUIRED_CHANNELS = {
     "automated",
     "fixture-integrity",
@@ -856,12 +859,17 @@ def _validated_quality_report(
         )
     checks = report["checks"]
     check_ids = [check["id"] for check in checks]
+    expected_checks = (
+        EXPECTED_CANDIDATE_CHECKS
+        if release_channel == "candidate"
+        else EXPECTED_STABLE_CHECKS
+    )
     if (
         len(check_ids) != len(set(check_ids))
-        or set(check_ids) != EXPECTED_CANDIDATE_CHECKS
+        or set(check_ids) != expected_checks
     ):
         raise PackageError(
-            "El reporte no contiene el inventario exacto de checks candidate."
+            f"El reporte no contiene el inventario exacto de checks {release_channel}."
         )
     check_by_id = {check["id"]: check for check in checks}
     for check_id, check in check_by_id.items():

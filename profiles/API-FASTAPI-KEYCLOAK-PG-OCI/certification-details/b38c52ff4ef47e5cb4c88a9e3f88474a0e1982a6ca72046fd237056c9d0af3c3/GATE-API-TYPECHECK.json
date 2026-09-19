@@ -1,0 +1,39 @@
+{
+  "certification_context": {
+    "certification_run_id": "97257417-1e9a-4854-8b7f-1e80decddabc",
+    "profile_id": "API-FASTAPI-KEYCLOAK-PG-OCI",
+    "profile_version": "1.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "9e01ccb460da5daa9ac94b4a8997332682f7b6f8bca96427224c0ca03b1f4ee1",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "715370fd509e5d79c8bb0c625cd8630e3a222660ea37b5948a8cb574b00cce82",
+      "scaffold_sha256": "e74a791dd51b4efd68888c6137a51cc9ed6196dc80353b784874b7392263f5c7"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "C:/Users/j.ormazabal/AppData/Local/Temp/lks-sdd-api-fastapi-keycloak-pg-oci-bvpmhq4z/reference-app:/work",
+    "-v",
+    "lkssddgate32132b9ccdc70python22b112d0:/work/.venv",
+    "python:3.14.7-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4",
+    "sh",
+    "-lc",
+    "python -m pip install --disable-pip-version-check --quiet uv==0.12.5 && cd /work && uv run mypy"
+  ],
+  "duration_seconds": 31.972,
+  "exit_code": 0,
+  "gate_id": "GATE-API-TYPECHECK",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "name": "api-typecheck",
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.\n",
+  "stdout_tail": "Success: no issues found in 5 source files\n"
+}

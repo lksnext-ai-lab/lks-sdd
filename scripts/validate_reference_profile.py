@@ -3,13 +3,21 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+if str(__file__).startswith("\\\\?\\"):
+    _bootstrap = Path(__file__).with_name("import_bootstrap.py")
+    _namespace = {}
+    exec(compile(_bootstrap.read_bytes(), str(_bootstrap), "exec"), _namespace)
+    _namespace["ensure_import_path"](__file__)
+    del _bootstrap, _namespace
+
 import argparse
 import hashlib
 import json
 import re
-import sys
 import tomllib
-from pathlib import Path
 from typing import Any
 
 from profile_registry import (

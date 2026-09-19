@@ -1,0 +1,100 @@
+{
+  "certification_context": {
+    "certification_run_id": "76151392-05f1-4f16-a1c0-82a080433a15",
+    "profile_id": "WEB-FASTAPI-REACT-KEYCLOAK-PG",
+    "profile_version": "2.1.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "bd45540dabe84817a4255ad799cf120e7887fb12da756a3c008e59b583320d75",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "2481cb93813af84a611421ebe2cf1995411a25587aae8c5a8917294d998bfd6e",
+      "scaffold_sha256": "2fbfdb5a9484ee7f672622bd5ae1599ba42989a4f2fd5c33663d68fe1abde6da"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/observe_fullstack.py"
+  ],
+  "duration_seconds": 34.086,
+  "exit_code": 0,
+  "gate_id": "GATE-BROWSER-FULLSTACK-E2E",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "browser-fullstack-e2e",
+  "observations": {
+    "browser": "chromium",
+    "console_errors": [],
+    "mutation": {
+      "action": "Guardar elemento",
+      "label": "fullstack-1789779182644",
+      "method": "POST",
+      "path": "/api/v1/items",
+      "record_id": "4dd47041-10e1-4919-a505-2b4d59d9e50e"
+    },
+    "persistence": true,
+    "read_back": {
+      "matches": true,
+      "observer": "postgresql-psql",
+      "record_id": "4dd47041-10e1-4919-a505-2b4d59d9e50e",
+      "resource": "reference_items"
+    },
+    "reload": true,
+    "requests": [
+      {
+        "correlation_id": null,
+        "method": "GET",
+        "path": "/api/v1/items",
+        "status": 200
+      },
+      {
+        "correlation_id": "fullstack-gate-correlation",
+        "method": "POST",
+        "path": "/api/v1/items",
+        "status": 201
+      },
+      {
+        "correlation_id": null,
+        "method": "GET",
+        "path": "/api/v1/items",
+        "status": 200
+      },
+      {
+        "correlation_id": null,
+        "method": "GET",
+        "path": "/api/v1/items",
+        "status": 200
+      }
+    ],
+    "runtime_units": [
+      "frontend",
+      "api",
+      "database",
+      "identity"
+    ],
+    "screenshots": [
+      {
+        "path": "fullstack/before.png",
+        "sha256": "57b647212c2e7a955a076b51dae2b37cdd9ac4d010a426955362aee8a094ac85"
+      },
+      {
+        "path": "fullstack/after.png",
+        "sha256": "325a331bd788fa0ff9e5a853299541e62f1763d2f9ffbafdeac11fc3d4f7944c"
+      },
+      {
+        "path": "fullstack/reloaded.png",
+        "sha256": "57b647212c2e7a955a076b51dae2b37cdd9ac4d010a426955362aee8a094ac85"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": " Volume lkssddgate27560a7ca61bc_e2e-node-modules Creating \n Volume lkssddgate27560a7ca61bc_e2e-node-modules Created \n Container lkssddgate27560a7ca61bc-postgres-1 Running \n Container lkssddgate27560a7ca61bc-keycloak-1 Running \n Container lkssddgate27560a7ca61bc-backend-1 Running \n Container lkssddgate27560a7ca61bc-frontend-1 Running \n Container lkssddgate27560a7ca61bc-postgres-1 Waiting \n Container lkssddgate27560a7ca61bc-postgres-1 Healthy \n Container lkssddgate27560a7ca61bc-keycloak-1 Waiting \n Container lkssddgate27560a7ca61bc-postgres-1 Waiting \n Container lkssddgate27560a7ca61bc-postgres-1 Healthy \n Container lkssddgate27560a7ca61bc-keycloak-1 Healthy \n Container lkssddgate27560a7ca61bc-e2e-run-1692d8ac852a Creating \n Container lkssddgate27560a7ca61bc-e2e-run-1692d8ac852a Created \nnpm notice\nnpm notice New major version of npm available! 11.16.0 -> 12.0.2\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2\nnpm notice To update run: npm install -g npm@12.0.2\nnpm notice\n",
+  "stdout_tail": " WARN  Unsupported engine: wanted: {\"node\":\">=24.19.0 <25\"} (current: {\"node\":\"v24.18.1\",\"pnpm\":\"10.34.5\"})\nLockfile is up to date, resolution step is skipped\n\n   ╭─────────────────────────────────────────╮\n   │                                         │\n   │   Update available! 10.34.5 → 12.4.2.   │\n   │   Changelog: https://pnpm.io/v/12.4.2   │\n   │    To update, run: pnpm add -g pnpm     │\n   │                                         │\n   ╰─────────────────────────────────────────╯\n\nProgress: resolved 1, reused 0, downloaded 0, added 0\nPackages: +202\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\nProgress: resolved 202, reused 34, downloaded 0, added 0\nProgress: resolved 202, reused 88, downloaded 0, added 0\nProgress: resolved 202, reused 115, downloaded 0, added 0\nProgress: resolved 202, reused 155, downloaded 0, added 0\nProgress: resolved 202, reused 176, downloaded 0, added 0\nProgress: resolved 202, reused 192, downloaded 0, added 0\nProgress: resolved 202, reused 202, downloaded 0, added 7\nProgress: resolved 202, reused 202, downloaded 0, added 34\nProgress: resolved 202, reused 202, downloaded 0, added 79\nProgress: resolved 202, reused 202, downloaded 0, added 94\nProgress: resolved 202, reused 202, downloaded 0, added 104\nProgress: resolved 202, reused 202, downloaded 0, added 114\nProgress: resolved 202, reused 202, downloaded 0, added 134\nProgress: resolved 202, reused 202, downloaded 0, added 166\nProgress: resolved 202, reused 202, downloaded 0, added 181\nProgress: resolved 202, reused 202, downloaded 0, added 187\nProgress: resolved 202, reused 202, downloaded 0, added 190\nProgress: resolved 202, reused 202, downloaded 0, added 198\nProgress: resolved 202, reused 202, downloaded 0, added 199\nProgress: resolved 202, reused 202, downloaded 0, added 201\nProgress: resolved 202, reused 202, downloaded 0, added 202, done\n\ndependencies:\n+ keycloak-js 26.2.4\n+ react 19.2.7\n+ react-dom 19.2.7\n\ndevDependencies:\n+ @axe-core/playwright 4.13.0\n+ @eslint/js 10.0.1\n+ @playwright/test 1.62.1\n+ @testing-library/jest-dom 7.0.1\n+ @testing-library/react 16.3.2\n+ @types/react 19.2.18\n+ @types/react-dom 19.2.4\n+ @vitejs/plugin-react 6.0.5\n+ eslint 10.8.1\n+ globals 17.11.0\n+ jsdom 30.0.1\n+ typescript 6.0.3\n+ typescript-eslint 8.67.0\n+ vite 8.1.5\n+ vitest 4.1.11\n\nDone in 21.8s using pnpm v10.34.5\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › e2e/fullstack.spec.ts:6:1 › real browser mutation survives reload through API and PostgreSQL (3.8s)\n\n  1 passed (5.1s)\n"
+}

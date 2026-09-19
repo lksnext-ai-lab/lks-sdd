@@ -1,0 +1,56 @@
+{
+  "certification_context": {
+    "certification_run_id": "f00bddec-d4ea-4f16-9064-d9062cdf2fd3",
+    "profile_id": "WEB-FASTAPI-REACT-LOCAL-AUTH-PG-PY313-TS59",
+    "profile_version": "1.0.0",
+    "runtime": "docker",
+    "source_identity": {
+      "driver_sha256": "4d871c0daf6f5af06540f4d7fcfd878d02e4603c6279f8a83c0a030d85b58960",
+      "engine_sha256": "5a4eeb0e5b5da179e172dc8a53f8090ccfc12ad70f2a8866843518ebea0ad37e",
+      "profile_sha256": "05b41a2306e598e9344ae2635694f08e557010ef0f66a152c93f544cf9d2be17",
+      "scaffold_sha256": "a3112aa04678cc0dcb3c37ef31569a9508d349ebf64960fa3d4c343c1eb38140"
+    }
+  },
+  "command": [
+    "python",
+    "verification/gate.py",
+    "--gate",
+    "GATE-DATA-MIGRATION"
+  ],
+  "duration_seconds": 5.404,
+  "exit_code": 0,
+  "gate_id": "GATE-DATA-MIGRATION",
+  "information_protection": {
+    "locations": [],
+    "status": "passed"
+  },
+  "mocks": [],
+  "name": "data-migration",
+  "observations": {
+    "data_preserved": true,
+    "empty_database": true,
+    "forward_fix_rehearsed": true,
+    "from": "0001",
+    "mutation": {
+      "record_id": "30000000-0000-4000-8000-000000000001",
+      "resource": "records"
+    },
+    "observer": "alembic-postgresql",
+    "persistence": true,
+    "read_back": {
+      "matches": true,
+      "observer": "postgresql-psql",
+      "record_id": "30000000-0000-4000-8000-000000000001",
+      "resource": "records"
+    },
+    "runtime_units": [
+      "migration",
+      "database"
+    ],
+    "to": "0002"
+  },
+  "required": true,
+  "status": "passed",
+  "stderr_tail": "",
+  "stdout_tail": "{\"gate_id\": \"GATE-DATA-MIGRATION\", \"observations\": {\"observer\": \"alembic-postgresql\", \"runtime_units\": [\"migration\", \"database\"], \"from\": \"0001\", \"to\": \"0002\", \"empty_database\": true, \"data_preserved\": true, \"forward_fix_rehearsed\": true, \"mutation\": {\"record_id\": \"30000000-0000-4000-8000-000000000001\", \"resource\": \"records\"}, \"read_back\": {\"observer\": \"postgresql-psql\", \"resource\": \"records\", \"record_id\": \"30000000-0000-4000-8000-000000000001\", \"matches\": true}, \"persistence\": true}, \"status\": \"passed\"}\n"
+}

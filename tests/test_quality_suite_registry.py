@@ -43,14 +43,34 @@ class QualitySuiteRegistryTests(unittest.TestCase):
 
     def test_registry_assigns_every_module_exactly_once(self):
         registry = load_suite_registry()
-        all_modules = [module for module, _tier, _timeout in modules_for_suite("all", registry)]
+        all_modules = [
+            module for module, _tier, _timeout in modules_for_suite("all", registry)
+        ]
         self.assertEqual(len(all_modules), len(set(all_modules)))
         self.assertIn("test_m5_pilot", registry["tiers"]["package"]["modules"])
         self.assertIn(
             "test_visual_contract", registry["tiers"]["integration"]["modules"]
         )
-        self.assertEqual(registry["tiers"]["integration"]["max_workers"], 4)
+        self.assertEqual(registry["tiers"]["integration"]["max_workers"], 2)
         self.assertNotIn("test_m5_pilot", registry["tiers"]["fast"]["modules"])
+        self.assertNotIn("test_windows_long_paths", all_modules)
+        release_only = modules_for_suite(
+            "package", registry, include_release_only=True
+        )
+        self.assertIn(
+            ("test_windows_long_paths", "package", 600), release_only
+        )
+
+    def test_registry_rejects_invalid_release_only_timeout(self):
+        registry = copy.deepcopy(load_suite_registry())
+        registry["release_only_modules"]["test_windows_long_paths"] = 0
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-suite-release-only-") as directory:
+            path = Path(directory) / "registry.json"
+            path.write_text(json.dumps(registry), encoding="utf-8")
+            with self.assertRaisesRegex(
+                QualityExecutionError, "módulos y timeouts válidos"
+            ):
+                load_suite_registry(path)
 
     def test_registry_rejects_unassigned_module(self):
         registry = load_suite_registry()
