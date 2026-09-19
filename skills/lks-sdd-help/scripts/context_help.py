@@ -354,8 +354,6 @@ def load_state(project_root: Path) -> dict[str, Any]:
             missing.append(f"Pendiente no bloqueante {item_id}: {detail}")
     if active_increment is None:
         missing.append("No hay un incremento activo indexado.")
-    if not manifest.get("technology", {}).get("preferred_stack_assessed", False):
-        missing.append("Todavía no se ha evaluado el encaje de la pila preferente.")
     if not definition_coverage["available"]:
         missing.append(definition_coverage["fallback_reason"])
     elif definition_coverage["invalid"]:

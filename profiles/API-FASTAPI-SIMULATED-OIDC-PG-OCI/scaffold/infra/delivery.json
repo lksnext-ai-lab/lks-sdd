@@ -1,7 +1,0 @@
-{
-  "artifact_type": "oci-image",
-  "promotion_identity": "sha256 digest",
-  "required_dependencies": ["controlled non-production OIDC double", "PostgreSQL"],
-  "recovery": ["application rollback", "database restore or forward-fix"],
-  "reference_credentials": "no credentials or private keys are packaged; the synthetic signing key is ephemeral"
-}

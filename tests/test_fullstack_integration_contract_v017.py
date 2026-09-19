@@ -20,9 +20,9 @@ from evidence_contract import (  # noqa: E402
 def delivery(*, integrated: bool = True) -> dict:
     value = {
         "tasks": {
-            "TASK-001": {"Unit": "UNIT-001", "Profile binding": "BIND-001"},
-            "TASK-002": {"Unit": "UNIT-002", "Profile binding": "BIND-002"},
-            "TASK-003": {"Unit": "UNIT-001", "Profile binding": "BIND-001"},
+            "TASK-001": {"Unit": "UNIT-001", "Binding": "BIND-001"},
+            "TASK-002": {"Unit": "UNIT-002", "Binding": "BIND-002"},
+            "TASK-003": {"Unit": "UNIT-001", "Binding": "BIND-001"},
         },
         "task_details": {
             "TASK-001": {"integration": []},
@@ -36,7 +36,7 @@ def delivery(*, integrated: bool = True) -> dict:
             "State": "confirmed",
             "Consumer unit": "UNIT-001",
             "Producer unit": "UNIT-002",
-            "Profile bindings": "BIND-001, BIND-002",
+            "Bindings": "BIND-001, BIND-002",
             "Operations": "read,write",
             "Protocol": "HTTPS",
             "Contract": "GET /api/v1/items; POST /api/v1/items",

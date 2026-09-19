@@ -1,8 +1,9 @@
 # LKS-SDD 2: política común y workflows
 
 Esta guía aplica al contrato 2.0. Para proyectos 1.5 no migrados se conserva el
-workflow 1.5 y el runtime fijado. La [referencia normativa](../specs/proposed/project-contract-2.0.md)
-define los datos; las guías no crean otra autoridad. Estado de release y canales de aceptación: [estado actual](STATUS.md).
+workflow 1.5 y el runtime fijado. El [contrato de proyecto](../specs/proposed/project-contract-2.0.md)
+define las declaraciones tecnológicas locales y el corte; las guías no crean otra
+autoridad. Estado de release y canales de aceptación: [estado actual](STATUS.md).
 
 ## Política común
 
@@ -152,8 +153,7 @@ El contexto bloqueado debe mostrar IDs y próxima acción concreta, no porcentaj
 Leer `context --task ...`, AUTH vigente y último checkpoint; contrastar los cambios
 locales antes de escribir. `v2 authorize` requiere tareas, actor/rol declarados,
 entorno, motivo y vigencia; no autentica a una persona. `v2 start` exige tareas
-ready, autorización vigente y perfil exacto o variante aprobada. No basta la
-aprobación del plan o de la tecnología. Trabajar solo en las rutas autorizadas.
+ready, autorización vigente y declaraciones tecnológicas críticas confirmadas. No basta la aprobación del plan o una observación tecnológica. Trabajar solo en las rutas autorizadas.
 
 Conservar cambios ajenos. `v2 diff` detecta desviaciones y cambios de tests/gates;
 `v2 review-diff` registra revisión explícita del diff exacto, no nueva autorización
@@ -161,11 +161,7 @@ de alcance. Registrar checkpoint al pausar, bloquear o pasar a revisión, no por
 cada comando. Código completo pasa a in-review; done exige evidencia adecuada.
 Nuevos requisitos reabren solo las decisiones afectadas y requieren nueva base.
 Cambios de base entre usuarios exigen reconciliación; no hay lock distribuido.
-`v2 prepare` materializa fuentes de un perfil exacto únicamente dentro de las rutas
-aprobadas; no sobrescribe personalizaciones. En adopción prepara únicamente
-recursos de verificación de un adaptador soportado, nunca el scaffold funcional.
-En variantes, start solo prepara
-locks y continuidad, nunca copia el scaffold de referencia.
+`v2 prepare` solo crea registros locales de composición dentro de las rutas aprobadas; no materializa recetas, scaffolds, locks ni adaptadores tecnológicos.
 `v2 revoke --id AUTH-###` revoca autoridad. `problem`, `correct` y `replan` separan
 el hallazgo, la corrección del mismo contrato y el cambio de base. Los registros
 operativos no se pueden fabricar mediante la edición general `author`.

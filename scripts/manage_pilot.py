@@ -72,15 +72,15 @@ OUTCOME_KEYS = {
     "security_incidents",
 }
 ROUTES = {
-    "greenfield-certified-profile",
+    "greenfield-local-declaration",
     "adopt-existing",
-    "candidate-or-external-profile",
+    "local-or-external-declaration",
     "reinforced-risk",
 }
 REQUIRED_ROUTES = {
-    "greenfield-certified-profile",
+    "greenfield-local-declaration",
     "adopt-existing",
-    "candidate-or-external-profile",
+    "local-or-external-declaration",
 }
 
 
@@ -527,7 +527,7 @@ def decide(
     if not summary.get("sample_sufficient"):
         blockers.append("La muestra observada no alcanza 3 proyectos, 5 participantes y las tres rutas obligatorias.")
     completed = set(summary.get("completed_route_coverage", []))
-    for route in ("greenfield-certified-profile", "adopt-existing"):
+    for route in ("greenfield-local-declaration", "adopt-existing"):
         if route not in completed:
             blockers.append(f"La ruta {route} no está completada.")
     if metrics.get("security_incidents", 0) != 0:
@@ -536,8 +536,8 @@ def decide(
         blockers.append("Existen fallos de permisos.")
     if quality_metrics.get("critical_failures") != 0:
         blockers.append("El harness M4 contiene fallos críticos.")
-    if quality_metrics.get("profile_complete_gate") != 1:
-        blockers.append("La cobertura técnica completa de perfiles activos no está verde.")
+    if quality_metrics.get("contract_complete_gate") != 1:
+        blockers.append("La cobertura técnica completa de declaraciones locales no está verde.")
     document_quality = metrics.get("document_quality_average")
     if document_quality is None or document_quality < 4:
         blockers.append("La calidad documental media no alcanza 4 sobre 5.")

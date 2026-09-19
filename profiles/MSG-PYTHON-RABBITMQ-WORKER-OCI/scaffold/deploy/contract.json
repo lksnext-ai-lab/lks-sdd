@@ -1,1 +1,0 @@
-{"status":"candidate","delivery":"at-least-once","retry":"bounded","dead_letter":"required","idempotency":"message_id","recovery":"redrive by authorized operation"}

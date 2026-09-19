@@ -38,7 +38,7 @@ al núcleo, no a la carpeta exterior del plugin Copilot.
 - `<plugin-root>` contiene `.codex-plugin/plugin.json`, `skills/` y `scripts/lks_sdd.py`;
 - `<project-root>` contiene `.lks-sdd/project.json`, `docs/lks-sdd/` y, cuando exista, el código de la aplicación.
 
-El patrón portable es `python "<plugin-root>/scripts/lks_sdd.py" <comando> "<project-root>"`. El dispatcher ofrece `help`, `define`, adopción, readiness, `planning`, `tracking`, implementación, `continuity`, verificación, `tasks`, `profiles`, validación, trazabilidad y vistas cliente; no incluye migrador de proyectos.
+El patrón portable es `python "<plugin-root>/scripts/lks_sdd.py" <comando> "<project-root>"`. El dispatcher ofrece `help`, `define`, adopción, readiness, `planning`, `tracking`, implementación, `continuity`, verificación, `tasks`, `local technology declaration`, validación, trazabilidad y vistas cliente; no incluye migrador de proyectos.
 
 Los proyectos materializados por 0.15.0 usan método 1.5.0 y esquema 1.5, único contrato operativo. El índice puede conservar un `plugin_version` anterior como procedencia. El runtime no migra ni reescribe proyectos y rechaza otros schemas sin inferir confirmaciones, mappings, avance, evidencia o escrituras Jira.
 

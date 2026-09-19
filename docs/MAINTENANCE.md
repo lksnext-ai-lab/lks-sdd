@@ -2,8 +2,7 @@
 
 ## Fuentes y salidas
 
-Versionar código, contratos, skills, plantillas, fixtures, locks, certificaciones,
-baselines de regresión activas y evidencia necesaria para explicar un límite vigente.
+Versionar código, contratos, skills, plantillas, fixtures, baselines de regresión activas y evidencia necesaria para explicar un límite vigente.
 El historial de releases se concentra en `CHANGELOG.md`. La investigación, planes,
 snapshots y notas cerradas no permanecen en el checkout de mantenimiento una vez que
 sus decisiones y límites vigentes se han consolidado en la documentación activa; Git

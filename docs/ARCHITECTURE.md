@@ -1,7 +1,7 @@
-# Arquitectura y alcance de LKS-SDD 2.0.2
+# Arquitectura y alcance de LKS-SDD 2.1.0
 
 LKS-SDD es un plugin `skills-only` para Codex desktop y GitHub Copilot en VS Code
-Agent. La versión 2.0.2 usa contrato consumidor 2.0 y método 2.0.0. Los Markdown
+Agent. La versión 2.1.0 usa contrato consumidor 2.0 y método 2.0.0. Los Markdown
 del proyecto consumidor son la fuente de verdad; `.lks-sdd/project.json` es un
 índice operativo y no sustituye decisiones, tareas ni evidencia.
 
@@ -45,10 +45,7 @@ Los lectores y writers 1.5 permanecen separados de 2.0 para permitir una migraci
 autorizada. El historial de un consumidor migrado se conserva como antecedente no
 normativo; un `ART-TRACKING` o `SYNC-###` histórico no autoriza trabajo v2.
 
-La tecnología se selecciona mediante perfiles exactos, locks y certificaciones.
-Una variante aprobada localmente permite verificar su alcance delimitado, pero no se
-convierte en soporte global ni omite gates críticos. [PROJECT-VARIANTS.md](PROJECT-VARIANTS.md)
-describe esa ruta sin depender de paquetes de release históricos.
+La tecnología se declara y confirma localmente en el proyecto. Las observaciones no conceden autorización y no existe catálogo, lock, receta ni certificación global.
 
 ## Límites de confianza
 

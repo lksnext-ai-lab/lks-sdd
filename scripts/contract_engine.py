@@ -1685,20 +1685,8 @@ def build_project_model(
             )
         )
 
-    profile_lock = root / ".lks-sdd" / "profile.lock.json"
-    if profile_lock.is_file() and not profile_lock.is_symlink():
-        relative = profile_lock.relative_to(root).as_posix()
-        content = profile_lock.read_bytes()
-        source_hashes[relative] = _hash_bytes(content)
-        checked_files.append(relative)
-    profile_locks = root / ".lks-sdd" / "profiles"
-    if profile_locks.is_dir() and not profile_locks.is_symlink():
-        for candidate in sorted(profile_locks.glob("BIND-*.lock.json")):
-            if not candidate.is_file() or candidate.is_symlink():
-                continue
-            relative = candidate.relative_to(root).as_posix()
-            source_hashes[relative] = _hash_bytes(candidate.read_bytes())
-            checked_files.append(relative)
+
+
 
     return ProjectModel(
         root=root,
@@ -1752,55 +1740,8 @@ def _active_payload(
     edges: Sequence[ProjectEdge],
     assets: Sequence[ProjectAsset],
 ) -> dict[str, Any]:
-    profile_lock_hash = model.source_hashes.get(".lks-sdd/profile.lock.json")
-    if profile_lock_hash is None:
-        technology = model.manifest.get("technology")
-        selected_profile = (
-            technology.get("selected_profile")
-            if isinstance(technology, dict)
-            else None
-        )
-        if isinstance(selected_profile, str) and re.fullmatch(
-            r"[A-Z][A-Z0-9-]{2,63}", selected_profile
-        ):
-            packaged_lock = (
-                PLUGIN_ROOT
-                / "profiles"
-                / selected_profile
-                / "technology-profile.lock.json"
-            )
-            if packaged_lock.is_file() and not packaged_lock.is_symlink():
-                profile_lock_hash = _hash_bytes(packaged_lock.read_bytes())
-    profile_lock_hashes: dict[str, str] = {
-        path: digest
-        for path, digest in model.source_hashes.items()
-        if re.fullmatch(r"\.lks-sdd/profiles/BIND-[0-9]{3}\.lock\.json", path)
-    }
-    technology = model.manifest.get("technology")
-    if (
-        str(model.manifest.get("schema_version")) in {"1.2", "1.3", "1.4", "1.5"}
-        and isinstance(technology, dict)
-    ):
-        for binding in technology.get("profile_bindings", []):
-            if not isinstance(binding, dict) or binding.get("state") != "confirmed":
-                continue
-            lock_path = binding.get("lock_path")
-            profile_id = binding.get("profile_id")
-            if (
-                isinstance(lock_path, str)
-                and lock_path not in profile_lock_hashes
-                and isinstance(profile_id, str)
-            ):
-                packaged_lock = (
-                    PLUGIN_ROOT
-                    / "profiles"
-                    / profile_id
-                    / "technology-profile.lock.json"
-                )
-                if packaged_lock.is_file() and not packaged_lock.is_symlink():
-                    profile_lock_hashes[lock_path] = _hash_bytes(
-                        packaged_lock.read_bytes()
-                    )
+
+
     project = {
         "project_id": model.manifest.get("project_id"),
         "route": model.manifest.get("route"),
@@ -1808,8 +1749,6 @@ def _active_payload(
         "schema_version": model.manifest.get("schema_version"),
         "baseline_id": model.manifest.get("baseline_id"),
         "technology": model.manifest.get("technology"),
-        "profile_lock_sha256": profile_lock_hash,
-        "profile_locks_sha256": dict(sorted(profile_lock_hashes.items())),
     }
     row_payloads = [
         {
@@ -2046,8 +1985,6 @@ def resolve_active_increment(model: ProjectModel, increment: str) -> ActiveContr
     checked = {".lks-sdd/project.json"}
     checked.update(row.path for row in active_rows)
     checked.update(asset.path for asset in active_assets if asset.sha256 is not None)
-    if ".lks-sdd/profile.lock.json" in model.source_hashes:
-        checked.add(".lks-sdd/profile.lock.json")
     payload = _active_payload(
         model,
         increment,

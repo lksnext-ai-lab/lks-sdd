@@ -18,7 +18,7 @@ last_updated: "{{DATE}}"
 
 # Stakeholders y usuarios
 
-| ID | State | Role or profile | Need | Authority | Source |
+| ID | State | Role or local technology declaration | Need | Authority | Source |
 |---|---|---|---|---|---|
 
 No se presume autoridad de decisión a partir de la participación en una conversación.

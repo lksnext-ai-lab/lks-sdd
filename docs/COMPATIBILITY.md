@@ -62,10 +62,7 @@ siguen `not-run`.
 
 ## Tecnología y colaboración
 
-El soporte estricto depende de la composición exacta: perfil, lock, scaffold,
-gates y certificación vigente. Los perfiles candidate no pasan a supported por
-similitud tecnológica. Una variante aprobada es autorización local delimitada,
-no certificación del catálogo ni dispensa de controles críticos.
+La tecnología se declara y confirma en cada proyecto. La compatibilidad técnica se observa de forma estática local, no se infiere de un catálogo, receta o certificación global.
 
 Cada participante usa su clon y el runtime compartido. Hay continuidad y
 reconciliación, no locks distribuidos ni garantía de edición simultánea del mismo

@@ -26,7 +26,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import validate_project  # noqa: E402
 
-PLUGIN_VERSION = "2.0.2"
+PLUGIN_VERSION = "2.1.0"
 METHOD_VERSION = "1.5.0"
 SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"
@@ -264,12 +264,6 @@ def _build_manifest(
         "baseline_id": BASELINE_ID,
         "canonical_docs": "docs/lks-sdd",
         "artifacts": artifacts,
-        "technology": {
-            "preferred_stack_assessed": False,
-            "selected_profile": None,
-            "selection_decision": None,
-            "profile_bindings": [],
-        },
         "active_increment": None,
         "active_plan": "PLAN-001",
         "active_task": None,

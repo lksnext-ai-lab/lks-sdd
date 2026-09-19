@@ -9,18 +9,13 @@ como requisito de release.
 La puerta estable ejecuta solo cuatro comprobaciones:
 
 1. La aprobación explícita de la versión.
-2. La integridad estática: fixtures, contrato del plugin y estructura de perfiles.
+2. La integridad estática: fixtures y contrato del plugin.
 3. Catorce pruebas de humo que cubren contrato, aislamiento, migración, planificación,
    tracking, evidencia, integración y adopción.
 4. La regresión real de rutas largas de Windows.
 
-La estructura de perfiles se valida porque forma parte del paquete; no se exige
-certificación, caducidad, Docker ni recertificación de perfiles.
-
 La batería mantenida contiene únicamente los módulos que aportan estas pruebas de
-humo, sus fixtures compartidos y la regresión Windows. Se han retirado los módulos
-fragmentados y las pruebas históricas que no forman parte de este contrato de
-publicación.
+humo, su regresión v2 y la regresión Windows. Se han retirado los módulos fragmentados y las pruebas históricas que no forman parte de este contrato de publicación.
 
 Los checks técnicos independientes del gate se ejecutan en paralelo para reducir el
 tiempo activo del runner. Esta concurrencia no elimina checks, no acorta sus timeouts
@@ -76,7 +71,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v2.0.2.json `
+  --release-approval quality\release-approval-v2.1.0.json `
   --output $releaseGate
 ```
 

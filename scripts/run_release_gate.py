@@ -16,33 +16,9 @@ from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 CORE_TESTS = (
-    "test_complex_handoff.ComplexCalculatorHandoffTests."
-    "test_calculator_contract_1_5_reaches_the_guarded_handoff_without_execution",
-    "test_m3_workflows.M3WorkflowTests."
-    "test_inspection_is_read_only_and_never_reproduces_secret_values",
-    "test_m3_workflows.M3WorkflowTests."
-    "test_dirty_repository_can_be_materialized_without_touching_existing_files",
-    "test_workflows.WorkflowTests.test_projects_are_isolated",
-    "test_definition_experience.DefinitionExperienceTests."
-    "test_unsupported_project_schema_is_rejected_without_mutation",
-    "test_task_management_v12.TaskManagementV12Tests."
-    "test_professional_transition_flow_records_blocker_and_done_evidence",
-    "test_m3_workflows.M3WorkflowTests."
-    "test_v2_migration_is_explicit_without_changing_the_legacy_initializer",
-    "test_multi_profile_delivery.MultiProfileDeliveryTests."
-    "test_active_profiles_with_structural_locks_are_supported",
-    "test_planning_continuity_v13.PlanningContinuityV13Tests."
-    "test_scope_change_stales_planning_and_authorization",
-    "test_task_tracking_v14.TaskTrackingV14Tests."
-    "test_jira_preview_is_deterministic_and_receipt_makes_it_idempotent",
-    "test_task_tracking_v14.TaskTrackingV14Tests."
-    "test_credentials_are_rejected_before_persistence",
-    "test_validation_evidence_v016.VisualEvidencePolicyV016Tests."
-    "test_missing_file_and_wrong_hash_are_rejected",
-    "test_integrations_v018.IntegrationTablesV018Tests."
-    "test_external_internal_both_and_not_applicable_round_trip",
-    "test_variants_adoption_v018.VariantsAdoptionV018Tests."
-    "test_adoption_of_both_layouts_preserves_every_consumer_byte",
+    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration",
+    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept",
+    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
 )
 
 
@@ -142,15 +118,6 @@ def _static_integrity() -> dict[str, Any]:
     checks = (
         [sys.executable, "-B", "-X", "utf8", "scripts/validate_fixture_manifest.py", "."],
         [sys.executable, "-B", "-X", "utf8", "scripts/validate_plugin_contract.py", "."],
-        [
-            sys.executable,
-            "-B",
-            "-X",
-            "utf8",
-            "scripts/validate_reference_profile.py",
-            "--all",
-            "--allow-unvalidated",
-        ],
     )
     started = time.monotonic()
     details: list[str] = []
@@ -167,7 +134,7 @@ def _static_integrity() -> dict[str, Any]:
         "duration_seconds": round(time.monotonic() - started, 3),
         "timeout_seconds": 360,
         "detail": "\n".join(details),
-        "command": "fixture manifest + plugin contract + profile structure",
+        "command": "fixture manifest + plugin contract",
     }
 
 

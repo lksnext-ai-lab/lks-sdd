@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Any, Callable, Iterable
 
 from evidence_contract import visual_gate_applicability
-from profile_registry import load_profile_bundle
 
 
 DEFAULT_VISUAL_POLICY = {"min_images": 1, "max_images": 5}
@@ -63,62 +62,8 @@ def task_contract_references(task_id: str, delivery: dict[str, Any]) -> dict[str
 def resolve_visual_policy(
     task_ids: Iterable[str], delivery: dict[str, Any]
 ) -> tuple[dict[str, dict[str, int]], list[str]]:
-    """Resolve the optional profile policy for every selected TASK.
-
-    Drivers without the optional setting retain the 1..5 default.  A profile
-    may narrow that range, but cannot remove the mandatory image or exceed the
-    global five-image ceiling.
-    """
-
-    errors: list[str] = []
-    policies: dict[str, dict[str, int]] = {}
-    bindings = delivery.get("bindings", {})
-    tasks = delivery.get("tasks", {})
-    for task_id in sorted(set(task_ids)):
-        policy = dict(DEFAULT_VISUAL_POLICY)
-        binding_id = tasks.get(task_id, {}).get("Profile binding")
-        profile_id = bindings.get(binding_id, {}).get("profile_id")
-        if isinstance(profile_id, str) and profile_id:
-            try:
-                bundle = load_profile_bundle(profile_id)
-            except (FileNotFoundError, ValueError) as exc:
-                errors.append(f"{task_id}: no se puede resolver la política visual de {profile_id}: {exc}")
-                policies[task_id] = policy
-                continue
-            policy_path = (
-                bundle.root / "visual-evidence-policy.json"
-                if bundle.root is not None
-                else None
-            )
-            configured = None
-            if policy_path is not None and policy_path.is_file():
-                try:
-                    configured = json.loads(policy_path.read_text(encoding="utf-8"))
-                except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-                    errors.append(f"{task_id}: visual-evidence-policy.json inválido: {exc}")
-            if configured is not None:
-                if not isinstance(configured, dict) or set(configured) != {
-                    "min_images", "max_images"
-                }:
-                    errors.append(f"{task_id}: visual_evidence_policy debe declarar min_images y max_images")
-                else:
-                    minimum = configured.get("min_images")
-                    maximum = configured.get("max_images")
-                    if (
-                        not isinstance(minimum, int)
-                        or isinstance(minimum, bool)
-                        or not isinstance(maximum, int)
-                        or isinstance(maximum, bool)
-                        or not 1 <= minimum <= maximum <= 5
-                    ):
-                        errors.append(
-                            f"{task_id}: visual_evidence_policy debe cumplir 1 <= min_images <= max_images <= 5"
-                        )
-                    else:
-                        policy = {"min_images": minimum, "max_images": maximum}
-        policies[task_id] = policy
-    return policies, errors
-
+    """Use the documented global image bounds without technology-specific overrides."""
+    return ({task_id: dict(DEFAULT_VISUAL_POLICY) for task_id in sorted(set(task_ids))}, [])
 
 def validate_visual_review_v12(
     root: Path,

@@ -85,7 +85,7 @@ baseline_id: BL-0001
 status: confirmed
 ---
 
-| ID | Plan | Title | Release | Increment | Unit | Profile binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated |
+| ID | Plan | Title | Release | Increment | Unit | Binding | Workflow state | Health | Progress | Dependencies | Blockers | Owner | Detail | Updated |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 """ + "\n".join(rows) + "\n"
     (docs / "04-delivery/tasks.md").write_text(board, encoding="utf-8", newline="\n")
@@ -133,15 +133,11 @@ Synthetic {state} checkpoint for the representative repository fixture.
             {"id": "ART-TASKS", "path": "docs/lks-sdd/04-delivery/tasks.md", "required": True},
             {"id": "ART-TRACE", "path": "docs/lks-sdd/05-quality/traceability.md", "required": True},
         ],
-        "technology": {
-            "selected_profile": None,
-            "selection_decision": None,
-            "profile_bindings": [
-                {"binding_id": "BIND-001", "unit_id": "UNIT-001", "unit_path": "web", "profile_id": "WEB-REACT-VITE-STATIC", "profile_scope": "deployable", "selection_decision": "ADR-001", "lock_path": ".lks-sdd/profiles/BIND-001.lock.json", "state": "confirmed"},
-                {"binding_id": "BIND-002", "unit_id": "UNIT-002", "unit_path": "api", "profile_id": "API-FASTAPI-STATELESS-OCI", "profile_scope": "deployable", "selection_decision": "ADR-001", "lock_path": ".lks-sdd/profiles/BIND-002.lock.json", "state": "confirmed"},
-                {"binding_id": "BIND-003", "unit_id": "UNIT-003", "unit_path": "worker", "profile_id": "MSG-PYTHON-RABBITMQ-WORKER-OCI", "profile_scope": "deployable", "selection_decision": "ADR-001", "lock_path": ".lks-sdd/profiles/BIND-003.lock.json", "state": "confirmed"},
-            ],
-        },
+        "bindings": [
+                {"binding_id": "BIND-001", "unit_id": "UNIT-001", "unit_path": "web", "binding_type": "WEB-REACT-VITE-STATIC", "scope": "deployable", "selection_decision": "ADR-001", "lock_path": ".lks-sdd/bindings/BIND-001.lock.json", "state": "confirmed"},
+                {"binding_id": "BIND-002", "unit_id": "UNIT-002", "unit_path": "api", "binding_type": "API-FASTAPI-STATELESS-OCI", "scope": "deployable", "selection_decision": "ADR-001", "lock_path": ".lks-sdd/bindings/BIND-002.lock.json", "state": "confirmed"},
+                {"binding_id": "BIND-003", "unit_id": "UNIT-003", "unit_path": "worker", "binding_type": "MSG-PYTHON-RABBITMQ-WORKER-OCI", "scope": "deployable", "selection_decision": "ADR-001", "lock_path": ".lks-sdd/bindings/BIND-003.lock.json", "state": "confirmed"},
+        ],
         "planning": {"target_id": "REL-001", "specification_fingerprint": fingerprint, "planning_fingerprint": "b" * 64},
         "authorizations": [{
             "authorization_id": "AUTH-001", "state": "authorized", "target": "REL-001",
@@ -152,7 +148,7 @@ Synthetic {state} checkpoint for the representative repository fixture.
         }],
         "executions": [{
             "execution_id": "EXEC-001", "status": "in-review", "increment": "INC-001",
-            "release": "REL-001", "task_ids": ["TASK-001"], "profile_bindings": [],
+            "release": "REL-001", "task_ids": ["TASK-001"], "bindings": [],
             "locks": [], "branch": "main", "revision_start": "c" * 40,
             "last_observed_revision": "c" * 40, "authorization_id": "AUTH-001",
             "specification_fingerprint": fingerprint, "planning_fingerprint": "b" * 64,
@@ -175,9 +171,9 @@ Synthetic {state} checkpoint for the representative repository fixture.
         "config/runtime.json": "{}\n",
         "Dockerfile": "FROM scratch\n",
         "package-lock.json": "{}\n",
-        ".lks-sdd/profiles/BIND-001.lock.json": "{}\n",
-        ".lks-sdd/profiles/BIND-002.lock.json": "{}\n",
-        ".lks-sdd/profiles/BIND-003.lock.json": "{}\n",
+        ".lks-sdd/bindings/BIND-001.lock.json": "{}\n",
+        ".lks-sdd/bindings/BIND-002.lock.json": "{}\n",
+        ".lks-sdd/bindings/BIND-003.lock.json": "{}\n",
         "docs/lks-sdd/evidence/EVID-001.json": json.dumps({"evidence_id": "EVID-001", "status": "current", "checks": [{"name": "unit", "status": "passed", "command": "python -m unittest"}]}, indent=2) + "\n",
         "docs/lks-sdd/evidence/EVID-900.json": json.dumps({"evidence_id": "EVID-900", "status": "historical", "checks": [{"name": "legacy", "status": "passed", "command": "historical-only"}]}, indent=2) + "\n",
     }.items():

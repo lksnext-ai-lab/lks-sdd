@@ -81,5 +81,24 @@
         "additionalProperties": true
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "artifacts": {
+          "contains": {
+            "type": "object",
+            "required": [
+              "path"
+            ],
+            "properties": {
+              "path": {
+                "const": "docs/lks-sdd/03-solution/technology-declaration.md"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

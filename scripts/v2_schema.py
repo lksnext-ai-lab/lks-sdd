@@ -6,7 +6,7 @@ from pathlib import Path
 
 @lru_cache(maxsize=8)
 def validator(name):
-    if name not in {"project", "element", "verification-evidence", "migration-receipt"}:
+    if name not in {"project", "element", "technology-declaration", "verification-evidence", "migration-receipt"}:
         raise ValueError("Unknown local schema")
     try:
         from jsonschema import Draft202012Validator, FormatChecker

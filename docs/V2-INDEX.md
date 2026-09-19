@@ -1,13 +1,13 @@
 # Documentación de LKS-SDD 2
 
-Versión del plugin: **2.0.2**. Empieza por [instalación](INSTALLATION.md),
+Versión del plugin: **2.1.0**. Empieza por [instalación](INSTALLATION.md),
 [compatibilidad](COMPATIBILITY.md) y el [historial de versiones](../CHANGELOG.md).
 La autorización de publicación no sustituye los ensayos humanos/host pendientes.
 
 | Conjunto | Fuente y propósito |
 |---|---|
-| Contrato | [Contrato 2.0](../specs/proposed/project-contract-2.0.md): semántica normativa y decisiones aprobadas para implementar |
-| Guías de uso | [Workflows](V2-WORKFLOWS.md), [consultas](PROJECT-QUERY.md) y [variantes](PROJECT-VARIANTS.md) |
+| Contrato | [Contrato de proyecto 2.0](../specs/proposed/project-contract-2.0.md): declaraciones tecnológicas locales y corte 1.5 → 2.0 |
+| Guías de uso | [Workflows](V2-WORKFLOWS.md), [consultas](PROJECT-QUERY.md) y declaración tecnológica local |
 | Referencia técnica | `python scripts/lks_sdd.py v2 --help`, schemas y pruebas de invariantes en tests/test_v2_* |
 | Mantenimiento | [Migración](V2-MIGRATION.md), [validación](VALIDATION.md) y [distribución](DISTRIBUTION.md) |
 | Estado y aceptación | [Estado actual](STATUS.md) y [aceptación por host](V2-HOST-ACCEPTANCE.md) |

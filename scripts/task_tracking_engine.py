@@ -1591,7 +1591,7 @@ def _task_payload(
             "release": row.get("Release", ""),
             "increment": row.get("Increment", ""),
             "unit": row.get("Unit", ""),
-            "profile_binding": row.get("Profile binding", ""),
+            "binding_id": row.get("Binding", ""),
         },
         "jira_target": {
             "site": binding.get("Site"),

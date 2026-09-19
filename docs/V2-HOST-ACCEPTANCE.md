@@ -29,7 +29,7 @@ no rellena este registro; tampoco lo hace una prueba unitaria que simula un host
 | H06 | Sustitución parcial y futura con versión anterior en producción | Catálogo/historia por revisión, entorno y vigencia; no retirada anticipada ni despliegue inferido |
 | H07 | Explicar → definir → evaluar → implementar | Las seis skills se activan sin solapamiento; consulta/readiness no escriben ni autorizan; preguntas necesarias agrupadas |
 | H08 | Pausa, cambio de usuario/host y modificación transversal | Relee contrato literal, AUTH y checkpoint; conserva cambios ajenos y bloquea una base obsoleta |
-| H09 | Variante nueva, modificación del observer y caché previa | Diagnóstico no ejecuta; aprobación exacta; no reutilización ante deriva; reservas no dispensan gates críticos |
+| H09 | Declaración tecnológica local modificada, observer y caché previa | Diagnóstico no ejecuta; confirmación exacta; no reutilización ante deriva; reservas no dispensan gates críticos |
 | H10 | Propuesta visual en Copilot y generación nativa en Codex | Relevo íntegro y limitado; alternativas/correcciones conservadas; aceptación de prototipo no autoriza implementar |
 | H11 | Verificación de UX y contrato real | Capturas reales ligadas a estados, viewports y aceptación; integración/persistencia y revisión humana independientes |
 | H12 | Migración 1.5, interrupción y trabajo posterior | Preview comprensible; recuperación segura; runtime, personalizaciones e historia preservados; reanudación no implícita |

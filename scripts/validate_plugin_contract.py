@@ -59,7 +59,6 @@ REQUIRED_ROOT_FILES = {
     "docs/COPILOT-PILOT.md",
     "docs/MAINTENANCE.md",
     "docs/PROJECT-QUERY.md",
-    "docs/PROJECT-VARIANTS.md",
     "docs/V2-AUTHORING.md",
     "docs/V2-GUARDRAILS.md",
     "docs/V2-HOST-ACCEPTANCE.md",
@@ -74,12 +73,7 @@ REQUIRED_ROOT_FILES = {
     "specs/SOURCES.md",
     "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
     "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
-    "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-driver.json",
-    "profiles/catalog.json",
+    "specs/proposed/project-contract-2.0.md",
     "scripts/validate_spec.py",
     "scripts/check_traceability.py",
     "scripts/render_client_view.py",
@@ -103,8 +97,6 @@ REQUIRED_ROOT_FILES = {
     "scripts/query_render.py",
     "schemas/query-context.schema.json",
     "docs/PROJECT-QUERY.md",
-    "scripts/profile_registry.py",
-    "scripts/automation_coverage.py",
     "scripts/delivery_engine.py",
     "scripts/manage_tasks.py",
     "scripts/planning_engine.py",
@@ -126,8 +118,6 @@ REQUIRED_ROOT_FILES = {
     "schemas/document-contracts.schema.json",
     "schemas/project-1.5.schema.json",
     "schemas/frontmatter-1.5.schema.json",
-    "schemas/profile-catalog.schema.json",
-    "schemas/profile-driver.schema.json",
     "schemas/delivery-evidence.schema.json",
     "distribution/marketplace.template.json",
     "pilot/pilot-config.example.json",
@@ -139,8 +129,6 @@ REQUIRED_ROOT_FILES = {
     ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
     ".github/workflows/quality.yml",
     "templates/client/client-deliverable.md",
-    "tests/test_task_tracking_v14.py",
-    "tests/test_validation_evidence_v016.py",
     "tests/fixtures/validation-evidence-v016.json",
 }
 EXPECTED_GIT_ATTRIBUTES = (
@@ -546,11 +534,6 @@ def validate(root: Path) -> list[str]:
             "empresa de servicios",
             "repositorio existente",
         ),
-        "docs/PROJECT-VARIANTS.md": (
-            "approved-project-variant",
-            "not-assessed",
-            "not-verified",
-        ),
         "docs/JIRA-ROVO-INTEGRATION.md": (
             "Atlassian Rovo",
             "milestone-reporting",
@@ -648,12 +631,17 @@ def validate(root: Path) -> list[str]:
             "append-only",
             "not-run",
         ),
-        "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md": (
-            "propuesta candidate, no canónica",
-            "CAP-OIDC-DISCOVERY-JWKS",
-            "CAP-ENTRA-CLAIMS",
-            "automation_coverage",
-            "not-run",
+        "specs/proposed/project-contract-2.0.md": (
+            "propuesta vigente para v2",
+            "`observed`",
+            "`proposed`",
+            "`confirmed`",
+            "`unknown`",
+            "`transition`",
+            "Contexto tecnológico de las tareas",
+            "`TASK-###`",
+            "Corte seguro de 1.5 a 2.0",
+            "perfiles globales, recetas, catálogos de capacidades",
         ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
@@ -665,7 +653,6 @@ def validate(root: Path) -> list[str]:
             ],
             "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
             "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
-            "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md",
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
@@ -692,72 +679,23 @@ def validate(root: Path) -> list[str]:
                 errors.append(f"{relative} no contiene el marcador contractual {marker!r}.")
 
     for schema_name in (
-        "technology-profile.schema.json",
-        "technology-profile-lock.schema.json",
         "pilot-config.schema.json",
         "pilot-observation.schema.json",
         "pilot-summary.schema.json",
         "catalogs.json",
         "project-1.5.schema.json",
         "frontmatter-1.5.schema.json",
-        "profile-catalog.schema.json",
-        "profile-driver.schema.json",
         "delivery-evidence.schema.json",
         "document-contracts.json",
         "document-contracts.schema.json",
+        "technology-declaration-2.0.schema.json",
     ):
         try:
             json.loads((root / "schemas" / schema_name).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             errors.append(f"Schema inválido {schema_name}: {exc}")
 
-    try:
-        profile_catalog = json.loads(
-            (root / "profiles" / "catalog.json").read_text(encoding="utf-8")
-        )
-        catalog_profiles = {
-            item["id"]: item
-            for item in profile_catalog.get("profiles", [])
-            if isinstance(item, dict) and isinstance(item.get("id"), str)
-        }
-        discovered_profiles = {
-            path.name
-            for path in (root / "profiles").iterdir()
-            if path.is_dir() and (path / "technology-profile.yaml").is_file()
-        }
-        if discovered_profiles != set(catalog_profiles):
-            errors.append(
-                "El inventario físico de perfiles diverge del catálogo: "
-                f"{sorted(discovered_profiles ^ set(catalog_profiles))}."
-            )
-        for profile_id, entry in catalog_profiles.items():
-            profile_root = root / str(entry.get("path", ""))
-            try:
-                profile_root.resolve().relative_to((root / "profiles").resolve())
-            except ValueError:
-                errors.append(f"{profile_id}: path fuera de profiles/.")
-                continue
-            for filename in (
-                "technology-profile.yaml",
-                "technology-profile.lock.json",
-                "profile-driver.json",
-            ):
-                if not (profile_root / filename).is_file():
-                    errors.append(f"{profile_id}: falta {filename}.")
-            if not (profile_root / "scaffold").is_dir():
-                errors.append(f"{profile_id}: falta scaffold/.")
-        from profile_registry import validate_profile_bundle
 
-        for profile_id, entry in sorted(catalog_profiles.items()):
-            profile_errors = validate_profile_bundle(
-                profile_id,
-                require_validated=entry.get("lifecycle") == "active",
-            )
-            errors.extend(
-                f"Contrato de perfil: {item}" for item in profile_errors
-            )
-    except (OSError, json.JSONDecodeError, TypeError, KeyError) as exc:
-        errors.append(f"No se puede validar el inventario dinámico de perfiles: {exc}")
 
     try:
         marketplace = json.loads(
@@ -889,7 +827,6 @@ def validate(root: Path) -> list[str]:
             "planning",
             "tracking",
             "continuity",
-            "profiles",
         ):
             if f'"{command}"' not in cli_text:
                 errors.append(f"El dispatcher portable no declara {command}.")
