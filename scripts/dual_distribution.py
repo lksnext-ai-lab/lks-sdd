@@ -60,13 +60,8 @@ def zip_bytes(files: dict[str, bytes]) -> bytes:
 
 
 def compact_distribution_core(core: dict[str, bytes]) -> dict[str, bytes]:
-    """Exclude development research material from an installed runtime."""
-    development_only = "docs/proposals/context-compiler-study-2026-09-11/"
-    return {
-        name: data
-        for name, data in core.items()
-        if not name.startswith(development_only)
-    }
+    """Return an isolated copy of the active source tree for distribution."""
+    return dict(core)
 
 def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_entrypoints: bool = False) -> dict[str, bytes]:
     core = compact_distribution_core(core)

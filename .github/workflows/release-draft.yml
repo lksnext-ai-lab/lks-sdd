@@ -1,0 +1,122 @@
+name: release-draft
+
+on:
+  workflow_run:
+    workflows: [quality]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  verify:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'v') &&
+      !contains(github.event.workflow_run.head_branch, '-')
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha }}
+      RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Download exact tag evidence
+        uses: actions/download-artifact@v8
+        with:
+          name: release-evidence
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}\release-evidence
+      - name: Read tag changelog
+        shell: pwsh
+        run: |
+          $gate = Get-Content -LiteralPath "$env:RUNNER_TEMP\release-evidence\release-gate.json" -Raw | ConvertFrom-Json
+          $version = $gate.plugin_version
+          if (-not $version) { throw "La evidencia no declara versión de plugin." }
+          git fetch --no-tags origin "refs/tags/$env:RELEASE_TAG`:refs/tags/$env:RELEASE_TAG"
+          git show "refs/tags/$env:RELEASE_TAG`:CHANGELOG.md" > "$env:RUNNER_TEMP\CHANGELOG.md"
+          if ($LASTEXITCODE -ne 0) { throw "No se puede leer el changelog de la etiqueta." }
+      - name: Verify draft promotion plan
+        shell: pwsh
+        run: |
+          python -B -X utf8 scripts/verify_draft_promotion.py `
+            --evidence "$env:RUNNER_TEMP\release-evidence" `
+            --tag $env:RELEASE_TAG `
+            --source-commit $env:SOURCE_COMMIT `
+            --changelog "$env:RUNNER_TEMP\CHANGELOG.md" `
+            --release-notes-output "$env:RUNNER_TEMP\release-notes.md" `
+            --output "$env:RUNNER_TEMP\draft-promotion-plan.json"
+          $plan = Get-Content -LiteralPath "$env:RUNNER_TEMP\draft-promotion-plan.json" -Raw | ConvertFrom-Json
+          git show "refs/tags/$env:RELEASE_TAG`:.github/plugin/marketplace.json" > "$env:RUNNER_TEMP\release-marketplace.json"
+          if ($LASTEXITCODE -ne 0) { throw "No se puede leer el catálogo de la etiqueta." }
+          python -B -X utf8 scripts/validate_distribution_reference.py `
+            --marketplace "$env:RUNNER_TEMP\release-marketplace.json" `
+            --source-commit $env:SOURCE_COMMIT `
+            --output "$env:RUNNER_TEMP\distribution-reference.json"
+          "LKS_SDD_RELEASE_VERSION=$($plan.plugin_version)" >> $env:GITHUB_ENV
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: draft-promotion-plan
+          path: |
+            ${{ runner.temp }}\draft-promotion-plan.json
+            ${{ runner.temp }}\release-notes.md
+            ${{ runner.temp }}\distribution-reference.json
+          retention-days: 30
+
+  promote-draft:
+    needs: verify
+    if: needs.verify.result == 'success'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: release-draft
+    permissions:
+      actions: read
+      contents: write
+    env:
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: draft-promotion-plan
+          path: ${{ runner.temp }}\draft-promotion-plan
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-evidence
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}\release-evidence
+      - name: Create verified draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view $env:RELEASE_TAG --json id,isDraft *> $null
+          if ($LASTEXITCODE -eq 0) { throw "Ya existe una release o draft para $env:RELEASE_TAG; reconcíliela manualmente." }
+          if ($LASTEXITCODE -ne 1) { throw "No se pudo comprobar si existe una release previa." }
+          $plan = Get-Content -LiteralPath "$env:RUNNER_TEMP\draft-promotion-plan\draft-promotion-plan.json" -Raw | ConvertFrom-Json
+          $assets = @()
+          foreach ($asset in $plan.assets) {
+            $path = Join-Path "$env:RUNNER_TEMP\release-evidence\candidate" $asset.path
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Falta el asset validado: $($asset.path)" }
+            $assets += $path
+          }
+          gh release create $env:RELEASE_TAG `
+            --draft `
+            --verify-tag `
+            --title $plan.title `
+            --notes-file "$env:RUNNER_TEMP\draft-promotion-plan\release-notes.md" `
+            $assets

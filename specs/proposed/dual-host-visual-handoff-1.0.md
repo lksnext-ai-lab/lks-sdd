@@ -24,5 +24,5 @@ publicación pendientes. Esta extensión no modifica ni sustituye `specs/canonic
   hereda la aprobación estable 1.0.0. La publicación exige evidencia y autorización nuevas.
 
 Especificaciones operativas: `docs/INSTALLATION.md`, `docs/VISUAL-HANDOFF.md` y
-`docs/DUAL-HOST-ACCEPTANCE.md`. `schemas/visual-handoff.schema.json` gobierna el índice
+`docs/V2-HOST-ACCEPTANCE.md`. `schemas/visual-handoff.schema.json` gobierna el índice
 auxiliar; el contenido canónico sigue gobernado por el contrato consumidor existente.

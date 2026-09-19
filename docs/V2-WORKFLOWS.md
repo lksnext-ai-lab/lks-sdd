@@ -2,8 +2,7 @@
 
 Esta guía aplica al contrato 2.0. Para proyectos 1.5 no migrados se conserva el
 workflow 1.5 y el runtime fijado. La [referencia normativa](../specs/proposed/project-contract-2.0.md)
-define los datos; las guías no crean otra autoridad. Estado de release y canales
-de aceptación: [seguimiento de implementación](validation/v2-implementation.md).
+define los datos; las guías no crean otra autoridad. Estado de release y canales de aceptación: [estado actual](STATUS.md).
 
 ## Política común
 

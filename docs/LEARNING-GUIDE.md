@@ -206,6 +206,6 @@ Continúa con [instalación y primer uso](INSTALLATION.md),
 [validación técnica](VALIDATION.md). Para responsables de distribución:
 [empaquetado](DISTRIBUTION.md) y [publicación](RELEASING.md).
 
-La [aceptación dual](DUAL-HOST-ACCEPTANCE.md) distingue implementación, pruebas
+La [aceptación por host](V2-HOST-ACCEPTANCE.md) distingue implementación, pruebas
 automáticas y pruebas reales pendientes. Esta guía enseña el flujo esperado; no es
 un acta que certifique que todas las herramientas lo hayan ejecutado correctamente.

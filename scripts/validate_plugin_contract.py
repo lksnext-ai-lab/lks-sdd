@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD 1.0, its M0-M5 contract and release evidence."""
+"""Validate the active LKS-SDD contract, distribution, and release evidence."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ if str(__file__).startswith("\\\\?\\"):
     del _bootstrap, _namespace
 
 from path_utils import filesystem_root
+import release_notes
 
 EXPECTED_SKILLS = {
     "lks-sdd-help",
@@ -31,6 +32,8 @@ EXPECTED_SKILLS = {
 SEMVER_RE = re.compile(
     r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
 )
+COPILOT_CATALOG_PATH = ".github/plugin/marketplace.json"
+COPILOT_CATALOG_REPOSITORY = "lksnext-ai-lab/lks-sdd"
 CANONICAL_HASHES = {
     "LKS-SDD_definicion_plugin_v1.md": "4DE2D0AE75B2FF75BBC0C38D05C38AC2D90B57EA4472D46A85BF33C597D79700",
     "LKS-SDD_paquete_preimplementacion_v0.1.md": "A5FFD0D5CA1D9B7AC96D1DABB4A411739E18A01345348D9250F857D5F941504B",
@@ -51,33 +54,19 @@ REQUIRED_ROOT_FILES = {
     "LICENSE.md",
     "docs/ARCHITECTURE.md",
     "docs/COMPATIBILITY.md",
-    "docs/M1-COVERAGE.md",
-    "docs/M2-COVERAGE.md",
-    "docs/M3-COVERAGE.md",
-    "docs/M4-COVERAGE.md",
-    "docs/M5-COVERAGE.md",
-    "docs/V0.6-DEFINITION-UX-COVERAGE.md",
-    "docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md",
-    "docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md",
-    "docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md",
-    "docs/V0.10-JIRA-ROVO-COVERAGE.md",
-    "docs/V0.11-JIRA-MILESTONE-COVERAGE.md",
-    "docs/V0.12-ENTRA-PROFILE-COVERAGE.md",
-    "docs/V0.13-SIMULATED-OIDC-PROFILES.md",
-    "docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md",
-    "docs/V0.15-QUALITY-EFFICIENCY-COVERAGE.md",
-    "docs/V0.15-PRODUCT-EXPERIENCE.md",
-    "docs/V0.16-VALIDATION-EVIDENCE.md",
-    "docs/V0.17-FULLSTACK-INTEGRATION-EVIDENCE.md",
-    "docs/MIGRATION-0.16.0.md",
-    "docs/MIGRATION-0.17.0.md",
-    "docs/releases/v0.14.0.md",
-    "docs/releases/v0.14.2.md",
-    "docs/releases/v0.15.0.md",
-    "docs/releases/v0.16.0.md",
-    "docs/releases/v0.17.0.md",
-    "docs/releases/v0.18.0.md",
-    "docs/releases/v1.0.0.md",
+    "docs/INSTALLATION.md",
+    "docs/LEARNING-GUIDE.md",
+    "docs/COPILOT-PILOT.md",
+    "docs/MAINTENANCE.md",
+    "docs/PROJECT-QUERY.md",
+    "docs/PROJECT-VARIANTS.md",
+    "docs/V2-AUTHORING.md",
+    "docs/V2-GUARDRAILS.md",
+    "docs/V2-HOST-ACCEPTANCE.md",
+    "docs/V2-INDEX.md",
+    "docs/V2-MIGRATION.md",
+    "docs/V2-WORKFLOWS.md",
+    "docs/VISUAL-HANDOFF.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
     "docs/DISTRIBUTION.md",
     "docs/RELEASING.md",
@@ -279,6 +268,10 @@ RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/manage_continuity.py": {"subprocess"},
     "scripts/manage_task_tracking.py": {"urllib.parse"},
     "scripts/run_release_gate.py": {"subprocess"},
+    "scripts/release_readiness.py": {"subprocess"},
+    "scripts/validate_release_artifacts.py": {"subprocess"},
+    # Read-only Git resolution of the configured release distribution ref.
+    "scripts/validate_distribution_reference.py": {"subprocess"},
     "scripts/work_task.py": {"subprocess"},
     "scripts/task_tracking_engine.py": {"urllib.parse"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {
@@ -331,6 +324,44 @@ def python_string_constant(path: Path, name: str) -> str | None:
     return None
 
 
+def validate_copilot_catalog(root: Path, plugin_version: str) -> list[str]:
+    """Validate the static Copilot catalog binding for a release version."""
+
+    catalog_path = root / COPILOT_CATALOG_PATH
+    try:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return [f"Catálogo Copilot ilegible: {exc}"]
+    if not isinstance(catalog, dict):
+        return ["El catálogo Copilot debe ser un objeto JSON."]
+    plugins = catalog.get("plugins")
+    if not isinstance(plugins, list):
+        return ["El catálogo Copilot debe declarar una lista de plugins."]
+    matches = [
+        plugin
+        for plugin in plugins
+        if isinstance(plugin, dict) and plugin.get("name") == "lks-sdd"
+    ]
+    if len(matches) != 1:
+        return [f"El catálogo Copilot debe declarar un único lks-sdd, no {len(matches)}."]
+    plugin = matches[0]
+    source = plugin.get("source")
+    expected_source = {
+        "source": "github",
+        "repo": COPILOT_CATALOG_REPOSITORY,
+        "ref": f"v{plugin_version}",
+    }
+    errors: list[str] = []
+    if plugin.get("version") != plugin_version:
+        errors.append("La versión del catálogo Copilot debe coincidir con el manifest.")
+    if source != expected_source:
+        errors.append(
+            "La fuente Copilot debe apuntar a la etiqueta única "
+            f"v{plugin_version} del repositorio acreditado."
+        )
+    return errors
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     for relative in sorted(REQUIRED_ROOT_FILES):
@@ -375,35 +406,13 @@ def validate(root: Path) -> list[str]:
                     "La primera versión del changelog debe coincidir con el manifest."
                 )
 
-        release_path = root / "docs" / "releases" / f"v{plugin_version}.md"
-        if not release_path.is_file():
-            errors.append(f"Falta la nota de release docs/releases/v{plugin_version}.md.")
-        else:
-            release_text = release_path.read_text(encoding="utf-8")
-            if not re.search(
-                rf"^#\s+LKS-SDD\s+v{re.escape(plugin_version)}\b",
-                release_text,
-                re.MULTILINE,
-            ):
-                errors.append("La nota de release no coincide con la versión del manifest.")
-            release_markers = (
-                "**Fecha:**",
-                "## Changelog",
-                "## Compatibilidad",
-                "## Perfiles y locks",
-                "## Validación y evals",
-                "## Vulnerabilidades conocidas y limitaciones",
-                "## Actualización",
-                "## Migración",
-                "## Rollback",
-                "## Soporte",
-                "## Responsables",
+        try:
+            release_notes.extract(changelog_path.read_bytes(), plugin_version)
+        except (OSError, release_notes.ReleaseNotesError) as exc:
+            errors.append(
+                f"El changelog no acredita una sección única y no vacía para "
+                f"{plugin_version}: {exc}"
             )
-            for marker in release_markers:
-                if marker not in release_text:
-                    errors.append(
-                        f"La nota de release {plugin_version} no contiene {marker!r}."
-                    )
 
         version_markers = {
             "README.md": f"versión `{plugin_version}`",
@@ -429,6 +438,7 @@ def validate(root: Path) -> list[str]:
                 errors.append(
                     f"{relative} declara PLUGIN_VERSION={declared!r}; debe coincidir con {plugin_version}."
                 )
+        errors.extend(validate_copilot_catalog(root, plugin_version))
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
@@ -536,40 +546,16 @@ def validate(root: Path) -> list[str]:
             "empresa de servicios",
             "repositorio existente",
         ),
-        "docs/V0.6-DEFINITION-UX-COVERAGE.md": (
-            "FX-01",
-            "FX-20",
-            "FX-21",
-            "not-run",
+        "docs/PROJECT-VARIANTS.md": (
+            "approved-project-variant",
+            "not-assessed",
+            "not-verified",
         ),
-        "docs/V0.10-JIRA-ROVO-COVERAGE.md": (
-            "FX-36",
-            "FX-45",
+        "docs/JIRA-ROVO-INTEGRATION.md": (
             "Atlassian Rovo",
-            "not-run",
-            "Jira `Done`",
-        ),
-        "docs/V0.11-JIRA-MILESTONE-COVERAGE.md": (
-            "FX-46",
-            "FX-51",
             "milestone-reporting",
-            "not-run",
-            "advisory",
-        ),
-        "docs/V0.12-ENTRA-PROFILE-COVERAGE.md": (
-            "FX-52",
-            "FX-53",
-            "automation_coverage",
-            "Microsoft Entra",
-            "not-run",
-        ),
-        "docs/V0.13-SIMULATED-OIDC-PROFILES.md": (
-            "FX-54",
-            "CAP-IDENTITY-OIDC-SIMULATED",
-            "external_interoperability",
-            "not-applicable",
-            "production",
-            "Microsoft Entra",
+            "Jira Done",
+            "not-assessed",
         ),
     }
     for relative, markers in positioning_markers.items():
@@ -1030,7 +1016,7 @@ def validate(root: Path) -> list[str]:
     # Help and the human-facing repository manual deliberately share these sources.
     # Other cross-skill/outside paths remain forbidden, and existence is still checked.
     shared_help_docs = {(root / "docs" / name).resolve() for name in (
-        "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "DUAL-HOST-ACCEPTANCE.md",
+        "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "V2-HOST-ACCEPTANCE.md",
     )}
     shared_v2_policy = (root / "docs/V2-WORKFLOWS.md").resolve()
     for skill in EXPECTED_SKILLS:
@@ -1094,7 +1080,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} contract (frozen M0-M5; readers 1.5/2.0; six skills)")
+    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0; six skills)")
     return 0
 
 

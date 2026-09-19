@@ -9,7 +9,7 @@
       "source": {
         "source": "github",
         "repo": "lksnext-ai-lab/lks-sdd",
-        "ref": "copilot-v2.0.2"
+        "ref": "v2.0.2"
       }
     }
   ]
