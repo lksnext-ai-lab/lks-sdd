@@ -15,6 +15,7 @@ from v2_storage import apply, preview
 
 ROOT = Path(__file__).resolve().parents[1]
 STAGES = {"diagnostic": -1, "development": 0, "integration": 1, "preproduction": 1, "release": 2, "production": 2}
+PINNED_IMAGE = re.compile(r"^[^\s@]+@sha256:[a-f0-9]{64}$")
 
 
 def technology_readiness(model: Model, tasks: list[str], environment: str, stage="development") -> dict:
@@ -51,6 +52,121 @@ def evidence(model: Model, identifier: str) -> dict:
     return value
 
 
+def _variant_applies(declaration, variant: dict, tasks: set[str], environment: str, stage: str) -> bool:
+    scope = set(variant["scope"])
+    declared_scope = set(declaration.meta["technology"]["scope"])
+    if ("global" in scope and len(scope) != 1) or ("global" in declared_scope and len(declared_scope) != 1):
+        raise ContractError("Technology variant scope cannot mix global and TASK selectors: " + variant["id"])
+    if "global" in scope and "global" not in declared_scope:
+        raise ContractError("Technology variant global scope exceeds its declaration: " + variant["id"])
+    if "global" not in declared_scope and not scope <= declared_scope:
+        raise ContractError("Technology variant scope exceeds its declaration: " + variant["id"])
+    return ("global" in scope or bool(scope & tasks)) and environment in variant["environments"] and stage in variant["stages"]
+
+
+def _approved_observer_check(model: Model, declaration, variant: dict, observer: dict,
+                             required_scopes: set[str], required_interfaces: set[str]) -> tuple[dict | None, list[str]]:
+    identity = f"{declaration.id}/{variant['id']}/{observer['id']}"
+    errors = []
+    command = observer["command"]
+    if observer["source"] != "approved-consumer":
+        errors.append(identity + ": observer source is not approved for execution")
+    if not PINNED_IMAGE.fullmatch(observer["image"]):
+        errors.append(identity + ": observer image must be pinned by sha256")
+    if not command or any(not isinstance(item, str) or not item or "\x00" in item for item in command):
+        errors.append(identity + ": observer command is invalid")
+    if type(observer["timeout_seconds"]) is not int or not 1 <= observer["timeout_seconds"] <= 600:
+        errors.append(identity + ": observer timeout must be between 1 and 600 seconds")
+    if type(observer["requires_containers"]) is not bool:
+        errors.append(identity + ": observer container requirement is invalid")
+    scopes, interfaces = set(observer["scopes"]), set(observer["interfaces"])
+    if not scopes <= required_scopes:
+        errors.append(identity + ": observer covers scopes outside the selected subject")
+    if not interfaces <= required_interfaces:
+        errors.append(identity + ": observer covers interfaces outside the selected subject")
+    hashes = {}
+    for item in observer["inputs"]:
+        relative, expected = item["path"], item["sha256"]
+        if relative in hashes:
+            errors.append(identity + ": observer input appears more than once: " + relative)
+            continue
+        try:
+            actual = sha(read_bytes(model.root, relative, limit=64 * 1024 * 1024))
+        except ContractError as exc:
+            errors.append(identity + ": observer input is unsafe or unavailable: " + relative + " (" + str(exc) + ")")
+            continue
+        if actual != expected:
+            errors.append(identity + ": observer input hash mismatch: " + relative)
+            continue
+        hashes[relative] = expected
+    if not hashes:
+        errors.append(identity + ": observer needs at least one approved input")
+    if errors:
+        return None, errors
+    definition = {"technology_id": declaration.id, "variant_id": variant["id"], "observer_id": observer["id"],
+                  "gate_id": observer["gate_id"], "source": observer["source"], "image": observer["image"],
+                  "command": list(command), "inputs": hashes, "timeout_seconds": observer["timeout_seconds"],
+                  "requires_containers": observer["requires_containers"], "scopes": sorted(scopes),
+                  "interfaces": sorted(interfaces)}
+    gate = {"id": observer["gate_id"], "source": observer["source"], "image": observer["image"],
+            "observer": {"command": list(command)}, "timeout_seconds": observer["timeout_seconds"],
+            "scopes": sorted(scopes), "interfaces": sorted(interfaces)}
+    return {"gate_id": observer["gate_id"], "gate": gate, "definition": definition, "input_hashes": hashes,
+            "input_key": fingerprint(definition), "required": True, "disposition": "execute",
+            "requires_containers": observer["requires_containers"]}, []
+
+
+def _approved_checks(model: Model, tasks: list[str], environment: str, stage: str, required: set[str],
+                     scopes: set[str], interfaces: set[str]) -> tuple[list[dict], list[str], list[str]]:
+    candidates, invalid = {gate: [] for gate in required}, {gate: [] for gate in required}
+    selected_tasks = set(tasks)
+    variant_ids = set()
+    for declaration in model.technology_declarations:
+        if declaration.meta["state"] != "confirmed":
+            continue
+        declaration_scope = set(declaration.meta["technology"]["scope"])
+        if "global" not in declaration_scope and not declaration_scope & selected_tasks:
+            continue
+        for variant in declaration.meta["technology"].get("variants", []):
+            identity = (declaration.id, variant["id"])
+            if identity in variant_ids:
+                raise ContractError("Duplicate technology variant identity: " + variant["id"])
+            variant_ids.add(identity)
+            if not _variant_applies(declaration, variant, selected_tasks, environment, stage):
+                continue
+            for observer in variant["observers"]:
+                if observer["gate_id"] not in required:
+                    continue
+                check, errors = _approved_observer_check(model, declaration, variant, observer, scopes, interfaces)
+                if errors:
+                    invalid[observer["gate_id"]].extend(errors)
+                elif check:
+                    candidates[observer["gate_id"]].append(check)
+    checks, blockers, missing = [], [], []
+    for gate in sorted(required):
+        valid = candidates[gate]
+        if len(valid) == 1:
+            checks.append(valid[0])
+        elif len(valid) > 1:
+            blockers.append("Ambiguous approved observers for required gate " + gate)
+            missing.append(gate)
+        elif invalid[gate]:
+            blockers.extend(sorted(set(invalid[gate])))
+            missing.append(gate)
+        else:
+            blockers.append("No approved observer applies to required gate " + gate + f" for {environment}/{stage}")
+            missing.append(gate)
+    covered_scopes = {scope for check in checks for scope in check["gate"]["scopes"]}
+    covered_interfaces = {interface for check in checks for interface in check["gate"]["interfaces"]}
+    absent_scopes = sorted(scopes - covered_scopes)
+    absent_interfaces = sorted(interfaces - covered_interfaces)
+    if absent_scopes:
+        blockers.append("Approved observers do not cover required scopes: " + ", ".join(absent_scopes))
+    if absent_interfaces:
+        blockers.append("Approved observers do not cover required interfaces: " + ", ".join(absent_interfaces))
+    return checks, sorted(set(blockers)), sorted(set(missing))
+
+
 def verification_plan(model: Model, tasks: list[str], environment: str, stage: str, *, assessor=None) -> dict:
     if stage not in STAGES:
         raise ContractError("Unknown verification stage")
@@ -71,17 +187,16 @@ def verification_plan(model: Model, tasks: list[str], environment: str, stage: s
     if quality["blockers"]:
         raise ContractError("; ".join(quality["blockers"]))
     required, scopes, interfaces = (set(quality[key]) for key in ("gates", "scopes", "interfaces"))
-    # No command is inferred from a technology choice. Explicit local observers can be
-    # introduced by a future approved contract; until then declared gates remain blockers.
-    missing = sorted(required)
+    checks, observer_blockers, missing = _approved_checks(model, tasks, environment, stage, required, scopes, interfaces)
     material = {"project": model.manifest["project_id"], "tasks": sorted(tasks), "files": guard["files"],
                 "contract": authorization["fingerprint"], "environment": environment, "technology": technology,
-                "engine": engine_hash(), "interfaces": sorted(interfaces), "scopes": sorted(scopes)}
-    return {"status": "blocked" if missing else "planned", "missing_critical_gates": missing,
-            "checks": [], "subject": fingerprint(material), "material": material, "technology": technology,
+                "engine": engine_hash(), "interfaces": sorted(interfaces), "scopes": sorted(scopes),
+                "observers": [check["definition"] for check in checks]}
+    return {"status": "blocked" if missing or observer_blockers else "planned", "missing_critical_gates": missing,
+            "blockers": observer_blockers, "checks": checks, "subject": fingerprint(material), "material": material, "technology": technology,
             "task_ids": tasks, "environment": environment, "stage": stage, "execution": execution.id,
             "required_scopes": sorted(scopes), "required_interfaces": sorted(interfaces),
-            "allow_task_closure": not missing, "cache_max_age_hours": 0,
+            "allow_task_closure": not missing and not observer_blockers, "cache_max_age_hours": 0,
             "human_review_required": quality["human_review_required"], "processes_executed": 0, "writes": []}
 
 def verify(model: Model, tasks: list[str], environment: str, stage: str, *, evidence_id: str,
@@ -91,12 +206,12 @@ def verify(model: Model, tasks: list[str], environment: str, stage: str, *, evid
         return selection
     if not re.fullmatch(r"EVID-\d{3,}", evidence_id):
         raise ContractError("New EVID identifier required")
-    relative = DOCS + "/evidence/" + evidence_id + ".json"
-    if path_at(model.root, relative, missing=True).exists():
+    evidence_relative = DOCS + "/evidence/" + evidence_id + ".json"
+    if path_at(model.root, evidence_relative, missing=True).exists():
         raise ContractError("Evidence is immutable; reuse observations under a new EVID, not overwrite")
     observations, blobs, processes = [], {}, 0
-    if not containers and runner is None and any(c["disposition"] == "execute" and
-            ("gate" in c or c.get("packaged", {}).get("requires_containers")) for c in selection["checks"]):
+    if not containers and runner is None and any(c["disposition"] == "execute" and c["requires_containers"]
+                                                 for c in selection["checks"]):
         raise ContractError("This verification plan requires explicit --containers authorization")
     from consumer_observer import execute as run_observer
     for entry in selection["checks"]:
@@ -131,6 +246,10 @@ def verify(model: Model, tasks: list[str], environment: str, stage: str, *, evid
         observations.append(observation)
     fresh = load(model.root)
     fresh.require_valid()
+    for entry in selection["checks"]:
+        for input_path, expected in entry.get("input_hashes", {}).items():
+            if sha(read_bytes(fresh.root, input_path, limit=64 * 1024 * 1024)) != expected:
+                raise ContractError("Approved observer input changed during execution: " + input_path)
     guard = diff_guard(fresh, fresh.elements[selection["execution"]])
     if guard["files"] != selection["material"]["files"] or guard["status"] == "blocked":
         raise ContractError("Verification changed source inputs; evidence not applicable")
@@ -172,7 +291,7 @@ def verify(model: Model, tasks: list[str], environment: str, stage: str, *, evid
     value["integrity_sha256"] = fingerprint(value)
     from v2_schema import validate
     validate("verification-evidence", value)
-    changes = {**blobs, relative: canonical(value) + b"\n"}
+    changes = {**blobs, evidence_relative: canonical(value) + b"\n"}
     plan = preview(model.root, changes, sources=fresh.hashes, operation="record-verification")
     # --execute --evidence-id explicitly authorizes recording this actual run.
     applied = apply(model.root, changes, plan, plan["preview_hash"])

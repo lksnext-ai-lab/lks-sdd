@@ -343,6 +343,23 @@ def _validate_technology_declaration(model: Model) -> None:
                             "Technology scope must reference an existing TASK element: "
                             + task_id
                         )
+            variant_ids = set()
+            for variant in technology.get("variants", []):
+                if variant["id"] in variant_ids:
+                    raise ContractError("Duplicate technology variant identity: " + variant["id"])
+                variant_ids.add(variant["id"])
+                variant_scope = set(variant["scope"])
+                if "global" in variant_scope and len(variant_scope) != 1:
+                    raise ContractError("Technology variant scope cannot mix global and TASK selectors: " + variant["id"])
+                if "global" in variant_scope and "global" not in scope:
+                    raise ContractError("Technology variant global scope exceeds its declaration: " + variant["id"])
+                if "global" not in scope and not variant_scope <= scope:
+                    raise ContractError("Technology variant scope exceeds its declaration: " + variant["id"])
+                if "global" not in variant_scope:
+                    for task_id in sorted(variant_scope):
+                        task = model.elements.get(task_id)
+                        if task is None or task.kind != "task":
+                            raise ContractError("Technology variant scope must reference an existing TASK element: " + task_id)
             for evidence in [*technology["evidence"], *technology["provenance"]]:
                 relative = evidence["path"]
                 expected = evidence["sha256"]
@@ -505,38 +522,49 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
         if "global" in scope or scope & selected:
             selected.add(declaration.id)
             reasons.setdefault(declaration.id, []).append("local-technology-declaration")
-    changed = True
-    # Include complete relation closure and inverse contributors/consumers.
-    while changed:
-        before = set(selected)
-        for identifier in tuple(selected):
-            entry = model.elements[identifier]
-            traversed = set(entry.relations) - {"parent"}
-            if entry.kind in {"plan", "increment", "release"}:
-                traversed -= {"requirements", "implements", "contributes_to"}
-            for target in entry.targets(*traversed) if traversed else ():
-                if (model.elements[target].kind not in OPERATIONAL
-                        and model.elements[target].kind not in NON_NORMATIVE_BY_DEFAULT):
+    normative_relations = {
+        "uses", "depends_on", "requirements", "acceptance", "tests", "contributes_to",
+        "implements", "modifies", "replaces", "splits", "merges", "bindings",
+        "interfaces", "decision",
+    }
+    for entry in model.elements.values():
+        if entry.kind in OPERATIONAL or entry.kind in NON_NORMATIVE_BY_DEFAULT:
+            continue
+        # Migration-created unknown applicability is preserved as data, but
+        # must not become a global v2 obligation before an explicit review.
+        if (entry.kind == "applicability" and entry.meta.get("state") == "unknown"
+                and entry.meta.get("migration")):
+            continue
+        if (entry.kind in {"rule", "constraint", "applicability"}
+                and entry.meta.get("scope", "unknown") in {"global", "unknown"}):
+            selected.add(entry.id)
+            reasons.setdefault(entry.id, []).append("shared-or-uncertain-applicability")
+        if entry.kind == "decision" and entry.meta.get("category") in {"delivery-governance", "tracking"}:
+            selected.add(entry.id)
+            reasons.setdefault(entry.id, []).append("governance-policy")
+    roots = set(tasks)
+    queue = list(selected)
+    expanded = set()
+    while queue:
+        identifier = queue.pop()
+        if identifier in expanded:
+            continue
+        expanded.add(identifier)
+        entry = model.elements[identifier]
+        for relation in sorted(set(entry.relations) & normative_relations):
+            for target in entry.targets(relation):
+                candidate = model.elements[target]
+                if candidate.kind in OPERATIONAL or candidate.kind in NON_NORMATIVE_BY_DEFAULT:
+                    continue
+                if candidate.kind == "task":
+                    if identifier in roots and relation == "depends_on":
+                        selected.add(target)
+                        reasons.setdefault(target, []).append("direct-normative-dependency:" + identifier)
+                    continue
+                if target not in selected:
                     selected.add(target)
-                    reasons.setdefault(target, []).append("relation:" + identifier)
-        for e in model.elements.values():
-            if e.kind in OPERATIONAL or e.kind in NON_NORMATIVE_BY_DEFAULT:
-                continue
-            # Migration-created unknown applicability is preserved as data, but
-            # must not become a global v2 obligation before an explicit review.
-            if (e.kind == "applicability" and e.meta.get("state") == "unknown"
-                    and e.meta.get("migration")):
-                continue
-            if e.targets("contributes_to", "implements", "requirements", "uses", "interfaces") & selected:
-                selected.add(e.id)
-                reasons.setdefault(e.id, []).append("contributor-or-consumer")
-            if e.kind in {"rule", "constraint", "applicability"} and e.meta.get("scope", "unknown") in {"global", "unknown"}:
-                selected.add(e.id)
-                reasons.setdefault(e.id, []).append("shared-or-uncertain-applicability")
-            if e.kind == "decision" and e.meta.get("category") in {"delivery-governance", "tracking"}:
-                selected.add(e.id)
-                reasons.setdefault(e.id, []).append("governance-policy")
-        changed = before != selected
+                    reasons.setdefault(target, []).append("normative-relation:" + identifier)
+                    queue.append(target)
     blockers = []
     for identifier in sorted(selected):
         e = model.elements[identifier]
@@ -571,11 +599,18 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             blockers.append("Applicable domain has no documented obligations: " + domain)
     blockers.extend(technology_readiness(model, tasks)["blockers"])
     material = model.normative(selected)
+    administrative_relations = [
+        {"task_id": task.id, "relation": relation, "targets": sorted(task.targets(relation))}
+        for task in (model.elements[identifier] for identifier in tasks)
+        for relation in ("parent", "plan", "increment", "release")
+        if task.targets(relation)
+    ]
     return {"schema_version": VERSION, "kind": "execution-context", "task_ids": tasks,
             "status": "blocked" if blockers else "sufficient", "blockers": sorted(set(blockers)),
             "fingerprint": fingerprint(material), "normative": material,
             "organizational_parents": [{"id": i, "source": model.elements[i].source(), "approval_inherited": False}
                                        for i in sorted({p for e in selected for p in model.elements[e].targets("parent")} - selected)],
+            "administrative_relations": administrative_relations,
             "elements": [{**e.normative(), "source": e.source(), "included_because": sorted(set(reasons.get(e.id, [])))}
                          for e in (model.elements[i] for i in sorted(selected))],
             "writes": [], "consumer_executions": [], "authorization": "not-assessed"}

@@ -60,6 +60,23 @@ operaciones se pasan con `--at` en ISO-8601 con zona, iguales entre preview/appl
 Los comandos de lectura no usan apply. `verify --execute --evidence-id EVID-###`
 ejecuta y registra el resultado real; no ejecutarlo durante una consulta.
 
+### Observadores explícitamente aprobados
+
+Una declaración tecnológica confirmada puede incluir `technology.variants`. Cada
+variante aprobada declara su `scope` de TASKs (o `global`), `environments`,
+`stages` y observers. Un observer identifica el gate, sus scopes e interfaces,
+la imagen fijada por digest, el comando, los inputs locales con SHA-256, timeout
+y si requiere autorización de contenedores. El plan selecciona solo la variante
+que aplica al TASK, entorno y etapa solicitados; no deduce comandos desde una
+tecnología ni descubre scripts del consumidor.
+
+Cada gate requerido necesita exactamente un observer aprobado y aplicable. Una
+definición ausente, ambigua, fuera de alcance, con imagen no fijada, input no
+declarado o hash distinto bloquea el plan y la ejecución. Antes de registrar
+`EVID`, el runtime vuelve a comprobar los hashes de los inputs aprobados. Un
+resultado técnico correcto sigue sin sustituir la aceptación humana ni el cierre
+explícito de la tarea.
+
 ### Migración 1.5→2.0 y corte
 
 La migración soportada es explícita y cerrada: `migration-diagnose` inventaría
