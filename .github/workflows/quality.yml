@@ -91,7 +91,7 @@ jobs:
             schema_version = "preflight-provenance-1.0"
             workflow = $env:GITHUB_WORKFLOW
             event = $env:GITHUB_EVENT_NAME
-            run_id = [int]$env:GITHUB_RUN_ID
+            run_id = [Int64]$env:GITHUB_RUN_ID
             run_attempt = [int]$env:GITHUB_RUN_ATTEMPT
             source_commit = $sourceCommit
             source_ref = $env:GITHUB_REF_NAME
