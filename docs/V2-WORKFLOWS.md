@@ -35,6 +35,24 @@ autoridad. Estado de release y canales de aceptación: [estado actual](STATUS.md
 10. No nuevos agentes ejecutables, skills, MCP, hooks ni conectores. No commit,
     push, instalación activa, publicación o acción externa por autorización implícita.
 
+### Guía ante bloqueos
+
+Un bloqueo no es una orden para el usuario ni una explicación técnica sin
+contexto. El runtime devuelve una guía breve y funcional: qué decisión o
+comprobación falta, qué efecto tiene sobre la tarea, el siguiente paso mínimo y
+las opciones seguras disponibles. La salida humana no muestra hashes, nombres de
+procesos ni trazas como explicación principal; esos detalles permanecen en
+`--json` y en los artefactos para quien necesite investigarlos.
+
+La guía distingue, como mínimo, autorización que ya no representa el trabajo,
+cambio de alcance, comprobación no disponible, dependencia pendiente, evidencia
+que ya no representa el resultado y documentación incompleta. Siempre aclara que
+el historial se conserva y que no se ha declarado la TASK como completada.
+Debe proponer una acción concreta: corregir y reintentar, acordar una
+comprobación aprobada, reautorizar, continuar con reservas si la política lo
+permite o cancelar/replanificar. No sugiere ejecutar scripts descubiertos,
+forzar una evidencia ni ignorar controles.
+
 ## Invocación y operaciones
 
 Usar el dispatcher del runtime, nunca `scripts/` del consumidor. `v2` agrupa el
@@ -197,9 +215,96 @@ Los observers de consumidor requieren aprobación e aislamiento, no stdout passe
 Conservar executed/reused/omitted y edad de observación original. Una reserva
 tecnológica no dispensa un gate crítico ni acepta funcionalidad defectuosa.
 
-Registrar EVID nueva e inmutable por sujeto técnico exacto. Cerrar mediante
-`v2 close` solo si corresponde a esas tareas/entorno/inputs. Un defecto posterior
-cambia salud, no el resultado histórico. Re-verificar después de corregir.
+Registrar EVID nueva e inmutable por sujeto técnico exacto. Las clasificaciones
+técnicas son distintas de la decisión humana:
+
+| Clasificación/estado | Significado | Efecto |
+|---|---|---|
+| `verified` | Todos los checks requeridos, cobertura e inputs aplicables están acreditados. | Puede cerrarse como `done` después de la aceptación requerida por la política. |
+| `verified-with-reservations` | La EVID conserva checks no superados, pero cada uno tiene una reserva declarada y permitida. | Requiere aceptación humana explícita; el TASK queda `done-with-reservations`. |
+| `not-verified` | Hay fallo, cobertura insuficiente, check no ejecutado o preflight bloqueado. | No acredita verificación. Solo una reserva permitida y aceptada puede cerrar el TASK; la EVID no cambia. |
+| `not-run` / `blocked` | Estado de un check o de un intento de preflight, nunca un pase. | Se conserva en EVID o diagnóstico para reanudar y corregir. |
+
+Si contrato, AUTH, baseline, diff guard, alcance, hashes, inputs, engine o
+integridad siguen siendo válidos, `verify --execute --evidence-id EVID-###`
+también registra una EVID `not-verified` cuando el plan no puede materializar
+todos los observers aprobados. Sus checks quedan `not-run` o `blocked`, con el
+motivo concreto; `allow_task_closure` permanece falso. Si esas precondiciones no
+son seguras, el comando falla sin fabricar evidencia. Una EVID de preflight
+bloqueado no permite cerrar por reserva.
+
+Las reservas son opt-in y se declaran en la decisión de gobernanza de entrega,
+nunca se deducen del nombre de una tecnología o de un gate. La propiedad
+`verification_reservation_policy` contiene reglas explícitas por entorno, etapa,
+tipo de scope del gate y estado técnico:
+
+```json
+{
+  "rules": [{
+    "id": "RES-POL-001",
+    "environments": ["test"],
+    "stages": ["development"],
+    "gate_scopes": ["component"],
+    "statuses": ["failed", "blocked", "not-run"]
+  }]
+}
+```
+
+No hay política implícita. Una regla nunca puede cubrir una TASK marcada como
+crítica, un observer ausente/no aprobado, cambios de hash o input, una anomalía
+de aislamiento/integridad del observer, AUTH vencida, baseline o diff inválido,
+un contrato/engine distinto, evidencia manipulada ni un repositorio/ruta fuera
+del alcance. Un observer `blocked` solo puede ser reservable si el runtime
+acredita indisponibilidad temporal del proceso o timeout; los demás bloqueos del
+observer siguen siendo duros.
+
+Cuando el usuario pide cerrar y hay pendientes, mostrar una única síntesis
+agrupada: implementación observada, checks ejecutados/no ejecutados, gates
+pendientes, reservas y riesgos, impacto sobre dependencias/delivery y
+clasificación técnica. Pedir una sola decisión completa:
+
+1. **Aceptar y cerrar** para EVID `verified`.
+2. **Aceptar y cerrar con reservas** para la política explícita aplicable.
+3. **Mantener abierta**, que no escribe nada.
+4. **Cancelar y replanificar** cuando el usuario decide que no continuará con
+   esta ejecución o existe un bloqueo duro que no puede calificarse como reserva.
+
+Las dos primeras se materializan con un único preview/autorización exactos de
+`v2 close`. La solicitud JSON de reserva incluye `decision:
+"accept-and-close-with-reservations"` y cada reserva con `id`, `gate_id`,
+`reason` y `follow_up`; `--actor`, `--at` y `--reason` registran la decisión.
+El cierre crea atómicamente un `REC` de aceptación humana y un `CKPT`, ligados a
+la EVID, ejecución, sujeto, digest de reservas y TASKs exactas. También se puede
+usar `accept-result --request` para registrar antes el recibo y cerrar después,
+sin cambiar la clasificación técnica.
+
+La cuarta opción usa `v2 replan <project-root> --task <TASK> --actor <actor>
+--at <time> --reason <reason> --apply --authorize <preview_hash>`. Es la salida
+universal y consciente para no dejar un proyecto atrapado en una ejecución:
+conserva EVID, checkpoints y problemas históricos, cancela el `EXEC` afectado,
+revoca su AUTH y devuelve la TASK a `ready`. No la declara `done`, no fabrica
+verificación y no autoriza dependencias, delivery o promoción. Tras corregir el
+contrato, el alcance o la disponibilidad de observers, el usuario puede
+autorizar una nueva ejecución.
+
+Un TASK `done-with-reservations` no satisface automáticamente
+`depends_on`: las tareas posteriores siguen viendo la dependencia como
+incompleta. La única excepción es
+`v2 continue-with-reservations <project-root> --task <dependent-task>
+--request <decision.json> --actor <actor> --at <time> --reason <reason>`, con
+`decision: "continue-with-reservations"` y la lista exacta de
+`dependency_task_ids`. Registra un `REC` separado con las reservas heredadas,
+EVID y digest de cada dependencia; planning y el nuevo `EXEC` mantienen ese
+vínculo visible. El recibo debe referir la EVID terminal vigente de cada
+dependencia: una corrección y cierre posterior con otra EVID vuelve a bloquear
+la continuidad hasta que se tome una nueva decisión explícita. No modifica la clasificación técnica ni convierte una
+dependencia reservada en `verified`. Tampoco habilita `authorize-delivery` ni
+`delivery`: promoción y entrega requieren evidencia plenamente `verified`.
+
+Cerrar mediante `v2 close` solo si corresponde a esas tareas/entorno/inputs.
+El cierre es idempotente para la misma EVID; no sobrescribe EVID ni recibos.
+Un defecto posterior cambia salud, no el resultado histórico. Re-verificar
+después de corregir.
 Mantener aceptación humana, entrega, smoke operacional, rollback y producción
 separados; no asumirlos por un resultado técnico.
 La ejecución que usa Docker requiere además `--containers`. `accept-result`

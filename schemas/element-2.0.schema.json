@@ -142,6 +142,86 @@
     "human_review_required": {
       "type": "boolean"
     },
+    "verification_reservation_policy": {
+      "type": "object",
+      "required": [
+        "rules"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "environments",
+              "stages",
+              "gate_scopes",
+              "statuses"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^RES-POL-[0-9]{3,}$"
+              },
+              "environments": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "stages": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "development",
+                    "integration",
+                    "preproduction",
+                    "release",
+                    "production"
+                  ]
+                }
+              },
+              "gate_scopes": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "component",
+                    "contract",
+                    "composition",
+                    "user-flow",
+                    "persistence",
+                    "visual"
+                  ]
+                }
+              },
+              "statuses": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "failed",
+                    "blocked",
+                    "not-run"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "critical": {
       "type": "boolean"
     },
