@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.1.3 — 2026-09-20 — cierre v2 recuperable y guiado
+
+- Separa resultado técnico, aceptación humana, cierre de TASK, dependencias y
+  delivery: una EVID fallida o bloqueada conserva su clasificación real y solo
+  puede cerrarse con reservas explícitas cuando una política local lo permite.
+- Registra EVID `not-verified` de intentos de preflight bloqueados cuando el
+  contrato mínimo es íntegro; no fabrica un pase ni permite cerrar por reservas
+  la ausencia o deriva de un observer aprobado.
+- Añade recibos inmutables para aceptación de reservas y para la continuación
+  explícita de dependencias reservadas. Esta última exige la EVID terminal
+  vigente de la dependencia y vuelve a requerir decisión tras una corrección.
+- Incorpora la salida `replan` como recuperación consciente de una ejecución
+  bloqueada: conserva historial, cancela EXEC, revoca AUTH y devuelve la TASK a
+  `ready`, sin declararla verificada ni entregable.
+- Explica bloqueos v2 en términos funcionales —efecto, siguiente paso y
+  opciones seguras— y reserva los diagnósticos técnicos para JSON y auditoría.
+
 ## 2.1.2 — 2026-09-20 — verificación v2 por sujeto exacto
 
 - Excluye únicamente el metadato raíz `.git` —archivo de worktree o directorio—
