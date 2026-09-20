@@ -2,7 +2,7 @@
 
 ## Antes de actualizar a v2
 
-Descarga los assets de [v2.1.2](https://github.com/lksnext-ai-lab/lks-sdd/releases/tag/v2.1.2)
+Descarga los assets de [v2.1.3](https://github.com/lksnext-ai-lab/lks-sdd/releases/tag/v2.1.3)
 y comprueba `SHA256SUMS`. El paquete personal, el runtime del proyecto y el contrato
 documental son tres cosas distintas. Un proyecto 1.5 conserva sus fuentes y runtime
 hasta autorizar la [migración 1.5 → 2.0](V2-MIGRATION.md); el setup no la sustituye.
@@ -11,13 +11,13 @@ doctor 1.x de esta guía solo aplican a consumidores 1.5: en v2 usa `v2 visual-i
 `validate-project` y `status` según la guía. La aceptación conversacional v2 sigue
 el [protocolo por host](V2-HOST-ACCEPTANCE.md), no se infiere de una instalación válida.
 
-La distribución 2.1.2 tiene un núcleo y dos destinos. Para Copilot se recomienda
-el **plugin de agente** `lks-sdd-copilot-plugin-v2.1.2.zip` y el procedimiento
+La distribución 2.1.3 tiene un núcleo y dos destinos. Para Copilot se recomienda
+el **plugin de agente** `lks-sdd-copilot-plugin-v2.1.3.zip` y el procedimiento
 de la siguiente sección. No es una extensión VSIX y no requiere crear otra extensión.
 Si no conoces estas herramientas, empieza por la [guía desde cero](LEARNING-GUIDE.md).
 
 Para preparar Codex o usar la alternativa de skills de proyecto, el ZIP es
-`lks-sdd-setup-v2.1.2.zip`: incluye instalador, manifiesto de integridad y ambos
+`lks-sdd-setup-v2.1.3.zip`: incluye instalador, manifiesto de integridad y ambos
 payloads. No instala Python, extensiones, MCP, credenciales ni herramientas de terceros.
 Los paquetes `development-unreleased` son instalables para evaluación, no releases
 certificadas. Consulte [la aceptación por host](V2-HOST-ACCEPTANCE.md) antes de distribuirlos.
@@ -67,14 +67,14 @@ acceso de lectura al repositorio público de GitHub y Git disponible en su equip
 
 1. En VS Code pulsa `Ctrl+Shift+P` y ejecuta **Chat: Install Plugin From Source**.
 2. Introduce `https://github.com/lksnext-ai-lab/lks-sdd.git`.
-3. El catálogo del repositorio ofrece **lks-sdd**, versión **2.1.2**. Selecciónalo y
+3. El catálogo del repositorio ofrece **lks-sdd**, versión **2.1.3**. Selecciónalo y
    confirma la confianza únicamente después de comprobar el origen LKS.
 4. En Agent Customizations → Plugins, comprueba que esté habilitado. Abre una
    conversación nueva en modo Agent y pide «Explícame LKS-SDD sin modificar archivos».
 5. Sigue «Preparar el proyecto compartido» más abajo. Instalar el plugin personal y
    preparar el repositorio de la aplicación son pasos distintos.
 
-El catálogo `.github/plugin/marketplace.json` apunta a `v2.1.2`, etiqueta
+El catálogo `.github/plugin/marketplace.json` apunta a `v2.1.3`, etiqueta
 inmutable del paquete generado en este mismo repositorio. El código se mantiene
 solo en `main`; la distribución no se edita manualmente. No pegues URLs de páginas
 `/tree/` ni de ZIP en el cuadro que solicita una URL Git.
@@ -91,10 +91,10 @@ comprueba el resultado con el [piloto guiado](COPILOT-PILOT.md).
 
 ### Alternativa local desde Ajustes (sin editar JSON)
 
-1. Verifica el SHA-256 y extrae `lks-sdd-copilot-plugin-v2.1.2.zip` en una
+1. Verifica el SHA-256 y extrae `lks-sdd-copilot-plugin-v2.1.3.zip` en una
    carpeta corta y estable, por ejemplo `C:\LksPilot`. Debe quedar
    `C:\LksPilot\lks-sdd\plugin.json` junto a `skills`, `core` y `setup`.
-   El paquete 2.1.2 resuelve internamente rutas largas de Windows y mantiene las
+   El paquete 2.1.3 resuelve internamente rutas largas de Windows y mantiene las
    comprobaciones de integridad, enlaces y secretos.
    Si eliges manualmente un destino con un prefijo excepcionalmente largo, no uses una
    extracción parcial: usa una carpeta más corta o un extractor compatible con rutas largas.
@@ -155,7 +155,7 @@ el runtime ni los documentos del proyecto.
 
 ## Alternativa Copilot: skills instaladas una vez en el proyecto
 
-Esta alternativa usa el ZIP `lks-sdd-setup-v2.1.2.zip`, no el setup incluido en
+Esta alternativa usa el ZIP `lks-sdd-setup-v2.1.3.zip`, no el setup incluido en
 el plugin nativo. Es útil cuando se prefieren skills versionadas y no se usa plugin.
 
 Desde la carpeta extraída:
@@ -215,7 +215,7 @@ resuelva el origen en la gestión de plugins antes de reinstalar. No sustituya l
 instalación estable accidentalmente. Abra una tarea nueva después de la instalación;
 una tarea que ya estaba abierta puede conservar las instrucciones anteriores.
 
-Alternativamente, el ZIP `lks-sdd-marketplace-v2.1.2.zip` se puede extraer en esa
+Alternativamente, el ZIP `lks-sdd-marketplace-v2.1.3.zip` se puede extraer en esa
 carpeta estable y registrar de la misma manera. El instalador es preferible para
 actualizaciones por sus comprobaciones de propiedad, colisiones y recuperación.
 La extensión Codex de VS Code está fuera del alcance de esta entrega.

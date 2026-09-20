@@ -10,7 +10,8 @@ from pathlib import Path
 from eval_support import authorize_implementation, materialize_ready_project
 from v2_authoring import edit_elements
 from v2_contract import ContractError, DOCS, execution_context, load, render_document, sha
-from v2_lifecycle import checkpoint, start, work_inventory
+from v2_controls import accept_result, authorize_delivery, continue_with_reservations, correction
+from v2_lifecycle import checkpoint, planning, start, work_inventory
 from v2_quality import obligations
 from v2_storage import apply, preview
 from v2_verification import close, evidence, verification_plan, verify
@@ -150,6 +151,31 @@ def _configure_observers(
     )
 
 
+def _configure_reservation_policy(
+    root: Path,
+    *,
+    environments: list[str] | None = None,
+    gate_scopes: list[str] | None = None,
+    statuses: list[str] | None = None,
+) -> None:
+    model = load(root)
+    governance = model.elements["ADR-001"]
+    value = dict(governance.meta)
+    value["revision"] += 1
+    value["verification_reservation_policy"] = {
+        "rules": [
+            {
+                "id": "RES-POL-001",
+                "environments": environments or ["test"],
+                "stages": ["development"],
+                "gate_scopes": gate_scopes or ["component"],
+                "statuses": statuses or ["failed", "blocked", "not-run"],
+            }
+        ]
+    }
+    _apply(root, edit_elements(model, {"ADR-001": value}), "configure-synthetic-reservation-policy")
+
+
 def _start_review(root: Path) -> None:
     authorize_implementation(root)
     started = start(
@@ -202,6 +228,129 @@ def _passing_runner(executed: list[str]):
             "artifacts": [{"path": entry["gate_id"] + ".txt", "sha256": digest}],
         }, {digest: artifact}
     return runner
+
+
+def _partially_failing_runner(executed: list[str], failed_gate: str):
+    passing = _passing_runner(executed)
+
+    def runner(root: Path, entry: dict):
+        if entry["gate_id"] != failed_gate:
+            return passing(root, entry)
+        executed.append(entry["gate_id"])
+        return {
+            "gate_id": entry["gate_id"],
+            "status": "failed",
+            "scopes": entry["gate"]["scopes"],
+            "interfaces": entry["gate"]["interfaces"],
+            "observations": {"synthetic": False},
+            "artifacts": [],
+        }, {}
+
+    return runner
+
+
+def _blocked_runner(executed: list[str], blocked_gate: str, reason: str):
+    passing = _passing_runner(executed)
+
+    def runner(root: Path, entry: dict):
+        if entry["gate_id"] != blocked_gate:
+            return passing(root, entry)
+        executed.append(entry["gate_id"])
+        return {
+            "gate_id": entry["gate_id"],
+            "status": "blocked",
+            "reason": reason,
+            "scopes": entry["gate"]["scopes"],
+            "interfaces": entry["gate"]["interfaces"],
+            "observations": {},
+            "artifacts": [],
+        }, {}
+
+    return runner
+
+
+def _apply_close(root: Path, evidence_id: str, request: dict) -> dict:
+    result = close(
+        load(root),
+        ["TASK-001"],
+        evidence_id,
+        actor="fixture-reviewer",
+        at="2026-09-19T10:03:00+00:00",
+        reason="Accept the bounded synthetic verification reservation.",
+        reservation_request=request,
+    )
+    return close(
+        load(root),
+        ["TASK-001"],
+        evidence_id,
+        actor="fixture-reviewer",
+        at="2026-09-19T10:03:00+00:00",
+        reason="Accept the bounded synthetic verification reservation.",
+        reservation_request=request,
+        authorized_hash=result["preview_hash"],
+    )
+
+
+def _apply_reservation_acceptance(root: Path, evidence_id: str, request: dict) -> dict:
+    result = accept_result(
+        load(root),
+        ["TASK-001"],
+        evidence_id,
+        actor="fixture-reviewer",
+        at="2026-09-19T10:03:00+00:00",
+        reason="Accept the bounded synthetic verification reservation.",
+        reservation_request=request,
+    )
+    return accept_result(
+        load(root),
+        ["TASK-001"],
+        evidence_id,
+        actor="fixture-reviewer",
+        at="2026-09-19T10:03:00+00:00",
+        reason="Accept the bounded synthetic verification reservation.",
+        reservation_request=request,
+        authorized_hash=result["preview_hash"],
+    )
+
+
+def _apply_reservation_continuation(root: Path, task_ids: list[str], request: dict) -> dict:
+    result = continue_with_reservations(
+        load(root),
+        task_ids,
+        request,
+        actor="fixture-reviewer",
+        at="2026-09-19T10:05:00+00:00",
+        reason="Continue bounded dependent work with declared inherited reservations.",
+    )
+    return continue_with_reservations(
+        load(root),
+        task_ids,
+        request,
+        actor="fixture-reviewer",
+        at="2026-09-19T10:05:00+00:00",
+        reason="Continue bounded dependent work with declared inherited reservations.",
+        authorized_hash=result["preview_hash"],
+    )
+
+
+def _apply_replan(root: Path, task_ids: list[str]) -> dict:
+    result = correction(
+        load(root),
+        task_ids,
+        actor="fixture-owner",
+        at="2026-09-19T10:05:00+00:00",
+        reason="End the blocked synthetic execution and request a new decision.",
+        replan=True,
+    )
+    return correction(
+        load(root),
+        task_ids,
+        actor="fixture-owner",
+        at="2026-09-19T10:05:00+00:00",
+        reason="End the blocked synthetic execution and request a new decision.",
+        replan=True,
+        authorized_hash=result["preview_hash"],
+    )
 
 
 class V2InventoryPolicyTests(unittest.TestCase):
@@ -366,7 +515,7 @@ class V2ApprovedObserverTests(unittest.TestCase):
                     at="2026-09-19T10:02:00+00:00",
                 )
 
-    def test_missing_or_invalid_observers_block_without_implicit_execution(self):
+    def test_missing_or_invalid_observers_record_blocked_attempt_without_implicit_execution(self):
         cases = (
             ("missing", {"omitted_gate": "GATE-GAMMA"}, "No approved observer"),
             ("hash", {"invalid_hash_gate": "GATE-GAMMA"}, "input hash mismatch"),
@@ -385,12 +534,36 @@ class V2ApprovedObserverTests(unittest.TestCase):
 
                 self.assertEqual(plan["status"], "blocked")
                 self.assertIn("GATE-GAMMA", plan["missing_critical_gates"])
-                self.assertEqual(
-                    verify(load(root), ["TASK-001"], "test", "development", evidence_id="EVID-001", execute=True),
-                    plan,
+                result = verify(
+                    load(root), ["TASK-001"], "test", "development", evidence_id="EVID-001", execute=True
                 )
+                recorded = evidence(load(root), "EVID-001")
+
+                self.assertEqual(result["status"], "not-verified")
+                self.assertTrue(result["blocked_preflight"])
                 self.assertTrue(any(reason in blocker for blocker in plan["blockers"]))
-                self.assertFalse((root / DOCS / "evidence" / "EVID-001.json").exists())
+                self.assertTrue((root / DOCS / "evidence" / "EVID-001.json").exists())
+                self.assertEqual(recorded["classification"], "not-verified")
+                self.assertTrue(recorded["blocked_preflight"])
+                self.assertTrue(all(check["status"] in {"blocked", "not-run"} for check in recorded["checks"]))
+                with self.assertRaisesRegex(ContractError, "Evidence does not close this exact authorized subject"):
+                    close(
+                        load(root),
+                        ["TASK-001"],
+                        "EVID-001",
+                        actor="fixture-reviewer",
+                        at="2026-09-19T10:02:00+00:00",
+                        reason="An absent observer cannot be accepted as a reservation.",
+                        reservation_request={
+                            "decision": "accept-and-close-with-reservations",
+                            "reservations": [{
+                                "id": "RES-001",
+                                "gate_id": "GATE-GAMMA",
+                                "reason": "Synthetic missing observer.",
+                                "follow_up": "Declare and run an approved observer.",
+                            }],
+                        },
+                    )
 
     def test_changed_approved_input_blocks_evidence_recording(self):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-observer-") as directory:
@@ -420,6 +593,376 @@ class V2ApprovedObserverTests(unittest.TestCase):
                 )
             self.assertEqual(executed, list(GATES))
             self.assertFalse((root / DOCS / "evidence" / "EVID-001.json").exists())
+
+
+class V2ReservationClosureTests(unittest.TestCase):
+    def test_hard_preflight_block_has_a_user_authorized_replan_exit(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-replan-exit")
+            _configure_observers(root, omitted_gate="GATE-GAMMA")
+            _start_review(root)
+
+            recorded = verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+            )
+            replanned = _apply_replan(root, ["TASK-001"])
+            model = load(root)
+
+            self.assertEqual(recorded["status"], "not-verified")
+            self.assertTrue(recorded["blocked_preflight"])
+            self.assertTrue(replanned["writes"])
+            self.assertEqual(model.elements["TASK-001"].meta["state"], "ready")
+            self.assertEqual(model.elements["EXEC-001"].meta["state"], "cancelled")
+            self.assertEqual(model.elements["AUTH-001"].meta["state"], "revoked")
+
+    def test_partial_verification_records_actual_failure_and_closes_only_with_policy_bound_reservations(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-closure")
+            _configure_observers(root)
+            _configure_reservation_policy(root)
+            _start_review(root)
+            executed = []
+            result = verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+                runner=_partially_failing_runner(executed, "GATE-ALPHA"),
+            )
+
+            self.assertEqual(executed, list(GATES))
+            self.assertEqual(result["status"], "not-verified")
+            self.assertEqual(evidence(load(root), "EVID-001")["classification"], "not-verified")
+            with self.assertRaisesRegex(ContractError, "reservation acceptance remains pending"):
+                close(
+                    load(root),
+                    ["TASK-001"],
+                    "EVID-001",
+                    actor="fixture-reviewer",
+                    at="2026-09-19T10:03:00+00:00",
+                )
+
+            request = {
+                "decision": "accept-and-close-with-reservations",
+                "reservations": [{
+                    "id": "RES-001",
+                    "gate_id": "GATE-ALPHA",
+                    "reason": "The approved observer recorded a synthetic failure.",
+                    "follow_up": "Correct the failure and rerun normal verification.",
+                }],
+            }
+            applied = _apply_close(root, "EVID-001", request)
+            model = load(root)
+            receipt = next(entry for entry in model.by_kind("receipt")
+                           if entry.meta.get("category") == "result-reservation-review")
+
+            self.assertTrue(applied["writes"])
+            self.assertEqual(model.elements["TASK-001"].meta["state"], "done-with-reservations")
+            self.assertEqual(model.elements["TASK-001"].meta["health"], "accepted-with-reservations")
+            self.assertEqual(evidence(model, "EVID-001")["classification"], "not-verified")
+            self.assertEqual(receipt.meta["technical_classification"], "not-verified")
+            self.assertEqual(receipt.meta["reservations"][0]["gate_id"], "GATE-ALPHA")
+            self.assertEqual(receipt.meta["execution_id"], "EXEC-001")
+            with self.assertRaisesRegex(ContractError, "requires a verified deployable artifact"):
+                authorize_delivery(load(root), {
+                    "actor": "fixture-delivery-owner",
+                    "recorded_at": "2026-09-19T10:04:00+00:00",
+                    "expires_at": "2026-09-19T11:04:00+00:00",
+                    "environment": "ENV-001",
+                    "version": "0.0.0-synthetic",
+                    "artifact_digest": "a" * 64,
+                    "evidence_id": "EVID-001",
+                    "operation": "deployed",
+                    "features": ["FTR-001"],
+                    "reason": "A reserved result cannot promote delivery.",
+                })
+            self.assertEqual(close(
+                model,
+                ["TASK-001"],
+                "EVID-001",
+                actor="fixture-reviewer",
+                at="2026-09-19T10:04:00+00:00",
+            )["status"], "already-closed")
+
+    def test_declared_reservation_classifies_evidence_without_changing_failed_check(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "declared-reservation")
+            _configure_observers(root)
+            _configure_reservation_policy(root)
+            _start_review(root)
+            executed = []
+            request = {
+                "reservations": [{
+                    "id": "RES-001",
+                    "gate_id": "GATE-ALPHA",
+                    "reason": "The approved observer is intentionally deferred in this synthetic fixture.",
+                    "follow_up": "Run the observer before delivery.",
+                }],
+            }
+
+            result = verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+                runner=_partially_failing_runner(executed, "GATE-ALPHA"),
+                reservation_request=request,
+            )
+            recorded = evidence(load(root), "EVID-001")
+
+            self.assertEqual(result["status"], "verified-with-reservations")
+            self.assertEqual(recorded["classification"], "verified-with-reservations")
+            self.assertEqual(next(check for check in recorded["checks"] if check["gate_id"] == "GATE-ALPHA")["status"], "failed")
+            self.assertEqual(recorded["reservations"][0]["policy_rule_id"], "RES-POL-001")
+            close_request = {"decision": "accept-and-close-with-reservations", **request}
+            _apply_close(root, "EVID-001", close_request)
+            self.assertEqual(load(root).elements["TASK-001"].meta["state"], "done-with-reservations")
+
+    def test_reservation_acceptance_is_a_durable_step_before_later_close(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-acceptance")
+            _configure_observers(root)
+            _configure_reservation_policy(root)
+            _start_review(root)
+            request = {
+                "decision": "accept-and-close-with-reservations",
+                "reservations": [{
+                    "id": "RES-001",
+                    "gate_id": "GATE-ALPHA",
+                    "reason": "Synthetic deferred failure.",
+                    "follow_up": "Repeat full verification after correction.",
+                }],
+            }
+            verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+                runner=_partially_failing_runner([], "GATE-ALPHA"),
+                reservation_request={"reservations": request["reservations"]},
+            )
+
+            accepted = _apply_reservation_acceptance(root, "EVID-001", request)
+            pending_close = close(
+                load(root),
+                ["TASK-001"],
+                "EVID-001",
+                actor="fixture-reviewer",
+                at="2026-09-19T10:04:00+00:00",
+            )
+            completed = close(
+                load(root),
+                ["TASK-001"],
+                "EVID-001",
+                actor="fixture-reviewer",
+                at="2026-09-19T10:04:00+00:00",
+                authorized_hash=pending_close["preview_hash"],
+            )
+
+            self.assertTrue(accepted["writes"])
+            self.assertTrue(completed["writes"])
+            self.assertEqual(load(root).elements["TASK-001"].meta["state"], "done-with-reservations")
+
+    def test_reservation_hard_guards_reject_critical_scope_and_integrity_waivers(self):
+        request = {
+            "decision": "accept-and-close-with-reservations",
+            "reservations": [{
+                "id": "RES-001",
+                "gate_id": "GATE-ALPHA",
+                "reason": "Synthetic reservation request.",
+                "follow_up": "Run complete verification.",
+            }],
+        }
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-scope-guard")
+            _configure_observers(root)
+            _configure_reservation_policy(root, gate_scopes=["contract"])
+            _start_review(root)
+
+            with self.assertRaisesRegex(ContractError, "No reservation policy permits this gate outcome"):
+                verify(
+                    load(root),
+                    ["TASK-001"],
+                    "test",
+                    "development",
+                    evidence_id="EVID-001",
+                    execute=True,
+                    runner=_partially_failing_runner([], "GATE-ALPHA"),
+                    reservation_request={"reservations": request["reservations"]},
+                )
+
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-critical-guard")
+            _configure_observers(root)
+            model = load(root)
+            task = model.elements["TASK-001"]
+            replacement = dict(task.meta, critical=True, revision=task.meta["revision"] + 1)
+            _apply(root, edit_elements(model, {"TASK-001": replacement}), "mark-synthetic-task-critical")
+            _configure_reservation_policy(root)
+            _start_review(root)
+            verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+                runner=_partially_failing_runner([], "GATE-ALPHA"),
+            )
+
+            with self.assertRaisesRegex(ContractError, "Critical TASK verification cannot close with reservations"):
+                close(
+                    load(root),
+                    ["TASK-001"],
+                    "EVID-001",
+                    actor="fixture-reviewer",
+                    at="2026-09-19T10:03:00+00:00",
+                    reason="Critical work cannot be waived.",
+                    reservation_request=request,
+                )
+
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-isolation-guard")
+            _configure_observers(root)
+            _configure_reservation_policy(root)
+            _start_review(root)
+
+            with self.assertRaisesRegex(ContractError, "observer integrity or isolation failure"):
+                verify(
+                    load(root),
+                    ["TASK-001"],
+                    "test",
+                    "development",
+                    evidence_id="EVID-001",
+                    execute=True,
+                    runner=_blocked_runner([], "GATE-ALPHA", "Observer output contract is malformed"),
+                    reservation_request={"reservations": request["reservations"]},
+                )
+            self.assertFalse((root / DOCS / "evidence" / "EVID-001.json").exists())
+
+    def test_reservations_do_not_bypass_policy_or_dependency_or_delivery_controls(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-guards")
+            _add_sibling(root)
+            _configure_observers(root)
+            _configure_reservation_policy(root, environments=["preproduction"])
+            model = load(root)
+            sibling = model.elements["TASK-002"]
+            sibling_value = dict(sibling.meta, revision=sibling.meta["revision"] + 1)
+            sibling_value["relations"] = {
+                **{relation: list(targets) for relation, targets in sibling.relations.items()},
+                "depends_on": ["TASK-001"],
+            }
+            _apply(root, edit_elements(model, {"TASK-002": sibling_value}), "add-reservation-dependent-task")
+            _start_review(root)
+            executed = []
+            verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+                runner=_partially_failing_runner(executed, "GATE-ALPHA"),
+            )
+            unpermitted = {
+                "decision": "accept-and-close-with-reservations",
+                "reservations": [{
+                    "id": "RES-001",
+                    "gate_id": "GATE-ALPHA",
+                    "reason": "Synthetic request without policy.",
+                    "follow_up": "Run the observer.",
+                }],
+            }
+            with self.assertRaisesRegex(ContractError, "No reservation policy permits this gate outcome"):
+                close(
+                    load(root),
+                    ["TASK-001"],
+                    "EVID-001",
+                    actor="fixture-reviewer",
+                    at="2026-09-19T10:03:00+00:00",
+                    reason="Attempt to bypass the policy.",
+                    reservation_request=unpermitted,
+                )
+
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-reservation-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "reservation-dependency")
+            _add_sibling(root)
+            _configure_observers(root)
+            _configure_reservation_policy(root)
+            model = load(root)
+            sibling = model.elements["TASK-002"]
+            sibling_value = dict(sibling.meta, revision=sibling.meta["revision"] + 1)
+            sibling_value["relations"] = {
+                **{relation: list(targets) for relation, targets in sibling.relations.items()},
+                "depends_on": ["TASK-001"],
+            }
+            _apply(root, edit_elements(model, {"TASK-002": sibling_value}), "add-reservation-dependent-task")
+            _start_review(root)
+            verify(
+                load(root),
+                ["TASK-001"],
+                "test",
+                "development",
+                evidence_id="EVID-001",
+                execute=True,
+                runner=_partially_failing_runner([], "GATE-ALPHA"),
+            )
+            _apply_close(root, "EVID-001", {
+                "decision": "accept-and-close-with-reservations",
+                "reservations": [{
+                    "id": "RES-001",
+                    "gate_id": "GATE-ALPHA",
+                    "reason": "Synthetic accepted reservation.",
+                    "follow_up": "Reverify before unblocking dependent work.",
+                }],
+            })
+
+            assessment = planning(load(root), ["TASK-002"])
+
+            self.assertEqual(load(root).elements["TASK-001"].meta["state"], "done-with-reservations")
+            self.assertIn("Unfinished dependency: TASK-001", assessment["blockers"])
+            continued = _apply_reservation_continuation(root, ["TASK-002"], {
+                "decision": "continue-with-reservations",
+                "dependency_task_ids": ["TASK-001"],
+            })
+            resumed = planning(load(root), ["TASK-002"])
+            continuation = resumed["reservation_continuations"][0]
+
+            self.assertTrue(continued["writes"])
+            self.assertEqual(resumed["status"], "ready")
+            self.assertEqual(continuation["dependency_task_id"], "TASK-001")
+            self.assertEqual(continuation["task_id"], "TASK-002")
+            model = load(root)
+            dependency = model.elements["TASK-001"]
+            replaced = dict(dependency.meta, revision=dependency.meta["revision"] + 1,
+                            evidence_ids=[*dependency.meta["evidence_ids"], "EVID-002"])
+            _apply(root, edit_elements(model, {"TASK-001": replaced}), "replace-terminal-reservation-evidence")
+
+            stale = planning(load(root), ["TASK-002"])
+
+            self.assertIn("Unfinished dependency: TASK-001", stale["blockers"])
+            self.assertEqual(stale["reservation_continuations"], [])
 
 
 if __name__ == "__main__":
