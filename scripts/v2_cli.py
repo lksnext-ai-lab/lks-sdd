@@ -25,7 +25,7 @@ def parser_for(command=None):
             "authorize", "start", "diff", "review-diff", "checkpoint", "resume", "verify", "close", "status",
             "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
             "migrate", "rollback", "recover", "merge-preview", "guard", "adopt",
-            "feature", "decompose", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "delivery", "authorize-delivery", "guard-review", "prepare",
+            "feature", "decompose", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "continue-with-reservations", "delivery", "authorize-delivery", "guard-review", "prepare",
             "tracking-status", "tracking-project", "tracking-authorize", "tracking-result", "tracking-reconcile", "tracking-milestone",
             "visual-request", "visual-inspect", "visual-observe", "visual-accept", "visual-cancel"))
     parser.add_argument("project_root", type=Path)
@@ -170,10 +170,14 @@ def run(command, args):
     if command in {"verify", "close"}:
         from v2_verification import verify, close
         if command == "verify":
-            return verify(model, args.task, args.environment, args.stage, evidence_id=args.evidence_id, execute=args.execute, containers=args.containers)
+            request = read_request(args.request) if args.request else None
+            return verify(model, args.task, args.environment, args.stage, evidence_id=args.evidence_id,
+                          execute=args.execute, containers=args.containers, reservation_request=request)
         if not args.at:
             raise ContractError("Close requires explicit --at")
-        return close(model, args.task, args.evidence_id, actor=args.actor, at=args.at, authorized_hash=authorized)
+        request = read_request(args.request) if args.request else None
+        return close(model, args.task, args.evidence_id, actor=args.actor, at=args.at,
+                     reason=args.reason, reservation_request=request, authorized_hash=authorized)
     if command == "merge-preview":
         if not args.base or not args.incoming:
             raise ContractError("Provide --base and --incoming project roots")
@@ -196,8 +200,8 @@ def run(command, args):
         if not args.at:
             raise ContractError("Problem requires explicit --at")
         return report_problem(model, args.task, description=args.reason, actor=args.actor, at=args.at, authorized_hash=authorized)
-    if command in {"revoke", "correct", "replan", "accept-result", "delivery"}:
-        from v2_controls import revoke, correction, accept_result, delivery_observation
+    if command in {"revoke", "correct", "replan", "accept-result", "continue-with-reservations", "delivery"}:
+        from v2_controls import revoke, correction, accept_result, continue_with_reservations, delivery_observation
         if command == "delivery":
             return delivery_observation(model, read_request(args.request), authorized_hash=authorized)
         if not args.at:
@@ -206,7 +210,11 @@ def run(command, args):
         if command == "revoke":
             return revoke(model, args.id, **common)
         if command == "accept-result":
-            return accept_result(model, args.task, args.evidence_id, **common)
+            return accept_result(model, args.task, args.evidence_id,
+                                 reservation_request=read_request(args.request) if args.request else None,
+                                 **common)
+        if command == "continue-with-reservations":
+            return continue_with_reservations(model, args.task, read_request(args.request), **common)
         return correction(model, args.task, replan=command == "replan", **common)
     if command.startswith("tracking-"):
         from v2_tracking import readiness, projection, authorize_projection, record_result
@@ -266,6 +274,24 @@ def human_status(value):
     return "\n".join(lines)
 
 
+def human_guidance(value):
+    guidance = value["guidance"]
+    lines = [
+        "No se puede continuar todavía.",
+        "",
+        guidance["summary"],
+        "",
+        "Qué significa: " + guidance["impact"],
+        "Siguiente paso: " + guidance["next_step"],
+        "",
+        "Opciones:",
+        *["- " + option for option in guidance["options"]],
+        "",
+        "Los detalles técnicos siguen disponibles con --json.",
+    ]
+    return "\n".join(lines)
+
+
 def main(argv=None, *, command=None):
     args = parser_for(command).parse_args(argv)
     command = command or args.command
@@ -273,11 +299,13 @@ def main(argv=None, *, command=None):
         value = run(command, args)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         value = {"status": "blocked", "error": str(exc), "writes": []}
+    from v2_guidance import enrich
+    value = enrich(value, operation=command)
     if command == "catalog" and not args.json and not args.export and value.get("status") != "blocked":
         from v2_authoring import catalog_markdown
         print(catalog_markdown(load(args.project_root)))
-    elif not args.json and value.get("status") == "blocked":
-        print("No se puede continuar: " + value.get("error", "; ".join(value.get("blockers", value.get("missing_critical_gates", []))) or value.get("reason", "Revise el diagnóstico.")))
+    elif not args.json and value.get("status") in {"blocked", "invalid", "conflict"}:
+        print(human_guidance(value))
     elif command == "status" and not args.json:
         print(human_status(value))
     else:

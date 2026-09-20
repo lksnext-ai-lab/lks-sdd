@@ -47,6 +47,52 @@ def record(model: Model, identifier: str, kind: str, title: str, body: str, **va
     return DOCS + "/" + directory + "/" + identifier + ".md", render_document(kind, title, [element])
 
 
+def reservation_continuations(model: Model, tasks: list[str]) -> tuple[list[dict], list[str]]:
+    """Resolve only explicit receipts that let a dependent continue with inherited risk."""
+    continuations, missing = [], []
+    for task_id in tasks:
+        task = model.elements[task_id]
+        for dependency_id in sorted(task.targets("depends_on")):
+            dependency = model.elements[dependency_id]
+            if dependency.kind != "task" or dependency.meta["state"] != "done-with-reservations":
+                continue
+            evidence_ids = dependency.meta.get("evidence_ids", [])
+            if not evidence_ids:
+                raise ContractError("Reserved dependency has no terminal verification evidence: " + dependency_id)
+            terminal_evidence = evidence_ids[-1]
+            receipts = [
+                receipt for receipt in model.by_kind("receipt")
+                if receipt.meta.get("category") == "dependency-reservation-continuation"
+                and receipt.meta.get("state") == "approved"
+                and task_id in receipt.targets("affects")
+                and dependency_id in receipt.targets("depends_on")
+                and any(item.get("task_id") == dependency_id and item.get("evidence_id") == terminal_evidence
+                        for item in receipt.meta.get("dependency_evidence", [])
+                        if isinstance(item, dict))
+            ]
+            if not receipts:
+                missing.append(dependency_id)
+                continue
+            receipt = max(receipts, key=lambda item: (item.meta.get("recorded_at", ""), item.id))
+            source = next(item for item in receipt.meta["dependency_evidence"]
+                          if item["task_id"] == dependency_id)
+            from v2_verification import evidence
+            value = evidence(model, source["evidence_id"])
+            if (value["integrity_sha256"] != source.get("evidence_sha256")
+                    or receipt.meta.get("dependency_evidence") is None
+                    or not isinstance(receipt.meta.get("inherited_reservations"), list)):
+                raise ContractError("Reservation continuation receipt no longer binds exact dependency evidence")
+            continuations.append({
+                "task_id": task_id,
+                "dependency_task_id": dependency_id,
+                "receipt_id": receipt.id,
+                "dependency_evidence": [
+                    item for item in receipt.meta["dependency_evidence"] if item["task_id"] == dependency_id
+                ],
+            })
+    return continuations, sorted(set(missing))
+
+
 def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
     context = execution_context(model, tasks)
     blockers = list(context["blockers"])
@@ -92,6 +138,8 @@ def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
             blockers.append("Tasks add undeclared plan scope: " + ", ".join(extra))
         completeness.append({"plan": identifier, "status": "partial" if missing else "complete",
                              "missing": missing, "extra": extra, "policy": policy})
+    continuations, missing_reservation_dependencies = reservation_continuations(model, tasks)
+    continued_dependencies = {(item["task_id"], item["dependency_task_id"]) for item in continuations}
     for task in selected:
         primary = [i for i in task.targets("implements") if model.elements[i].kind == "feature"]
         if len(primary) != 1:
@@ -114,13 +162,17 @@ def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
             validate_scope_path(pattern)
         for dependency in task.targets("depends_on"):
             target = model.elements[dependency]
-            if target.kind == "task" and target.meta["state"] != "done":
+            if target.kind == "task" and target.meta["state"] != "done" and (
+                    target.meta["state"] != "done-with-reservations"
+                    or (task.id, dependency) not in continued_dependencies):
                 blockers.append("Unfinished dependency: " + dependency)
     from v2_quality import obligations
     blockers.extend(obligations(model, tasks)["blockers"])
     return {"status": "blocked" if blockers else "ready", "specification": context["status"],
             "full_plan": completeness, "selected_tasks": tasks, "blockers": sorted(set(blockers)),
-            "fingerprint": context["fingerprint"], "context": context, "authorization": "not-assessed"}
+            "fingerprint": context["fingerprint"], "context": context, "authorization": "not-assessed",
+            "reservation_continuations": continuations,
+            "pending_reservation_dependencies": missing_reservation_dependencies}
 
 
 def validate_scope_path(value: str):
@@ -237,6 +289,9 @@ def active_execution(model: Model, tasks: list[str] | None = None):
 
 def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: str,
           authorized_hash: str | None = None, technology=None) -> dict:
+    assessment = planning(model, tasks)
+    if assessment["status"] != "ready":
+        raise ContractError("; ".join(assessment["blockers"]))
     auth = current_authorization(model, tasks, environment)
     for existing in model.by_kind("execution"):
         if is_active_execution(existing) and existing.targets("implements") & set(tasks):
@@ -256,6 +311,7 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
                         state="in-progress", actor=actor, environment=environment, started_at=at,
                         contract_fingerprint=auth["fingerprint"], baseline_files=inventory,
                         source_hashes=dict(model.hashes), technology_assessment=technical,
+                        inherited_reservations=assessment["reservation_continuations"],
                         relations={"implements": tasks, "authorizes": [auth["authorization_id"]]})
     ckpath, ckdata = record(model, checkpoint, "checkpoint", "Inicio de trabajo", "Implementación pendiente; no hay verificación ni entrega acreditadas.",
                             state="active", recorded_at=at, next_action="Implementar las tareas autorizadas", files=inventory,
