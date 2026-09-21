@@ -1,6 +1,6 @@
 {
   "name": "lks-sdd",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "description": "Plugin Spec-anchored para Codex: LKS-SDD 2 con especificaciones humanas, funcionalidades con historia, ejecución autorizada, evidencia tipada y migración explícita.",
   "author": {
     "name": "LKS"
