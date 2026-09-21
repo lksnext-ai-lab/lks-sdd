@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.2.0 — 2026-09-21 — retención operativa y compactación reversible
+
+- Añade `retention-status` como diagnóstico derivado para medir controles activos,
+  candidatos de archivado y bytes sin escribir en el proyecto consumidor.
+- Añade `retention-compact` y `retention-restore` con preview, autorización exacta,
+  índice único, hashes de integridad y restauración explícita de AUTH, EXEC, CKPT,
+  PROB y REC cerrados.
+- Preserva documentos normativos, EVID y referencias activas; el historial
+  operativo se separa de las rutas activas sin crear una segunda fuente canónica.
+- Reutiliza checkpoints idénticos del mismo hito y evita materialización repetida
+  de continuidad.
+
 ## 2.1.3 — 2026-09-20 — cierre v2 recuperable y guiado
 
 - Separa resultado técnico, aceptación humana, cierre de TASK, dependencias y

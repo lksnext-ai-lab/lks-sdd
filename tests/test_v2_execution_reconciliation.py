@@ -100,6 +100,29 @@ def _start(root: Path, task: str = "TASK-001") -> str:
 
 
 class V2ExecutionReconciliationTests(unittest.TestCase):
+    def test_identical_checkpoint_handoff_is_reused(self):
+        with tempfile.TemporaryDirectory(prefix="lks-sdd-checkpoint-") as directory:
+            root = Path(directory)
+            materialize_ready_project(root, "checkpoint-dedupe")
+            _start(root)
+            first = checkpoint(
+                load(root), tasks=["TASK-001"], state="paused", actor="fixture-owner",
+                at="2026-09-19T11:00:00+00:00", summary="Pause at reviewed boundary",
+                next_action="Resume after review",
+            )
+            checkpoint(
+                load(root), tasks=["TASK-001"], state="paused", actor="fixture-owner",
+                at="2026-09-19T11:00:00+00:00", summary="Pause at reviewed boundary",
+                next_action="Resume after review", authorized_hash=first["preview_hash"],
+            )
+            repeated = checkpoint(
+                load(root), tasks=["TASK-001"], state="paused", actor="fixture-owner",
+                at="2026-09-19T11:05:00+00:00", summary="Pause at reviewed boundary",
+                next_action="Resume after review",
+            )
+            self.assertEqual(repeated["status"], "reused")
+            self.assertEqual(len(load(root).by_kind("checkpoint")), 2)
+
     def test_only_documented_continuable_states_are_active(self):
         def execution(state: str) -> Element:
             return Element(

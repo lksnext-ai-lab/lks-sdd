@@ -1,7 +1,7 @@
-# Arquitectura y alcance de LKS-SDD 2.1.3
+# Arquitectura y alcance de LKS-SDD 2.2.0
 
 LKS-SDD es un plugin `skills-only` para Codex desktop y GitHub Copilot en VS Code
-Agent. La versión 2.1.3 usa contrato consumidor 2.0 y método 2.0.0. Los Markdown
+Agent. La versión 2.2.0 usa contrato consumidor 2.0 y método 2.0.0. Los Markdown
 del proyecto consumidor son la fuente de verdad; `.lks-sdd/project.json` es un
 índice operativo y no sustituye decisiones, tareas ni evidencia.
 
@@ -15,7 +15,7 @@ El runtime agrupa:
 
 | Área | Responsabilidad |
 |---|---|
-| `v2_contract`, `v2_schema` y `v2_storage` | Modelo documental, identidades, relaciones, snapshots, journal y recuperación. |
+| `v2_contract`, `v2_schema` y `v2_storage` | Modelo documental, identidades, relaciones, snapshots, journal compacto y recuperación. |
 | `v2_authoring` y `v2_features` | Definiciones por funcionalidad, historia y navegación. |
 | `v2_lifecycle`, `v2_controls` y `v2_verification` | Autoridad, diff real, continuidad, evidencia y cierre por alcance. |
 | `v2_query` | Consulta de solo lectura sobre documentos, con código únicamente ante una carencia concreta o petición explícita. |
@@ -51,6 +51,16 @@ La tecnología se declara y confirma localmente en el proyecto. Las observacione
 
 Los hashes detectan deriva, pero no son firmas de editor. Los roles declarados no
 autentican personas. No hay locks distribuidos ni garantía de edición simultánea.
+El estado técnico de las transacciones del plugin se concentra en
+`.lks-sdd/transactions.json`; los documentos Markdown de ejecución, checkpoints y
+recibos siguen siendo parte del historial canónico del consumidor.
+La retención operativa es explícita: `retention-status` calcula una vista derivada
+sin escribir; `retention-compact` mueve únicamente AUTH/EXEC/CKPT/PROB/REC cerrados
+a `docs/lks-sdd/00-control/history/operational/` y registra sus hashes en
+`.lks-sdd/retention.json`; `retention-restore` permite devolverlos a su ruta original.
+Nunca se compactan documentos normativos ni `docs/lks-sdd/evidence/EVID-###.json`.
+El estado activo permanece en sus rutas normales, sin crear una segunda fuente
+canónica.
 Las pruebas automatizadas no acreditan comprensión humana, piloto, navegación real
 en host ni interoperabilidad externa: esos canales continúan `not-run` hasta contar
 con evidencia observada.

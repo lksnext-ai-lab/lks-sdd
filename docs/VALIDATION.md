@@ -71,7 +71,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v2.1.3.json `
+  --release-approval quality\release-approval-v2.2.0.json `
   --output $releaseGate
 ```
 
@@ -152,3 +152,25 @@ Para investigar un defecto concreto, ejecute únicamente el test o el validador 
 observa. No use suites globales como paso rutinario de publicación. Los contratos de
 migración y consultas v2 están documentados en
 [V2-MIGRATION.md](V2-MIGRATION.md) y [PROJECT-QUERY.md](PROJECT-QUERY.md).
+
+## Retención operativa
+
+La acumulación de controles se diagnostica sin mutación:
+
+```powershell
+python -B -X utf8 scripts\v2_cli.py retention-status <project-root> --json
+```
+
+El archivado requiere una previsualización y la autorización exacta de esa
+previsualización. Solo afecta registros operativos cerrados:
+
+```powershell
+python -B -X utf8 scripts\v2_cli.py retention-compact <project-root> `
+  --at 2026-01-02T00:00:00+00:00 --json
+python -B -X utf8 scripts\v2_cli.py retention-compact <project-root> --apply `
+  --at 2026-01-02T00:00:00+00:00 --authorize <PREVIEW_HASH> --json
+```
+
+La operación es reversible mediante `retention-restore --id AUTH-001` (o el
+identificador operativo correspondiente), también con preview y autorización
+exacta. EVID y los documentos normativos no son candidatos.

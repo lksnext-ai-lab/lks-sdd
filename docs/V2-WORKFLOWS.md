@@ -225,6 +225,17 @@ técnicas son distintas de la decisión humana:
 | `not-verified` | Hay fallo, cobertura insuficiente, check no ejecutado o preflight bloqueado. | No acredita verificación. Solo una reserva permitida y aceptada puede cerrar el TASK; la EVID no cambia. |
 | `not-run` / `blocked` | Estado de un check o de un intento de preflight, nunca un pase. | Se conserva en EVID o diagnóstico para reanudar y corregir. |
 
+### Retención y compactación
+
+La cantidad de controles se consulta con `retention-status`, que es una vista
+derivada y no modifica el consumidor. `retention-compact` exige `--at`, preview y
+la autorización exacta del hash; solo archiva AUTH, EXEC, CKPT, PROB y REC
+cerrados que ya no estén referidos por tareas o ejecuciones activas. El contenido
+se mueve a `00-control/history/operational/` y queda registrado en
+`.lks-sdd/retention.json`. No se archivan documentos normativos ni EVID. La
+restauración es explícita con `retention-restore --id ...`, también con preview y
+autorización; nunca se borra historia automáticamente.
+
 Si contrato, AUTH, baseline, diff guard, alcance, hashes, inputs, engine o
 integridad siguen siendo válidos, `verify --execute --evidence-id EVID-###`
 también registra una EVID `not-verified` cuando el plan no puede materializar

@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `2.1.3` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `2.2.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -74,7 +74,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 2.1.3, schema 2.0 y método 2.0.0 son versiones distintas. Los consumidores
+Plugin 2.2.0, schema 2.0 y método 2.0.0 son versiones distintas. Los consumidores
 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar una migración.
 La compatibilidad 1.5 se limita al runtime fijado y a su migración explícita; no
 sustituye las reglas v2.
@@ -98,7 +98,7 @@ Los controles locales detectan incumplimientos, pero no interceptan toda escritu
 del host. La [guía de guardrails](docs/V2-GUARDRAILS.md) explica cómo comprobar un
 cambio desde una base confiable sin permitir que se autoapruebe.
 
-La release técnica estable exige gates y [aprobación propia](quality/release-approval-v2.1.3.json).
+La release técnica estable exige gates y [aprobación propia](quality/release-approval-v2.2.0.json).
 No equivale a aceptación humana, política corporativa, despliegue ni soporte
 universal. Los ensayos reales de host, piloto, comprensión humana e interoperabilidad
 Rovo/Jira o Entra sin evidencia siguen `not-run`. La tecnología se documenta y
