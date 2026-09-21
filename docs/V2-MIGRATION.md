@@ -61,9 +61,12 @@ preparación.
 
 Una interrupción deja `.lks-sdd/transaction.json`. `v2 recover --apply --authorize
 <hash>` completa la transacción exacta; `v2 rollback --apply --authorize <hash>`
-revierte la interrumpida. Para una operación terminada, añadir `--receipt
-.lks-sdd/transactions/<hash>.json`. Cualquier divergencia con trabajo posterior
-bloquea la restauración y preserva los archivos. No borrar el journal para forzarla.
+revierte la interrumpida. Las operaciones terminadas se conservan en el único
+almacén técnico `.lks-sdd/transactions.json`; para restaurar una de ellas, añadir
+`--receipt .lks-sdd/transactions.json`. Las versiones anteriores que dejaron
+`.lks-sdd/transactions/<hash>.json` siguen siendo legibles y se consolidan al
+recuperarlas. Cualquier divergencia con trabajo posterior bloquea la restauración
+y preserva los archivos. No borrar el journal para forzarla.
 
 La garantía es recuperación registrada y comprobada, no atomicidad simultánea de
 todos los archivos. Mientras haya transacción pendiente no iniciar otra mutación.
@@ -110,3 +113,10 @@ Un runtime 1.x conservado para rollback queda marcado como histórico y nunca
 gobierna trabajo futuro. Para un proyecto sin runtime gestionado se realiza la
 conversión documental, pero la instalación/activación de un runtime se mantiene
 como operación separada y explícita.
+
+Después de la migración, la reducción de ruido operativo es independiente y
+explícita: `retention-status` diagnostica sin mutar; `retention-compact` archiva
+solo AUTH/EXEC/CKPT/PROB/REC cerrados y sin referencias activas, y
+`retention-restore` los devuelve verificando sus hashes. No se compactan los
+documentos normativos ni las EVID, y la migración nunca elimina silenciosamente
+archivos de un consumidor existente.

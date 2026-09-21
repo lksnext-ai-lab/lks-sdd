@@ -25,6 +25,7 @@ def parser_for(command=None):
             "authorize", "start", "diff", "review-diff", "checkpoint", "resume", "verify", "close", "status",
             "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
             "migrate", "rollback", "recover", "merge-preview", "guard", "adopt",
+            "retention-status", "retention-compact", "retention-restore",
             "feature", "decompose", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "continue-with-reservations", "delivery", "authorize-delivery", "guard-review", "prepare",
             "tracking-status", "tracking-project", "tracking-authorize", "tracking-result", "tracking-reconcile", "tracking-milestone",
             "visual-request", "visual-inspect", "visual-observe", "visual-accept", "visual-cancel"))
@@ -99,7 +100,7 @@ def run(command, args):
         return adopt(root, args.source, name=args.name, description=args.summary, authorized_hash=authorized)
     from v2_migration import migration_status
     cutover = migration_status(root)
-    if cutover["status"] == "blocked" and command not in {"validate", "status", "catalog", "context", "readiness"}:
+    if cutover["status"] == "blocked" and command not in {"validate", "status", "catalog", "context", "readiness", "retention-status"}:
         raise ContractError("; ".join(cutover.get("errors", ["Project migration is blocked"])))
     model = load(root)
     if command == "guard-review":
@@ -131,6 +132,17 @@ def run(command, args):
                                for e in model.by_kind("execution")],
                 "problems": [{"id": p.id, "state": p.meta["state"], "description": p.body} for p in model.by_kind("problem")],
                 "delivery": "not-assessed", "diagnostics": diagnostics, "writes": []}
+    if command == "retention-status":
+        from v2_retention import report
+        return report(model, args.task)
+    if command == "retention-compact":
+        from v2_retention import compact
+        if not args.at:
+            raise ContractError("Retention compact requires explicit --at")
+        return compact(model, args.task, at=args.at, authorized_hash=authorized)
+    if command == "retention-restore":
+        from v2_retention import restore
+        return restore(model, [args.id] if args.id else [], authorized_hash=authorized)
     if command == "author":
         if not args.request:
             raise ContractError("Author requires a reviewed --request file")

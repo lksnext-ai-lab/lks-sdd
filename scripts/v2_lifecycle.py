@@ -408,10 +408,18 @@ def checkpoint(model: Model, *, tasks: list[str] | None = None, state: str, acto
             raise ContractError("Open problems prevent normal resumption/review")
     if not summary.strip() or not next_action.strip() or not actor.strip():
         raise ContractError("Checkpoint requires observed summary, actor and safe next action")
+    inventory = work_inventory(model.root)
+    previous = [entry for entry in model.by_kind("checkpoint") if execution.id in entry.targets("execution")]
+    latest = max(previous, key=lambda item: (item.meta.get("recorded_at", ""), item.id), default=None)
+    if (latest and latest.meta.get("lifecycle_state") == state
+            and latest.meta.get("next_action") == next_action
+            and latest.body.strip().endswith(summary.strip())):
+        return {"status": "reused", "checkpoint": latest.id, "execution": execution.id,
+                "task_ids": tasks, "writes": []}
     identifier = next_id(model, "CKPT")
     path, data = record(model, identifier, "checkpoint", "Continuidad de trabajo", summary,
-                        state="active", actor=actor, recorded_at=at, next_action=next_action,
-                        files=work_inventory(model.root), relations={"execution": [execution.id], "implements": tasks})
+                        state="active", lifecycle_state=state, actor=actor, recorded_at=at, next_action=next_action,
+                        files=inventory, relations={"execution": [execution.id], "implements": tasks})
     changes = {path: data, **edit_elements(model, {
         execution.id: dict(execution.meta, state=state),
         **{t: dict(model.elements[t].meta, state=state if state != "paused" else "in-progress") for t in tasks}})}

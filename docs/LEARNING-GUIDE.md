@@ -39,6 +39,14 @@ Un plugin de agente no es una extensión VSIX tradicional. Tampoco es un modelo
 nuevo ni una licencia de IA. Instalarlo no concede acceso a cuentas, imágenes,
 Jira o servicios externos que tu organización no haya habilitado.
 
+Durante la implementación verás registros con nombres como `AUTH-###`, `EXEC-###`,
+`CKPT-###`, `REC-###` y `EVID-###` bajo `docs/lks-sdd/`. No son código generado:
+son el historial durable de autorización, ejecución, continuidad, revisión y
+verificación del proyecto, y se conservan para poder reanudar o auditar una TASK.
+El runtime no debe crear un checkpoint por cada comando: solo al iniciar, pausar,
+bloquear, pasar a revisión o cerrar. El journal técnico temporal se concentra en
+`.lks-sdd/transactions.json`; no se crea un archivo de transacción por operación.
+
 ## 3. Qué significa SDD y por qué decimos Spec-anchored
 
 SDD significa desarrollo guiado por especificaciones. Una especificación describe
