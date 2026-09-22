@@ -7,6 +7,11 @@ description: "Use with Codex. Verify a completed LKS-SDD task slice against agre
 
 ## Routing por contrato
 
+Read [SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md) before
+verifying method 2.1.0 work. Check that the exact EVID subject still matches the
+current PCH, SPEC, PLAN/TASK, AUTH and EXEC basis; incomplete coverage or a stale
+basis blocks closure while earlier evidence remains historical.
+
 Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
 2.0 or a new v2 project. Responsibility: Verificar sujeto exacto y conservar evidencia inmutable, sin aprobar entrega.
 Use only the relevant section of that shared workflow and its linked references;

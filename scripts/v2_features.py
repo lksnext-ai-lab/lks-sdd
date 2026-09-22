@@ -82,6 +82,12 @@ def decomposition(model, plan_id):
         rows.append({"task": task.id, "primary": primary, "contributors": contributors,
                      "requirements": sorted(obligations), "source": task.source()})
     missing, extra = sorted(requested - covered), sorted(covered - requested)
+    if model.manifest["method_version"] == "2.1.0":
+        from v2_change_control import assess_plan
+        analysis = assess_plan(model, plan_id)
+        blockers.extend(analysis["blockers"])
+        missing = sorted(set(missing) | set(analysis["missing"]))
+        extra = sorted(set(extra) | set(analysis["extra"]))
     return {"status": "covered" if not missing and not extra and not blockers else "incomplete",
             "plan": plan_id, "tasks": rows, "missing": missing, "extra": extra, "blockers": blockers, "writes": []}
 

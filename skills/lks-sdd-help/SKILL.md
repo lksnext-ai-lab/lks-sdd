@@ -7,6 +7,11 @@ description: "Use with Codex. Explain LKS-SDD or answer questions about document
 
 ## Routing por contrato
 
+For questions about a requested modification, read
+[SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md) and explain its PCH,
+SPEC, PLAN/TASK, authorization and next step from current project sources. A
+question stays read-only; missing work is reported rather than silently created.
+
 Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
 2.0 or a new v2 project. Responsibility: Consultar y explicar, sin escritura.
 Use only the relevant section of that shared workflow and its linked references;

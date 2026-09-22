@@ -42,9 +42,13 @@ def _add_sibling(root: Path) -> None:
         relations={relation: list(targets) for relation, targets in source.relations.items()},
     )
     path = DOCS + "/04-delivery/synthetic-sibling.md"
+    request = model.elements["PCH-001"]
+    request_meta = dict(request.meta, revision=request.meta["revision"] + 1)
+    request_meta["points"] = [dict(request_meta["points"][0], tasks=["TASK-001", "TASK-002"])]
     _apply(
         root,
-        {path: render_document("fixture-task", "Synthetic sibling", [{"meta": sibling, "body": source.body}])},
+        {path: render_document("fixture-task", "Synthetic sibling", [{"meta": sibling, "body": source.body}]),
+         **edit_elements(model, {"PCH-001": request_meta})},
         "add-synthetic-sibling",
     )
 

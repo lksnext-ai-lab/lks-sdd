@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.3.0 — 2026-09-23 — continuidad de cambios desde SPEC hasta implementación
+
+- Introduce método documental 2.1.0 sobre schema 2.0. Las peticiones materiales
+  `PCH-###` enlazan puntos del cambio con requisitos, aceptación, tests, PLAN y
+  TASK; una SPEC ampliada sin asignación bloquea readiness.
+- Incorpora la planificación normativa aplicable a la huella de AUTH/EXEC/EVID.
+  Cambios en las reglas comunes del PLAN dejan obsoleta la autoridad; las tareas
+  independientes y el progreso operativo conservan su alcance.
+- Añade diagnóstico de cambios, actualización explícita desde método 2.0.0 y
+  un guard estricto de integración con base de código y contrato aprobado
+  independientes del candidato. Conserva el guard estructural anterior.
+- Actualiza las seis skills y las instrucciones gestionadas de Codex y Copilot
+  para conducir toda modificación por SPEC → PLAN/TASK → implementación.
+- Agrega regresiones de omisiones de requisitos/aceptación, deriva de PLAN,
+  actualización de método y rechazo de código sin AUTH/EXEC. La aceptación
+  conversacional por host y el piloto permanecen separados del gate técnico.
+
 ## 2.2.0 — 2026-09-21 — retención operativa y compactación reversible
 
 - Añade `retention-status` como diagnóstico derivado para medir controles activos,

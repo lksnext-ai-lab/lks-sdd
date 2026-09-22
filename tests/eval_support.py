@@ -191,6 +191,7 @@ def materialize_ready_increment(root: Path) -> None:
             "A bounded acknowledgement capability for lifecycle tests.",
             state="confirmed",
             nature="decision",
+            relations={"requirements": ["FR-001"]},
         ),
         make_element(
             "FR-001",
@@ -279,12 +280,27 @@ def materialize_ready_increment(root: Path) -> None:
         ),
     ]
 
+    change_record = make_element(
+        "PCH-001", "change", "Synthetic implementation request",
+        "Implement the documented acknowledgement.",
+        state="confirmed", nature="decision", category="implementation-request",
+        source_summary="Synthetic fixture request",
+        relations={"affects": ["FTR-001"]},
+        points=[{"key": "ACK", "summary": "Acknowledge a valid request",
+                 "requirements": ["FR-001"], "acceptance": ["AC-001"],
+                 "tests": ["TST-001"], "plans": ["PLAN-001"],
+                 "tasks": ["TASK-001"], "disposition": "planned"}],
+    )
+
     changes = edit_elements(model, replacements)
     changes[fixture_path] = render_document("fixture-task", "Synthetic task fixture", records)
+    request_path = DOCS + "/00-control/changes/fixture-request.md"
+    changes[request_path] = render_document("change", "Synthetic implementation request", [change_record])
     index = dict(model.manifest)
     index["artifacts"] = [
         *model.manifest["artifacts"],
         {"id": "TASK-001", "path": fixture_path},
+        {"id": "PCH-001", "path": request_path},
     ]
     changes[".lks-sdd/project.json"] = canonical(index) + b"\n"
     plan = preview(root, changes, sources=model.hashes, operation="materialize-test-task")

@@ -5,8 +5,8 @@
 Una release fija un plugin verificable; no acredita aceptación humana, piloto,
 activación de host, instalación personal ni política corporativa.
 
-La versión estable `2.2.0` tiene una aprobación explícita en
-`quality/release-approval-v2.2.0.json`. Una aprobación no sustituye el gate técnico
+La versión estable `2.3.0` tiene una aprobación explícita en
+`quality/release-approval-v2.3.0.json`. Una aprobación no sustituye el gate técnico
 ni transforma canales humanos o de piloto `not-run` en evidencia superada.
 
 ## Puerta de publicación
@@ -35,7 +35,7 @@ pruebas de humo y la regresión Windows de rutas largas. No exige campañas Dock
 Tras tener el manifiesto aprobado y un árbol limpio:
 
 ```powershell
-$releaseVersion = "2.2.0"
+$releaseVersion = "2.3.0"
 $releaseTag = "v$releaseVersion"
 $sourceCommit = (git rev-parse HEAD).Trim()
 

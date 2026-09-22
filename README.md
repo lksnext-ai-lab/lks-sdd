@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `2.2.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `2.3.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -17,6 +17,7 @@ aceptar y entregar son estados distintos.
 | Entender el producto y sus límites | [Índice v2](docs/V2-INDEX.md) y [compatibilidad](docs/COMPATIBILITY.md) |
 | Instalar el paquete del host | [Instalación](docs/INSTALLATION.md) |
 | Definir o evolucionar funcionalidades | [Ciclo de trabajo](docs/V2-WORKFLOWS.md) y [estructura documental](docs/V2-AUTHORING.md) |
+| Modificar una funcionalidad existente | [Continuidad SPEC → PLAN/TASK → implementación](docs/V2-SPEC-PLAN-TASK.md) |
 | Consultar requisitos, especificaciones y tareas | [Consultas para personas](docs/PROJECT-QUERY.md) |
 | Adoptar un sistema con documentación parcial | [Adopción acotada](docs/V2-WORKFLOWS.md#adopt-existing-ámbito-legado-suficiente) |
 | Pasar un proyecto 1.5 a v2 | [Migración explícita y rollback](docs/V2-MIGRATION.md) |
@@ -39,6 +40,9 @@ aceptar y entregar son estados distintos.
 - **Desarrollo delimitado.** El agente necesita obligaciones completas, plan,
   tecnología aplicable y autorización vigente para las tareas y el entorno.
   Revisa el diff real, conserva checkpoints y reconcilia cambios antes de reanudar.
+- **Cada cambio vuelve a la SPEC.** La petición material se registra por puntos,
+  se compara con requisitos y aceptación vigentes y completa PLAN/TASK antes de
+  autorizar código, también cuando la feature ya tenía tareas anteriores.
 - **Evidencia por alcance.** Una prueba de componente no acredita integración,
   persistencia, aceptación humana ni producción. La evidencia conserva su sujeto
   técnico, procedencia y limitaciones; una incidencia posterior no reescribe la historia.
@@ -74,8 +78,10 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 2.2.0, schema 2.0 y método 2.0.0 son versiones distintas. Los consumidores
-1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar una migración.
+Plugin 2.3.0, schema 2.0 y método 2.1.0 son versiones distintas. Los consumidores
+con método 2.0.0 siguen legibles y se actualizan explícitamente.
+Los consumidores 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar
+una migración.
 La compatibilidad 1.5 se limita al runtime fijado y a su migración explícita; no
 sustituye las reglas v2.
 
@@ -98,7 +104,7 @@ Los controles locales detectan incumplimientos, pero no interceptan toda escritu
 del host. La [guía de guardrails](docs/V2-GUARDRAILS.md) explica cómo comprobar un
 cambio desde una base confiable sin permitir que se autoapruebe.
 
-La release técnica estable exige gates y [aprobación propia](quality/release-approval-v2.2.0.json).
+La release técnica estable exige gates y [aprobación propia](quality/release-approval-v2.3.0.json).
 No equivale a aceptación humana, política corporativa, despliegue ni soporte
 universal. Los ensayos reales de host, piloto, comprensión humana e interoperabilidad
 Rovo/Jira o Entra sin evidencia siguen `not-run`. La tecnología se documenta y

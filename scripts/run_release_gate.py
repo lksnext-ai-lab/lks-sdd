@@ -19,6 +19,17 @@ CORE_TESTS = (
     "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration",
     "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept",
     "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_future_draft_requirement_does_not_block_current_slice",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_confirmed_future_requirement_in_another_plan_preserves_slice",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_incremental_deferral_keeps_full_plan_partial",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_change_assessment_is_read_only",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_closed_task_scope_requires_new_task_or_correction",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_new_spec_requirement_needs_plan_and_request",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_new_acceptance_needs_task_assignment",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_method_upgrade_is_explicit_and_preserves_documents",
 )
 
 

@@ -310,6 +310,7 @@ def verification_plan(model: Model, tasks: list[str], environment: str, stage: s
     checks, observer_blockers, missing = _approved_checks(model, tasks, environment, stage, required, scopes, interfaces)
     policy = reservation_policy(model)
     material = {"project": model.manifest["project_id"], "tasks": sorted(tasks), "files": guard["files"],
+                "basis_algorithm": execution.meta.get("basis_algorithm", "v2-legacy/1"),
                 "contract": authorization["fingerprint"], "environment": environment, "technology": technology,
                 "engine": engine_hash(), "interfaces": sorted(interfaces), "scopes": sorted(scopes),
                 "observers": [check["definition"] for check in checks],

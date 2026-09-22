@@ -136,8 +136,14 @@ def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
             blockers.append("Full plan incomplete: " + ", ".join(missing))
         if extra:
             blockers.append("Tasks add undeclared plan scope: " + ", ".join(extra))
-        completeness.append({"plan": identifier, "status": "partial" if missing else "complete",
-                             "missing": missing, "extra": extra, "policy": policy})
+        full_missing = missing
+        if model.manifest["method_version"] == "2.1.0":
+            from v2_change_control import assess_plan
+            analysis = assess_plan(model, identifier)
+            blockers.extend(analysis["blockers"])
+            full_missing = sorted(set(missing) | set(analysis["missing"]))
+        completeness.append({"plan": identifier, "status": "partial" if full_missing else "complete",
+                             "missing": full_missing, "extra": extra, "policy": policy})
     continuations, missing_reservation_dependencies = reservation_continuations(model, tasks)
     continued_dependencies = {(item["task_id"], item["dependency_task_id"]) for item in continuations}
     for task in selected:
@@ -232,7 +238,9 @@ def current_authorization(model: Model, tasks: list[str], environment: str, *, a
             continue
         scope = sorted(item.targets("authorizes"))
         current = planning(model, scope)
-        if current["status"] == "ready" and value.get("contract_fingerprint") == current["fingerprint"]:
+        if (current["status"] == "ready" and value.get("contract_fingerprint") == current["fingerprint"]
+                and (model.manifest["method_version"] != "2.1.0" or
+                     value.get("basis_algorithm") == current["context"]["basis_algorithm"])):
             matches.append(item)
     if not matches:
         raise ContractError("AUTH absent, revoked, expired or stale for this scope/environment")
@@ -262,6 +270,9 @@ def authorize(model: Model, tasks: list[str], *, actor: str, role: str, environm
                         state="active", actor=actor, role=role, environment=environment,
                         approved_at=approved_at, expires_at=expires_at,
                         contract_fingerprint=assessment["fingerprint"],
+                        basis_algorithm=assessment["context"]["basis_algorithm"],
+                        specification_digest=assessment["context"]["specification_digest"],
+                        planning_digest=assessment["context"]["planning_digest"],
                         relations={"authorizes": sorted(tasks)}, identity_assurance="declared-not-authenticated")
     changes = {path: data}
     result = preview(model.root, changes, sources=model.hashes, operation="authorize-execution")
@@ -310,6 +321,9 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
     path, data = record(model, identifier, "execution", "Ejecución autorizada", "Ámbito y base fijados antes de modificar código.",
                         state="in-progress", actor=actor, environment=environment, started_at=at,
                         contract_fingerprint=auth["fingerprint"], baseline_files=inventory,
+                        basis_algorithm=assessment["context"]["basis_algorithm"],
+                        specification_digest=assessment["context"]["specification_digest"],
+                        planning_digest=assessment["context"]["planning_digest"],
                         source_hashes=dict(model.hashes), technology_assessment=technical,
                         inherited_reservations=assessment["reservation_continuations"],
                         relations={"implements": tasks, "authorizes": [auth["authorization_id"]]})
