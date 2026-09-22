@@ -1,7 +1,8 @@
 # Estado actual de LKS-SDD
 
-La distribución vigente es **2.2.0** con contrato consumidor **2.0** y método
-**2.0.0**. La versión del plugin, el método y el schema son identidades distintas.
+La distribución 2.3.0 usa contrato consumidor **2.0** y método nuevo **2.1.0**.
+Los proyectos fijados en método 2.0.0 permanecen en él hasta actualización
+explícita. La versión del plugin, el método y el schema son identidades distintas.
 
 ## Estado técnico
 

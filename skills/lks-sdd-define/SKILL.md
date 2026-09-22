@@ -7,6 +7,13 @@ description: "Use with Codex. Define or evolve a human-readable LKS-SDD specific
 
 ## Routing por contrato
 
+For any requested application change, including an addition to an existing feature,
+read [SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md). Reconcile the
+material request with the current SPEC, then update or reuse PLAN and TASK in the
+same reviewed authoring transaction. A complete SPEC with missing TASK coverage is
+still incomplete for implementation. Preserve a draft and explain the exact next
+planning step if a critical decision is pending.
+
 Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
 2.0 or a new v2 project. Responsibility: Definir/evolucionar y conducir migración solicitada, sin código.
 Use only the relevant section of that shared workflow and its linked references;

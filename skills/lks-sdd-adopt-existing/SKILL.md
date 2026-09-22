@@ -7,6 +7,11 @@ description: "Use with Codex. Adopt an existing software system into LKS-SDD thr
 
 ## Routing por contrato
 
+Read [SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md) when the
+requested change follows adoption. Adoption records an observed baseline; route
+new intent through define to confirmed SPEC and PLAN/TASK before implementation.
+Do not infer change approval or task coverage from existing code.
+
 Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
 2.0 or a new v2 project. Responsibility: Adopción acotada y reconciliación, sin cambiar comportamiento.
 Use only the relevant section of that shared workflow and its linked references;

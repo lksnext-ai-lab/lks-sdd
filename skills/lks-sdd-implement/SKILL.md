@@ -7,6 +7,14 @@ description: "Use with Codex. Implement or safely resume explicitly authorized L
 
 ## Routing por contrato
 
+Before changing application code for any request, including work within an existing
+feature, read [SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md).
+Use the pinned runtime to check PCH, applicable SPEC, PLAN/TASK, readiness, AUTH and
+EXEC for the exact slice. If the request or acceptance is not fully assigned, route
+to define and complete that documentation first. An existing PLAN, a ready TASK or
+the user's implementation request does not fill missing coverage. Reuse valid
+decisions and authorization for unchanged scope.
+
 Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
 2.0 or a new v2 project. Responsibility: Ejecutar solo el ámbito autorizado con contexto íntegro y diff revisado.
 Use only the relevant section of that shared workflow and its linked references;

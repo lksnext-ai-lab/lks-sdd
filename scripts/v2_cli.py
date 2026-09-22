@@ -24,9 +24,10 @@ def parser_for(command=None):
         parser.add_argument("command", choices=("init", "author", "catalog", "history", "validate", "context", "readiness",
             "authorize", "start", "diff", "review-diff", "checkpoint", "resume", "verify", "close", "status",
             "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
+            "method-upgrade-diagnose", "method-upgrade",
             "migrate", "rollback", "recover", "merge-preview", "guard", "adopt",
             "retention-status", "retention-compact", "retention-restore",
-            "feature", "decompose", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "continue-with-reservations", "delivery", "authorize-delivery", "guard-review", "prepare",
+            "feature", "decompose", "change", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "continue-with-reservations", "delivery", "authorize-delivery", "guard-review", "prepare",
             "tracking-status", "tracking-project", "tracking-authorize", "tracking-result", "tracking-reconcile", "tracking-milestone",
             "visual-request", "visual-inspect", "visual-observe", "visual-accept", "visual-cancel"))
     parser.add_argument("project_root", type=Path)
@@ -61,6 +62,8 @@ def parser_for(command=None):
     parser.add_argument("--duplicate-check", choices=("matched", "no-match"))
     parser.add_argument("--target-runtime", type=Path)
     parser.add_argument("--base", type=Path)
+    parser.add_argument("--approved", type=Path, help="Independent approved contract root for strict guard")
+    parser.add_argument("--strict", action="store_true", help="Require approved SPEC/PLAN/TASK/AUTH/EXEC")
     parser.add_argument("--incoming", type=Path)
     parser.add_argument("--source", action="append", default=[])
     return parser
@@ -79,6 +82,9 @@ def run(command, args):
     if command == "init":
         result, changes = initialize(root, args.name or args.project_id or "Proyecto", project_id=args.project_id)
         return apply(root, changes, result, authorized, validator=lambda: load(root).require_valid()) if args.apply else result
+    if command in {"method-upgrade-diagnose", "method-upgrade"}:
+        from v2_method_upgrade import diagnose, upgrade
+        return diagnose(root) if command == "method-upgrade-diagnose" else upgrade(root, authorized)
     if command in {"migration-diagnose", "migration-preview", "migration-status",
                    "migration-continuation", "migrate"}:
         from v2_migration import diagnose, plan, migrate, migration_status, continuation_status
@@ -124,6 +130,9 @@ def run(command, args):
                 "project": model.manifest.get("name"),
                 "migration": cutover,
                 "features": len(model.by_kind("feature")),
+                "changes": [{"id": c.id, "title": c.meta["title"], "state": c.meta["state"],
+                             "source": c.source()} for c in model.by_kind("change")
+                            if c.meta.get("category") == "implementation-request"],
                 "tasks": [{"id": t.id, "title": t.meta["title"], "state": t.meta["state"],
                            "health": t.meta.get("health", "unknown"), "evidence": t.meta.get("evidence_ids", [])} for t in model.by_kind("task")],
                 "executions": [{"id": e.id, "state": e.meta["state"], "active": is_active_execution(e),
@@ -156,6 +165,20 @@ def run(command, args):
         return historical(root, args.snapshot)
     if command == "context":
         return execution_context(model, args.task)
+    if command == "change":
+        from v2_change_control import assess_plan
+        changes = [c for c in model.by_kind("change") if c.meta.get("category") == "implementation-request"
+                   and (not args.id or c.id == args.id)]
+        if args.id and not changes:
+            raise ContractError("Unknown implementation request: " + args.id)
+        plans = sorted({p for c in changes for point in c.meta.get("points", [])
+                        for p in point.get("plans", []) if p in model.elements})
+        analyses = [assess_plan(model, p) for p in plans]
+        return {"status": "blocked" if any(a["blockers"] for a in analyses) else
+                          "draft" if any(c.meta["state"] == "draft" for c in changes) else "documented",
+                "changes": [{"id": c.id, "state": c.meta["state"], "source": c.source(),
+                             "points": c.meta.get("points", [])} for c in changes],
+                "plans": analyses, "writes": []}
     if command == "readiness":
         return planning(model, args.task)
     if command == "authorize":
@@ -197,7 +220,11 @@ def run(command, args):
     if command == "guard":
         if not args.base:
             raise ContractError("Guard requires an independently trusted --base")
-        from v2_integration_guard import assess
+        from v2_integration_guard import assess, assess_strict
+        if args.strict:
+            if not args.approved:
+                raise ContractError("Strict guard requires independent --approved contract root")
+            return assess_strict(args.base, args.approved, root, args.task, args.environment)
         return assess(args.base, root, args.task)
     if command in {"feature", "rename-aliases", "decompose"}:
         from v2_features import create, rename_aliases, decomposition

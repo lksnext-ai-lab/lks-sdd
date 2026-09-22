@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "2.2.0",
-  "description": "Plugin Spec-anchored para Codex: LKS-SDD 2 con especificaciones humanas, funcionalidades con historia, ejecución autorizada, evidencia tipada y migración explícita.",
+  "version": "2.3.0",
+  "description": "Plugin Spec-anchored para Codex: cambios trazados de SPEC a PLAN/TASK, ejecución autorizada, evidencia tipada y migración explícita.",
   "author": {
     "name": "LKS"
   },
@@ -38,6 +38,7 @@
       "Prepara una vista previa saneada para proyectar en Jira las tareas ya confirmadas, sin escribir todavía en el sistema externo.",
       "Configura de forma opcional el reporting Jira por hitos y prepara un comentario o transición con una sola confirmación, sin escribir todavía.",
       "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
+      "Añade este cambio a una funcionalidad existente: reconcilia la petición con SPEC y completa PLAN/TASK antes de implementar.",
       "Inspecciona y confirma la declaración tecnológica local del proyecto para cada unidad y tarea aplicable.",
       "Explica por binding la cobertura de automatización declarada localmente, sin inferir certificación global.",
       "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",

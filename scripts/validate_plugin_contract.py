@@ -955,7 +955,8 @@ def validate(root: Path) -> list[str]:
     shared_help_docs = {(root / "docs" / name).resolve() for name in (
         "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "V2-HOST-ACCEPTANCE.md",
     )}
-    shared_v2_policy = (root / "docs/V2-WORKFLOWS.md").resolve()
+    shared_v2_policies = {(root / name).resolve() for name in
+                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md")}
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
         for markdown in [
@@ -972,7 +973,7 @@ def validate(root: Path) -> list[str]:
                 try:
                     destination.relative_to(skill_root.resolve())
                 except ValueError:
-                    if destination != shared_v2_policy and (skill != "lks-sdd-help" or destination not in shared_help_docs):
+                    if destination not in shared_v2_policies and (skill != "lks-sdd-help" or destination not in shared_help_docs):
                         errors.append(f"Referencia fuera de la skill {skill}: {target}")
                         continue
                 if not destination.is_file():

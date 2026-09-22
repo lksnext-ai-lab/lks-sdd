@@ -146,6 +146,10 @@ def author(model: Model, request: dict) -> tuple[dict, dict]:
                 raise ContractError("Identity/revision conflict: " + element.id)
             if old and old.normative() != element.normative() and element.meta["revision"] <= old.meta["revision"]:
                 raise ContractError("A normative change requires a new revision: " + element.id)
+            if (old and old.kind == "task" and old.meta["state"] in
+                    {"in-progress", "in-review", "blocked", "done", "done-with-reservations"}
+                    and old.normative() != element.normative()):
+                raise ContractError("Active or closed TASK scope requires correction/replan or a new TASK: " + element.id)
         changes[relative] = text.encode("utf-8")
     # No element may vanish implicitly. Cancellation/retirement preserves its ID.
     resulting = {i for i, e in model.elements.items() if e.path not in seen}

@@ -96,6 +96,10 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "# Shared LKS-SDD project contract\n\n"
         "Markdown under docs/lks-sdd is authoritative; .lks-sdd/project.json is an index.\n"
         "Read .lks-sdd/distribution-lock.json. Both hosts use its exact runtime and workflows.\n"
+        "For every requested application change, including changes to existing features or TASKs, "
+        "reconcile the request with the current SPEC and complete PLAN/TASK coverage before editing code. "
+        "Read docs/V2-SPEC-PLAN-TASK.md in the pinned runtime. If coverage is missing, use define; "
+        "readiness and help remain read-only. Reuse valid decisions and tasks.\n"
         f"Runtime: `{runtime}`. Before work run "
         f"`python {runtime}/scripts/lks_sdd.py runtime-doctor . --json`.\n"
         "If integrity fails, stop affected work; do not fall back to a global plugin.\n"
@@ -113,6 +117,9 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
     )
     for path, content in (("AGENTS.md", common), (".github/copilot-instructions.md",
                            "# LKS-SDD in Copilot\n\nRead `.github/lks-sdd-host.md` for LKS-SDD work.\n"
+                           "For every application change, including an existing feature, reconcile the request "
+                           "with SPEC and complete PLAN/TASK before code. Follow the pinned runtime's "
+                           "docs/V2-SPEC-PLAN-TASK.md and report missing coverage.\n"
                            "Use the six skills and the pinned runtime; the installed plugin must respect the project lock.\n")):
         output[path] = f"{BEGIN}\n{content}{END}\n".encode("utf-8")
     # Lock covers adapters as well as the runtime; it has no absolute paths or user identity.
@@ -121,7 +128,10 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "runtime_digest": identity, "runtime_files": inventory(core),
         "managed_files": inventory({k: v for k, v in output.items() if not k.startswith(runtime + "/")}),
         "source": source, "channel": channel, "hosts": ["codex", "copilot"],
-        "project_schema": json.loads(core["distribution/dual.json"])["project_schema"], "collaboration": "sequential",
+        "project_schema": json.loads(core["distribution/dual.json"])["project_schema"],
+        "method_version": json.loads(core["distribution/dual.json"])["method_version"],
+        "readable_method_versions": ["2.0.0", "2.1.0"],
+        "collaboration": "sequential",
         "entrypoints": "plugin" if plugin_entrypoints else "project",
     })
     return output

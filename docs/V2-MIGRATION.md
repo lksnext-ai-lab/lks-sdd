@@ -1,8 +1,15 @@
 # Migrar un proyecto a contrato 2.0
 
 Migrar documentos no actualiza la aplicación, no verifica código ni concede
-autoridad para reanudar trabajo. La primera ruta soportada es 1.5/1.5.0 → 2.0/2.0.0.
+autoridad para reanudar trabajo. El runtime 2.3 materializa 1.5/1.5.0 → 2.0/2.1.0.
 No convertir esquemas desconocidos mediante cambios de encabezado.
+
+Para un proyecto ya en schema 2.0 y método 2.0.0, use
+`v2 method-upgrade-diagnose` y `v2 method-upgrade` con preview/hash/apply.
+Esta ruta conserva todos los Markdown y la historia y cambia solo el índice.
+No se ejecuta con un EXEC activo; después exige reconciliar cada petición PCH,
+SPEC, PLAN/TASK y autorizar de nuevo la porción afectada. Véase
+[continuidad SPEC/PLAN/TASK](V2-SPEC-PLAN-TASK.md).
 
 1. Trabajar sobre copia o rama revisada, conservando cambios locales y evidencias.
 2. Ejecutar `v2 migration-diagnose <proyecto> --json` desde el runtime destino.

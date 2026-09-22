@@ -7,6 +7,11 @@ description: "Use with Codex. Assess documented LKS-SDD scope before implementat
 
 ## Routing por contrato
 
+Read [SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md) for method
+2.1.0. Assess the requested slice from the material request and SPEC toward PLAN
+and TASK; report omitted requirements or acceptance by ID and source. Keep the
+assessment read-only and route missing definition or planning to define.
+
 Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
 2.0 or a new v2 project. Responsibility: Evaluar suficiencia y ejes separados, sin reparar ni autorizar.
 Use only the relevant section of that shared workflow and its linked references;

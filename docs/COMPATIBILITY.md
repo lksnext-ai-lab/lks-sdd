@@ -1,20 +1,24 @@
-# Compatibilidad de LKS-SDD 2.0.0
+# Compatibilidad de LKS-SDD 2.3.0
 
 ## Contratos de proyecto
 
 | Proyecto | Comportamiento en v2 |
 |---|---|
-| Schema 2.0 / método 2.0.0 | Contrato para proyectos nuevos; usar las [guías v2](V2-WORKFLOWS.md) |
+| Schema 2.0 / método 2.1.0 | Contrato para proyectos nuevos; aplicar [continuidad SPEC/PLAN/TASK](V2-SPEC-PLAN-TASK.md) |
+| Schema 2.0 / método 2.0.0 | Legible en su ruta anterior; actualizar explícitamente para las condiciones nuevas |
 | Schema 1.5 / método 1.5.0 | Workflow conservado; no se reinterpreta ni migra al consultar |
 | Versiones anteriores o desconocidas | Fuera de la ruta oficial de migración; diagnóstico y decisión explícita, sin conversión por cambio de encabezados |
 
 La versión del plugin, la del método y la del schema no son intercambiables.
 `plugin_version` conserva la procedencia de materialización; el runtime activo
-se resuelve mediante su lock. Instalar la versión personal 2.0.0 no sustituye el
+se resuelve mediante su lock. Instalar la versión personal 2.3.0 no sustituye el
 runtime fijado por otro desarrollador ni convierte sus documentos.
 
-La única conversión oficial es 1.5/1.5.0 → 2.0/2.0.0, con
+La conversión oficial 1.5/1.5.0 → 2.0/2.1.0 conserva
 [diagnóstico, preview, autorización y reconciliación](V2-MIGRATION.md).
+El cambio de método 2.0.0 → 2.1.0 tiene diagnóstico y preview propios; no
+reescribe requisitos ni crea PCH o autorizaciones ficticias. El trabajo previo
+necesita reconciliación antes de ejecutarse bajo el método nuevo.
 No hay downgrade automático del contrato. El rollback transaccional usa el recibo
 exacto y se detiene si hay trabajo posterior.
 

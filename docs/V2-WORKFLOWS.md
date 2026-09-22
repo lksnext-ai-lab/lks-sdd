@@ -5,6 +5,12 @@ workflow 1.5 y el runtime fijado. El [contrato de proyecto](../specs/proposed/pr
 define las declaraciones tecnológicas locales y el corte; las guías no crean otra
 autoridad. Estado de release y canales de aceptación: [estado actual](STATUS.md).
 
+Los proyectos nuevos usan método 2.1.0 con el mismo schema 2.0. Para solicitudes
+de modificación, incluidas ampliaciones de funcionalidades existentes, aplicar
+[continuidad SPEC → PLAN/TASK → implementación](V2-SPEC-PLAN-TASK.md) antes de
+editar código. Los consumidores fijados en método 2.0.0 requieren actualización
+explícita; no se convierten por leer esta guía.
+
 ## Política común
 
 1. Distinguir intención: consultar, definir, adoptar, evaluar, implementar o

@@ -19,7 +19,8 @@ from query_sources import is_link, lexical_root, SECRET_NAME
 from path_utils import filesystem_root, is_max_path_error, max_path_message
 
 VERSION = "2.0"
-METHOD = "2.0.0"
+METHOD = "2.1.0"
+SUPPORTED_METHODS = {"2.0.0", METHOD}
 READER = "lks-sdd-v2/1"
 DOCS = "docs/lks-sdd"
 HISTORY = DOCS + "/00-control/history"
@@ -270,10 +271,25 @@ class Model:
                     if sha(raw) != expected:
                         raise ContractError("Normative attachment changed during read: " + asset)
                     attachments[asset] = raw.decode("utf-8")
+        normative_elements = []
+        for element in elements:
+            if element.kind in OPERATIONAL or element.kind in NON_NORMATIVE_BY_DEFAULT:
+                continue
+            value = element.normative()
+            if self.manifest.get("method_version") == METHOD and element.kind in {"feature", "requirement"}:
+                value = {**value, "meta": dict(value["meta"])}
+                value["meta"].pop("revision", None)
+                relations = dict(value["meta"].get("relations", {}))
+                for relation in ("requirements", "acceptance"):
+                    if relation in relations:
+                        relations[relation] = [identifier for identifier in relations[relation]
+                                               if identifier in identifiers]
+                value["meta"]["relations"] = relations
+            normative_elements.append(value)
         return {"reader": READER, "project": self.manifest.get("project_id"),
-                "elements": [e.normative() for e in elements
-                             if e.kind not in OPERATIONAL and e.kind not in NON_NORMATIVE_BY_DEFAULT],
-                "preambles": {p: self.preambles[p] for p in sorted(paths)},
+                "elements": normative_elements,
+                "preambles": {p: self.preambles[p].strip() if self.manifest.get("method_version") == METHOD
+                              else self.preambles[p] for p in sorted(paths)},
                 "assets": {p: self.assets.get(p, {}) for p in sorted(paths)},
                 "text_attachments": attachments}
 
@@ -398,7 +414,7 @@ def load(root: Path) -> Model:
     manifest = json.loads(raw)
     from v2_schema import validate
     validate("project", manifest)
-    if manifest.get("schema_version") != VERSION or manifest.get("method_version") != METHOD:
+    if manifest.get("schema_version") != VERSION or manifest.get("method_version") not in SUPPORTED_METHODS:
         raise ContractError("Unsupported project contract/method; no implicit conversion")
     if not manifest.get("project_id"):
         raise ContractError("Project identity required")
@@ -502,6 +518,14 @@ def load(root: Path) -> Model:
                 model.hashes[destination] = sha(data)
             except (ContractError, OSError) as exc:
                 model.errors.append(f"{relative}: invalid asset: {exc}")
+    if manifest["method_version"] == METHOD:
+        from v2_change_control import validate_request
+        for change in model.by_kind("change"):
+            if change.meta.get("category") == "implementation-request":
+                try:
+                    validate_request(model, change)
+                except ContractError as exc:
+                    model.errors.append(str(exc))
     model.revalidate()
     return model
 
@@ -543,6 +567,7 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             selected.add(entry.id)
             reasons.setdefault(entry.id, []).append("governance-policy")
     roots = set(tasks)
+    selected_plans = {p for task_id in tasks for p in model.elements[task_id].targets("plan")}
     queue = list(selected)
     expanded = set()
     while queue:
@@ -556,6 +581,21 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
                 candidate = model.elements[target]
                 if candidate.kind in OPERATIONAL or candidate.kind in NON_NORMATIVE_BY_DEFAULT:
                     continue
+                if (model.manifest["method_version"] == METHOD and entry.kind == "feature"
+                        and relation == "requirements" and candidate.kind == "requirement"):
+                    mapped_plans = {p for change in model.by_kind("change")
+                                    if change.meta.get("category") == "implementation-request"
+                                    and change.meta.get("state") == "confirmed"
+                                    and entry.id in change.targets("affects")
+                                    for point in change.meta.get("points", [])
+                                    if target in point.get("requirements", [])
+                                    for p in point.get("plans", [])}
+                    if mapped_plans and not mapped_plans & selected_plans:
+                        continue
+                if (model.manifest["method_version"] == METHOD and candidate.kind in {"requirement", "acceptance"}
+                        and candidate.meta["state"] not in {"confirmed", "approved", "active", "effective"}
+                        and target not in selected):
+                    continue  # Future draft obligations do not affect an independent authorized slice.
                 if candidate.kind == "task":
                     if identifier in roots and relation == "depends_on":
                         selected.add(target)
@@ -599,15 +639,32 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             blockers.append("Applicable domain has no documented obligations: " + domain)
     blockers.extend(technology_readiness(model, tasks)["blockers"])
     material = model.normative(selected)
+    specification_digest = fingerprint(material)
+    planning_digest = None
+    if model.manifest["method_version"] == METHOD:
+        from v2_change_control import assess_plan, planning_projection
+        for plan_id in sorted({p for task_id in tasks for p in model.elements[task_id].targets("plan")}):
+            analysis = assess_plan(model, plan_id)
+            blockers.extend(analysis["blockers"])
+            for task_id in tasks:
+                if plan_id in model.elements[task_id].targets("plan") and not any(
+                        task_id in row.get("tasks", []) for row in analysis["points"]):
+                    blockers.append("Selected TASK lacks an implementation request point: " + task_id)
+        projection = planning_projection(model, tasks)
+        planning_digest = projection["digest"]
+        material = {**material, "planning": projection, "basis_algorithm": "spec-plan-task/1"}
     administrative_relations = [
         {"task_id": task.id, "relation": relation, "targets": sorted(task.targets(relation))}
         for task in (model.elements[identifier] for identifier in tasks)
         for relation in ("parent", "plan", "increment", "release")
         if task.targets(relation)
     ]
-    return {"schema_version": VERSION, "kind": "execution-context", "task_ids": tasks,
+    return {"schema_version": VERSION, "method_version": model.manifest["method_version"],
+            "kind": "execution-context", "task_ids": tasks,
             "status": "blocked" if blockers else "sufficient", "blockers": sorted(set(blockers)),
             "fingerprint": fingerprint(material), "normative": material,
+            "basis_algorithm": "spec-plan-task/1" if planning_digest else "v2-legacy/1",
+            "specification_digest": specification_digest, "planning_digest": planning_digest,
             "organizational_parents": [{"id": i, "source": model.elements[i].source(), "approval_inherited": False}
                                        for i in sorted({p for e in selected for p in model.elements[e].targets("parent")} - selected)],
             "administrative_relations": administrative_relations,

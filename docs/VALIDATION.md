@@ -10,8 +10,8 @@ La puerta estable ejecuta solo cuatro comprobaciones:
 
 1. La aprobación explícita de la versión.
 2. La integridad estática: fixtures y contrato del plugin.
-3. Catorce pruebas de humo que cubren contrato, aislamiento, migración, planificación,
-   tracking, evidencia, integración y adopción.
+3. Catorce pruebas de humo que cubren declaración tecnológica, migración de legado,
+   continuidad SPEC/PLAN/TASK, autoridad y guard estricto.
 4. La regresión real de rutas largas de Windows.
 
 La batería mantenida contiene únicamente los módulos que aportan estas pruebas de
@@ -71,7 +71,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v2.2.0.json `
+  --release-approval quality\release-approval-v2.3.0.json `
   --output $releaseGate
 ```
 
