@@ -8,10 +8,18 @@ import json
 import runpy
 import sys
 from pathlib import Path
+
+if str(__file__).startswith("\\\\?\\"):
+    _bootstrap = Path(__file__).with_name("import_bootstrap.py")
+    _namespace = {}
+    exec(compile(_bootstrap.read_bytes(), str(_bootstrap), "exec"), _namespace)
+    _namespace["ensure_import_path"](__file__)
+    del _bootstrap, _namespace
+
 # A query may run from a consumer-local pinned runtime. Disable bytecode before
 # importing any plugin module, not only after dispatching to query_project.
 sys.dont_write_bytecode = True
-from dual_distribution import filesystem_root
+from path_utils import filesystem_root, same_filesystem_path
 
 
 PLUGIN_ROOT = filesystem_root(Path(__file__).resolve().parents[1])
@@ -34,10 +42,6 @@ COMMANDS = {
     "planning": "scripts/manage_planning.py",
     "tracking": "scripts/manage_task_tracking.py",
     "continuity": "scripts/manage_continuity.py",
-    "profiles": "scripts/validate_reference_profile.py",
-    "compatibility": "scripts/technology_resolution.py",
-    "variants": "scripts/manage_project_variants.py",
-    "profile-impact": "scripts/profile_impact.py",
     "validate-project": "scripts/validate_project.py",
     "validate-spec": "scripts/validate_spec.py",
     "traceability": "scripts/check_traceability.py",
@@ -81,7 +85,7 @@ def main() -> int:
     # A shared project never silently runs a different global installation.
     migration_route = command == "migrate" or (command == "v2" and forwarded and forwarded[0] in {
         "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
-        "migrate", "recover", "rollback"})
+        "migrate", "recover", "rollback", "method-upgrade-diagnose", "method-upgrade"})
     if command not in {"runtime-doctor", "query"} and not migration_route:
         from runtime_doctor import check as check_runtime
         for argument in forwarded:
@@ -99,7 +103,7 @@ def main() -> int:
                 print(json.dumps(runtime, ensure_ascii=False))
                 return 2
             pinned = (candidate / runtime["runtime"]).resolve()
-            if pinned != PLUGIN_ROOT:
+            if not same_filesystem_path(pinned, PLUGIN_ROOT):
                 print(json.dumps({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
                                   "cli": str(pinned / "scripts/lks_sdd.py")}, ensure_ascii=False))
                 return 2
@@ -107,7 +111,7 @@ def main() -> int:
     if command in {"catalog", "context", "history", "migrate"}:
         from v2_cli import main as v2_main
         return v2_main(forwarded, command=command)
-    if command not in {"v2", "query", "variants", "profiles", "compatibility", "profile-impact", "runtime-doctor", "visual-handoff"} and forwarded and not forwarded[0].startswith("-"):
+    if command not in {"v2", "query", "runtime-doctor", "visual-handoff"} and forwarded and not forwarded[0].startswith("-"):
         from v2_cli import is_v2, main as v2_main
         project = Path(forwarded[0])
         if command == "define" and project.is_dir() and not (project / ".lks-sdd/project.json").exists():
@@ -133,12 +137,9 @@ def main() -> int:
                 if action == "review":
                     arguments += ["--state", "in-review"]
                 return v2_main(arguments, command=action_route[action])
-            if command not in {"query", "compatibility", "profiles", "profile-impact", "runtime-doctor", "visual-handoff"}:
+            if command not in {"query", "runtime-doctor", "visual-handoff"}:
                 print(json.dumps({"status": "blocked", "error": "This legacy command does not write contract 2.0; use lks_sdd.py v2 --help"}))
                 return 2
-    if command == "verify" and "--variant" in forwarded:
-        from manage_project_variants import forward_verify
-        return forward_verify(forwarded)
     target = (PLUGIN_ROOT / COMMANDS[command]).resolve()
     try:
         target.relative_to(PLUGIN_ROOT)

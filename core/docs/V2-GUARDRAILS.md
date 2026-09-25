@@ -20,8 +20,22 @@ python -B C:/RUNTIME_CONFIABLE/scripts/lks_sdd.py v2 guard C:/CAMBIO --base C:/B
 ```
 
 El proceso devuelve código distinto de cero ante incumplimiento estructural. Si
-no lo hay, devuelve `structurally-within-scope`, nunca aceptación semántica. La
-política externa debe exigir además revisión del cambio y de las evidencias.
+no lo hay, devuelve `structurally-within-scope`, nunca aceptación semántica.
+
+Para impedir integrar código sin SPEC, PLAN/TASK, AUTH y EXEC, use el modo
+`--strict` con tres raíces independientes: `--base` (código anterior),
+`--approved` (contrato y autoridad aprobados) y raíz posicional (candidato).
+La guía [SPEC/PLAN/TASK](V2-SPEC-PLAN-TASK.md) contiene el comando. Un resultado
+`structurally-compliant` acredita esa comprobación estructural de la totalidad
+del diff, no la semántica de negocio. CI debe seleccionar el runtime y las dos
+raíces de confianza fuera del patch y proteger la rama. Sin ese check requerido,
+ninguna edición local queda físicamente bloqueada.
+
+Hay una [plantilla de CI](../templates/strict-guard.example.yml) para adaptar
+con referencias protegidas y TASK/entorno reales; instalar el plugin no activa
+ese workflow ni cambia la protección de rama.
+
+La política externa debe exigir además revisión del cambio y de las evidencias.
 Si cambian pruebas, gates o dependencias, se bloquea hasta registrar `guard-review`
 desde la base confiable, con `--incoming`, tareas y una solicitud con actor, tiempo
 y motivo. La revisión se liga al diff exacto; no dispensa cambios de alcance ni

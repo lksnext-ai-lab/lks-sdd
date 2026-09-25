@@ -1,7 +1,7 @@
 {
   "name": "lks-sdd",
-  "version": "2.0.1",
-  "description": "Plugin Spec-anchored para Codex: LKS-SDD 2 con especificaciones humanas, funcionalidades con historia, ejecución autorizada, evidencia tipada y migración explícita.",
+  "version": "2.3.1",
+  "description": "Plugin Spec-anchored para Codex: cambios trazados de SPEC a PLAN/TASK, ejecución autorizada, evidencia tipada y migración explícita.",
   "author": {
     "name": "LKS"
   },
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "LKS-SDD para Codex",
     "shortDescription": "Desarrollo Spec-anchored con Codex",
-    "longDescription": "LKS-SDD Spec-anchored para Codex. La versión 2 mantiene documentación Markdown humana y navegable, consulta de solo lectura centrada en fuentes, catálogo e historia de funcionalidades, contexto literal para ejecutar y autorización por tareas y entorno. Distingue definición, plan, implementación, verificación, aceptación humana y entrega. Registra evidencia tipada inmutable y variantes tecnológicas aprobadas dentro del proyecto, sin atribuirles certificación global. Conserva runtime fijado, seis skills y compatibilidad 1.5; migrar exige diagnóstico, preview, autorización y reconciliación. Los cambios locales son recuperables, no una transacción distribuida. Jira continúa siendo proyección opcional con recibos, sin autorización remota implícita. La aceptación real por host y la publicación se acreditan por separado.",
+    "longDescription": "LKS-SDD Spec-anchored para Codex. La versión 2 mantiene documentación Markdown humana y navegable, consulta de solo lectura centrada en fuentes, catálogo e historia de funcionalidades, contexto literal para ejecutar y autorización por tareas y entorno. Distingue definición, plan, implementación, verificación, aceptación humana y entrega. Registra evidencia tipada inmutable y declaraciones tecnológicas locales confirmadas dentro del proyecto, sin atribuirles certificación global. Conserva runtime fijado, seis skills y compatibilidad 1.5; migrar exige diagnóstico, preview, autorización y reconciliación. Los cambios locales son recuperables, no una transacción distribuida. Jira continúa siendo proyección opcional con recibos, sin autorización remota implícita. La aceptación real por host y la publicación se acreditan por separado.",
     "developerName": "LKS",
     "category": "Developer Tools",
     "capabilities": [
@@ -38,8 +38,9 @@
       "Prepara una vista previa saneada para proyectar en Jira las tareas ya confirmadas, sin escribir todavía en el sistema externo.",
       "Configura de forma opcional el reporting Jira por hitos y prepara un comentario o transición con una sola confirmación, sin escribir todavía.",
       "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
-      "Muéstrame los perfiles activos y candidatos aplicables a cada unidad desplegable.",
-      "Explícame por binding la cobertura de automatización de esta arquitectura sin componer perfiles ni sustituir Microsoft Entra por Keycloak.",
+      "Añade este cambio a una funcionalidad existente: reconcilia la petición con SPEC y completa PLAN/TASK antes de implementar.",
+      "Inspecciona y confirma la declaración tecnológica local del proyecto para cada unidad y tarea aplicable.",
+      "Explica por binding la cobertura de automatización declarada localmente, sin inferir certificación global.",
       "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",
       "Implementa con Codex la siguiente tarea autorizada y deja checkpoints reanudables.",
       "Reanuda con Codex la ejecución autorizada desde su último checkpoint.",

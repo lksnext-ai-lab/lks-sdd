@@ -1,149 +1,143 @@
 # Releases técnicas
 
-## Línea dual 2.0
-
-Codex desktop y Copilot VS Code Agent se distribuyen con una versión, un núcleo y dos
-adaptadores. El setup offline facilita instalar y actualizar sin tocar configuraciones
-personales. La versión estable es `2.0.1`; tiene aprobación propia del responsable
-en `quality/release-approval-v2.0.1.json`, sin reutilizar las aprobaciones de 1.x.
-Los paquetes de desarrollo son diagnósticos, no atestaciones publicables. Antes de
-promover, declarar el estado real de la [aceptación v2](V2-HOST-ACCEPTANCE.md), superar
-gates técnicos, build reproducible limpio y autorización de publicación separada.
-La autorización de publicación v2 no acredita los ensayos humanos/host pendientes. El snapshot de evaluación
-no debe publicarse como estable aunque permita una instalación local satisfactoria.
-
 ## Propósito
 
-Las releases de GitHub fijan hitos reproducibles del plugin LKS-SDD para Codex. Publicar una release técnica no equivale a aprobar el método como política corporativa, instalar el plugin, habilitar soporte oficial ni decidir su distribución por marketplace.
+Una release fija un plugin verificable; no acredita aceptación humana, piloto,
+activación de host, instalación personal ni política corporativa.
 
-## Versionado
-
-- El manifiesto `.codex-plugin/plugin.json`, la primera entrada de `CHANGELOG.md`, las notas `docs/releases/vX.Y.Z.md` y la etiqueta `vX.Y.Z` deben usar la misma versión SemVer.
-- Un hito funcional compatible incrementa la versión menor; una corrección compatible incrementa el parche; una ruptura de contrato incrementa la versión mayor.
-- La versión SemVer del plugin no acredita por sí sola un hito metodológico del mismo número. La nota de release declara por separado qué hitos están implementados, preparados, pendientes o `not-run`.
-- Los commits intermedios en `main` no generan ni modifican releases. La release se actualiza creando una versión nueva cuando el cambio está cerrado y validado.
-- Las etiquetas `vX.Y.Z` son anotadas e inmutables. Una versión publicada nunca se mueve ni se reutiliza.
-- Las versiones `candidate` se publican como prerelease. Una versión `stable` exige los canales técnicos definidos en `quality/catalog.json` y una aprobación durable del responsable del proyecto. Los canales semánticos, humanos o de piloto detallados conservan su estado real, pero son evidencia opcional y no sustituyen esa autoridad.
+La versión `2.3.1` tiene una aprobación explícita de preparación en
+`quality/release-approval-v2.3.1.json`. Una aprobación no sustituye el gate técnico
+ni transforma canales humanos o de piloto `not-run` en evidencia superada.
 
 ## Puerta de publicación
 
-Antes de publicar una versión:
+Antes de publicar:
 
-1. Cerrar el alcance y actualizar versión, changelog, estado documental, ayudas y notas en `docs/releases/`.
-2. Ejecutar las validaciones de `docs/VALIDATION.md` y revisar el diff completo.
-3. Integrar mediante PR revisable con CI correcto y comprobar el SHA final de `main` y su coincidencia con `origin/main`.
-4. Para M5 o posteriores, crear un checkout dedicado y vacío del commit exacto y generar allí una única vez el reporte 1.2 del canal de release. El harness atestigua antes de sus hijos `HEAD`, índice y bytes reales sin ningún archivo no versionado preexistente —también los ignorados—, aplica los presupuestos y valida las certificaciones exactas de todos los perfiles active. Para `stable`, el reporte incorpora además `release-approval`; después se generan dos veces los bundles, se verifican reproducibilidad, manifiesto y checksums y se mantienen fuera del árbol Git. `--preflight-only` queda disponible como diagnóstico completo opcional, no como paso previo redundante.
-5. Solo después de superar el harness limpio y el doble build, crear y subir una etiqueta anotada `vX.Y.Z` sobre ese commit.
-6. Esperar el workflow correcto de la etiqueta y crear la release desde esa etiqueta,
-   como prerelease para `candidate` o normal para `stable`, con notas versionadas y
-   el inventario completo de assets aprobado; verificar URL, commit, estado y hashes.
+1. Cierre el alcance y actualice la versión y su sección `## X.Y.Z` en el changelog.
+2. Revise el diff e integre el commit exacto en `main`.
+3. Desde `main`, ejecute manualmente el job `stable-preflight` del workflow
+   `quality`.
+4. Revise su artefacto de evidencia: preflight, gate, manifiesto, checksums y ZIP
+   Copilot.
+5. Prepare el árbol nativo Copilot desde el ZIP aprobado, compárelo byte a byte y,
+   con autorización de publicación, publique la rama de distribución y la etiqueta
+   anotada `copilot-vX.Y.Z` sobre su commit propio.
+6. Cree una etiqueta anotada e inmutable `vX.Y.Z` sobre el commit de `main`.
+7. Espere la validación de etiqueta. Si acredita el `stable-preflight` del mismo
+   SHA, reutilizará su evidencia; si no existe, repetirá gate y build de forma
+   visible.
+8. Espere la aprobación protegida que crea la draft release con sus assets
+   verificados.
+9. Revise la draft y publíquela explícitamente cuando corresponda.
 
-El builder no acepta un SHA ni un reporte de éxito meramente declarativos: el commit debe existir, coincidir con `HEAD` y tener un working tree limpio. Además revalida contra el contenido comprometido el esquema, hashes de inputs y fixtures, inventarios de checks, canales, casos y métricas, resolución de evidencias, consistencia de totales y comparación con la baseline. Empaqueta los blobs del commit, no los bytes del working tree.
+Una release stable exige únicamente aprobación, integridad estática, las catorce
+pruebas de humo y la regresión Windows de rutas largas. No exige campañas Docker, catálogos tecnológicos, evals, benchmarks, baseline ni doble build.
 
-## Secuencia reproducible
+## Etiquetado y publicación
 
-Los comandos siguientes se ejecutan desde la raíz del repositorio cuando los cambios revisados ya están integrados en un commit local de `main`. Ajuste la versión y la fecha, pero no reutilice una etiqueta existente ni use `git add .` como sustituto de la revisión de rutas:
+Tras tener el manifiesto aprobado y un árbol limpio:
 
 ```powershell
-$releaseVersion = "2.0.1"
-$releaseChannel = "stable"
-$releaseDate = Get-Date -Format "yyyy-MM-dd"
+$releaseVersion = "2.3.1"
 $releaseTag = "v$releaseVersion"
-
-git status --short --branch
-git diff --check
-if ((git status --porcelain)) { throw "El árbol de trabajo no está limpio." }
-git push origin main
-
 $sourceCommit = (git rev-parse HEAD).Trim()
-$remoteMain = (git ls-remote origin refs/heads/main | ForEach-Object { ($_ -split "`t")[0] }).Trim()
-if ($remoteMain -ne $sourceCommit) { throw "origin/main no coincide con el commit de release." }
-```
 
-Genere el reporte limpio y los dos builds externos desde el checkout dedicado descrito en `docs/DISTRIBUTION.md`. El harness captura la fuente antes de ejecutar checks: los artefactos creados después no invalidan retroactivamente ese snapshot, pero cualquier archivo no versionado que ya existiera al iniciarlo —aunque estuviera ignorado— lo habría dejado `dirty`. El builder solo necesita el commit exacto; no requiere que ya exista una etiqueta. No cree la etiqueta inmutable hasta que el harness del canal elegido, la comparación de los dos builds, el manifiesto y los checksums hayan superado la puerta. Después etiquete ese mismo commit y verifique la etiqueta remota:
-
-```powershell
 git tag -a $releaseTag $sourceCommit -m "LKS-SDD $releaseVersion"
 git push origin $releaseTag
-
-$remoteTaggedCommit = (git ls-remote origin "refs/tags/$releaseTag^{}" | ForEach-Object { ($_ -split "`t")[0] }).Trim()
-if ($remoteTaggedCommit -ne $sourceCommit) { throw "La etiqueta remota no apunta al commit de release." }
 ```
 
-Publique exactamente uno de los dos conjuntos reproducidos:
+La etiqueta `vX.Y.Z` identifica el commit de mantenimiento y activa el workflow
+técnico. La etiqueta `copilot-vX.Y.Z` identifica el árbol nativo del ZIP validado
+y es la referencia del catálogo Copilot. No confunda sus commits.
+
+Compruebe que la etiqueta remota apunta al SHA acreditado. La promoción protegida crea
+la draft con los assets enumerados por `release-manifest.json`, `SHA256SUMS` y la nota
+versionada. No reutilice etiquetas ni sustituya assets de una versión publicada.
+
+El builder, el preflight y el workflow técnico de etiqueta no hacen push, no crean
+releases, no instalan plugins ni modifican proyectos consumidores. La promoción
+protegida es la única excepción: crea una draft tras aprobación humana. Publicar,
+instalar o modificar proyectos consumidores requiere autorización separada.
+
+## Draft release protegida
+
+Tras una validación correcta de `quality` sobre una etiqueta stable `vX.Y.Z`, el
+workflow `release-draft` verifica el artefacto `release-evidence` de ese run exacto.
+Este puede provenir de un preflight reutilizado o de una revalidación completa, pero
+en ambos casos acredita el mismo gate, SHA, manifiesto, checksums, ZIP Copilot,
+sección acreditada del changelog y referencia Copilot antes de quedar pendiente de aprobación en el entorno
+`release-draft`.
+
+Un administrador debe configurar previamente ese entorno con revisores requeridos y,
+cuando la política lo permita, sin autoaprobación. El workflow solo crea una **draft**
+después de esa aprobación y adjunta todos los assets acreditados por el manifiesto,
+junto con `release-manifest.json` y `SHA256SUMS`. No publica la release.
+
+Si existe ya una release o draft para la etiqueta, el workflow se bloquea y requiere
+reconciliación manual; nunca sustituye assets ni vuelve a publicar. Después de revisar
+la draft, una persona autorizada usa GitHub para pulsar **Publish release**.
+
+## Preflight de release
+
+El camino normal es abrir **Actions → quality → Run workflow** sobre `main`. El job
+manual `stable-preflight` usa un checkout limpio del SHA seleccionado y, sin recibir
+versiones, SHA ni etiquetas como inputs:
+
+1. ejecuta el preflight de solo lectura;
+2. ejecuta el gate estable completo, en paralelo para sus checks técnicos
+   independientes;
+3. genera una vez todos los paquetes de distribución y valida los paquetes Copilot,
+   plugin y marketplace;
+4. conserva `stable-preflight-evidence` durante 30 días.
+
+La evidencia incluye `release-readiness.json`, `release-gate.json`, el manifiesto,
+`SHA256SUMS`, los paquetes de distribución, la validación de paquetes y la
+procedencia del run manual. Revise que readiness y gate estén en estado superado antes
+de crear `vX.Y.Z`.
+
+El job no crea etiquetas, releases ni assets públicos. La validación de etiqueta
+solo evita repetir gate y build si puede enlazar ese artefacto al mismo SHA, rama y
+ejecución manual. Una evidencia ausente provoca una revalidación completa; una
+evidencia encontrada pero inconsistente bloquea el flujo. El comando local sigue
+disponible solo para diagnosticar un bloqueo concreto:
 
 ```powershell
-$artifactBase = Join-Path ([System.IO.Path]::GetTempPath()) "lks-sdd-$releaseVersion"
-$publishRoot = "$artifactBase-a"
-
-$releaseVisibility = if ($releaseChannel -eq "candidate") { @("--prerelease", "--latest=false") } else { @("--latest") }
-
-$approvedManifest = Get-Content (Join-Path $publishRoot 'release-manifest.json') -Raw | ConvertFrom-Json
-$approvedNames = @($approvedManifest.artifacts.path) + @('release-manifest.json', 'SHA256SUMS')
-$approvedAssets = @($approvedNames | ForEach-Object { Join-Path $publishRoot $_ })
-gh release create $releaseTag @approvedAssets `
-  --repo lksnext-ai-lab/lks-sdd `
-  --title "LKS-SDD $releaseVersion" `
-  --notes-file "docs/releases/$releaseTag.md" `
-  --verify-tag `
-  --fail-on-no-commits `
-  @releaseVisibility
+$releaseReadiness = Join-Path $env:TEMP 'lks-sdd-release-readiness.json'
+python -B -X utf8 scripts\release_readiness.py `
+  --channel stable `
+  --output $releaseReadiness
 ```
 
-`--verify-tag` evita que GitHub cree silenciosamente otra etiqueta. `gh release create` usa una fase draft mientras carga los assets y solo publica al completarla; no use `--clobber` para sustituir assets de una versión publicada.
+## Observabilidad de release
 
-Verificación posterior mínima:
+Después de una ejecución correcta del workflow `quality` sobre una etiqueta `v*`,
+el workflow separado `release-observability` registra el tiempo observado de cola,
+dependencias, carga de evidencia y ruta de validación. En una revalidación mide gate
+y empaquetado; en una reutilización mide resolución y verificación de procedencia y
+declara el gate/build del tag como `not-run`. El informe no forma parte del gate
+técnico: medir no convierte una release en aprobada ni sustituye sus checksums,
+manifiesto o revisión humana.
+
+La caché pip de CI solo conserva descargas de las dependencias declaradas por
+`requirements-runtime.txt`; `pip install --require-hashes` sigue validando los
+artefactos instalados. No se cachean candidates, ZIPs, evidencia ni decisiones de
+release.
+
+El mismo observador lee el `marketplace.json` del commit etiquetado y comprueba que
+su referencia GitHub nativa contiene exactamente los archivos del ZIP Copilot
+acreditado. No crea, mueve ni selecciona etiquetas; si la referencia está ausente,
+es ambigua o difiere del ZIP, publica un diagnóstico y falla de forma visible.
+
+Los dos informes se conservan como el artefacto `release-observability-<run-id>`.
+La revisión humana continúa como `not-observed` porque este observador no mide la
+aprobación de entorno, la revisión de la draft ni la decisión de publicación. No debe
+presentarse como superada.
+
+Para investigar localmente una referencia configurada, sin modificar el repositorio:
 
 ```powershell
-$release = gh release view $releaseTag --repo lksnext-ai-lab/lks-sdd `
-  --json name,tagName,isDraft,isPrerelease,publishedAt,targetCommitish,url,assets,body | ConvertFrom-Json
-if ($release.tagName -ne $releaseTag) { throw "La release no usa la etiqueta esperada." }
-if ($release.isDraft) { throw "La release quedó como draft." }
-if ($releaseChannel -eq "candidate" -and -not $release.isPrerelease) { throw "La candidate no quedó como prerelease." }
-if ($releaseChannel -eq "stable" -and $release.isPrerelease) { throw "La stable quedó marcada como prerelease." }
-
-$expectedAssets = $approvedNames | Sort-Object
-$actualAssets = @($release.assets.name) | Sort-Object
-if (Compare-Object $expectedAssets $actualAssets) { throw "Los assets publicados no coinciden con el conjunto aprobado." }
-foreach ($asset in $release.assets) {
-  $localDigest = (Get-FileHash -LiteralPath (Join-Path $publishRoot $asset.name) -Algorithm SHA256).Hash.ToLowerInvariant()
-  if ($asset.digest -and $asset.digest -ne "sha256:$localDigest") { throw "Digest remoto incorrecto: $($asset.name)" }
-}
-
-$localBody = (Get-Content -Raw "docs/releases/$releaseTag.md").Replace("`r`n", "`n").TrimEnd()
-$remoteBody = $release.body.Replace("`r`n", "`n").TrimEnd()
-if ($localBody -ne $remoteBody) { throw "Las notas publicadas no coinciden con el archivo versionado." }
-
-git ls-remote --heads --tags origin
+$sourceCommit = (git rev-parse HEAD).Trim()
+python -B -X utf8 scripts\validate_distribution_reference.py `
+  --source-commit $sourceCommit `
+  --native-package C:\ruta\lks-sdd-copilot-plugin-v2.3.1.zip
 ```
-
-El cuerpo remoto debe coincidir con `docs/releases/$releaseTag.md`; la release debe
-ser no draft y su estado prerelease debe corresponder al canal. La etiqueta debe
-resolver al commit esperado y todos los assets declarados deben tener hashes
-verificados, incluidos los ZIP Copilot (plugin nativo y alternativa de proyecto) y setup.
-
-Si una validación falla, corríjala antes de etiquetar. Si la carga falla mientras la release aún es draft, inspeccione ese draft antes de reanudar. Una vez publicada, no mueva la etiqueta ni reemplace assets: cierre la corrección en una versión nueva.
-
-## Contenido de las notas
-
-Las notas deben distinguir capacidades implementadas, compatibilidad, validaciones, límites y pendientes. Deben indicar expresamente cualquier estado `candidate` y evitar presentar una release técnica como aprobación corporativa.
-
-Cada nota incluye como mínimo:
-
-- versión y fecha;
-- enlace o referencia al changelog;
-- matriz o declaración de compatibilidad;
-- catálogo de perfiles, estados active/candidate, locks y certificaciones exactas aplicables;
-- resultados de tests, evals y canales que siguen `not-run`;
-- vulnerabilidades conocidas y otras limitaciones;
-- instrucciones de actualización;
-- declaración explícita de compatibilidad o incompatibilidad. Para 0.15, schema 1.5/método 1.5.0 es el único contrato de proyecto y no se distribuye migrador; la evidencia histórica compatible permanece inmutable;
-- rollback;
-- periodo o estado de soporte;
-- responsables confirmados o, si todavía no existen, el pendiente explícito.
-
-Para 0.15.0, las notas deben documentar los tiers, la selección por cambios, los presupuestos bloqueantes, el fail-fast y la compatibilidad histórica del quality report 1.1. También conservan los contratos 0.14: aplicabilidad visual por slice, material canónico del `build_id`, separación de `verification_run_id` y flujo G3 → plantilla G4 → evidencia completa. Deben distinguir el OIDC simulado local de la interoperabilidad externa. Los tests sintéticos, previews y recibos no permiten declarar Microsoft Entra o Rovo/Jira real como `passed`; esa evidencia permanece `not-run` hasta una ejecución autorizada.
-
-Para 0.17.0, las notas incluyen además interfaces `INT-###`, scopes tipados, EVID 1.3, el gate full-stack, reglas de mocks, reconciliación histórica y migración no destructiva. El paquete debe superar recertificación exacta del perfil de sistema, instalación limpia aislada y validación extraída sin tocar una instalación activa.
-
-El validador contractual compara dinámicamente la versión del manifiesto con la primera entrada del changelog y `docs/releases/vX.Y.Z.md`. La etiqueta se comprueba únicamente al publicar, porque los commits intermedios no constituyen una release.

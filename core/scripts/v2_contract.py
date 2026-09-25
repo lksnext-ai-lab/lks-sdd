@@ -16,13 +16,16 @@ from urllib.parse import unquote, urlsplit
 import uuid
 
 from query_sources import is_link, lexical_root, SECRET_NAME
+from path_utils import filesystem_root, is_max_path_error, max_path_message
 
 VERSION = "2.0"
-METHOD = "2.0.0"
+METHOD = "2.1.0"
+SUPPORTED_METHODS = {"2.0.0", METHOD}
 READER = "lks-sdd-v2/1"
 DOCS = "docs/lks-sdd"
 HISTORY = DOCS + "/00-control/history"
-KINDS = set("project feature group requirement acceptance rule constraint task increment plan release test decision interface binding environment authorization execution checkpoint problem change applicability legacy receipt visual".split())
+TECHNOLOGY_DECLARATION_PATH = DOCS + "/03-solution/technology-declaration.md"
+KINDS = set("project feature group requirement acceptance rule constraint task increment plan release test decision interface binding environment authorization execution checkpoint problem change applicability legacy receipt visual technology".split())
 RELATIONS = set("parent uses depends_on requirements acceptance tests contributes_to implements modifies replaces splits merges increment release plan bindings interfaces environments decision authorizes execution verifies sources affects".split())
 OPERATIONAL = {"authorization", "execution", "checkpoint", "problem", "receipt"}
 NON_NORMATIVE_BY_DEFAULT = {"legacy"}
@@ -32,7 +35,7 @@ LINK = re.compile(r"(?<!!)\[([^\]]+)\]\((?:<([^>]+)>|([^\s)]+))\)")
 ASSET = re.compile(r"!\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))\)")
 ANCHOR = re.compile(r'<a\s+id=[\"\']([^\"\']+)[\"\']\s*></a>')
 DOMAINS = ("ux", "data", "identity", "security", "privacy", "interfaces", "quality", "operation")
-STATES = {"draft", "proposed", "confirmed", "approved", "active", "effective", "superseded", "retired", "cancelled", "unknown", "conflict", "backlog", "ready", "in-progress", "in-review", "done", "blocked", "paused", "completed", "revoked", "open", "resolved", "reconciliation-required"}
+STATES = {"draft", "proposed", "confirmed", "approved", "active", "effective", "superseded", "retired", "cancelled", "unknown", "conflict", "backlog", "ready", "in-progress", "in-review", "done", "done-with-reservations", "blocked", "paused", "completed", "revoked", "open", "resolved", "reconciliation-required", "observed", "transition"}
 
 
 class ContractError(ValueError):
@@ -56,23 +59,31 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
             PurePosixPath(relative).is_absolute() or
             any(p in {"", ".", ".."} for p in relative.split("/"))):
         raise ContractError("Unsafe project-relative path: " + relative)
+    root = filesystem_root(root)
     current = root
     parts = relative.split("/")
     for index, part in enumerate(parts):
         # Explicit package/scaffold operations may carry a placeholder template or
-        # a named certification result. Ordinary document/code reads never opt in.
+        # a declared template. Ordinary document/code reads never opt in.
         benign_package_leaf = package_data and index == len(parts) - 1 and (
-            part == ".env.example" or (part == "GATE-LOCAL-CREDENTIALS.json" and "certification-details" in parts))
+            part == ".env.example"
+        )
         if part.casefold() == ".git" or (SECRET_NAME.search(part) and not benign_package_leaf):
             raise ContractError("Sensitive or Git path is not a contract input: " + relative)
         current /= part
-        if os.path.lexists(current):
-            if is_link(current):
-                raise ContractError("Link/junction rejected: " + relative)
-            if current.is_dir() and current != root and (current / ".git").exists():
-                raise ContractError("Nested repository rejected: " + relative)
-        elif not missing:
-            raise ContractError("Missing source: " + relative)
+        current = filesystem_root(current)
+        try:
+            if os.path.lexists(current):
+                if is_link(current):
+                    raise ContractError("Link/junction rejected: " + relative)
+                if current.is_dir() and current != root and (current / ".git").exists():
+                    raise ContractError("Nested repository rejected: " + relative)
+            elif not missing:
+                raise ContractError("Missing source: " + relative)
+        except OSError as exc:
+            if is_max_path_error(exc):
+                raise ContractError(max_path_message(current)) from exc
+            raise
     return current
 
 
@@ -234,6 +245,7 @@ class Model:
     preambles: dict[str, str] = field(default_factory=dict)
     hashes: dict[str, str] = field(default_factory=dict)
     assets: dict[str, dict[str, str]] = field(default_factory=dict)
+    technology_declarations: list[Element] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
@@ -259,10 +271,25 @@ class Model:
                     if sha(raw) != expected:
                         raise ContractError("Normative attachment changed during read: " + asset)
                     attachments[asset] = raw.decode("utf-8")
+        normative_elements = []
+        for element in elements:
+            if element.kind in OPERATIONAL or element.kind in NON_NORMATIVE_BY_DEFAULT:
+                continue
+            value = element.normative()
+            if self.manifest.get("method_version") == METHOD and element.kind in {"feature", "requirement"}:
+                value = {**value, "meta": dict(value["meta"])}
+                value["meta"].pop("revision", None)
+                relations = dict(value["meta"].get("relations", {}))
+                for relation in ("requirements", "acceptance"):
+                    if relation in relations:
+                        relations[relation] = [identifier for identifier in relations[relation]
+                                               if identifier in identifiers]
+                value["meta"]["relations"] = relations
+            normative_elements.append(value)
         return {"reader": READER, "project": self.manifest.get("project_id"),
-                "elements": [e.normative() for e in elements
-                             if e.kind not in OPERATIONAL and e.kind not in NON_NORMATIVE_BY_DEFAULT],
-                "preambles": {p: self.preambles[p] for p in sorted(paths)},
+                "elements": normative_elements,
+                "preambles": {p: self.preambles[p].strip() if self.manifest.get("method_version") == METHOD
+                              else self.preambles[p] for p in sorted(paths)},
                 "assets": {p: self.assets.get(p, {}) for p in sorted(paths)},
                 "text_attachments": attachments}
 
@@ -290,6 +317,94 @@ def resolve_link(source: str, target: str) -> tuple[str, str]:
     return resolved, unquote(parsed.fragment)
 
 
+def _validate_technology_declaration(model: Model) -> None:
+    """Validate the canonical local declaration and its immutable local evidence."""
+    declaration_path = TECHNOLOGY_DECLARATION_PATH
+    declared_paths = {
+        artifact.get("path") for artifact in model.manifest.get("artifacts", [])
+        if isinstance(artifact, dict)
+    }
+    if declaration_path not in declared_paths:
+        model.errors.append("Project technology declaration is not indexed")
+        return
+    if declaration_path not in model.documents:
+        model.errors.append("Project technology declaration is missing: " + declaration_path)
+        return
+    declarations = [
+        element for element in model.elements.values() if element.kind == "technology"
+    ]
+    misplaced = [element.id for element in declarations if element.path != declaration_path]
+    if misplaced:
+        model.errors.append("Technology declarations must be local to " + declaration_path + ": " + ", ".join(sorted(misplaced)))
+        return
+    try:
+        from v2_schema import validate
+        validate("technology-declaration", {
+            "schema_version": VERSION,
+            "project_id": model.manifest["project_id"],
+            "declarations": [element.meta for element in declarations],
+        })
+        for element in declarations:
+            technology = element.meta["technology"]
+            if technology["state"] != element.meta["state"]:
+                raise ContractError("Technology state must match element state: " + element.id)
+            scope = set(technology["scope"])
+            if "global" in scope and len(scope) != 1:
+                raise ContractError("Technology scope cannot mix global and TASK selectors: " + element.id)
+            if "global" not in scope:
+                for task_id in sorted(scope):
+                    task = model.elements.get(task_id)
+                    if task is None or task.kind != "task":
+                        raise ContractError(
+                            "Technology scope must reference an existing TASK element: "
+                            + task_id
+                        )
+            variant_ids = set()
+            for variant in technology.get("variants", []):
+                if variant["id"] in variant_ids:
+                    raise ContractError("Duplicate technology variant identity: " + variant["id"])
+                variant_ids.add(variant["id"])
+                variant_scope = set(variant["scope"])
+                if "global" in variant_scope and len(variant_scope) != 1:
+                    raise ContractError("Technology variant scope cannot mix global and TASK selectors: " + variant["id"])
+                if "global" in variant_scope and "global" not in scope:
+                    raise ContractError("Technology variant global scope exceeds its declaration: " + variant["id"])
+                if "global" not in scope and not variant_scope <= scope:
+                    raise ContractError("Technology variant scope exceeds its declaration: " + variant["id"])
+                if "global" not in variant_scope:
+                    for task_id in sorted(variant_scope):
+                        task = model.elements.get(task_id)
+                        if task is None or task.kind != "task":
+                            raise ContractError("Technology variant scope must reference an existing TASK element: " + task_id)
+            for evidence in [*technology["evidence"], *technology["provenance"]]:
+                relative = evidence["path"]
+                expected = evidence["sha256"]
+                if sha(read_bytes(model.root, relative, limit=16 * 1024 * 1024)) != expected:
+                    raise ContractError("Technology evidence hash mismatch: " + relative)
+                model.hashes[relative] = expected
+        model.technology_declarations = sorted(declarations, key=lambda element: element.id)
+    except (ContractError, KeyError, TypeError, ValueError) as exc:
+        model.errors.append("Invalid project technology declaration: " + str(exc))
+
+
+def technology_readiness(model: Model, tasks: list[str]) -> dict:
+    """Report local technology uncertainty without treating an observation as approval."""
+    selected = set(tasks)
+    blockers, unresolved = [], []
+    for element in model.technology_declarations:
+        technology = element.meta["technology"]
+        scope = set(technology["scope"])
+        if "global" not in scope and not (scope & selected):
+            continue
+        if element.meta["state"] != "confirmed":
+            unresolved.append(element.id)
+        if technology["critical"] and element.meta["state"] != "confirmed":
+            blockers.append("Critical technology declaration unresolved: " + element.id)
+    return {"status": "blocked" if blockers else "documented",
+            "blockers": sorted(set(blockers)),
+            "unresolved": sorted(set(unresolved))}
+
+
 def load(root: Path) -> Model:
     root = lexical_root(root)
     from v2_storage import VALIDATING, ensure_idle
@@ -299,7 +414,7 @@ def load(root: Path) -> Model:
     manifest = json.loads(raw)
     from v2_schema import validate
     validate("project", manifest)
-    if manifest.get("schema_version") != VERSION or manifest.get("method_version") != METHOD:
+    if manifest.get("schema_version") != VERSION or manifest.get("method_version") not in SUPPORTED_METHODS:
         raise ContractError("Unsupported project contract/method; no implicit conversion")
     if not manifest.get("project_id"):
         raise ContractError("Project identity required")
@@ -314,18 +429,6 @@ def load(root: Path) -> Model:
         text = raw.decode("utf-8").replace("\r\n", "\n")
         model.documents[relative] = text
         model.hashes[relative] = sha(raw)
-        if relative == DOCS + "/03-solution/technology-variants.md":
-            from project_variants import read_markdown, validate_schema
-            validate_schema(read_markdown(root, relative), "project-variants.schema.json")
-            model.preambles[relative] = text
-            continue
-        if relative.startswith(DOCS + "/00-control/technology-approvals/"):
-            from project_variants import read_markdown, digest
-            approval = read_markdown(root, relative)
-            if digest({k: v for k, v in approval.items() if k != "approval_id"}) != approval.get("approval_id"):
-                model.errors.append("Technology approval integrity mismatch")
-            model.preambles[relative] = ""
-            continue
         try:
             elements, preamble = parse_document(text, relative)
             model.preambles[relative] = preamble
@@ -337,6 +440,7 @@ def load(root: Path) -> Model:
                 uids[element.meta["uid"]] = element.id
         except ContractError as exc:
             model.errors.append(str(exc))
+    _validate_technology_declaration(model)
     for element in model.elements.values():
         for target in element.targets():
             if target not in model.elements:
@@ -414,6 +518,14 @@ def load(root: Path) -> Model:
                 model.hashes[destination] = sha(data)
             except (ContractError, OSError) as exc:
                 model.errors.append(f"{relative}: invalid asset: {exc}")
+    if manifest["method_version"] == METHOD:
+        from v2_change_control import validate_request
+        for change in model.by_kind("change"):
+            if change.meta.get("category") == "implementation-request":
+                try:
+                    validate_request(model, change)
+                except ContractError as exc:
+                    model.errors.append(str(exc))
     model.revalidate()
     return model
 
@@ -429,38 +541,70 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             raise ContractError("Inactive TASK cannot be an execution root: " + task)
     selected = set(tasks)
     reasons = {t: ["selected-task"] for t in tasks}
-    changed = True
-    # Include complete relation closure and inverse contributors/consumers.
-    while changed:
-        before = set(selected)
-        for identifier in tuple(selected):
-            entry = model.elements[identifier]
-            traversed = set(entry.relations) - {"parent"}
-            if entry.kind in {"plan", "increment", "release"}:
-                traversed -= {"requirements", "implements", "contributes_to"}
-            for target in entry.targets(*traversed) if traversed else ():
-                if (model.elements[target].kind not in OPERATIONAL
-                        and model.elements[target].kind not in NON_NORMATIVE_BY_DEFAULT):
+    for declaration in model.technology_declarations:
+        scope = set(declaration.meta["technology"]["scope"])
+        if "global" in scope or scope & selected:
+            selected.add(declaration.id)
+            reasons.setdefault(declaration.id, []).append("local-technology-declaration")
+    normative_relations = {
+        "uses", "depends_on", "requirements", "acceptance", "tests", "contributes_to",
+        "implements", "modifies", "replaces", "splits", "merges", "bindings",
+        "interfaces", "decision",
+    }
+    for entry in model.elements.values():
+        if entry.kind in OPERATIONAL or entry.kind in NON_NORMATIVE_BY_DEFAULT:
+            continue
+        # Migration-created unknown applicability is preserved as data, but
+        # must not become a global v2 obligation before an explicit review.
+        if (entry.kind == "applicability" and entry.meta.get("state") == "unknown"
+                and entry.meta.get("migration")):
+            continue
+        if (entry.kind in {"rule", "constraint", "applicability"}
+                and entry.meta.get("scope", "unknown") in {"global", "unknown"}):
+            selected.add(entry.id)
+            reasons.setdefault(entry.id, []).append("shared-or-uncertain-applicability")
+        if entry.kind == "decision" and entry.meta.get("category") in {"delivery-governance", "tracking"}:
+            selected.add(entry.id)
+            reasons.setdefault(entry.id, []).append("governance-policy")
+    roots = set(tasks)
+    selected_plans = {p for task_id in tasks for p in model.elements[task_id].targets("plan")}
+    queue = list(selected)
+    expanded = set()
+    while queue:
+        identifier = queue.pop()
+        if identifier in expanded:
+            continue
+        expanded.add(identifier)
+        entry = model.elements[identifier]
+        for relation in sorted(set(entry.relations) & normative_relations):
+            for target in entry.targets(relation):
+                candidate = model.elements[target]
+                if candidate.kind in OPERATIONAL or candidate.kind in NON_NORMATIVE_BY_DEFAULT:
+                    continue
+                if (model.manifest["method_version"] == METHOD and entry.kind == "feature"
+                        and relation == "requirements" and candidate.kind == "requirement"):
+                    mapped_plans = {p for change in model.by_kind("change")
+                                    if change.meta.get("category") == "implementation-request"
+                                    and change.meta.get("state") == "confirmed"
+                                    and entry.id in change.targets("affects")
+                                    for point in change.meta.get("points", [])
+                                    if target in point.get("requirements", [])
+                                    for p in point.get("plans", [])}
+                    if mapped_plans and not mapped_plans & selected_plans:
+                        continue
+                if (model.manifest["method_version"] == METHOD and candidate.kind in {"requirement", "acceptance"}
+                        and candidate.meta["state"] not in {"confirmed", "approved", "active", "effective"}
+                        and target not in selected):
+                    continue  # Future draft obligations do not affect an independent authorized slice.
+                if candidate.kind == "task":
+                    if identifier in roots and relation == "depends_on":
+                        selected.add(target)
+                        reasons.setdefault(target, []).append("direct-normative-dependency:" + identifier)
+                    continue
+                if target not in selected:
                     selected.add(target)
-                    reasons.setdefault(target, []).append("relation:" + identifier)
-        for e in model.elements.values():
-            if e.kind in OPERATIONAL or e.kind in NON_NORMATIVE_BY_DEFAULT:
-                continue
-            # Migration-created unknown applicability is preserved as data, but
-            # must not become a global v2 obligation before an explicit review.
-            if (e.kind == "applicability" and e.meta.get("state") == "unknown"
-                    and e.meta.get("migration")):
-                continue
-            if e.targets("contributes_to", "implements", "requirements", "uses", "interfaces") & selected:
-                selected.add(e.id)
-                reasons.setdefault(e.id, []).append("contributor-or-consumer")
-            if e.kind in {"rule", "constraint", "applicability"} and e.meta.get("scope", "unknown") in {"global", "unknown"}:
-                selected.add(e.id)
-                reasons.setdefault(e.id, []).append("shared-or-uncertain-applicability")
-            if e.kind == "decision" and e.meta.get("category") in {"delivery-governance", "tracking"}:
-                selected.add(e.id)
-                reasons.setdefault(e.id, []).append("governance-policy")
-        changed = before != selected
+                    reasons.setdefault(target, []).append("normative-relation:" + identifier)
+                    queue.append(target)
     blockers = []
     for identifier in sorted(selected):
         e = model.elements[identifier]
@@ -493,12 +637,37 @@ def execution_context(model: Model, tasks: list[str]) -> dict:
             blockers.append("Applicability exclusion needs reason: " + domain)
         elif entry.meta["applicability"] == "applicable" and not entry.targets("requirements"):
             blockers.append("Applicable domain has no documented obligations: " + domain)
+    blockers.extend(technology_readiness(model, tasks)["blockers"])
     material = model.normative(selected)
-    return {"schema_version": VERSION, "kind": "execution-context", "task_ids": tasks,
+    specification_digest = fingerprint(material)
+    planning_digest = None
+    if model.manifest["method_version"] == METHOD:
+        from v2_change_control import assess_plan, planning_projection
+        for plan_id in sorted({p for task_id in tasks for p in model.elements[task_id].targets("plan")}):
+            analysis = assess_plan(model, plan_id)
+            blockers.extend(analysis["blockers"])
+            for task_id in tasks:
+                if plan_id in model.elements[task_id].targets("plan") and not any(
+                        task_id in row.get("tasks", []) for row in analysis["points"]):
+                    blockers.append("Selected TASK lacks an implementation request point: " + task_id)
+        projection = planning_projection(model, tasks)
+        planning_digest = projection["digest"]
+        material = {**material, "planning": projection, "basis_algorithm": "spec-plan-task/1"}
+    administrative_relations = [
+        {"task_id": task.id, "relation": relation, "targets": sorted(task.targets(relation))}
+        for task in (model.elements[identifier] for identifier in tasks)
+        for relation in ("parent", "plan", "increment", "release")
+        if task.targets(relation)
+    ]
+    return {"schema_version": VERSION, "method_version": model.manifest["method_version"],
+            "kind": "execution-context", "task_ids": tasks,
             "status": "blocked" if blockers else "sufficient", "blockers": sorted(set(blockers)),
             "fingerprint": fingerprint(material), "normative": material,
+            "basis_algorithm": "spec-plan-task/1" if planning_digest else "v2-legacy/1",
+            "specification_digest": specification_digest, "planning_digest": planning_digest,
             "organizational_parents": [{"id": i, "source": model.elements[i].source(), "approval_inherited": False}
                                        for i in sorted({p for e in selected for p in model.elements[e].targets("parent")} - selected)],
+            "administrative_relations": administrative_relations,
             "elements": [{**e.normative(), "source": e.source(), "included_because": sorted(set(reasons.get(e.id, [])))}
                          for e in (model.elements[i] for i in sorted(selected))],
             "writes": [], "consumer_executions": [], "authorization": "not-assessed"}

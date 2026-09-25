@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://lks.invalid/lks-sdd/schemas/visual-evidence-policy-1.0.json",
-  "title": "LKS-SDD optional profile visual evidence policy",
+  "title": "LKS-SDD optional project visual evidence policy",
   "type": "object",
   "additionalProperties": false,
   "required": ["min_images", "max_images"],

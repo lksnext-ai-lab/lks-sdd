@@ -22,18 +22,21 @@ QUALITY_REPORT_NAME = "quality-report.json"
 EXPECTED_CANDIDATE_CHECKS = {
     "fixture-integrity",
     "plugin-contract",
-    "reference-profile-structure",
+    "static-contract-integrity",
     "unit-tests-fast",
     "unit-tests-integration",
     "unit-tests-package",
-    "unit-tests-profile",
+    "unit-tests-v2",
     "deterministic-evals",
-    "reference-profile-complete",
+    "explicit-verification-complete",
 }
+EXPECTED_STABLE_CHECKS = (
+    EXPECTED_CANDIDATE_CHECKS | {"windows-long-path-regression"}
+)
 EXPECTED_CANDIDATE_REQUIRED_CHANNELS = {
     "automated",
     "fixture-integrity",
-    "profile-complete",
+    "contract-complete",
     "regression",
 }
 EXPECTED_CANDIDATE_OPTIONAL_CHANNELS = {
@@ -46,7 +49,7 @@ EXPECTED_CANDIDATE_OPTIONAL_CHANNELS = {
 EXPECTED_STABLE_REQUIRED_CHANNELS = {
     "automated",
     "fixture-integrity",
-    "profile-complete",
+    "contract-complete",
     "regression",
     "release-approval",
 }
@@ -133,8 +136,8 @@ EXPECTED_RELEASE_METRICS = {
     "automated_eval_cases",
     "automated_eval_pass_rate",
     "critical_failures",
-    "profile_complete_gate",
-    "profile_structure_gate",
+    "contract_complete_gate",
+    "contract_structure_gate",
     "unit_tests_executed",
     "unit_tests_failed",
     "unit_tests_passed",
@@ -149,8 +152,8 @@ METRIC_DIRECTIONS = {
     "automated_eval_cases": "neutral",
     "automated_eval_pass_rate": "higher",
     "critical_failures": "lower",
-    "profile_complete_gate": "higher",
-    "profile_structure_gate": "higher",
+    "contract_complete_gate": "higher",
+    "contract_structure_gate": "higher",
     "unit_tests_executed": "neutral",
     "unit_tests_failed": "lower",
     "unit_tests_passed": "higher",
@@ -705,6 +708,14 @@ def _validated_quality_report(
     report = _load_json_bytes(content, str(report_path))
     if not isinstance(report, dict):
         raise PackageError("El reporte de calidad debe ser un objeto JSON.")
+    if report.get("schema_version") == "simple-release-gate-1.0":
+        return _validated_simple_release_gate(
+            report,
+            content,
+            plugin_version=plugin_version,
+            source_commit=source_commit,
+            build_date=build_date,
+        )
     report_schema_version = report.get("schema_version")
     schema_relative = (
         "schemas/quality-report-1.1.schema.json"
@@ -856,12 +867,17 @@ def _validated_quality_report(
         )
     checks = report["checks"]
     check_ids = [check["id"] for check in checks]
+    expected_checks = (
+        EXPECTED_CANDIDATE_CHECKS
+        if release_channel == "candidate"
+        else EXPECTED_STABLE_CHECKS
+    )
     if (
         len(check_ids) != len(set(check_ids))
-        or set(check_ids) != EXPECTED_CANDIDATE_CHECKS
+        or set(check_ids) != expected_checks
     ):
         raise PackageError(
-            "El reporte no contiene el inventario exacto de checks candidate."
+            f"El reporte no contiene el inventario exacto de checks {release_channel}."
         )
     check_by_id = {check["id"]: check for check in checks}
     for check_id, check in check_by_id.items():
@@ -907,8 +923,8 @@ def _validated_quality_report(
             float(check["duration_seconds"])
             for check in checks
             if not (
-                execution.get("profile_mode") == "execute"
-                and check["id"] == "reference-profile-complete"
+                execution.get("verification_mode") == "execute"
+                and check["id"] == "explicit-verification-complete"
             )
         ),
         3,
@@ -1019,7 +1035,7 @@ def _validated_quality_report(
             resolved = isinstance(resolved_id, str) and (
                 (kind == "test" and resolved_id.rsplit(".", 1)[-1] == evidence_id)
                 or (kind == "eval" and resolved_id == evidence_id)
-                or (kind == "profile" and resolved_id == "complete-gate")
+                or (kind == "contract" and resolved_id == "complete-gate")
             )
             if not resolved:
                 raise PackageError(
@@ -1035,15 +1051,15 @@ def _validated_quality_report(
         raise PackageError("Los totales del canal automated no son consistentes.")
     if channels.get("fixture-integrity") != check_by_id["fixture-integrity"]:
         raise PackageError("El canal fixture-integrity no coincide con su check.")
-    profile_channel = channels.get("profile-complete")
+    contract_channel = channels.get("contract-complete")
     if (
-        not isinstance(profile_channel, dict)
-        or profile_channel.get("status") != "passed"
-        or set(profile_channel) - {"status", "evidence_mode"}
-        or profile_channel.get("evidence_mode", "execute")
+        not isinstance(contract_channel, dict)
+        or contract_channel.get("status") != "passed"
+        or set(contract_channel) - {"status", "evidence_mode"}
+        or contract_channel.get("evidence_mode", "execute")
         not in {"reuse", "execute"}
     ):
-        raise PackageError("El canal profile-complete no quedó superado.")
+        raise PackageError("El canal contract-complete no quedó superado.")
     if channels.get("regression") != {"status": "passed"}:
         raise PackageError("El canal regression no quedó superado.")
     expected_optional_channels = {
@@ -1124,8 +1140,8 @@ def _validated_quality_report(
         + metrics["unit_tests_failed"]
         or metrics["automated_eval_cases"] != deterministic_eval_count
         or metrics["automated_eval_pass_rate"] != 1
-        or metrics["profile_structure_gate"] != 1
-        or metrics["profile_complete_gate"] != 1
+        or metrics["contract_structure_gate"] != 1
+        or metrics["contract_complete_gate"] != 1
         or metrics["automated_catalog_cases"] != expected_automated_total
         or metrics["automated_catalog_cases_passed"] != expected_automated_total
         or metrics["automated_catalog_cases_failed"] != 0
@@ -1151,6 +1167,64 @@ def _validated_quality_report(
             f"El gate {release_channel} no es consistente con su evidencia."
         )
     return report, content
+
+
+def _validated_simple_release_gate(
+    report: dict[str, Any],
+    content: bytes,
+    *,
+    plugin_version: str,
+    source_commit: str,
+    build_date: str,
+) -> tuple[dict[str, Any], bytes]:
+    """Validate the compact release gate without reintroducing broad-suite policy."""
+
+    channel = report.get("channel")
+    expected_checks = {
+        "candidate": {
+            "static-integrity",
+            "release-core",
+        },
+        "stable": {
+            "release-approval",
+            "static-integrity",
+            "release-core",
+            "windows-long-path-regression",
+        },
+    }
+    source = report.get("source")
+    checks = report.get("checks")
+    gate = report.get("gate")
+    if (
+        report.get("plugin_version") != plugin_version
+        or report.get("evaluated_on") != build_date
+        or channel not in expected_checks
+        or source != {"commit": source_commit, "tree_state": "clean"}
+        or not isinstance(checks, list)
+        or not isinstance(gate, dict)
+        or gate != {"status": "passed", "blockers": []}
+    ):
+        raise PackageError("El gate compacto no acredita la release solicitada.")
+    check_ids = [check.get("id") for check in checks if isinstance(check, dict)]
+    if len(check_ids) != len(checks) or set(check_ids) != expected_checks[channel]:
+        raise PackageError("El gate compacto no contiene el inventario exacto de checks.")
+    for check in checks:
+        if (
+            check.get("status") != "passed"
+            or not _matches_json_type(check.get("duration_seconds"), "number")
+            or not isinstance(check.get("command"), (str, list))
+        ):
+            raise PackageError(
+                f"El gate compacto no acredita éxito: {check.get('id', 'unknown')}."
+            )
+    return (
+        {
+            "gate": {"status": "passed"},
+            "channel": channel,
+            "comparison": {"baseline_commit": None},
+        },
+        content,
+    )
 
 
 def _zip_bytes(

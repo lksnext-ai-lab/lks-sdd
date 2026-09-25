@@ -20,7 +20,7 @@ last_updated: "{{DATE}}"
 
 ## Identidad
 
-| Task | Plan | Release | Increment | Unit | Profile binding | Type |
+| Task | Plan | Release | Increment | Unit | Binding | Type |
 |---|---|---|---|---|---|---|
 | {{TASK_ID}} | {{PLAN_ID}} | {{RELEASE_ID}} | {{INCREMENT_ID}} | {{UNIT_ID}} | {{BINDING_ID}} | implementation |
 
@@ -44,7 +44,7 @@ last_updated: "{{DATE}}"
 
 ## Alcance conjunto de integración
 
-| Interface | Units | Profile bindings | Evidence scopes | Operations |
+| Interface | Units | Bindings | Evidence scopes | Operations |
 |---|---|---|---|---|
 
 Complete esta tabla solo para una TASK responsable de `INT-###`. Debe repetir exactamente todas las unidades, bindings, scopes y operaciones del contrato de interfaz; no oculte participantes en texto libre.

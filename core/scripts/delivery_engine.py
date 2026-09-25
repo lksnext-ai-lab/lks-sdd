@@ -103,7 +103,7 @@ TASK_HEADERS = (
     "Release",
     "Increment",
     "Unit",
-    "Profile binding",
+    "Binding",
     "Workflow state",
     "Health",
     "Progress",
@@ -122,7 +122,7 @@ ARCHITECTURE_HEADERS = (
     "Interfaces",
     "Data ownership",
     "Requirements",
-    "Profile binding",
+    "Binding",
 )
 EXTERNAL_INTEGRATION_HEADERS = (
     "ID", "State", "System", "Purpose", "Contract", "Authentication",
@@ -133,7 +133,7 @@ INTEGRATION_INTERFACE_HEADERS = (
     "State",
     "Consumer unit",
     "Producer unit",
-    "Profile bindings",
+    "Bindings",
     "Protocol",
     "Contract",
     "Operations",
@@ -146,7 +146,7 @@ INTEGRATION_INTERFACE_HEADERS = (
 TASK_INTEGRATION_HEADERS = (
     "Interface",
     "Units",
-    "Profile bindings",
+    "Bindings",
     "Evidence scopes",
     "Operations",
 )
@@ -161,7 +161,7 @@ TASK_DETAIL_HEADERS = {
         "Release",
         "Increment",
         "Unit",
-        "Profile binding",
+        "Binding",
         "Type",
     ),
     "definition": (
@@ -479,7 +479,7 @@ def _validate_task_detail(
             "Release": row["Release"],
             "Increment": row["Increment"],
             "Unit": row["Unit"],
-            "Profile binding": row["Profile binding"],
+            "Binding": row["Binding"],
         }
         for column, value in expected.items():
             if identity_row.get(column) != value:
@@ -694,7 +694,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
     }
     bindings = {
         item.get("binding_id", ""): item
-        for item in manifest.get("technology", {}).get("profile_bindings", [])
+        for item in manifest.get("bindings", [])
         if isinstance(item, dict) and item.get("binding_id")
     }
 
@@ -761,21 +761,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         if unit_id not in units:
             errors.append(f"{binding_id}: unit_id {unit_id!r} no existe en arquitectura.")
         if binding.get("state") == "confirmed" and not binding.get("selection_decision"):
-            errors.append(f"{binding_id}: falta ADR de selección confirmada.")
-        expected_lock = f".lks-sdd/profiles/{binding_id}.lock.json"
-        if binding.get("lock_path") != expected_lock:
-            errors.append(f"{binding_id}: lock_path debe ser {expected_lock}.")
-    confirmed_bindings = [
-        item for item in bindings.values() if item.get("state") == "confirmed"
-    ]
-    selected_profile = manifest.get("technology", {}).get("selected_profile")
-    if len(confirmed_bindings) == 1 and selected_profile not in {
-        None,
-        confirmed_bindings[0].get("profile_id"),
-    }:
-        errors.append("technology.selected_profile diverge del único binding confirmado.")
-    if len(confirmed_bindings) > 1 and selected_profile is not None:
-        errors.append("technology.selected_profile debe ser null en una composición multiperfil.")
+            errors.append(f"{binding_id}: falta ADR de asignación confirmada.")
 
     integration_reconciliation: list[dict[str, str]] = []
     for unit_id, unit in units.items():
@@ -814,10 +800,10 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
                 + ", ".join(unknown_units)
                 + "."
             )
-        binding_ids = _ids(interface.get("Profile bindings", ""), "BIND")
+        binding_ids = _ids(interface.get("Bindings", ""), "BIND")
         if len(set(binding_ids)) < 2:
             errors.append(
-                f"{interface_id}: Profile bindings debe seleccionar al menos dos BIND-###."
+                f"{interface_id}: Bindings debe seleccionar al menos dos BIND-###."
             )
         unknown_bindings = sorted(set(binding_ids) - set(bindings))
         if unknown_bindings:
@@ -832,7 +818,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         }
         if participant_units and observed_units != participant_units:
             errors.append(
-                f"{interface_id}: Profile bindings no coincide exactamente con consumidor y productor."
+                f"{interface_id}: Bindings no coincide exactamente con consumidor y productor."
             )
         operations = {
             item.strip().casefold()
@@ -937,8 +923,8 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
             errors.append(f"{task_id}: Release no existe.")
         if row.get("Unit") not in units:
             errors.append(f"{task_id}: Unit no existe.")
-        if row.get("Profile binding") not in bindings:
-            errors.append(f"{task_id}: Profile binding no existe.")
+        if row.get("Binding") not in bindings:
+            errors.append(f"{task_id}: Binding no existe.")
         updated = row.get("Updated", "")
         if not _date(updated):
             errors.append(f"{task_id}: Updated debe usar AAAA-MM-DD.")
@@ -996,7 +982,7 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
             + _ids(interface.get("Producer unit", ""), "UNIT")
         )
         expected_bindings = set(
-            _ids(interface.get("Profile bindings", ""), "BIND")
+            _ids(interface.get("Bindings", ""), "BIND")
         )
         expected_scopes = {
             item.strip().casefold()
@@ -1010,9 +996,9 @@ def validate_delivery_contract(root: Path, manifest: dict[str, Any]) -> dict[str
         }
         if set(_ids(scope.get("Units", ""), "UNIT")) != expected_units:
             errors.append(f"{task_id}: Units no coincide con {interface_id}.")
-        if set(_ids(scope.get("Profile bindings", ""), "BIND")) != expected_bindings:
+        if set(_ids(scope.get("Bindings", ""), "BIND")) != expected_bindings:
             errors.append(
-                f"{task_id}: Profile bindings conjuntos no coinciden con {interface_id}."
+                f"{task_id}: Bindings conjuntos no coinciden con {interface_id}."
             )
         observed_scopes = {
             item.strip().casefold()
@@ -1243,9 +1229,9 @@ def delivery_readiness(
                 f"{task_id} debe estar ready antes de iniciar implementación; "
                 f"está {row.get('Workflow state')!r}."
             )
-        binding = result["bindings"].get(row.get("Profile binding"))
+        binding = result["bindings"].get(row.get("Binding"))
         if binding is None or binding.get("state") != "confirmed":
-            blockers.append(f"{task_id} no tiene un profile binding confirmado.")
+            blockers.append(f"{task_id} no tiene un binding confirmado.")
         release = result["releases"].get(row.get("Release"))
         if release is None or release.get("State") not in ACTIVE_RELEASE_STATES:
             blockers.append(f"{task_id} no tiene una release planificable activa.")
@@ -1266,9 +1252,9 @@ def delivery_readiness(
         "task_ids": sorted(tasks),
         "binding_ids": sorted(
             {
-                row["Profile binding"]
+                row["Binding"]
                 for row in tasks.values()
-                if row.get("Profile binding")
+                if row.get("Binding")
             }
         ),
         "plan_id": active_plan,

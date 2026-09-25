@@ -1,448 +1,109 @@
+"""Cross-host visual handoffs use local v2 sources and explicit cancellation."""
 from __future__ import annotations
 
-import hashlib
-import json
-import struct
 import tempfile
 import unittest
-import zlib
 from pathlib import Path
-from typing import Any
 
-from eval_support import (
-    HELP_SCRIPT,
-    IMPLEMENT_SCRIPT,
-    READINESS_SCRIPT,
-    VALIDATE_SCRIPT,
-    VALIDATE_SPEC_SCRIPT,
-    VERIFY_SCRIPT,
-    initialize,
-    run_json,
-    tree_digest,
-)
+from eval_support import materialize_ready_project, update_technology_declaration
+from v2_contract import ContractError, DOCS, canonical, load, make_element, render_document
+from v2_storage import apply, preview
+from v2_visual import cancel, inspect, request
 
 
-PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-FIXTURE_PATH = PLUGIN_ROOT / "tests" / "fixtures" / "calculator-handoff-1.5.json"
-TEMPLATE_ROOT = (
-    PLUGIN_ROOT / "skills" / "lks-sdd-define" / "assets" / "templates"
-)
-TRACEABILITY_SCRIPT = PLUGIN_ROOT / "scripts" / "check_traceability.py"
-
-
-def _png_bytes(width: int, height: int, rgb: list[int]) -> bytes:
-    """Build a deterministic valid RGB PNG without optional image libraries."""
-
-    def chunk(kind: bytes, payload: bytes) -> bytes:
-        return (
-            struct.pack(">I", len(payload))
-            + kind
-            + payload
-            + struct.pack(">I", zlib.crc32(kind + payload) & 0xFFFFFFFF)
-        )
-
-    pixel = bytes(rgb)
-    scanlines = b"".join(b"\x00" + pixel * width for _ in range(height))
-    return (
-        b"\x89PNG\r\n\x1a\n"
-        + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
-        + chunk(b"IDAT", zlib.compress(scanlines, level=9))
-        + chunk(b"IEND", b"")
+def _add_handoff_source(root: Path) -> None:
+    model = load(root)
+    path = DOCS + "/03-solution/visual/VIS-001.md"
+    visual = make_element(
+        "VIS-001",
+        "visual",
+        "Handoff source",
+        "The local visual contract is reviewed through the documented handoff.",
+        state="confirmed",
+        nature="decision",
+        relations={"uses": ["TECH-001"]},
     )
-
-
-def _render_template(relative: str, project_id: str, date: str) -> str:
-    content = (TEMPLATE_ROOT / relative).read_text(encoding="utf-8")
-    return (
-        content.replace("{{PROJECT_ID}}", project_id)
-        .replace("{{BASELINE_ID}}", "BL-0001")
-        .replace("{{DATE}}", date)
-    )
-
-
-def _append_rows(path: Path, header: str, rows: list[list[str]]) -> None:
-    lines = path.read_text(encoding="utf-8").splitlines()
-    index = lines.index(header)
-    insertion = index + 2
-    rendered = ["| " + " | ".join(row) + " |" for row in rows]
-    lines[insertion:insertion] = rendered
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
-
-
-def _remove_seed_open_point(path: Path) -> None:
-    lines = [
-        line
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if not line.startswith("| OPEN-001 |")
-    ]
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
-
-
-def _mark_definition_sufficient(path: Path) -> None:
-    lines = path.read_text(encoding="utf-8").splitlines()
-    for index, line in enumerate(lines):
-        if line.startswith("| new |"):
-            lines[index] = (
-                "| new | readiness | G2 | INC-001 | derived-on-demand | "
-                "Ejecutar readiness de solo lectura |"
-            )
-    coverage_header = (
-        "| Dimensión | Estado | Alcance | Información disponible | "
-        "Falta profundizar | Impacto |"
-    )
-    start = lines.index(coverage_header) + 2
-    for index in range(start, len(lines)):
-        if not lines[index].startswith("|"):
-            break
-        cells = [cell.strip() for cell in lines[index].strip().strip("|").split("|")]
-        cells[1:] = [
-            "sufficient",
-            "INC-001",
-            "Contrato sintético confirmado y trazable",
-            "none",
-            "Sin bloqueo de handoff",
-        ]
-        lines[index] = "| " + " | ".join(cells) + " |"
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
-
-
-def _materialize_fixture(root: Path, fixture: dict[str, Any]) -> tuple[Path, Path]:
-    docs = root / "docs" / "lks-sdd"
-    manifest_path = root / ".lks-sdd" / "project.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest.update(
-        {
-            "phase": "readiness",
-            "gate": "G2",
-            "active_increment": fixture["increment"],
-        }
-    )
-    manifest["technology"] = {
-        "preferred_stack_assessed": True,
-        "selected_profile": fixture["profile"]["id"],
-        "selection_decision": fixture["profile"]["decision"],
-        "profile_bindings": [
-            {
-                "binding_id": "BIND-001",
-                "unit_id": "UNIT-001",
-                "unit_path": ".",
-                "profile_id": fixture["profile"]["id"],
-                "profile_scope": "deployable",
-                "selection_decision": fixture["profile"]["decision"],
-                "lock_path": ".lks-sdd/profiles/BIND-001.lock.json",
-                "state": "confirmed",
-            }
-        ],
+    index = dict(model.manifest)
+    index["artifacts"] = [*index["artifacts"], {"id": "VIS-001", "path": path}]
+    changes = {
+        path: render_document("visual", "Handoff source", [visual]),
+        ".lks-sdd/project.json": canonical(index) + b"\n",
     }
-    for artifact in fixture["optional_artifacts"]:
-        relative = artifact["path"]
-        destination = docs / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        rendered = _render_template(
-            relative, fixture["project_id"], fixture["date"]
-        )
-        if manifest.get("schema_version") == "1.1":
-            rendered = rendered.replace(
-                'schema_version: "1.5"', 'schema_version: "1.1"', 1
-            ).replace(
-                'method_version: "1.5.0"', 'method_version: "1.1.0"', 1
-            ).replace(
-                'created_with_plugin_version: "0.15.0"',
-                'created_with_plugin_version: "0.7.0"',
-                1,
-            )
-        destination.write_text(
-            rendered,
-            encoding="utf-8",
-            newline="\n",
-        )
-        manifest["artifacts"].append(
-            {
-                "id": artifact["id"],
-                "path": f"docs/lks-sdd/{relative}",
-                "required": True,
-            }
-        )
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-    bundled_lock = (
-        PLUGIN_ROOT
-        / "profiles"
-        / fixture["profile"]["id"]
-        / "technology-profile.lock.json"
-    )
-    consumer_lock = root / ".lks-sdd" / "profiles" / "BIND-001.lock.json"
-    consumer_lock.parent.mkdir(parents=True, exist_ok=True)
-    consumer_lock.write_bytes(bundled_lock.read_bytes())
-
-    _remove_seed_open_point(docs / "00-control" / "open-points.md")
-    _mark_definition_sufficient(docs / "00-control" / "project-status.md")
-    for table in fixture["tables"]:
-        _append_rows(docs / table["path"], table["header"], table["rows"])
-    _append_rows(
-        docs / "03-solution" / "architecture.md",
-        "| Unit | State | Component | Responsibility | Runtime boundary | Interfaces | Data ownership | Requirements | Profile binding |",
-        [[
-            "UNIT-001",
-            "confirmed",
-            "Calculadora profesional",
-            "Calcular y versionar presupuestos sintéticos",
-            "Aplicación web desplegable",
-            "HTTP/OpenAPI y UI web",
-            "Presupuestos y versiones",
-            "FR-001..FR-004, NFR-001..NFR-002, TR-001..TR-002",
-            "BIND-001",
-        ]],
-    )
-
-    visuals = docs / "03-solution" / "ui-prototypes"
-    visuals.mkdir(parents=True, exist_ok=True)
-    active = fixture["visuals"]["active"]
-    historical = fixture["visuals"]["historical"]
-    active_path = visuals / active["filename"]
-    historical_path = visuals / historical["filename"]
-    active_bytes = _png_bytes(1440, 900, active["rgb"])
-    historical_bytes = _png_bytes(1440, 900, historical["rgb"])
-    active_path.write_bytes(active_bytes)
-    historical_path.write_bytes(historical_bytes)
-
-    ux_path = docs / "03-solution" / "ux-accessibility.md"
-    visual_header = (
-        "| ID | State | Asset | Format | Viewport | Screens or flow | "
-        "Requirements | Source | Generated on | Prompt or brief | SHA-256 | "
-        "Human validation | Confirmation scope | Limitations | Decision | Increment |"
-    )
-    _append_rows(
-        ux_path,
-        visual_header,
-        [
-            [
-                active["id"],
-                "confirmed",
-                f"![Baseline activa](ui-prototypes/{active['filename']})",
-                "PNG",
-                "1440x900",
-                "UX-001..UX-002, UX-010",
-                "FR-001..FR-004, NFR-001",
-                "ImageGen synthetic fixture; placeholder only",
-                fixture["date"],
-                "Jerarquía del editor, total persistente y navegación de versiones",
-                hashlib.sha256(active_bytes).hexdigest(),
-                "user-confirmed; role=synthetic-fixture-reviewer; date=2026-08-20; ref=ADR-002",
-                "Jerarquía, densidad y flujo principal del fixture",
-                "No demuestra responsive, accesibilidad ni comportamiento ejecutado",
-                "ADR-002",
-                "INC-001",
-            ],
-            [
-                historical["id"],
-                "rejected",
-                f"![Alternativa histórica](ui-prototypes/{historical['filename']})",
-                "PNG",
-                "1440x900",
-                "UX-001",
-                "FR-001..FR-003",
-                "ImageGen synthetic fixture; rejected placeholder",
-                fixture["date"],
-                "Alternativa de editor descartada por ocultar el total",
-                hashlib.sha256(historical_bytes).hexdigest(),
-                "rejected; role=synthetic-fixture-reviewer; date=2026-08-20; ref=ADR-002",
-                "Historial de una dirección descartada",
-                "No forma parte del contrato activo",
-                "ADR-002",
-                "INC-001",
-            ],
-        ],
-    )
-    return active_path, historical_path
+    proposal = preview(root, changes, sources=model.hashes, operation="add-handoff-source")
+    apply(root, changes, proposal, proposal["preview_hash"], validator=lambda: load(root).require_valid())
 
 
 class ComplexCalculatorHandoffTests(unittest.TestCase):
-    def test_handoff_preflight_rejects_an_active_link_to_historical_visual(self) -> None:
-        fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
-        with tempfile.TemporaryDirectory(prefix="lks-sdd-active-visual-") as temporary:
-            root = Path(temporary)
-            initialize(root, fixture["project_id"])
-            _materialize_fixture(root, fixture)
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory(prefix="lks-sdd-handoff-")
+        self.root = Path(self.temporary.name)
+        materialize_ready_project(self.root, "complex-handoff")
+        _add_handoff_source(self.root)
+        self.request_data = {
+            "from_host": "copilot",
+            "to_host": "codex",
+            "actor": "handoff-owner",
+            "brief": "Review the local visual source before generating alternatives.",
+            "visual_ids": ["VIS-001"],
+        }
 
-            increments_path = root / "docs/lks-sdd/04-delivery/increments.md"
-            increments = increments_path.read_text(encoding="utf-8")
-            increments_path.write_text(
-                increments.replace(
-                    "| new | VIS-003 |",
-                    "| new | VIS-003, VIS-001 |",
-                    1,
-                ),
-                encoding="utf-8",
-                newline="\n",
-            )
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
 
-            validation_code, structural = run_json(VALIDATE_SCRIPT, str(root))
-            self.assertEqual(validation_code, 0, structural)
-            self.assertTrue(structural["valid"], structural["errors"])
+    def test_handoff_is_preview_bound_and_never_grants_implementation_authority(self):
+        proposal = request(load(self.root), self.request_data)
+        applied = request(
+            load(self.root),
+            self.request_data,
+            authorized_hash=proposal["preview_hash"],
+        )
+        state = inspect(load(self.root), proposal["id"])
 
-            trace_code, traceability = run_json(
-                TRACEABILITY_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                "--phase",
-                "preimplementation",
-                expected_codes={3},
-            )
-            self.assertEqual(trace_code, 3, traceability)
-            self.assertFalse(traceability["valid"])
-            trace_codes = {
-                item["code"] for item in traceability["diagnostics"]
-            }
-            self.assertIn("LKS-ACTIVE-HISTORICAL-REFERENCE", trace_codes)
-            self.assertTrue(
-                any(
-                    "VIS-001 (rejected)" in gap
-                    for gap in traceability["gaps"]
-                ),
-                traceability["gaps"],
-            )
+        self.assertEqual(applied["status"], "applied")
+        self.assertEqual(state["status"], "requested")
+        self.assertEqual(
+            state["request"]["implementation_authorization"], "not-granted"
+        )
+        self.assertEqual(state["request"]["acceptance"], "not-granted")
 
-            _, context = run_json(HELP_SCRIPT, str(root))
-            preflight = context["readiness_preflight"]
-            self.assertEqual(preflight["status"], "incomplete")
-            self.assertIn(
-                "LKS-ACTIVE-HISTORICAL-REFERENCE",
-                {item["code"] for item in preflight["diagnostics"]},
-            )
-            self.assertEqual(preflight["gaps"], traceability["gaps"])
+    def test_stale_local_technology_can_be_cancelled_but_not_inspected_as_current(self):
+        proposal = request(load(self.root), self.request_data)
+        request(
+            load(self.root),
+            self.request_data,
+            authorized_hash=proposal["preview_hash"],
+        )
+        update_technology_declaration(
+            self.root, value="Changed technology after handoff request"
+        )
 
-            readiness_code, readiness = run_json(
-                READINESS_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                expected_codes={3},
-            )
-            self.assertEqual(readiness_code, 3, readiness)
-            self.assertEqual(readiness["status"], "specification-blocked")
-            self.assertIn(
-                "LKS-ACTIVE-HISTORICAL-REFERENCE",
-                {item["code"] for item in readiness["diagnostics"]},
-            )
+        with self.assertRaisesRegex(ContractError, "sources changed"):
+            inspect(load(self.root), proposal["id"])
 
-    def test_calculator_contract_1_5_reaches_the_guarded_handoff_without_execution(self) -> None:
-        fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
-        self.assertEqual(fixture["classification"], "synthetic-only")
-        with tempfile.TemporaryDirectory(prefix="lks-sdd-calculator-1-1-") as temporary:
-            root = Path(temporary)
-            initialized = initialize(root, fixture["project_id"])
-            manifest = json.loads(
-                (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
-            )
-            self.assertEqual(initialized["status"], "initialized")
-            self.assertEqual(manifest["schema_version"], "1.5")
-            self.assertEqual(manifest["method_version"], "1.5.0")
+        cancellation = cancel(
+            load(self.root),
+            proposal["id"],
+            {
+                "actor": "handoff-owner",
+                "recorded_at": "2026-09-19T10:00:00+00:00",
+                "reason": "The local source changed before review.",
+            },
+        )
+        cancelled = cancel(
+            load(self.root),
+            proposal["id"],
+            {
+                "actor": "handoff-owner",
+                "recorded_at": "2026-09-19T10:00:00+00:00",
+                "reason": "The local source changed before review.",
+            },
+            authorized_hash=cancellation["preview_hash"],
+        )
 
-            active_path, historical_path = _materialize_fixture(root, fixture)
-            _, structural = run_json(VALIDATE_SCRIPT, str(root))
-            self.assertTrue(structural["valid"], structural["errors"])
+        self.assertEqual(cancelled["status"], "applied")
+        with self.assertRaisesRegex(ContractError, "cancelled"):
+            inspect(load(self.root), proposal["id"])
 
-            _, specification = run_json(VALIDATE_SPEC_SCRIPT, str(root))
-            self.assertTrue(specification["valid"], specification["errors"])
-            self.assertEqual(specification["automation_support"]["profile_id"], fixture["profile"]["id"])
 
-            _, context = run_json(HELP_SCRIPT, str(root))
-            self.assertEqual(context["structural_validity"]["status"], "valid")
-            self.assertEqual(context["readiness_snapshot"]["source"], "derived-on-demand")
-            self.assertEqual(context["readiness_preflight"]["status"], "clear")
-            self.assertFalse(context["action_started"])
-
-            _, traceability = run_json(
-                TRACEABILITY_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                "--phase",
-                "preimplementation",
-            )
-            self.assertTrue(traceability["valid"], traceability["gaps"])
-            self.assertEqual(
-                set(traceability["checked"]),
-                {
-                    "FR-001",
-                    "FR-002",
-                    "FR-003",
-                    "FR-004",
-                    "NFR-001",
-                    "NFR-002",
-                    "TR-001",
-                    "TR-002",
-                },
-            )
-            self.assertFalse(traceability["evidence_required"])
-
-            first_code, first_readiness = run_json(
-                READINESS_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                expected_codes={3},
-            )
-            self.assertEqual(first_code, 3)
-            self.assertEqual(
-                first_readiness["status"], "automation-blocked", first_readiness
-            )
-            self.assertEqual(first_readiness["specification_readiness"]["status"], "ready")
-            self.assertEqual(first_readiness["automation_support"]["status"], "unsupported")
-            self.assertEqual(
-                first_readiness["planning_completeness"]["status"],
-                "not-started",
-            )
-            self.assertEqual(first_readiness["visual_prototypes"], ["VIS-003"])
-            self.assertIn(active_path.relative_to(root).as_posix(), first_readiness["checked_files"])
-            self.assertNotIn(historical_path.relative_to(root).as_posix(), first_readiness["checked_files"])
-            active_fingerprint = first_readiness["active_contract_fingerprint"]
-            document_fingerprint = first_readiness["document_fingerprint"]
-
-            replacement_rgb = fixture["visuals"]["historical"]["replacement_rgb"]
-            historical_path.write_bytes(_png_bytes(1440, 900, replacement_rgb))
-            second_code, second_readiness = run_json(
-                READINESS_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                expected_codes={3},
-            )
-            self.assertEqual(second_code, 3)
-            self.assertEqual(second_readiness["status"], "automation-blocked")
-            self.assertEqual(second_readiness["active_contract_fingerprint"], active_fingerprint)
-            self.assertNotEqual(second_readiness["document_fingerprint"], document_fingerprint)
-
-            before_plans = tree_digest(root)
-            preparation_code, preparation = run_json(
-                IMPLEMENT_SCRIPT,
-                str(root),
-                "--increment",
-                fixture["increment"],
-                "--dry-run",
-                expected_codes={3},
-            )
-            self.assertEqual(preparation_code, 3)
-            self.assertEqual(preparation["status"], "blocked")
-            self.assertFalse(preparation["changed"])
-            self.assertTrue(
-                any(
-                    "binding" in item.casefold() or "plan" in item.casefold()
-                    for item in preparation["blockers"]
-                )
-            )
-            self.assertEqual(tree_digest(root), before_plans)
-            self.assertFalse((root / "apps").exists())
-            self.assertFalse((root / "docs" / "lks-sdd" / "evidence").exists())
-            final_manifest = json.loads(
-                (root / ".lks-sdd" / "project.json").read_text(encoding="utf-8")
-            )
-            self.assertNotIn("implementation", final_manifest)
-            self.assertNotIn("verification", final_manifest)
 if __name__ == "__main__":
     unittest.main()

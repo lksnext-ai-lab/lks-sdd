@@ -65,7 +65,7 @@ distribución Codex desktop, con el mismo núcleo fijado por proyecto. Copilot u
 relevo a Codex para las imágenes; no genera mediante una API añadida. La paridad
 conversacional requiere el piloto real: empaquetar las skills no la demuestra.
 Claude y la extensión Codex de VS Code quedan fuera de alcance. Consulte
-[instalación](../../../docs/INSTALLATION.md) y [aceptación](../../../docs/DUAL-HOST-ACCEPTANCE.md).
+[instalación](../../../docs/INSTALLATION.md) y [aceptación](../../../docs/V2-HOST-ACCEPTANCE.md).
 
 ## ¿Qué archivo manda si el índice y un Markdown discrepan?
 

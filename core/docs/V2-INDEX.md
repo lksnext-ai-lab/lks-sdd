@@ -1,22 +1,17 @@
 # Documentación de LKS-SDD 2
 
-Versión del plugin: **2.0.1**. Empieza por [instalación](INSTALLATION.md),
-[compatibilidad](COMPATIBILITY.md) y [notas de release](releases/v2.0.1.md).
+Versión del plugin: **2.3.0**. Empieza por [instalación](INSTALLATION.md),
+[compatibilidad](COMPATIBILITY.md) y el [historial de versiones](../CHANGELOG.md).
 La autorización de publicación no sustituye los ensayos humanos/host pendientes.
 
 | Conjunto | Fuente y propósito |
 |---|---|
-| Contrato | [Contrato 2.0](../specs/proposed/project-contract-2.0.md): semántica normativa y decisiones aprobadas para implementar |
-| Guías de uso | [Workflows](V2-WORKFLOWS.md), [consultas](PROJECT-QUERY.md) y [variantes](PROJECT-VARIANTS.md) |
+| Contrato | [Contrato de proyecto 2.0](../specs/proposed/project-contract-2.0.md): declaraciones tecnológicas locales y corte 1.5 → 2.0 |
+| Guías de uso | [Workflows](V2-WORKFLOWS.md), [continuidad SPEC/PLAN/TASK](V2-SPEC-PLAN-TASK.md), [consultas](PROJECT-QUERY.md) y declaración tecnológica local |
 | Referencia técnica | `python scripts/lks_sdd.py v2 --help`, schemas y pruebas de invariantes en tests/test_v2_* |
 | Mantenimiento | [Migración](V2-MIGRATION.md), [validación](VALIDATION.md) y [distribución](DISTRIBUTION.md) |
-| Evidencia de versión | [Estado de implementación](validation/v2-implementation.md), [cobertura](plans/2026-09-18-lks-sdd-v2-coverage.md) y aceptación por host |
+| Estado y aceptación | [Estado actual](STATUS.md) y [aceptación por host](V2-HOST-ACCEPTANCE.md) |
 
-Los documentos 0.x/1.x son referencia histórica o workflow de consumidores sin
-migrar, no reglas que sobreescriban el contrato 2.0. Las fuentes originales de
-specs/canonical/ permanecen intactas. El plan y su matriz no acreditan ejecución.
-
-Los corpus de investigación de compilación de contexto permanecen en el repositorio
-de mantenimiento, fuera del runtime instalado. No son dependencias operativas ni
-evidencia de certificación; su exclusión del paquete conserva rutas compatibles
-con Windows sin modificar ni eliminar los originales.
+La compatibilidad 1.5 se limita al runtime fijado de consumidores no migrados y a su
+migración explícita; no sobreescribe el contrato 2.0. Las fuentes originales de
+`specs/canonical/` permanecen intactas. La trazabilidad no acredita ejecución.

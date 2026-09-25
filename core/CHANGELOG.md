@@ -1,5 +1,109 @@
 # Changelog
 
+## 2.3.1 — 2026-09-25 — verificación Oracle independiente
+
+- Admite `oracle-independent-connection` con recurso de catálogo exacto y lectura
+  del mismo registro mutado, conservando el contrato previo de PostgreSQL.
+- Mantiene los controles de procedencia, artefactos, ausencia de mocks de dominio
+  y aceptación humana. Añade regresiones positivas y negativas del validador.
+- El gate técnico de release y la publicación se acreditan por separado. Esta
+  corrección no acredita persistencia real de un consumidor, activación en el host
+  ni ejecución de piloto.
+
+## 2.3.0 — 2026-09-23 — continuidad de cambios desde SPEC hasta implementación
+
+- Introduce método documental 2.1.0 sobre schema 2.0. Las peticiones materiales
+  `PCH-###` enlazan puntos del cambio con requisitos, aceptación, tests, PLAN y
+  TASK; una SPEC ampliada sin asignación bloquea readiness.
+- Incorpora la planificación normativa aplicable a la huella de AUTH/EXEC/EVID.
+  Cambios en las reglas comunes del PLAN dejan obsoleta la autoridad; las tareas
+  independientes y el progreso operativo conservan su alcance.
+- Añade diagnóstico de cambios, actualización explícita desde método 2.0.0 y
+  un guard estricto de integración con base de código y contrato aprobado
+  independientes del candidato. Conserva el guard estructural anterior.
+- Actualiza las seis skills y las instrucciones gestionadas de Codex y Copilot
+  para conducir toda modificación por SPEC → PLAN/TASK → implementación.
+- Agrega regresiones de omisiones de requisitos/aceptación, deriva de PLAN,
+  actualización de método y rechazo de código sin AUTH/EXEC. La aceptación
+  conversacional por host y el piloto permanecen separados del gate técnico.
+
+## 2.2.0 — 2026-09-21 — retención operativa y compactación reversible
+
+- Añade `retention-status` como diagnóstico derivado para medir controles activos,
+  candidatos de archivado y bytes sin escribir en el proyecto consumidor.
+- Añade `retention-compact` y `retention-restore` con preview, autorización exacta,
+  índice único, hashes de integridad y restauración explícita de AUTH, EXEC, CKPT,
+  PROB y REC cerrados.
+- Preserva documentos normativos, EVID y referencias activas; el historial
+  operativo se separa de las rutas activas sin crear una segunda fuente canónica.
+- Reutiliza checkpoints idénticos del mismo hito y evita materialización repetida
+  de continuidad.
+
+## 2.1.3 — 2026-09-20 — cierre v2 recuperable y guiado
+
+- Separa resultado técnico, aceptación humana, cierre de TASK, dependencias y
+  delivery: una EVID fallida o bloqueada conserva su clasificación real y solo
+  puede cerrarse con reservas explícitas cuando una política local lo permite.
+- Registra EVID `not-verified` de intentos de preflight bloqueados cuando el
+  contrato mínimo es íntegro; no fabrica un pase ni permite cerrar por reservas
+  la ausencia o deriva de un observer aprobado.
+- Añade recibos inmutables para aceptación de reservas y para la continuación
+  explícita de dependencias reservadas. Esta última exige la EVID terminal
+  vigente de la dependencia y vuelve a requerir decisión tras una corrección.
+- Incorpora la salida `replan` como recuperación consciente de una ejecución
+  bloqueada: conserva historial, cancela EXEC, revoca AUTH y devuelve la TASK a
+  `ready`, sin declararla verificada ni entregable.
+- Explica bloqueos v2 en términos funcionales —efecto, siguiente paso y
+  opciones seguras— y reserva los diagnósticos técnicos para JSON y auditoría.
+
+## 2.1.2 — 2026-09-20 — verificación v2 por sujeto exacto
+
+- Excluye únicamente el metadato raíz `.git` —archivo de worktree o directorio—
+  de los inventarios contractuales compartidos, sin relajar el rechazo de enlaces,
+  junctions, secretos ni repositorios anidados.
+- Cierra `--task` sobre relaciones normativas: conserva release, plan, incremento y
+  parent como trazabilidad administrativa, pero no incorpora TASKs hermanas ni sus
+  gates; las dependencias normativas directas y obligaciones globales confirmadas
+  siguen aplicándose.
+- Materializa checks exclusivamente desde observers aprobados y aplicables en la
+  declaración tecnológica local. Valida imagen fijada, argv, timeout, scopes,
+  interfaces e inputs hasheados antes y después de ejecutar; ausencia o deriva
+  bloquea sin inferir comandos ni generar evidencia.
+- Añade fixtures sintéticos para inventario Git, cierre de contexto, observers,
+  evidencia inmutable, aceptación humana y cierre separados.
+
+## 2.1.1 — 2026-09-19 — continuidad de ejecuciones migradas
+
+- Distingue ejecuciones v2 activas de registros históricos
+  `reconciliation-required`: estos últimos se preservan como antecedentes
+  auditables, no bloquean una ejecución autorizada ni pueden producir evidencia.
+- Resuelve `checkpoint`, `diff` y `review-diff` dentro del `--task` solicitado,
+  igual que las demás transiciones de continuidad, y conserva el bloqueo explícito
+  cuando dos ejecuciones normativas activas comparten el mismo ámbito.
+
+## 2.1.0 — 2026-09-19 — declaración tecnológica local
+
+- Sustituye perfiles, recetas, variantes, locks y certificaciones tecnológicas
+  globales por una declaración tecnológica obligatoria, local y confirmada en cada
+  proyecto.
+- Integra el contexto tecnológico aplicable en definición, adopción, readiness,
+  planificación, implementación y verificación; las tecnologías desconocidas
+  críticas bloquean solo el trabajo afectado.
+- Migra directamente consumidores 1.5 y 2.0 anteriores al contrato local,
+  archivando los datos de perfiles exclusivamente como procedencia histórica.
+- Añade transiciones explícitas de tecnología origen→destino, conserva solo el
+  destino cuando se completan y actualiza los bundles de Codex y Copilot.
+
+## 2.0.2 — 2026-09-18 — rutas largas Windows
+
+- Normaliza internamente raíces Windows mediante rutas extended-length sin persistir
+  el prefijo `\\?\` en contratos, recibos, hashes, mappings ni mensajes de negocio.
+- Mantiene las comprobaciones de symlinks, junctions, escapes, `.git`, repositorios
+  anidados y secretos; los fallos reales de `MAX_PATH` ahora son explícitos y accionables.
+- Añade una regresión Windows que compara instalación corta/larga, contrato, perfiles,
+  todas las entradas de integridad del runtime, diagnóstico, preview y ausencia de
+  escrituras en el proyecto consumidor.
+
 ## 2.0.1 — 2026-09-18 — migración 1.5→2.0
 
 - Añade migración oficial autónoma y reversible desde 1.5 a 2.0 con inventario
@@ -178,7 +282,7 @@ en `quality-report.json`, `release-manifest.json` y `SHA256SUMS`.
 
 ## 0.14.2 — 2026-08-28 — evidencia autoconsumible y registro transaccional
 
-- Hace canónica la identidad de perfil del EVID 1.2: una ejecución con un solo binding registra arriba su `profile_id` y `profile_version` exactos; una ejecución multiperfil omite ese resumen y conserva la identidad completa en `profile_bindings`, `profile_locks` y `build_identity_material`.
+- Reemplaza la identidad tecnológica global de EVID 1.2 por bindings genéricos y una declaración tecnológica local; las fuentes 1.x se conservan únicamente en la migración histórica.
 - Valida conjuntamente bindings, perfiles/versiones, locks, material canónico y `build_id`; mantiene legibles las evidencias 1.2 heredadas cuando esa identidad se puede reconstruir sin ambigüedad, sin reescribirlas.
 - Unifica la aplicabilidad de `visual-browser-review` entre runner, EVID y `validate-project` mediante la selección exacta de TASK. La no aplicabilidad backend se registra fuera de `checks`; un slice visual sigue exigiendo exactamente una revisión ejecutada y `passed`.
 - Añade `traceability --task TASK-###` para verificar el alcance exacto de requisitos del slice sin acreditar tareas futuras del mismo incremento.

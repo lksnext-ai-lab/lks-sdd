@@ -13,11 +13,13 @@ from pathlib import Path
 import re
 import uuid
 
-from query_sources import SKIP_DIRS, SECRET_NAME, is_link
-from v2_contract import (ContractError, DOCS, Model, canonical, execution_context, fingerprint,
+from query_sources import SKIP_DIRS, SECRET_NAME, is_link, is_root_git_metadata
+from v2_contract import (ContractError, DOCS, Element, Model, canonical, execution_context, fingerprint,
                          load, make_element, path_at, read_bytes, render_document, sha)
 from v2_authoring import edit_elements
 from v2_storage import apply, ensure_idle, preview
+
+ACTIVE_EXECUTION_STATES = frozenset({"in-progress", "in-review", "paused", "blocked"})
 
 
 def now() -> str:
@@ -43,6 +45,52 @@ def record(model: Model, identifier: str, kind: str, title: str, body: str, **va
     directory = "00-control/authorizations" if kind == "authorization" else "04-delivery/" + {
         "execution": "executions", "checkpoint": "checkpoints", "problem": "problems"}[kind]
     return DOCS + "/" + directory + "/" + identifier + ".md", render_document(kind, title, [element])
+
+
+def reservation_continuations(model: Model, tasks: list[str]) -> tuple[list[dict], list[str]]:
+    """Resolve only explicit receipts that let a dependent continue with inherited risk."""
+    continuations, missing = [], []
+    for task_id in tasks:
+        task = model.elements[task_id]
+        for dependency_id in sorted(task.targets("depends_on")):
+            dependency = model.elements[dependency_id]
+            if dependency.kind != "task" or dependency.meta["state"] != "done-with-reservations":
+                continue
+            evidence_ids = dependency.meta.get("evidence_ids", [])
+            if not evidence_ids:
+                raise ContractError("Reserved dependency has no terminal verification evidence: " + dependency_id)
+            terminal_evidence = evidence_ids[-1]
+            receipts = [
+                receipt for receipt in model.by_kind("receipt")
+                if receipt.meta.get("category") == "dependency-reservation-continuation"
+                and receipt.meta.get("state") == "approved"
+                and task_id in receipt.targets("affects")
+                and dependency_id in receipt.targets("depends_on")
+                and any(item.get("task_id") == dependency_id and item.get("evidence_id") == terminal_evidence
+                        for item in receipt.meta.get("dependency_evidence", [])
+                        if isinstance(item, dict))
+            ]
+            if not receipts:
+                missing.append(dependency_id)
+                continue
+            receipt = max(receipts, key=lambda item: (item.meta.get("recorded_at", ""), item.id))
+            source = next(item for item in receipt.meta["dependency_evidence"]
+                          if item["task_id"] == dependency_id)
+            from v2_verification import evidence
+            value = evidence(model, source["evidence_id"])
+            if (value["integrity_sha256"] != source.get("evidence_sha256")
+                    or receipt.meta.get("dependency_evidence") is None
+                    or not isinstance(receipt.meta.get("inherited_reservations"), list)):
+                raise ContractError("Reservation continuation receipt no longer binds exact dependency evidence")
+            continuations.append({
+                "task_id": task_id,
+                "dependency_task_id": dependency_id,
+                "receipt_id": receipt.id,
+                "dependency_evidence": [
+                    item for item in receipt.meta["dependency_evidence"] if item["task_id"] == dependency_id
+                ],
+            })
+    return continuations, sorted(set(missing))
 
 
 def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
@@ -88,8 +136,16 @@ def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
             blockers.append("Full plan incomplete: " + ", ".join(missing))
         if extra:
             blockers.append("Tasks add undeclared plan scope: " + ", ".join(extra))
-        completeness.append({"plan": identifier, "status": "partial" if missing else "complete",
-                             "missing": missing, "extra": extra, "policy": policy})
+        full_missing = missing
+        if model.manifest["method_version"] == "2.1.0":
+            from v2_change_control import assess_plan
+            analysis = assess_plan(model, identifier)
+            blockers.extend(analysis["blockers"])
+            full_missing = sorted(set(missing) | set(analysis["missing"]))
+        completeness.append({"plan": identifier, "status": "partial" if full_missing else "complete",
+                             "missing": full_missing, "extra": extra, "policy": policy})
+    continuations, missing_reservation_dependencies = reservation_continuations(model, tasks)
+    continued_dependencies = {(item["task_id"], item["dependency_task_id"]) for item in continuations}
     for task in selected:
         primary = [i for i in task.targets("implements") if model.elements[i].kind == "feature"]
         if len(primary) != 1:
@@ -112,13 +168,17 @@ def planning(model: Model, tasks: list[str], *, check_tracking=True) -> dict:
             validate_scope_path(pattern)
         for dependency in task.targets("depends_on"):
             target = model.elements[dependency]
-            if target.kind == "task" and target.meta["state"] != "done":
+            if target.kind == "task" and target.meta["state"] != "done" and (
+                    target.meta["state"] != "done-with-reservations"
+                    or (task.id, dependency) not in continued_dependencies):
                 blockers.append("Unfinished dependency: " + dependency)
     from v2_quality import obligations
     blockers.extend(obligations(model, tasks)["blockers"])
     return {"status": "blocked" if blockers else "ready", "specification": context["status"],
             "full_plan": completeness, "selected_tasks": tasks, "blockers": sorted(set(blockers)),
-            "fingerprint": context["fingerprint"], "context": context, "authorization": "not-assessed"}
+            "fingerprint": context["fingerprint"], "context": context, "authorization": "not-assessed",
+            "reservation_continuations": continuations,
+            "pending_reservation_dependencies": missing_reservation_dependencies}
 
 
 def validate_scope_path(value: str):
@@ -132,7 +192,11 @@ def work_inventory(root: Path) -> dict[str, str]:
     hashes, entries, size = {}, 0, 0
     for directory, folders, files in os.walk(root, followlinks=False):
         parent = Path(directory)
-        folders[:] = sorted(d for d in folders if d not in SKIP_DIRS and d != ".lks-sdd"
+        for name in folders:
+            path = parent / name
+            if is_root_git_metadata(root, parent, name) and is_link(path):
+                raise ContractError("Working tree link/junction requires explicit reconciliation")
+        folders[:] = sorted(d for d in folders if d.casefold() not in SKIP_DIRS and d != ".lks-sdd"
                             and (parent / d).relative_to(root).as_posix() != DOCS)
         for name in folders + files:
             entries += 1
@@ -141,9 +205,13 @@ def work_inventory(root: Path) -> dict[str, str]:
             path = parent / name
             if is_link(path):
                 raise ContractError("Working tree link/junction requires explicit reconciliation")
+            if is_root_git_metadata(root, parent, name):
+                continue
             if path.is_dir() and (path / ".git").exists():
                 raise ContractError("Nested repository needs its own explicit scope")
         for name in sorted(files):
+            if is_root_git_metadata(root, parent, name):
+                continue
             if SECRET_NAME.search(name):
                 continue
             path = parent / name
@@ -170,7 +238,9 @@ def current_authorization(model: Model, tasks: list[str], environment: str, *, a
             continue
         scope = sorted(item.targets("authorizes"))
         current = planning(model, scope)
-        if current["status"] == "ready" and value.get("contract_fingerprint") == current["fingerprint"]:
+        if (current["status"] == "ready" and value.get("contract_fingerprint") == current["fingerprint"]
+                and (model.manifest["method_version"] != "2.1.0" or
+                     value.get("basis_algorithm") == current["context"]["basis_algorithm"])):
             matches.append(item)
     if not matches:
         raise ContractError("AUTH absent, revoked, expired or stale for this scope/environment")
@@ -200,15 +270,29 @@ def authorize(model: Model, tasks: list[str], *, actor: str, role: str, environm
                         state="active", actor=actor, role=role, environment=environment,
                         approved_at=approved_at, expires_at=expires_at,
                         contract_fingerprint=assessment["fingerprint"],
+                        basis_algorithm=assessment["context"]["basis_algorithm"],
+                        specification_digest=assessment["context"]["specification_digest"],
+                        planning_digest=assessment["context"]["planning_digest"],
                         relations={"authorizes": sorted(tasks)}, identity_assurance="declared-not-authenticated")
     changes = {path: data}
     result = preview(model.root, changes, sources=model.hashes, operation="authorize-execution")
     return apply(model.root, changes, result, authorized_hash, validator=lambda: load(model.root).require_valid()) if authorized_hash else result
 
 
+def is_active_execution(execution: Element) -> bool:
+    """Whether a v2 execution remains in its normative, continuable lifecycle."""
+    return execution.kind == "execution" and execution.meta.get("state") in ACTIVE_EXECUTION_STATES
+
+
+def is_active_execution_state(state: str) -> bool:
+    """Classify a serialized execution state without granting record authority."""
+    return state in ACTIVE_EXECUTION_STATES
+
+
 def active_execution(model: Model, tasks: list[str] | None = None):
-    matches = [e for e in model.by_kind("execution") if e.meta["state"] not in {"completed", "cancelled"}
-               and (not tasks or set(tasks) <= e.targets("implements"))]
+    scope = set(tasks or [])
+    matches = [e for e in model.by_kind("execution") if is_active_execution(e)
+               and (not scope or scope <= e.targets("implements"))]
     if len(matches) != 1:
         raise ContractError("Exactly one active execution is required for this TASK scope")
     return matches[0]
@@ -216,9 +300,12 @@ def active_execution(model: Model, tasks: list[str] | None = None):
 
 def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: str,
           authorized_hash: str | None = None, technology=None) -> dict:
+    assessment = planning(model, tasks)
+    if assessment["status"] != "ready":
+        raise ContractError("; ".join(assessment["blockers"]))
     auth = current_authorization(model, tasks, environment)
     for existing in model.by_kind("execution"):
-        if existing.meta["state"] not in {"completed", "cancelled"} and existing.targets("implements") & set(tasks):
+        if is_active_execution(existing) and existing.targets("implements") & set(tasks):
             raise ContractError("Existing execution: resume or reconcile; do not create another")
     if any(model.elements[t].meta["state"] != "ready" for t in tasks):
         raise ContractError("Only ready TASKs may start")
@@ -227,23 +314,24 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
         from v2_verification import technology_readiness
         technology = technology_readiness
     technical = technology(model, tasks, environment)
-    if technical["status"] not in {"exact-certified", "approved-project-variant"}:
+    if technical["status"] != "documented":
         raise ContractError("Technology is not authorized: " + str(technical))
     inventory = work_inventory(model.root)
     identifier, checkpoint = next_id(model, "EXEC"), next_id(model, "CKPT")
     path, data = record(model, identifier, "execution", "Ejecución autorizada", "Ámbito y base fijados antes de modificar código.",
                         state="in-progress", actor=actor, environment=environment, started_at=at,
                         contract_fingerprint=auth["fingerprint"], baseline_files=inventory,
-                        source_hashes=dict(model.hashes), technology=technical,
+                        basis_algorithm=assessment["context"]["basis_algorithm"],
+                        specification_digest=assessment["context"]["specification_digest"],
+                        planning_digest=assessment["context"]["planning_digest"],
+                        source_hashes=dict(model.hashes), technology_assessment=technical,
+                        inherited_reservations=assessment["reservation_continuations"],
                         relations={"implements": tasks, "authorizes": [auth["authorization_id"]]})
     ckpath, ckdata = record(model, checkpoint, "checkpoint", "Inicio de trabajo", "Implementación pendiente; no hay verificación ni entrega acreditadas.",
                             state="active", recorded_at=at, next_action="Implementar las tareas autorizadas", files=inventory,
                             relations={"execution": [identifier], "implements": tasks})
     changes = {path: data, ckpath: ckdata, **edit_elements(model, {
         t: dict(model.elements[t].meta, state="in-progress", execution_id=identifier) for t in tasks})}
-    if technology.__module__ == "v2_verification":
-        from v2_preparation import reference_locks
-        changes.update(reference_locks(model, tasks))
     corrective = {p.id: dict(p.meta, correction_execution=identifier) for p in model.by_kind("problem")
                   if p.meta.get("correction_authorized") and p.targets("affects") <= set(tasks) and p.meta["state"] != "resolved"}
     changes.update(edit_elements(model, corrective))
@@ -251,8 +339,8 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
     return apply(model.root, changes, result, authorized_hash, validator=lambda: load(model.root).require_valid()) if authorized_hash else result
 
 
-def diff_guard(model: Model, execution=None) -> dict:
-    execution = execution or active_execution(model)
+def diff_guard(model: Model, execution=None, *, tasks: list[str] | None = None) -> dict:
+    execution = execution or active_execution(model, tasks)
     if "baseline_files" not in execution.meta:
         raise ContractError("Historical execution has no v2 baseline: reconcile and authorize a new execution")
     current = work_inventory(model.root)
@@ -280,9 +368,9 @@ def diff_guard(model: Model, execution=None) -> dict:
             "semantic_review": "required", "identity_assurance": "not-authenticated"}
 
 
-def review_diff(model: Model, *, actor: str, reason: str, observed_diff: str,
+def review_diff(model: Model, *, tasks: list[str] | None = None, actor: str, reason: str, observed_diff: str,
                 authorized_hash: str | None = None) -> dict:
-    execution = active_execution(model)
+    execution = active_execution(model, tasks)
     guard = diff_guard(model, execution)
     if guard["unauthorized"] or guard["contract_changed"] or guard["diff_fingerprint"] != observed_diff:
         raise ContractError("A diff review cannot authorize changed scope or stale material")
@@ -303,7 +391,7 @@ def resume(model: Model, tasks: list[str]) -> dict:
         reasons.append(str(exc))
     guard = diff_guard(model, execution)
     reasons += guard["blockers"]
-    if execution.meta["state"] in {"blocked", "reconciliation-required"}:
+    if execution.meta["state"] == "blocked":
         reasons.append("Execution requires reconciliation")
     for problem in model.by_kind("problem"):
         if problem.meta["state"] != "resolved" and problem.targets("affects") & set(tasks):
@@ -318,11 +406,11 @@ def resume(model: Model, tasks: list[str]) -> dict:
             "writes": []}
 
 
-def checkpoint(model: Model, *, state: str, actor: str, at: str, summary: str, next_action: str,
+def checkpoint(model: Model, *, tasks: list[str] | None = None, state: str, actor: str, at: str, summary: str, next_action: str,
                authorized_hash: str | None = None) -> dict:
     if state not in {"paused", "blocked", "in-progress", "in-review", "cancelled"}:
         raise ContractError("Unsupported continuity state")
-    execution = active_execution(model)
+    execution = active_execution(model, tasks)
     tasks = sorted(execution.targets("implements"))
     if state in {"in-progress", "in-review"}:
         current_authorization(model, tasks, execution.meta["environment"])
@@ -334,10 +422,18 @@ def checkpoint(model: Model, *, state: str, actor: str, at: str, summary: str, n
             raise ContractError("Open problems prevent normal resumption/review")
     if not summary.strip() or not next_action.strip() or not actor.strip():
         raise ContractError("Checkpoint requires observed summary, actor and safe next action")
+    inventory = work_inventory(model.root)
+    previous = [entry for entry in model.by_kind("checkpoint") if execution.id in entry.targets("execution")]
+    latest = max(previous, key=lambda item: (item.meta.get("recorded_at", ""), item.id), default=None)
+    if (latest and latest.meta.get("lifecycle_state") == state
+            and latest.meta.get("next_action") == next_action
+            and latest.body.strip().endswith(summary.strip())):
+        return {"status": "reused", "checkpoint": latest.id, "execution": execution.id,
+                "task_ids": tasks, "writes": []}
     identifier = next_id(model, "CKPT")
     path, data = record(model, identifier, "checkpoint", "Continuidad de trabajo", summary,
-                        state="active", actor=actor, recorded_at=at, next_action=next_action,
-                        files=work_inventory(model.root), relations={"execution": [execution.id], "implements": tasks})
+                        state="active", lifecycle_state=state, actor=actor, recorded_at=at, next_action=next_action,
+                        files=inventory, relations={"execution": [execution.id], "implements": tasks})
     changes = {path: data, **edit_elements(model, {
         execution.id: dict(execution.meta, state=state),
         **{t: dict(model.elements[t].meta, state=state if state != "paused" else "in-progress") for t in tasks}})}

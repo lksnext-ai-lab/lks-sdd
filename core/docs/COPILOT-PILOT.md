@@ -67,6 +67,6 @@ compensa diciendo que los tests unitarios pasaron. No se inventan aprobaciones.
 
 La aceptación de equipo exige al menos tres desarrolladores con ambas herramientas
 representadas. Navegador real y Jira/Rovo se prueban por separado cuando estén
-autorizados y disponibles. Usa la matriz completa del
-[plan](plans/2026-09-10-codex-copilot-implementation.md) para la aceptación final;
-este recorrido es la entrada didáctica, no sustituye esos escenarios.
+autorizados y disponibles. El [protocolo v2 por host](V2-HOST-ACCEPTANCE.md) define
+los escenarios de aceptación; este recorrido es la entrada didáctica y no los
+sustituye.

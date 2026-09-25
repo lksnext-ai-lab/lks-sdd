@@ -15,10 +15,12 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from path_utils import is_within_filesystem_path
+
 from contract_engine import build_project_model, diagnostic_messages
 from evidence_contract import (
     evidence_gate_applicability_errors,
-    evidence_profile_identity_errors,
+    evidence_binding_identity_errors,
     integration_gate_applicability,
     visual_gate_applicability,
 )
@@ -521,9 +523,7 @@ def _safe_relative_file(root: Path, relative: str) -> tuple[Path | None, str | N
     if candidate.is_absolute() or ".." in candidate.parts:
         return None, f"ruta no permitida: {relative}"
     resolved = (root / candidate).resolve()
-    try:
-        resolved.relative_to(root)
-    except ValueError:
+    if not is_within_filesystem_path(resolved, root):
         return None, f"ruta fuera de la raíz: {relative}"
     current = root
     for part in candidate.parts:
@@ -1207,8 +1207,6 @@ def implementation_fingerprint(
     digest = hashlib.sha256()
     record = {
         "increment": implementation.get("increment"),
-        "profile_id": implementation.get("profile_id"),
-        "profile_version": implementation.get("profile_version"),
         "declared_changed_paths": sorted(declared_paths),
         "files": sorted(normalized),
     }
@@ -1706,8 +1704,8 @@ def evidence_document_errors(value: Any, expected_id: str) -> list[str]:
         r"INC-[0-9]{3}", value.get("increment", "")
     ):
         errors.append("increment no usa INC-###")
-    # Evidence 1.2 predates the canonical top-level profile summary. Its
-    # identity is validated below from profile_bindings/build material, so the
+    # Evidence 1.2 predates the canonical top-level binding summary. Its
+    # identity is validated below from bindings/build material, so the
     # historical nullable fields must not be rejected before derivation.
     if value.get("revision") is not None and not isinstance(value.get("revision"), str):
         errors.append("revision debe ser texto o null")
@@ -1770,6 +1768,11 @@ def load_project_manifest(
     if not isinstance(data, dict):
         return None, ["El índice operativo debe contener un objeto JSON."]
     schema_version = data.get("schema_version")
+    if schema_version == "1.5" and "technology" in data:
+        return data, [
+            "El bloque technology 1.5 es una fuente histórica de migración; "
+            "la operación normal debe usar la declaración tecnológica local v2."
+        ]
     schema_path = PROJECT_SCHEMAS.get(schema_version)
     if schema_path is None:
         return data, [
@@ -2627,7 +2630,7 @@ def validate_project(
     evidence_cache: dict[str, Any] = {}
     index_defined_ids = {
         str(item.get("binding_id"))
-        for item in manifest.get("technology", {}).get("profile_bindings", [])
+        for item in manifest.get("bindings", [])
         if isinstance(item, dict) and item.get("binding_id")
     }
     for relative, reference in references:
@@ -2660,7 +2663,7 @@ def validate_project(
                         "increment no referencia un incremento definido"
                     )
                 evidence_errors.extend(
-                    evidence_profile_identity_errors(evidence, manifest)
+                    evidence_binding_identity_errors(evidence, manifest)
                 )
                 checks = evidence.get("checks", [])
                 visual_checks = [
@@ -2847,76 +2850,6 @@ def validate_project(
             if is_blocking and is_open and item_id not in indexed_blockers:
                 report.errors.append(
                     f"El bloqueo {item_id} está activo en ART-OPEN pero no aparece en el índice."
-                )
-
-    technology = manifest.get("technology", {})
-    selected_profile = (
-        technology.get("selected_profile") if isinstance(technology, dict) else None
-    )
-    selection_decision = (
-        technology.get("selection_decision") if isinstance(technology, dict) else None
-    )
-    if selected_profile is not None and selection_decision is None:
-        report.errors.append(
-            "Un perfil seleccionado requiere selection_decision en el índice."
-        )
-    if (
-        selected_profile is not None
-        and technology.get("preferred_stack_assessed") is not True
-    ):
-        report.errors.append(
-            "Un perfil seleccionado requiere preferred_stack_assessed=true."
-        )
-    if selection_decision is not None:
-        decision = definitions.get(selection_decision)
-        if selected_profile is None:
-            report.errors.append(
-                "selection_decision no puede existir sin selected_profile."
-            )
-        if decision is None or decision.get("artifact_type") not in {
-            "solution-overview",
-            "architecture-decision",
-        }:
-            report.errors.append(
-                f"La decisión de perfil {selection_decision} no está definida en un artefacto de solución o ADR."
-            )
-        elif decision.get("State") not in {"decision", "confirmed"}:
-            report.errors.append(
-                f"La decisión de perfil {selection_decision} no está confirmada; estado: {decision.get('State')}."
-            )
-        elif selected_profile is not None and selected_profile not in " ".join(
-            str(value) for value in decision.values()
-        ):
-            report.errors.append(
-                f"La decisión {selection_decision} no identifica el perfil seleccionado {selected_profile}."
-            )
-    if schema_version in {"1.2", "1.3", "1.4", "1.5"} and isinstance(technology, dict):
-        bindings = technology.get("profile_bindings", [])
-        if bindings and technology.get("preferred_stack_assessed") is not True:
-            report.errors.append(
-                "Los profile_bindings requieren preferred_stack_assessed=true."
-            )
-        for binding in bindings if isinstance(bindings, list) else []:
-            if not isinstance(binding, dict) or binding.get("state") != "confirmed":
-                continue
-            binding_id = binding.get("binding_id")
-            decision_id = binding.get("selection_decision")
-            profile_id = binding.get("profile_id")
-            decision = definitions.get(decision_id)
-            if decision is None or decision.get("artifact_type") not in {
-                "solution-overview",
-                "architecture-decision",
-            }:
-                report.errors.append(
-                    f"{binding_id}: la ADR {decision_id} no está definida en solución."
-                )
-            elif decision.get("State") not in {"decision", "confirmed"}:
-                report.errors.append(
-                    f"{binding_id}: la ADR {decision_id} no está confirmada."
-                )
-            elif profile_id not in " ".join(str(value) for value in decision.values()):
-                report.errors.append(
-                    f"{binding_id}: la ADR {decision_id} no identifica {profile_id}."
                 )
 
     for field_name, increment_id in (

@@ -39,6 +39,14 @@ Un plugin de agente no es una extensión VSIX tradicional. Tampoco es un modelo
 nuevo ni una licencia de IA. Instalarlo no concede acceso a cuentas, imágenes,
 Jira o servicios externos que tu organización no haya habilitado.
 
+Durante la implementación verás registros con nombres como `AUTH-###`, `EXEC-###`,
+`CKPT-###`, `REC-###` y `EVID-###` bajo `docs/lks-sdd/`. No son código generado:
+son el historial durable de autorización, ejecución, continuidad, revisión y
+verificación del proyecto, y se conservan para poder reanudar o auditar una TASK.
+El runtime no debe crear un checkpoint por cada comando: solo al iniciar, pausar,
+bloquear, pasar a revisión o cerrar. El journal técnico temporal se concentra en
+`.lks-sdd/transactions.json`; no se crea un archivo de transacción por operación.
+
 ## 3. Qué significa SDD y por qué decimos Spec-anchored
 
 SDD significa desarrollo guiado por especificaciones. Una especificación describe
@@ -109,9 +117,7 @@ cambios propones antes de ejecutarlos». Tras revisar la propuesta, autorizas el
 concreto. El agente registra esa autorización mediante el procedimiento del método.
 Si cambian las condiciones relevantes, la autorización anterior puede dejar de ser válida.
 
-No elijas una pila porque aparezca en un ejemplo. Un perfil es una combinación
-técnica exacta con reglas y comprobaciones propias. Que un perfil exista en el catálogo
-no significa que esté certificado: los candidatos no habilitan automáticamente implementación.
+No elijas una pila porque aparezca en un ejemplo. Registra observaciones y confirma la decisión tecnológica localmente antes de usarla; no existe un catálogo o certificación global que habilite implementación.
 
 ### Verificar y entregar
 
@@ -206,6 +212,6 @@ Continúa con [instalación y primer uso](INSTALLATION.md),
 [validación técnica](VALIDATION.md). Para responsables de distribución:
 [empaquetado](DISTRIBUTION.md) y [publicación](RELEASING.md).
 
-La [aceptación dual](DUAL-HOST-ACCEPTANCE.md) distingue implementación, pruebas
+La [aceptación por host](V2-HOST-ACCEPTANCE.md) distingue implementación, pruebas
 automáticas y pruebas reales pendientes. Esta guía enseña el flujo esperado; no es
 un acta que certifique que todas las herramientas lo hayan ejecutado correctamente.

@@ -9,12 +9,16 @@ import tempfile
 from contextvars import ContextVar
 
 from v2_contract import ContractError, DOCS, canonical, document_paths, fingerprint, path_at, read_bytes, sha
+from path_utils import filesystem_root
 
 PENDING = ".lks-sdd/transaction.json"
+TRANSACTION_STORE = ".lks-sdd/transactions.json"
+LEGACY_TRANSACTION_PREFIX = ".lks-sdd/transactions/"
 VALIDATING = ContextVar("lks_v2_validating_transaction", default=False)
 
 
 def exists_hash(root: Path, relative: str):
+    root = filesystem_root(root)
     path = path_at(root, relative, missing=True, package_data=True)
     if not path.exists():
         return None
@@ -23,6 +27,7 @@ def exists_hash(root: Path, relative: str):
 
 def protected_inventory(root, extra=()):
     """Include later evidence/assets, not only Markdown, in recovery safety."""
+    root = filesystem_root(root)
     base = path_at(root, DOCS, missing=True)
     result = []
     if base.exists():
@@ -43,6 +48,7 @@ def protected_inventory(root, extra=()):
 
 
 def preview(root: Path, changes: dict[str, bytes | None], *, sources: dict[str, str], operation: str) -> dict:
+    root = filesystem_root(root)
     paths = sorted(changes)
     before = {p: exists_hash(root, p) for p in paths}
     after = {p: sha(changes[p]) if changes[p] is not None else None for p in paths}
@@ -53,6 +59,7 @@ def preview(root: Path, changes: dict[str, bytes | None], *, sources: dict[str, 
 
 
 def write_one(root: Path, relative: str, data: bytes | None):
+    root = filesystem_root(root)
     path = path_at(root, relative, missing=True, package_data=True)
     if data is None:
         if path.exists():
@@ -73,12 +80,56 @@ def write_one(root: Path, relative: str, data: bytes | None):
 
 
 def ensure_idle(root: Path):
+    root = filesystem_root(root)
     if path_at(root, PENDING, missing=True).exists():
         raise ContractError("Interrupted transaction: recover or rollback before any other mutation")
 
 
+def _read_transaction_store(root: Path) -> dict:
+    """Read the compact plugin-owned history of completed transactions."""
+    root = filesystem_root(root)
+    path = path_at(root, TRANSACTION_STORE, missing=True)
+    if not path.exists():
+        return {"schema_version": "2.0", "transactions": {}}
+    try:
+        value = json.loads(read_bytes(root, TRANSACTION_STORE, limit=128 * 1024 * 1024))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise ContractError("Transaction store is not valid JSON") from exc
+    if not isinstance(value, dict) or value.get("schema_version") != "2.0":
+        raise ContractError("Transaction store has an unsupported schema")
+    transactions = value.get("transactions")
+    if not isinstance(transactions, dict) or any(not isinstance(key, str) or not isinstance(item, dict)
+                                                  for key, item in transactions.items()):
+        raise ContractError("Transaction store has an invalid transaction map")
+    return value
+
+
+def _save_transaction(root: Path, transaction_hash: str, journal: dict) -> None:
+    store = _read_transaction_store(root)
+    store["transactions"][transaction_hash] = journal
+    write_one(root, TRANSACTION_STORE, canonical(store))
+
+
+def _load_transaction(root: Path, authorized_hash: str, receipt: str | None) -> tuple[dict, str]:
+    if receipt is None:
+        source = PENDING
+        journal = json.loads(read_bytes(root, source, limit=128 * 1024 * 1024))
+        return journal, source
+    legacy = LEGACY_TRANSACTION_PREFIX + authorized_hash + ".json"
+    if receipt == TRANSACTION_STORE:
+        store = _read_transaction_store(root)
+        journal = store["transactions"].get(authorized_hash)
+        if not isinstance(journal, dict):
+            raise ContractError("Transaction store has no receipt for the authorized hash")
+        return journal, receipt
+    if receipt != legacy:
+        raise ContractError("Receipt must identify the exact authorized transaction")
+    return json.loads(read_bytes(root, receipt, limit=128 * 1024 * 1024)), receipt
+
+
 def stage_contract(root, changes, sources):
     """Validate prospective Markdown in an isolated temporary tree, not the consumer."""
+    root = filesystem_root(root)
     from v2_contract import load, LINK, ASSET, BLOCK, resolve_link
     from urllib.parse import urlsplit
     checked = dict(sources)
@@ -117,6 +168,7 @@ def stage_contract(root, changes, sources):
 
 def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authorized_hash: str,
           *, validator=None, interrupt_after: int | None = None) -> dict:
+    root = filesystem_root(root)
     ensure_idle(root)
     fresh = preview(root, changes, sources=expected["sources"], operation=expected["operation"])
     if fresh["preview_hash"] != authorized_hash or expected["preview_hash"] != authorized_hash:
@@ -157,18 +209,16 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
         # Do not overwrite external edits made after our write.
         recover(root, authorized_hash, rollback=True)
         raise
-    receipt = ".lks-sdd/transactions/" + authorized_hash + ".json"
     journal["state"] = "completed"
-    write_one(root, receipt, canonical(journal))
+    _save_transaction(root, authorized_hash, journal)
     journal_path.unlink()
-    return {"status": "applied", "preview_hash": authorized_hash, "receipt": receipt, "writes": sorted(changes)}
+    return {"status": "applied", "preview_hash": authorized_hash, "receipt": TRANSACTION_STORE,
+            "writes": sorted(changes)}
 
 
 def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt: str | None = None) -> dict:
-    source = receipt or PENDING
-    if receipt != ".lks-sdd/transactions/" + authorized_hash + ".json" and receipt is not None:
-        raise ContractError("Receipt must identify the exact authorized transaction")
-    journal = json.loads(read_bytes(root, source, limit=128 * 1024 * 1024))
+    root = filesystem_root(root)
+    journal, source = _load_transaction(root, authorized_hash, receipt)
     expected = journal["preview"]
     if expected["preview_hash"] != authorized_hash or fingerprint({k: expected[k] for k in
             ("operation", "sources", "before", "after", "document_inventory")}) != authorized_hash:
@@ -201,9 +251,10 @@ def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt
     for relative, encoded in journal[side].items():
         write_one(root, relative, base64.b64decode(encoded) if encoded is not None else None)
     journal["state"] = "rolled-back" if rollback else "completed"
-    result_path = ".lks-sdd/transactions/" + authorized_hash + ".json"
-    write_one(root, result_path, canonical(journal))
+    _save_transaction(root, authorized_hash, journal)
+    if source.startswith(LEGACY_TRANSACTION_PREFIX):
+        path_at(root, source, missing=True).unlink(missing_ok=True)
     pending = path_at(root, PENDING, missing=True)
     if pending.exists():
         pending.unlink()
-    return {"status": journal["state"], "receipt": result_path, "writes": sorted(journal[side])}
+    return {"status": journal["state"], "receipt": TRANSACTION_STORE, "writes": sorted(journal[side])}

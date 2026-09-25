@@ -1,9 +1,15 @@
 # LKS-SDD 2: política común y workflows
 
 Esta guía aplica al contrato 2.0. Para proyectos 1.5 no migrados se conserva el
-workflow 1.5 y el runtime fijado. La [referencia normativa](../specs/proposed/project-contract-2.0.md)
-define los datos; las guías no crean otra autoridad. Estado de release y canales
-de aceptación: [seguimiento de implementación](validation/v2-implementation.md).
+workflow 1.5 y el runtime fijado. El [contrato de proyecto](../specs/proposed/project-contract-2.0.md)
+define las declaraciones tecnológicas locales y el corte; las guías no crean otra
+autoridad. Estado de release y canales de aceptación: [estado actual](STATUS.md).
+
+Los proyectos nuevos usan método 2.1.0 con el mismo schema 2.0. Para solicitudes
+de modificación, incluidas ampliaciones de funcionalidades existentes, aplicar
+[continuidad SPEC → PLAN/TASK → implementación](V2-SPEC-PLAN-TASK.md) antes de
+editar código. Los consumidores fijados en método 2.0.0 requieren actualización
+explícita; no se convierten por leer esta guía.
 
 ## Política común
 
@@ -35,6 +41,24 @@ de aceptación: [seguimiento de implementación](validation/v2-implementation.md
 10. No nuevos agentes ejecutables, skills, MCP, hooks ni conectores. No commit,
     push, instalación activa, publicación o acción externa por autorización implícita.
 
+### Guía ante bloqueos
+
+Un bloqueo no es una orden para el usuario ni una explicación técnica sin
+contexto. El runtime devuelve una guía breve y funcional: qué decisión o
+comprobación falta, qué efecto tiene sobre la tarea, el siguiente paso mínimo y
+las opciones seguras disponibles. La salida humana no muestra hashes, nombres de
+procesos ni trazas como explicación principal; esos detalles permanecen en
+`--json` y en los artefactos para quien necesite investigarlos.
+
+La guía distingue, como mínimo, autorización que ya no representa el trabajo,
+cambio de alcance, comprobación no disponible, dependencia pendiente, evidencia
+que ya no representa el resultado y documentación incompleta. Siempre aclara que
+el historial se conserva y que no se ha declarado la TASK como completada.
+Debe proponer una acción concreta: corregir y reintentar, acordar una
+comprobación aprobada, reautorizar, continuar con reservas si la política lo
+permite o cancelar/replanificar. No sugiere ejecutar scripts descubiertos,
+forzar una evidencia ni ignorar controles.
+
 ## Invocación y operaciones
 
 Usar el dispatcher del runtime, nunca `scripts/` del consumidor. `v2` agrupa el
@@ -59,6 +83,41 @@ Las mutaciones anteriores solo muestran preview. Añadir `--apply --authorize
 operaciones se pasan con `--at` en ISO-8601 con zona, iguales entre preview/apply.
 Los comandos de lectura no usan apply. `verify --execute --evidence-id EVID-###`
 ejecuta y registra el resultado real; no ejecutarlo durante una consulta.
+
+### Observadores explícitamente aprobados
+
+Una declaración tecnológica confirmada puede incluir `technology.variants`. Cada
+variante aprobada declara su `scope` de TASKs (o `global`), `environments`,
+`stages` y observers. Un observer identifica el gate, sus scopes e interfaces,
+la imagen fijada por digest, el comando, los inputs locales con SHA-256, timeout
+y si requiere autorización de contenedores. El plan selecciona solo la variante
+que aplica al TASK, entorno y etapa solicitados; no deduce comandos desde una
+tecnología ni descubre scripts del consumidor.
+
+Cada gate requerido necesita exactamente un observer aprobado y aplicable. Una
+definición ausente, ambigua, fuera de alcance, con imagen no fijada, input no
+declarado o hash distinto bloquea el plan y la ejecución. Antes de registrar
+`EVID`, el runtime vuelve a comprobar los hashes de los inputs aprobados. Un
+resultado técnico correcto sigue sin sustituir la aceptación humana ni el cierre
+explícito de la tarea.
+
+El contrato de observación de persistencia reconoce `postgresql-psql`,
+`postgresql-independent-connection` y `oracle-independent-connection`. Este último
+identifica una lectura por conexión Oracle independiente: `read_back.resource`
+declara un identificador de catálogo sin comillas en mayúsculas, `OBJETO` o
+`PROPIETARIO.OBJETO`, con un máximo de 128 caracteres ASCII por parte; admite
+letras, dígitos, `_`, `$` y `#`, comenzando por letra. No acepta SQL, comodines,
+enlaces de base de datos ni identificadores entrecomillados. La sintaxis PostgreSQL
+existente se conserva sin ampliación.
+
+Ambos motores exigen el mismo `record_id` en mutación y lectura, `matches: true`
+y `persistence: true`. Los gates de integración mantienen ausencia explícita de
+mocks de dominio, nonce de invocación, inputs aprobados y hashes de artefactos.
+Reconocer el tipo Oracle no instala un driver, conecta una base ni autoriza red,
+credenciales, DDL o escrituras; tampoco prueba por sí solo que una conexión sea
+independiente. Eso corresponde al observador concreto aprobado y a sus hechos
+ejecutados. Una prueba sintética del validador no acredita persistencia real de un
+consumidor ni permite presentar una observación histórica como recién ejecutada.
 
 ### Migración 1.5→2.0 y corte
 
@@ -153,20 +212,19 @@ El contexto bloqueado debe mostrar IDs y próxima acción concreta, no porcentaj
 Leer `context --task ...`, AUTH vigente y último checkpoint; contrastar los cambios
 locales antes de escribir. `v2 authorize` requiere tareas, actor/rol declarados,
 entorno, motivo y vigencia; no autentica a una persona. `v2 start` exige tareas
-ready, autorización vigente y perfil exacto o variante aprobada. No basta la
-aprobación del plan o de la tecnología. Trabajar solo en las rutas autorizadas.
+ready, autorización vigente y declaraciones tecnológicas críticas confirmadas. No basta la aprobación del plan o una observación tecnológica. Trabajar solo en las rutas autorizadas.
 
-Conservar cambios ajenos. `v2 diff` detecta desviaciones y cambios de tests/gates;
-`v2 review-diff` registra revisión explícita del diff exacto, no nueva autorización
-de alcance. Registrar checkpoint al pausar, bloquear o pasar a revisión, no por
-cada comando. Código completo pasa a in-review; done exige evidencia adecuada.
+Conservar cambios ajenos. `v2 diff --task TASK-###` detecta desviaciones y cambios
+de tests/gates dentro de la ejecución normativa seleccionada; `v2 review-diff
+--task TASK-###` registra revisión explícita del diff exacto, no nueva autorización
+de alcance. `v2 checkpoint --task TASK-###` usa el mismo selector. Registrar
+checkpoint al pausar, bloquear o pasar a revisión, no por cada comando. Código
+completo pasa a in-review; done exige evidencia adecuada. Un registro migrado
+`reconciliation-required` es historial auditable, nunca una ejecución continuable
+ni una fuente de evidencia.
 Nuevos requisitos reabren solo las decisiones afectadas y requieren nueva base.
 Cambios de base entre usuarios exigen reconciliación; no hay lock distribuido.
-`v2 prepare` materializa fuentes de un perfil exacto únicamente dentro de las rutas
-aprobadas; no sobrescribe personalizaciones. En adopción prepara únicamente
-recursos de verificación de un adaptador soportado, nunca el scaffold funcional.
-En variantes, start solo prepara
-locks y continuidad, nunca copia el scaffold de referencia.
+`v2 prepare` solo crea registros locales de composición dentro de las rutas aprobadas; no materializa recetas, scaffolds, locks ni adaptadores tecnológicos.
 `v2 revoke --id AUTH-###` revoca autoridad. `problem`, `correct` y `replan` separan
 el hallazgo, la corrección del mismo contrato y el cambio de base. Los registros
 operativos no se pueden fabricar mediante la edición general `author`.
@@ -181,9 +239,107 @@ Los observers de consumidor requieren aprobación e aislamiento, no stdout passe
 Conservar executed/reused/omitted y edad de observación original. Una reserva
 tecnológica no dispensa un gate crítico ni acepta funcionalidad defectuosa.
 
-Registrar EVID nueva e inmutable por sujeto técnico exacto. Cerrar mediante
-`v2 close` solo si corresponde a esas tareas/entorno/inputs. Un defecto posterior
-cambia salud, no el resultado histórico. Re-verificar después de corregir.
+Registrar EVID nueva e inmutable por sujeto técnico exacto. Las clasificaciones
+técnicas son distintas de la decisión humana:
+
+| Clasificación/estado | Significado | Efecto |
+|---|---|---|
+| `verified` | Todos los checks requeridos, cobertura e inputs aplicables están acreditados. | Puede cerrarse como `done` después de la aceptación requerida por la política. |
+| `verified-with-reservations` | La EVID conserva checks no superados, pero cada uno tiene una reserva declarada y permitida. | Requiere aceptación humana explícita; el TASK queda `done-with-reservations`. |
+| `not-verified` | Hay fallo, cobertura insuficiente, check no ejecutado o preflight bloqueado. | No acredita verificación. Solo una reserva permitida y aceptada puede cerrar el TASK; la EVID no cambia. |
+| `not-run` / `blocked` | Estado de un check o de un intento de preflight, nunca un pase. | Se conserva en EVID o diagnóstico para reanudar y corregir. |
+
+### Retención y compactación
+
+La cantidad de controles se consulta con `retention-status`, que es una vista
+derivada y no modifica el consumidor. `retention-compact` exige `--at`, preview y
+la autorización exacta del hash; solo archiva AUTH, EXEC, CKPT, PROB y REC
+cerrados que ya no estén referidos por tareas o ejecuciones activas. El contenido
+se mueve a `00-control/history/operational/` y queda registrado en
+`.lks-sdd/retention.json`. No se archivan documentos normativos ni EVID. La
+restauración es explícita con `retention-restore --id ...`, también con preview y
+autorización; nunca se borra historia automáticamente.
+
+Si contrato, AUTH, baseline, diff guard, alcance, hashes, inputs, engine o
+integridad siguen siendo válidos, `verify --execute --evidence-id EVID-###`
+también registra una EVID `not-verified` cuando el plan no puede materializar
+todos los observers aprobados. Sus checks quedan `not-run` o `blocked`, con el
+motivo concreto; `allow_task_closure` permanece falso. Si esas precondiciones no
+son seguras, el comando falla sin fabricar evidencia. Una EVID de preflight
+bloqueado no permite cerrar por reserva.
+
+Las reservas son opt-in y se declaran en la decisión de gobernanza de entrega,
+nunca se deducen del nombre de una tecnología o de un gate. La propiedad
+`verification_reservation_policy` contiene reglas explícitas por entorno, etapa,
+tipo de scope del gate y estado técnico:
+
+```json
+{
+  "rules": [{
+    "id": "RES-POL-001",
+    "environments": ["test"],
+    "stages": ["development"],
+    "gate_scopes": ["component"],
+    "statuses": ["failed", "blocked", "not-run"]
+  }]
+}
+```
+
+No hay política implícita. Una regla nunca puede cubrir una TASK marcada como
+crítica, un observer ausente/no aprobado, cambios de hash o input, una anomalía
+de aislamiento/integridad del observer, AUTH vencida, baseline o diff inválido,
+un contrato/engine distinto, evidencia manipulada ni un repositorio/ruta fuera
+del alcance. Un observer `blocked` solo puede ser reservable si el runtime
+acredita indisponibilidad temporal del proceso o timeout; los demás bloqueos del
+observer siguen siendo duros.
+
+Cuando el usuario pide cerrar y hay pendientes, mostrar una única síntesis
+agrupada: implementación observada, checks ejecutados/no ejecutados, gates
+pendientes, reservas y riesgos, impacto sobre dependencias/delivery y
+clasificación técnica. Pedir una sola decisión completa:
+
+1. **Aceptar y cerrar** para EVID `verified`.
+2. **Aceptar y cerrar con reservas** para la política explícita aplicable.
+3. **Mantener abierta**, que no escribe nada.
+4. **Cancelar y replanificar** cuando el usuario decide que no continuará con
+   esta ejecución o existe un bloqueo duro que no puede calificarse como reserva.
+
+Las dos primeras se materializan con un único preview/autorización exactos de
+`v2 close`. La solicitud JSON de reserva incluye `decision:
+"accept-and-close-with-reservations"` y cada reserva con `id`, `gate_id`,
+`reason` y `follow_up`; `--actor`, `--at` y `--reason` registran la decisión.
+El cierre crea atómicamente un `REC` de aceptación humana y un `CKPT`, ligados a
+la EVID, ejecución, sujeto, digest de reservas y TASKs exactas. También se puede
+usar `accept-result --request` para registrar antes el recibo y cerrar después,
+sin cambiar la clasificación técnica.
+
+La cuarta opción usa `v2 replan <project-root> --task <TASK> --actor <actor>
+--at <time> --reason <reason> --apply --authorize <preview_hash>`. Es la salida
+universal y consciente para no dejar un proyecto atrapado en una ejecución:
+conserva EVID, checkpoints y problemas históricos, cancela el `EXEC` afectado,
+revoca su AUTH y devuelve la TASK a `ready`. No la declara `done`, no fabrica
+verificación y no autoriza dependencias, delivery o promoción. Tras corregir el
+contrato, el alcance o la disponibilidad de observers, el usuario puede
+autorizar una nueva ejecución.
+
+Un TASK `done-with-reservations` no satisface automáticamente
+`depends_on`: las tareas posteriores siguen viendo la dependencia como
+incompleta. La única excepción es
+`v2 continue-with-reservations <project-root> --task <dependent-task>
+--request <decision.json> --actor <actor> --at <time> --reason <reason>`, con
+`decision: "continue-with-reservations"` y la lista exacta de
+`dependency_task_ids`. Registra un `REC` separado con las reservas heredadas,
+EVID y digest de cada dependencia; planning y el nuevo `EXEC` mantienen ese
+vínculo visible. El recibo debe referir la EVID terminal vigente de cada
+dependencia: una corrección y cierre posterior con otra EVID vuelve a bloquear
+la continuidad hasta que se tome una nueva decisión explícita. No modifica la clasificación técnica ni convierte una
+dependencia reservada en `verified`. Tampoco habilita `authorize-delivery` ni
+`delivery`: promoción y entrega requieren evidencia plenamente `verified`.
+
+Cerrar mediante `v2 close` solo si corresponde a esas tareas/entorno/inputs.
+El cierre es idempotente para la misma EVID; no sobrescribe EVID ni recibos.
+Un defecto posterior cambia salud, no el resultado histórico. Re-verificar
+después de corregir.
 Mantener aceptación humana, entrega, smoke operacional, rollback y producción
 separados; no asumirlos por un resultado técnico.
 La ejecución que usa Docker requiere además `--containers`. `accept-result`

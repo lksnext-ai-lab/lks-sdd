@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import uuid
-from v2_contract import ContractError, DOCS, load, make_element, render_document
+from v2_contract import ContractError, DOCS, fingerprint, load, make_element, render_document
 from v2_authoring import edit_elements, history_changes
-from v2_lifecycle import (active_execution, current_authorization, diff_guard, next_id, timestamp, now)
+from v2_lifecycle import (active_execution, current_authorization, diff_guard, is_active_execution,
+                          next_id, timestamp, now)
 from v2_storage import apply, preview
 
 
@@ -13,7 +14,8 @@ def finish(model, changes, operation, authorized_hash):
     return apply(model.root, changes, plan, authorized_hash, validator=lambda: load(model.root).require_valid()) if authorized_hash else plan
 
 
-def receipt(model, category, body, values, *, authorized_hash=None):
+def receipt_record(model, category, body, values):
+    """Build one immutable receipt so compound transitions can stay atomic."""
     identifier = next_id(model, "REC")
     if not values.get("actor") or not values.get("recorded_at") or not body.strip():
         raise ContractError("Explicit actor, observed time and reason are required")
@@ -21,8 +23,15 @@ def receipt(model, category, body, values, *, authorized_hash=None):
         raise ContractError("Cannot record a future observation as fact")
     data = make_element(identifier, "receipt", category, body,
                         uid=str(uuid.uuid5(uuid.NAMESPACE_URL, model.manifest["project_id"] + ":" + identifier)),
-                        nature="decision" if category in {"result-review", "visual-proposal-review", "delivery-approval", "integration-diff-review"} else "fact", category=category, **values)
+                        nature="decision" if category in {"result-review", "result-reservation-review",
+                                                           "visual-proposal-review", "delivery-approval",
+                                                           "integration-diff-review", "dependency-reservation-continuation"} else "fact", category=category, **values)
     changes = {DOCS + "/04-delivery/receipts/" + identifier + ".md": render_document("receipt", category, [data])}
+    return identifier, changes
+
+
+def receipt(model, category, body, values, *, authorized_hash=None):
+    identifier, changes = receipt_record(model, category, body, values)
     return finish(model, changes, "record-" + category, authorized_hash)
 
 
@@ -46,7 +55,7 @@ def correction(model, tasks, *, actor, reason, at, replan=False, authorized_hash
     problems = [p for p in model.by_kind("problem") if p.meta["state"] != "resolved" and p.targets("affects") & set(tasks)]
     if not replan and not problems:
         raise ContractError("Record the problem before reopening/correcting work")
-    executions = [e for e in model.by_kind("execution") if e.meta["state"] not in {"completed", "cancelled"}
+    executions = [e for e in model.by_kind("execution") if is_active_execution(e)
                   and e.targets("implements") & set(tasks)]
     if len(executions) > 1 or any(e.targets("implements") != set(tasks) for e in executions):
         raise ContractError("Reconcile the complete affected execution scope explicitly")
@@ -76,16 +85,80 @@ def correction(model, tasks, *, actor, reason, at, replan=False, authorized_hash
     return finish(model, {**archive, **edit_elements(model, updates)}, "replan" if replan else "corrective-resume", authorized_hash)
 
 
-def accept_result(model, tasks, evidence_id, *, actor, at, reason, authorized_hash=None):
-    from v2_verification import evidence, engine_hash
+def accept_result(model, tasks, evidence_id, *, actor, at, reason, authorized_hash=None,
+                  reservation_request=None):
+    from v2_verification import evidence, engine_hash, reservation_acceptance
     value = evidence(model, evidence_id)
-    if value["classification"] not in {"verified", "verified-with-reservations"} or not set(tasks) <= set(value["task_ids"]):
-        raise ContractError("Human review cannot waive missing technical verification")
+    if value["classification"] not in {"verified", "verified-with-reservations", "not-verified"} or not set(tasks) <= set(value["task_ids"]):
+        raise ContractError("Human review requires evidence for the exact selected TASK scope")
     if value["material"]["engine"] != engine_hash():
         raise ContractError("Evidence engine changed")
-    return receipt(model, "result-review", reason, {"actor": actor, "recorded_at": at, "state": "approved",
-                   "evidence_id": evidence_id, "evidence_sha256": value["integrity_sha256"],
-                   "identity_assurance": "declared-not-authenticated", "relations": {"verifies": tasks}}, authorized_hash=authorized_hash)
+    if value["classification"] == "verified":
+        if reservation_request is not None:
+            raise ContractError("Verified evidence does not need reservation acceptance")
+        return receipt(model, "result-review", reason, {"actor": actor, "recorded_at": at, "state": "approved",
+                       "evidence_id": evidence_id, "evidence_sha256": value["integrity_sha256"],
+                       "technical_classification": value["classification"],
+                       "identity_assurance": "declared-not-authenticated", "relations": {"verifies": tasks}}, authorized_hash=authorized_hash)
+    reservations, reservation_digest = reservation_acceptance(model, tasks, value, reservation_request)
+    return receipt(model, "result-reservation-review", reason, {
+        "actor": actor, "recorded_at": at, "state": "approved", "evidence_id": evidence_id,
+        "evidence_sha256": value["integrity_sha256"], "technical_classification": value["classification"],
+        "execution_id": value["execution_id"], "subject": value["subject"], "reservations": reservations,
+        "reservation_digest": reservation_digest, "identity_assurance": "declared-not-authenticated",
+        "relations": {"verifies": tasks},
+    }, authorized_hash=authorized_hash)
+
+
+def continue_with_reservations(model, tasks, request, *, actor, at, reason, authorized_hash=None):
+    """Record one explicit, bounded decision to continue after reserved dependencies."""
+    if (not isinstance(request, dict) or request.get("decision") != "continue-with-reservations"
+            or not isinstance(request.get("dependency_task_ids"), list) or not request["dependency_task_ids"]):
+        raise ContractError("Continuation requires decision and explicit dependency TASK ids")
+    if not tasks or any(task not in model.elements or model.elements[task].kind != "task" for task in tasks):
+        raise ContractError("Continuation requires existing dependent TASKs")
+    dependencies = sorted({
+        dependency for task in tasks for dependency in model.elements[task].targets("depends_on")
+        if model.elements[dependency].kind == "task" and model.elements[dependency].meta["state"] == "done-with-reservations"
+    })
+    if dependencies != sorted(set(request["dependency_task_ids"])):
+        raise ContractError("Continuation must name exactly the reserved direct dependencies")
+    dependency_evidence, inherited = [], []
+    for dependency in dependencies:
+        evidence_ids = model.elements[dependency].meta.get("evidence_ids", [])
+        if not evidence_ids:
+            raise ContractError("Reserved dependency has no terminal verification evidence: " + dependency)
+        terminal_evidence = evidence_ids[-1]
+        receipts = [
+            receipt for receipt in model.by_kind("receipt")
+            if receipt.meta.get("category") == "result-reservation-review"
+            and receipt.meta.get("state") == "approved"
+            and dependency in receipt.targets("verifies")
+            and receipt.meta.get("evidence_id") == terminal_evidence
+        ]
+        if not receipts:
+            raise ContractError("Reserved dependency lacks an approved reservation receipt: " + dependency)
+        receipt_value = max(receipts, key=lambda item: (item.meta.get("recorded_at", ""), item.id)).meta
+        from v2_verification import evidence
+        value = evidence(model, receipt_value["evidence_id"])
+        if (dependency not in value["task_ids"]
+                or value["integrity_sha256"] != receipt_value.get("evidence_sha256")
+                or receipt_value.get("reservation_digest") != fingerprint(receipt_value.get("reservations", []))):
+            raise ContractError("Reserved dependency acceptance receipt is no longer bound to exact evidence")
+        dependency_evidence.append({
+            "task_id": dependency,
+            "evidence_id": value["evidence_id"],
+            "evidence_sha256": value["integrity_sha256"],
+            "reservation_digest": receipt_value["reservation_digest"],
+        })
+        inherited.extend({"dependency_task_id": dependency, **reservation}
+                         for reservation in receipt_value["reservations"])
+    return receipt(model, "dependency-reservation-continuation", reason, {
+        "actor": actor, "recorded_at": at, "state": "approved",
+        "dependency_evidence": dependency_evidence, "inherited_reservations": inherited,
+        "identity_assurance": "declared-not-authenticated",
+        "relations": {"affects": sorted(tasks), "depends_on": dependencies},
+    }, authorized_hash=authorized_hash)
 
 
 def validate_flags(request):
@@ -109,8 +182,8 @@ def delivery_observation(model, request, *, authorized_hash=None):
     if request["environment"] not in model.elements or model.elements[request["environment"]].kind != "environment":
         raise ContractError("Explicit documented delivery environment required")
     value = evidence(model, request["evidence_id"])
-    if value["classification"] not in {"verified", "verified-with-reservations"}:
-        raise ContractError("Delivery record cannot promote failed evidence")
+    if value["classification"] != "verified":
+        raise ContractError("Delivery record requires fully verified evidence; accepted reservations cannot promote delivery")
     if request["artifact_digest"] not in value.get("deliverable_artifact_digests", []):
         raise ContractError("Delivered artifact was not captured by the referenced verification")
     if value["environment"] != request["environment"]:
@@ -161,7 +234,7 @@ def authorize_delivery(model, request, *, authorized_hash=None):
     if timestamp(request["expires_at"]) <= timestamp(request["recorded_at"]):
         raise ContractError("Delivery approval expiry must follow approval")
     value = evidence(model, request["evidence_id"])
-    if value["classification"] not in {"verified", "verified-with-reservations"} or request["artifact_digest"] not in value.get("deliverable_artifact_digests", []):
+    if value["classification"] != "verified" or request["artifact_digest"] not in value.get("deliverable_artifact_digests", []):
         raise ContractError("Delivery approval requires a verified deployable artifact, not a log or prototype")
     if request["environment"] not in model.elements or model.elements[request["environment"]].kind != "environment":
         raise ContractError("Document the exact delivery environment")

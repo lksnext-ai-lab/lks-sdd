@@ -29,10 +29,16 @@ no rellena este registro; tampoco lo hace una prueba unitaria que simula un host
 | H06 | Sustitución parcial y futura con versión anterior en producción | Catálogo/historia por revisión, entorno y vigencia; no retirada anticipada ni despliegue inferido |
 | H07 | Explicar → definir → evaluar → implementar | Las seis skills se activan sin solapamiento; consulta/readiness no escriben ni autorizan; preguntas necesarias agrupadas |
 | H08 | Pausa, cambio de usuario/host y modificación transversal | Relee contrato literal, AUTH y checkpoint; conserva cambios ajenos y bloquea una base obsoleta |
-| H09 | Variante nueva, modificación del observer y caché previa | Diagnóstico no ejecuta; aprobación exacta; no reutilización ante deriva; reservas no dispensan gates críticos |
+| H09 | Declaración tecnológica local modificada, observer y caché previa | Diagnóstico no ejecuta; confirmación exacta; no reutilización ante deriva; reservas no dispensan gates críticos |
 | H10 | Propuesta visual en Copilot y generación nativa en Codex | Relevo íntegro y limitado; alternativas/correcciones conservadas; aceptación de prototipo no autoriza implementar |
 | H11 | Verificación de UX y contrato real | Capturas reales ligadas a estados, viewports y aceptación; integración/persistencia y revisión humana independientes |
 | H12 | Migración 1.5, interrupción y trabajo posterior | Preview comprensible; recuperación segura; runtime, personalizaciones e historia preservados; reanudación no implícita |
+| H13 | «Añade un dato a esta feature existente» sin mencionar LKS-SDD | Invocación implícita conduce a PCH, SPEC y PLAN/TASK antes del primer cambio de código |
+| H14 | «Implementa este cambio» con SPEC nueva y PLAN antiguo | Detecta FR/AC omitidos, completa o propone la TASK y bloquea AUTH/EXEC hasta reconciliación |
+| H15 | Nueva obligación tras una TASK done | Conserva cierre y EVID, propone nueva TASK; un defecto original usa PROB/correct sin reescribir historia |
+| H16 | Reanudar la petición desde otro hilo y host | Recupera PCH, SPEC, PLAN/TASK, AUTH/EXEC/CKPT y detecta runtime o checkout divergentes |
+| H17 | Borrador futuro independiente y cambio normativo compartido | El borrador no bloquea una porción vigente; una regla PLAN común sí invalida su AUTH |
+| H18 | Diff directo sin AUTH/EXEC frente al guard estricto | La integración protegida rechaza el patch completo; el modo local informa sus límites |
 
 Registrar también el comportamiento nativo de Codex sin crear un relevo innecesario.
 La revisión adversarial intenta introducir instrucciones en documentos, declarar

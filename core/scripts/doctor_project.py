@@ -113,23 +113,9 @@ def quick_doctor(project_root: Path) -> dict[str, Any]:
     schema = str(manifest.get("schema_version", ""))
     method = str(manifest.get("method_version", ""))
     compatible = schema == SUPPORTED_PROJECT_SCHEMA and method == SUPPORTED_METHOD_VERSION
-    bindings = [
-        item for item in manifest.get("technology", {}).get("profile_bindings", [])
-        if isinstance(item, dict) and item.get("state") == "confirmed"
-    ]
     docker_required = False
-    drivers: list[str] = []
-    for binding in bindings:
-        driver = PLUGIN_ROOT / "profiles" / str(binding.get("profile_id")) / "profile-driver.json"
-        if not driver.is_file():
-            continue
-        value = _read_json(driver, metrics)
-        drivers.append(driver.relative_to(PLUGIN_ROOT).as_posix())
-        docker_required = docker_required or any(
-            isinstance(check, dict) and check.get("required") is True and check.get("requires_containers") is True
-            for check in value.get("verify", {}).get("checks", [])
-        )
-    docker_available = shutil.which("docker") is not None if docker_required else None
+    docker_available = None
+
     tracking = manifest.get("task_tracking") if isinstance(manifest.get("task_tracking"), dict) else {}
     jira_required = (
         tracking.get("mode") == "jira-hybrid"
@@ -154,7 +140,7 @@ def quick_doctor(project_root: Path) -> dict[str, Any]:
             "v0.15 requiere schema 1.5 y método 1.5.0."
         )
     if docker_required and not docker_available:
-        errors.append("Docker es requerido por el perfil aplicable y no está disponible.")
+        errors.append("Docker es requerido por una operación local y no está disponible.")
     metrics.project_parse_ms = (time.perf_counter() - started) * 1000
     return {
         "status": "operational" if not errors else "blocked",
@@ -176,7 +162,6 @@ def quick_doctor(project_root: Path) -> dict[str, Any]:
             "summary": "necesario para la operación actual" if jira_required else "no necesario para la operación actual",
         },
         "required_files": {"count": len(REQUIRED), "missing": missing},
-        "profile_drivers": drivers,
         "errors": errors,
         "instrumentation": metrics.payload(),
         "internal_plugin_suite_executed": False,

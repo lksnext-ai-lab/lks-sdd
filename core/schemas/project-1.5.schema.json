@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://lks.invalid/lks-sdd/schemas/project-1.5.json",
-  "title": "LKS-SDD 1.5 operational index",
+  "title": "LKS-SDD 1.5 migration source index",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -17,7 +17,6 @@
     "baseline_id",
     "canonical_docs",
     "artifacts",
-    "technology",
     "active_increment",
     "active_plan",
     "active_task",
@@ -123,91 +122,14 @@
         }
       }
     },
-    "technology": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "preferred_stack_assessed",
-        "selected_profile",
-        "selection_decision",
-        "profile_bindings"
-      ],
-      "properties": {
-        "preferred_stack_assessed": {
-          "type": "boolean"
-        },
-        "selected_profile": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^[A-Z][A-Z0-9-]{2,95}$"
-        },
-        "selection_decision": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^ADR-[0-9]{3}$"
-        },
-        "profile_bindings": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "binding_id",
-              "unit_id",
-              "unit_path",
-              "profile_id",
-              "profile_scope",
-              "selection_decision",
-              "lock_path",
-              "state"
-            ],
-            "properties": {
-              "binding_id": {
-                "type": "string",
-                "pattern": "^BIND-[0-9]{3}$"
-              },
-              "unit_id": {
-                "type": "string",
-                "pattern": "^UNIT-[0-9]{3}$"
-              },
-              "unit_path": {
-                "type": "string",
-                "pattern": "^(?:\\.|[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*)$"
-              },
-              "profile_id": {
-                "type": "string",
-                "pattern": "^[A-Z][A-Z0-9-]{2,95}$"
-              },
-              "profile_scope": {
-                "enum": [
-                  "deployable",
-                  "system"
-                ]
-              },
-              "selection_decision": {
-                "type": "string",
-                "pattern": "^ADR-[0-9]{3}$"
-              },
-              "lock_path": {
-                "type": "string",
-                "pattern": "^\\.lks-sdd/profiles/BIND-[0-9]{3}\\.lock\\.json$"
-              },
-              "state": {
-                "enum": [
-                  "proposed",
-                  "confirmed",
-                  "superseded",
-                  "retired"
-                ]
-              }
-            }
-          }
-        }
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object"
       }
+    },
+    "technology": {
+      "type": "object"
     },
     "active_increment": {
       "type": [
@@ -536,7 +458,7 @@
           "increment",
           "release",
           "task_ids",
-          "profile_bindings",
+          "bindings",
           "locks",
           "branch",
           "revision_start",
@@ -580,7 +502,7 @@
               "pattern": "^TASK-[0-9]{3}$"
             }
           },
-          "profile_bindings": {
+          "bindings": {
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
@@ -758,7 +680,7 @@
         "status",
         "increment",
         "task_ids",
-        "profile_bindings",
+        "bindings",
         "branch",
         "revision_start",
         "locks",
@@ -787,7 +709,7 @@
             "pattern": "^TASK-[0-9]{3}$"
           }
         },
-        "profile_bindings": {
+        "bindings": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,

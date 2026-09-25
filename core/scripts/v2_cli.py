@@ -24,8 +24,10 @@ def parser_for(command=None):
         parser.add_argument("command", choices=("init", "author", "catalog", "history", "validate", "context", "readiness",
             "authorize", "start", "diff", "review-diff", "checkpoint", "resume", "verify", "close", "status",
             "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
+            "method-upgrade-diagnose", "method-upgrade",
             "migrate", "rollback", "recover", "merge-preview", "guard", "adopt",
-            "feature", "decompose", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "delivery", "authorize-delivery", "guard-review", "prepare",
+            "retention-status", "retention-compact", "retention-restore",
+            "feature", "decompose", "change", "rename-aliases", "revoke", "problem", "correct", "replan", "accept-result", "continue-with-reservations", "delivery", "authorize-delivery", "guard-review", "prepare",
             "tracking-status", "tracking-project", "tracking-authorize", "tracking-result", "tracking-reconcile", "tracking-milestone",
             "visual-request", "visual-inspect", "visual-observe", "visual-accept", "visual-cancel"))
     parser.add_argument("project_root", type=Path)
@@ -60,6 +62,8 @@ def parser_for(command=None):
     parser.add_argument("--duplicate-check", choices=("matched", "no-match"))
     parser.add_argument("--target-runtime", type=Path)
     parser.add_argument("--base", type=Path)
+    parser.add_argument("--approved", type=Path, help="Independent approved contract root for strict guard")
+    parser.add_argument("--strict", action="store_true", help="Require approved SPEC/PLAN/TASK/AUTH/EXEC")
     parser.add_argument("--incoming", type=Path)
     parser.add_argument("--source", action="append", default=[])
     return parser
@@ -78,6 +82,9 @@ def run(command, args):
     if command == "init":
         result, changes = initialize(root, args.name or args.project_id or "Proyecto", project_id=args.project_id)
         return apply(root, changes, result, authorized, validator=lambda: load(root).require_valid()) if args.apply else result
+    if command in {"method-upgrade-diagnose", "method-upgrade"}:
+        from v2_method_upgrade import diagnose, upgrade
+        return diagnose(root) if command == "method-upgrade-diagnose" else upgrade(root, authorized)
     if command in {"migration-diagnose", "migration-preview", "migration-status",
                    "migration-continuation", "migrate"}:
         from v2_migration import diagnose, plan, migrate, migration_status, continuation_status
@@ -99,7 +106,7 @@ def run(command, args):
         return adopt(root, args.source, name=args.name, description=args.summary, authorized_hash=authorized)
     from v2_migration import migration_status
     cutover = migration_status(root)
-    if cutover["status"] == "blocked" and command not in {"validate", "status", "catalog", "context", "readiness"}:
+    if cutover["status"] == "blocked" and command not in {"validate", "status", "catalog", "context", "readiness", "retention-status"}:
         raise ContractError("; ".join(cutover.get("errors", ["Project migration is blocked"])))
     model = load(root)
     if command == "guard-review":
@@ -117,15 +124,34 @@ def run(command, args):
                 "schema_version": "2.0", "errors": model.errors, "warnings": model.warnings,
                 "checked_files": sorted(model.hashes), "writes": []}
     if command == "status":
+        from v2_lifecycle import is_active_execution
         diagnostics = list(model.errors) + list(cutover.get("errors", []))
         return {"status": "documented" if model.valid and cutover["status"] != "blocked" else "blocked",
                 "project": model.manifest.get("name"),
                 "migration": cutover,
                 "features": len(model.by_kind("feature")),
+                "changes": [{"id": c.id, "title": c.meta["title"], "state": c.meta["state"],
+                             "source": c.source()} for c in model.by_kind("change")
+                            if c.meta.get("category") == "implementation-request"],
                 "tasks": [{"id": t.id, "title": t.meta["title"], "state": t.meta["state"],
                            "health": t.meta.get("health", "unknown"), "evidence": t.meta.get("evidence_ids", [])} for t in model.by_kind("task")],
+                "executions": [{"id": e.id, "state": e.meta["state"], "active": is_active_execution(e),
+                                "normative_tasks": sorted(e.targets("implements")),
+                                "historical_antecedents": sorted(e.targets("affects"))}
+                               for e in model.by_kind("execution")],
                 "problems": [{"id": p.id, "state": p.meta["state"], "description": p.body} for p in model.by_kind("problem")],
                 "delivery": "not-assessed", "diagnostics": diagnostics, "writes": []}
+    if command == "retention-status":
+        from v2_retention import report
+        return report(model, args.task)
+    if command == "retention-compact":
+        from v2_retention import compact
+        if not args.at:
+            raise ContractError("Retention compact requires explicit --at")
+        return compact(model, args.task, at=args.at, authorized_hash=authorized)
+    if command == "retention-restore":
+        from v2_retention import restore
+        return restore(model, [args.id] if args.id else [], authorized_hash=authorized)
     if command == "author":
         if not args.request:
             raise ContractError("Author requires a reviewed --request file")
@@ -139,6 +165,20 @@ def run(command, args):
         return historical(root, args.snapshot)
     if command == "context":
         return execution_context(model, args.task)
+    if command == "change":
+        from v2_change_control import assess_plan
+        changes = [c for c in model.by_kind("change") if c.meta.get("category") == "implementation-request"
+                   and (not args.id or c.id == args.id)]
+        if args.id and not changes:
+            raise ContractError("Unknown implementation request: " + args.id)
+        plans = sorted({p for c in changes for point in c.meta.get("points", [])
+                        for p in point.get("plans", []) if p in model.elements})
+        analyses = [assess_plan(model, p) for p in plans]
+        return {"status": "blocked" if any(a["blockers"] for a in analyses) else
+                          "draft" if any(c.meta["state"] == "draft" for c in changes) else "documented",
+                "changes": [{"id": c.id, "state": c.meta["state"], "source": c.source(),
+                             "points": c.meta.get("points", [])} for c in changes],
+                "plans": analyses, "writes": []}
     if command == "readiness":
         return planning(model, args.task)
     if command == "authorize":
@@ -151,23 +191,28 @@ def run(command, args):
             raise ContractError("Start requires explicit --at and --actor")
         return start(model, args.task, args.environment, actor=args.actor, at=args.at, authorized_hash=authorized)
     if command == "diff":
-        return diff_guard(model)
+        return diff_guard(model, tasks=args.task)
     if command == "review-diff":
-        return review_diff(model, actor=args.actor, reason=args.reason, observed_diff=args.diff_fingerprint, authorized_hash=authorized)
+        return review_diff(model, tasks=args.task, actor=args.actor, reason=args.reason,
+                           observed_diff=args.diff_fingerprint, authorized_hash=authorized)
     if command == "checkpoint":
         if not args.at:
             raise ContractError("Checkpoint requires explicit --at")
-        return checkpoint(model, state=args.state, actor=args.actor, at=args.at, summary=args.summary,
+        return checkpoint(model, tasks=args.task, state=args.state, actor=args.actor, at=args.at, summary=args.summary,
                           next_action=args.next_action, authorized_hash=authorized)
     if command == "resume":
         return resume(model, args.task)
     if command in {"verify", "close"}:
         from v2_verification import verify, close
         if command == "verify":
-            return verify(model, args.task, args.environment, args.stage, evidence_id=args.evidence_id, execute=args.execute, containers=args.containers)
+            request = read_request(args.request) if args.request else None
+            return verify(model, args.task, args.environment, args.stage, evidence_id=args.evidence_id,
+                          execute=args.execute, containers=args.containers, reservation_request=request)
         if not args.at:
             raise ContractError("Close requires explicit --at")
-        return close(model, args.task, args.evidence_id, actor=args.actor, at=args.at, authorized_hash=authorized)
+        request = read_request(args.request) if args.request else None
+        return close(model, args.task, args.evidence_id, actor=args.actor, at=args.at,
+                     reason=args.reason, reservation_request=request, authorized_hash=authorized)
     if command == "merge-preview":
         if not args.base or not args.incoming:
             raise ContractError("Provide --base and --incoming project roots")
@@ -175,7 +220,11 @@ def run(command, args):
     if command == "guard":
         if not args.base:
             raise ContractError("Guard requires an independently trusted --base")
-        from v2_integration_guard import assess
+        from v2_integration_guard import assess, assess_strict
+        if args.strict:
+            if not args.approved:
+                raise ContractError("Strict guard requires independent --approved contract root")
+            return assess_strict(args.base, args.approved, root, args.task, args.environment)
         return assess(args.base, root, args.task)
     if command in {"feature", "rename-aliases", "decompose"}:
         from v2_features import create, rename_aliases, decomposition
@@ -190,8 +239,8 @@ def run(command, args):
         if not args.at:
             raise ContractError("Problem requires explicit --at")
         return report_problem(model, args.task, description=args.reason, actor=args.actor, at=args.at, authorized_hash=authorized)
-    if command in {"revoke", "correct", "replan", "accept-result", "delivery"}:
-        from v2_controls import revoke, correction, accept_result, delivery_observation
+    if command in {"revoke", "correct", "replan", "accept-result", "continue-with-reservations", "delivery"}:
+        from v2_controls import revoke, correction, accept_result, continue_with_reservations, delivery_observation
         if command == "delivery":
             return delivery_observation(model, read_request(args.request), authorized_hash=authorized)
         if not args.at:
@@ -200,7 +249,11 @@ def run(command, args):
         if command == "revoke":
             return revoke(model, args.id, **common)
         if command == "accept-result":
-            return accept_result(model, args.task, args.evidence_id, **common)
+            return accept_result(model, args.task, args.evidence_id,
+                                 reservation_request=read_request(args.request) if args.request else None,
+                                 **common)
+        if command == "continue-with-reservations":
+            return continue_with_reservations(model, args.task, read_request(args.request), **common)
         return correction(model, args.task, replan=command == "replan", **common)
     if command.startswith("tracking-"):
         from v2_tracking import readiness, projection, authorize_projection, record_result
@@ -260,6 +313,24 @@ def human_status(value):
     return "\n".join(lines)
 
 
+def human_guidance(value):
+    guidance = value["guidance"]
+    lines = [
+        "No se puede continuar todavía.",
+        "",
+        guidance["summary"],
+        "",
+        "Qué significa: " + guidance["impact"],
+        "Siguiente paso: " + guidance["next_step"],
+        "",
+        "Opciones:",
+        *["- " + option for option in guidance["options"]],
+        "",
+        "Los detalles técnicos siguen disponibles con --json.",
+    ]
+    return "\n".join(lines)
+
+
 def main(argv=None, *, command=None):
     args = parser_for(command).parse_args(argv)
     command = command or args.command
@@ -267,11 +338,13 @@ def main(argv=None, *, command=None):
         value = run(command, args)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         value = {"status": "blocked", "error": str(exc), "writes": []}
+    from v2_guidance import enrich
+    value = enrich(value, operation=command)
     if command == "catalog" and not args.json and not args.export and value.get("status") != "blocked":
         from v2_authoring import catalog_markdown
         print(catalog_markdown(load(args.project_root)))
-    elif not args.json and value.get("status") == "blocked":
-        print("No se puede continuar: " + value.get("error", "; ".join(value.get("blockers", value.get("missing_critical_gates", []))) or value.get("reason", "Revise el diagnóstico.")))
+    elif not args.json and value.get("status") in {"blocked", "invalid", "conflict"}:
+        print(human_guidance(value))
     elif command == "status" and not args.json:
         print(human_status(value))
     else:

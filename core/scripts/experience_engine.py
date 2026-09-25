@@ -430,7 +430,7 @@ def load_status(
         "task_details": {},
         "bindings": {
             item.get("binding_id"): item
-            for item in manifest.get("technology", {}).get("profile_bindings", [])
+            for item in manifest.get("bindings", [])
             if isinstance(item, dict) and item.get("binding_id")
         },
         "units": {},
@@ -636,7 +636,7 @@ def load_status(
         "project": project_status,
         "current_task": current_task,
         "developer": {
-            "components": sorted({value for value in (selected.get("Unit"), selected.get("Profile binding")) if _meaningful(value)}),
+            "components": sorted({value for value in (selected.get("Unit"), selected.get("Binding")) if _meaningful(value)}),
             "files": [detail_path.relative_to(root).as_posix()] if detail_path else [],
             "behavior": definition.get("In scope") or definition.get("Objective") or "Pendiente de definición",
             "test_commands": test_commands,
@@ -941,7 +941,7 @@ def verification_subject(
         "schema_version": manifest.get("schema_version"),
         "planning_fingerprint": manifest.get("planning", {}).get("planning_fingerprint"),
         "specification_fingerprint": manifest.get("planning", {}).get("specification_fingerprint"),
-        "profile_bindings": manifest.get("technology", {}).get("profile_bindings", []),
+        "bindings": manifest.get("bindings", []),
     }
     digest.update(json.dumps(contract_material, sort_keys=True, separators=(",", ":")).encode("utf-8"))
     revision = "workspace"

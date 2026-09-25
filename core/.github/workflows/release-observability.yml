@@ -1,0 +1,90 @@
+name: release-observability
+
+on:
+  workflow_run:
+    workflows: [quality]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  observe:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
+    runs-on: windows-latest
+    timeout-minutes: 10
+    env:
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Download exact release package
+        uses: actions/download-artifact@v8
+        with:
+          name: release-evidence
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}\release-evidence
+      - name: Download completed release metadata
+        shell: pwsh
+        run: |
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2026-03-10"
+          }
+          $run = Invoke-RestMethod -Headers $headers -Uri "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:SOURCE_RUN_ID"
+          $jobs = Invoke-RestMethod -Headers $headers -Uri "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:SOURCE_RUN_ID/attempts/$($run.run_attempt)/jobs?per_page=100"
+          $run | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath "$env:RUNNER_TEMP\release-run.json" -Encoding utf8
+          $jobs | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath "$env:RUNNER_TEMP\release-jobs.json" -Encoding utf8
+      - name: Generate release timing report
+        shell: pwsh
+        run: |
+          python -X utf8 scripts/release_observability.py `
+            --workflow-run "$env:RUNNER_TEMP\release-run.json" `
+            --workflow-jobs "$env:RUNNER_TEMP\release-jobs.json" `
+            --output "$env:RUNNER_TEMP\release-observability.json"
+          Get-Content -LiteralPath "$env:RUNNER_TEMP\release-observability.json" | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+      - name: Read release marketplace metadata
+        shell: pwsh
+        run: |
+          git fetch --no-tags --depth=1 origin $env:SOURCE_COMMIT
+          $marketplace = git show "$env:SOURCE_COMMIT`:.github/plugin/marketplace.json"
+          if ($LASTEXITCODE -ne 0) { throw "No se puede leer el catálogo del commit de release." }
+          [System.IO.File]::WriteAllText(
+            "$env:RUNNER_TEMP\release-marketplace.json",
+            $marketplace,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+      - name: Validate configured distribution reference
+        shell: pwsh
+        run: |
+          $catalog = Get-Content -LiteralPath "$env:RUNNER_TEMP\release-marketplace.json" -Raw | ConvertFrom-Json
+          $version = @($catalog.plugins | Where-Object { $_.name -eq 'lks-sdd' })[0].version
+          if (-not $version) { throw "El catálogo no declara versión de Copilot." }
+          python -X utf8 scripts/validate_distribution_reference.py `
+            --marketplace "$env:RUNNER_TEMP\release-marketplace.json" `
+            --source-commit $env:SOURCE_COMMIT `
+            --native-package "$env:RUNNER_TEMP\release-evidence\candidate\lks-sdd-copilot-plugin-v$version.zip" `
+            --output "$env:RUNNER_TEMP\distribution-reference.json"
+          Get-Content -LiteralPath "$env:RUNNER_TEMP\distribution-reference.json" | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+      - name: Upload release observability
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-observability-${{ github.event.workflow_run.id }}
+          path: |
+            ${{ runner.temp }}\release-observability.json
+            ${{ runner.temp }}\distribution-reference.json
+          retention-days: 90

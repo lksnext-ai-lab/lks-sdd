@@ -43,7 +43,7 @@ def check(root: Path) -> dict:
         for relative, expected in checks.items():
             path = root / safe_name(relative)
             links = [p for p in [path, *path.parents] if p != root and root in p.parents]
-            if not path.resolve().is_relative_to(root) or any(
+            if not path.is_relative_to(root) or any(
                 p.is_symlink() or (hasattr(p, "is_junction") and p.is_junction()) for p in links
             ):
                 raise ValueError(f"Unsafe managed path: {relative}")
@@ -63,9 +63,17 @@ def check(root: Path) -> dict:
         manifest = json.loads((runtime / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
         if manifest.get("version") != lock["version"]:
             errors.append("Runtime version mismatch")
+        distribution = json.loads((runtime / "distribution/dual.json").read_text(encoding="utf-8"))
+        if lock.get("method_version", distribution.get("method_version")) != distribution.get("method_version"):
+            errors.append("Runtime method declaration mismatch")
         project_index = root / ".lks-sdd/project.json"
-        if project_index.is_file() and json.loads(project_index.read_text(encoding="utf-8")).get("schema_version") != lock["project_schema"]:
-            errors.append("Project schema differs from its pinned distribution; use explicit migration/recovery")
+        if project_index.is_file():
+            project = json.loads(project_index.read_text(encoding="utf-8"))
+            if project.get("schema_version") != lock["project_schema"]:
+                errors.append("Project schema differs from its pinned distribution; use explicit migration/recovery")
+            if project.get("schema_version") == "2.0" and project.get("method_version") not in lock.get(
+                    "readable_method_versions", [distribution.get("method_version")]):
+                errors.append("Project method is unsupported by its pinned runtime")
         return {"status": "valid" if not errors else "blocked", "errors": errors,
                 "runtime": runtime_name, "version": lock["version"], "channel": lock["channel"]}
     except (ValueError, OSError, KeyError, TypeError) as exc:

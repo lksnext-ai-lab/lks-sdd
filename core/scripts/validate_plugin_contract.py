@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate LKS-SDD 1.0, its M0-M5 contract and release evidence."""
+"""Validate the active LKS-SDD contract, distribution, and release evidence."""
 
 from __future__ import annotations
 
@@ -10,6 +10,16 @@ import json
 import re
 import sys
 from pathlib import Path
+
+if str(__file__).startswith("\\\\?\\"):
+    _bootstrap = Path(__file__).with_name("import_bootstrap.py")
+    _namespace = {}
+    exec(compile(_bootstrap.read_bytes(), str(_bootstrap), "exec"), _namespace)
+    _namespace["ensure_import_path"](__file__)
+    del _bootstrap, _namespace
+
+from path_utils import filesystem_root
+import release_notes
 
 EXPECTED_SKILLS = {
     "lks-sdd-help",
@@ -22,6 +32,8 @@ EXPECTED_SKILLS = {
 SEMVER_RE = re.compile(
     r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
 )
+COPILOT_CATALOG_PATH = ".github/plugin/marketplace.json"
+COPILOT_CATALOG_REPOSITORY = "lksnext-ai-lab/lks-sdd"
 CANONICAL_HASHES = {
     "LKS-SDD_definicion_plugin_v1.md": "4DE2D0AE75B2FF75BBC0C38D05C38AC2D90B57EA4472D46A85BF33C597D79700",
     "LKS-SDD_paquete_preimplementacion_v0.1.md": "A5FFD0D5CA1D9B7AC96D1DABB4A411739E18A01345348D9250F857D5F941504B",
@@ -42,51 +54,29 @@ REQUIRED_ROOT_FILES = {
     "LICENSE.md",
     "docs/ARCHITECTURE.md",
     "docs/COMPATIBILITY.md",
-    "docs/M1-COVERAGE.md",
-    "docs/M2-COVERAGE.md",
-    "docs/M3-COVERAGE.md",
-    "docs/M4-COVERAGE.md",
-    "docs/M5-COVERAGE.md",
-    "docs/V0.6-DEFINITION-UX-COVERAGE.md",
-    "docs/V0.7-CONTRACT-HANDOFF-COVERAGE.md",
-    "docs/V0.8-DELIVERY-MULTIPROFILE-COVERAGE.md",
-    "docs/V0.9-PLANNING-CONTINUITY-COVERAGE.md",
-    "docs/V0.10-JIRA-ROVO-COVERAGE.md",
-    "docs/V0.11-JIRA-MILESTONE-COVERAGE.md",
-    "docs/V0.12-ENTRA-PROFILE-COVERAGE.md",
-    "docs/V0.13-SIMULATED-OIDC-PROFILES.md",
-    "docs/V0.14-INCREMENTAL-VERIFICATION-COVERAGE.md",
-    "docs/V0.15-QUALITY-EFFICIENCY-COVERAGE.md",
-    "docs/V0.15-PRODUCT-EXPERIENCE.md",
-    "docs/V0.16-VALIDATION-EVIDENCE.md",
-    "docs/V0.17-FULLSTACK-INTEGRATION-EVIDENCE.md",
-    "docs/MIGRATION-0.16.0.md",
-    "docs/MIGRATION-0.17.0.md",
-    "docs/releases/v0.14.0.md",
-    "docs/releases/v0.14.2.md",
-    "docs/releases/v0.15.0.md",
-    "docs/releases/v0.16.0.md",
-    "docs/releases/v0.17.0.md",
-    "docs/releases/v0.18.0.md",
-    "docs/releases/v1.0.0.md",
+    "docs/INSTALLATION.md",
+    "docs/LEARNING-GUIDE.md",
+    "docs/COPILOT-PILOT.md",
+    "docs/MAINTENANCE.md",
+    "docs/PROJECT-QUERY.md",
+    "docs/V2-AUTHORING.md",
+    "docs/V2-GUARDRAILS.md",
+    "docs/V2-HOST-ACCEPTANCE.md",
+    "docs/V2-INDEX.md",
+    "docs/V2-MIGRATION.md",
+    "docs/V2-WORKFLOWS.md",
+    "docs/VISUAL-HANDOFF.md",
     "docs/JIRA-ROVO-INTEGRATION.md",
-    "docs/QUALITY-HARNESS.md",
     "docs/DISTRIBUTION.md",
     "docs/RELEASING.md",
     "docs/VALIDATION.md",
     "specs/SOURCES.md",
     "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
     "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
-    "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.yaml",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/technology-profile.lock.json",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-guide.md",
-    "profiles/WEB-FASTAPI-REACT-KEYCLOAK-PG/profile-driver.json",
-    "profiles/catalog.json",
+    "specs/proposed/project-contract-2.0.md",
     "scripts/validate_spec.py",
     "scripts/check_traceability.py",
     "scripts/render_client_view.py",
-    "scripts/run_quality_harness.py",
     "scripts/validate_fixture_manifest.py",
     "scripts/manage_pilot.py",
     "scripts/build_candidate_package.py",
@@ -107,8 +97,6 @@ REQUIRED_ROOT_FILES = {
     "scripts/query_render.py",
     "schemas/query-context.schema.json",
     "docs/PROJECT-QUERY.md",
-    "scripts/profile_registry.py",
-    "scripts/automation_coverage.py",
     "scripts/delivery_engine.py",
     "scripts/manage_tasks.py",
     "scripts/planning_engine.py",
@@ -116,43 +104,8 @@ REQUIRED_ROOT_FILES = {
     "scripts/task_tracking_engine.py",
     "scripts/manage_task_tracking.py",
     "scripts/jira_reporting_engine.py",
-    "scripts/run_fast_validation.py",
-    "scripts/quality_execution.py",
-    "scripts/update_performance_baseline.py",
-    "scripts/verify_profile_certifications.py",
     "scripts/manage_continuity.py",
-    "scripts/update_profile_locks.py",
-    "quality/catalog.json",
-    "quality/corpora/activation.json",
-    "quality/corpora/definition-v0.6.0.json",
-    "quality/corpora/definition-v0.8.0.json",
-    "quality/corpora/definition-v0.9.0.json",
-    "quality/corpora/definition-v0.10.0.json",
-    "quality/corpora/definition-v0.11.0.json",
-    "quality/corpora/definition-v0.12.0.json",
-    "quality/corpora/definition-v0.14.0.json",
-    "quality/corpora/definition-v0.15.0.json",
-    "quality/corpora/definition-v0.16.0.json",
-    "quality/corpora/definition-v0.17.0.json",
-    "quality/corpora/definition-v0.18.0.json",
-    "quality/corpora/definition-v2.0.0.json",
     "quality/fixture-manifest.json",
-    "quality/test-suites.json",
-    "quality/v0.15-e2e-matrix.json",
-    "quality/test-impact-map.json",
-    "quality/performance-policy.json",
-    "quality/baselines/v0.3.0.json",
-    "quality/baselines/v0.4.0.json",
-    "quality/baselines/v0.6.1.json",
-    "quality/baselines/v0.10.0.json",
-    "quality/baselines/v0.11.0.json",
-    "quality/baselines/v0.12.0.json",
-    "quality/baselines/v0.13.0.json",
-    "quality/baselines/v0.14.2.json",
-    "quality/baselines/v0.15.0.json",
-    "schemas/quality-observations.schema.json",
-    "schemas/quality-report.schema.json",
-    "schemas/quality-report-1.1.schema.json",
     "schemas/verification-evidence-1.2.schema.json",
     "schemas/verification-evidence-1.3.schema.json",
     "schemas/visual-review-evidence-1.2.schema.json",
@@ -161,18 +114,13 @@ REQUIRED_ROOT_FILES = {
     "schemas/pilot-config.schema.json",
     "schemas/pilot-observation.schema.json",
     "schemas/pilot-summary.schema.json",
-    "schemas/release-approval.schema.json",
     "schemas/document-contracts.json",
     "schemas/document-contracts.schema.json",
     "schemas/project-1.5.schema.json",
     "schemas/frontmatter-1.5.schema.json",
-    "schemas/profile-catalog.schema.json",
-    "schemas/profile-driver.schema.json",
-    "schemas/profile-certification.schema.json",
     "schemas/delivery-evidence.schema.json",
     "distribution/marketplace.template.json",
     "pilot/pilot-config.example.json",
-    "quality/release-approval-v1.0.0.json",
     "pilot/PLAN.md",
     "pilot/ONBOARDING.md",
     "pilot/ROLLBACK.md",
@@ -181,9 +129,6 @@ REQUIRED_ROOT_FILES = {
     ".github/ISSUE_TEMPLATE/pilot-feedback.yml",
     ".github/workflows/quality.yml",
     "templates/client/client-deliverable.md",
-    "tests/test_task_tracking_v14.py",
-    "tests/test_jira_reporting_v15.py",
-    "tests/test_validation_evidence_v016.py",
     "tests/fixtures/validation-evidence-v016.json",
 }
 EXPECTED_GIT_ATTRIBUTES = (
@@ -310,11 +255,11 @@ RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/experience_engine.py": {"subprocess"},
     "scripts/manage_continuity.py": {"subprocess"},
     "scripts/manage_task_tracking.py": {"urllib.parse"},
-    "scripts/run_reference_profile_gate.py": {"subprocess"},
-    "scripts/run_quality_harness.py": {"subprocess"},
-    "scripts/run_fast_validation.py": {"subprocess"},
-    "scripts/quality_execution.py": {"subprocess"},
-    "scripts/update_performance_baseline.py": {"subprocess"},
+    "scripts/run_release_gate.py": {"subprocess"},
+    "scripts/release_readiness.py": {"subprocess"},
+    "scripts/validate_release_artifacts.py": {"subprocess"},
+    # Read-only Git resolution of the configured release distribution ref.
+    "scripts/validate_distribution_reference.py": {"subprocess"},
     "scripts/work_task.py": {"subprocess"},
     "scripts/task_tracking_engine.py": {"urllib.parse"},
     "skills/lks-sdd-verify/scripts/run_verification.py": {
@@ -367,6 +312,44 @@ def python_string_constant(path: Path, name: str) -> str | None:
     return None
 
 
+def validate_copilot_catalog(root: Path, plugin_version: str) -> list[str]:
+    """Validate the static Copilot catalog binding for a release version."""
+
+    catalog_path = root / COPILOT_CATALOG_PATH
+    try:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return [f"Catálogo Copilot ilegible: {exc}"]
+    if not isinstance(catalog, dict):
+        return ["El catálogo Copilot debe ser un objeto JSON."]
+    plugins = catalog.get("plugins")
+    if not isinstance(plugins, list):
+        return ["El catálogo Copilot debe declarar una lista de plugins."]
+    matches = [
+        plugin
+        for plugin in plugins
+        if isinstance(plugin, dict) and plugin.get("name") == "lks-sdd"
+    ]
+    if len(matches) != 1:
+        return [f"El catálogo Copilot debe declarar un único lks-sdd, no {len(matches)}."]
+    plugin = matches[0]
+    source = plugin.get("source")
+    expected_source = {
+        "source": "github",
+        "repo": COPILOT_CATALOG_REPOSITORY,
+        "ref": f"copilot-v{plugin_version}",
+    }
+    errors: list[str] = []
+    if plugin.get("version") != plugin_version:
+        errors.append("La versión del catálogo Copilot debe coincidir con el manifest.")
+    if source != expected_source:
+        errors.append(
+            "La fuente Copilot debe apuntar a la etiqueta nativa "
+            f"copilot-v{plugin_version} del repositorio acreditado."
+        )
+    return errors
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     for relative in sorted(REQUIRED_ROOT_FILES):
@@ -411,35 +394,13 @@ def validate(root: Path) -> list[str]:
                     "La primera versión del changelog debe coincidir con el manifest."
                 )
 
-        release_path = root / "docs" / "releases" / f"v{plugin_version}.md"
-        if not release_path.is_file():
-            errors.append(f"Falta la nota de release docs/releases/v{plugin_version}.md.")
-        else:
-            release_text = release_path.read_text(encoding="utf-8")
-            if not re.search(
-                rf"^#\s+LKS-SDD\s+v{re.escape(plugin_version)}\b",
-                release_text,
-                re.MULTILINE,
-            ):
-                errors.append("La nota de release no coincide con la versión del manifest.")
-            release_markers = (
-                "**Fecha:**",
-                "## Changelog",
-                "## Compatibilidad",
-                "## Perfiles y locks",
-                "## Validación y evals",
-                "## Vulnerabilidades conocidas y limitaciones",
-                "## Actualización",
-                "## Migración",
-                "## Rollback",
-                "## Soporte",
-                "## Responsables",
+        try:
+            release_notes.extract(changelog_path.read_bytes(), plugin_version)
+        except (OSError, release_notes.ReleaseNotesError) as exc:
+            errors.append(
+                f"El changelog no acredita una sección única y no vacía para "
+                f"{plugin_version}: {exc}"
             )
-            for marker in release_markers:
-                if marker not in release_text:
-                    errors.append(
-                        f"La nota de release {plugin_version} no contiene {marker!r}."
-                    )
 
         version_markers = {
             "README.md": f"versión `{plugin_version}`",
@@ -465,6 +426,7 @@ def validate(root: Path) -> list[str]:
                 errors.append(
                     f"{relative} declara PLUGIN_VERSION={declared!r}; debe coincidir con {plugin_version}."
                 )
+        errors.extend(validate_copilot_catalog(root, plugin_version))
     interface = manifest.get("interface", {})
     codex_manifest_fields = {
         "description": manifest.get("description"),
@@ -572,40 +534,11 @@ def validate(root: Path) -> list[str]:
             "empresa de servicios",
             "repositorio existente",
         ),
-        "docs/V0.6-DEFINITION-UX-COVERAGE.md": (
-            "FX-01",
-            "FX-20",
-            "FX-21",
-            "not-run",
-        ),
-        "docs/V0.10-JIRA-ROVO-COVERAGE.md": (
-            "FX-36",
-            "FX-45",
+        "docs/JIRA-ROVO-INTEGRATION.md": (
             "Atlassian Rovo",
-            "not-run",
-            "Jira `Done`",
-        ),
-        "docs/V0.11-JIRA-MILESTONE-COVERAGE.md": (
-            "FX-46",
-            "FX-51",
             "milestone-reporting",
-            "not-run",
-            "advisory",
-        ),
-        "docs/V0.12-ENTRA-PROFILE-COVERAGE.md": (
-            "FX-52",
-            "FX-53",
-            "automation_coverage",
-            "Microsoft Entra",
-            "not-run",
-        ),
-        "docs/V0.13-SIMULATED-OIDC-PROFILES.md": (
-            "FX-54",
-            "CAP-IDENTITY-OIDC-SIMULATED",
-            "external_interoperability",
-            "not-applicable",
-            "production",
-            "Microsoft Entra",
+            "Jira Done",
+            "not-assessed",
         ),
     }
     for relative, markers in positioning_markers.items():
@@ -698,12 +631,17 @@ def validate(root: Path) -> list[str]:
             "append-only",
             "not-run",
         ),
-        "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md": (
-            "propuesta candidate, no canónica",
-            "CAP-OIDC-DISCOVERY-JWKS",
-            "CAP-ENTRA-CLAIMS",
-            "automation_coverage",
-            "not-run",
+        "specs/proposed/project-contract-2.0.md": (
+            "propuesta vigente para v2",
+            "`observed`",
+            "`proposed`",
+            "`confirmed`",
+            "`unknown`",
+            "`transition`",
+            "Contexto tecnológico de las tareas",
+            "`TASK-###`",
+            "Corte seguro de 1.5 a 2.0",
+            "perfiles globales, recetas, catálogos de capacidades",
         ),
         "specs/SOURCES.md": (
             CANONICAL_HASHES["LKS-SDD_extension_definicion_visual_v0.1.md"],
@@ -715,7 +653,6 @@ def validate(root: Path) -> list[str]:
             ],
             "specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md",
             "specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md",
-            "specs/proposed/LKS-SDD_extension_catalogo_capabilities_entra_v1.5.md",
             "no canónica",
         ),
         "scripts/run_quality_harness.py": (
@@ -742,82 +679,23 @@ def validate(root: Path) -> list[str]:
                 errors.append(f"{relative} no contiene el marcador contractual {marker!r}.")
 
     for schema_name in (
-        "technology-profile.schema.json",
-        "technology-profile-lock.schema.json",
-        "quality-observations.schema.json",
-        "quality-report.schema.json",
         "pilot-config.schema.json",
         "pilot-observation.schema.json",
         "pilot-summary.schema.json",
         "catalogs.json",
         "project-1.5.schema.json",
         "frontmatter-1.5.schema.json",
-        "profile-catalog.schema.json",
-        "profile-driver.schema.json",
-        "profile-certification.schema.json",
         "delivery-evidence.schema.json",
         "document-contracts.json",
         "document-contracts.schema.json",
+        "technology-declaration-2.0.schema.json",
     ):
         try:
             json.loads((root / "schemas" / schema_name).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             errors.append(f"Schema inválido {schema_name}: {exc}")
 
-    try:
-        profile_catalog = json.loads(
-            (root / "profiles" / "catalog.json").read_text(encoding="utf-8")
-        )
-        catalog_profiles = {
-            item["id"]: item
-            for item in profile_catalog.get("profiles", [])
-            if isinstance(item, dict) and isinstance(item.get("id"), str)
-        }
-        discovered_profiles = {
-            path.name
-            for path in (root / "profiles").iterdir()
-            if path.is_dir() and (path / "technology-profile.yaml").is_file()
-        }
-        if discovered_profiles != set(catalog_profiles):
-            errors.append(
-                "El inventario físico de perfiles diverge del catálogo: "
-                f"{sorted(discovered_profiles ^ set(catalog_profiles))}."
-            )
-        for profile_id, entry in catalog_profiles.items():
-            profile_root = root / str(entry.get("path", ""))
-            try:
-                profile_root.resolve().relative_to((root / "profiles").resolve())
-            except ValueError:
-                errors.append(f"{profile_id}: path fuera de profiles/.")
-                continue
-            for filename in (
-                "technology-profile.yaml",
-                "technology-profile.lock.json",
-                "profile-driver.json",
-            ):
-                if not (profile_root / filename).is_file():
-                    errors.append(f"{profile_id}: falta {filename}.")
-            if not (profile_root / "scaffold").is_dir():
-                errors.append(f"{profile_id}: falta scaffold/.")
-            if (
-                entry.get("lifecycle") == "active"
-                and not (profile_root / "certification-evidence.json").is_file()
-            ):
-                errors.append(
-                    f"{profile_id}: active exige certification-evidence.json."
-                )
-        from profile_registry import validate_profile_bundle
 
-        for profile_id, entry in sorted(catalog_profiles.items()):
-            profile_errors = validate_profile_bundle(
-                profile_id,
-                require_validated=entry.get("lifecycle") == "active",
-            )
-            errors.extend(
-                f"Contrato de perfil: {item}" for item in profile_errors
-            )
-    except (OSError, json.JSONDecodeError, TypeError, KeyError) as exc:
-        errors.append(f"No se puede validar el inventario dinámico de perfiles: {exc}")
 
     try:
         marketplace = json.loads(
@@ -891,40 +769,24 @@ def validate(root: Path) -> list[str]:
     except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):
         errors.append("pilot-config.schema.json no expone la versión candidate esperada.")
 
-    try:
-        release_approval = json.loads(
-            (root / "quality" / "release-approval-v1.0.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        decision = release_approval.get("decision", {})
-        if release_approval.get("release_version") != "1.0.0":
-            errors.append("La aprobación histórica estable debe seguir vinculada a 1.0.0.")
-        # A candidate must not inherit a previous stable release authorization.
-        if plugin_version and "-" not in plugin_version and plugin_version != "1.0.0":
-            current_path = root / "quality" / f"release-approval-v{plugin_version}.json"
-            from run_quality_harness import validate_release_approval
-            try:
-                current = json.loads(current_path.read_text(encoding="utf-8"))
-                validate_release_approval(current, plugin_version)
-                if current.get("decision", {}).get("status") != "approved":
-                    errors.append("La release stable actual requiere aprobación explícita.")
-            except (OSError, ValueError, RuntimeError) as exc:
-                errors.append(f"Falta aprobación estable vigente: {exc}")
-        if release_approval.get("scope") != "stable-release":
-            errors.append("La aprobación debe limitarse al cierre de la release stable.")
-        if release_approval.get("evidence_handling") != "aggregated-no-identities":
-            errors.append("La aprobación debe conservar evidencia agregada sin identidades.")
-        if (
-            decision.get("status") != "approved"
-            or decision.get("authority_role") != "project-owner"
-            or decision.get("blocking_findings") != []
-        ):
-            errors.append(
-                "La release stable requiere aprobación sin bloqueantes del project-owner."
-            )
-    except (OSError, json.JSONDecodeError, AttributeError):
-        errors.append("La aprobación estable 1.0.0 no es legible o válida.")
+    if plugin_version and "-" not in plugin_version:
+        current_path = root / "quality" / f"release-approval-v{plugin_version}.json"
+        try:
+            approval = json.loads(current_path.read_text(encoding="utf-8"))
+            decision = approval.get("decision", {})
+            if (
+                approval.get("release_version") != plugin_version
+                or approval.get("scope") != "stable-release"
+                or approval.get("evidence_handling") != "aggregated-no-identities"
+                or decision.get("status") != "approved"
+                or decision.get("authority_role") != "project-owner"
+                or decision.get("blocking_findings") != []
+            ):
+                errors.append(
+                    "La release stable requiere aprobación vigente sin bloqueantes."
+                )
+        except (OSError, json.JSONDecodeError, AttributeError):
+            errors.append("La aprobación estable vigente no es legible o válida.")
 
     package_builder = root / "scripts" / "build_candidate_package.py"
     if package_builder.is_file():
@@ -937,10 +799,8 @@ def validate(root: Path) -> list[str]:
             "--quality-report",
             "QUALITY_REPORT_NAME",
             "tree_state",
-            "baseline_sha256",
-            "baseline_version",
-            "baseline_relative",
-            "_definition_corpus_relative",
+            "simple-release-gate-1.0",
+            "package-integrity.json",
         ):
             if marker not in package_text:
                 errors.append(
@@ -967,7 +827,6 @@ def validate(root: Path) -> list[str]:
             "planning",
             "tracking",
             "continuity",
-            "profiles",
         ):
             if f'"{command}"' not in cli_text:
                 errors.append(f"El dispatcher portable no declara {command}.")
@@ -1078,188 +937,6 @@ def validate(root: Path) -> list[str]:
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         errors.append("document-contracts.json no expone ART-TRACKING 1.4/1.5.")
 
-    try:
-        quality_report = json.loads(
-            (root / "schemas" / "quality-report.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        quality_required = set(quality_report["required"])
-        source_contract = quality_report["properties"]["source"]
-        if quality_report["properties"]["schema_version"].get("const") != "1.2":
-            errors.append("quality-report.schema.json debe fijar schema_version 1.2.")
-        if "source" not in quality_required or set(source_contract["required"]) != {
-            "commit",
-            "tree_state",
-        }:
-            errors.append(
-                "El reporte de calidad debe exigir commit y estado del árbol fuente."
-            )
-        if source_contract["properties"]["tree_state"].get("enum") != [
-            "clean",
-            "dirty",
-        ]:
-            errors.append("El estado fuente debe distinguir clean y dirty.")
-    except (OSError, json.JSONDecodeError, KeyError, TypeError):
-        errors.append("quality-report.schema.json no expone el vínculo de release 1.1.")
-
-    try:
-        baseline_061 = json.loads(
-            (root / "quality" / "baselines" / "v0.6.1.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        expected_metrics = {
-            "automated_eval_cases": 5,
-            "automated_eval_pass_rate": 1.0,
-            "unit_tests_total": 81,
-            "unit_tests_executed": 80,
-            "unit_tests_passed": 80,
-            "unit_tests_skipped": 1,
-            "unit_tests_failed": 0,
-            "critical_failures": 0,
-            "profile_structure_gate": 1,
-            "profile_complete_gate": 1,
-        }
-        if (
-            baseline_061.get("plugin_version") != "0.6.1"
-            or baseline_061.get("source_commit")
-            != "7318ccc337570e296bffda68a8e49724bed94c99"
-            or baseline_061.get("metrics") != expected_metrics
-        ):
-            errors.append("La baseline v0.6.1 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.6.1.json no es una baseline válida.")
-
-    try:
-        baseline_010 = json.loads(
-            (root / "quality" / "baselines" / "v0.10.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_010 = baseline_010.get("metrics", {})
-        if (
-            baseline_010.get("plugin_version") != "0.10.0"
-            or baseline_010.get("source_commit")
-            != "9e8d6ed2a22073d11a50b303db884b9938e4e2c1"
-            or metrics_010.get("unit_tests_total") != 231
-            or metrics_010.get("unit_tests_passed") != 230
-            or metrics_010.get("unit_tests_failed") != 0
-            or metrics_010.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.10.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.10.0.json no es una baseline válida.")
-
-    try:
-        baseline_011 = json.loads(
-            (root / "quality" / "baselines" / "v0.11.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_011 = baseline_011.get("metrics", {})
-        if (
-            baseline_011.get("plugin_version") != "0.11.0"
-            or baseline_011.get("source_commit")
-            != "ace1d2e95f0f7267f99e9e64da23160abccf1cfb"
-            or metrics_011.get("unit_tests_total") != 237
-            or metrics_011.get("unit_tests_passed") != 236
-            or metrics_011.get("unit_tests_failed") != 0
-            or metrics_011.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.11.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.11.0.json no es una baseline válida.")
-
-    try:
-        baseline_012 = json.loads(
-            (root / "quality" / "baselines" / "v0.12.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_012 = baseline_012.get("metrics", {})
-        if (
-            baseline_012.get("plugin_version") != "0.12.0"
-            or baseline_012.get("source_commit")
-            != "64d83cd1389e765521c698a35df90da61428d870"
-            or metrics_012.get("automated_catalog_cases") != 41
-            or metrics_012.get("unit_tests_total") != 239
-            or metrics_012.get("unit_tests_passed") != 238
-            or metrics_012.get("unit_tests_skipped") != 1
-            or metrics_012.get("unit_tests_failed") != 0
-            or metrics_012.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.12.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.12.0.json no es una baseline válida.")
-
-    try:
-        baseline_013 = json.loads(
-            (root / "quality" / "baselines" / "v0.13.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_013 = baseline_013.get("metrics", {})
-        if (
-            baseline_013.get("plugin_version") != "0.13.0"
-            or baseline_013.get("source_commit")
-            != "accb675d7fb66ebf19e151064acc88ae9d4a8c44"
-            or metrics_013.get("automated_catalog_cases") != 42
-            or metrics_013.get("unit_tests_total") != 240
-            or metrics_013.get("unit_tests_passed") != 239
-            or metrics_013.get("unit_tests_skipped") != 1
-            or metrics_013.get("unit_tests_failed") != 0
-            or metrics_013.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.13.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.13.0.json no es una baseline válida.")
-
-    try:
-        baseline_0142 = json.loads(
-            (root / "quality" / "baselines" / "v0.14.2.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_0142 = baseline_0142.get("metrics", {})
-        if (
-            baseline_0142.get("plugin_version") != "0.14.2"
-            or baseline_0142.get("source_commit")
-            != "a303370c2555236c1778f276e187a4bb3c1926f5"
-            or metrics_0142.get("automated_catalog_cases") != 43
-            or metrics_0142.get("unit_tests_total") != 263
-            or metrics_0142.get("unit_tests_passed") != 262
-            or metrics_0142.get("unit_tests_skipped") != 1
-            or metrics_0142.get("unit_tests_failed") != 0
-            or metrics_0142.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.14.2 no coincide con la medición del commit publicado.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.14.2.json no es una baseline válida.")
-
-    try:
-        baseline_015 = json.loads(
-            (root / "quality" / "baselines" / "v0.15.0.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        metrics_015 = baseline_015.get("metrics", {})
-        if (
-            baseline_015.get("plugin_version") != "0.15.0"
-            or baseline_015.get("source_commit")
-            != "4d1c6374f1b4b1ee4f107d8e0f5ed765ca799ab9"
-            or metrics_015.get("automated_catalog_cases") != 43
-            or metrics_015.get("automated_eval_cases") != 6
-            or metrics_015.get("unit_tests_total") != 276
-            or metrics_015.get("unit_tests_passed") != 275
-            or metrics_015.get("unit_tests_skipped") != 1
-            or metrics_015.get("unit_tests_failed") != 0
-            or metrics_015.get("profile_complete_gate") != 1
-        ):
-            errors.append("La baseline v0.15.0 no coincide con la release publicada.")
-    except (OSError, json.JSONDecodeError, TypeError):
-        errors.append("quality/baselines/v0.15.0.json no es una baseline válida.")
-
     markdown_files = list(root.rglob("*.md"))
     for path in markdown_files:
         if "specs" in path.parts and "canonical" in path.parts:
@@ -1276,9 +953,10 @@ def validate(root: Path) -> list[str]:
     # Help and the human-facing repository manual deliberately share these sources.
     # Other cross-skill/outside paths remain forbidden, and existence is still checked.
     shared_help_docs = {(root / "docs" / name).resolve() for name in (
-        "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "DUAL-HOST-ACCEPTANCE.md",
+        "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "V2-HOST-ACCEPTANCE.md",
     )}
-    shared_v2_policy = (root / "docs/V2-WORKFLOWS.md").resolve()
+    shared_v2_policies = {(root / name).resolve() for name in
+                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md")}
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
         for markdown in [
@@ -1295,7 +973,7 @@ def validate(root: Path) -> list[str]:
                 try:
                     destination.relative_to(skill_root.resolve())
                 except ValueError:
-                    if destination != shared_v2_policy and (skill != "lks-sdd-help" or destination not in shared_help_docs):
+                    if destination not in shared_v2_policies and (skill != "lks-sdd-help" or destination not in shared_help_docs):
                         errors.append(f"Referencia fuera de la skill {skill}: {target}")
                         continue
                 if not destination.is_file():
@@ -1326,7 +1004,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("plugin_root", nargs="?", type=Path, default=Path.cwd())
     args = parser.parse_args()
-    root = args.plugin_root.expanduser().resolve()
+    root = filesystem_root(args.plugin_root)
     errors = validate(root)
     if errors:
         print("INVALID")
@@ -1340,7 +1018,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} contract (frozen M0-M5; readers 1.5/2.0; six skills)")
+    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0; six skills)")
     return 0
 
 
