@@ -1,6 +1,6 @@
 {
   "name": "lks-sdd",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Plugin Spec-anchored para Codex: cambios trazados de SPEC a PLAN/TASK, ejecución autorizada, evidencia tipada y migración explícita.",
   "author": {
     "name": "LKS"

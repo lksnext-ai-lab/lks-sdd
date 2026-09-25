@@ -5,6 +5,16 @@ import re
 from typing import Any
 
 
+# Resource syntax is tied to an explicit observer, never inferred from its label
+# or a successful process exit. Oracle names are unquoted catalog identifiers.
+_ORACLE_IDENTIFIER = r"[A-Z][A-Z0-9_$#]{0,127}"
+_RESOURCE_PATTERNS = {
+    "postgresql-psql": r"[a-z_][a-z0-9_]*",
+    "postgresql-independent-connection": r"[a-z_][a-z0-9_]*",
+    "oracle-independent-connection": rf"(?:{_ORACLE_IDENTIFIER}\.)?{_ORACLE_IDENTIFIER}",
+}
+
+
 def persistence_errors(observations: dict[str, Any]) -> list[str]:
     if not isinstance(observations, dict):
         return ["persistence observations must be an object"]
@@ -14,9 +24,10 @@ def persistence_errors(observations: dict[str, Any]) -> list[str]:
     identifier = mutation.get("record_id")
     if not isinstance(identifier, str) or not identifier or read.get("record_id") != identifier:
         return ["database read does not identify the observed mutation"]
-    if read.get("observer") not in {"postgresql-psql", "postgresql-independent-connection"} or read.get("matches") is not True:
-        return ["database read is not an independent PostgreSQL observation"]
-    if not isinstance(read.get("resource"), str) or not re.fullmatch(r"[a-z_][a-z0-9_]*", read["resource"]):
+    observer = read.get("observer")
+    if not isinstance(observer, str) or observer not in _RESOURCE_PATTERNS or read.get("matches") is not True:
+        return ["database read is not an independent supported database observation"]
+    if not isinstance(read.get("resource"), str) or not re.fullmatch(_RESOURCE_PATTERNS[observer], read["resource"]):
         return ["database read has no exact resource"]
     if observations.get("persistence") is not True:
         return ["persistence was not observed"]

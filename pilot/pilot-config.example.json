@@ -20,7 +20,7 @@
   },
   "rollback": {
     "previous_version": "1.0.0",
-    "candidate_version": "2.3.0",
+    "candidate_version": "2.3.1",
     "package_sha256": null,
     "procedure_confirmed": false
   },

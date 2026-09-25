@@ -101,6 +101,24 @@ declarado o hash distinto bloquea el plan y la ejecución. Antes de registrar
 resultado técnico correcto sigue sin sustituir la aceptación humana ni el cierre
 explícito de la tarea.
 
+El contrato de observación de persistencia reconoce `postgresql-psql`,
+`postgresql-independent-connection` y `oracle-independent-connection`. Este último
+identifica una lectura por conexión Oracle independiente: `read_back.resource`
+declara un identificador de catálogo sin comillas en mayúsculas, `OBJETO` o
+`PROPIETARIO.OBJETO`, con un máximo de 128 caracteres ASCII por parte; admite
+letras, dígitos, `_`, `$` y `#`, comenzando por letra. No acepta SQL, comodines,
+enlaces de base de datos ni identificadores entrecomillados. La sintaxis PostgreSQL
+existente se conserva sin ampliación.
+
+Ambos motores exigen el mismo `record_id` en mutación y lectura, `matches: true`
+y `persistence: true`. Los gates de integración mantienen ausencia explícita de
+mocks de dominio, nonce de invocación, inputs aprobados y hashes de artefactos.
+Reconocer el tipo Oracle no instala un driver, conecta una base ni autoriza red,
+credenciales, DDL o escrituras; tampoco prueba por sí solo que una conexión sea
+independiente. Eso corresponde al observador concreto aprobado y a sus hechos
+ejecutados. Una prueba sintética del validador no acredita persistencia real de un
+consumidor ni permite presentar una observación histórica como recién ejecutada.
+
 ### Migración 1.5→2.0 y corte
 
 La migración soportada es explícita y cerrada: `migration-diagnose` inventaría
