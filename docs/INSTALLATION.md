@@ -54,15 +54,15 @@ la carpeta venv. En un entorno sin red usa un wheelhouse corporativo revisado co
 `--no-index --find-links <carpeta>` y el mismo lock con hashes. La distribución no
 incluye los wheels y no promete bootstrap offline sin esos prerrequisitos.
 
-## GitHub Copilot: plugin nativo desde el ZIP verificado
+## GitHub Copilot: plugin nativo
 
-Para 2.3.1, use la alternativa local siguiente una vez publicada la release y
-verificado `lks-sdd-copilot-plugin-v2.3.1.zip`. El catálogo Git de este repositorio
-apunta al árbol de mantenimiento y aún no acredita una fuente instalable como
-plugin nativo; no use «Install Plugin From Source» para esta versión hasta que se
-publique y valide una referencia Git del paquete nativo.
+El catálogo Git de 2.3.1 apunta a `copilot-v2.3.1`, la etiqueta del paquete nativo.
+Use «Install Plugin From Source» solo cuando esa etiqueta esté publicada y su
+contenido se haya validado contra `lks-sdd-copilot-plugin-v2.3.1.zip`. Antes de
+eso puede usar la alternativa local desde el ZIP validado, sin registrar un
+marketplace Git.
 
-### Instalación desde Git cuando exista una referencia nativa verificada
+### Instalación desde Git con la referencia nativa verificada
 
 Hay dos pasos distintos: cada persona instala el plugin en su herramienta; una
 persona prepara la versión de LKS-SDD que compartirá el proyecto. Instalar el plugin
@@ -82,9 +82,8 @@ acceso de lectura al repositorio público de GitHub y Git disponible en su equip
 5. Sigue «Preparar el proyecto compartido» más abajo. Instalar el plugin personal y
    preparar el repositorio de la aplicación son pasos distintos.
 
-El catálogo actual `.github/plugin/marketplace.json` apunta a `v2.3.1`, la etiqueta
-del código de mantenimiento. Esa referencia no contiene por sí sola el árbol del
-plugin nativo. No pegues URLs de páginas
+El catálogo `.github/plugin/marketplace.json` apunta a `copilot-v2.3.1`, etiqueta
+del paquete nativo en este mismo repositorio. No pegues URLs de páginas
 `/tree/` ni de ZIP en el cuadro que solicita una URL Git.
 
 Si tu versión del panel no interpreta el catálogo desde ese comando, abre Ajustes,

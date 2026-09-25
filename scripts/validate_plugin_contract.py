@@ -337,15 +337,15 @@ def validate_copilot_catalog(root: Path, plugin_version: str) -> list[str]:
     expected_source = {
         "source": "github",
         "repo": COPILOT_CATALOG_REPOSITORY,
-        "ref": f"v{plugin_version}",
+        "ref": f"copilot-v{plugin_version}",
     }
     errors: list[str] = []
     if plugin.get("version") != plugin_version:
         errors.append("La versión del catálogo Copilot debe coincidir con el manifest.")
     if source != expected_source:
         errors.append(
-            "La fuente Copilot debe apuntar a la etiqueta única "
-            f"v{plugin_version} del repositorio acreditado."
+            "La fuente Copilot debe apuntar a la etiqueta nativa "
+            f"copilot-v{plugin_version} del repositorio acreditado."
         )
     return errors
 

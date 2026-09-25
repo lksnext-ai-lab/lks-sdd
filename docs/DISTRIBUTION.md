@@ -12,15 +12,15 @@ manifiestos. CI compara el inventario declarado, no una constante de cinco archi
 El ZIP `copilot-plugin` contiene una carpeta `lks-sdd` con manifiesto Agent Plugins
 1.0, seis skills, núcleo y setup offline. Puede registrarse localmente antes de
 publicarse. Para instalación Git desde el panel, `.github/plugin/marketplace.json`
-del repositorio de mantenimiento debe referenciar la etiqueta `copilot-vVERSION` del mismo
+del repositorio de mantenimiento referencia la etiqueta `copilot-vVERSION` del mismo
 repositorio. Esa etiqueta contiene exclusivamente la raíz `lks-sdd/` extraída del
 ZIP nativo aprobado, incluidos los archivos ocultos. No apunta al commit de `main`:
 ese commit conserva el layout de mantenimiento, no el del plugin nativo.
 
-La entrada actual del catálogo apunta a `v2.3.1`, la etiqueta de mantenimiento.
-Por ello, la instalación Git desde el panel no se considera preparada para 2.3.1.
-Use el ZIP nativo verificado hasta que catálogo, etiqueta nativa y validación de
-contenido queden reconciliados.
+La entrada de 2.3.1 apunta a `copilot-v2.3.1`. Antes de publicar esa etiqueta,
+la instalación Git desde el panel seguirá fallando. El observador de release
+compara el contenido completo de la etiqueta nativa con el ZIP aprobado; la
+etiqueta de mantenimiento `v2.3.1` acredita un commit distinto.
 
 El árbol nativo se proyecta de forma determinista antes de empaquetarse: conserva
 los bytes de cada artefacto de observación y sus SHA-256 completos, pero usa rutas

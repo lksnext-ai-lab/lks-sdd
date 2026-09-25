@@ -28,6 +28,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - name: Download exact release package
+        uses: actions/download-artifact@v8
+        with:
+          name: release-evidence
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}\release-evidence
       - name: Download completed release metadata
         shell: pwsh
         run: |
@@ -62,9 +70,13 @@ jobs:
       - name: Validate configured distribution reference
         shell: pwsh
         run: |
+          $catalog = Get-Content -LiteralPath "$env:RUNNER_TEMP\release-marketplace.json" -Raw | ConvertFrom-Json
+          $version = @($catalog.plugins | Where-Object { $_.name -eq 'lks-sdd' })[0].version
+          if (-not $version) { throw "El catálogo no declara versión de Copilot." }
           python -X utf8 scripts/validate_distribution_reference.py `
             --marketplace "$env:RUNNER_TEMP\release-marketplace.json" `
             --source-commit $env:SOURCE_COMMIT `
+            --native-package "$env:RUNNER_TEMP\release-evidence\candidate\lks-sdd-copilot-plugin-v$version.zip" `
             --output "$env:RUNNER_TEMP\distribution-reference.json"
           Get-Content -LiteralPath "$env:RUNNER_TEMP\distribution-reference.json" | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
       - name: Upload release observability
