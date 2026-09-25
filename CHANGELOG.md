@@ -1,13 +1,14 @@
 # Changelog
 
-## 2.3.1-oracle.1 — 2026-09-23 — candidato local de verificación Oracle
+## 2.3.1 — 2026-09-25 — verificación Oracle independiente
 
 - Admite `oracle-independent-connection` con recurso de catálogo exacto y lectura
   del mismo registro mutado, conservando el contrato previo de PostgreSQL.
 - Mantiene los controles de procedencia, artefactos, ausencia de mocks de dominio
   y aceptación humana. Añade regresiones positivas y negativas del validador.
-- Preparado para distribución local autorizada. No acredita publicación estable,
-  persistencia real de un consumidor, activación en el host ni ejecución de piloto.
+- El gate técnico de release y la publicación se acreditan por separado. Esta
+  corrección no acredita persistencia real de un consumidor, activación en el host
+  ni ejecución de piloto.
 
 ## 2.3.0 — 2026-09-23 — continuidad de cambios desde SPEC hasta implementación
 

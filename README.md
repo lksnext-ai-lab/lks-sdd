@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `2.3.1-oracle.1` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `2.3.1` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -78,7 +78,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 2.3.1-oracle.1, schema 2.0 y método 2.1.0 son versiones distintas. Los consumidores
+Plugin 2.3.1, schema 2.0 y método 2.1.0 son versiones distintas. Los consumidores
 con método 2.0.0 siguen legibles y se actualizan explícitamente.
 Los consumidores 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar
 una migración.
@@ -104,10 +104,14 @@ Los controles locales detectan incumplimientos, pero no interceptan toda escritu
 del host. La [guía de guardrails](docs/V2-GUARDRAILS.md) explica cómo comprobar un
 cambio desde una base confiable sin permitir que se autoapruebe.
 
-Esta versión es un candidato local con la corrección del observador Oracle; no está
-publicada y su referencia Copilot no se ha creado en remoto. La release técnica
-estable exige gates y una aprobación propia; la [aprobación de 2.3.0](quality/release-approval-v2.3.0.json)
-es histórica y no acredita este candidato.
+Esta versión incorpora la corrección del observador Oracle. La integración en
+`main`, el gate estable, la etiqueta, la publicación y la instalación se acreditan
+por separado. La [aprobación de 2.3.1](quality/release-approval-v2.3.1.json)
+autoriza preparar la release técnica, condicionada al gate y a la revisión de los
+assets; no acredita por sí sola su publicación.
+El paquete nativo Copilot puede actualizarse desde el ZIP verificado. La ruta Git
+del catálogo requiere una referencia al árbol nativo y se comprueba por separado;
+la etiqueta del repositorio de mantenimiento no demuestra esa instalación.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte
 universal. Los ensayos reales de host, piloto, comprensión humana e interoperabilidad
 Rovo/Jira o Entra sin evidencia siguen `not-run`. La tecnología se documenta y

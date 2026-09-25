@@ -1,6 +1,6 @@
 # Distribución candidate o stable
 
-## Distribución dual 2.3.0
+## Distribución dual 2.3.1
 
 La ruta recomendada para usuarios es el [asistente de instalación](INSTALLATION.md).
 Desde esta versión, el builder de release añade `lks-sdd-copilot-vVERSION.zip`,
@@ -12,10 +12,15 @@ manifiestos. CI compara el inventario declarado, no una constante de cinco archi
 El ZIP `copilot-plugin` contiene una carpeta `lks-sdd` con manifiesto Agent Plugins
 1.0, seis skills, núcleo y setup offline. Puede registrarse localmente antes de
 publicarse. Para instalación Git desde el panel, `.github/plugin/marketplace.json`
-del repositorio de mantenimiento referencia la etiqueta `copilot-vVERSION` del mismo
+del repositorio de mantenimiento debe referenciar la etiqueta `copilot-vVERSION` del mismo
 repositorio. Esa etiqueta contiene exclusivamente la raíz `lks-sdd/` extraída del
 ZIP nativo aprobado, incluidos los archivos ocultos. No apunta al commit de `main`:
 ese commit conserva el layout de mantenimiento, no el del plugin nativo.
+
+La entrada actual del catálogo apunta a `v2.3.1`, la etiqueta de mantenimiento.
+Por ello, la instalación Git desde el panel no se considera preparada para 2.3.1.
+Use el ZIP nativo verificado hasta que catálogo, etiqueta nativa y validación de
+contenido queden reconciliados.
 
 El árbol nativo se proyecta de forma determinista antes de empaquetarse: conserva
 los bytes de cada artefacto de observación y sus SHA-256 completos, pero usa rutas
@@ -78,7 +83,7 @@ commit acreditado y los manifiestos de integridad detectan cualquier alteración
 El reporte publicable se genera desde un checkout dedicado, recién creado y sin archivos no versionados preexistentes, incluidos los ignorados. Desde la raíz del repositorio principal, una vez integrado y revisado el commit de release:
 
 ```powershell
-$releaseVersion = "2.3.0"
+$releaseVersion = "2.3.1"
 $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $sourceCommit = (git rev-parse HEAD).Trim()
 $artifactBase = Join-Path ([System.IO.Path]::GetTempPath()) "lks-sdd-$releaseVersion"
@@ -132,10 +137,10 @@ Publicar el ZIP de marketplace como asset de GitHub no actualiza una instalació
 1. Descargar o copiar el ZIP de marketplace publicado y verificarlo contra `SHA256SUMS`, `release-manifest.json` y `quality-report.json`.
 2. Extraerlo en una carpeta controlada y comprobar `.agents/plugins/marketplace.json` y `plugins/lks-sdd/.codex-plugin/plugin.json`.
 3. Consultar `codex plugin marketplace --help` en la versión instalada. El CLI 0.125.0 comprobado para esta release admite `add`, `upgrade` y `remove`; no ofrece subcomandos CLI de instalación, reinstalación, activación o desactivación del plugin.
-4. Para esta fuente local no Git, conservar la carpeta de la versión anterior y registrar su ruta para rollback; ejecutar `codex plugin marketplace remove lks-sdd-development` y `codex plugin marketplace add "RAÍZ_2.3.0_VERIFICADA"`. No usar `upgrade` para esta fuente. Para un alta inicial basta `add`; completar la activación en la superficie de Codex disponible.
+4. Para esta fuente local no Git, conservar la carpeta de la versión anterior y registrar su ruta para rollback; ejecutar `codex plugin marketplace remove lks-sdd-development` y `codex plugin marketplace add "RAÍZ_2.3.1_VERIFICADA"`. No usar `upgrade` para esta fuente. Para un alta inicial basta `add`; completar la activación en la superficie de Codex disponible.
 5. Confirmar que Codex resuelve la nueva versión, reiniciar la aplicación y abrir una tarea nueva para cargar sus metadatos y skills.
 
-El bundle 2.3.0 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. La aprobación stable no convierte esas interoperabilidades en `passed`. Sin Rovo, `repository-only` sigue completo; las declaraciones tecnológicas de los proyectos continúan siendo decisiones locales, sin soporte global implícito.
+El bundle 2.3.1 continúa siendo `skills-only` y no instala Atlassian Rovo ni configura Microsoft Entra. Para usar `jira-hybrid` o `milestone-reporting`, el participante debe disponer separadamente del peer Rovo, de una conexión Jira válida y de permisos suficientes. La aprobación stable no convierte esas interoperabilidades en `passed`. Sin Rovo, `repository-only` sigue completo; las declaraciones tecnológicas de los proyectos continúan siendo decisiones locales, sin soporte global implícito.
 
 No edite manualmente la caché como mecanismo de actualización. La instalación o activación modifica el entorno Codex del participante y exige autorización separada. Si falla registro o carga, restaurar la fuente anterior verificada con el mismo remove/add y comprobarla.
 
