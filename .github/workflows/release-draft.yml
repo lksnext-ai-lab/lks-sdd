@@ -63,6 +63,7 @@ jobs:
           python -B -X utf8 scripts/validate_distribution_reference.py `
             --marketplace "$env:RUNNER_TEMP\release-marketplace.json" `
             --source-commit $env:SOURCE_COMMIT `
+            --native-package "$env:RUNNER_TEMP\release-evidence\candidate\lks-sdd-copilot-plugin-v$($plan.plugin_version).zip" `
             --output "$env:RUNNER_TEMP\distribution-reference.json"
           "LKS_SDD_RELEASE_VERSION=$($plan.plugin_version)" >> $env:GITHUB_ENV
       - uses: actions/upload-artifact@v4

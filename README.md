@@ -110,8 +110,8 @@ por separado. La [aprobación de 2.3.1](quality/release-approval-v2.3.1.json)
 autoriza preparar la release técnica, condicionada al gate y a la revisión de los
 assets; no acredita por sí sola su publicación.
 El paquete nativo Copilot puede actualizarse desde el ZIP verificado. La ruta Git
-del catálogo requiere una referencia al árbol nativo y se comprueba por separado;
-la etiqueta del repositorio de mantenimiento no demuestra esa instalación.
+del catálogo apunta a `copilot-v2.3.1` y exige que esa etiqueta contenga exactamente
+los archivos del ZIP antes de anunciar la instalación desde el panel.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte
 universal. Los ensayos reales de host, piloto, comprensión humana e interoperabilidad
 Rovo/Jira o Entra sin evidencia siguen `not-run`. La tecnología se documenta y

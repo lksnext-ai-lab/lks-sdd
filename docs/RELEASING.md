@@ -19,13 +19,16 @@ Antes de publicar:
    `quality`.
 4. Revise su artefacto de evidencia: preflight, gate, manifiesto, checksums y ZIP
    Copilot.
-5. Cree una etiqueta anotada e inmutable `vX.Y.Z` sobre ese commit.
-6. Espere la validación de etiqueta. Si acredita el `stable-preflight` del mismo
+5. Prepare el árbol nativo Copilot desde el ZIP aprobado, compárelo byte a byte y,
+   con autorización de publicación, publique la rama de distribución y la etiqueta
+   anotada `copilot-vX.Y.Z` sobre su commit propio.
+6. Cree una etiqueta anotada e inmutable `vX.Y.Z` sobre el commit de `main`.
+7. Espere la validación de etiqueta. Si acredita el `stable-preflight` del mismo
    SHA, reutilizará su evidencia; si no existe, repetirá gate y build de forma
    visible.
-7. Espere la aprobación protegida que crea la draft release con sus assets
+8. Espere la aprobación protegida que crea la draft release con sus assets
    verificados.
-8. Revise la draft y publíquela explícitamente cuando corresponda.
+9. Revise la draft y publíquela explícitamente cuando corresponda.
 
 Una release stable exige únicamente aprobación, integridad estática, las catorce
 pruebas de humo y la regresión Windows de rutas largas. No exige campañas Docker, catálogos tecnológicos, evals, benchmarks, baseline ni doble build.
@@ -43,9 +46,9 @@ git tag -a $releaseTag $sourceCommit -m "LKS-SDD $releaseVersion"
 git push origin $releaseTag
 ```
 
-La etiqueta `vX.Y.Z` es la única referencia de release: activa el workflow técnico
-y es la referencia del catálogo Copilot. No cree una segunda etiqueta específica
-para Copilot.
+La etiqueta `vX.Y.Z` identifica el commit de mantenimiento y activa el workflow
+técnico. La etiqueta `copilot-vX.Y.Z` identifica el árbol nativo del ZIP validado
+y es la referencia del catálogo Copilot. No confunda sus commits.
 
 Compruebe que la etiqueta remota apunta al SHA acreditado. La promoción protegida crea
 la draft con los assets enumerados por `release-manifest.json`, `SHA256SUMS` y la nota
@@ -121,9 +124,9 @@ artefactos instalados. No se cachean candidates, ZIPs, evidencia ni decisiones d
 release.
 
 El mismo observador lee el `marketplace.json` del commit etiquetado y comprueba que
-su referencia GitHub configurada resuelve exactamente al SHA de la release. No crea,
-mueve ni selecciona etiquetas; si la referencia está ausente, es ambigua o apunta a
-otro commit, publica un diagnóstico y falla de forma visible.
+su referencia GitHub nativa contiene exactamente los archivos del ZIP Copilot
+acreditado. No crea, mueve ni selecciona etiquetas; si la referencia está ausente,
+es ambigua o difiere del ZIP, publica un diagnóstico y falla de forma visible.
 
 Los dos informes se conservan como el artefacto `release-observability-<run-id>`.
 La revisión humana continúa como `not-observed` porque este observador no mide la
@@ -135,5 +138,6 @@ Para investigar localmente una referencia configurada, sin modificar el reposito
 ```powershell
 $sourceCommit = (git rev-parse HEAD).Trim()
 python -B -X utf8 scripts\validate_distribution_reference.py `
-  --source-commit $sourceCommit
+  --source-commit $sourceCommit `
+  --native-package C:\ruta\lks-sdd-copilot-plugin-v2.3.1.zip
 ```

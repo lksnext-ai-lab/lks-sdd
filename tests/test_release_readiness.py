@@ -109,7 +109,7 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.assertEqual("not-applicable", approval["status"])
         self.assertEqual("ready", report["readiness"])
 
-    def test_catalog_requires_the_single_release_tag(self) -> None:
+    def test_catalog_requires_the_native_copilot_tag(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             catalog_path = root / ".github" / "plugin" / "marketplace.json"
@@ -124,7 +124,7 @@ class ReleaseReadinessTests(unittest.TestCase):
                                 "source": {
                                     "source": "github",
                                     "repo": "lksnext-ai-lab/lks-sdd",
-                                    "ref": "copilot-v2.0.3",
+                                    "ref": "v2.0.3",
                                 },
                             }
                         ]
@@ -138,7 +138,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             )
 
         self.assertEqual(1, len(errors))
-        self.assertIn("etiqueta única", errors[0])
+        self.assertIn("etiqueta nativa", errors[0])
 
     @patch.object(
         release_readiness.run_release_gate,
