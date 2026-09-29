@@ -11,11 +11,13 @@ La puerta estable ejecuta solo cuatro comprobaciones:
 1. La aprobación explícita de la versión.
 2. La integridad estática: fixtures y contrato del plugin.
 3. Catorce pruebas de humo que cubren declaración tecnológica, migración de legado,
-   continuidad SPEC/PLAN/TASK, autoridad y guard estricto.
+   continuidad SPEC/PLAN/TASK, autoridad, guard estricto y recorridos v3 de equipo,
+   propuesta, calidad, migración y aceptación separada.
 4. La regresión real de rutas largas de Windows.
 
-La batería mantenida contiene únicamente los módulos que aportan estas pruebas de
-humo, su regresión v2 y la regresión Windows. Se han retirado los módulos fragmentados y las pruebas históricas que no forman parte de este contrato de publicación.
+La batería de desarrollo incorpora regresiones focales de v2 y v3, incluido el
+cambio de runtime fijado. No se convierten todas en controles obligatorios de cada
+publicación: las catorce pruebas de humo y Windows siguen siendo la puerta técnica.
 
 Los checks técnicos independientes del gate se ejecutan en paralelo para reducir el
 tiempo activo del runner. Esta concurrencia no elimina checks, no acorta sus timeouts
@@ -23,6 +25,8 @@ ni cambia los estados que bloquean una release.
 
 Las suites extensas, evals conversacionales, benchmarks, pilotos y aceptación de host
 no forman parte de la publicación ni se mantienen como batería paralela.
+La observación de uso de v3 se prepara una sola vez con
+[su protocolo](V3-HOST-ACCEPTANCE.md); no se presenta como superada por este gate.
 
 ## Pull request
 
@@ -71,7 +75,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v2.3.1.json `
+  --release-approval quality\release-approval-v3.0.0.json `
   --output $releaseGate
 ```
 

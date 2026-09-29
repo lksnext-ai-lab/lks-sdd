@@ -101,7 +101,7 @@ def receipt_name(host):
     return ".lks-sdd/installation.json" if host == "copilot" else ".lks-sdd-installation.json"
 
 
-def plan(bundle, destination, host, remove=False):
+def plan(bundle, destination, host, remove=False, *, contract_transition=None):
     destination = filesystem_root(destination)
     if host == "copilot" and not destination.is_dir():
         raise ValueError("Copilot destination must be the existing consumer project root")
@@ -118,8 +118,10 @@ def plan(bundle, destination, host, remove=False):
     if not remove and host == "copilot" and (destination / ".lks-sdd/project.json").is_file():
         origin = json.loads(read(destination, ".lks-sdd/project.json"))["schema_version"]
         incoming = json.loads(payload[".lks-sdd/distribution-lock.json"])["project_schema"]
-        if origin != incoming:
+        if origin != incoming and contract_transition != (origin, incoming):
             raise ValueError("Changing project contract requires the explicit v2 migrator, not runtime setup")
+        if contract_transition is not None and contract_transition != ("2.0", "3.0"):
+            raise ValueError("Unsupported explicit runtime cutover")
     if previous and (remove or old.get("runtime_digest") != metadata.get("runtime_digest")):
         handoffs = destination / ".lks-sdd/handoffs/visual"
         requests = [request for pattern in ("VH-*/request.json", "v2/VH-*/request.json") for request in handoffs.glob(pattern)]

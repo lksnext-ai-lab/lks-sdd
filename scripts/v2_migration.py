@@ -876,8 +876,9 @@ def _runtime_transition(root, target_runtime, old_runtime, changes, sources, arc
             raise ContractError("Target runtime integrity failure: " + name)
         core[name] = raw
     core["package-integrity.json"] = read_bytes(target_runtime, "package-integrity.json", limit=16 * 1024 * 1024)
-    if not json.loads(core[".codex-plugin/plugin.json"])["version"].startswith("2."):
-        raise ContractError("Migration target must be an explicit v2 runtime")
+    target_distribution = json.loads(core["distribution/dual.json"])
+    if "2.0" not in target_distribution.get("readable_project_schemas", [target_distribution.get("project_schema")]):
+        raise ContractError("Migration target must explicitly support the v2 contract")
     old_lock = json.loads(read_bytes(root, ".lks-sdd/distribution-lock.json"))
     old_lock_path = ".lks-sdd/distribution-lock.json"
     old_lock_bytes = read_bytes(root, old_lock_path)
@@ -885,7 +886,7 @@ def _runtime_transition(root, target_runtime, old_runtime, changes, sources, arc
     changes[old_lock_archive] = old_lock_bytes
     sources[old_lock_path] = sha(old_lock_bytes)
     generated = project_files(core, "migration:" + fingerprint({k: sha(v) for k, v in core.items()}),
-                              "migration-not-release-acceptance", plugin_entrypoints=old_lock.get("entrypoints") == "plugin")
+                              "migration-not-release-acceptance", plugin_entrypoints=old_lock.get("entrypoints") == "plugin", project_schema="2.0")
     from dual_distribution import BEGIN, END
     for name, data in generated.items():
         path = path_at(root, name, missing=True, package_data=True)

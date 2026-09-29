@@ -241,6 +241,9 @@ FORBIDDEN_RUNTIME_IMPORTS = {
     "urllib",
 }
 RUNTIME_IMPORT_ALLOWLIST = {
+    "scripts/v3_git.py": {"subprocess"},
+    "scripts/v3_quality.py": {"subprocess"},
+    "scripts/v3_context.py": {"urllib.parse"},
     "scripts/v2_contract.py": {"urllib.parse"},
     "scripts/v2_storage.py": {"urllib.parse"},
     "scripts/consumer_observer.py": {"subprocess"},
@@ -956,7 +959,7 @@ def validate(root: Path) -> list[str]:
         "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "V2-HOST-ACCEPTANCE.md",
     )}
     shared_v2_policies = {(root / name).resolve() for name in
-                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md")}
+                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md", "docs/V3-COMMON.md", "docs/V3-OPERATIONS.md")}
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
         for markdown in [
@@ -1018,7 +1021,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0; six skills)")
+    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0/3.0; six skills)")
     return 0
 
 

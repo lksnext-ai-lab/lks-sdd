@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `2.3.1` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `3.0.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -10,7 +10,23 @@ de desarrollo. No es **Spec-as-source** ni promete generar una aplicación corre
 solo a partir de documentos. Definir, planificar, autorizar, implementar, verificar,
 aceptar y entregar son estados distintos.
 
-## Empezar con la versión 2
+## Empezar con la versión 3
+
+El proyecto confirma su recorrido, responsables, ramas y controles. Primero se
+presenta y valida la propuesta funcional/técnica; después se prepara y autoriza el
+plan. Las decisiones vigentes se reutilizan y las excepciones quedan delimitadas.
+
+| Necesidad | Guía v3 |
+|---|---|
+| Trabajar individualmente o con especialistas | [Reglas comunes](docs/V3-COMMON.md) |
+| Consultar operaciones y datos concretos | [Referencia bajo demanda](docs/V3-OPERATIONS.md) |
+| Convertir un proyecto v2 conservando su historia | [Migración v3](docs/V3-MIGRATION.md) |
+
+Las seis skills cargan solamente la ruta de la versión del proyecto. Sonar y
+Dependency-Check, cuando se utilizan, se comprueban durante implementación.
+El CI/CD queda fuera. Instalar v3 no convierte proyectos existentes.
+
+## Proyectos que mantienen la versión documental 2
 
 | Necesidad | Guía |
 |---|---|
@@ -78,7 +94,8 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 2.3.1, schema 2.0 y método 2.1.0 son versiones distintas. Los consumidores
+Plugin 3.0.0, schema 3.0 y método 3.0.0 son versiones distintas. Los consumidores v2
+conservan schema 2.0 y método 2.0.0/2.1.0 hasta una migración explícita. Los consumidores
 con método 2.0.0 siguen legibles y se actualizan explícitamente.
 Los consumidores 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar
 una migración.

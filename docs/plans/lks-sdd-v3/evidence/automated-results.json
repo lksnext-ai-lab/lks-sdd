@@ -1,0 +1,506 @@
+{
+  "schema_version": "v3-development-evidence-1",
+  "date": "2026-09-29",
+  "binding": "Working-tree development runs; final release evidence binds the exact clean main commit separately. Earlier full runs are followed by affected-scope reruns.",
+  "reports": {
+    "final-tests": {
+      "passed": true,
+      "duration_seconds": 497.716,
+      "counts": {
+        "total": 24,
+        "passed": 24,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_dependency_check_stale_data_and_severity",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_exception_never_turns_failure_into_pass",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_existing_executor_timeout_has_bounded_retry_and_preserved_attempts",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_partial_handoff_needs_recipient_and_preserves_history",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_integration.IntegrationTests.test_available_dependency_can_continue_while_verified_dependency_waits",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_integration.IntegrationTests.test_independent_clones_keep_identity_with_same_alias",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_interruption_and_later_edit_are_protected",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_unknown_method_is_diagnosed_without_writes",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work",
+          "status": "passed"
+        }
+      ]
+    },
+    "regressions": {
+      "passed": true,
+      "duration_seconds": 129.749,
+      "counts": {
+        "total": 44,
+        "passed": 44,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_approval_requires_matching_unblocked_stable_release",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_builder_accepts_parallel_execution_metadata",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_candidate_technical_checks_start_concurrently",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_release_core_accepts_exact_declared_inventory",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_release_core_rejects_incomplete_inventory",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_report_declares_parallel_technical_checks",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_source_binding_rejects_uncommitted_files",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_active_executions_for_independent_tasks_do_not_interfere",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_blocked_execution_remains_active",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_checkpoint_diff_review_and_resume_honor_the_task_selector",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_historical_execution_cannot_create_verification_or_evidence",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_historical_records_remain_visible_and_replan_does_not_rewrite_them",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_identical_checkpoint_handoff_is_reused",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_non_migrated_v2_project_uses_the_same_active_execution_rules",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_only_documented_continuable_states_are_active",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_start_ignores_historical_execution_and_preserves_it",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_two_normative_executions_for_one_task_remain_an_error",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_execution_reconciliation.V2ExecutionReconciliationTests.test_verification_and_closure_still_require_gates_and_evidence",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_guidance.V2GuidanceTests.test_authorization_block_is_explained_as_a_user_decision",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_guidance.V2GuidanceTests.test_human_guidance_hides_raw_diagnostic_but_keeps_the_next_step",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_guidance.V2GuidanceTests.test_invalid_contract_is_explained_instead_of_returning_an_opaque_status",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_guidance.V2GuidanceTests.test_nonblocked_result_is_not_enriched",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_guidance.V2GuidanceTests.test_observer_block_explains_safe_recovery_without_implicit_execution",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_guidance.V2GuidanceTests.test_scope_block_offers_replan_without_claiming_completion",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_both_project_hosts_receive_the_method_policy",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_change_assessment_is_read_only",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_closed_task_scope_requires_new_task_or_correction",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_confirmed_future_requirement_in_another_plan_preserves_slice",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_future_draft_requirement_does_not_block_current_slice",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_incremental_deferral_keeps_full_plan_partial",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_method_upgrade_is_explicit_and_preserves_documents",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_new_acceptance_needs_task_assignment",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_new_spec_requirement_needs_plan_and_request",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_storage.V2StorageTests.test_completed_transaction_can_be_rolled_back_from_compact_store",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_storage.V2StorageTests.test_completed_transactions_share_one_plugin_store",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_legacy_initializers_do_not_emit_global_technology_fields",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_task_scoped_declaration_rejects_a_non_task_element",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_task_scoped_declaration_requires_an_existing_task_element",
+          "status": "passed"
+        }
+      ]
+    },
+    "authority-tests": {
+      "passed": true,
+      "duration_seconds": 21.403,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
+          "status": "passed"
+        }
+      ]
+    },
+    "partial-approval": {
+      "passed": true,
+      "duration_seconds": 9.321,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_integration.IntegrationTests.test_functional_approval_survives_independent_technical_revision",
+          "status": "passed"
+        }
+      ]
+    },
+    "core-final": {
+      "passed": true,
+      "duration_seconds": 235.061,
+      "counts": {
+        "total": 14,
+        "passed": 14,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration",
+          "status": "passed"
+        },
+        {
+          "id": "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+          "status": "passed"
+        }
+      ]
+    },
+    "packaging-final": {
+      "passed": false,
+      "duration_seconds": 182.013,
+      "counts": {
+        "total": 2,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 1
+      },
+      "results": [
+        {
+          "id": "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract",
+          "status": "failed"
+        },
+        {
+          "id": "test_windows_long_paths.WindowsLongPathTests.test_long_plugin_and_migration_paths_match_short_paths",
+          "status": "passed"
+        }
+      ]
+    },
+    "cutover-final": {
+      "passed": true,
+      "duration_seconds": 89.939,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract",
+          "status": "passed"
+        }
+      ]
+    },
+    "conflict-final": {
+      "passed": true,
+      "duration_seconds": 17.706,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_governance_quality.GovernanceQualityTests.test_deviation_and_conflicting_assignments_remain_visible_without_authority",
+          "status": "passed"
+        }
+      ]
+    },
+    "gate-contract-final": {
+      "passed": true,
+      "duration_seconds": 0.213,
+      "counts": {
+        "total": 7,
+        "passed": 7,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_approval_requires_matching_unblocked_stable_release",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_builder_accepts_parallel_execution_metadata",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_candidate_technical_checks_start_concurrently",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_release_core_accepts_exact_declared_inventory",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_release_core_rejects_incomplete_inventory",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_report_declares_parallel_technical_checks",
+          "status": "passed"
+        },
+        {
+          "id": "test_release_gate.ReleaseGateTests.test_source_binding_rejects_uncommitted_files",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "corrections": [
+    "Packaging run identified missing explicit 3.0 in the slim Copilot instruction header; corrected and cutover-final passed. Windows passed in the original combined run.",
+    "Core 14 tests passed in 234.634 seconds; its previous 180 second gate timeout was raised to a bounded 600 seconds, with no removed checks.",
+    "A diagnostic test import used encode instead of render; corrected before the passing conflict-final test."
+  ],
+  "not_observed": [
+    "real Sonar/Dependency-Check service",
+    "human multi-user pilot",
+    "conversational Copilot/Codex acceptance",
+    "billed token reduction"
+  ]
+}

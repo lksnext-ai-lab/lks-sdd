@@ -5,8 +5,8 @@
 Una release fija un plugin verificable; no acredita aceptación humana, piloto,
 activación de host, instalación personal ni política corporativa.
 
-La versión `2.3.1` tiene una aprobación explícita de preparación en
-`quality/release-approval-v2.3.1.json`. Una aprobación no sustituye el gate técnico
+La versión `3.0.0` tiene una aprobación explícita de preparación en
+`quality/release-approval-v3.0.0.json`. Una aprobación no sustituye el gate técnico
 ni transforma canales humanos o de piloto `not-run` en evidencia superada.
 
 ## Puerta de publicación
@@ -38,7 +38,7 @@ pruebas de humo y la regresión Windows de rutas largas. No exige campañas Dock
 Tras tener el manifiesto aprobado y un árbol limpio:
 
 ```powershell
-$releaseVersion = "2.3.1"
+$releaseVersion = "3.0.0"
 $releaseTag = "v$releaseVersion"
 $sourceCommit = (git rev-parse HEAD).Trim()
 
@@ -139,5 +139,5 @@ Para investigar localmente una referencia configurada, sin modificar el reposito
 $sourceCommit = (git rev-parse HEAD).Trim()
 python -B -X utf8 scripts\validate_distribution_reference.py `
   --source-commit $sourceCommit `
-  --native-package C:\ruta\lks-sdd-copilot-plugin-v2.3.1.zip
+  --native-package C:\ruta\lks-sdd-copilot-plugin-v3.0.0.zip
 ```

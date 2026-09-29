@@ -1,8 +1,9 @@
 # Estado actual de LKS-SDD
 
-La distribución 2.3.0 usa contrato consumidor **2.0** y método nuevo **2.1.0**.
-Los proyectos fijados en método 2.0.0 permanecen en él hasta actualización
-explícita. La versión del plugin, el método y el schema son identidades distintas.
+La implementación 3.0.0 añade contrato consumidor **3.0** y método **3.0.0**.
+Los proyectos v2 permanecen en su formato/método hasta conversión explícita.
+La versión del plugin, el método y el schema son identidades distintas.
+El seguimiento de esta evolución está en [el registro de ejecución](plans/lks-sdd-v3/PROGRESS.md).
 
 ## Estado técnico
 
@@ -27,5 +28,5 @@ Los proyectos 1.5 continúan en su runtime fijado hasta una migración explícit
 La retirada de soporte 1.5 requerirá una decisión de producto independiente.
 
 Consulte [validación](VALIDATION.md), [releases](RELEASING.md),
-[compatibilidad](COMPATIBILITY.md) y el [protocolo de host](V2-HOST-ACCEPTANCE.md)
+[compatibilidad](COMPATIBILITY.md) y el [protocolo de host v3](V3-HOST-ACCEPTANCE.md)
 para los controles y límites aplicables.

@@ -4,14 +4,21 @@
     "codex",
     "copilot"
   ],
-  "project_schema": "2.0",
-  "method_version": "2.1.0",
+  "project_schema": "3.0",
+  "method_version": "3.0.0",
   "readable_project_schemas": [
+    "1.5",
+    "2.0",
+    "3.0"
+  ],
+  "migration_origins": [
     "1.5",
     "2.0"
   ],
-  "migration_origins": [
-    "1.5"
-  ],
-  "collaboration": "sequential"
+  "collaboration": "governed-git",
+  "readable_method_versions": [
+    "2.0.0",
+    "2.1.0",
+    "3.0.0"
+  ]
 }
