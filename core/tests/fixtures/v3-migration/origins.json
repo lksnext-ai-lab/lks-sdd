@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0",
+  "origins": [
+    {
+      "tag": "v2.0.0",
+      "source_commit": "1ac6a2f4a7ea7599ca744bca38bc18b648f4a078",
+      "method": "2.0.0",
+      "technology_declaration": false,
+      "reader_sha256": "78ab6fdd553a86dfc6ba8fe65a507fd3cc22811294ca37b76986689674d3e2d6",
+      "author_sha256": "cc58031274ea9a01ad52aa12e72d67f572ed0c6d984c38ac795eec60c36784a3",
+      "fixture": "v2.0.0.zip",
+      "fixture_sha256": "e9a60597bb1105edfaada9b9d8b0331d55bf2b137c0602ad54ea059eb9f4ae04",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.0.1",
+      "source_commit": "47fd8add41f93d1872035e5c8341ec4763a8c14a",
+      "method": "2.0.0",
+      "technology_declaration": false,
+      "reader_sha256": "c120bcc46f012f0ed8c54f34388fe0a5c36bedab739810e8d45e922b2ac1db66",
+      "author_sha256": "cc58031274ea9a01ad52aa12e72d67f572ed0c6d984c38ac795eec60c36784a3",
+      "fixture": "v2.0.1.zip",
+      "fixture_sha256": "635a719acb42be3523667194d6437a4357412d49fc4db5acccf7f5746315a2ce",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.0.2",
+      "source_commit": "715ea1871db06e12d07fe53d34b8816f7208da2c",
+      "method": "2.0.0",
+      "technology_declaration": false,
+      "reader_sha256": "090ae65363e212fda39b54d1f015b6dd14fea41e3133a328a8cabeabe247550a",
+      "author_sha256": "cc58031274ea9a01ad52aa12e72d67f572ed0c6d984c38ac795eec60c36784a3",
+      "fixture": "v2.0.2.zip",
+      "fixture_sha256": "0233581580a033f16ed553de781e2d53b82bd898dbd7af49bd0e94c3a3ea2da1",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.1.0",
+      "source_commit": "cd3c836dbfa39b64ab748d6db713ed190a0b95d5",
+      "method": "2.0.0",
+      "technology_declaration": true,
+      "reader_sha256": "45e2562a9bbcbaf0b36a966ecf3d5ae3ebf3f449ca638382d852b5ae53d4370c",
+      "author_sha256": "981e207cc54b392fda8daaf326c51c56a9ced12024898200996558cb04d60840",
+      "fixture": "v2.1.0.zip",
+      "fixture_sha256": "2ea4249481f0f974c296cd7d577a687bad91cd59599002a191948be8b8d1a9af",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.1.1",
+      "source_commit": "72463ec1eaffbdf112e5d0577f5ac57b3af7379f",
+      "method": "2.0.0",
+      "technology_declaration": true,
+      "reader_sha256": "45e2562a9bbcbaf0b36a966ecf3d5ae3ebf3f449ca638382d852b5ae53d4370c",
+      "author_sha256": "015109e1da552b4ba509a0b25520074371c9804640a77be399571d0306e43247",
+      "fixture": "v2.1.1.zip",
+      "fixture_sha256": "8c53fa79667fcd9e597b8fa9372a91b2ea5657ebbc59b11a1b2797b019204d5d",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.1.2",
+      "source_commit": "4c89495724e3ebf0339dd2d233b0233684753671",
+      "method": "2.0.0",
+      "technology_declaration": true,
+      "reader_sha256": "134d25ce07b79f4cc5689dd2d60e4e9581f0aa3398fcd6568cf49867f082e102",
+      "author_sha256": "015109e1da552b4ba509a0b25520074371c9804640a77be399571d0306e43247",
+      "fixture": "v2.1.2.zip",
+      "fixture_sha256": "e739a310738325d0445674ef3b5d9cd63cef1ac38445e42842e38261dc93fe95",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.1.3",
+      "source_commit": "c8602a0f441210fa5e00b5c7511446da070a0352",
+      "method": "2.0.0",
+      "technology_declaration": true,
+      "reader_sha256": "f217a2fe5b49a7ddc5fa9a4dca1fedda76fbbf0d8a936b786e0d817097abc366",
+      "author_sha256": "015109e1da552b4ba509a0b25520074371c9804640a77be399571d0306e43247",
+      "fixture": "v2.1.3.zip",
+      "fixture_sha256": "aa64527940e32f2b459c7d07d93f066e365dd6be42c14374604d47fa19f6036f",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.2.0",
+      "source_commit": "be89ba5420a19206ec2a222b131006f4017e958c",
+      "method": "2.0.0",
+      "technology_declaration": true,
+      "reader_sha256": "f217a2fe5b49a7ddc5fa9a4dca1fedda76fbbf0d8a936b786e0d817097abc366",
+      "author_sha256": "015109e1da552b4ba509a0b25520074371c9804640a77be399571d0306e43247",
+      "fixture": "v2.2.0.zip",
+      "fixture_sha256": "c54bacd4c24a426d114194f3567f1acd399b421022816d057eb3d5de80e41777",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.3.0",
+      "source_commit": "22ef3acfab830edd6df8b7e926ab0cfa8777cb73",
+      "method": "2.1.0",
+      "technology_declaration": true,
+      "reader_sha256": "b0623c12c61ffd1e71ec80c6526cd6ba39fcb4be235b94cfdb58fd8bce078377",
+      "author_sha256": "2cb579c898b30799ef35d6fdd2183ba06050656e3c83819134ac535d9b98caf7",
+      "fixture": "v2.3.0.zip",
+      "fixture_sha256": "f5852638e86a73fb572bcd2d7f8bfcf085df8aa7e84a3e45cd6cafb9f90f6dd6",
+      "scope": "native initializer output; open-work scenario tested separately"
+    },
+    {
+      "tag": "v2.3.1",
+      "source_commit": "d50f1ab86647615d654a6e1d539e1db55e63c886",
+      "method": "2.1.0",
+      "technology_declaration": true,
+      "reader_sha256": "b0623c12c61ffd1e71ec80c6526cd6ba39fcb4be235b94cfdb58fd8bce078377",
+      "author_sha256": "2cb579c898b30799ef35d6fdd2183ba06050656e3c83819134ac535d9b98caf7",
+      "fixture": "v2.3.1.zip",
+      "fixture_sha256": "5e8c0afc6163c16f010d299e898eb6723da8751ad4a91137413df15e366144ff",
+      "scope": "native initializer output; open-work scenario tested separately"
+    }
+  ]
+}

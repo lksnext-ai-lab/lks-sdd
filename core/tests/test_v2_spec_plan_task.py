@@ -44,7 +44,7 @@ class SpecPlanTaskTests(unittest.TestCase):
         core = {name: (plugin_root / name).read_bytes() for name in core_paths}
         files = project_files(core, "unit", "stable")
         lock = json.loads(files[".lks-sdd/distribution-lock.json"])
-        self.assertEqual(lock["method_version"], "2.1.0")
+        self.assertEqual(lock["method_version"], json.loads(core["distribution/dual.json"])["method_version"])
         self.assertIn("2.0.0", lock["readable_method_versions"])
         for path in ("AGENTS.md", ".github/copilot-instructions.md"):
             content = files[path].decode("utf-8")

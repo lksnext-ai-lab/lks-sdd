@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0 — 2026-09-29 — procesos de proyecto y trabajo en equipo
+
+- Proceso configurable para trabajo individual y equipos, identidades estables y trazabilidad de responsabilidades, ramas, excepciones y relevos.
+- Validación de propuesta funcional/técnica exacta antes de planificar y ejecución con autoridad y alcance comprobados.
+- Sonar y Dependency-Check durante implementación: decisión de uso separada, resultados vinculados a entradas, correcciones y cierre condicionado.
+- Seis skills con rutas por versión, contexto literal sin duplicación y recuperación de continuidad.
+- Selector de contexto reducido disponible para comparación controlada; su activación predeterminada y el ahorro en uso completo quedan pendientes de observación.
+- Diagnóstico y conversión explícita de formatos v2 conocidos con conservación de originales y recuperación; instalar el plugin no migra proyectos.
+- CI/CD fuera del alcance funcional; aceptación de release, evidencia técnica y observaciones por host se registran separadamente.
+
 ## 2.3.1 — 2026-09-25 — verificación Oracle independiente
 
 - Admite `oracle-independent-connection` con recurso de catálogo exacto y lectura

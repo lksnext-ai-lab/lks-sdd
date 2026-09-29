@@ -18,7 +18,7 @@ def check(root: Path) -> dict:
     errors = []
     try:
         lock = json.loads(lock_path.read_text(encoding="utf-8"))
-        if lock.get("schema_version") != "1.0" or lock.get("project_schema") not in {"1.5", "2.0"}:
+        if lock.get("schema_version") != "1.0" or lock.get("project_schema") not in {"1.5", "2.0", "3.0"}:
             raise ValueError("Unsupported distribution contract")
         entrypoints = lock.get("entrypoints", "project")
         if entrypoints not in {"project", "plugin"}:
@@ -71,7 +71,7 @@ def check(root: Path) -> dict:
             project = json.loads(project_index.read_text(encoding="utf-8"))
             if project.get("schema_version") != lock["project_schema"]:
                 errors.append("Project schema differs from its pinned distribution; use explicit migration/recovery")
-            if project.get("schema_version") == "2.0" and project.get("method_version") not in lock.get(
+            if project.get("schema_version") in {"2.0", "3.0"} and project.get("method_version") not in lock.get(
                     "readable_method_versions", [distribution.get("method_version")]):
                 errors.append("Project method is unsupported by its pinned runtime")
         return {"status": "valid" if not errors else "blocked", "errors": errors,

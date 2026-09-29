@@ -1,12 +1,8 @@
 ---
 name: lks-sdd-adopt-existing
-description: "Use with GitHub Copilot. Adopt an existing software system into LKS-SDD through bounded static inspection and reconciliation of observed behavior with confirmed intent; preserve partial coverage and unknowns, without changing implementation or inventing undocumented history."
+description: "Use with GitHub Copilot. Adopt an existing system into LKS-SDD through bounded inspection and intent reconciliation, or explicitly migrate a supported v2 project to v3."
 ---
 
-# Copilot plugin entrypoint
-
-You are using the Copilot adapter. Resolve the installed plugin root from this file's location (two parents), not the working directory or an invented environment variable.
-If the project has .lks-sdd/distribution-lock.json, read it and run its exact runtime/scripts/lks_sdd.py runtime-doctor with the project path. Stop on invalid integrity; never substitute the newer installed core. Read .github/lks-sdd-host.md, then runtime/skills/lks-sdd-adopt-existing/SKILL.md and its references from that pinned runtime. Resolve <plugin-root> in that workflow to the pinned runtime.
-If entrypoints is project (including a legacy lock without entrypoints), explain that the project adapters are already installed. Disable this plugin for that workspace or explicitly migrate using this plugin's setup; do not execute duplicate workflows.
-Without a lock, help is read-only: use ../../core/skills/lks-sdd-help/SKILL.md and ../../core/docs/LEARNING-GUIDE.md relative to this file. For other workflows, first offer explicit project initialization using setup/install.py copilot <project-path> from the installed plugin. Show the preview and obtain approval for its exact changes before --apply --authorize HASH. Never initialize for help/status, never install globally, never upgrade a locked project merely because the plugin was updated.
-In Copilot, image generation always uses the documented visual handoff to Codex; never call ImageGen or a paid image API here. Preserve all canonical gates, human approvals and no-commit/no-push boundaries. Read linked full workflows, not summaries.
+Resolve the installed plugin root from this file's location, not cwd.
+With a project lock, run its exact runtime-doctor; stop on invalid integrity. If entrypoints is project, stop this duplicate plugin route. Otherwise read .github/lks-sdd-host.md and the pinned runtime's skills/lks-sdd-adopt-existing/SKILL.md; resolve references there.
+Without a lock read [bootstrap](../../core/docs/COPILOT-BOOTSTRAP.md). Never initialize for help/status or upgrade a project merely because this plugin changed. All method gates and session authorization boundaries remain.

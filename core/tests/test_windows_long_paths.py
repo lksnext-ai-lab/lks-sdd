@@ -133,9 +133,9 @@ class WindowsLongPathTests(unittest.TestCase):
 
         long_project = long_container / "project"
         source_core = dict(core)
-        source_core["distribution/dual.json"] = source_core["distribution/dual.json"].replace(
-            b'"project_schema": "2.0"', b'"project_schema": "1.5"'
-        )
+        legacy_distribution = json.loads(source_core["distribution/dual.json"])
+        legacy_distribution["project_schema"] = "1.5"
+        source_core["distribution/dual.json"] = json.dumps(legacy_distribution).encode("utf-8")
         source_core.pop("package-integrity.json", None)
         source_core["package-integrity.json"] = _package_integrity_bytes(
             list(source_core.items()), version, "windows-long-path-legacy-source"

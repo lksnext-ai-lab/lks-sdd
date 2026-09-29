@@ -1,0 +1,485 @@
+{
+  "plan": "PLAN-V3-001",
+  "revision": "v3-plan-02",
+  "status": "planned-not-authorized",
+  "tasks": [
+    {
+      "n": 1,
+      "id": "TASK-V3-001",
+      "title": "Contrato v3 y frontera con v2",
+      "deps": [],
+      "role": "Mantenimiento del contrato",
+      "req": [
+        54
+      ],
+      "ac": [
+        62
+      ],
+      "start_deps": [],
+      "milestone_deps": []
+    },
+    {
+      "n": 2,
+      "id": "TASK-V3-002",
+      "title": "Identidades documentales y escritura recuperable",
+      "deps": [
+        1
+      ],
+      "role": "Mantenimiento del almacenamiento",
+      "req": [
+        16,
+        17,
+        19,
+        40
+      ],
+      "ac": [
+        14,
+        15,
+        20,
+        40
+      ],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 3,
+      "id": "TASK-V3-003",
+      "title": "Proceso, miembros y autoridad",
+      "deps": [
+        2
+      ],
+      "role": "Mantenimiento del modelo de proyecto",
+      "req": [
+        1,
+        2,
+        3,
+        6,
+        8,
+        10,
+        27,
+        29,
+        30,
+        42,
+        62
+      ],
+      "ac": [
+        1,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        27,
+        29,
+        30,
+        41,
+        42,
+        76,
+        77,
+        78
+      ],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 4,
+      "id": "TASK-V3-004",
+      "title": "Propuesta exacta, aprobación y planificación",
+      "deps": [
+        3
+      ],
+      "role": "Mantenimiento de definición y planificación",
+      "req": [
+        31,
+        50,
+        51,
+        52,
+        53,
+        60,
+        61
+      ],
+      "ac": [
+        31,
+        55,
+        57,
+        58,
+        59,
+        60,
+        61,
+        72,
+        73,
+        74,
+        75
+      ],
+      "start_deps": [
+        2
+      ],
+      "milestone_deps": [
+        "base-git-local"
+      ]
+    },
+    {
+      "n": 5,
+      "id": "TASK-V3-005",
+      "title": "Transiciones, dependencias y excepciones",
+      "deps": [
+        4
+      ],
+      "role": "Mantenimiento del motor de proceso",
+      "req": [
+        5,
+        9,
+        32,
+        41,
+        43,
+        47
+      ],
+      "ac": [
+        32,
+        34,
+        43,
+        44,
+        45,
+        46,
+        50,
+        54
+      ],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 6,
+      "id": "TASK-V3-006",
+      "title": "Especialistas, contribuciones y relevos",
+      "deps": [
+        5
+      ],
+      "role": "Mantenimiento de coordinación",
+      "req": [
+        4,
+        7,
+        11,
+        33
+      ],
+      "ac": [
+        2,
+        3,
+        4,
+        12,
+        33,
+        52
+      ],
+      "start_deps": [
+        2
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 7,
+      "id": "TASK-V3-007",
+      "title": "Ramas, sincronización e integración",
+      "deps": [
+        6,
+        8
+      ],
+      "role": "Mantenimiento de integración Git",
+      "req": [
+        13,
+        14,
+        15,
+        18,
+        20,
+        26,
+        63
+      ],
+      "ac": [
+        13,
+        16,
+        17,
+        18,
+        19,
+        25,
+        79,
+        80
+      ],
+      "start_deps": [
+        2
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 8,
+      "id": "TASK-V3-008",
+      "title": "Sonar y Dependency-Check: evidencia y viabilidad",
+      "deps": [
+        5
+      ],
+      "role": "Mantenimiento de calidad",
+      "req": [
+        21,
+        23,
+        24,
+        25,
+        38,
+        64
+      ],
+      "ac": [
+        22,
+        23,
+        24,
+        26,
+        28,
+        38,
+        81,
+        82,
+        83,
+        84,
+        97
+      ],
+      "start_deps": [
+        2
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 9,
+      "id": "TASK-V3-009",
+      "title": "Implementación, corrección y cierre de tareas",
+      "deps": [
+        7
+      ],
+      "role": "Mantenimiento del ciclo de ejecución",
+      "req": [
+        22,
+        28,
+        35
+      ],
+      "ac": [
+        21,
+        35
+      ],
+      "start_deps": [
+        5
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 10,
+      "id": "TASK-V3-010",
+      "title": "Contexto suficiente, selección y caché",
+      "deps": [
+        5
+      ],
+      "role": "Mantenimiento del contexto",
+      "req": [
+        67,
+        68
+      ],
+      "ac": [
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        100
+      ],
+      "start_deps": [
+        2
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 11,
+      "id": "TASK-V3-011",
+      "title": "Adopción y migración: diagnóstico y vista previa",
+      "deps": [
+        5
+      ],
+      "role": "Mantenimiento de migración",
+      "req": [
+        37,
+        55,
+        65
+      ],
+      "ac": [
+        37,
+        63,
+        88
+      ],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": [
+        "base-git-local"
+      ]
+    },
+    {
+      "n": 12,
+      "id": "TASK-V3-012",
+      "title": "Migración: aplicación, recuperación y continuidad",
+      "deps": [
+        9,
+        11
+      ],
+      "role": "Mantenimiento de migración",
+      "req": [
+        56,
+        57,
+        58
+      ],
+      "ac": [
+        64,
+        65,
+        66,
+        67,
+        85,
+        86,
+        87
+      ],
+      "start_deps": [
+        11
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 13,
+      "id": "TASK-V3-013",
+      "title": "Estado del recorrido y orientación al usuario",
+      "deps": [
+        10,
+        12
+      ],
+      "role": "Mantenimiento de experiencia de uso",
+      "req": [
+        12,
+        34,
+        44,
+        45,
+        46,
+        48
+      ],
+      "ac": [
+        11,
+        47,
+        48,
+        49,
+        51,
+        53,
+        56
+      ],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 14,
+      "id": "TASK-V3-014",
+      "title": "CLI y seis skills con carga progresiva",
+      "deps": [
+        13
+      ],
+      "role": "Mantenimiento de hosts y skills",
+      "req": [
+        36,
+        39,
+        66
+      ],
+      "ac": [
+        36,
+        39,
+        89
+      ],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 15,
+      "id": "TASK-V3-015",
+      "title": "Compatibilidad y distribución local v3",
+      "deps": [
+        14
+      ],
+      "role": "Mantenimiento de distribución",
+      "req": [],
+      "ac": [],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 16,
+      "id": "TASK-V3-016",
+      "title": "Verificación conjunta y regresión",
+      "deps": [
+        15
+      ],
+      "role": "Revisión técnica e integración",
+      "req": [],
+      "ac": [],
+      "start_deps": [
+        1
+      ],
+      "milestone_deps": []
+    },
+    {
+      "n": 17,
+      "id": "TASK-V3-017",
+      "title": "Aceptación de uso, migración y eficiencia",
+      "deps": [
+        16
+      ],
+      "role": "Revisión funcional y técnica con usuarios",
+      "req": [
+        49,
+        59,
+        69
+      ],
+      "ac": [
+        68,
+        69,
+        70,
+        71,
+        98,
+        99
+      ],
+      "start_deps": [],
+      "milestone_deps": []
+    }
+  ],
+  "dependency_semantics": {
+    "start_deps": "Resultados de tareas completas necesarios para iniciar el trabajo independiente; respetar la porción disponible.",
+    "deps": "Dependencias para cerrar la tarea completa; el cierre no acredita aceptación humana.",
+    "early_work": "No exige abrir todas las tareas a la vez. Las tareas 013-017 trabajan por entregables parciales desde el inicio permitido.",
+    "transitive": "Se listan solo dependencias directas; las transitivas siguen siendo exigibles."
+  },
+  "derived_from": "PLAN.md y fichas Markdown; no autoridad independiente",
+  "milestones": [
+    {
+      "id": "base-git-local",
+      "owner_task": 7,
+      "deps": [
+        1,
+        2
+      ],
+      "requires_owner_completion": false,
+      "consumers": [
+        4,
+        11
+      ],
+      "scope": "Lectura y condición local de repo/rama/sujeto probadas antes de autoría/adopción; sin acreditar integración completa."
+    }
+  ]
+}

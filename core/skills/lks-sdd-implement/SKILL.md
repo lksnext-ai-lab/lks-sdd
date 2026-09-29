@@ -1,77 +1,19 @@
 ---
 name: lks-sdd-implement
-description: "Use with Codex. Implement or safely resume explicitly authorized LKS-SDD tasks using their complete literal specification, exact technology approval, real diff scope and durable checkpoints; preserve unrelated changes and stop affected work on stale authority or critical unknowns."
+description: "Use with Codex. Implement or resume authorized LKS-SDD tasks, preserve complete scope and context, coordinate handoffs, and correct applicable Sonar and dependency findings."
 ---
 
-# Implement an LKS-SDD Increment with Codex
+# Implementar y corregir
 
-## Routing por contrato
+Lea el formato de `.lks-sdd/project.json` y respete el runtime fijado por el proyecto.
+No migre por cargar esta skill. Si falta el índice, inspeccione el Markdown antes de
+asumir un proyecto nuevo. Una garantía desconocida bloquea solo el trabajo afectado.
 
-Before changing application code for any request, including work within an existing
-feature, read [SPEC to PLAN/TASK continuity](../../docs/V2-SPEC-PLAN-TASK.md).
-Use the pinned runtime to check PCH, applicable SPEC, PLAN/TASK, readiness, AUTH and
-EXEC for the exact slice. If the request or acceptance is not fully assigned, route
-to define and complete that documentation first. An existing PLAN, a ready TASK or
-the user's implementation request does not fill missing coverage. Reuse valid
-decisions and authorization for unchanged scope.
+- Para formato **3.0**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
+  [esta operación](references/v3.md).
+- Para **2.0 o 1.5**, lea solo [procedimiento conservado](references/v2-and-legacy.md).
+- Para un proyecto sin SDD, confirme configuración y use v3 si se solicita iniciar
+  o adoptar; una consulta no inicializa nada.
 
-Read [v2 common policy and workflows](../../docs/V2-WORKFLOWS.md) for contract
-2.0 or a new v2 project. Responsibility: Ejecutar solo el ámbito autorizado con contexto íntegro y diff revisado.
-Use only the relevant section of that shared workflow and its linked references;
-do not combine v2 syntax with the legacy workflow below. Existing projects remain
-on their exact pinned runtime until explicitly migrated. Unknown schemas fail
-closed; a question never initiates adoption, migration or implementation.
-
-Before implementation on a migrated project, require `migration-status` to show
-`migration-complete` and check `migration-continuation` for the exact TASK slice.
-A historical 1.5 runtime cannot govern new work, and a pending semantic
-reconciliation blocks only the affected TASK. Do not bypass that guard by using
-legacy commands.
-
-## Workflow conservado para contrato 1.5
-
-For explanations of the documented scope, requirements and related tasks, read
-`<plugin-root>/docs/PROJECT-QUERY.md`. A question alone authorizes no implementation.
-During authorized work reuse its source-linked human presentation, but never
-substitute selective query context for required implementation inputs or gates.
-
-For configured project documented scope, read la declaración tecnológica local indexada
-and use its approved preparation route (also selected by `work start`) to create
-only reference locks and EXEC/CKPT, preserving consumer code. Reuse a valid scoped
-approval without another question. AUTH and the canonical task contract still apply.
-
-For a project with `.lks-sdd/distribution-lock.json`, use its exact pinned runtime
-and this workflow from that runtime, not a different global version. Run
-`<plugin-root>/scripts/lks_sdd.py runtime-doctor <project-root> --json` before work;
-integrity failure blocks affected actions. The invoking host adapter governs tools,
-not folder presence. Preserve all method gates below. On resumption, read applicable
-visual handoffs and validate their results; no handoff grants implementation authority.
-Help/status remain read-only. Native Codex work never creates or announces a handoff.
-
-Implement only the requested increment. A `ready` result is necessary but does not replace the user's explicit authorization to change code. For a blocked event, `tasks transition --to blocked` creates the open `PROB-###` used by the checkpoint and Jira preview; a resolved, foreign or missing problem is never a valid source.
-
-1. Read `.lks-sdd/project.json` and the indexed Markdown. Confirm the active increment and authorized `TASK-###` slice, plan/release, planning policy and fingerprints, delivery governance, units/bindings, scope, requirements, acceptance, tests, dependencies, blockers, interface applicability and confirmed `UX-###`/`VIS-###` inputs. The authorization defines the maximum scope; do not widen it.
-2. Read the [implementation contract](references/implementation-contract.md). When `ART-TRACKING` confirms `jira-hybrid`, also read the [Jira implementation sync contract](references/jira-implementation-sync.md). Resolve `<plugin-root>` as the directory containing `.codex-plugin/plugin.json`; never resolve `scripts/` against the consumer project. If an execution already exists, first run `continuity ... resume --json` and continue only on `continue-recommended`; reconcile or replan on divergence. For a new execution, run `implement ... --dry-run --json`. Stop if specification/slice readiness, planning policy, `AUTH-###`, strict `automation_support`, exact binding/documented confirmation lock, governance or adopted baseline is invalid. Diagnostic `automation_coverage` never satisfies this gate, even when preparation and local checks are available.
-3. Present planned files, task transitions and collisions. Apply only after the implementation authorization is current and the preview hash is explicitly confirmed. The atomic apply moves selected `ready` tasks to `in-progress`, materializes locks, records `EXEC-###` and creates the initial `CKPT-###`; it does not create a commit. A changed active specification/planning fingerprint or prototype requires re-assessment and a new human decision. Preserve existing files and repository instructions.
-4. Implement the smallest vertical slice that satisfies the linked acceptance criteria. When the interface is applicable, treat the confirmed screens, flows, direction and prototype assets as implementation inputs, not optional inspiration. Do not silently reinterpret or replace a validated visual baseline. Keep business rules out of transport boundaries, avoid speculative infrastructure, and do not expand the increment to unrelated cleanup.
-5. Add or update tests linked to the documented `TEST-###` identifiers. Inspect repository commands before executing them; obtain separate authorization for commands with material side effects not already implied by the implementation request.
-6. Keep board, task details and execution synchronized through controlled transitions. Follow `backlog → ready → in-progress → in-review → done`, with explicit `blocked` and `cancelled`. Only `done` resolves a dependency. Use `planning ... next` to select safe work within the authorization and expose parallel frontiers; never start a task whose real dependencies are unfinished.
-7. Create an authorized checkpoint at task start, completion or block, before a pause, and whenever interruption, external dependency, priority/scope change or session end threatens continuity. Record completed, partial and pending deliverables; acceptance covered; checks passed/failed/not-run; evidence; canonical `PROB-###`; decisions; changed files; revisions; next safe action; and independent ready tasks. A generated CKPT uses canonical unquoted YAML output but readers compare parsed `artifact_id`/`artifact_type` and its unique TASK/EXEC identity, so equivalent quoted YAML remains valid. Never claim a gate ran or create evidence from intent.
-8. In `jira-hybrid` mode, update Jira only after the corresponding canonical transition and checkpoint are durable. Always keep the governed task projection current through its own preview and receipt. When `RPT-###` enables `milestone-reporting`, report only the supported significant events: start, material progress, block, resume and in-review. Build `preview-event` from a durable `TASK/EXEC/CKPT/PROB` source, use an authorized Rovo read to check the exact event marker and current status, and obtain one explicit confirmation for the whole preview. `authorize-event` then persists one independent `SYNC-###` receipt per comment or mapped transition before either write; reread and close each receipt separately. A workflow transition is allowed only when its local state has a confirmed mapping with an exact Jira status ID and the transition ID was observed in the fresh read. Implementation authorization alone is insufficient, and no Jira receipt changes the canonical TASK. If reporting is paused, unavailable or fails under an `advisory` gate, preserve local work and continue; under `required-before-execution`, respect the configured coordination blocker. Never retry an uncertain operation blindly: reconcile the anchored receipt through an authorized read.
-9. If scope or a requirement changes, stop affected work, record a `PCH-###`, recompute coverage/dependencies and invalidate stale readiness/authorization. Reopen only the necessary dimensions. Distinguish new discovered scope from failure of the original plan and preserve prior history.
-10. Keep `implementation.status` as `in-progress` while work remains and `blocked` when it cannot continue. Move completed coding to `in-review`; transition to `done` only after required verification evidence, exact revision/build/artifact/environment and gates exist. Code written, locally tested, reviewed and verified are separate states.
-11. Hand off to `$lks-sdd-verify`. Its plan may anticipate checks while implementation is in progress, but execution/evidence requires the applicable completed handoff. Do not classify the slice or release as verified from implementation tests alone.
-
-Implement only exact closed local technology declaration whose descriptor, driver, implementation files, documented confirmation evidence, composition digest, and consumer lock agree. A family, capability set, candidate local technology declaration, or arbitrary technology mixture is documentable but not automatically implementable. Do not replace a confirmed provider such as Microsoft Entra with Keycloak merely because the latter has an active local technology declaration.
-
-For a joint integration TASK, implement the canonical interface deliverables across every declared unit/binding and preserve its dependency boundary. Green component tests, separately running processes, hardcoded frontend data or local UI state do not complete the integration criterion. Do not narrow the TASK to one unit or change its typed evidence scopes to make implementation appear complete; hand off the unchanged `INT-###` obligation to verification.
-
-## Fast path and narration in 0.18
-
-Start with `work status <project-root> --task TASK-###`. Prefer `work start` for a new task, `work resume` for an existing execution, `work review` for code-complete handoff and `work block` for a real blocker. Para un hallazgo posterior, `work correct` registra problema, causa y corrección y deja la salud pendiente de re-verificación; `work resolve` solo cierra después de una EVID nueva `verified` de esa TASK. `work resume` falla cerrado mientras permanezca un problema aplicable. Low-level commands remain available for audit, recovery and conflicts.
-
-If an exact authorization already matches current scope and fingerprints, do not ask again: the façade may apply deterministic local bookkeeping as one atomic milestone. New scope, exception, environment, external action, evidence contradiction, deployment or promotion still requires a new decision. Create checkpoints only at meaningful start, pause, block, handoff, completed review, verification or close; do not create redundant checkpoints for consecutive transitions during one resumption.
-
-Use management narration before start/resume, after a material milestone, at a blocker and at implementation handoff. Do not narrate every preview, hash, receipt or internal command. A resolved, superseded or historical problem remains in audit but is never presented as active.
-
-For existing applications, preserve the adoption preparation route: verification resources only, reviewed preview and no functional implementation files overwrite. New-project preparation may materialize the certified implementation files. Do not switch documented scope or update dependencies to clear readiness.
+Cargue únicamente la ruta aplicable. Al confirmar un hito, explique qué se ha hecho,
+dónde queda el proceso, qué falta y la próxima acción. Si ya está autorizada, continúe.
