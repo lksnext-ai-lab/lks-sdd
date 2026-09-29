@@ -18,4 +18,49 @@ La definición funcional y arquitectónica gobierna el propósito y los límites
 
 `specs/proposed/LKS-SDD_extension_tracking_operativo_v1.4.md` documenta la propuesta 1.4 de selección del backend de seguimiento y proyección operativa opcional en Jira mediante Atlassian Rovo. `specs/proposed/LKS-SDD_extension_reporting_jira_v1.5.md` (`SHA-256 E8A711DDAECF51491D7CFB85D84097157C9CC5039218573E9A77BFEBBF0A5A98`) añade reporting opcional por hitos, mappings de workflow explícitos, una confirmación por preview y recibos separados. Ambas son **no canónicas**: no forman parte del inventario anterior, no modifican sus hashes y no se presentan como política corporativa aprobada. Una eventual promoción exige una decisión metodológica separada y una incorporación canónica explícita, sin reescribir ninguna fuente previa.
 
+[Propuesta funcional para LKS-SDD v3](proposed/team-workflow-traceability.md)
+recoge las necesidades expresadas el 28 de septiembre de 2026 sobre trabajo
+individual y en equipo, gestión evolutiva de miembros y cuentas, delegaciones y
+aplicación de la política del proyecto. Incluye ramas por petición, trazabilidad
+Git e identidades permanentes para documentación creada en clones independientes.
+Incluye el ciclo de análisis, corrección y nueva comprobación con Sonar y
+Dependency-Check durante la implementación, con no utilización explícita permitida
+y evidencia vigente antes del cierre ordinario. La delimitación final excluye el gobierno y
+la operación de CI/CD, pipelines, releases, promoción y despliegues de esta evolución.
+Propone incorporar ese contexto a la trazabilidad histórica de cada implementación.
+La revisión crítica del 29 de septiembre incorpora procesos configurables y modificables durante la vida
+del proyecto, excepciones puntuales validadas, estado del recorrido completo y
+orientación didáctica al completar cada paso. La ampliación del 29 de septiembre
+concreta la agilidad, la validación funcional/técnica previa a planificar y el
+destino propuesto v3 con migración 2.x → 3.x. La revisión `v3-propuesta-02` incorpora
+los siete puntos débiles señalados: presupuestos y recorridos de uso, validación
+comprensible, unidades de aprobación, configuración y precedencia, coordinación
+entre ramas, análisis agrupados y migración con continuidad visible. La revisión
+`v3-propuesta-03` añade carga progresiva por operación y versión, contexto literal
+seleccionado sin duplicación, invalidación y recuperación, presupuestos de sobrecarga
+y comparación del consumo completo sin perder calidad. Define sesenta y nueve requisitos
+y cien casos de aceptación pendientes de ejecución. La planificación de esta revisión
+se ha preparado después de su validación.
+
+La [propuesta técnica de v3](proposed/lks-sdd-v3-technical-proposal.md) concreta
+arquitectura, documentos, validación por revisión exacta, reutilización y migración.
+El [paquete para validar v3](proposed/lks-sdd-v3-validation.md) identifica la revisión
+funcional/técnica sometida a decisión y su alcance. El 29 de septiembre el usuario
+validó la revisión completa y encargó el plan de implementación; la
+[decisión DEC-V3-001](../docs/plans/lks-sdd-v3/APPROVAL.md) conserva su mensaje,
+alcance, huellas y una instantánea recuperable de los tres documentos presentados.
+Sus encabezados conservan el estado histórico previo a esa decisión.
+
+El [plan v3-plan-02](../docs/plans/lks-sdd-v3/PLAN.md) concreta 17 tareas y su
+[trazabilidad](../docs/plans/lks-sdd-v3/TRACEABILITY.md) cubre los 69 requisitos y
+100 casos. Estado actual: **propuesta validada, plan preparado para revisión,
+implementación sin autorizar**. La aceptación de la propuesta no promueve estas
+fuentes a `specs/canonical/`, no acredita capacidades nuevas ni cambia la versión
+activa 2.3.1. No autoriza instalación, migración de consumidores o publicación.
+
+La [revisión crítica del plan](../docs/plans/lks-sdd-v3/REVIEW.md) incorpora inicio y
+cierre diferenciados, integración temprana, creación/adopción explícitas, medición
+comparable y cobertura por comportamiento. Conserva v3-plan-01 como borrador histórico
+y las fuentes aprobadas sin cambios; no supone validación del plan ni ejecución.
+
 Si una futura revisión detecta una contradicción material que no pueda resolverse con esta jerarquía y el alcance específico de la extensión, debe detener el cambio y solicitar una decisión concreta. Una diferencia entre implementación y contrato se corrige en la implementación; nunca reescribiendo retrospectivamente una fuente canónica.

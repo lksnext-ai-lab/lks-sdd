@@ -1,18 +1,25 @@
-# Compatibilidad de LKS-SDD 2.3.0
+# Compatibilidad de LKS-SDD 3.0.0
 
 ## Contratos de proyecto
 
-| Proyecto | Comportamiento en v2 |
+| Proyecto | Comportamiento en 3.0.0 |
 |---|---|
-| Schema 2.0 / método 2.1.0 | Contrato para proyectos nuevos; aplicar [continuidad SPEC/PLAN/TASK](V2-SPEC-PLAN-TASK.md) |
+| Schema 3.0 / método 3.0.0 | Contrato para proyectos nuevos, con configuración confirmada y [operaciones v3](V3-OPERATIONS.md) |
+| Schema 2.0 / método 2.1.0 | Conserva su runtime/ruta v2; [migración explícita a v3](V3-MIGRATION.md) |
 | Schema 2.0 / método 2.0.0 | Legible en su ruta anterior; actualizar explícitamente para las condiciones nuevas |
 | Schema 1.5 / método 1.5.0 | Workflow conservado; no se reinterpreta ni migra al consultar |
 | Versiones anteriores o desconocidas | Fuera de la ruta oficial de migración; diagnóstico y decisión explícita, sin conversión por cambio de encabezados |
 
 La versión del plugin, la del método y la del schema no son intercambiables.
 `plugin_version` conserva la procedencia de materialización; el runtime activo
-se resuelve mediante su lock. Instalar la versión personal 2.3.0 no sustituye el
+se resuelve mediante su lock. Instalar la versión personal 3.0.0 no sustituye el
 runtime fijado por otro desarrollador ni convierte sus documentos.
+
+La conversión 2.0 → 3.0 reconoce métodos 2.0.0 y 2.1.0. Las pruebas incluyen
+inicializadores nativos de las diez releases 2.0.0–2.3.1, continuidad de un plan
+abierto y cambio de runtime fijado. El inventario exacto y las limitaciones están
+en [la evidencia v3](plans/lks-sdd-v3/PROGRESS.md). No se presume compatibilidad de
+cualquier personalización por compartir número de versión.
 
 La conversión oficial 1.5/1.5.0 → 2.0/2.1.0 conserva
 [diagnóstico, preview, autorización y reconciliación](V2-MIGRATION.md).
@@ -56,6 +63,9 @@ La paridad automática de paquetes no acredita aceptación conversacional. Los
 ensayos v2 de versiones/modelos/permisos, navegación, generación visual y relevo
 con personas siguen `not-run` hasta completar el
 [protocolo de host](V2-HOST-ACCEPTANCE.md). No se hereda aceptación de 1.x.
+En v3 se aplica [el protocolo de aceptación de uso](V3-HOST-ACCEPTANCE.md), separado
+de la aceptación de release solicitada en DEC-V3-002. El selector reducido permanece
+en comparación; la ruta normal conserva el contexto normativo activo.
 La extensión Codex de VS Code, ChatGPT Work y Claude están fuera de alcance.
 
 ImageGen se usa si está disponible en Codex. Copilot prepara un relevo visual

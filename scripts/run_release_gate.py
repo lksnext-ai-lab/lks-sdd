@@ -21,15 +21,15 @@ CORE_TESTS = (
     "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
     "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization",
     "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_future_draft_requirement_does_not_block_current_slice",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_confirmed_future_requirement_in_another_plan_preserves_slice",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_incremental_deferral_keeps_full_plan_partial",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_change_assessment_is_read_only",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_closed_task_scope_requires_new_task_or_correction",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_new_spec_requirement_needs_plan_and_request",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_new_acceptance_needs_task_assignment",
     "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_method_upgrade_is_explicit_and_preserves_documents",
+    "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+    "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start",
+    "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+    "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+    "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats",
+    "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
+    "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+    "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
 )
 
 
@@ -159,7 +159,9 @@ def _release_core() -> dict[str, Any]:
     ]
     for selector in CORE_TESTS:
         command.extend(["--test", selector])
-    result = _run("release-core", command, timeout_seconds=180)
+    # The same 14 selected behaviors now include durable v3 migration/workflow
+    # writes: observed 235s on Windows. Keep the gate bounded with runner margin.
+    result = _run("release-core", command, timeout_seconds=600)
     if result["status"] == "passed":
         try:
             payload = json.loads(result.pop("_stdout"))

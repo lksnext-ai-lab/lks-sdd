@@ -24,6 +24,7 @@ from path_utils import filesystem_root, same_filesystem_path
 
 PLUGIN_ROOT = filesystem_root(Path(__file__).resolve().parents[1])
 COMMANDS = {
+    "v3": "scripts/v3_cli.py",
     "v2": "scripts/v2_cli.py",
     "catalog": "scripts/v2_cli.py",
     "context": "scripts/v2_cli.py",
@@ -83,7 +84,8 @@ def main() -> int:
         if not forwarded[0].startswith("-") and candidate.is_dir() and is_v2(candidate):
             forwarded = [forwarded[1], forwarded[0], *forwarded[2:]]
     # A shared project never silently runs a different global installation.
-    migration_route = command == "migrate" or (command == "v2" and forwarded and forwarded[0] in {
+    migration_route = command == "migrate" or (command == "v3" and forwarded and forwarded[0] in {
+        "migration-diagnose", "migration-preview", "apply", "recover", "rollback"}) or (command == "v2" and forwarded and forwarded[0] in {
         "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
         "migrate", "recover", "rollback", "method-upgrade-diagnose", "method-upgrade"})
     if command not in {"runtime-doctor", "query"} and not migration_route:
@@ -108,6 +110,16 @@ def main() -> int:
                                   "cli": str(pinned / "scripts/lks_sdd.py")}, ensure_ascii=False))
                 return 2
             break
+    if command != "v3" and forwarded:
+        from v3_cli import is_v3, main as v3_main
+        if Path(forwarded[0]).is_dir() and is_v3(Path(forwarded[0])):
+            routes = {"help": "status", "status": "status", "query": "status", "doctor": "validate", "validate-project": "validate",
+                      "validate-spec": "validate", "assess-readiness": "readiness", "define": "author", "implement": "start",
+                      "verify": "verify", "context": "context", "traceability": "trace", "catalog": "catalog", "history": "history"}
+            if command in routes: return v3_main(forwarded, command=routes[command])
+            if command not in {"runtime-doctor", "visual-handoff"}:
+                print(json.dumps({"status": "blocked", "error": "Use lks_sdd.py v3 --help; an older writer cannot modify v3"}))
+                return 2
     if command in {"catalog", "context", "history", "migrate"}:
         from v2_cli import main as v2_main
         return v2_main(forwarded, command=command)
@@ -115,7 +127,8 @@ def main() -> int:
         from v2_cli import is_v2, main as v2_main
         project = Path(forwarded[0])
         if command == "define" and project.is_dir() and not (project / ".lks-sdd/project.json").exists():
-            return v2_main(forwarded, command="init")
+            print(json.dumps({"status": "needs-configuration", "next": "Use v3 init with the confirmed process, owner, controls and target; v2 init remains explicit for legacy work."}))
+            return 2
         if project.is_dir() and is_v2(project):
             route = {"validate-project": "validate", "validate-spec": "validate", "assess-readiness": "readiness",
                      "implement": "start", "verify": "verify", "status": "status", "doctor": "validate",

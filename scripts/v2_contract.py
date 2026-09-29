@@ -405,7 +405,7 @@ def technology_readiness(model: Model, tasks: list[str]) -> dict:
             "unresolved": sorted(set(unresolved))}
 
 
-def load(root: Path) -> Model:
+def read_contract(root: Path, *, project_schema=None, require_technology=True) -> Model:
     root = lexical_root(root)
     from v2_storage import VALIDATING, ensure_idle
     if not VALIDATING.get():
@@ -413,7 +413,12 @@ def load(root: Path) -> Model:
     raw = read_bytes(root, ".lks-sdd/project.json")
     manifest = json.loads(raw)
     from v2_schema import validate
-    validate("project", manifest)
+    if project_schema is None:
+        validate("project", manifest)
+    else:
+        from jsonschema import Draft202012Validator
+        errors = list(Draft202012Validator(project_schema).iter_errors(manifest))
+        if errors: raise ContractError("Invalid historical project 2.0: " + errors[0].message)
     if manifest.get("schema_version") != VERSION or manifest.get("method_version") not in SUPPORTED_METHODS:
         raise ContractError("Unsupported project contract/method; no implicit conversion")
     if not manifest.get("project_id"):
@@ -440,7 +445,7 @@ def load(root: Path) -> Model:
                 uids[element.meta["uid"]] = element.id
         except ContractError as exc:
             model.errors.append(str(exc))
-    _validate_technology_declaration(model)
+    if require_technology: _validate_technology_declaration(model)
     for element in model.elements.values():
         for target in element.targets():
             if target not in model.elements:
@@ -528,6 +533,11 @@ def load(root: Path) -> Model:
                     model.errors.append(str(exc))
     model.revalidate()
     return model
+
+
+def load(root: Path) -> Model:
+    """Current v2 writers always require the current v2 project/declaration contract."""
+    return read_contract(root)
 
 
 def execution_context(model: Model, tasks: list[str]) -> dict:
