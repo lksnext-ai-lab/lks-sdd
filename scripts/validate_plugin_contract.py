@@ -1021,7 +1021,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0/3.0; six skills)")
+    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0/3.0/3.1; six skills)")
     return 0
 
 

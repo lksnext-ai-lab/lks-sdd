@@ -45,6 +45,10 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None):
         for request in previous.by_kind("request"): policy_for(previous, request)
         sources.update(previous.hashes)
     keys = [item["meta"]["uid"] for item in items]
+    project = next((i for i in items if i["meta"]["kind"] == "project"), None)
+    method = project["meta"]["data"]["method_version"] if project else (previous.project.data["method_version"] if previous and not previous.errors else "3.0.0")
+    from v3_contract import METHODS
+    version = METHODS[method]
     if len(keys) != len(set(keys)): raise ContractError("Identidad repetida en la escritura")
     for path in protected_inventory(root, [INDEX]): sources[path] = exists_hash(root, path)
     for item in items:
@@ -55,9 +59,9 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None):
             path = old.path
             if sum(e.path == path for e in previous.elements.values()) != 1:
                 text = changes.get(path, read_bytes(root, path)).decode("utf-8")
-                block = BLOCK.search(render(item).decode("utf-8"))[0]
+                block = BLOCK.search(render(item, version).decode("utf-8"))[0]
                 changes[path] = BLOCK.sub(lambda m: block if json.loads(m[1])["uid"] == key else m[0], text).encode("utf-8")
-            else: changes[path] = render(item)
+            else: changes[path] = render(item, version)
             saved = HISTORY + "/" + key + "/" + old.digest() + ".md"
             raw = render(old.item())
             saved_hash = exists_hash(root, saved)
@@ -67,9 +71,9 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None):
                 if len(prior) != 1 or prior[0].uid != old.uid or prior[0].digest() != old.digest():
                     raise ContractError("Snapshot histórico contradictorio")
             elif saved_hash is None: changes[saved] = raw
-        else: changes[path] = render(item)
+        else: changes[path] = render(item, version)
     # Existing index is a projection; derive it in staging before authorizing writes.
-    changes[INDEX] = canonical({"schema_version": "3.0"})
+    changes[INDEX] = canonical({"schema_version": version})
     changes[INDEX] = canonical(stage(root, changes, sources))
     guards = guards or {}
     expected = preview(root, changes, sources=sources, operation="v3:" + operation + ":" + base64.b64encode(canonical(guards)).decode())

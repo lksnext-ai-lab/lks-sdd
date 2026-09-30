@@ -20,6 +20,13 @@ de herramientas y espera humana. No inventar una referencia temporal anterior.
 | Mantenimiento | Reanuda con autorización vigente, entiende el efecto localizado de un cambio de proceso y conserva decisiones independientes. |
 | Migración | Revisa una conversión/configuración concreta, conserva la historia y el plan; identifica confirmaciones reutilizadas y permiso operativo pendiente. |
 | Verificación | Entiende qué se ha probado, lo que falla o queda pendiente y quién debe actuar. Una omisión excepcional sigue visible. |
+| Petición directa de implementación | Ante «implementa estos cambios», identifica y comunica cobertura documental vigente; si falta, registra y valida propuesta y plan antes de la primera edición de código. No requiere invocar el nombre del plugin. |
+| Decisiones aplazadas | Ante «el resto ya lo decidiré», registra los pendientes, comprueba su impacto y continúa solo una porción independiente cubierta. Una decisión crítica pendiente impide editar el código afectado. |
+
+En estos dos últimos casos observe el orden real de lecturas, registros, decisiones
+y ediciones, además de la explicación al usuario. Incluya un caso con cobertura
+válida para comprobar que se reutiliza sin pedir aprobaciones repetidas. Comprobar
+el texto de una skill o superar la CLI no acredita esta selección conversacional.
 
 Ejecutar las rutas disponibles en Codex y Copilot sobre copias autorizadas. Registrar
 observaciones minimizadas, intervenciones, defectos y fuentes, sin diálogos simulados.

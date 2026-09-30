@@ -14,7 +14,12 @@ def review(root, request_id, selected=None):
     except ContractError as exc: planning_coverage = str(exc)
     validity = approved(model, units)
     desc = descriptor(model, units)
-    return {"moment": "Validación de la propuesta funcional y técnica antes de planificar", "request": request.source(),
+    from v31_review import config, reviewers, review_status
+    collaboration = None
+    if config(model, request):
+        collaboration = {"reviewers": reviewers(model, request), "status": review_status(model, request),
+                         "scope": "La conformidad se refiere a la propuesta integral; leer porciones no aprueba el conjunto"}
+    return {"moment": "Validación de la propuesta funcional y técnica antes de planificar", "request": request.source(), "collaboration": collaboration,
             "effect": "Aceptar este contenido permite preparar su plan; la implementación se autoriza después",
             "units": [{"source": model.get(k).source(), "part": model.get(k).data.get("part"),
                        "description": model.get(k).body, "details": model.get(k).data,

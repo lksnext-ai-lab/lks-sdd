@@ -67,6 +67,9 @@ def candidate(root, items, callback):
         for path in model.hashes: staged_write(stage, path, read_bytes(model.root, path))
         for item in items:
             old = model.elements.get(item["meta"]["uid"])
+            if old:
+                from v3_contract import HISTORY
+                staged_write(stage, HISTORY + "/" + old.uid + "/" + old.digest() + ".md", render(old.item()))
             if old and sum(e.path == old.path for e in model.elements.values()) > 1:
                 from v3_contract import BLOCK
                 import json
@@ -104,6 +107,12 @@ def author(root, actor, items):
             raise ContractError("Cambios de gobierno requieren governance con motivo y alcance explícitos")
         if meta["kind"] == "request":
             policy = model.get(model.project.data["policy"], "policy")
+            from v31_review import validate_roster
+            if not previous and policy.data.get("collaboration"):
+                meta["data"].setdefault("coordination", copy.deepcopy(policy.data["collaboration"]["defaults"]))
+                validate_roster(meta["data"]["coordination"])
+            if previous and any(meta["data"].get(k) != previous.data.get(k) for k in ("coordination", "policy", "policy_digest")):
+                raise ContractError("Cambiar coordinación/política requiere configure-collaboration")
             meta["data"].setdefault("policy", policy.uid)
             meta["data"].setdefault("policy_digest", policy.digest())
             obs = observe(model.root)
@@ -117,7 +126,11 @@ def author(root, actor, items):
             if meta["data"]["request"] not in requests: branch_check(model, model.get(meta["data"]["request"], "request"))
     def check(prospective):
         for obj in items:
-            if obj["meta"]["kind"] == "plan": plan_coverage(prospective, prospective.get(obj["meta"]["uid"]))
+            if obj["meta"]["kind"] == "plan":
+                plan = prospective.get(obj["meta"]["uid"])
+                from v31_review import designated
+                designated(prospective, prospective.get(plan.data["request"]), actor, "responsible", "plan")
+                plan_coverage(prospective, plan)
             if obj["meta"]["kind"] == "task":
                 task = prospective.get(obj["meta"]["uid"])
                 request = prospective.get(task.data["request"], "request")
@@ -137,13 +150,20 @@ def approve(root, actor, identifiers, purpose, statement, *, reason=""):
         raise ContractError("Finalidad de aprobación desconocida")
     ids = [model.get(x).uid for x in identifiers]
     if purpose in {"plan", "execution"}:
-        for key in ids: plan_coverage(model, model.get(key, "plan"))
+        for key in ids:
+            plan = model.get(key, "plan")
+            from v31_review import designated
+            designated(model, model.get(plan.data["request"]), actor, "responsible", "authorize" if purpose == "execution" else "approve")
+            plan_coverage(model, plan)
         if purpose == "execution" and not approved(model, ids, "plan")["valid"]:
             raise ContractError("El plan concreto todavía no está aprobado")
     if purpose == "proposal":
         for request in model.by_kind("request"):
             selected = set(request.relations.get("proposal", [])) & set(ids)
             if selected:
+                from v31_review import config, closure_valid
+                if config(model, request) and not closure_valid(model, request):
+                    raise ContractError("Use close-proposal: faltan revisión integral y cierre competente")
                 proposal_ready(model, request, sorted(selected), require_complete=False)
                 approval_process(model, request, "approve-proposal", [], sorted(selected))
     if purpose in {"plan", "execution"}:
@@ -162,14 +182,18 @@ def approval_process(model, request, action, tasks, units):
     require_process(policy_for(model, request).data, action, facts, request.data.get("flags", {}))
 
 
-def approve_and_authorize(root, actor, plan_uid, statement):
+def approve_and_authorize(root, actor, plan_uid, statement, *, review_tasks=()):
     model = load(root).require_valid()
     plan = model.get(plan_uid, "plan")
+    from v31_review import designated, task_review_event, group_intervention
+    designated(model, model.get(plan.data["request"]), actor, "responsible", "authorize")
     plan_coverage(model, plan)
     approval_process(model, model.get(plan.data["request"]), "authorize-plan",
                      [model.get(k) for k in plan.relations["tasks"]], plan.data.get("proposal_units"))
     records = [decision(model, actor, [plan.uid], purpose, statement) for purpose in ("plan", "execution")]
-    return prepare(root, records, "approve-plan-and-authorize")
+    if not set(review_tasks) <= set(plan.relations["tasks"]): raise ContractError("Seleccione tareas de este plan")
+    records += [task_review_event(model, model.get(key, "task"), actor, statement) for key in dict.fromkeys(review_tasks)]
+    return prepare(root, group_intervention(records), "approve-plan-and-authorize")
 
 
 def governance(root, actor, items, statement, reason, *, requests=()):

@@ -67,4 +67,27 @@ class DistributionTests(migration_fixtures.MigrationTests):
                 self.assertIn("3.0", (self.root/host).read_text(encoding="utf-8"))
 
 
+            # Adoption changes documents and pinned runtime in the same transaction.
+            from v31_review import configure
+            from v3_contract import load
+            from v3_storage import recover
+            actor = load(self.root).by_kind("member")[0].uid
+            cfg = {"proposal_review_required": True, "task_review_required": True,
+                   "defaults": {"responsible": actor, "integration_validator": actor,
+                                "functional_validator": actor, "reviewers": [
+                                    {"member": actor, "required": True, "domains": ["General"]}]}}
+            adoption = configure(self.root, actor, cfg, "Adopto explícitamente el recorrido integral", runtime_bundle=new_bundle)
+            receipt = apply(self.root, adoption, adoption["preview"]["preview_hash"])
+            self.assertEqual("valid", check(self.root)["status"])
+            adopted = json.loads((self.root/".lks-sdd/distribution-lock.json").read_bytes())
+            self.assertEqual("3.1", adopted["project_schema"])
+            cli = self.root/adopted["runtime"]/"scripts/lks_sdd.py"
+            result = subprocess.run([sys.executable, "-B", str(cli), "v3", "validate", str(self.root)], capture_output=True, text=True, encoding="utf-8", timeout=60)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            self.assertIn("3.1", (self.root/".github/copilot-instructions.md").read_text(encoding="utf-8"))
+            recover(self.root, adoption["preview"]["preview_hash"], rollback=True, receipt=receipt["receipt"])
+            self.assertEqual("3.0", json.loads((self.root/".lks-sdd/distribution-lock.json").read_bytes())["project_schema"])
+            self.assertEqual("valid", check(self.root)["status"])
+
+
 if __name__ == "__main__": unittest.main()

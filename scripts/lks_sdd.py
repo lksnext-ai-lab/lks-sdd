@@ -85,7 +85,7 @@ def main() -> int:
             forwarded = [forwarded[1], forwarded[0], *forwarded[2:]]
     # A shared project never silently runs a different global installation.
     migration_route = command == "migrate" or (command == "v3" and forwarded and forwarded[0] in {
-        "migration-diagnose", "migration-preview", "apply", "recover", "rollback"}) or (command == "v2" and forwarded and forwarded[0] in {
+        "migration-diagnose", "migration-preview", "configure-collaboration", "apply", "recover", "rollback"}) or (command == "v2" and forwarded and forwarded[0] in {
         "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
         "migrate", "recover", "rollback", "method-upgrade-diagnose", "method-upgrade"})
     if command not in {"runtime-doctor", "query"} and not migration_route:

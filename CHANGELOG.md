@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.1.0 — 2026-09-30 — revisión integral y recorrido guiado
+
+- Recorrido optativo H1–H7: propuesta, revisión conjunta, plan autorizado, revisión de encargos, ejecución/verificación, integración y preparación de PR.
+- Participación por personas reales y responsabilidades; agrupa decisiones compatibles sin duplicar validaciones en proyectos individuales o equipos pequeños.
+- Aportaciones de especialistas sobre la propuesta integral, cierre por el responsable y tareas detalladas con revisión de su destinatario.
+- Correcciones de integración y aceptación vinculadas a requisitos, tareas y nueva evidencia; un resultado anterior no vuelve a aceptar un defecto conocido.
+- Estado y siguiente paso compartidos entre consulta y readiness, con recomendaciones y reservas explícitas, sin modificar el proyecto al consultar.
+- Adopción explícita 3.0 → 3.1 con actualización del runtime fijado y rollback; formatos anteriores conservan su recorrido hasta autorizar el cambio.
+- Refuerza las seis skills y adaptadores de Codex/Copilot: una petición directa de implementación exige comprobar primero especificación, plan y autoridad. Registra decisiones aplazadas y evalúa su impacto.
+- Conserva Sonar y Dependency-Check en implementación según configuración; CI/CD y aprobación remota del PR quedan fuera.
+- La aprobación de publicación se registra por separado del gate técnico. La aceptación conversacional real, el piloto y las mediciones de ahorro de contexto siguen pendientes de evidencia.
+
 ## 3.0.0 — 2026-09-29 — procesos de proyecto y trabajo en equipo
 
 - Proceso configurable para trabajo individual y equipos, identidades estables y trazabilidad de responsabilidades, ramas, excepciones y relevos.
