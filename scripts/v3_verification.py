@@ -13,6 +13,12 @@ def result_basis(model, tasks):
 
 
 def result_current(model, record, tasks):
+    from v31_corrections import unresolved, defect_ids
+    from v31_review import closure_valid
+    if record.data.get("request"):
+        request = model.get(record.data["request"], "request")
+        if unresolved(model, request) or not closure_valid(model, request): return False
+        if record.data.get("known_defects", []) != defect_ids(model, request): return False
     if not tasks or record.data.get("basis") != result_basis(model, tasks): return False
     if subject(model.root, record.data["subject"]["scope"]) != record.data["subject"]: return False
     return all(task_authority(model, t, plan_for(model, t), "execution")["valid"] and evidence_valid(model, t, None) for t in tasks)
@@ -37,9 +43,23 @@ def evidence(root, actor, task_id, tests, outcome, source, artifact, explanation
                    guards={"subject": event["meta"]["data"]["subject"]})
 
 
-def integrate(root, actor, request_id, trusted_root, statement, *, refresh=False):
+def integrate(root, actor, request_id, trusted_root, statement, *, refresh=False, accept_result=False):
     model = load(root).require_valid(); request = model.get(request_id, "request")
     identity = operator(model, actor, "integrate", policy_for(model, request))
+    from v31_review import designated, closure_valid
+    from v31_corrections import unresolved
+    designated(model, request, actor, "integration_validator", "integrate")
+    if unresolved(model, request) or not closure_valid(model, request): raise ContractError("Corrija los pendientes antes de integrar")
+    preceding = []
+    if accept_result and policy_for(model, request).data["acceptance_order"] == "before-integration":
+        from v31_review import overlay
+        from v3_contract import parse
+        import base64
+        packet = accept(root, actor, request_id, statement, _model=model)
+        for path, raw in packet["payload"].items():
+            if path.startswith("docs/lks-sdd/elements/"):
+                preceding += [e.item() for e in parse(base64.b64decode(raw), path)[0]]
+        overlay(model, preceding)
     trusted = load(trusted_root).require_valid()
     branch_check(model, request)
     trusted_git = observe(trusted.root, refs=[request.data["target"]])
@@ -84,13 +104,32 @@ def integrate(root, actor, request_id, trusted_root, statement, *, refresh=False
                     reservations=[t.uid for t in tasks if state(model, t) == "closed-with-reservations"],
                     pr_approval="not-granted", publication="not-performed")
     event["meta"].update(state="observed", nature="fact")
-    return prepare(root, [event], "integration", guards={"git": observe(model.root), "subject": candidate_subject, "expires_at": valid_until(model, tasks),
+    items = preceding + [event]
+    from v31_corrections import defect_ids
+    event["meta"]["data"]["known_defects"] = defect_ids(model, request)
+    from v31_review import config, waivers
+    if config(model, request): event["meta"]["data"]["review_reservations"] = [e.uid for e in waivers(model, request, "integral-review", "close-proposal")]
+    if accept_result and not preceding:
+        from v31_review import overlay
+        from v3_contract import parse
+        import base64
+        overlay(model, items)
+        packet = accept(root, actor, request_id, statement, _model=model)
+        for path, raw in packet["payload"].items():
+            if path.startswith("docs/lks-sdd/elements/"):
+                items += [e.item() for e in parse(base64.b64decode(raw), path)[0]]
+    from v31_review import group_intervention
+    return prepare(root, group_intervention(items), "integration", guards={"git": observe(model.root), "subject": candidate_subject, "expires_at": valid_until(model, tasks),
                    "trusted": {"root": str(trusted.root), "snapshot": trusted.snapshot(), "git": trusted_git}})
 
 
-def accept(root, actor, request_id, statement):
-    model = load(root).require_valid(); request = model.get(request_id, "request")
+def accept(root, actor, request_id, statement, *, _model=None):
+    model = _model or load(root).require_valid(); request = model.get(request_id, "request")
     identity = operator(model, actor, "approve", policy_for(model, request))
+    from v31_review import designated, closure_valid
+    from v31_corrections import unresolved
+    designated(model, request, actor, "functional_validator", "approve")
+    if unresolved(model, request) or not closure_valid(model, request): raise ContractError("Falta resolver correcciones o cerrar la propuesta vigente")
     tasks = [t for t in model.by_kind("task") if t.data.get("request") == request.uid and not t.retired]
     require_process(policy_for(model, request).data, "accept", request_facts(model, request), request.data.get("flags", {}))
     for task in tasks:
@@ -106,6 +145,8 @@ def accept(root, actor, request_id, statement):
                         actor=identity, request=request.uid, receipt=None, subject=subject(model.root, scope), basis=result_basis(model, tasks),
                         reservations=[t.uid for t in tasks if state(model, t) == "closed-with-reservations"], decided_at=now())
         event["meta"].update(state="approved", nature="decision")
+        from v31_corrections import defect_ids
+        event["meta"]["data"]["known_defects"] = defect_ids(model, request)
         return prepare(root, [event], "acceptance-before-integration", guards={"subject": event["meta"]["data"]["subject"], "expires_at": valid_until(model, tasks)})
     receipts = [e for e in model.by_kind("receipt") if e.data.get("purpose") == "integration" and e.data.get("request") == request.uid]
     if not receipts or not statement.strip(): raise ContractError("Antes de aceptar, revisar la integración concreta y expresar la decisión")
@@ -117,4 +158,6 @@ def accept(root, actor, request_id, statement):
                     actor=identity, request=request.uid, receipt=latest.uid, subject=latest.data["subject"], basis=result_basis(model, tasks),
                     reservations=latest.data["reservations"], decided_at=now())
     event["meta"].update(state="approved", nature="decision")
+    from v31_corrections import defect_ids
+    event["meta"]["data"]["known_defects"] = defect_ids(model, request)
     return prepare(root, [event], "acceptance", guards={"subject": latest.data["subject"], "expires_at": valid_until(model, tasks)})

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "method_version",
+    "project_id",
+    "elements"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "3.1"
+    },
+    "method_version": {
+      "const": "3.1.0"
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "elements": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "path",
+          "id",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

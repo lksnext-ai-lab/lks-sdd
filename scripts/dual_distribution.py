@@ -96,7 +96,7 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
             "Load linked workflow references relative to their actual runtime file. "
             "Do not copy or improvise a shorter workflow.\n"
         ).encode("utf-8")
-        if project_schema == "3.0":
+        if project_schema in {"3.0", "3.1"}:
             output[f".github/skills/{name}/SKILL.md"] = (
                 f"---\nname: {name}\ndescription: {text}\n---\n\n"
                 f"Read [host](../../lks-sdd-host.md), then [workflow](../../../{runtime}/skills/{name}/SKILL.md).\n"
@@ -125,12 +125,21 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "Prototype approval is not implementation authorization. Preserve human decisions, "
         "AUTH, EXEC, CKPT, EVID and all existing gates. No automatic commit, push or remote write.\n"
     )
-    if project_schema == "3.0":
+    if project_schema in {"3.0", "3.1"}:
         common = ("# Shared LKS-SDD project contract\n\n"
                   f"Both hosts use `{runtime}` and its six skills. Check runtime-doctor before work.\n"
                   "Markdown is canonical; the index is derived. For every change reconcile SPEC, validate the concrete proposal, "
                   "then complete PLAN/TASK before code. Follow the selected skill and docs/V3-COMMON.md in this runtime. "
                   "Reuse valid decisions; do not migrate or publish implicitly.\n")
+    common += (
+        "Before announcing implementation or editing application code, identify the validated SPEC, "
+        "approved PLAN/TASK and current execution authority covering the actual request, and briefly report those references. "
+        "If coverage is missing or scope changes, use define to record, validate and plan first. "
+        "Reuse valid decisions; never infer missing documents or approvals from 'implement these changes'. "
+        "Record deferred decisions and assess their impact before selecting an independent portion; "
+        "critical unresolved decisions block the affected implementation. Any permitted process exception needs "
+        "explicit competent validation, a reason and traceable scope.\n"
+    )
     for path, content in (("AGENTS.md", common), (".github/copilot-instructions.md",
                            "# LKS-SDD in Copilot\n\nRead `.github/lks-sdd-host.md` for LKS-SDD work.\n"
                            "For every application change, including an existing feature, reconcile the request "
@@ -138,9 +147,9 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
                            "docs/V3-COMMON.md for 3.0 or docs/V2-SPEC-PLAN-TASK.md for 2.0, and report missing coverage.\n"
                            "Use the six skills and the pinned runtime; the installed plugin must respect the project lock.\n")):
         output[path] = f"{BEGIN}\n{content}{END}\n".encode("utf-8")
-    if project_schema == "3.0":
+    if project_schema in {"3.0", "3.1"}:
         output[".github/copilot-instructions.md"] = (
-            f"{BEGIN}\nRead AGENTS.md and .github/lks-sdd-host.md for LKS-SDD 3.0. Use the pinned runtime's six skills "
+            f"{BEGIN}\nRead AGENTS.md and .github/lks-sdd-host.md for LKS-SDD {project_schema}. Use the pinned runtime's six skills "
             f"for SPEC and PLAN/TASK; preserve all gates.\n{END}\n"
         ).encode("utf-8")
     # Lock covers adapters as well as the runtime; it has no absolute paths or user identity.

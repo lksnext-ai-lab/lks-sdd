@@ -8,7 +8,7 @@ from v3_contract import ContractError, INDEX, element, load, canonical
 
 
 def is_v3(root):
-    try: return json.loads((Path(root)/INDEX).read_bytes()).get("schema_version") == "3.0"
+    try: return str(json.loads((Path(root)/INDEX).read_bytes()).get("schema_version", "")).startswith("3.")
     except (OSError, ValueError):
         # A broken/missing index must not route v3 Markdown into an older writer.
         directory = Path(root)/"docs/lks-sdd"
@@ -16,7 +16,7 @@ def is_v3(root):
             for path in directory.rglob("*.md"):
                 if "history" in path.parts or "migrations" in path.parts: continue
                 try:
-                    if b'schema_version: "3.0"' in path.read_bytes()[:256]: return True
+                    if b'schema_version: "3.' in path.read_bytes()[:256]: return True
                 except OSError: continue
         return False
 
@@ -37,25 +37,53 @@ def execute(action, root, data):
     from v3_adoption import inspect, record as adopt
     from v3_lifecycle import review, revoke, checkpoint, reconcile_migrated
     actor = data.get("actor")
+    if action == "configure-collaboration":
+        from v31_review import configure
+        return configure(root, actor, data["collaboration"], data["statement"], requests=data.get("requests", []),
+                         coordination=data.get("coordination"), runtime_bundle=data.get("runtime_bundle"))
+    if action in {"review-proposal", "close-proposal", "review-task", "review-comment", "resolve-comment", "review-exception"}:
+        from v31_review import execute as review_execute
+        return review_execute(action, root, data)
+    if action == "interventions":
+        from v31_guidance import interventions
+        return interventions(load(root).require_valid(), data["request"], actor=actor, offset=data.get("offset", 0), limit=data.get("limit", 20), object_offset=data.get("object_offset", 0))
+    if action == "reject-result":
+        from v31_corrections import reject
+        return reject(root, actor, data["request"], data["statement"], phase=data["phase"], tasks=data["tasks"],
+                      expected=data["expected"], observed=data["observed"], artifact=data["artifact"], requirements=data.get("requirements", []), refresh=data.get("refresh", False))
+    if action == "define-correction":
+        from v31_corrections import define
+        return define(root, actor, data["correction"], data["classification"], data["statement"], data["acceptance"],
+                      tasks=data.get("tasks"), requirements=data.get("requirements"), refresh=data.get("refresh", False))
+    if action == "resolve-defect":
+        from v31_corrections import resolve
+        return resolve(root, actor, data["problem"], data["statement"], refresh=data.get("refresh", False))
+    if action == "prepare-delivery":
+        from v31_corrections import delivery
+        return delivery(root, actor, data["request"], data["statement"], pr_url=data.get("pr_url"), refresh=data.get("refresh", False))
     if action == "init":
         return initialize(root, data["name"], data["actor_name"], data["profile"], data["controls"], data["statement"], target=data["target"], lifecycle=data.get("lifecycle", "evolution"), members=data.get("members"))
     if action == "validate":
         model = load(root)
         return {"status": "valid" if not model.errors else "blocked", "errors": model.errors, "warnings": model.warnings, "elements": len(model.elements), "writes": []}
-    if action == "status": return status(root, request_id=data.get("request"), task_id=data.get("task"), offset=data.get("offset", 0), limit=data.get("limit", 10))
+    if action == "status": return status(root, request_id=data.get("request"), task_id=data.get("task"), offset=data.get("offset", 0), limit=data.get("limit", 10), task_offset=data.get("task_offset", 0), task_limit=data.get("task_limit", 10))
     if action == "trace": return trace(root, data["uid"], offset=data.get("offset", 0), limit=data.get("limit", 20))
     if action == "context": return context(root, data["roots"], data.get("operation", "implement"), comparison=data.get("comparison", False))
-    if action == "readiness": return readiness(root, data["task"], actor, data.get("action", "start"))
+    if action == "readiness":
+        if data.get("request") and not data.get("task"):
+            from v31_guidance import request_readiness
+            return request_readiness(load(root).require_valid(), data["request"], actor, data.get("action", "close-proposal"))
+        return readiness(root, data["task"], actor, data.get("action", "start"))
     if action == "review": return review(root, data["request"], data.get("units"))
     if action == "revoke": return revoke(root, actor, data["decision"], data["reason"])
     if action == "checkpoint": return checkpoint(root, actor, data["task"], data["result"], data.get("pending", []), classification=data.get("classification", "progress"), analysis=data.get("analysis"))
     if action == "migration-reconcile": return reconcile_migrated(root, actor, data["items"], data["statement"])
     if action == "author": return author(root, actor, items(data["items"]))
     if action == "approve": return approve(root, actor, data["units"], data["purpose"], data["statement"], reason=data.get("reason", ""))
-    if action == "authorize-plan": return approve_and_authorize(root, actor, data["plan"], data["statement"])
+    if action == "authorize-plan": return approve_and_authorize(root, actor, data["plan"], data["statement"], review_tasks=data.get("review_tasks", []))
     if action == "governance": return governance(root, actor, items(data["items"]), data["statement"], data["reason"], requests=data.get("requests", []))
     if action in {"start", "resume", "implement", "verify", "close", "pause", "cancel", "reopen"}:
-        return transition(root, actor, data["task"], action, data["reason"], refresh=data.get("refresh", False))
+        return transition(root, actor, data["task"], action, data["reason"], refresh=data.get("refresh", False), review=data.get("review", False), offer=data.get("offer"))
     if action == "exception": return exception(root, actor, data["task"], data["rule"], data["action"], data["reason"], data["expires_at"], revokes=data.get("revokes"))
     if action == "propose-exception": return propose_exception(root, actor, data["task"], data["rule"], data["action"], data["reason"], data["effect"])
     if action == "assign": return assign(root, actor, data["task"], data["recipient"], data["reason"], accept=data.get("accept", False), previous=data.get("previous"))
@@ -64,7 +92,7 @@ def execute(action, root, data):
     if action == "analysis-findings": return findings(root, data["analysis"], offset=data.get("offset", 0), limit=data.get("limit", 20))
     if action == "analysis-run": return run_existing(root, actor, data["tasks"], data["tool"], data["executable"], data["arguments"], retry_of=data.get("retry_of"))
     if action == "evidence": return evidence(root, actor, data["task"], data["tests"], data["outcome"], data["source"], data["artifact"], data["explanation"])
-    if action == "integrate": return integrate(root, actor, data["request"], data["trusted_root"], data["statement"], refresh=data.get("refresh", False))
+    if action == "integrate": return integrate(root, actor, data["request"], data["trusted_root"], data["statement"], refresh=data.get("refresh", False), accept_result=data.get("accept_result", False))
     if action == "accept": return accept(root, actor, data["request"], data["statement"])
     if action == "adopt-inspect": return inspect(root, data["paths"], data["purpose"])
     if action == "adopt": return adopt(root, actor, data["inspection"], data["observations"], data["confirmed_intent"], data["statement"])
@@ -89,7 +117,8 @@ def execute(action, root, data):
     raise ContractError("Operación v3 desconocida: " + action)
 
 
-ACTIONS = ("init validate status trace context readiness review revoke checkpoint migration-reconcile author approve authorize-plan governance start resume implement verify close pause cancel reopen "
+ACTIONS = ("configure-collaboration review-proposal close-proposal review-task review-comment resolve-comment review-exception interventions reject-result define-correction resolve-defect prepare-delivery "
+           "init validate status trace context readiness review revoke checkpoint migration-reconcile author approve authorize-plan governance start resume implement verify close pause cancel reopen "
            "exception propose-exception assign handoff analysis analysis-run analysis-findings evidence integrate accept adopt-inspect adopt migration-diagnose migration-preview "
            "migration-continuation old-branch catalog history reindex apply recover rollback").split()
 
@@ -120,7 +149,7 @@ def main(argv=None, command=None):
             result = recover(root, args.authorize, rollback=action == "rollback", receipt=args.receipt)
         else:
             result = execute(action, root, data)
-            if args.apply:
+            if args.apply and result.get("status") != "already-recorded":
                 if "preview" not in result: raise ContractError("Esta operación es de solo lectura o ya está registrada")
                 applied = apply(root, result, result["preview"]["preview_hash"])
                 result = {**applied, "summary": result["summary"], "next": "Consulte el estado actualizado y continúe el siguiente paso ya autorizado"}

@@ -9,7 +9,7 @@ Lea el formato de `.lks-sdd/project.json` y respete el runtime fijado por el pro
 No migre por cargar esta skill. Si falta el índice, inspeccione el Markdown antes de
 asumir un proyecto nuevo. Una garantía desconocida bloquea solo el trabajo afectado.
 
-- Para formato **3.0**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
+- Para formato **3.0 o 3.1**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
   [esta operación](references/v3.md).
 - Para **2.0 o 1.5**, lea solo [procedimiento conservado](references/v2-and-legacy.md).
 - Para un proyecto sin SDD, confirme configuración y use v3 si se solicita iniciar

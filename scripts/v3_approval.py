@@ -42,7 +42,12 @@ def approved(model, identifiers, purpose="proposal"):
                 recorded = decision.data["descriptor"]["units"]
                 if all(recorded.get(k) == v for k, v in dependencies.items()): covered[key] = decision.uid
             except ContractError: continue
-    return {"valid": set(covered) == set(expected), "covered": covered,
+    valid = set(covered) == set(expected)
+    if purpose == "proposal":
+        from v31_review import closure_valid
+        for request in model.by_kind("request"):
+            if set(request.relations.get("proposal", [])) & set(expected) and not closure_valid(model, request): valid = False
+    return {"valid": valid, "covered": covered,
             "pending": sorted(set(expected)-set(covered)), "descriptor": expected}
 
 

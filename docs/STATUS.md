@@ -1,9 +1,14 @@
 # Estado actual de LKS-SDD
 
-La implementación 3.0.0 añade contrato consumidor **3.0** y método **3.0.0**.
-Los proyectos v2 permanecen en su formato/método hasta conversión explícita.
-La versión del plugin, el método y el schema son identidades distintas.
-El seguimiento de esta evolución está en [el registro de ejecución](plans/lks-sdd-v3/PROGRESS.md).
+La implementación 3.1.0 añade el recorrido integral optativo **3.1** / método
+**3.1.0**. El formato predeterminado sigue siendo **3.0** / método **3.0.0**.
+Los proyectos existentes mantienen su formato, método y runtime hasta una
+actualización explícita. La versión del plugin, el método y el schema son distintos.
+El seguimiento de esta evolución y las pruebas focales están en
+[el plan integral](plans/integral-review/PLAN.md); la autorización de publicación,
+en [DEC-V31-001](plans/integral-review/AUTHORIZATION.md).
+La integración, gate y publicación se acreditan con los commits, ejecuciones y
+assets de la release, no con un estado declarado antes de ejecutarlos.
 
 ## Estado técnico
 
