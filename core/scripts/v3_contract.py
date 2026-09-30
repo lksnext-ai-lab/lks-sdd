@@ -12,6 +12,7 @@ import uuid
 from v2_contract import ContractError, canonical, fingerprint, path_at, read_bytes, sha
 
 VERSION, METHOD = "3.0", "3.0.0"
+METHODS = {"3.0.0": "3.0", "3.1.0": "3.1"}
 DOCS = "docs/lks-sdd"
 HISTORY = DOCS + "/00-control/history"
 INDEX = ".lks-sdd/project.json"
@@ -44,9 +45,9 @@ def element(kind, title, body, *, identifier=None, **data):
                      "relations": {}, "data": data}, "body": body}
 
 
-def render(item):
+def render(item, version=VERSION):
     # Body bytes, including line endings, are preserved. No semantic normalization.
-    return (f'---\nschema_version: "{VERSION}"\nartifact_type: "{item["meta"]["kind"]}"\n---\n\n'
+    return (f'---\nschema_version: "{version}"\nartifact_type: "{item["meta"]["kind"]}"\n---\n\n'
             + "<!-- lks-sdd: " + canonical(item["meta"]).decode() + " -->\n"
             + item["body"] + "\n<!-- /lks-sdd -->\n").encode("utf-8")
 
@@ -93,8 +94,9 @@ class Element:
 
 def parse(raw, path):
     text = raw.decode("utf-8")
-    if not re.search(r'^schema_version: [\"\']?3\.0[\"\']?\r?$', text, re.M):
-        raise ContractError("Se esperaba Markdown 3.0: " + path)
+    version_match = re.search(r'^schema_version: [\"\']?(3\.[01])[\"\']?\r?$', text, re.M)
+    if not version_match:
+        raise ContractError("Se esperaba Markdown 3.0/3.1: " + path)
     matches = list(BLOCK.finditer(text))
     if len(matches) != text.count("<!-- lks-sdd:") or len(matches) != text.count("<!-- /lks-sdd -->"):
         raise ContractError("Bloques incompletos: " + path)
@@ -102,7 +104,7 @@ def parse(raw, path):
     from v3_schema import validate
     for match in matches:
         meta = json.loads(match[1])
-        validate("element", meta)
+        validate("element", meta, version_match[1])
         uid(meta["uid"])
         if meta["kind"] not in KINDS or meta["state"] not in STATES:
             raise ContractError("Tipo o estado desconocido: " + path)
@@ -179,7 +181,8 @@ class Model:
         return values[0]
 
     def index(self):
-        return {"schema_version": VERSION, "method_version": METHOD, "project_id": self.project.uid,
+        method = self.project.data["method_version"]
+        return {"schema_version": METHODS[method], "method_version": method, "project_id": self.project.uid,
                 "elements": {e.uid: {"path": e.path, "id": e.id, "kind": e.kind} for e in self.elements.values()}}
 
 
@@ -201,7 +204,7 @@ def load(root):
         except (ValueError, UnicodeError, KeyError) as exc: model.errors.append(str(exc))
     try:
         project = model.project
-        if project.data.get("method_version") != METHOD:
+        if project.data.get("method_version") not in METHODS:
             raise ContractError("Método desconocido; conserve el origen sin convertir")
         for e in model.elements.values():
             for ref in e.targets():
@@ -210,13 +213,15 @@ def load(root):
                     model.warnings.append("Dependencia entre proyectos requiere evidencia explícita: " + ref)
                 elif target[-1] not in model.elements:
                     model.errors.append("Referencia no resuelta: " + ref)
+        from v31_review import validate_model
+        validate_model(model)
     except ContractError as exc: model.errors.append(str(exc))
     index = path_at(root, INDEX, missing=True)
     if index.exists():
         model.hashes[INDEX] = sha(read_bytes(root, INDEX))
         try:
             value = json.loads(read_bytes(root, INDEX))
-            if value.get("schema_version") != VERSION: model.errors.append("Índice de otro formato; migración incompleta")
+            if value.get("schema_version") != METHODS.get(model.project.data.get("method_version")): model.errors.append("Índice de otro formato; migración incompleta")
             elif model.elements and value != model.index(): model.warnings.append("Índice desactualizado; reconstruible desde Markdown")
         except (ValueError, ContractError): model.warnings.append("Índice ilegible; reconstruible desde Markdown")
     return model

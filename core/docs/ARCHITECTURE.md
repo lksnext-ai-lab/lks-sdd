@@ -1,7 +1,7 @@
-# Arquitectura y alcance de LKS-SDD 3.0.0
+# Arquitectura y alcance de LKS-SDD 3.1.0
 
 LKS-SDD es un plugin `skills-only` para Codex desktop y GitHub Copilot en VS Code
-Agent. La versión 3.0.0 añade contrato consumidor 3.0 y método 3.0.0, conservando lectores y procedimientos 2.0/1.5. Los Markdown
+Agent. La versión 3.1.0 conserva el contrato predeterminado 3.0 / método 3.0.0 y añade el recorrido integral optativo 3.1 / método 3.1.0, conservando lectores y procedimientos 2.0/1.5. Los Markdown
 del proyecto consumidor son la fuente de verdad; `.lks-sdd/project.json` es un
 índice operativo y no sustituye decisiones, tareas ni evidencia.
 

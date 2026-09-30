@@ -1,6 +1,6 @@
 ---
 name: lks-sdd-define
-description: "Use with GitHub Copilot. Define or evolve an LKS-SDD proposal, obtain explicit functional and technical validation, and then prepare covered plans and tasks."
+description: "Use with GitHub Copilot. Specify new functionality or changes lacking validated LKS-SDD coverage; obtain functional and technical validation, then prepare covered plans and tasks."
 ---
 
 Resolve the installed plugin root from this file's location, not cwd.

@@ -115,12 +115,20 @@ def plan(bundle, destination, host, remove=False, *, contract_transition=None):
     if remove and previous is None:
         raise ValueError("No managed installation to remove")
     metadata, payload = ({}, {}) if remove else load_payload(bundle, host)
+    if not remove and host == "copilot" and contract_transition == ("3.0", "3.1"):
+        # Only the explicit migrator invokes this path, using the verified bundle's core.
+        from dual_distribution import project_files
+        incoming_lock = json.loads(payload[".lks-sdd/distribution-lock.json"])
+        prefix = incoming_lock["runtime"] + "/"
+        core = {name[len(prefix):]: raw for name, raw in payload.items() if name.startswith(prefix)}
+        payload = project_files(core, incoming_lock["source"], incoming_lock["channel"],
+                                plugin_entrypoints=incoming_lock.get("entrypoints") == "plugin", project_schema="3.1")
     if not remove and host == "copilot" and (destination / ".lks-sdd/project.json").is_file():
         origin = json.loads(read(destination, ".lks-sdd/project.json"))["schema_version"]
         incoming = json.loads(payload[".lks-sdd/distribution-lock.json"])["project_schema"]
         if origin != incoming and contract_transition != (origin, incoming):
             raise ValueError("Changing project contract requires the explicit v2 migrator, not runtime setup")
-        if contract_transition is not None and contract_transition != ("2.0", "3.0"):
+        if contract_transition is not None and contract_transition not in {("2.0", "3.0"), ("3.0", "3.1")}:
             raise ValueError("Unsupported explicit runtime cutover")
     if previous and (remove or old.get("runtime_digest") != metadata.get("runtime_digest")):
         handoffs = destination / ".lks-sdd/handoffs/visual"

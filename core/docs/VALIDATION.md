@@ -36,6 +36,16 @@ La comprobación automática de una PR es solo el contrato del plugin:
 python -B -X utf8 scripts\validate_plugin_contract.py .
 ```
 
+## Desarrollo del recorrido integral
+
+Las pruebas focales de `tests/test_v31_review.py` comprueban decisiones agrupadas,
+revisión conjunta, encargos, correcciones, excepciones y orientación de solo lectura.
+`tests/test_v3_distribution.py` comprueba adopción 3.0 → 3.1 con runtime fijado y
+rollback. Son comprobaciones de desarrollo de este cambio; no acreditan aceptación
+humana de Codex/Copilot ni modifican la puerta de publicación descrita aquí.
+La implementación y su evidencia se documentan en
+[el plan de revisión integral](plans/integral-review/PLAN.md).
+
 ## Release estable
 
 Ejecute una vez desde un checkout limpio del commit ya integrado. El comando no acepta
@@ -75,7 +85,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v3.0.0.json `
+  --release-approval quality\release-approval-v3.1.0.json `
   --output $releaseGate
 ```
 
