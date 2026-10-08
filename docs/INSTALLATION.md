@@ -2,6 +2,11 @@
 
 ## Antes de actualizar a v3
 
+Esta guía describe la release publicada 3.1.0. El candidato de eficiencia aún no
+está publicado: exigirá corte explícito a método 3.1.0 y runtime con capacidades
+actuales, también sin lock previo. Su actualización recuperable se documenta en
+[V3-MIGRATION](V3-MIGRATION.md); instalar el plugin personal no ejecuta ese corte.
+
 Descarga los assets de [v3.1.0](https://github.com/lksnext-ai-lab/lks-sdd/releases/tag/v3.1.0)
 y comprueba `SHA256SUMS`. El paquete personal, el runtime del proyecto y el contrato
 documental son tres cosas distintas. Un proyecto 1.5 conserva sus fuentes y runtime

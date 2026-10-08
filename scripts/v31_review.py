@@ -1,4 +1,5 @@
 """Integral review: exact subjects, named people and reusable human decisions."""
+from v3_presentation_guard import reviewed
 import copy
 
 from v3_contract import ContractError, Element, element, fingerprint, load, location, now
@@ -83,8 +84,13 @@ def validate_model(model):
             if d["purpose"] == "development-defect":
                 if d.get("phase") not in {"integration", "acceptance", "external"} or not d.get("tasks"):
                     raise ContractError("Falta fase o tareas del defecto")
-                for key in ("expected", "observed", "artifact", "artifact_sha256", "subject", "actor"):
+                for key in ("expected", "observed", "subject", "actor"):
                     if not d.get(key): raise ContractError("Defecto incompleto: " + key)
+                if d.get("artifact") or d.get("artifact_sha256"):
+                    if not d.get("artifact") or not d.get("artifact_sha256") or d.get("evidence_pending"):
+                        raise ContractError("Evidencia del defecto incompleta o contradictoria")
+                elif d.get("evidence_pending") is not True:
+                    raise ContractError("Declare la evidencia pendiente del desacuerdo")
 
 
 def roster(model, request):
@@ -109,8 +115,9 @@ def designated(model, request, actor, role, permission):
     return identity
 
 
-def proposal_basis(model, request):
-    return {"descriptor": descriptor(model, proposal_ready(model, request)),
+def proposal_basis(model, request, *, incomplete=False):
+    units = request.relations.get("proposal", []) if incomplete else proposal_ready(model, request)
+    return {"descriptor": descriptor(model, units) if units else {"units": {}, "digest": None},
             "coordination": roster(model, request), "policy": policy_for(model, request).digest()}
 
 
@@ -138,9 +145,14 @@ def group_intervention(items):
     return items
 
 
-def overlay(model, items):
+def overlay(model, items, *, objects=None):
+    from types import SimpleNamespace
+    from v3_inventories import resolve
+    cache = {}
     for item in items:
-        e = Element(item["meta"], item["body"], location(item)); model.elements[e.uid] = e
+        e = Element(item["meta"], item["body"], location(item))
+        resolve(SimpleNamespace(root=model.root, hashes={}), e, cache, objects=objects)
+        model.elements[e.uid] = e
 
 
 def review_event(model, request, actor, statement, outcome="approved"):
@@ -148,7 +160,7 @@ def review_event(model, request, actor, statement, outcome="approved"):
     if identity["member"] not in {r["member"] for r in reviewers(model, request)}:
         raise ContractError("No está designado para revisar esta propuesta")
     if outcome not in {"approved", "changes-requested"}: raise ContractError("Resultado de revisión inválido")
-    basis = proposal_basis(model, request)
+    basis = proposal_basis(model, request, incomplete=outcome == "changes-requested")
     previous = vote_tip(model, "proposal-review", identity["member"], basis)
     return event("proposal-review", identity, request, statement, outcome=outcome, basis=basis,
                  previous=previous.uid if previous else None, dispositions=dispositions(model, request, identity["member"]))
@@ -254,6 +266,7 @@ def task_reviewed(model, task, actor):
     return bool(last and last.data["outcome"] == "approved")
 
 
+@reviewed()
 def execute(action, root, data):
     model = load(root).require_valid(); actor = data.get("actor")
     request = model.get(data["request"], "request")
@@ -263,7 +276,7 @@ def execute(action, root, data):
     coordination(model, request, action, refresh=data.get("refresh", False))
     statement = data.get("statement", ""); items = []
     if action == "review-proposal":
-        current = review_status(model, request)["conformities"].get(actor)
+        current = review_status(model, request)["conformities"].get(actor) if data.get("outcome", "approved") == "approved" else None
         if current and data.get("outcome", "approved") == "approved":
             return {"status": "already-recorded", "decisions": [current], "writes": []}
         items = [review_event(model, request, actor, statement, data.get("outcome", "approved"))]
@@ -291,8 +304,8 @@ def execute(action, root, data):
         identity = operator(model, actor, "approve", policy_for(model, request))
         if identity["member"] not in {r["member"] for r in reviewers(model, request)}: raise ContractError("Revisor no designado")
         target = model.get(data["target"])
-        if target.uid not in proposal_basis(model, request)["descriptor"]["units"]: raise ContractError("Objeto fuera de la propuesta integral")
-        items = [event("review-comment", identity, request, statement, basis=proposal_basis(model, request),
+        if target.uid not in proposal_basis(model, request, incomplete=True)["descriptor"]["units"]: raise ContractError("Objeto fuera de la propuesta integral")
+        items = [event("review-comment", identity, request, statement, basis=proposal_basis(model, request, incomplete=True),
                        target=target.uid, blocking=bool(data.get("blocking", True)), critical=bool(data.get("critical", False)))]
     elif action == "resolve-comment":
         identity = designated(model, request, actor, "responsible", "approve")
@@ -302,7 +315,7 @@ def execute(action, root, data):
             raise ContractError("Resolución existente; revóquela explícitamente antes de sustituirla")
         if data.get("treatment") not in {"incorporated", "dismissed"}: raise ContractError("Tratamiento desconocido")
         items = [event("comment-resolution", identity, request, statement, comment=comment.uid,
-                       treatment=data["treatment"], basis=proposal_basis(model, request), outcome="approved")]
+                       treatment=data["treatment"], basis=proposal_basis(model, request, incomplete=True), outcome="approved")]
     elif action == "review-exception":
         identity = operator(model, actor, "exception", policy_for(model, request))
         if data.get("rule") != "integral-review" or data.get("action") != "close-proposal": raise ContractError("Excepción de revisión no admitida")
@@ -319,7 +332,9 @@ def execute(action, root, data):
     return prepare(root, group_intervention(items), action, guards=guards)
 
 
-def configure(root, actor, collaboration, statement, *, requests=(), coordination=None, runtime_bundle=None):
+@reviewed('configure-collaboration')
+def configure(root, actor, collaboration, statement, *, requests=(), coordination=None, runtime_bundle=None,
+              pin_runtime=False, packet_directory=None):
     """Explicit 3.0 -> 3.1 adoption, also used for subsequent governance."""
     model = load(root).require_valid(); operator(model, actor, "govern")
     validate_config(collaboration)
@@ -344,7 +359,11 @@ def configure(root, actor, collaboration, statement, *, requests=(), coordinatio
     record["meta"].update(state="approved", nature="decision"); items.append(record)
     changes = {}; guards = {}
     lock = model.root / ".lks-sdd/distribution-lock.json"
-    if lock.exists() and model.project.data["method_version"] == "3.0.0":
+    if pin_runtime:
+        from v3_current import runtime_changes
+        changes = runtime_changes(root, runtime_bundle, model.index()["schema_version"])
+        guards["target_runtime"] = True
+    elif lock.exists() and model.project.data["method_version"] == "3.0.0":
         if not runtime_bundle: raise ContractError("Incluya el bundle del runtime compatible en la adopción explícita")
         import importlib.util
         from pathlib import Path
@@ -353,4 +372,4 @@ def configure(root, actor, collaboration, statement, *, requests=(), coordinatio
         install = installer.plan(Path(runtime_bundle), model.root, "copilot", contract_transition=("3.0", "3.1"))
         changes = {e["path"]: bytes.fromhex(e["content"]) if e["content"] is not None else None for e in install["changes"]}
         guards["target_runtime"] = True
-    return prepare(root, items, "configure-collaboration", changes=changes, guards=guards)
+    return prepare(root, items, "configure-collaboration", changes=changes, guards=guards, packet_directory=packet_directory)

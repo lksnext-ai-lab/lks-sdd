@@ -109,7 +109,8 @@ def assess_strict(code_base: Path, approved_root: Path, proposed_root: Path, tas
             blockers.append("EXEC contract basis is stale")
         if execution.meta.get("basis_algorithm") != "spec-plan-task/1":
             blockers.append("EXEC lacks the current basis algorithm")
-        if execution.meta.get("baseline_files") != before:
+        from content_store import inventory
+        if inventory(approved.root, execution.meta, "baseline_files") != before:
             blockers.append("EXEC was not recorded over the trusted code baseline")
         if authorization_id not in execution.targets("authorizes"):
             blockers.append("EXEC does not cite the current AUTH")
@@ -120,8 +121,8 @@ def assess_strict(code_base: Path, approved_root: Path, proposed_root: Path, tas
             blockers.append("Candidate lacks approved EXEC record: " + execution_id)
         else:
             candidate_execution = candidate.elements[execution_id]
-            immutable = ("uid", "started_at", "contract_fingerprint", "baseline_files",
-                         "basis_algorithm", "specification_digest", "planning_digest", "source_hashes")
+            immutable = ("uid", "started_at", "contract_fingerprint", "baseline_files", "baseline_files_ref",
+                         "basis_algorithm", "specification_digest", "planning_digest", "source_hashes", "source_hashes_ref")
             if (any(candidate_execution.meta.get(key) != execution.meta.get(key) for key in immutable)
                     or candidate_execution.targets("implements") != execution.targets("implements")
                     or candidate_execution.targets("authorizes") != execution.targets("authorizes")):

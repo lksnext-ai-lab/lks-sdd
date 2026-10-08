@@ -62,6 +62,7 @@ class Element:
     body: str
     path: str
     line: int = 1
+    resolved_data: dict | None = field(default=None, repr=False)
 
     @property
     def uid(self): return self.meta["uid"]
@@ -70,7 +71,7 @@ class Element:
     @property
     def kind(self): return self.meta["kind"]
     @property
-    def data(self): return self.meta["data"]
+    def data(self): return self.resolved_data if self.resolved_data is not None else self.meta["data"]
     @property
     def relations(self): return self.meta["relations"]
     @property
@@ -178,6 +179,8 @@ class Model:
         values, _ = parse(raw, path)
         if len(values) != 1 or values[0].uid != current.uid or values[0].digest() != digest:
             raise ContractError("Snapshot aprobado no recuperable")
+        from v3_inventories import resolve
+        resolve(self, values[0], {})
         return values[0]
 
     def index(self):
@@ -189,7 +192,12 @@ class Model:
 def load(root):
     root = Path(root).resolve()
     model = Model(root)
+    from v2_storage import VALIDATING, PENDING
+    if (root/PENDING).exists() and not VALIDATING.get():
+        model.errors.append("Interrupted transaction: recover or rollback before normal operations")
+        return model
     total = 0
+    inventory_cache = {}
     for path in document_paths(root):
         try:
             raw = read_bytes(root, path)
@@ -201,6 +209,8 @@ def load(root):
             for e in values:
                 if e.uid in model.elements: raise ContractError("Identidad duplicada: " + e.uid)
                 model.elements[e.uid] = e
+                from v3_inventories import resolve
+                resolve(model, e, inventory_cache)
         except (ValueError, UnicodeError, KeyError) as exc: model.errors.append(str(exc))
     try:
         project = model.project

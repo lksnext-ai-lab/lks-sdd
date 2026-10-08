@@ -1,3 +1,4 @@
+from presentation_test_support import present, technical_solution
 import copy
 import json
 from pathlib import Path
@@ -22,18 +23,18 @@ class IntegrationTests(ProjectFixture):
         request = element("request", "Partes separadas", "Propuesta funcional y técnica con revisiones independientes.")
         common = {"request": request["meta"]["uid"], "objective": "Saludo", "included": ["app.py"], "excluded": [], "impact": "Módulo delimitado", "acceptance": ["Saludo acordado"]}
         functional = element("proposal", "Comportamiento", "La aplicación devuelve el saludo documentado conservando el resto del comportamiento.", part="functional", behavior="Devuelve Hola", **common)
-        technical = element("proposal", "Solución", "Se modifica la función existente conservando su interfaz pública y las dependencias.", part="technical", solution="Función existente", **common)
+        technical = element("proposal", "Solución", "Se modifica la función existente conservando su interfaz pública y las dependencias.", part="technical", solution=technical_solution(), **common)
         request["meta"]["relations"] = {"proposal": [functional["meta"]["uid"], technical["meta"]["uid"]]}
         commit_packet(self.root, author(self.root, self.actor, [request, functional, technical]))
-        commit_packet(self.root, approve(self.root, self.actor, [functional["meta"]["uid"]], "proposal", "Acepto el comportamiento funcional"))
+        commit_packet(self.root, present(approve, self.root, self.actor, [functional["meta"]["uid"]], "proposal", "Acepto el comportamiento funcional"))
         with self.assertRaises(ContractError): proposal_ready(load(self.root), load(self.root).get(request["meta"]["uid"]), [functional["meta"]["uid"]])
-        commit_packet(self.root, approve(self.root, self.actor, [technical["meta"]["uid"]], "proposal", "Acepto la solución técnica"))
+        commit_packet(self.root, present(approve, self.root, self.actor, [technical["meta"]["uid"]], "proposal", "Acepto la solución técnica"))
         changed = copy.deepcopy(load(self.root).get(technical["meta"]["uid"]).item()); changed["meta"]["revision"] += 1
         changed["body"] += " Se extrae una función auxiliar interna sin alterar la interfaz."
         commit_packet(self.root, author(self.root, self.actor, [changed]))
         self.assertTrue(approved(load(self.root), [functional["meta"]["uid"]])["valid"])
         self.assertFalse(approved(load(self.root), [technical["meta"]["uid"]])["valid"])
-        commit_packet(self.root, approve(self.root, self.actor, [technical["meta"]["uid"]], "proposal", "Acepto únicamente la revisión técnica"))
+        commit_packet(self.root, present(approve, self.root, self.actor, [technical["meta"]["uid"]], "proposal", "Acepto únicamente la revisión técnica"))
         self.assertTrue(approved(load(self.root), request["meta"]["relations"]["proposal"])["valid"])
 
     def test_available_dependency_can_continue_while_verified_dependency_waits(self):
@@ -43,7 +44,7 @@ class IntegrationTests(ProjectFixture):
         model = load(self.root); policy = copy.deepcopy(model.get(model.project.data["policy"]).item()); policy["meta"]["revision"] += 1
         policy["meta"]["data"]["controls"]["sonar"] = {"mode": "required", "reason": "Resultado terminal pendiente", "executor": "existing-report", "scope": ["app.py"], "timeout_seconds": 30, "max_retries": 1}
         policy["meta"]["data"]["controls"]["sonar"]["availability"] = {"state": "available", "source": "Exportador existente de fixture", "phase": "implementation"}
-        commit_packet(self.root, governance(self.root, self.actor, [policy], "Acepto el control durante implementación", "Verificar la independencia de tareas"))
+        commit_packet(self.root, present(governance, self.root, self.actor, [policy], "Acepto el control durante implementación", "Verificar la independencia de tareas"))
         self.plan()
         model = load(self.root)
         consumer = element("task", "Consumir resultado", "Comprobar el artefacto disponible sin modificar su contrato.", request=self.req,
@@ -56,7 +57,7 @@ class IntegrationTests(ProjectFixture):
         commit_packet(self.root, author(self.root, self.actor, [consumer, strict, plan]))
         model = load(self.root)
         self.assertTrue(task_authority(model, model.get(self.task), model.get(self.plan_id), "execution")["valid"])
-        commit_packet(self.root, approve_and_authorize(self.root, self.actor, self.plan_id, "Autorizo las nuevas tareas del mismo contrato"))
+        commit_packet(self.root, present(approve_and_authorize, self.root, self.actor, self.plan_id, "Autorizo las nuevas tareas del mismo contrato"))
         self.advance("start"); (self.root/"app.py").write_text("answer = 42\n"); self.advance("implement")
         model = load(self.root)
         self.assertFalse(dependencies(model, model.get(consumer["meta"]["uid"])))
@@ -112,9 +113,9 @@ class IntegrationTests(ProjectFixture):
             commit_packet(self.root, evidence(self.root, self.actor, self.task, ["test_saludo"], "passed", "automated", artifact.relative_to(self.root).as_posix(), "Ejecución local del escenario"))
             self.advance("verify"); self.advance("close")
             self.assertFalse([r for r in load(self.root).by_kind("receipt") if r.data.get("purpose") == "integration"])
-            commit_packet(self.root, integrate(self.root, self.actor, self.req, trusted, "He revisado el resultado conjunto y su compatibilidad"))
+            commit_packet(self.root, present(integrate, self.root, self.actor, self.req, trusted, "He revisado el resultado conjunto y su compatibilidad"))
             self.assertFalse([d for d in load(self.root).by_kind("decision") if d.data.get("purpose") == "acceptance"])
-            commit_packet(self.root, accept(self.root, self.actor, self.req, "Acepto el resultado funcional concreto"))
+            commit_packet(self.root, present(accept, self.root, self.actor, self.req, "Acepto el resultado funcional concreto"))
             last = status(self.root)["requests"][0]["steps"][-1]
             self.assertEqual("completed", last["state"])
 

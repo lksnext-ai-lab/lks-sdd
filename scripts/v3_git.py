@@ -43,7 +43,7 @@ def observe(root, *, refs=(), remote=None, refresh=False):
 
 def subject(root, scope):
     root = Path(root).resolve()
-    if not scope or any(not isinstance(x, str) or not x.strip("/") for x in scope):
+    if not scope or len(scope) > 20000 or len(scope) != len(set(scope)) or any(not isinstance(x, str) or not x.strip("/") for x in scope):
         raise ContractError("Declare las rutas de código/artefacto cubiertas")
     files = {}
     for relative in scope:
@@ -60,6 +60,7 @@ def subject(root, scope):
                     rel = (Path(directory) / name).relative_to(root).as_posix()
                     files[rel] = sha(read_bytes(root, rel, limit=64 * 1024 * 1024))
                     if len(files) > 20000: raise ContractError("Sujeto demasiado amplio")
+        if len(files) > 20000: raise ContractError("Sujeto demasiado amplio")
     return {"scope": sorted(scope), "files": dict(sorted(files.items())), "digest": fingerprint(files)}
 
 

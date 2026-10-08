@@ -4,6 +4,16 @@ Estado inicial: **not-run**. La aceptación de publicación solicitada por el us
 en [DEC-V3-002](plans/lks-sdd-v3/AUTHORIZATION.md) no es una transcripción de uso
 con personas. TASK-V3-017 permanece abierta hasta obtener estas observaciones.
 
+La mejora de presentaciones del 2026-10-08 tiene comprobación técnica y una revisión
+independiente del Markdown por un agente sobre proyectos temporales. No sustituye
+la observación humana ni la ejecución real de Copilot. Su evidencia está en
+[la implementación](plans/specification-review-presentation/IMPLEMENTATION.md).
+Al observarla, comprobar: título y apartados; detalle por componente; asociación de
+tarea, responsable y evidencia; conservación de límites y negaciones; reutilización
+de decisiones; cambio de evento y recuperación de fuentes tras compactación. Contar
+lecturas, consultas, respuestas, reintentos y correcciones de la tarea completa,
+separando texto de instrucciones, contenido del proyecto y transporte de herramientas.
+
 Se ha solicitado disponibilidad de un proyecto de prueba y un participante en
 Copilot. No se presume esa disponibilidad ni se atribuye a fixtures la observación
 de Sonar, Dependency-Check o identidad corporativa reales.

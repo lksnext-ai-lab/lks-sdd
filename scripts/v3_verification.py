@@ -1,4 +1,5 @@
 """Typed evidence and integration remain separate from implementation and acceptance."""
+from v3_presentation_guard import reviewed
 from v3_contract import ContractError, DOCS, element, load, now, read_bytes, sha
 from v3_policy import operator, policy_for, require_process
 from v3_git import subject, coordination, integration_guard, observe, branch_check
@@ -43,6 +44,7 @@ def evidence(root, actor, task_id, tests, outcome, source, artifact, explanation
                    guards={"subject": event["meta"]["data"]["subject"]})
 
 
+@reviewed('integrate')
 def integrate(root, actor, request_id, trusted_root, statement, *, refresh=False, accept_result=False):
     model = load(root).require_valid(); request = model.get(request_id, "request")
     identity = operator(model, actor, "integrate", policy_for(model, request))
@@ -54,12 +56,13 @@ def integrate(root, actor, request_id, trusted_root, statement, *, refresh=False
     if accept_result and policy_for(model, request).data["acceptance_order"] == "before-integration":
         from v31_review import overlay
         from v3_contract import parse
-        import base64
+        from v3_packet import InlinePayload
         packet = accept(root, actor, request_id, statement, _model=model)
-        for path, raw in packet["payload"].items():
+        payload = InlinePayload(packet)
+        for path in payload:
             if path.startswith("docs/lks-sdd/elements/"):
-                preceding += [e.item() for e in parse(base64.b64decode(raw), path)[0]]
-        overlay(model, preceding)
+                preceding += [e.item() for e in parse(payload[path], path)[0]]
+        overlay(model, preceding, objects=payload)
     trusted = load(trusted_root).require_valid()
     branch_check(model, request)
     trusted_git = observe(trusted.root, refs=[request.data["target"]])
@@ -123,6 +126,7 @@ def integrate(root, actor, request_id, trusted_root, statement, *, refresh=False
                    "trusted": {"root": str(trusted.root), "snapshot": trusted.snapshot(), "git": trusted_git}})
 
 
+@reviewed('accept')
 def accept(root, actor, request_id, statement, *, _model=None):
     model = _model or load(root).require_valid(); request = model.get(request_id, "request")
     identity = operator(model, actor, "approve", policy_for(model, request))

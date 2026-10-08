@@ -1,4 +1,5 @@
 """Negative outcomes are facts, never fabricated positive integration receipts."""
+from v3_presentation_guard import reviewed
 from v3_contract import ContractError, element, load, now, read_bytes, sha, Element, location
 from v3_storage import prepare
 from v3_git import subject, branch_check, coordination
@@ -31,7 +32,7 @@ def unresolved(model, request, task=None, *, external=False):
             d = resolution.data
             if d.get("problem") != p.uid or d.get("problem_basis") != p.digest(): continue
             try:
-                if sha(read_bytes(model.root, p.data["artifact"])) != p.data["artifact_sha256"]:
+                if p.data.get("artifact") and sha(read_bytes(model.root, p.data["artifact"])) != p.data["artifact_sha256"]:
                     raise ContractError("La evidencia original del defecto cambió")
                 role = "functional_validator" if p.data["phase"] == "acceptance" else "integration_validator"
                 designated(model, request, d["actor"]["member"], role, "approve" if role == "functional_validator" else "integrate")
@@ -58,37 +59,39 @@ def unresolved(model, request, task=None, *, external=False):
     return pending
 
 
-def reject(root, actor, request_id, statement, *, phase, tasks, expected, observed, artifact, requirements=(), refresh=False):
+def reject(root, actor, request_id, statement, *, phase, tasks, expected, observed, artifact=None, requirements=(), refresh=False):
     model = load(root).require_valid(); request = model.get(request_id, "request")
     coordination(model, request, "reject-result", refresh=refresh)
     if not config(model, request): raise ContractError("El resultado negativo tipado requiere recorrido integral")
     if phase not in {"integration", "acceptance", "external"}: raise ContractError("Fase de rechazo inválida")
     identity = designated(model, request, actor, "functional_validator" if phase == "acceptance" else "integration_validator",
                           "approve" if phase == "acceptance" else "integrate")
-    if not all(isinstance(x, str) and x.strip() for x in (statement, expected, observed, artifact)) or not tasks:
-        raise ContractError("Describa esperado, observado, evidencia y tareas afectadas")
+    if not all(isinstance(x, str) and x.strip() for x in (statement, expected, observed)) or not tasks:
+        raise ContractError("Describa esperado, observado y tareas afectadas; conserve la evidencia pendiente si falta")
     selected = [model.get(k, "task") for k in dict.fromkeys(tasks)]
     if any(t.data["request"] != request.uid for t in selected): raise ContractError("Tareas de otra petición")
     for key in requirements: model.get(key)
-    raw = read_bytes(model.root, artifact)
+    raw = read_bytes(model.root, artifact) if artifact else None
     candidate = subject(model.root, scope_for(selected))
     problem = element("problem", "Resultado no aceptable", statement, purpose="development-defect", phase=phase,
                       request=request.uid, tasks=[t.uid for t in selected], actor=identity, expected=expected,
                       observed=observed, requirements=list(requirements), subject=candidate, recorded_at=now())
     problem["meta"]["data"]["evidence_before"] = [e.uid for e in model.by_kind("evidence")]
     path = "docs/lks-sdd/evidence/" + problem["meta"]["uid"] + ".txt"
-    problem["meta"]["data"].update(artifact=path, artifact_sha256=sha(raw))
+    if raw is not None: problem["meta"]["data"].update(artifact=path, artifact_sha256=sha(raw))
+    else: problem["meta"]["data"]["evidence_pending"] = True
     problem["meta"].update(state="open", nature="fact")
     correction = element("change", "Definición correctiva pendiente", statement,
                          purpose="correction-definition", request=request.uid, problem=problem["meta"]["uid"],
                          expected=expected, observed=observed, acceptance=expected, classification="pending",
                          tasks=[t.uid for t in selected], requirements=list(requirements))
-    packet = prepare(root, [problem, correction], "reject:" + phase, changes={path: raw}, sources={artifact: sha(raw)},
+    packet = prepare(root, [problem, correction], "reject:" + phase, changes={path: raw} if raw is not None else {}, sources={artifact: sha(raw)} if raw is not None else {},
                      guards={"git": branch_check(model, request), "subject": candidate})
     packet["summary"].update(problem=problem["meta"]["uid"], correction=correction["meta"]["uid"])
     return packet
 
 
+@reviewed('define-correction')
 def define(root, actor, correction_id, classification, statement, acceptance, *, tasks=None, requirements=None, refresh=False):
     import copy
     model = load(root).require_valid(); old = model.get(correction_id, "change")
@@ -114,6 +117,7 @@ def define(root, actor, correction_id, classification, statement, acceptance, *,
     return prepare(root, [item, confirmed], "define-correction", guards={"git": branch_check(model, request)})
 
 
+@reviewed('resolve-defect')
 def resolve(root, actor, problem_id, statement, *, refresh=False):
     from v3_workflow import evidence_valid, plan_for
     from v3_verification import result_basis

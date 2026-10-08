@@ -53,6 +53,18 @@ def interventions(model, request_id, *, actor=None, offset=0, limit=20, object_o
         row = {"actor": person, "actions": actions, "objects": objects[object_offset:object_offset+limit],
                "object_total": len(objects), "next_object_offset": object_offset+limit if object_offset+limit < len(objects) else None,
                "reason": reason, "domains": next((r["domains"] for r in reviewers(model, request) if r["member"] == person), []), "basis_digest": fingerprint(basis) if basis else None}
+        from v3_decision_profiles import profiles, instruction_refs
+        event = actions[0]
+        query = {"actor": person, "request": request.uid}
+        if event == "authorize-plan":
+            query.pop("request"); query.update(plan=objects[0], review_tasks=objects[1:])
+        elif event == "review-task": query["tasks"] = objects
+        elif event == "integrate": query["accept_result"] = "accept" in actions
+        elif event == "review-proposal" and "close-proposal" in actions:
+            event = "close-proposal"; query["review"] = True
+        row["presentation_query"] = {"event": event, "data": query}
+        row["instruction_refs"] = instruction_refs(profiles(event, query))
+        if event == "integrate": row["presentation_pending"] = ["Indicar la base de integración en trusted_root"]
         try:
             row["name"] = model.get(person, "member").meta["title"]
             operator(model, person, permission, policy_for(model, request))

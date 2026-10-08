@@ -57,7 +57,7 @@ class WindowsLongPathTests(unittest.TestCase):
         self.addCleanup(lambda: shutil.rmtree(long_container, ignore_errors=True))
 
         long_plugin = long_container / "plugin"
-        ignore = shutil.ignore_patterns(".git", "site", "__pycache__", "*.pyc")
+        ignore = shutil.ignore_patterns(".git", "site", "sites", "__pycache__", "*.pyc")
         shutil.copytree(ROOT, long_plugin, ignore=ignore)
         source_relative = Path(
             "schemas/technology-declaration-2.0.schema.json"
@@ -146,16 +146,18 @@ class WindowsLongPathTests(unittest.TestCase):
         _write_tree(short_project, source_files)
         def initialize(item):
             plugin, project = item
-            return command(
-                plugin,
-                "skills/lks-sdd-define/scripts/init_project.py",
-                str(project),
-                "--project-id",
-                "windows-long-path-regression",
-                "--date",
-                "2026-09-18",
-                "--json",
-            )
+            # Historical fixture creation uses the compatibility library; the
+            # current public initializer requires an explicitly configured v3 cutover.
+            script = """import argparse, importlib.util, json, sys
+from pathlib import Path
+spec = importlib.util.spec_from_file_location('legacy_fixture', sys.argv[1])
+module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+code, result = module.initialize(argparse.Namespace(project_root=Path(sys.argv[2]), project_id='windows-long-path-regression', documentation_level='standard', risk_profile='undetermined', date='2026-09-18', dry_run=False))
+print(json.dumps(result)); sys.exit(code)
+"""
+            return subprocess.run([sys.executable, "-B", "-X", "utf8", "-c", script,
+                                   str(plugin/"skills/lks-sdd-define/scripts/init_project.py"), str(project)],
+                                  capture_output=True, text=True, encoding="utf-8", timeout=240)
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             initialized_results = list(pool.map(initialize, ((short_plugin, short_project), (long_plugin, long_project))))

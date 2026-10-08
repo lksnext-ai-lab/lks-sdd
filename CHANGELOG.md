@@ -1,5 +1,39 @@
 # Changelog
 
+## Pendiente de publicación
+
+- Presenta decisiones con un título claro y apartados específicos: dieciocho perfiles
+  cubren configuración, especificaciones, planificación, encargos, resultados,
+  correcciones, excepciones, continuidad y entrega. Las especificaciones detallan
+  componentes, interfaces, datos, seguridad y comprobación de la solución técnica.
+- Vincula las decisiones nuevas a fuentes y contenido mostrado mediante
+  `decision-view`; conserva las decisiones anteriores vigentes y permite consultar
+  borradores incompletos y registrar desacuerdos sin fabricar evidencia.
+- Organiza las instrucciones en un índice y nueve guías cargadas por evento; las seis
+  skills comparten catálogo y composición. La salida compacta evita repetir el mensaje,
+  sin recortar obligaciones. Las medidas estáticas no acreditan ahorro facturado.
+
+- Establece 3.1 como destino de las entradas públicas: inicialización nativa,
+  corte directo v2 → 3.1 y adopción/actualización 3.0/3.1 con configuración y runtime
+  fijado en un paquete recuperable. Consultas y recuperación antiguas se conservan.
+- Externaliza sujetos completos y artefactos de dependencias v3 con resolución
+  semántica común; conserva hashes normativos de las representaciones y sus pruebas.
+- Añade estados documentales exactos con recursos y transporte portable referenciado,
+  migración del exceso activo debido a inventarios y guard de pertenencia histórica.
+- Reduce repetición de consultas y checkpoints mediante las reglas comunes de las
+  seis skills; no activa el selector reducido ni acredita ahorro de tokens facturados.
+- Evita recalcular el mismo cierre global por cada unidad aprobada, conservando
+  todas sus obligaciones; las entradas auxiliares antiguas no crean nuevos formatos legados.
+
+- Deduplica snapshots v2 y payloads de recuperación mediante objetos por contenido;
+  conserva lectura de árboles y diarios anteriores, identidad de estados y exportación exacta.
+- Reutiliza inventarios técnicos verificables en EXEC/CKPT v2 y avances v3, manteniendo
+  Markdown canónico, autoridad, evidencias, guards y el límite activo de 32 MiB.
+- Protege dependencias de enlaces históricos, publicación sin sobrescritura y presupuestos
+  antes de leer; reduce memoria de archivado y conserva recuperación de árboles anteriores.
+- Añade reproducción sintética temporal, regresiones y [documentación de compatibilidad,
+  publicación y futuras compactaciones](docs/DOCUMENT-STORAGE.md).
+
 ## 3.1.0 — 2026-09-30 — revisión integral y recorrido guiado
 
 - Recorrido optativo H1–H7: propuesta, revisión conjunta, plan autorizado, revisión de encargos, ejecución/verificación, integración y preparación de PR.

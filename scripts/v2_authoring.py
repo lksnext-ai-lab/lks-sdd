@@ -12,6 +12,7 @@ from v2_contract import (ContractError, DOCS, HISTORY, DOMAINS, BLOCK, ID, VERSI
                          parse_document, path_at, read_bytes, render_block, render_document, sha,
                          TECHNOLOGY_DECLARATION_PATH)
 from v2_storage import apply, ensure_idle, preview, stage_contract
+from v2_history import history_changes, historical, read_manifest, source_bytes
 
 
 def initialize(root: Path, name: str, *, project_id: str | None = None) -> tuple[dict, dict]:
@@ -64,43 +65,6 @@ def initialize(root: Path, name: str, *, project_id: str | None = None) -> tuple
                TECHNOLOGY_DECLARATION_PATH: technology_document,
                ".lks-sdd/project.json": canonical(index) + b"\n"}
     return preview(root, changes, sources={}, operation="initialize-v2"), changes
-
-
-def history_changes(model: Model) -> tuple[str, dict[str, bytes]]:
-    revision = model.snapshot()
-    prefix = HISTORY + "/" + revision[:16]
-    files = {}
-    mapping = {}
-    for path in sorted(model.hashes):
-        # Preserve the whole relative tree so links remain navigable inside the
-        # snapshot, including assets outside docs/lks-sdd and the project index.
-        destination = prefix + "/tree/" + path
-        data = read_bytes(model.root, path, limit=16 * 1024 * 1024)
-        existing = path_at(model.root, destination, missing=True)
-        if existing.exists() and existing.read_bytes() != data:
-            raise ContractError("Historical snapshot collision")
-        files[destination] = data
-        mapping[path] = {"path": destination, "sha256": sha(data)}
-    files[prefix + "/snapshot.json"] = canonical({"schema_version": VERSION, "snapshot": revision,
-                                                   "sources": mapping, "state": "historical"})
-    return revision, files
-
-
-def historical(root: Path, revision: str) -> dict:
-    if not re.fullmatch(r"[0-9a-f]{64}", revision):
-        raise ContractError("Exact historical snapshot hash required")
-    name = HISTORY + "/" + revision[:16] + "/snapshot.json"
-    result = json.loads(read_bytes(root, name))
-    if result.get("snapshot") != revision:
-        raise ContractError("Historical snapshot identity mismatch")
-    documents = []
-    for source, entry in result["sources"].items():
-        data = read_bytes(root, entry["path"], limit=16 * 1024 * 1024)
-        if sha(data) != entry["sha256"]:
-            raise ContractError("Historical content altered: " + source)
-        documents.append({"source": source, **entry,
-                          "text": data.decode("utf-8") if source.endswith(".md") else None})
-    return {"status": "available", "snapshot": revision, "documents": documents, "writes": []}
 
 
 def edit_elements(model: Model, replacements: dict[str, dict], bodies: dict[str, str] | None = None) -> dict[str, bytes]:
@@ -240,11 +204,12 @@ def feature_versions(model):
     consumed = 0
     for path in manifests[:128]:
         try:
-            summary = json.loads(read_bytes(model.root, path.relative_to(model.root).as_posix()))
+            identity = json.loads(read_bytes(model.root, path.relative_to(model.root).as_posix()))["snapshot"]
+            summary = read_manifest(model.root, identity)
             for original, ref in summary["sources"].items():
                 if not original.endswith(".md") or "/features/" not in original:
                     continue
-                raw = read_bytes(model.root, ref["path"])
+                raw = source_bytes(model.root, summary, original)
                 consumed += len(raw)
                 if consumed > 16 * 1024 * 1024:
                     diagnostics.append("Historical catalog byte limit reached; expand by exact snapshot")

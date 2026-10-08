@@ -8,6 +8,8 @@ description: "Use with Codex. Explain LKS-SDD, documented project behavior, prog
 Lea el formato de `.lks-sdd/project.json` y respete el runtime fijado por el proyecto.
 No migre por cargar esta skill. Si falta el índice, inspeccione el Markdown antes de
 asumir un proyecto nuevo. Una garantía desconocida bloquea solo el trabajo afectado.
+Para continuar trabajo gobernado, aplique el destino y la comprobación de
+[las reglas comunes](../../docs/V3-COMMON.md); las consultas conservan solo lectura.
 
 - Para formato **3.0 o 3.1**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
   [esta operación](references/v3.md).

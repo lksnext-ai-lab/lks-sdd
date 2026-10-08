@@ -24,6 +24,7 @@ SUPPORTED_METHODS = {"2.0.0", METHOD}
 READER = "lks-sdd-v2/1"
 DOCS = "docs/lks-sdd"
 HISTORY = DOCS + "/00-control/history"
+HISTORICAL_SOURCE = re.compile(re.escape(HISTORY) + r"/[0-9a-f]{16}/tree/.+")
 TECHNOLOGY_DECLARATION_PATH = DOCS + "/03-solution/technology-declaration.md"
 KINDS = set("project feature group requirement acceptance rule constraint task increment plan release test decision interface binding environment authorization execution checkpoint problem change applicability legacy receipt visual technology".split())
 RELATIONS = set("parent uses depends_on requirements acceptance tests contributes_to implements modifies replaces splits merges increment release plan bindings interfaces environments decision authorizes execution verifies sources affects".split())
@@ -54,13 +55,12 @@ def fingerprint(value) -> str:
     return sha(canonical(value))
 
 
-def path_at(root: Path, relative: str, *, missing: bool = False, package_data: bool = False) -> Path:
-    if (not relative or "\\" in relative or ":" in relative or
+def relative_parts(relative: str, *, package_data: bool = False) -> list[str]:
+    """Validate a recorded path without inspecting the present working tree."""
+    if (not isinstance(relative, str) or not relative or "\0" in relative or "\\" in relative or ":" in relative or
             PurePosixPath(relative).is_absolute() or
             any(p in {"", ".", ".."} for p in relative.split("/"))):
-        raise ContractError("Unsafe project-relative path: " + relative)
-    root = filesystem_root(root)
-    current = root
+        raise ContractError("Unsafe project-relative path: " + str(relative))
     parts = relative.split("/")
     for index, part in enumerate(parts):
         # Explicit package/scaffold operations may carry a placeholder template or
@@ -70,6 +70,14 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
         )
         if part.casefold() == ".git" or (SECRET_NAME.search(part) and not benign_package_leaf):
             raise ContractError("Sensitive or Git path is not a contract input: " + relative)
+    return parts
+
+
+def path_at(root: Path, relative: str, *, missing: bool = False, package_data: bool = False) -> Path:
+    parts = relative_parts(relative, package_data=package_data)
+    root = filesystem_root(root)
+    current = root
+    for part in parts:
         current /= part
         current = filesystem_root(current)
         try:
@@ -87,14 +95,33 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
     return current
 
 
-def read_bytes(root: Path, relative: str, *, limit: int = 4 * 1024 * 1024, package_data: bool = False) -> bytes:
-    path = path_at(root, relative, package_data=package_data)
+def _read_regular(root: Path, relative: str, *, limit: int, package_data: bool = False) -> bytes:
+    path = path_at(root, relative, missing=True, package_data=package_data)
     if not path.is_file() or path.stat().st_size > limit:
         raise ContractError("Not a bounded regular source: " + relative)
-    data = path.read_bytes()
-    if len(data) > limit:
-        raise ContractError("Source exceeded read limit: " + relative)
-    return data
+    from source_inventory import read
+    # Allocate the observed size plus one, preserving the limit and rejecting
+    # growth/replacement rather than reserving 64 MiB for each tiny code file.
+    return read((path, path.lstat()), limit=limit)
+
+
+def read_bytes(root: Path, relative: str, *, limit: int = 4 * 1024 * 1024, package_data: bool = False) -> bytes:
+    from document_state import LINK as STATE_LINK, linked
+    if STATE_LINK.fullmatch(relative):
+        data = linked(root, relative, limit)
+        physical = path_at(root, relative, missing=True, package_data=package_data)
+        if physical.exists() and sha(_read_regular(root, relative, limit=limit, package_data=package_data)) != sha(data):
+            raise ContractError("Materialized state contradicts its manifest")
+        return data
+    if HISTORICAL_SOURCE.fullmatch(relative):
+        from v2_history import virtual_source
+        data = virtual_source(root, relative, limit=limit)
+        # A materialized export/cache cannot conceal damaged CAS metadata/content.
+        path = path_at(root, relative, missing=True, package_data=package_data)
+        if path.exists() and sha(_read_regular(root, relative, limit=limit, package_data=package_data)) != sha(data):
+            raise ContractError("Materialized historical source contradicts manifest: " + relative)
+        return data
+    return _read_regular(root, relative, limit=limit, package_data=package_data)
 
 
 def metadata(text: str) -> dict:
@@ -300,7 +327,8 @@ class Model:
         if document_paths(self.root) != sorted(self.documents):
             raise ContractError("Document inventory changed during read")
         for path, expected in self.hashes.items():
-            if sha(read_bytes(self.root, path)) != expected:
+            limit = 16 * 1024 * 1024 if path.startswith(".lks-sdd/objects/") else 4 * 1024 * 1024
+            if sha(read_bytes(self.root, path, limit=limit)) != expected:
                 raise ContractError("Source changed during read: " + path)
 
 
@@ -405,7 +433,8 @@ def technology_readiness(model: Model, tasks: list[str]) -> dict:
             "unresolved": sorted(set(unresolved))}
 
 
-def read_contract(root: Path, *, project_schema=None, require_technology=True) -> Model:
+def read_contract(root: Path, *, project_schema=None, require_technology=True,
+                  document_transform=None, inventory_root=None) -> Model:
     root = lexical_root(root)
     from v2_storage import VALIDATING, ensure_idle
     if not VALIDATING.get():
@@ -428,12 +457,14 @@ def read_contract(root: Path, *, project_schema=None, require_technology=True) -
     total = 0
     for relative in document_paths(root):
         raw = read_bytes(root, relative)
+        original_hash = sha(raw)
+        if document_transform is not None: raw = document_transform(relative, raw)
         total += len(raw)
         if total > 32 * 1024 * 1024:
             raise ContractError("Document byte budget exceeded")
         text = raw.decode("utf-8").replace("\r\n", "\n")
         model.documents[relative] = text
-        model.hashes[relative] = sha(raw)
+        model.hashes[relative] = original_hash
         try:
             elements, preamble = parse_document(text, relative)
             model.preambles[relative] = preamble
@@ -446,7 +477,22 @@ def read_contract(root: Path, *, project_schema=None, require_technology=True) -
         except ContractError as exc:
             model.errors.append(str(exc))
     if require_technology: _validate_technology_declaration(model)
+    from content_store import validate_references
+    inventory_cache = {}
     for element in model.elements.values():
+        if element.kind in {"execution", "checkpoint"}:
+            try:
+                if inventory_root is None:
+                    validate_references(model, element.meta, ("baseline_files", "files", "source_hashes"), inventory_cache)
+                else:
+                    from types import SimpleNamespace
+                    reference_hashes = {}
+                    validate_references(SimpleNamespace(root=inventory_root, hashes=reference_hashes), element.meta,
+                                        ("baseline_files", "files", "source_hashes"), inventory_cache)
+                    for path, digest in reference_hashes.items():
+                        if path_at(root, path, missing=True).exists(): model.hashes[path] = digest
+            except (ContractError, OSError) as exc:
+                model.errors.append(element.id + ": " + str(exc))
         for target in element.targets():
             if target not in model.elements:
                 model.errors.append(f"Orphan relation {element.id} -> {target}")
@@ -492,12 +538,15 @@ def read_contract(root: Path, *, project_schema=None, require_technology=True) -
                 continue
             try:
                 destination, anchor = resolve_link(relative, target)
-                target_path = path_at(root, destination)
+                target_path = path_at(root, destination, missing=True)
                 if target_path.is_dir():
                     if anchor or ID.search(label):
                         raise ContractError("Element link points to directory")
                     continue
                 data = read_bytes(root, destination)
+                if HISTORICAL_SOURCE.fullmatch(destination):
+                    from v2_history import link_dependencies
+                    model.hashes.update(link_dependencies(root, destination))
                 if destination not in model.documents:
                     model.hashes[destination] = sha(data)
                     if not destination.startswith(DOCS + "/evidence/"):
@@ -519,6 +568,9 @@ def read_contract(root: Path, *, project_schema=None, require_technology=True) -
             try:
                 destination, _ = resolve_link(relative, angled or plain)
                 data = read_bytes(root, destination)
+                if HISTORICAL_SOURCE.fullmatch(destination):
+                    from v2_history import link_dependencies
+                    model.hashes.update(link_dependencies(root, destination))
                 model.assets.setdefault(relative, {})[destination] = sha(data)
                 model.hashes[destination] = sha(data)
             except (ContractError, OSError) as exc:

@@ -3,23 +3,40 @@ from v3_contract import ContractError, element, now, fingerprint
 from v3_policy import operator, policy_for
 
 
+class _Descriptors:
+    """One immutable evaluation reuses its complete global dependency closure."""
+    def __init__(self, model):
+        self.model = model
+        from v3_scope import memberships
+        classified = memberships(model)
+        roots = []
+        for shared in model.elements.values():
+            uncertain = shared.kind in {"rule", "constraint", "requirement", "acceptance", "interface", "technology", "applicability"} and not shared.data.get("request") and shared.uid not in classified
+            if (shared.data.get("global") or uncertain) and not shared.retired: roots.append(shared.uid)
+        self.globals = self.closure(roots, {})
+        self.global_descriptor = {"units": self.globals, "digest": fingerprint(self.globals)}
+
+    def closure(self, identifiers, initial):
+        units = dict(initial)
+        def add(e):
+            if e.uid in units: return
+            if e.retired: raise ContractError("Unidad retirada: " + e.id)
+            units[e.uid] = e.digest()
+            for rel in ("depends_on", "interfaces", "requirements", "acceptance", "constraints", "uses", "tasks", "covers", "tests", "technology"):
+                for key in e.relations.get(rel, []): add(self.model.get(key))
+        for key in identifiers: add(self.model.get(key))
+        return units
+
+    def descriptor(self, identifiers):
+        keys = [self.model.get(key).uid for key in identifiers]
+        if keys and all(key in self.globals for key in keys): return self.global_descriptor
+        units = self.closure(keys, self.globals)
+        if not units: raise ContractError("Paquete de aprobación vacío")
+        return {"units": units, "digest": fingerprint(units)}
+
+
 def descriptor(model, identifiers):
-    units, seen = {}, set()
-    def add(e):
-        if e.uid in seen: return
-        seen.add(e.uid)
-        if e.retired: raise ContractError("Unidad retirada: " + e.id)
-        units[e.uid] = e.digest()
-        for rel in ("depends_on", "interfaces", "requirements", "acceptance", "constraints", "uses", "tasks", "covers", "tests", "technology"):
-            for key in e.relations.get(rel, []): add(model.get(key))
-    for key in identifiers: add(model.get(key))
-    from v3_scope import memberships
-    classified = memberships(model)
-    for shared in model.elements.values():
-        uncertain = shared.kind in {"rule", "constraint", "requirement", "acceptance", "interface", "technology", "applicability"} and not shared.data.get("request") and shared.uid not in classified
-        if (shared.data.get("global") or uncertain) and not shared.retired: add(shared)
-    if not units: raise ContractError("Paquete de aprobación vacío")
-    return {"units": units, "digest": fingerprint(units)}
+    return _Descriptors(model).descriptor(identifiers)
 
 
 def decisions(model, purpose=None):
@@ -30,17 +47,23 @@ def decisions(model, purpose=None):
 
 
 def approved(model, identifiers, purpose="proposal"):
-    expected = descriptor(model, identifiers)["units"]
+    reader = _Descriptors(model)
+    expected = reader.descriptor(identifiers)["units"]
     from v3_migration import inherited_confirmations
     covered = inherited_confirmations(model, expected) if purpose in {"proposal", "technology"} else {}
     for decision in decisions(model, purpose):
+        globals_match = None
         for key, digest in decision.data.get("descriptor", {}).get("units", {}).items():
             if expected.get(key) != digest: continue
             try:
                 source = model.at(key, digest)
-                dependencies = descriptor(model, [key])["units"]
+                dependencies = reader.descriptor([key])["units"]
                 recorded = decision.data["descriptor"]["units"]
-                if all(recorded.get(k) == v for k, v in dependencies.items()): covered[key] = decision.uid
+                if dependencies is reader.globals:
+                    if globals_match is None: globals_match = all(recorded.get(k) == v for k, v in dependencies.items())
+                    matches = globals_match
+                else: matches = all(recorded.get(k) == v for k, v in dependencies.items())
+                if matches: covered[key] = decision.uid
             except ContractError: continue
     valid = set(covered) == set(expected)
     if purpose == "proposal":

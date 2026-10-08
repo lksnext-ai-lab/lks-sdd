@@ -577,6 +577,10 @@ def main() -> int:
     parser.add_argument("--preview-hash")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
+    if args.apply:
+        print(json.dumps({"status": "blocked", "changed": False, "writes": [],
+                          "reason": "Use lks_sdd.py v3 init/adopt or migration-preview with explicit current configuration"}, ensure_ascii=False))
+        return 2
     try:
         code, result = materialize(args)
     except AdoptionError as exc:

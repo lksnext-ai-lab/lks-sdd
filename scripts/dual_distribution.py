@@ -108,7 +108,8 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "Read .lks-sdd/distribution-lock.json. Both hosts use its exact runtime and workflows.\n"
         "For every requested application change, including changes to existing features or TASKs, "
         "reconcile the request with the current SPEC and complete PLAN/TASK coverage before editing code. "
-        "For schema 3.0 read docs/V3-COMMON.md; for 2.0 read docs/V2-SPEC-PLAN-TASK.md in the pinned runtime. If coverage is missing, use define; "
+        "For schema 3.0/3.1 read docs/V3-COMMON.md in the pinned runtime. Current governed work requires method 3.1.0, explicit collaboration and a compatible pinned runtime. "
+        "Prepare the explicit migration cutover before older-format writes or application code; queries do not migrate. If coverage is missing, use define; "
         "readiness and help remain read-only. Reuse valid decisions and tasks.\n"
         f"Runtime: `{runtime}`. Before work run "
         f"`python {runtime}/scripts/lks_sdd.py runtime-doctor . --json`.\n"
@@ -159,6 +160,7 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "managed_files": inventory({k: v for k, v in output.items() if not k.startswith(runtime + "/")}),
         "source": source, "channel": channel, "hosts": ["codex", "copilot"],
         "project_schema": project_schema,
+        "storage_formats": distribution.get("storage_formats", []),
         "method_version": json.loads(core["distribution/dual.json"])["method_version"],
         "readable_method_versions": json.loads(core["distribution/dual.json"]).get("readable_method_versions", ["2.0.0", "2.1.0"]),
         "collaboration": json.loads(core["distribution/dual.json"])["collaboration"],
@@ -243,10 +245,15 @@ def copilot_plugin_files(core: dict[str, bytes], source: str, channel: str) -> d
             "never call ImageGen or a paid image API here. Preserve all canonical gates, human "
             "approvals and no-commit/no-push boundaries. Read linked full workflows, not summaries.\n"
         ).encode("utf-8")
-        if json.loads(core["distribution/dual.json"])["project_schema"] == "3.0":
+        if json.loads(core["distribution/dual.json"])["project_schema"] in {"3.0", "3.1"}:
             output[f"skills/{name}/SKILL.md"] = (
                 f"---\nname: {name}\ndescription: {description}\n---\n\n"
                 "Resolve the installed plugin root from this file's location, not cwd.\n"
+                "Before delegating governed work, read the installed core's "
+                "[current operating boundary](../../core/docs/V3-COMMON.md). A legacy pinned runtime "
+                "remains usable for reading/recovery; it cannot bypass the explicit current-method "
+                "and storage-capability cutover. Prepare migration with this plugin's compatible "
+                "setup bundle and confirmed configuration before continuing governed writes.\n"
                 "With a project lock, run its exact runtime-doctor; stop on invalid integrity. "
                 "If entrypoints is project, stop this duplicate plugin route. Otherwise read "
                 f".github/lks-sdd-host.md and the pinned runtime's skills/{name}/SKILL.md; resolve references there.\n"

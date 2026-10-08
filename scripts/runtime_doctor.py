@@ -64,6 +64,8 @@ def check(root: Path) -> dict:
         if manifest.get("version") != lock["version"]:
             errors.append("Runtime version mismatch")
         distribution = json.loads((runtime / "distribution/dual.json").read_text(encoding="utf-8"))
+        if lock.get("storage_formats", []) != distribution.get("storage_formats", []):
+            errors.append("Runtime storage capabilities mismatch")
         if lock.get("method_version", distribution.get("method_version")) != distribution.get("method_version"):
             errors.append("Runtime method declaration mismatch")
         project_index = root / ".lks-sdd/project.json"

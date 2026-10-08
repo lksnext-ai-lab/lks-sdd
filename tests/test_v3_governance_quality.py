@@ -1,3 +1,4 @@
+from presentation_test_support import present, technical_solution
 import copy
 from datetime import datetime, timedelta, timezone
 import json
@@ -47,14 +48,14 @@ class GovernanceQualityTests(ProjectFixture):
         from v3_guidance import status, readiness, trace
         self.plan(); other = self.add_member()
         self.update_policy(lambda d: d.update(profile="coordinated-team", independent_review=True), requests=[self.req])
-        commit_packet(self.root, assign(self.root, self.actor, self.task, other, "Relevo por especialidad"))
+        commit_packet(self.root, present(assign, self.root, self.actor, self.task, other, "Relevo por especialidad"))
         self.assertEqual(self.actor, status(self.root)["requests"][0]["tasks"][0]["owner"])
         offer = load(self.root).by_kind("assignment")[0]
-        commit_packet(self.root, assign(self.root, other, self.task, other, "Acepto el trabajo y pendientes", previous=offer.uid, accept=True))
+        commit_packet(self.root, present(assign, self.root, other, self.task, other, "Acepto el trabajo y pendientes", previous=offer.uid, accept=True))
         self.assertEqual(other, status(self.root)["requests"][0]["tasks"][0]["owner"])
         for action in ("start", "implement"):
             if action == "implement": (self.root/"app.py").write_text("answer = 42\n")
-            commit_packet(self.root, transition(self.root, other, self.task, action, "Resultado del especialista"))
+            commit_packet(self.root, present(transition, self.root, other, self.task, action, "Resultado del especialista"))
         self.assertEqual("blocked", readiness(self.root, self.task, other, "verify")["status"])
         report = "docs/lks-sdd/evidence/review.txt"; (self.root/report).parent.mkdir(parents=True, exist_ok=True)
         (self.root/report).write_text("Independent fixture observation")
@@ -93,7 +94,7 @@ class GovernanceQualityTests(ProjectFixture):
         self.assertNotEqual(first["attachments"][0]["sha256"], third["attachments"][0]["sha256"])
         self.assertEqual("conservative-reference", third["selector_mode"])
         from v3_authoring import approve
-        commit_packet(self.root, approve(self.root, self.actor, [self.prop], "proposal", "Acepto también la nueva restricción global"))
+        commit_packet(self.root, present(approve, self.root, self.actor, [self.prop], "proposal", "Acepto también la nueva restricción global"))
         item = copy.deepcopy(load(self.root).get(self.task).item()); item["meta"].update(state="retired", revision=item["meta"]["revision"]+1)
         commit_packet(self.root, author(self.root, self.actor, [item]))
         with self.assertRaisesRegex(ContractError, "retirada"): context(self.root, [self.task])
@@ -101,11 +102,11 @@ class GovernanceQualityTests(ProjectFixture):
     def update_policy(self, edit, requests=()):
         model = load(self.root); policy = copy.deepcopy(model.get(model.project.data["policy"]).item())
         policy["meta"]["revision"] += 1; edit(policy["meta"]["data"])
-        commit_packet(self.root, governance(self.root, self.actor, [policy], "Acepto este cambio concreto", "Necesidad del proyecto", requests=requests))
+        commit_packet(self.root, present(governance, self.root, self.actor, [policy], "Acepto este cambio concreto", "Necesidad del proyecto", requests=requests))
 
     def add_member(self):
         item = element("member", "Compañero", "Especialista de prueba, identidad declarada.", roles=["developer", "reviewer"], active=True)
-        commit_packet(self.root, governance(self.root, self.actor, [item], "Incorporo este especialista", "Trabajo de equipo"))
+        commit_packet(self.root, present(governance, self.root, self.actor, [item], "Incorporo este especialista", "Trabajo de equipo"))
         return item["meta"]["uid"]
 
     def test_governance_keeps_prior_policy_and_cannot_self_grant(self):
@@ -115,7 +116,7 @@ class GovernanceQualityTests(ProjectFixture):
         self.assertEqual(before, policy_for(load(self.root), self.req).digest())
         person = copy.deepcopy(load(self.root).get(other).item()); person["meta"]["revision"] += 1
         person["meta"]["data"]["roles"] = ["owner"]
-        with self.assertRaises(ContractError): governance(self.root, other, [person], "Me autorizo", "Acceso")
+        with self.assertRaises(ContractError): present(governance, self.root, other, [person], "Me autorizo", "Acceso")
         self.advance("start")
         self.update_policy(lambda d: d["permissions"].update(implement=["owner"]))
         from v3_policy import operator
@@ -124,11 +125,11 @@ class GovernanceQualityTests(ProjectFixture):
 
     def test_partial_handoff_needs_recipient_and_preserves_history(self):
         self.plan(); other = self.add_member()
-        packet = handoff(self.root, self.actor, self.task, other, ["app.py"], "Ayuda de especialista")
+        packet = present(handoff, self.root, self.actor, self.task, other, ["app.py"], "Ayuda de especialista")
         commit_packet(self.root, packet)
         offer = load(self.root).by_kind("handoff")[0].uid
-        with self.assertRaises(ContractError): handoff(self.root, self.actor, self.task, other, ["app.py"], "Acepto", previous=offer, accept=True)
-        commit_packet(self.root, handoff(self.root, other, self.task, other, ["app.py"], "Recibido con estos pendientes", previous=offer, accept=True))
+        with self.assertRaises(ContractError): present(handoff, self.root, self.actor, self.task, other, ["app.py"], "Acepto", previous=offer, accept=True)
+        commit_packet(self.root, present(handoff, self.root, other, self.task, other, ["app.py"], "Recibido con estos pendientes", previous=offer, accept=True))
         model = load(self.root)
         self.assertEqual(2, len(model.by_kind("handoff")))
         self.assertIn(other, {row["member"] for row in owners(model, model.get(self.task))})
@@ -157,12 +158,17 @@ class GovernanceQualityTests(ProjectFixture):
                   "context": analysis_context(load(self.root), [load(self.root).get(self.task)]),
                   "tool_version": "fixture-only", "subject_digest": subject(self.root, ["app.py"])["digest"],
                   "config_digest": config_digest(control), "state": "completed", "projectStatus": {"status": "OK", "conditions": []}}
-        with self.assertRaises(ContractError): record(self.root, self.actor, [self.task], "sonar", report)
+        with self.assertRaises(ContractError): present(record, self.root, self.actor, [self.task], "sonar", report)
         report["gate_analysis_id"] = report["analysis_id"]
-        commit_packet(self.root, record(self.root, self.actor, [self.task], "sonar", report))
+        commit_packet(self.root, present(record, self.root, self.actor, [self.task], "sonar", report))
         model = load(self.root)
         self.assertEqual("passed", checks(model, model.get(self.task))["sonar"]["status"])
-        self.assertEqual("reused", record(self.root, self.actor, [self.task], "sonar", report)["status"])
+        from v3_decision_presentation import decision_view
+        shown = decision_view(self.root, "verify", {"actor": self.actor, "task": self.task})
+        analysis = model.by_kind("analysis")[0]
+        self.assertIn(analysis.data["report_path"], {a["path"] for a in shown["attachments"]})
+        self.assertIn("observed-test-analysis", shown["markdown"])
+        self.assertEqual("reused", present(record, self.root, self.actor, [self.task], "sonar", report)["status"])
         (self.root/"app.py").write_text("answer = 0\n")
         model = load(self.root)
         self.assertEqual("pending", checks(model, model.get(self.task))["sonar"]["status"])
@@ -170,7 +176,7 @@ class GovernanceQualityTests(ProjectFixture):
     def test_preview_cannot_apply_after_code_change(self):
         self.plan(); self.advance("start")
         (self.root/"app.py").write_text("x = 1\n")
-        packet = transition(self.root, self.actor, self.task, "implement", "Terminado")
+        packet = present(transition, self.root, self.actor, self.task, "implement", "Terminado")
         (self.root/"app.py").write_text("x = 2\n")
         with self.assertRaises(ContractError): commit_packet(self.root, packet)
         self.assertEqual("x = 2\n", (self.root/"app.py").read_text())
@@ -192,7 +198,7 @@ class GovernanceQualityTests(ProjectFixture):
         self.assertEqual("allowed", result["status"])
         self.assertFalse(facts["quality"])
         self.plan()
-        with self.assertRaises(ContractError): exception(self.root, self.actor, self.task, "quality", "close", "Motivo", "2020-01-01T00:00:00+00:00")
+        with self.assertRaises(ContractError): present(exception, self.root, self.actor, self.task, "quality", "close", "Motivo", "2020-01-01T00:00:00+00:00")
 
 
 if __name__ == "__main__": unittest.main()

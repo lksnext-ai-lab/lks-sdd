@@ -317,20 +317,24 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
     if technical["status"] != "documented":
         raise ContractError("Technology is not authorized: " + str(technical))
     inventory = work_inventory(model.root)
+    from content_store import prepare_inventory
+    objects = {}
+    inventory_ref = prepare_inventory(model.root, inventory, objects)
+    sources_ref = prepare_inventory(model.root, dict(model.hashes), objects)
     identifier, checkpoint = next_id(model, "EXEC"), next_id(model, "CKPT")
     path, data = record(model, identifier, "execution", "Ejecución autorizada", "Ámbito y base fijados antes de modificar código.",
                         state="in-progress", actor=actor, environment=environment, started_at=at,
-                        contract_fingerprint=auth["fingerprint"], baseline_files=inventory,
+                        contract_fingerprint=auth["fingerprint"], baseline_files_ref=inventory_ref,
                         basis_algorithm=assessment["context"]["basis_algorithm"],
                         specification_digest=assessment["context"]["specification_digest"],
                         planning_digest=assessment["context"]["planning_digest"],
-                        source_hashes=dict(model.hashes), technology_assessment=technical,
+                        source_hashes_ref=sources_ref, technology_assessment=technical,
                         inherited_reservations=assessment["reservation_continuations"],
                         relations={"implements": tasks, "authorizes": [auth["authorization_id"]]})
     ckpath, ckdata = record(model, checkpoint, "checkpoint", "Inicio de trabajo", "Implementación pendiente; no hay verificación ni entrega acreditadas.",
-                            state="active", recorded_at=at, next_action="Implementar las tareas autorizadas", files=inventory,
+                            state="active", recorded_at=at, next_action="Implementar las tareas autorizadas", files_ref=inventory_ref,
                             relations={"execution": [identifier], "implements": tasks})
-    changes = {path: data, ckpath: ckdata, **edit_elements(model, {
+    changes = {**objects, path: data, ckpath: ckdata, **edit_elements(model, {
         t: dict(model.elements[t].meta, state="in-progress", execution_id=identifier) for t in tasks})}
     corrective = {p.id: dict(p.meta, correction_execution=identifier) for p in model.by_kind("problem")
                   if p.meta.get("correction_authorized") and p.targets("affects") <= set(tasks) and p.meta["state"] != "resolved"}
@@ -341,10 +345,11 @@ def start(model: Model, tasks: list[str], environment: str, *, actor: str, at: s
 
 def diff_guard(model: Model, execution=None, *, tasks: list[str] | None = None) -> dict:
     execution = execution or active_execution(model, tasks)
-    if "baseline_files" not in execution.meta:
+    if "baseline_files" not in execution.meta and "baseline_files_ref" not in execution.meta:
         raise ContractError("Historical execution has no v2 baseline: reconcile and authorize a new execution")
     current = work_inventory(model.root)
-    baseline = execution.meta["baseline_files"]
+    from content_store import inventory
+    baseline = inventory(model.root, execution.meta, "baseline_files")
     changed = sorted(p for p in set(baseline) | set(current) if baseline.get(p) != current.get(p))
     tasks = sorted(execution.targets("implements"))
     patterns = [p for t in tasks for p in model.elements[t].meta.get("paths", [])]
@@ -398,7 +403,8 @@ def resume(model: Model, tasks: list[str]) -> dict:
             reasons.append("Open problem: " + problem.id)
     checkpoints = [e for e in model.by_kind("checkpoint") if execution.id in e.targets("execution")]
     checkpoint = max(checkpoints, key=lambda e: (e.meta.get("recorded_at", ""), e.id), default=None)
-    if checkpoint and checkpoint.meta.get("files") != guard["files"]:
+    from content_store import inventory
+    if checkpoint and inventory(model.root, checkpoint.meta, "files") != guard["files"]:
         reasons.append("Working files changed after checkpoint; reconcile observed changes")
     return {"status": "reconcile-recommended" if reasons else "continue-recommended", "execution": execution.id,
             "task_ids": tasks, "reasons": reasons, "checkpoint": checkpoint.id if checkpoint else None,
@@ -425,16 +431,21 @@ def checkpoint(model: Model, *, tasks: list[str] | None = None, state: str, acto
     inventory = work_inventory(model.root)
     previous = [entry for entry in model.by_kind("checkpoint") if execution.id in entry.targets("execution")]
     latest = max(previous, key=lambda item: (item.meta.get("recorded_at", ""), item.id), default=None)
+    from content_store import inventory as read_inventory
     if (latest and latest.meta.get("lifecycle_state") == state
             and latest.meta.get("next_action") == next_action
-            and latest.body.strip().endswith(summary.strip())):
+            and latest.body.strip().endswith(summary.strip())
+            and read_inventory(model.root, latest.meta, "files") == inventory):
         return {"status": "reused", "checkpoint": latest.id, "execution": execution.id,
                 "task_ids": tasks, "writes": []}
     identifier = next_id(model, "CKPT")
+    from content_store import prepare_inventory
+    objects = {}
+    inventory_ref = prepare_inventory(model.root, inventory, objects)
     path, data = record(model, identifier, "checkpoint", "Continuidad de trabajo", summary,
                         state="active", lifecycle_state=state, actor=actor, recorded_at=at, next_action=next_action,
-                        files=inventory, relations={"execution": [execution.id], "implements": tasks})
-    changes = {path: data, **edit_elements(model, {
+                        files_ref=inventory_ref, relations={"execution": [execution.id], "implements": tasks})
+    changes = {**objects, path: data, **edit_elements(model, {
         execution.id: dict(execution.meta, state=state),
         **{t: dict(model.elements[t].meta, state=state if state != "paused" else "in-progress") for t in tasks}})}
     if state == "blocked":

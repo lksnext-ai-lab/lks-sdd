@@ -86,7 +86,7 @@ def trace(root, identifier, *, offset=0, limit=20):
         if isinstance(value, list): return {v for item in value for v in refs(item)}
         if isinstance(value, dict): return set(value) | {v for item in value.values() for v in refs(item)}
         return set()
-    events = [e for e in model.elements.values() if e.kind in EVENTS and (refs(e.data) | e.targets()) & anchors]
+    events = [e for e in model.elements.values() if e.kind in EVENTS and (refs(e.meta["data"]) | e.targets()) & anchors]
     events.sort(key=lambda e: (e.data.get("recorded_at", e.data.get("decided_at", "")), e.uid))
     rows = []
     for event in events[offset:offset+limit]:
@@ -98,7 +98,7 @@ def trace(root, identifier, *, offset=0, limit=20):
                      "reason": event.body, "pending": event.data.get("pending", []),
                      "intervention": event.data.get("intervention"),
                      "authorization": event.data.get("authorization"), "exceptions": event.data.get("exceptions", []),
-                     "git": event.data.get("git"), "subject": event.data.get("subject")})
+                     "git": event.data.get("git"), "subject": event.meta["data"].get("subject")})
     return {"target": target.source(), "requested_by": target.data.get("requested_by", "No consta el solicitante del negocio"),
             "events": rows, "total": len(events), "next_offset": offset+limit if offset+limit < len(events) else None,
             "observation": "Hechos del repositorio; una actuación no observada permanece desconocida", "writes": []}

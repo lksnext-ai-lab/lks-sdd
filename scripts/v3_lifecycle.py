@@ -1,4 +1,5 @@
 """Reviewable decisions, corrections and checkpoints without rewriting prior facts."""
+from v3_presentation_guard import reviewed
 from v3_contract import ContractError, element, load, now
 from v3_policy import operator, policy_for
 from v3_approval import descriptor, proposal_ready, approved
@@ -9,25 +10,33 @@ from v3_git import subject, observe
 
 def review(root, request_id, selected=None):
     model = load(root).require_valid(); request = model.get(request_id, "request")
-    units = proposal_ready(model, request, selected, require_complete=False)
+    units = list(request.relations.get("proposal", []) if selected is None else selected)
+    if not set(units) <= set(request.relations.get("proposal", [])):
+        raise ContractError("La unidad no pertenece a esta petición")
+    for key in units: model.get(key)
     try: proposal_ready(model, request, selected); planning_coverage = "complete"
     except ContractError as exc: planning_coverage = str(exc)
-    validity = approved(model, units)
-    desc = descriptor(model, units)
+    validity = approved(model, units) if units else {"covered": {}}
+    desc = descriptor(model, units) if units else {"units": {}, "digest": None}
     from v31_review import config, reviewers, review_status
     collaboration = None
     if config(model, request):
-        collaboration = {"reviewers": reviewers(model, request), "status": review_status(model, request),
+        try: review_state = review_status(model, request)
+        except ContractError as exc: review_state = {"pending_content": str(exc)}
+        collaboration = {"reviewers": reviewers(model, request), "status": review_state,
                          "scope": "La conformidad se refiere a la propuesta integral; leer porciones no aprueba el conjunto"}
+    from v3_decision_presentation import decision_view
+    presentation = decision_view(root, "review", {"request": request.uid, "units": units})
     return {"moment": "Validación de la propuesta funcional y técnica antes de planificar", "request": request.source(), "collaboration": collaboration,
             "effect": "Aceptar este contenido permite preparar su plan; la implementación se autoriza después",
             "units": [{"source": model.get(k).source(), "part": model.get(k).data.get("part"),
                        "description": model.get(k).body, "details": model.get(k).data,
                        "decision": validity["covered"].get(k), "needs_validation": k not in validity["covered"]} for k in units],
             "descriptor": desc, "planning_coverage": planning_coverage, "next": "Revise qué se hará, qué queda fuera, su solución y criterios; exprese aceptación o cambios sobre estas unidades",
-            "writes": []}
+            "presentation": presentation, "writes": []}
 
 
+@reviewed('revoke')
 def revoke(root, actor, decision_id, reason):
     model = load(root).require_valid(); old = model.get(decision_id)
     if old.kind not in {"decision", "authorization", "exception"}: raise ContractError("Seleccione una decisión revocable")
@@ -59,6 +68,7 @@ def checkpoint(root, actor, task_id, result, pending, *, classification="progres
     return prepare(root, [event], "checkpoint", guards={"git": observe(model.root), "subject": event["meta"]["data"]["subject"]})
 
 
+@reviewed('migration-reconcile')
 def reconcile_migrated(root, actor, changes, statement):
     """Reconcile existing open entities; preserve their IDs and body unless explicitly edited."""
     from v3_authoring import author

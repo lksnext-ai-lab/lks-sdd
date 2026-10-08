@@ -1,7 +1,9 @@
 # Recorrido integral 3.1
 
 La política del proyecto activa este recorrido explícitamente. Instalar el plugin
-no modifica un consumidor. Proyectos 3.0 mantienen su método; nunca asuma una migración.
+no modifica un consumidor. El candidato actual exige el corte confirmado a 3.1 y
+runtime compatible antes de seguir escribiendo; consultar no migra. Véase
+[migración y continuación](V3-MIGRATION.md).
 
 ## Hitos y personas
 
@@ -32,62 +34,11 @@ Al terminar, explique qué se completó, dónde queda la petición y qué falta.
 siguiente trabajo está autorizado y preparado, continúe; no pida permiso para
 registrar una transición técnica acreditada. Cada persona firma únicamente por sí.
 
-## Configuración explícita
-
-`configure-collaboration`: actor, statement, collaboration y requests opcionales.
-collaboration contiene proposal_review_required y task_review_required (booleanos),
-y defaults con responsible, integration_validator, functional_validator (UID de
-miembros) y reviewers [{member, required, domains}]. Se deduplican personas, no roles.
-El campo coordination opcional aplica una designación específica a las peticiones
-seleccionadas. El motivo y las designaciones deben proceder de una decisión explícita.
-
-La operación actualiza formato/método a 3.1/3.1.0, conserva las reglas fijadas de
-peticiones no seleccionadas y no fabrica revisiones históricas. Con runtime fijado
-requiere runtime_bundle compatible; la vista previa incluye el corte del runtime y
-documentos. apply/recover/rollback conservan el mecanismo transaccional existente.
-
-## Revisión y ejecución
-
-- `review-comment`: actor, request, target, statement, blocking y critical.
-- `resolve-comment`: actor, request, comment, statement y treatment
-  incorporated/dismissed. El autor de una objeción confirma su tratamiento al revisar.
-- `review-proposal`: actor, request, statement, outcome approved/changes-requested.
-- `close-proposal`: actor, request, statement, review opcional. review=true registra
-  conjuntamente la revisión propia y el cierre cuando faltaba solo esa conformidad.
-- `authorize-plan`: admite review_tasks con los UID exactos de tareas propias
-  presentadas y revisadas por esa misma respuesta. Omitirlo no inventa revisión.
-- `review-task`: actor, request, tasks, statement, outcome approved/changes-requested.
-- `start`/`resume`: review=true agrupa revisión e inicio; offer permite aceptar una
-  oferta de asignación/relevo del destinatario en el mismo paquete recuperable.
-- `review-exception`: actor competente, request, statement, rule integral-review,
-  action close-proposal, effect y expires_at. Mantiene reservas y firmas ausentes.
-
-Un cambio material del paquete requiere conformidades nuevas. Las tareas conservan
-su revisión mientras no cambie el contrato, destinatario o porción; editar código
-durante la implementación no obliga a revisar de nuevo el encargo.
-
-## Resultado y correcciones
-
-`integrate` conserva trusted_root y admite accept_result=true si la misma persona
-puede comprobar integración y aceptar funcionalmente el candidato ya presentado.
-Las dos acreditaciones se conservan; no se realiza merge.
-
-`reject-result`: actor, request, statement, phase integration/acceptance/external,
-tasks, expected, observed, artifact y requirements opcionales. Registra fallo y
-definición correctiva en borrador, incluso antes de poder cerrar la integración.
-
-`define-correction`: actor, correction, classification defect/agreement-change/
-new-request/external, statement, acceptance y tasks/requirements opcionales.
-Confirmar el defecto no autoriza otro alcance. Reabra trabajo cubierto por la
-autorización vigente o revise propuesta/plan antes de ampliar el encargo.
-
-`resolve-defect`: actor, problem, statement; exige definición confirmada y evidencia
-de corrección vigente. Después repita integración/aceptación del nuevo resultado.
-`prepare-delivery`: actor, request, statement, pr_url opcional observado. Requiere
-aceptación vigente; preparar el resumen no crea ni aprueba el PR, ni ejecuta CI/CD.
-
-Las operaciones de revisión, rechazo, definición/resolución correctiva y entrega admiten
-refresh cuando el proyecto exige comprobar referencias compartidas. Los resúmenes
-muestran completed-with-reservations para cierres dispensados y not-required para
-revisión de encargos desactivada: ninguno acredita una firma ausente. Un reintento
-de revisión o cierre vigente devuelve already-recorded, sin duplicar eventos.
+Para presentar cada decisión, use [la guía por familias](USER-DECISIONS.md).
+Los campos exactos están en [la referencia de operaciones](V3-OPERATIONS.md); lea
+solo el bloque aplicable. La misma respuesta puede cubrir decisiones compatibles
+sobre contenido ya mostrado y conservar sus efectos separados. Un cambio material
+requiere nuevas conformidades afectadas; editar código no reabre por sí solo un
+encargo vigente. Rechazar un resultado no amplía alcance; resolver el defecto no
+sustituye aceptación nueva. Las reservas y revisiones no requeridas conservan su
+significado, sin acreditar firmas ausentes. Un reintento vigente no duplica eventos.

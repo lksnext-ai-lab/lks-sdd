@@ -1,0 +1,204 @@
+{
+  "baseline_commit": "628d15c3d8759c6deb70d88bda9f045562c485a6",
+  "configuration": {
+    "documents": 12,
+    "resources": 20,
+    "resource_bytes": 4096,
+    "code_files": 30,
+    "rounds": 3,
+    "checkpoints": 2
+  },
+  "results": {
+    "before": {
+      "snapshot_count": 13,
+      "history_tree": {
+        "files": 631,
+        "unique_contents": 103,
+        "bytes": 2126064
+      },
+      "history_and_recovery": {
+        "files": 632,
+        "unique_contents": 104,
+        "bytes": 6330507
+      },
+      "active_markdown": {
+        "files": 36,
+        "unique_contents": 36,
+        "bytes": 102105
+      },
+      "load_seconds": [
+        1.2608122999999978,
+        1.819090999999844,
+        2.1553963000001204
+      ],
+      "load_median_seconds": 1.819090999999844,
+      "archive_operations": [
+        {
+          "operation": "author",
+          "prepare_seconds": 5.995448199999828,
+          "apply_seconds": 4.182837500000005
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.4875797999998213,
+          "apply_seconds": 7.544771299999866
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 1.2177753999999368,
+          "apply_seconds": 6.870522499999879
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 6.5790845000001354,
+          "apply_seconds": 6.430821399999786
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 6.6661715999998705,
+          "apply_seconds": 5.40271569999959
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.6480254000002788,
+          "apply_seconds": 13.48368339999979
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 2.0511780000001636,
+          "apply_seconds": 15.324800300000334
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 9.029342600000291,
+          "apply_seconds": 6.96077299999979
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 7.958574899999803,
+          "apply_seconds": 7.102203100000224
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 2.440900900000088,
+          "apply_seconds": 12.797200100000282
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 1.4563250000001062,
+          "apply_seconds": 9.709233799999765
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 8.146692299999813,
+          "apply_seconds": 5.886447599999883
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 8.161534400000164,
+          "apply_seconds": 8.17054730000018
+        }
+      ],
+      "archive_prepare_total_seconds": 62.8386330000003,
+      "archive_apply_total_seconds": 109.86655699999937
+    },
+    "after": {
+      "snapshot_count": 13,
+      "history_tree": {
+        "files": 13,
+        "unique_contents": 13,
+        "bytes": 249896
+      },
+      "history_and_recovery": {
+        "files": 159,
+        "unique_contents": 146,
+        "bytes": 1062176
+      },
+      "active_markdown": {
+        "files": 36,
+        "unique_contents": 36,
+        "bytes": 52290
+      },
+      "load_seconds": [
+        2.140277099999821,
+        1.8488483000000997,
+        2.782650999999987
+      ],
+      "load_median_seconds": 2.140277099999821,
+      "archive_operations": [
+        {
+          "operation": "author",
+          "prepare_seconds": 2.5040999000002557,
+          "apply_seconds": 3.172125000000051
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 2.931545400000232,
+          "apply_seconds": 10.438901600000008
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 1.720874499999809,
+          "apply_seconds": 7.648075600000084
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 5.691169400000035,
+          "apply_seconds": 3.5184204000001955
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 6.047861500000181,
+          "apply_seconds": 3.90467660000013
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.8824432999999772,
+          "apply_seconds": 7.326908499999718
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 1.2281057999998666,
+          "apply_seconds": 7.341834899999867
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 4.8197651000000405,
+          "apply_seconds": 4.359338600000228
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 4.822476599999845,
+          "apply_seconds": 2.712317500000154
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.6794847999999547,
+          "apply_seconds": 10.8687745000002
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 1.5271626999997352,
+          "apply_seconds": 8.906572700000197
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 5.727887399999872,
+          "apply_seconds": 4.94705759999988
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 6.488605099999859,
+          "apply_seconds": 4.258302100000037
+        }
+      ],
+      "archive_prepare_total_seconds": 47.07148149999966,
+      "archive_apply_total_seconds": 79.40330560000075
+    }
+  },
+  "limitations": [
+    "Synthetic local Windows experiment; timings include filesystem, fsync and staging costs",
+    "No host acceptance or consumer migration executed",
+    "Logical byte counts exclude filesystem allocation and Git object sharing"
+  ]
+}

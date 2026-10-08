@@ -1,8 +1,29 @@
-# Compatibilidad de LKS-SDD 3.0.0
+# Compatibilidad de LKS-SDD
+
+## Desarrollo pendiente de publicación
+
+El destino nuevo es schema 3.1/método 3.1.0 con configuración explícita y runtime
+local fijado, incluso si el origen no tenía lock. El CLI público bloquea escrituras
+v2/3.0 hasta el corte; admite consultas y recuperación anteriores. Las APIs de
+compatibilidad internas y los siguientes antecedentes publicados permanecen para
+lectura, migración y pruebas. La ruta directa y sus límites están en
+[migración v3.1](V3-MIGRATION.md). La release publicada 3.1.0 aún no incorpora este cambio.
+
+Las decisiones nuevas usan `decision-view` y `presented` para vincular la respuesta
+al contenido mostrado. El formato `lks-sdd-presentation/1` añade procedencia a los
+eventos; no modifica la autoridad de decisiones históricas válidas ni exige revalidarlas
+por su formato. Un cambio material en fuentes, candidato, destinatario o configuración
+sí exige revisar la decisión afectada. Las integraciones que invocan directamente
+las APIs de escritura deben preparar la vista y aportar su recibo; las consultas y
+los registros técnicos no incorporan una firma humana adicional.
+
+El núcleo y las nueve guías se empaquetan para ambos hosts. Esta integración técnica
+no actualiza instalaciones activas; cada consumidor conserva su runtime fijado hasta
+autorizar su actualización. Véase [el protocolo de presentación](USER-DECISIONS.md).
 
 ## Contratos de proyecto
 
-| Proyecto | Comportamiento en 3.0.0 |
+| Proyecto | Antecedente publicado en 3.0.0 |
 |---|---|
 | Schema 3.0 / método 3.0.0 | Contrato para proyectos nuevos, con configuración confirmada y [operaciones v3](V3-OPERATIONS.md) |
 | Schema 2.0 / método 2.1.0 | Conserva su runtime/ruta v2; [migración explícita a v3](V3-MIGRATION.md) |
@@ -36,6 +57,11 @@ por el encabezado del índice. La continuidad se evalúa por TASK; una semántic
 legacy pendiente bloquea la TASK afectada, no todo el proyecto.
 
 ## Evidencia e historia
+
+La corrección de almacenamiento en desarrollo conserva la lectura de formatos
+anteriores y versiona las representaciones técnicas nuevas. Su alcance, enlaces,
+exportación, recuperación y condiciones de actualización están documentados en
+[almacenamiento documental](DOCUMENT-STORAGE.md). No está publicada en 3.1.0.
 
 Los originales, EVID y activos históricos se conservan. La migración no transforma
 autorizaciones antiguas en permiso v2 ni pruebas de componente en evidencia de
