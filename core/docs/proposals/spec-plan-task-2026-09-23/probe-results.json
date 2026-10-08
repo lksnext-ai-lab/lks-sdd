@@ -1,0 +1,86 @@
+{
+  "kind": "synthetic-critical-review",
+  "observed_at": "2026-09-22T22:47:30.390087+00:00",
+  "plugin_version": "2.2.0",
+  "source_commit": "be89ba5420a19206ec2a222b131006f4017e958c",
+  "python": "3.14.0",
+  "source_sha256": {
+    "scripts/v2_contract.py": "f217a2fe5b49a7ddc5fa9a4dca1fedda76fbbf0d8a936b786e0d817097abc366",
+    "scripts/v2_lifecycle.py": "f12f3f410c194e7b683c6bf1646f5de8fd4f44ca09fe1ce290bccc84eacdf313",
+    "scripts/v2_features.py": "0b2acf3b7ffe0343a734fae6da7d07f6bfcf5af20c7108a2db06da365fc8e6b9",
+    "scripts/v2_integration_guard.py": "77a674b1009df8a9a86b6535578295443217c4bf5d04149d0d63fb79527483b7",
+    "scripts/v2_authoring.py": "015109e1da552b4ba509a0b25520074371c9804640a77be399571d0306e43247",
+    "scripts/v2_schema.py": "ddcadadfe5751c01fcca8d61cd5eb46bfc00246f964edf647e078c7bed4f432f",
+    "schemas/project-2.0.schema.json": "6498ac319f1d7ba057649daca54acfde18f0c25ccfa56888ba6df21574b52f36",
+    "tests/eval_support.py": "11f9dda04990aa246ed699e774973f40a3ce6a35018acea70ad4db0f0bce8dfd"
+  },
+  "scope": "Temporary synthetic projects only; no consumer repository, host conversation, CI or release tested.",
+  "results": [
+    {
+      "id": "P01",
+      "scenario": "Normative PLAN revision changes",
+      "planning": "ready",
+      "context_fingerprint_unchanged": true,
+      "authorization": "authorized",
+      "interpretation": "PLAN prose/revision is absent from the current execution fingerprint."
+    },
+    {
+      "id": "P02",
+      "scenario": "Feature gains FR-002 without PLAN/TASK assignment",
+      "planning": "ready",
+      "full_plan": [
+        {
+          "plan": "PLAN-001",
+          "status": "complete",
+          "missing": [],
+          "extra": [],
+          "policy": "complete"
+        }
+      ],
+      "decomposition": "covered",
+      "new_requirement_in_context": true,
+      "previous_authorization_blocked": true,
+      "interpretation": "Existing authority becomes stale, but a new readiness assessment still calls the old plan complete."
+    },
+    {
+      "id": "P03",
+      "scenario": "An explicit TASK requirement has an uncovered acceptance criterion",
+      "planning": "ready",
+      "decomposition": "covered",
+      "requirement_acceptance": [
+        "AC-001",
+        "AC-002"
+      ],
+      "task_acceptance": [
+        "AC-001"
+      ],
+      "interpretation": "Requirement ownership alone does not prove assignment of every acceptance obligation."
+    },
+    {
+      "id": "P04",
+      "scenario": "Direct code edit inside TASK paths, without AUTH or EXEC",
+      "guard_status": "structurally-within-scope",
+      "changed": [
+        "src/ack.py"
+      ],
+      "authorization_count": 0,
+      "execution_count": 0,
+      "interpretation": "The structural guard alone is not a SPEC/PLAN/AUTH/execution compliance gate."
+    },
+    {
+      "id": "P05",
+      "scenario": "Normative TASK revision changes",
+      "previous_authorization_blocked": true,
+      "interpretation": "The existing TASK/specification fingerprint protection must be preserved."
+    },
+    {
+      "id": "P06",
+      "scenario": "Optional policy marker versus unknown method version",
+      "optional_policy_marker_planning": "ready",
+      "schema_version": "2.0",
+      "unknown_method_version": "2.1.0",
+      "unknown_method_rejected": true,
+      "interpretation": "Method 2.1.0 can provide an explicit compatibility boundary while retaining schema 2.0; an optional marker alone is ignored."
+    }
+  ]
+}

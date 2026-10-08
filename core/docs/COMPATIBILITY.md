@@ -1,0 +1,123 @@
+# Compatibilidad de LKS-SDD
+
+## Versión 3.2.0
+
+El destino nuevo es schema 3.1/método 3.1.0 con configuración explícita y runtime
+local fijado, incluso si el origen no tenía lock. El CLI público bloquea escrituras
+v2/3.0 hasta el corte; admite consultas y recuperación anteriores. Las APIs de
+compatibilidad internas y los siguientes antecedentes publicados permanecen para
+lectura, migración y pruebas. La ruta directa y sus límites están en
+[migración v3.1](V3-MIGRATION.md). La release 3.2.0 incorpora este cambio; 3.1.0 no lo incluía.
+
+Las decisiones nuevas usan `decision-view` y `presented` para vincular la respuesta
+al contenido mostrado. El formato `lks-sdd-presentation/1` añade procedencia a los
+eventos; no modifica la autoridad de decisiones históricas válidas ni exige revalidarlas
+por su formato. Un cambio material en fuentes, candidato, destinatario o configuración
+sí exige revisar la decisión afectada. Las integraciones que invocan directamente
+las APIs de escritura deben preparar la vista y aportar su recibo; las consultas y
+los registros técnicos no incorporan una firma humana adicional.
+
+El núcleo y las nueve guías se empaquetan para ambos hosts. Esta integración técnica
+no actualiza instalaciones activas; cada consumidor conserva su runtime fijado hasta
+autorizar su actualización. Véase [el protocolo de presentación](USER-DECISIONS.md).
+
+## Contratos de proyecto
+
+| Proyecto | Antecedente publicado en 3.0.0 |
+|---|---|
+| Schema 3.0 / método 3.0.0 | Contrato para proyectos nuevos, con configuración confirmada y [operaciones v3](V3-OPERATIONS.md) |
+| Schema 2.0 / método 2.1.0 | Conserva su runtime/ruta v2; [migración explícita a v3](V3-MIGRATION.md) |
+| Schema 2.0 / método 2.0.0 | Legible en su ruta anterior; actualizar explícitamente para las condiciones nuevas |
+| Schema 1.5 / método 1.5.0 | Workflow conservado; no se reinterpreta ni migra al consultar |
+| Versiones anteriores o desconocidas | Fuera de la ruta oficial de migración; diagnóstico y decisión explícita, sin conversión por cambio de encabezados |
+
+La versión del plugin, la del método y la del schema no son intercambiables.
+`plugin_version` conserva la procedencia de materialización; el runtime activo
+se resuelve mediante su lock. Instalar la versión personal 3.0.0 no sustituye el
+runtime fijado por otro desarrollador ni convierte sus documentos.
+
+La conversión 2.0 → 3.0 reconoce métodos 2.0.0 y 2.1.0. Las pruebas incluyen
+inicializadores nativos de las diez releases 2.0.0–2.3.1, continuidad de un plan
+abierto y cambio de runtime fijado. El inventario exacto y las limitaciones están
+en [la evidencia v3](plans/lks-sdd-v3/PROGRESS.md). No se presume compatibilidad de
+cualquier personalización por compartir número de versión.
+
+La conversión oficial 1.5/1.5.0 → 2.0/2.1.0 conserva
+[diagnóstico, preview, autorización y reconciliación](V2-MIGRATION.md).
+El cambio de método 2.0.0 → 2.1.0 tiene diagnóstico y preview propios; no
+reescribe requisitos ni crea PCH o autorizaciones ficticias. El trabajo previo
+necesita reconciliación antes de ejecutarse bajo el método nuevo.
+No hay downgrade automático del contrato. El rollback transaccional usa el recibo
+exacto y se detiene si hay trabajo posterior.
+
+Una migración aplicada deja un corte técnico verificable: `migration-complete`,
+recibo con manifiesto de conservación cerrado, rutas activas exclusivamente v2 y
+escritores 1.5 bloqueados. `already-v2` solo se informa después de ese guard, no
+por el encabezado del índice. La continuidad se evalúa por TASK; una semántica
+legacy pendiente bloquea la TASK afectada, no todo el proyecto.
+
+## Evidencia e historia
+
+La corrección de almacenamiento de 3.2.0 conserva la lectura de formatos
+anteriores y versiona las representaciones técnicas nuevas. Su alcance, enlaces,
+exportación, recuperación y condiciones de actualización están documentados en
+[almacenamiento documental](DOCUMENT-STORAGE.md). Se incorpora en 3.2.0; no estaba incluida en 3.1.0.
+
+Los originales, EVID y activos históricos se conservan. La migración no transforma
+autorizaciones antiguas en permiso v2 ni pruebas de componente en evidencia de
+integración. Los registros antiguos insuficientes requieren reconciliación.
+Los elementos `legacy`, `unknown` y `conflict` no adquieren autoridad normativa;
+una referencia v2 explícita solo permite localizarlos como antecedente para la
+reconciliación. El manifiesto registra para cada fuente si fue transformada,
+archivada, preservada fuera de alcance o bloqueada; una entrada no contabilizada
+impide el corte.
+Los quality reports históricos no certifican una nueva versión: cada release usa
+evidencia técnica propia ligada al commit exacto.
+
+La consulta es de solo lectura. La documentación parcial y los desconocidos se
+exponen; el código no suple una decisión de negocio. Una síntesis humana no sustituye
+el contexto literal necesario para implementar.
+
+## Hosts y distribución
+
+Codex desktop y GitHub Copilot en VS Code Agent reciben adaptadores distintos del
+mismo núcleo. El paquete nativo Copilot usa Agent Plugins 1.0; la alternativa de
+skills de proyecto no debe activarse simultáneamente. El setup verifica propiedad,
+integridad y colisiones sin instalar dependencias personales.
+
+La paridad automática de paquetes no acredita aceptación conversacional. Los
+ensayos v2 de versiones/modelos/permisos, navegación, generación visual y relevo
+con personas siguen `not-run` hasta completar el
+[protocolo de host](V2-HOST-ACCEPTANCE.md). No se hereda aceptación de 1.x.
+En v3 se aplica [el protocolo de aceptación de uso](V3-HOST-ACCEPTANCE.md), separado
+de la aceptación de release solicitada en DEC-V3-002. El selector reducido permanece
+en comparación; la ruta normal conserva el contexto normativo activo.
+La extensión Codex de VS Code, ChatGPT Work y Claude están fuera de alcance.
+
+ImageGen se usa si está disponible en Codex. Copilot prepara un relevo visual
+explícito cuando hace falta; Codex nativo no lo necesita. Atlassian Rovo sigue
+siendo un peer opcional: el paquete no lo instala ni incluye un cliente Jira
+alternativo. Los ensayos externos Rovo/Jira y Microsoft Entra sin evidencia real
+siguen `not-run`.
+
+## Tecnología y colaboración
+
+La tecnología se declara y confirma en cada proyecto. La compatibilidad técnica se observa de forma estática local, no se infiere de un catálogo, receta o certificación global.
+
+Cada participante usa su clon y el runtime compartido. Hay continuidad y
+reconciliación, no locks distribuidos ni garantía de edición simultánea del mismo
+alcance. Roles declarados y hashes no autentican actores ni al editor del paquete.
+
+## Diagnóstico
+
+Resolver `<plugin-root>` desde la instalación que contiene el manifest:
+
+```powershell
+python -B "<plugin-root>/scripts/lks_sdd.py" runtime-doctor "<project-root>" --json
+python -B "<plugin-root>/scripts/lks_sdd.py" validate-project "<project-root>" --json
+python -B "<plugin-root>/scripts/lks_sdd.py" status "<project-root>" --json
+```
+
+Los resultados distinguen runtime, contrato e integridad; no autorizan implementación,
+migración, publicación o entrega. Para v2 use los comandos de
+[workflows](V2-WORKFLOWS.md); no mezcle opciones del ciclo 1.5 con el nuevo contrato.

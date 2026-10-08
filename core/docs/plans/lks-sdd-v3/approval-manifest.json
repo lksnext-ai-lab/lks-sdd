@@ -1,0 +1,39 @@
+{
+  "id": "DEC-V3-001",
+  "uid": "431708ba-c6aa-4f00-8258-4e858a0c0079",
+  "date": "2026-09-29",
+  "source": "Mensaje explícito del usuario en este chat",
+  "statement": "Valido la propuesta. Haz el plan de implementación",
+  "actor": "Usuario interlocutor de este chat; identidad corporativa no autenticada",
+  "proposal_revision": "v3-propuesta-03",
+  "decision": "Aceptación funcional y técnica del alcance completo y autorización de planificación",
+  "does_not_authorize": [
+    "implementation",
+    "commits",
+    "push",
+    "publication",
+    "active-installation",
+    "consumer-migration"
+  ],
+  "files": [
+    {
+      "path": "specs/proposed/team-workflow-traceability.md",
+      "sha256": "15f09dde2faa8912bf979be630184a90d50bae15a4e87a3f67a56a5dd0f750a3",
+      "bytes": 167922
+    },
+    {
+      "path": "specs/proposed/lks-sdd-v3-technical-proposal.md",
+      "sha256": "c76c2a5904638d749bbe79795ed0d569d76d6a9452512c299e0ad18d1b60e7d1",
+      "bytes": 41079
+    },
+    {
+      "path": "specs/proposed/lks-sdd-v3-validation.md",
+      "sha256": "4d8b17deefb54c6127febf3b155125c554d76faf83982cc1eddfde93d6a22ed0",
+      "bytes": 10006
+    }
+  ],
+  "snapshot": {
+    "path": "baseline/v3-propuesta-03.zip",
+    "sha256": "db057ceefdf2292ab556ceb6f4faf4ab245b5c4d872c8df697c64d49e92e69d7"
+  }
+}

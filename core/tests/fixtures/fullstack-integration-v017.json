@@ -1,0 +1,23 @@
+{
+  "id": "FX-M17-FULLSTACK-INTEGRATION",
+  "schema_version": "1.0",
+  "project_id": "synthetic-cross-unit-reference",
+  "topology": "SPA -> REST /api/v1 -> API -> PostgreSQL",
+  "identity": "controlled-non-production-provider",
+  "interfaces": ["INT-001"],
+  "units": ["UNIT-001", "UNIT-002"],
+  "bindings": ["BIND-001", "BIND-002"],
+  "scenarios": [
+    "false-positive-components-only",
+    "valid-browser-mutation-read-reload",
+    "backend-only-not-applicable",
+    "frontend-only-not-applicable",
+    "mixed-slice-required",
+    "functional-domain-mock-rejected",
+    "controlled-identity-double-allowed",
+    "historical-evidence-reconciliation",
+    "postvalidation-before-atomic-write",
+    "deterministic-typed-obligations"
+  ],
+  "contains_consumer_data": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "release_version": "2.3.0",
+  "scope": "stable-release",
+  "basis": ["project-owner-acceptance", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-23",
+    "authority_role": "project-owner",
+    "rationale": "El responsable del proyecto ha autorizado expresamente implementar las mejoras SPEC-PLAN/TASK, integrarlas en main, generar la release 2.3 y actualizar el plugin de Codex. La publicación queda condicionada al gate técnico y a la revisión de los assets del commit exacto; la aprobación no convierte aceptación por host o piloto no ejecutados en resultados superados.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aprobación no acredita aceptación conversacional real de Codex o Copilot ni un piloto entre desarrolladores.",
+    "El guard estricto requiere una fuente externa confiable y protección de rama para impedir integración incumplidora; no autentica roles ni intercepta escrituras locales.",
+    "Actualizar el plugin personal no actualiza automáticamente el runtime fijado de proyectos consumidores."
+  ]
+}

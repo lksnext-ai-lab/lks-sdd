@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "release_version": "3.0.0",
+  "scope": "stable-release",
+  "basis": ["project-owner-acceptance", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-29",
+    "authority_role": "project-owner",
+    "rationale": "El responsable ha solicitado expresamente implementar el plan validado, integrarlo en main, publicar la release 3.0 como aceptada y actualizar el plugin en Codex. La autorización está conservada en DEC-V3-002. Su ejecución exige los controles técnicos del commit final y no transforma observaciones humanas o de hosts no realizadas en pruebas superadas.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aceptación solicitada de la release se distingue de la observación conversacional de Codex/Copilot y de un piloto entre personas.",
+    "Los informes locales de pruebas no acreditan conectividad con una instancia real de Sonar ni un servicio Dependency-Check de un consumidor.",
+    "Las mediciones de caracteres o estimaciones no son tokens facturados ni acreditan ahorro económico.",
+    "Actualizar el plugin en Codex no migra proyectos consumidores ni demuestra que un chat ya abierto recargue sus skills."
+  ]
+}

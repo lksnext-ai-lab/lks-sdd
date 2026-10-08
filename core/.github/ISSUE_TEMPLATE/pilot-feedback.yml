@@ -1,0 +1,40 @@
+name: Feedback agregado del piloto
+description: Registra feedback no sensible sobre utilidad y carga.
+title: "[Piloto] "
+labels: ["pilot-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: Use solo aliases y métricas agregadas. No copie artefactos, prompts o contenido del proyecto.
+  - type: dropdown
+    id: route
+    attributes:
+      label: Ruta
+      options:
+        - greenfield H0
+        - adopción existente
+        - pila alternativa
+        - riesgo reforzado
+    validations:
+      required: true
+  - type: dropdown
+    id: utility
+    attributes:
+      label: Utilidad percibida
+      options: ["1", "2", "3", "4", "5"]
+    validations:
+      required: true
+  - type: dropdown
+    id: load
+    attributes:
+      label: Carga documental
+      options: ["baja", "aceptable", "alta"]
+    validations:
+      required: true
+  - type: checkboxes
+    id: sanitization
+    attributes:
+      label: Saneamiento
+      options:
+        - label: Confirmo que no incluyo datos personales, secretos ni contenido de cliente.
+          required: true

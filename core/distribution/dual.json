@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "hosts": [
+    "codex",
+    "copilot"
+  ],
+  "project_schema": "3.1",
+  "method_version": "3.1.0",
+  "storage_formats": [
+    "lks-sdd-object/1",
+    "lks-sdd-inventory/1",
+    "lks-sdd-state/1",
+    "lks-sdd-packet/1"
+  ],
+  "readable_project_schemas": [
+    "1.5",
+    "2.0",
+    "3.0",
+    "3.1"
+  ],
+  "migration_origins": [
+    "1.5",
+    "2.0"
+  ],
+  "collaboration": "governed-git",
+  "readable_method_versions": [
+    "2.0.0",
+    "2.1.0",
+    "3.0.0",
+    "3.1.0"
+  ],
+  "additional_files": [
+    "scripts/content_store.py",
+    "scripts/v2_history.py",
+    "scripts/v3_inventories.py",
+    "scripts/v3_current.py",
+    "scripts/v3_packet.py",
+    "scripts/document_state.py",
+    "scripts/source_inventory.py",
+    "scripts/v31_review.py",
+    "scripts/v31_corrections.py",
+    "scripts/v31_guidance.py",
+    "schemas/collaboration-3.1.schema.json",
+    "schemas/element-3.1.schema.json",
+    "schemas/project-3.1.schema.json",
+    "docs/V31-REVIEW.md",
+    "docs/DOCUMENT-STORAGE.md",
+    "scripts/v3_decision_profiles.py",
+    "scripts/v3_decision_presentation.py",
+    "scripts/v3_presentation_guard.py",
+    "docs/USER-DECISIONS.md",
+    "docs/decision-guides/assignments.md",
+    "docs/decision-guides/conditional-design.md",
+    "docs/decision-guides/corrections.md",
+    "docs/decision-guides/exceptions-continuity.md",
+    "docs/decision-guides/external-delivery.md",
+    "docs/decision-guides/planning.md",
+    "docs/decision-guides/project-setup.md",
+    "docs/decision-guides/specifications.md",
+    "docs/decision-guides/verification.md",
+    "tests/presentation_test_support.py",
+    "tests/test_v3_decision_presentation.py",
+    "tests/test_v3_instruction_routing.py"
+  ]
+}

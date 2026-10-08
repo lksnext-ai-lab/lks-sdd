@@ -1,0 +1,1342 @@
+{
+  "schema_version": "v3-case-coverage-1",
+  "date": "2026-09-29",
+  "source_sha256": "15f09dde2faa8912bf979be630184a90d50bae15a4e87a3f67a56a5dd0f750a3",
+  "meaning": "Traceability of implementation and partial observations; not 100 accepted cases. Full literal requirements remain in the approved source.",
+  "cases": [
+    {
+      "case": "AC-EQT-001",
+      "source": "specs/proposed/team-workflow-traceability.md:1205",
+      "literal_case_sha256": "4db17b686fe80224023a0f801766be6457b0f3456ad010b43ac525679d7688a8",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-002",
+      "source": "specs/proposed/team-workflow-traceability.md:1206",
+      "literal_case_sha256": "f2636a8b069b4ab3a6db3a9cffc2ee230d846fe8e1cde5cb45ede3042a11de00",
+      "owner": "TASK-V3-006",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review",
+        "test_v3_integration.IntegrationTests.test_available_dependency_can_continue_while_verified_dependency_waits",
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-003",
+      "source": "specs/proposed/team-workflow-traceability.md:1207",
+      "literal_case_sha256": "3e27036484a2972f85e8bd1800d2807a6157f8a08e06e0ea71b79662f360a5dd",
+      "owner": "TASK-V3-006",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_partial_handoff_needs_recipient_and_preserves_history",
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-004",
+      "source": "specs/proposed/team-workflow-traceability.md:1208",
+      "literal_case_sha256": "e4403928f8ee6a33583bfbba2ce2b9d27817bdde92cf4a5fb987b9b75643d33c",
+      "owner": "TASK-V3-006",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_partial_handoff_needs_recipient_and_preserves_history"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-005",
+      "source": "specs/proposed/team-workflow-traceability.md:1209",
+      "literal_case_sha256": "60bc2ef8a1441150a43dfe908b257c7e89f337fb4b239b807a42774b0420ffed",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-006",
+      "source": "specs/proposed/team-workflow-traceability.md:1210",
+      "literal_case_sha256": "778543431101ca533b1089d9e06c4b7cdcfe896373cd4495bb123342dc635a23",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-007",
+      "source": "specs/proposed/team-workflow-traceability.md:1211",
+      "literal_case_sha256": "89e1d546bd5780d0f7ae95747a7c453afbc6106d99bbb30cc73b64970ce5e03f",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-008",
+      "source": "specs/proposed/team-workflow-traceability.md:1212",
+      "literal_case_sha256": "ab8f4497f496f7759f1fd7a3bd43b2141ad4ce833df2096b90279c00e997184e",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-009",
+      "source": "specs/proposed/team-workflow-traceability.md:1213",
+      "literal_case_sha256": "77d81e4d4fefdabef8e314585d1dc2bcf0f534356511a0caff86856f8a50b136",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-010",
+      "source": "specs/proposed/team-workflow-traceability.md:1214",
+      "literal_case_sha256": "c25f89e5d6cea068cbbfe248e4b0eab3bb9a99889ee6962989d8c58dfa3d3b07",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review",
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-011",
+      "source": "specs/proposed/team-workflow-traceability.md:1215",
+      "literal_case_sha256": "4c14f99272be459260b16062137cb982c90fad109331915cd970195df4006e00",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_partial_handoff_needs_recipient_and_preserves_history",
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-012",
+      "source": "specs/proposed/team-workflow-traceability.md:1216",
+      "literal_case_sha256": "59dd46c349a5185218ad0e3f76f13d688c0ee4bcf84244cba730caf73cc12e7f",
+      "owner": "TASK-V3-006",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_deviation_and_conflicting_assignments_remain_visible_without_authority"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-013",
+      "source": "specs/proposed/team-workflow-traceability.md:1217",
+      "literal_case_sha256": "fb2230f603aa8335c8f37004d3747319e9565eb8d50f31bb41eaecda56630b29",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+        "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-014",
+      "source": "specs/proposed/team-workflow-traceability.md:1218",
+      "literal_case_sha256": "0cf55339364f9f15ac50ec75720c295f36f42d2dd7fa81fdc5e8ddc8c63e1a30",
+      "owner": "TASK-V3-002",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_independent_clones_keep_identity_with_same_alias"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-015",
+      "source": "specs/proposed/team-workflow-traceability.md:1219",
+      "literal_case_sha256": "fc070d2f0320d8a098581b560ce35c2d87feaf0e23867769cb39b4061fdd7853",
+      "owner": "TASK-V3-002",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_independent_clones_keep_identity_with_same_alias",
+        "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-016",
+      "source": "specs/proposed/team-workflow-traceability.md:1220",
+      "literal_case_sha256": "5e209a4204cd78f805e8781a9060d1cd73e69c703ddfd2ac0dbfb581209c6c34",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-017",
+      "source": "specs/proposed/team-workflow-traceability.md:1221",
+      "literal_case_sha256": "fe68fd704cfd5bb50bcd35aa39ddcaef0a03188944830e9c96f3ea106c790412",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+        "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards",
+        "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-018",
+      "source": "specs/proposed/team-workflow-traceability.md:1222",
+      "literal_case_sha256": "80b74be9251a8bfc9462a4872313dae691f15f9eff46ec0f43ec126aeb24ea8b",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-019",
+      "source": "specs/proposed/team-workflow-traceability.md:1223",
+      "literal_case_sha256": "5040cde9c1a53ed9d1c79ea2ac40298dc4c03002cbadc74f2e302b224a3372f7",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+        "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-020",
+      "source": "specs/proposed/team-workflow-traceability.md:1224",
+      "literal_case_sha256": "967563ebe72b6304d59fc173961f348cbb019ed3433539e1281cc6344d750d34",
+      "owner": "TASK-V3-002",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_independent_clones_keep_identity_with_same_alias",
+        "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-021",
+      "source": "specs/proposed/team-workflow-traceability.md:1225",
+      "literal_case_sha256": "67d1bb8663cb86fd46a54fb4c57d2cfde2fbf0d68e434cb12f87ecaecceaa81d",
+      "owner": "TASK-V3-009",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_dependency_check_stale_data_and_severity",
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-022",
+      "source": "specs/proposed/team-workflow-traceability.md:1226",
+      "literal_case_sha256": "24267cae41e52be1c953320b8c278389820302d22c642473edfb02171e7c3102",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-023",
+      "source": "specs/proposed/team-workflow-traceability.md:1227",
+      "literal_case_sha256": "ddd5714486820685113ede34a52af169f2ae4cf46b1cc6df09bf6c1189d0feab",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_existing_executor_timeout_has_bounded_retry_and_preserved_attempts",
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-024",
+      "source": "specs/proposed/team-workflow-traceability.md:1228",
+      "literal_case_sha256": "547e309365fbc74096d46706673e2848a3435558bcec596c1fa5f2afbef21414",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-025",
+      "source": "specs/proposed/team-workflow-traceability.md:1229",
+      "literal_case_sha256": "8aad3902b1150458a04e79b7b799f6f0840c960673d4f595033fdf40c7ce61f4",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+        "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close",
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-026",
+      "source": "specs/proposed/team-workflow-traceability.md:1230",
+      "literal_case_sha256": "ae4c0f5a5a9a6f77bba380dfdbe58e43be774da03c7fd06342b465ff514d5d41",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_dependency_check_stale_data_and_severity",
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-027",
+      "source": "specs/proposed/team-workflow-traceability.md:1231",
+      "literal_case_sha256": "9ccdeec91e758aa27c4b0d5d83d557665be6bdde277b7287b7491e9ddc7e3433",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_dependency_check_stale_data_and_severity",
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-028",
+      "source": "specs/proposed/team-workflow-traceability.md:1232",
+      "literal_case_sha256": "579a6c9a679c104024dc76c8b481db3ee3c47dd04fc4de481f76e4357ee53b28",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-029",
+      "source": "specs/proposed/team-workflow-traceability.md:1233",
+      "literal_case_sha256": "abb415558d8046898efac76e88c43fdf6fb0dc280f2989b31e5cf4fad7dc9eb0",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-030",
+      "source": "specs/proposed/team-workflow-traceability.md:1234",
+      "literal_case_sha256": "ef53023070ecd7876e5cd217e800829d2a38a0398a6e5ba43a3479f73dcc5e4a",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-031",
+      "source": "specs/proposed/team-workflow-traceability.md:1235",
+      "literal_case_sha256": "b5f4501da1b0d8816ed30b52bde2c9d58ba8eff8f9879a3257b16bb825fcc73c",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_available_dependency_can_continue_while_verified_dependency_waits",
+        "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-032",
+      "source": "specs/proposed/team-workflow-traceability.md:1236",
+      "literal_case_sha256": "529eb91268c569f87d16a0b56d505f84013d1f6dda6e396a138522fd38dd2112",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-033",
+      "source": "specs/proposed/team-workflow-traceability.md:1237",
+      "literal_case_sha256": "0733423a92ca014a2f15aa3d8c0cb729c06dff91667baa1912bcc2adeee84692",
+      "owner": "TASK-V3-006",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_partial_handoff_needs_recipient_and_preserves_history",
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-034",
+      "source": "specs/proposed/team-workflow-traceability.md:1238",
+      "literal_case_sha256": "bc7f2229a6797be2343956699ca2cee5829783a5678fd2aa5ba25673a3ed1413",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_available_dependency_can_continue_while_verified_dependency_waits"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-035",
+      "source": "specs/proposed/team-workflow-traceability.md:1239",
+      "literal_case_sha256": "260cc28433788f1d670454dd3ffc9178070daaeaf0700257a73f71b95bbfb75b",
+      "owner": "TASK-V3-009",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-036",
+      "source": "specs/proposed/team-workflow-traceability.md:1240",
+      "literal_case_sha256": "c7a056c0c98861ea283be97c123f252ef4b810880557a4849c75c0f417900d40",
+      "owner": "TASK-V3-014",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_existing_executor_timeout_has_bounded_retry_and_preserved_attempts",
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-037",
+      "source": "specs/proposed/team-workflow-traceability.md:1241",
+      "literal_case_sha256": "6b9bc50a2bddeb2be546aa1280230909b3a98e25d430f0d73fb3be0ff5e9bb00",
+      "owner": "TASK-V3-011",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+        "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-038",
+      "source": "specs/proposed/team-workflow-traceability.md:1242",
+      "literal_case_sha256": "f1933477a7c4e4dd9dd8f2d71778a6addaeff7286f387eeeeb3ad589e0a7bcba",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_existing_executor_timeout_has_bounded_retry_and_preserved_attempts"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-039",
+      "source": "specs/proposed/team-workflow-traceability.md:1243",
+      "literal_case_sha256": "4ab301e992e8193c03580fb53c1638630c5a8e180c8bb224eca39f7f1298909d",
+      "owner": "TASK-V3-014",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-040",
+      "source": "specs/proposed/team-workflow-traceability.md:1244",
+      "literal_case_sha256": "bd760be09b867a3dd1732f116e23fc6d1c01f01107e6bd7c6464652010cb6d8d",
+      "owner": "TASK-V3-002",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-041",
+      "source": "specs/proposed/team-workflow-traceability.md:1245",
+      "literal_case_sha256": "4e6b97246a79bbd3801eec7d1d4bf29309aeaa580b3bc9c39fa279ad87228ddd",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension",
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-042",
+      "source": "specs/proposed/team-workflow-traceability.md:1246",
+      "literal_case_sha256": "0a09f555d518784810a2736e1186be7e32adad7ac6ca601bb78bc61b8c87afc8",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-043",
+      "source": "specs/proposed/team-workflow-traceability.md:1247",
+      "literal_case_sha256": "cfd351a55bc4f62934b823fed6dca1f80e00c11478cd64227737ce6b940fd62e",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_exception_never_turns_failure_into_pass"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-044",
+      "source": "specs/proposed/team-workflow-traceability.md:1248",
+      "literal_case_sha256": "7a8025c2d37e988e8558d57ee548b553ddfc69740a78f374f8856744e3e4abdb",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_exception_never_turns_failure_into_pass"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-045",
+      "source": "specs/proposed/team-workflow-traceability.md:1249",
+      "literal_case_sha256": "4f88eb730cc3941b6f0f54f838ea37af83bedccf9f9717f4be11a730f44f5977",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_exception_never_turns_failure_into_pass"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-046",
+      "source": "specs/proposed/team-workflow-traceability.md:1250",
+      "literal_case_sha256": "56912446e620317e2207f1b51d564c4a157f5b6e0f32c3966c2e5821fd5afe3c",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-047",
+      "source": "specs/proposed/team-workflow-traceability.md:1251",
+      "literal_case_sha256": "e305915f96862a8b05a5a2bc6cbd960500402997b25c522bbb5fc94d0ac60a40",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_deviation_and_conflicting_assignments_remain_visible_without_authority",
+        "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+        "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-048",
+      "source": "specs/proposed/team-workflow-traceability.md:1252",
+      "literal_case_sha256": "d22f6e8942596ef2c85d15f1287070e2a4aabf24e1fe54750b17e3f8d9b67631",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-049",
+      "source": "specs/proposed/team-workflow-traceability.md:1253",
+      "literal_case_sha256": "8e09d14b53c5bc752ddc1b9d9470c1a091cfc0138e38626209dac0bf4a83cabc",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_exception_never_turns_failure_into_pass"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-050",
+      "source": "specs/proposed/team-workflow-traceability.md:1254",
+      "literal_case_sha256": "b4db424907dfc4435770b0ad3045b3dbcfdfccb8e5e6065251cb58f8cac115c1",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_deviation_and_conflicting_assignments_remain_visible_without_authority",
+        "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+        "test_v3_migration.MigrationTests.test_interruption_and_later_edit_are_protected",
+        "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close",
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+        "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-051",
+      "source": "specs/proposed/team-workflow-traceability.md:1255",
+      "literal_case_sha256": "fcf16424afb247ad197ffce8bcba12295d32fd0d19752ebe77c3f8bea2a8657f",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-052",
+      "source": "specs/proposed/team-workflow-traceability.md:1256",
+      "literal_case_sha256": "a2efc96469d5b853c1a93081f2df63c897a671900856a477ec37230a056b5ef7",
+      "owner": "TASK-V3-006",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-053",
+      "source": "specs/proposed/team-workflow-traceability.md:1257",
+      "literal_case_sha256": "3ad71c7d84100c3af1d41a56a27546c86feb84603deeb077b786b5a32d9b23ca",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-054",
+      "source": "specs/proposed/team-workflow-traceability.md:1258",
+      "literal_case_sha256": "4fb61845190c86385088369a8d7acad4a8437d9bcd0e351a95660a4491a47a8c",
+      "owner": "TASK-V3-005",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_deviation_and_conflicting_assignments_remain_visible_without_authority"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-055",
+      "source": "specs/proposed/team-workflow-traceability.md:1259",
+      "literal_case_sha256": "9eac1c11718f9a0a6c172b6579fb82a5a1b381b0a50df9af431c67a9aeddb8a2",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-056",
+      "source": "specs/proposed/team-workflow-traceability.md:1260",
+      "literal_case_sha256": "b6c17e46ed9f0c14e4c604791f474f70c99be317c208043e659b08c70bac8db3",
+      "owner": "TASK-V3-013",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-057",
+      "source": "specs/proposed/team-workflow-traceability.md:1261",
+      "literal_case_sha256": "57d2c410c8f1433b2a2bf8f2a842caa8278e14fe393244407b8ac911bc374a7c",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-058",
+      "source": "specs/proposed/team-workflow-traceability.md:1262",
+      "literal_case_sha256": "0c46349384f39547c16532ceac9453ac3ce985472fe240d5354628b6f83da51a",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-059",
+      "source": "specs/proposed/team-workflow-traceability.md:1263",
+      "literal_case_sha256": "5ecdc2da542c80f450c646616dc6387dd89c2fbf100abf671774327af86f5493",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_functional_approval_survives_independent_technical_revision",
+        "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension",
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-060",
+      "source": "specs/proposed/team-workflow-traceability.md:1264",
+      "literal_case_sha256": "d70dcd5aadda01221e8e187c15c8f74e1e74bff15178552b3c2ba0f3acb65b88",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-061",
+      "source": "specs/proposed/team-workflow-traceability.md:1265",
+      "literal_case_sha256": "01aaaaf1b7d4c0ca1100a578cf5d7ecff91f73e9b1672f4faf33d88176e6b0fe",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_functional_approval_survives_independent_technical_revision",
+        "test_v3_integration.IntegrationTests.test_partial_proposal_and_independent_plan_extension",
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-062",
+      "source": "specs/proposed/team-workflow-traceability.md:1266",
+      "literal_case_sha256": "2212fa7aa36806cb90ecb9c8c0f04804b1278e8dddb54e7bb8c38010ea999bad",
+      "owner": "TASK-V3-001",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract",
+        "test_windows_long_paths.WindowsLongPathTests.test_long_plugin_and_migration_paths_match_short_paths"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-063",
+      "source": "specs/proposed/team-workflow-traceability.md:1267",
+      "literal_case_sha256": "2111415ae3c0c6d13d0f0f7ade125726d7b1ea0fa24c1be80ec43cda7960c243",
+      "owner": "TASK-V3-011",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+        "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats",
+        "test_v3_migration.MigrationTests.test_unknown_method_is_diagnosed_without_writes"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-064",
+      "source": "specs/proposed/team-workflow-traceability.md:1268",
+      "literal_case_sha256": "97e1eece31bb0dc930d62de00a9309d3a26e24636966bf3b775c99644c58fc24",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract",
+        "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+        "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority",
+        "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-065",
+      "source": "specs/proposed/team-workflow-traceability.md:1269",
+      "literal_case_sha256": "0ad7cda1ad4571cbb00dc20d10e863d81b6bf2e2161c6a015b6320927526588c",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract",
+        "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+        "test_v3_migration.MigrationTests.test_interruption_and_later_edit_are_protected",
+        "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work",
+        "test_windows_long_paths.WindowsLongPathTests.test_long_plugin_and_migration_paths_match_short_paths"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-066",
+      "source": "specs/proposed/team-workflow-traceability.md:1270",
+      "literal_case_sha256": "336a13a19366482e6b8eec99a50e05d5392bdb315aeddbebaff78b2e751bd5a5",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-067",
+      "source": "specs/proposed/team-workflow-traceability.md:1271",
+      "literal_case_sha256": "53d4b7984eb82a8ec20cf2178753c125dd7dd1608ae573d56d95939eb0513400",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_interruption_and_later_edit_are_protected",
+        "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-068",
+      "source": "specs/proposed/team-workflow-traceability.md:1272",
+      "literal_case_sha256": "c18a99f00d15a3e3cb50e8bf0e6a9a26ed062364378b3abf37c13d992508dd82",
+      "owner": "TASK-V3-017",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-069",
+      "source": "specs/proposed/team-workflow-traceability.md:1273",
+      "literal_case_sha256": "e203cecc2e5ce99242ac1d9d8c55c5d5cda86d7db9b3ad543b4a71d1c7cfbaab",
+      "owner": "TASK-V3-017",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-070",
+      "source": "specs/proposed/team-workflow-traceability.md:1274",
+      "literal_case_sha256": "c82b8af66449d9b4f0c4cfa0da2f9e214a224438e8c471031eed5a2e977e68c4",
+      "owner": "TASK-V3-017",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-071",
+      "source": "specs/proposed/team-workflow-traceability.md:1275",
+      "literal_case_sha256": "8b8957d82723365cdcb92b197bf440c723ace4fd7f76bde2e122053b017fc670",
+      "owner": "TASK-V3-017",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-072",
+      "source": "specs/proposed/team-workflow-traceability.md:1276",
+      "literal_case_sha256": "9e5cab819c4a0441a7ebac1443e0882621567b49c223d8a76c20ad8e23de1b30",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-073",
+      "source": "specs/proposed/team-workflow-traceability.md:1277",
+      "literal_case_sha256": "d0c5d8f120945fce77240c033403e6b2897c029180464b574c03f774f78aff8f",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_functional_approval_survives_independent_technical_revision"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-074",
+      "source": "specs/proposed/team-workflow-traceability.md:1278",
+      "literal_case_sha256": "1af1f956d166fcbb34e66fd22e30fc44bf8bb77056da100a129cdab0cb8682e3",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-075",
+      "source": "specs/proposed/team-workflow-traceability.md:1279",
+      "literal_case_sha256": "6182b5004d8910ad3ff191819cda8d03d77e3b01480514f5f42186f6a1301383",
+      "owner": "TASK-V3-004",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_functional_approval_survives_independent_technical_revision",
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-076",
+      "source": "specs/proposed/team-workflow-traceability.md:1280",
+      "literal_case_sha256": "a7362016343610325b18695a5d6be2f1fca4b69274d0b820b949df90eaebae4f",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-077",
+      "source": "specs/proposed/team-workflow-traceability.md:1281",
+      "literal_case_sha256": "3ed9a3819491488925d07e6a763fb3fb8a994218481c214a6b97be3579a6b157",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-078",
+      "source": "specs/proposed/team-workflow-traceability.md:1282",
+      "literal_case_sha256": "ff196aea5fcd3e741e89973e249c1da3f901aa326a0966c86e55bc0ae3fee492",
+      "owner": "TASK-V3-003",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-079",
+      "source": "specs/proposed/team-workflow-traceability.md:1283",
+      "literal_case_sha256": "83fb3a885f6c2c57ec8c80b0aa0778e6f5d319f4bde45e703464ba3a1ec90a7b",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_partial_handoff_needs_recipient_and_preserves_history",
+        "test_v3_governance_quality.GovernanceQualityTests.test_recipient_acceptance_and_independent_review"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-080",
+      "source": "specs/proposed/team-workflow-traceability.md:1284",
+      "literal_case_sha256": "8af8dd810e911e96c6bfdf63e04548e39227fec06ab04e586f683394bbd0d861",
+      "owner": "TASK-V3-007",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-081",
+      "source": "specs/proposed/team-workflow-traceability.md:1285",
+      "literal_case_sha256": "52f0009e53bf2c590c1ac2e53c4cc2836806a9c8da6ee015542f513cec1710df",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_existing_executor_timeout_has_bounded_retry_and_preserved_attempts"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-082",
+      "source": "specs/proposed/team-workflow-traceability.md:1286",
+      "literal_case_sha256": "601796dd6987b8bc67a84604cab1df8369b7ce1b1141782d4c96ed1037b8453e",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-083",
+      "source": "specs/proposed/team-workflow-traceability.md:1287",
+      "literal_case_sha256": "c25eae2e6369f87cab6890222fa370b5516c62bd5d0b358dff3a48ae3e6d6c83",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_integration.IntegrationTests.test_available_dependency_can_continue_while_verified_dependency_waits"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-084",
+      "source": "specs/proposed/team-workflow-traceability.md:1288",
+      "literal_case_sha256": "e2b5350a72fc42f0af03f8ab440be8738f6d70d2a58f8382113ffbb9965e6e71",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_dependency_check_stale_data_and_severity",
+        "test_v3_governance_quality.GovernanceQualityTests.test_existing_executor_timeout_has_bounded_retry_and_preserved_attempts",
+        "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-085",
+      "source": "specs/proposed/team-workflow-traceability.md:1289",
+      "literal_case_sha256": "8a630a8a06e3fb725325f2d8b0a76bcadce58b01e50354a31141aedce6fbb934",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+        "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority",
+        "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-086",
+      "source": "specs/proposed/team-workflow-traceability.md:1290",
+      "literal_case_sha256": "10a7b256f08e28f647f964ac75544ac7ef266accdae496fa94fe9b25559ad53a",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority",
+        "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-087",
+      "source": "specs/proposed/team-workflow-traceability.md:1291",
+      "literal_case_sha256": "29967ec303f0dbd0903d583aefd65935c9dcd7e8510f8804044f75e99050afe1",
+      "owner": "TASK-V3-012",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-088",
+      "source": "specs/proposed/team-workflow-traceability.md:1292",
+      "literal_case_sha256": "dc7bb0b9cabdeb35c558fadf6cf5ffcbfa0047c493126787524996348ef85992",
+      "owner": "TASK-V3-011",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_migration.MigrationTests.test_unknown_method_is_diagnosed_without_writes"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-089",
+      "source": "specs/proposed/team-workflow-traceability.md:1293",
+      "literal_case_sha256": "fee77b4d9cd043df959aeda07ca7a626bb3478abf5647102867ee8f6c27acf24",
+      "owner": "TASK-V3-014",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_distribution.DistributionTests.test_pinned_runtime_cutover_and_cli_preserve_host_contract"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-090",
+      "source": "specs/proposed/team-workflow-traceability.md:1294",
+      "literal_case_sha256": "a043fc6e92ae2c636bdd75fd57eaa9baae416d8140378658a4867ca84c07a3f2",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-091",
+      "source": "specs/proposed/team-workflow-traceability.md:1295",
+      "literal_case_sha256": "b1ffc3498bcaddccb4c62f5b40916cb101147433d8a9d4223314892f393b23c3",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+        "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-092",
+      "source": "specs/proposed/team-workflow-traceability.md:1296",
+      "literal_case_sha256": "c9e08cfdf4b50e4d0a887f5d7d81a729afe126b97479aa4b2738d86d19878e31",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-093",
+      "source": "specs/proposed/team-workflow-traceability.md:1297",
+      "literal_case_sha256": "f17f53d2b57a7a3b9f7c33a538e993a711f541bedd5b06e98d4e73ff3128a130",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+        "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-094",
+      "source": "specs/proposed/team-workflow-traceability.md:1298",
+      "literal_case_sha256": "6102bd5372d3d279eb7b09194198fae01f424ca59c0ad8df2876e2af09590c2f",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+        "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-095",
+      "source": "specs/proposed/team-workflow-traceability.md:1299",
+      "literal_case_sha256": "35689ee660e702de0eb662ecdace0b16b52fb410517efbeabf821a5d3eda4acb",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+        "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-096",
+      "source": "specs/proposed/team-workflow-traceability.md:1300",
+      "literal_case_sha256": "fa9ca742a360b479d240235c2f3a3f451ab06b2eba2d179404e9d3efa7bef140",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-097",
+      "source": "specs/proposed/team-workflow-traceability.md:1301",
+      "literal_case_sha256": "47a7726f00bccfe89969288ec09cd766c621f89a4c39150f934dcbbb2425028e",
+      "owner": "TASK-V3-008",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-098",
+      "source": "specs/proposed/team-workflow-traceability.md:1302",
+      "literal_case_sha256": "58ffe6e84f822986e68b84813367d2a309ed9deec3d055e5b5ea55f0da963878",
+      "owner": "TASK-V3-017",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-099",
+      "source": "specs/proposed/team-workflow-traceability.md:1303",
+      "literal_case_sha256": "55ccab85ad3713a925be4c4ff3188979ca91992a49287c5259aea9ac5f0737a3",
+      "owner": "TASK-V3-017",
+      "technical_evidence": "implementation-review-only",
+      "test_ids": [],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-run",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    },
+    {
+      "case": "AC-EQT-100",
+      "source": "specs/proposed/team-workflow-traceability.md:1304",
+      "literal_case_sha256": "144ed68e3f15cacf74be28ecf35fd285d64134371d4e4d7697e81c2be436863f",
+      "owner": "TASK-V3-010",
+      "technical_evidence": "automated-partial",
+      "test_ids": [
+        "test_v3_governance_quality.GovernanceQualityTests.test_context_attachment_cache_and_retired_root",
+        "test_v3_governance_quality.GovernanceQualityTests.test_literal_context_includes_unknown_global_and_new_sources"
+      ],
+      "whole_compound_case": "not-asserted",
+      "human_observation": "not-claimed",
+      "scope_note": "Named tests exercise relevant conditions only; they are not proof of every clause, every host or every real service."
+    }
+  ]
+}

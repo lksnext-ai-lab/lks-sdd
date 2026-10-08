@@ -1,0 +1,13 @@
+{
+  "channel": "stable",
+  "files": {
+    "INSTALLATION.md": "16d3c1b6503d3f74b6149785aa6a03989e21106aab1b79a5d8d8d88d9789d0a9",
+    "install.ps1": "a1c130716a545e562e60af09e7d424c4a4c1c4c0a0d2dbaa40cad745a3038926",
+    "install.py": "df2320ee157fec553defa8d50f0c8c8270a3103fb32bfb5bc6cc44e931edaf5a",
+    "payload/copilot.zip": "858c0a2476ec75cd0ae6c5d26369a873779abb00a6996919cc6704aff8d247f8"
+  },
+  "runtime_digest": "5201a66304481099b27d08b13a07fa4cdb837473d757e276c01aacb4395bac25",
+  "schema_version": "1.0",
+  "source": "6e1c4380c130d2ff4f7a9cae97b1257e05294724",
+  "version": "3.2.0"
+}

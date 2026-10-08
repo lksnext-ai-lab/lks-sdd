@@ -1,0 +1,16 @@
+{
+  "id": "FTR-001",
+  "title": "SUSTITUIR: nombre funcional, no tarea técnica",
+  "slug": "sustituir-nombre",
+  "sections": {
+    "Finalidad": "SUSTITUIR: resultado que necesita la persona usuaria.",
+    "Alcance": "SUSTITUIR: qué incluye, qué queda fuera y cobertura conocida.",
+    "Comportamiento": "SUSTITUIR: entradas, estados, salidas e interacción.",
+    "Reglas y excepciones": "SUSTITUIR: obligaciones, permisos, límites y errores.",
+    "Aceptación": "SUSTITUIR: resultados observables, negativos y regresión.",
+    "Relaciones": "SUSTITUIR: padre opcional, usos, dependencias y fuentes.",
+    "Evolución": "SUSTITUIR: nueva capacidad o cambio de una existente; efectividad."
+  },
+  "relations": {},
+  "obligations": []
+}

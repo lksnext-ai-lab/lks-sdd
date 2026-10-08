@@ -1,0 +1,14 @@
+{
+  "id": "FX-M10-JIRA-DEGRADED",
+  "description": "Resultado externo sintético incierto para probar reconciliación fail-closed.",
+  "project_id": "fixture-jira-degraded",
+  "task": "TASK-001",
+  "result": "uncertain",
+  "expected_state": "reconciliation-required",
+  "assertions": [
+    "uncertain_create_is_not_retried_blindly",
+    "correlation_marker_is_searched_before_retry",
+    "planning_completeness_is_preserved",
+    "credentials_are_never_persisted"
+  ]
+}

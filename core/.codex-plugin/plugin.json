@@ -1,0 +1,50 @@
+{
+  "name": "lks-sdd",
+  "version": "3.2.0",
+  "description": "Plugin Spec-anchored para Codex: propuestas validadas, procesos configurables, equipo, ramas, calidad durante implementación y migración explícita.",
+  "author": {
+    "name": "LKS"
+  },
+  "keywords": [
+    "sdd",
+    "specification-driven-development",
+    "spec-anchored",
+    "codex",
+    "jira",
+    "task-tracking",
+    "microsoft-entra",
+    "oidc",
+    "web-development",
+    "governance"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LKS-SDD para Codex",
+    "shortDescription": "Desarrollo Spec-anchored con Codex",
+    "longDescription": "LKS-SDD 3 Spec-anchored para Codex. Seis skills con carga progresiva y un núcleo compartido con GitHub Copilot. Mantiene Markdown canónico, identidades estables, proceso y responsables configurados por proyecto, propuesta funcional/técnica validada antes del plan y autorizaciones reutilizables. Registra traspasos, excepciones delimitadas, rama/base y evidencia exacta de implementación, incluidos Sonar y Dependency-Check cuando se utilizan. Conserva lectores v2 y 1.5 y ofrece migración explícita, recuperable, separada de instalar el plugin. CI/CD queda fuera. Identidad declarada no equivale a autenticación. Una prueba local no acredita aceptación conversacional de otro host ni de un equipo.",
+    "developerName": "LKS",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Explícame el enfoque Spec-anchored de LKS-SDD con Codex sin modificar archivos.",
+      "Ayúdame en Codex a descubrir y definir esta aplicación sin presuponer su dominio ni generar código.",
+      "Muéstrame la cobertura de la definición y, si hay frontend, guía el diseño y prototipado visual.",
+      "Ayúdame a definir el modelo de entrega, las ramas, los entornos y un tablero de tareas para este horizonte.",
+      "Antes de planificar tareas, ayúdame a elegir explícitamente entre seguimiento en el repositorio y Jira híbrido.",
+      "Prepara una vista previa saneada para proyectar en Jira las tareas ya confirmadas, sin escribir todavía en el sistema externo.",
+      "Configura de forma opcional el reporting Jira por hitos y prepara un comentario o transición con una sola confirmación, sin escribir todavía.",
+      "Evalúa si toda la release está planificada y propón las tareas que faltan antes de implementar.",
+      "Añade este cambio a una funcionalidad existente: reconcilia la petición con SPEC y completa PLAN/TASK antes de implementar.",
+      "Inspecciona y confirma la declaración tecnológica local del proyecto para cada unidad y tarea aplicable.",
+      "Explica por binding la cobertura de automatización declarada localmente, sin inferir certificación global.",
+      "Construye con Codex una baseline documental Spec-anchored de este repositorio existente mediante un preflight de solo lectura.",
+      "Implementa con Codex la siguiente tarea autorizada y deja checkpoints reanudables.",
+      "Reanuda con Codex la ejecución autorizada desde su último checkpoint.",
+      "Verifica con Codex las tareas implementadas sin confundir código escrito con evidencia superada."
+    ]
+  }
+}

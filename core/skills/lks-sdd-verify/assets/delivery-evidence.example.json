@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.1",
+  "evidence_state": "complete",
+  "technical_run_id": "run-sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "release": "REL-001",
+  "environment": "ENV-002",
+  "revision": "workspace-sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "tree_id": "workspace:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "tree_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "build_id": "build-sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "artifact_digests": [
+    "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  ],
+  "promotion": {
+    "status": "passed",
+    "recorded_at": "2026-08-21T10:00:00Z",
+    "reference": "replace-with-immutable-promotion-record"
+  },
+  "smoke": {
+    "status": "passed",
+    "recorded_at": "2026-08-21T10:01:00Z",
+    "reference": "replace-with-smoke-result"
+  },
+  "observability": {
+    "status": "passed",
+    "recorded_at": "2026-08-21T10:02:00Z",
+    "reference": "replace-with-observability-check"
+  },
+  "recovery": {
+    "status": "passed",
+    "recorded_at": "2026-08-21T10:03:00Z",
+    "reference": "replace-with-recovery-proof"
+  },
+  "authorization": {
+    "status": "passed",
+    "recorded_at": "2026-08-21T09:59:00Z",
+    "reference": "replace-with-approval-record",
+    "authority": "replace-with-confirmed-authority"
+  }
+}

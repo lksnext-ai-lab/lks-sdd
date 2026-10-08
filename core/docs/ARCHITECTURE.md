@@ -1,0 +1,75 @@
+# Arquitectura y alcance de LKS-SDD 3.2.0
+
+LKS-SDD es un plugin `skills-only` para Codex desktop y GitHub Copilot en VS Code
+Agent. La versión 3.2.0 usa schema 3.1 / método 3.1.0 para trabajo nuevo, con configuración y runtime fijado. Conserva lectores y recuperación de formatos anteriores; continuar trabajo exige una migración o actualización explícita compatible. Los Markdown
+del proyecto consumidor son la fuente de verdad; `.lks-sdd/project.json` es un
+índice operativo y no sustituye decisiones, tareas ni evidencia.
+
+El enfoque es **Spec-anchored**: los acuerdos siguen gobernando el trabajo mientras
+evoluciona el código. No es **Spec-as-source**; el código y una síntesis del agente
+no deciden por sí solos la intención, aceptación o autorización humana.
+
+## Núcleo y capacidades
+
+El núcleo v3 agrupa `v3_contract/schema/storage`, `v3_authoring/approval/policy`,
+`v3_workflow/team/git/quality/verification`, `v3_context/guidance` y
+`v3_adoption/migration`. Su CLI común alimenta las seis skills y ambos hosts.
+[Reglas comunes v3](V3-COMMON.md) y [operaciones](V3-OPERATIONS.md).
+
+El runtime conservado para formatos anteriores agrupa:
+
+| Área | Responsabilidad |
+|---|---|
+| `v2_contract`, `v2_schema` y `v2_storage` | Modelo documental, identidades, relaciones, snapshots, journal compacto y recuperación. |
+| `v2_authoring` y `v2_features` | Definiciones por funcionalidad, historia y navegación. |
+| `v2_lifecycle`, `v2_controls` y `v2_verification` | Autoridad, diff real, continuidad, evidencia y cierre por alcance. |
+| `v2_query` | Consulta de solo lectura sobre documentos, con código únicamente ante una carencia concreta o petición explícita. |
+| `v2_migration` | Conversión explícita 1.5→2.0 con inventario, preview autorizado, recibo de conservación y rollback. |
+| `v2_cli` | Entrada pública que enruta por schema y no interpreta una carpeta como permiso o host. |
+
+Las seis skills comparten esta política: consultar, definir, adoptar, evaluar
+readiness, implementar y verificar son operaciones diferentes. Una consulta no
+escribe; readiness no autoriza código; una autorización acotada no permite
+publicar, instalar ni hacer push.
+
+## Distribución
+
+`dual_distribution.py` genera adaptadores para ambos hosts desde el mismo núcleo.
+El plugin Copilot contiene `core/` para ayuda sin proyecto y `setup/` para preparar
+explícitamente un consumidor. El runtime fijado por un lock del consumidor prevalece
+frente al plugin instalado; `runtime-doctor` comprueba esa integridad.
+
+La distribución no instala dependencias personales, no añade MCP, hooks, apps ni
+agentes ejecutables. ImageGen es una capacidad condicional de Codex; Copilot usa un
+relevo visual explícito cuando es necesario. La generación de imágenes, las cuentas
+de host y los servicios externos no forman parte del runtime.
+
+## Compatibilidad y tecnología
+
+Los lectores y writers 1.5 permanecen separados de 2.0 para permitir una migración
+autorizada. El historial de un consumidor migrado se conserva como antecedente no
+normativo; un `ART-TRACKING` o `SYNC-###` histórico no autoriza trabajo v2.
+
+La tecnología se declara y confirma localmente en el proyecto. Las observaciones no conceden autorización y no existe catálogo, lock, receta ni certificación global.
+
+## Límites de confianza
+
+Los hashes detectan deriva, pero no son firmas de editor. Los roles declarados no
+autentican personas. No hay locks distribuidos ni garantía de edición simultánea.
+El estado técnico de las transacciones del plugin se concentra en
+`.lks-sdd/transactions.json`; los documentos Markdown de ejecución, checkpoints y
+recibos siguen siendo parte del historial canónico del consumidor.
+La retención operativa es explícita: `retention-status` calcula una vista derivada
+sin escribir; `retention-compact` mueve únicamente AUTH/EXEC/CKPT/PROB/REC cerrados
+a `docs/lks-sdd/00-control/history/operational/` y registra sus hashes en
+`.lks-sdd/retention.json`; `retention-restore` permite devolverlos a su ruta original.
+Nunca se compactan documentos normativos ni `docs/lks-sdd/evidence/EVID-###.json`.
+El estado activo permanece en sus rutas normales, sin crear una segunda fuente
+canónica.
+Las pruebas automatizadas no acreditan comprensión humana, piloto, navegación real
+en host ni interoperabilidad externa: esos canales continúan `not-run` hasta contar
+con evidencia observada.
+
+Las guías operativas están en [V2-WORKFLOWS.md](V2-WORKFLOWS.md),
+[V2-AUTHORING.md](V2-AUTHORING.md), [V2-MIGRATION.md](V2-MIGRATION.md),
+[VALIDATION.md](VALIDATION.md) y [RELEASING.md](RELEASING.md).

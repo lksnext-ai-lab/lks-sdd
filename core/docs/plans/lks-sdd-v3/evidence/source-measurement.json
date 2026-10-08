@@ -1,0 +1,98 @@
+{
+  "schema_version": "v3-source-measurement-1",
+  "date": "2026-09-29",
+  "method": "Unicode characters / 4 rounded up; source estimate, not host telemetry",
+  "metadata_estimate": 252,
+  "scenarios": [
+    {
+      "skill": "help",
+      "source_paths": [
+        "skills/lks-sdd-help/SKILL.md",
+        "docs/V3-COMMON.md",
+        "skills/lks-sdd-help/references/v3.md"
+      ],
+      "codex_estimate": 1336,
+      "copilot_project_estimate": 1690,
+      "copilot_native_estimate": 1772
+    },
+    {
+      "skill": "define",
+      "source_paths": [
+        "skills/lks-sdd-define/SKILL.md",
+        "docs/V3-COMMON.md",
+        "skills/lks-sdd-define/references/v3.md"
+      ],
+      "codex_estimate": 1444,
+      "copilot_project_estimate": 1799,
+      "copilot_native_estimate": 1881
+    },
+    {
+      "skill": "adopt-existing",
+      "source_paths": [
+        "skills/lks-sdd-adopt-existing/SKILL.md",
+        "docs/V3-COMMON.md",
+        "skills/lks-sdd-adopt-existing/references/v3.md"
+      ],
+      "codex_estimate": 1402,
+      "copilot_project_estimate": 1763,
+      "copilot_native_estimate": 1846
+    },
+    {
+      "skill": "assess-readiness",
+      "source_paths": [
+        "skills/lks-sdd-assess-readiness/SKILL.md",
+        "docs/V3-COMMON.md",
+        "skills/lks-sdd-assess-readiness/references/v3.md"
+      ],
+      "codex_estimate": 1384,
+      "copilot_project_estimate": 1750,
+      "copilot_native_estimate": 1832
+    },
+    {
+      "skill": "implement",
+      "source_paths": [
+        "skills/lks-sdd-implement/SKILL.md",
+        "docs/V3-COMMON.md",
+        "skills/lks-sdd-implement/references/v3.md"
+      ],
+      "codex_estimate": 1489,
+      "copilot_project_estimate": 1851,
+      "copilot_native_estimate": 1933
+    },
+    {
+      "skill": "verify",
+      "source_paths": [
+        "skills/lks-sdd-verify/SKILL.md",
+        "docs/V3-COMMON.md",
+        "skills/lks-sdd-verify/references/v3.md"
+      ],
+      "codex_estimate": 1455,
+      "copilot_project_estimate": 1822,
+      "copilot_native_estimate": 1905
+    }
+  ],
+  "included": "selected skill + common + operation reference + managed AGENTS; Copilot additionally includes host, copilot-instructions and its wrapper",
+  "excluded": "consumer normative sources, tool outputs, optional operation detail sections, user/system instructions and actual host duplication",
+  "optional_full_operations_document_estimate": 1842,
+  "billed_tokens": null,
+  "host_observation": "not-run",
+  "history_growth": [
+    {
+      "synthetic_events": 10,
+      "normative_characters": 5025,
+      "source_blocks": 7,
+      "local_read_seconds": 0.4412
+    },
+    {
+      "synthetic_events": 100,
+      "normative_characters": 5025,
+      "source_blocks": 7,
+      "local_read_seconds": 1.1085
+    }
+  ],
+  "limitations": [
+    "Instruction estimates are not total task cost or measured token savings.",
+    "The conservative context remains default. Optimized selection is comparison-only.",
+    "History experiment is one synthetic observation, not a performance baseline."
+  ]
+}

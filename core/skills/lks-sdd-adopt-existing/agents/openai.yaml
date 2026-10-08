@@ -1,0 +1,6 @@
+interface:
+  display_name: "LKS-SDD · adopt-existing en Codex"
+  short_description: "Documenta un sistema existente sin cambiarlo"
+  default_prompt: "Usa $lks-sdd-adopt-existing para documentar el ámbito relevante de este sistema, distinguir lo observado de lo acordado y conservar los desconocidos sin cambiar código."
+policy:
+  allow_implicit_invocation: true

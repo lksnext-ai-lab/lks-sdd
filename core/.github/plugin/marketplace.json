@@ -1,0 +1,18 @@
+{
+  "name": "lks-sdd-copilot",
+  "owner": {
+    "name": "LKS"
+  },
+  "plugins": [
+    {
+      "name": "lks-sdd",
+      "description": "Desarrollo Spec-anchored con seis skills, ayuda desde cero y runtime compartido por proyecto.",
+      "version": "3.2.0",
+      "source": {
+        "source": "github",
+        "repo": "lksnext-ai-lab/lks-sdd",
+        "ref": "copilot-v3.2.0"
+      }
+    }
+  ]
+}

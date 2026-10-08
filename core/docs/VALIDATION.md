@@ -1,0 +1,217 @@
+# Validación y publicación
+
+## Regla operativa
+
+Este plugin se publica con una única puerta técnica pequeña. No existe una matriz de
+certificación, una campaña Docker, una baseline de rendimiento ni una batería amplia
+como requisito de release.
+
+La puerta estable ejecuta solo cuatro comprobaciones:
+
+1. La aprobación explícita de la versión.
+2. La integridad estática: fixtures y contrato del plugin.
+3. Catorce pruebas de humo que cubren declaración tecnológica, migración de legado,
+   continuidad SPEC/PLAN/TASK, autoridad, guard estricto y recorridos v3 de equipo,
+   propuesta, calidad, migración y aceptación separada.
+4. La regresión real de rutas largas de Windows.
+
+La batería de desarrollo incorpora regresiones focales de v2 y v3, incluido el
+cambio de runtime fijado. No se convierten todas en controles obligatorios de cada
+publicación: las catorce pruebas de humo y Windows siguen siendo la puerta técnica.
+
+Los checks técnicos independientes del gate se ejecutan en paralelo para reducir el
+tiempo activo del runner. Esta concurrencia no elimina checks, no acorta sus timeouts
+ni cambia los estados que bloquean una release.
+
+Las suites extensas, evals conversacionales, benchmarks, pilotos y aceptación de host
+no forman parte de la publicación ni se mantienen como batería paralela.
+La observación de uso de v3 se prepara una sola vez con
+[su protocolo](V3-HOST-ACCEPTANCE.md); no se presenta como superada por este gate.
+
+## Pull request
+
+La comprobación automática de una PR es solo el contrato del plugin:
+
+```powershell
+python -B -X utf8 scripts\validate_plugin_contract.py .
+```
+
+## Desarrollo del recorrido integral
+
+Las pruebas focales de `tests/test_v31_review.py` comprueban decisiones agrupadas,
+revisión conjunta, encargos, correcciones, excepciones y orientación de solo lectura.
+`tests/test_v3_distribution.py` comprueba adopción 3.0 → 3.1 con runtime fijado y
+rollback. Son comprobaciones de desarrollo de este cambio; no acreditan aceptación
+humana de Codex/Copilot ni modifican la puerta de publicación descrita aquí.
+La implementación y su evidencia se documentan en
+[el plan de revisión integral](plans/integral-review/PLAN.md).
+
+Para cambios de presentación y selección de instrucciones se añaden las regresiones
+focales `test_v3_decision_presentation` y `test_v3_instruction_routing`. Comprueban
+prosa literal, borradores, decisiones antiguas, caducidad del contenido mostrado,
+composición, recogida de evidencia por petición y ejecución desde ambos paquetes.
+Los recorridos de revisión, equipo, calidad, integración y distribución se mantienen.
+Las comprobaciones y límites quedan en
+[la cobertura de esta implementación](plans/specification-review-presentation/IMPLEMENTATION.md).
+La comparación de instrucciones se reproduce con
+`python -B -X utf8 tests/measure_v3_instruction_context.py`; registra caracteres,
+lecturas previstas y huellas, sin presentarlos como tokens facturados ni coste total.
+
+## Release estable
+
+Ejecute una vez desde un checkout limpio del commit ya integrado. El comando no acepta
+un árbol con cambios ni reutiliza un informe existente.
+
+El camino normal es ejecutar manualmente `stable-preflight` dentro de **Actions →
+quality** sobre `main`. El job ejecuta el preflight ligero, el gate estable y un
+único build de todos los paquetes de distribución; valida los paquetes Copilot,
+plugin y marketplace, y publica `stable-preflight-evidence` durante 30 días. Solo un
+informe de readiness y gate superados permite crear la etiqueta; el job no crea ni
+publica nada.
+
+La instalación de dependencias puede restaurar la caché pip ligada a
+`requirements-runtime.txt`, pero siempre ejecuta `pip install --require-hashes`. La
+caché no acredita una release ni contiene paquetes generados, candidates o evidencia.
+
+La evidencia incluye la procedencia del run manual, vinculada a su SHA, rama, versión
+e intento. Al recibir una etiqueta stable, `quality` reutiliza ese candidate solo si
+el run correcto, su procedencia, readiness, gate, manifiesto, checksums, paquetes y
+sección acreditada del changelog acreditan el mismo SHA. Si falta esa evidencia, ejecuta el gate y
+build completos y declara `revalidated-after-missing-preflight`. Una evidencia
+presente pero inválida, ambigua o no descargable bloquea la etiqueta: nunca se acepta
+ni se reconstruye silenciosamente.
+
+Para diagnosticar un bloqueo sin iniciar CI, puede ejecutar solo el preflight local:
+
+```powershell
+$releaseReadiness = Join-Path $env:TEMP 'lks-sdd-release-readiness.json'
+python -B -X utf8 scripts\release_readiness.py `
+  --channel stable `
+  --output $releaseReadiness
+```
+
+```powershell
+$releaseDate = Get-Date -Format 'yyyy-MM-dd'
+$releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
+python -B -X utf8 scripts\run_release_gate.py `
+  --channel stable `
+  --date $releaseDate `
+  --release-approval quality\release-approval-v3.2.0.json `
+  --output $releaseGate
+```
+
+Un resultado `passed` acredita únicamente las cuatro comprobaciones anteriores. No
+acredita aceptación humana, uso real de Copilot/Codex, navegación, generación visual,
+piloto, Jira o despliegue.
+
+## Un único build
+
+Tras superar el gate, cree una sola vez el conjunto de artefactos y valide su ZIP
+Copilot. El builder genera `package-integrity.json`, manifiestos y `SHA256SUMS`; lee
+los bytes del commit exacto, exige la misma versión, fecha y revisión acreditadas, y
+rechaza secretos, enlaces y fuentes fuera del repositorio.
+
+```powershell
+$sourceCommit = git rev-parse HEAD
+$artifacts = Join-Path $env:TEMP 'lks-sdd-release'
+python -B -X utf8 scripts\build_candidate_package.py `
+  --date $releaseDate `
+  --source-commit $sourceCommit `
+  --quality-report $releaseGate `
+  --output $artifacts
+
+python -B -X utf8 scripts\validate_release_artifacts.py `
+  --candidate $artifacts `
+  --output (Join-Path $artifacts 'release-package-validation.json')
+```
+
+El preflight y la ruta de reconstrucción de la etiqueta validan además una extracción
+limpia de los ZIP de plugin y marketplace. La ruta reutilizada exige el informe
+acreditado por esa misma validación. No se instala ni activa un plugin personal, no se
+registran identidades y no se realizan operaciones sobre proyectos consumidores.
+
+## Promoción a draft release
+
+El workflow `release-draft` se activa después de una ejecución correcta de `quality`
+sobre una etiqueta stable. Antes de solicitar aprobación de entorno, descarga el
+artefacto de esa ejecución exacta y verifica gate, versión, SHA, manifiesto,
+checksums, ZIP Copilot y referencia Copilot. La procedencia del candidate ya fue
+verificada por la etiqueta; el draft no repite gate ni build. La promoción requiere
+el entorno `release-draft` con revisores configurados fuera de este repositorio.
+
+El único job con `contents: write` crea una draft y adjunta los assets ya acreditados.
+No vuelve a ejecutar gate o build, no modifica tags y no publica la release. Una
+release/draft existente bloquea el flujo para reconciliación humana.
+
+## Observabilidad de release
+
+El workflow `release-observability` se ejecuta después de un workflow `quality`
+correcto sobre una etiqueta `v*`. Recopila los timestamps expuestos por GitHub
+Actions para medir cola, dependencias, carga del artefacto y la ruta de validación.
+Para una reutilización, registra resolución/verificación del preflight y declara
+gate/build del tag como `not-run`; para una reconstrucción, conserva las métricas de
+gate y build. El informe declara expresamente la revisión humana como `not-observed`:
+no es una evidencia de aceptación ni un requisito superado.
+
+También valida que la referencia GitHub declarada para Copilot en el catálogo del
+commit etiquetado resuelva al mismo SHA. Esta comprobación es de observación y
+trazabilidad; no crea ni modifica referencias remotas. Un fallo se muestra de forma
+explícita en el workflow separado y conserva sus diagnósticos como artefacto.
+
+Ejecute sus pruebas unitarias específicas al modificar el preflight u observadores:
+
+```powershell
+python -B -X utf8 tests\run_unit_tests.py `
+  --module test_release_gate `
+  --module test_release_readiness `
+  --module test_release_observability `
+  --module test_distribution_reference `
+  --module test_draft_promotion `
+  --module test_release_package_validation `
+  --module test_preflight_provenance
+```
+
+## Diagnóstico opcional
+
+Para investigar un defecto concreto, ejecute únicamente el test o el validador que lo
+observa. No use suites globales como paso rutinario de publicación. Los contratos de
+migración y consultas v2 están documentados en
+[V2-MIGRATION.md](V2-MIGRATION.md) y [PROJECT-QUERY.md](PROJECT-QUERY.md).
+
+## Retención operativa
+
+La corrección de crecimiento documental tiene una reproducción temporal y pruebas
+focales, sin añadir controles al gate de publicación:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_document_storage
+python -B -X utf8 tests/run_unit_tests.py --module test_v3_efficiency
+```
+
+El formato, compatibilidad, mediciones y condiciones de compactación separada se
+documentan en [almacenamiento documental](DOCUMENT-STORAGE.md).
+
+La acumulación de controles se diagnostica sin mutación:
+
+```powershell
+python -B -X utf8 scripts\v2_cli.py retention-status <project-root> --json
+```
+
+El archivado requiere una previsualización y la autorización exacta de esa
+previsualización. Solo afecta registros operativos cerrados:
+
+```powershell
+python -B -X utf8 scripts\v2_cli.py retention-compact <project-root> `
+  --at 2026-01-02T00:00:00+00:00 --json
+python -B -X utf8 scripts\v2_cli.py retention-compact <project-root> --apply `
+  --at 2026-01-02T00:00:00+00:00 --authorize <PREVIEW_HASH> --json
+```
+
+Los comandos de compactación anteriores describen el runtime v2 publicado, no
+un canal de escritura del candidato actual. En este candidato se conservan
+consulta y recuperación; continuar trabajo exige el corte v3.1 documentado en
+[V3-MIGRATION](V3-MIGRATION.md). La limpieza de historia existente es otro encargo.
+
+La operación histórica es reversible mediante `retention-restore --id AUTH-001` (o el
+identificador operativo correspondiente), también con preview y autorización
+exacta. EVID y los documentos normativos no son candidatos.

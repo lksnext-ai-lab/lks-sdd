@@ -1,0 +1,23 @@
+{
+  "id": "FX-M10-JIRA-HYBRID",
+  "description": "Proyección Jira sintética con destino no resoluble y referencias ficticias.",
+  "project_id": "fixture-jira-hybrid",
+  "target": {
+    "site": "https://example.atlassian.invalid",
+    "project_key": "DEMO",
+    "issue_type": "Task"
+  },
+  "task": "TASK-001",
+  "correlation_marker": "LKS-SDD-PROJECT: fixture-jira-hybrid; TASK: TASK-001",
+  "receipt": {
+    "external_id": "10001",
+    "external_key": "DEMO-1",
+    "remote_status": "To Do"
+  },
+  "assertions": [
+    "preview_is_deterministic",
+    "external_write_is_not_implicit",
+    "receipt_matches_authorized_preview",
+    "remote_done_does_not_close_task"
+  ]
+}

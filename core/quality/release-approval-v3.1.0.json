@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "release_version": "3.1.0",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-acceptance",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-30",
+    "authority_role": "project-owner",
+    "rationale": "El responsable ha solicitado expresamente publicar todos los cambios pendientes como nueva release estable y actualizar CODEX. DEC-V31-001 conserva la instrucción; 3.1.0 identifica esta entrega incremental. La publicación exige el gate técnico sobre el commit integrado y no convierte observaciones humanas o de hosts no ejecutadas en pruebas superadas.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aceptación solicitada de la release se distingue de la observación conversacional de Codex/Copilot y de un piloto entre personas.",
+    "Los informes locales de pruebas no acreditan conectividad con una instancia real de Sonar ni un servicio Dependency-Check de un consumidor.",
+    "Las mediciones de caracteres o estimaciones no son tokens facturados ni acreditan ahorro económico.",
+    "Actualizar el plugin en Codex no migra proyectos consumidores ni demuestra que un chat ya abierto recargue sus skills."
+  ]
+}

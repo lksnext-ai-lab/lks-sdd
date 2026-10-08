@@ -1,0 +1,149 @@
+{
+  "id": "PLAN-V3-001",
+  "uid": "1b036969-1074-4486-a167-a8e4d99d02b6",
+  "revision": "v3-plan-02",
+  "date": "2026-09-29",
+  "status": "prepared-pending-plan-approval-and-execution-authorization",
+  "approved_proposal": "v3-propuesta-03",
+  "proposal_decision": "DEC-V3-001",
+  "base_commit": "d50f1ab86647615d654a6e1d539e1db55e63c886",
+  "files": [
+    {
+      "path": "approval-manifest.json",
+      "sha256": "49195e288b4c49260aaa15aac12d3ef71c8113ea3e1eb7923da50197a19513d3",
+      "bytes": 1352
+    },
+    {
+      "path": "APPROVAL.md",
+      "sha256": "06c64e5d8f15a0ff0a45d4f1a03b23007803ba4535594fb2b639de9a3686e646",
+      "bytes": 2986
+    },
+    {
+      "path": "baseline/v3-propuesta-03.zip",
+      "sha256": "db057ceefdf2292ab556ceb6f4faf4ab245b5c4d872c8df697c64d49e92e69d7",
+      "bytes": 73734
+    },
+    {
+      "path": "EXECUTION.md",
+      "sha256": "ee10292f9324390525df4f0e9d9543b1f3b801c3e53b34ca28a5258e427cee74",
+      "bytes": 7218
+    },
+    {
+      "path": "history/v3-plan-01.zip",
+      "sha256": "40d4d835cfcd0a5f1808a2b022b47e7b739c4635910906281587414d2fe4b7f8",
+      "bytes": 122537
+    },
+    {
+      "path": "PLAN.md",
+      "sha256": "3612a941c655df62266732271a9fa25775426c67b66bb91f6f456056c6639881",
+      "bytes": 19094
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "008f8f1da0e0d6cd3f27236abcc19b6d3e282cb89a0632757fda7bbe5cf2607d",
+      "bytes": 7392
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "1d4c8dc163296552638ebacf23030bd2dc42d1641792a82626daf7ed864284bb",
+      "bytes": 8918
+    },
+    {
+      "path": "tasks/TASK-V3-001.md",
+      "sha256": "edff021917c605366929c71fe9fb9df5842b55ecf0437e67d143de28afbd61cb",
+      "bytes": 3977
+    },
+    {
+      "path": "tasks/TASK-V3-002.md",
+      "sha256": "4fba864e4338bb24bd5b18d6a224634ee80072aa33f5761102dd1f2d59e576c0",
+      "bytes": 3616
+    },
+    {
+      "path": "tasks/TASK-V3-003.md",
+      "sha256": "385680bff220db2cf8cb6c7b0df0ca2ce6fff550037acda1e5f33ea1d7debe8e",
+      "bytes": 4034
+    },
+    {
+      "path": "tasks/TASK-V3-004.md",
+      "sha256": "8eebebc770c4e8cbdc3fb171b17c4cab5d3cb99bf49d304acd3a81005b84b054",
+      "bytes": 4208
+    },
+    {
+      "path": "tasks/TASK-V3-005.md",
+      "sha256": "e4bd52955bfae16a6b9ce826ce5809bb60a35b36f55dc3faf993cd8c41277ccd",
+      "bytes": 3570
+    },
+    {
+      "path": "tasks/TASK-V3-006.md",
+      "sha256": "2274c16282db051c4b1cf74be755c92664cb11ff94e389e14837efe697a7651e",
+      "bytes": 3198
+    },
+    {
+      "path": "tasks/TASK-V3-007.md",
+      "sha256": "4579902e26f429b22005760b3c6d38de555cd448f07c71c4e01e0c704a986da2",
+      "bytes": 4344
+    },
+    {
+      "path": "tasks/TASK-V3-008.md",
+      "sha256": "ccb425847edd48d44c0b4e42f2f089d9c182470c22c4a3d617da3785bba03201",
+      "bytes": 4426
+    },
+    {
+      "path": "tasks/TASK-V3-009.md",
+      "sha256": "ca0d001cad77681b2aa8dff4b9638e9d83784fdf45295dc144e0e5d37689bfe2",
+      "bytes": 3548
+    },
+    {
+      "path": "tasks/TASK-V3-010.md",
+      "sha256": "694563c166d960332636a895728b954e0f16ba8200ef742f7bcc838f4a7bb386",
+      "bytes": 4166
+    },
+    {
+      "path": "tasks/TASK-V3-011.md",
+      "sha256": "1e8bf7167ebc25cf897d8b526912436dec8859cb86afd289d6dbdd3303c75c02",
+      "bytes": 3956
+    },
+    {
+      "path": "tasks/TASK-V3-012.md",
+      "sha256": "d159415d14b75f7db3bed8f67f5b80ea858abf5b1b6ce1c445cd101b9e0f0cad",
+      "bytes": 3646
+    },
+    {
+      "path": "tasks/TASK-V3-013.md",
+      "sha256": "c05a741365f4a839d823c9af4e2268ee8df183b31f00c0a03eee5946d1ed6b1d",
+      "bytes": 3594
+    },
+    {
+      "path": "tasks/TASK-V3-014.md",
+      "sha256": "7d85bcb0c31cd1fe6ec37d3529e318f2c2f18bded43d43d0768963195064ae31",
+      "bytes": 3748
+    },
+    {
+      "path": "tasks/TASK-V3-015.md",
+      "sha256": "9947751d6945e778ae25ee60d65be685238ad4b4a065c6d0900359e075bb7915",
+      "bytes": 3828
+    },
+    {
+      "path": "tasks/TASK-V3-016.md",
+      "sha256": "f69200ba941870f484ae37cd24c3bf3dd958683fc46753c046737b9f2f8ce17c",
+      "bytes": 4225
+    },
+    {
+      "path": "tasks/TASK-V3-017.md",
+      "sha256": "0bdba0290095fb1e5de349a04f8119f59f2feac7bb6948f1d72507b985ac51d2",
+      "bytes": 5731
+    },
+    {
+      "path": "TRACEABILITY.md",
+      "sha256": "dd4401cf7d9fd5023e79158f33e11e2b4a1a421eed7c80b5193df14e5252fd37",
+      "bytes": 28567
+    }
+  ],
+  "note": "Descriptor derivado; las fichas Markdown son el plan legible. No acredita aprobación del plan. Las huellas excluyen este descriptor para evitar autorreferencia.",
+  "previous_revision": {
+    "revision": "v3-plan-01",
+    "status": "draft-not-approved",
+    "archive": "history/v3-plan-01.zip",
+    "sha256": "40d4d835cfcd0a5f1808a2b022b47e7b739c4635910906281587414d2fe4b7f8"
+  }
+}

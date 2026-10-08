@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks.invalid/lks-sdd/schemas/pilot-summary-1.0.json",
+  "title": "LKS-SDD aggregate pilot summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "pilot_id", "observation_count", "project_count", "participant_count", "route_coverage", "completed_route_coverage", "sample_sufficient", "metrics", "decision"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "pilot_id": {"type": "string"},
+    "observation_count": {"type": "integer", "minimum": 0},
+    "project_count": {"type": "integer", "minimum": 0},
+    "participant_count": {"type": "integer", "minimum": 0},
+    "route_coverage": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "completed_route_coverage": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "sample_sufficient": {"type": "boolean"},
+    "metrics": {"type": "object"},
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "blockers", "conditions"],
+      "properties": {
+        "status": {"enum": ["not-evaluated", "go", "go-conditioned", "no-go", "withdrawal"]},
+        "blockers": {"type": "array", "items": {"type": "string"}},
+        "conditions": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

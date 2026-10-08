@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "release_version": "2.3.1",
+  "scope": "stable-release",
+  "basis": ["project-owner-acceptance", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-09-25",
+    "authority_role": "project-owner",
+    "rationale": "El responsable del proyecto ha autorizado convertir el candidato local 2.3.1-oracle.1 en 2.3.1, integrarlo en main y preparar las actualizaciones de Codex y Copilot. La etiqueta, los assets y la publicación requieren el gate técnico del commit integrado y una revisión posterior; esta decisión no autoriza instalar en los hosts ni acredita su aceptación.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aprobación no acredita aceptación conversacional real de Codex o Copilot ni un piloto entre desarrolladores.",
+    "La corrección Oracle no acredita persistencia real de un proyecto consumidor sin observaciones independientes.",
+    "La integración en main no publica la release ni actualiza automáticamente plugins o runtimes fijados en proyectos consumidores."
+  ]
+}

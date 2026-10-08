@@ -1,0 +1,6 @@
+interface:
+  display_name: "LKS-SDD · help en Codex"
+  short_description: "Consulta el proyecto con fuentes y sin modificarlo"
+  default_prompt: "Usa $lks-sdd-help para explicar esta funcionalidad, sus requisitos, tareas y relaciones con lenguaje profesional y enlaces a las fuentes, sin modificar el proyecto."
+policy:
+  allow_implicit_invocation: true

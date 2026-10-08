@@ -1,0 +1,22 @@
+{
+  "id": "FX-M18-ADOPTION-FLAT",
+  "schema_version": "1.0",
+  "contains_consumer_data": false,
+  "layout": "flat",
+  "files": {
+    "backend/main.py": "def health(): return {\"status\": \"synthetic\"}\n",
+    "frontend/package.json": "{\"scripts\": {\"untrusted\": \"must-never-execute\"}, \"dependencies\": {\"react\": \"19.2.7\"}}\n"
+  },
+  "expected": {
+    "functional_files_written": [],
+    "commands_from_metadata": false,
+    "readiness": "insufficient-information"
+  },
+  "scenarios": [
+    "read-only-preview",
+    "preserve-existing-bytes",
+    "no-scaffold-copy",
+    "missing-lock-blocked",
+    "arbitrary-metadata-not-executed"
+  ]
+}
