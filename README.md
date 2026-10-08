@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `3.1.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `3.2.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -95,16 +95,14 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 3.1.0, schema y método son versiones distintas. El formato predeterminado
-sigue siendo schema 3.0 / método 3.0.0; el recorrido integral usa schema 3.1 /
-método 3.1.0 tras una adopción explícita, con recuperación y actualización del
-runtime fijado. Los consumidores v2
-conservan schema 2.0 y método 2.0.0/2.1.0 hasta una migración explícita. Los consumidores
-con método 2.0.0 siguen legibles y se actualizan explícitamente.
-Los consumidores 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar
-una migración.
-La compatibilidad 1.5 se limita al runtime fijado y a su migración explícita; no
-sustituye las reglas v2.
+Plugin 3.2.0, schema y método son versiones distintas. Los proyectos nuevos usan
+schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
+Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
+recuperación; continuar trabajo con esta versión exige el corte explícito descrito
+en [la migración v3.1](docs/V3-MIGRATION.md), con recuperación y actualización del
+runtime fijado. Instalar el plugin personal no realiza ese corte.
+Los consumidores 1.5 conservan sus fuentes y runtime hasta autorizar la migración
+por las rutas admitidas; no se añade una conversión directa 1.5 → 3.1.
 
 ## Distribución y límites
 
@@ -130,9 +128,9 @@ trazables, con intervenciones agrupadas para equipos pequeños y desarrollo indi
 Antes de anunciar implementación o editar código se comprueba la cobertura vigente
 SPEC → PLAN/TASK y la autorización; las decisiones pendientes se registran y se
 evalúa qué alcance independiente puede continuar.
-La [aprobación de 3.1.0](quality/release-approval-v3.1.0.json) autoriza integrar,
+La [aprobación de 3.2.0](quality/release-approval-v3.2.0.json) autoriza integrar,
 publicar y actualizar Codex, condicionada al gate técnico del commit final.
-El catálogo Copilot apunta a `copilot-v3.1.0`; su árbol debe coincidir exactamente
+El catálogo Copilot apunta a `copilot-v3.2.0`; su árbol debe coincidir exactamente
 con el ZIP nativo verificado. Las ilustraciones en `output/infografias/` son bocetos
 históricos provisionales y no sustituyen la definición vigente del proceso.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte

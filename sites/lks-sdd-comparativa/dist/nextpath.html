@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Comparación entre LKS-SDD y la metodología de LKS NextPath: enfoque, especificaciones, agentes, verificación, integración y correspondencia de skills.">
+  <meta name="theme-color" content="#102c36">
+  <title>LKS-SDD frente a LKS-NEXTPATH · LKS Next</title>
+  <link rel="icon" href="assets/lks.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=4"><link rel="stylesheet" href="navigation.css?v=4">
+  <script src="shared.js?v=4" defer></script><script src="nextpath-data.js" defer></script><script src="app.js?v=4" defer></script>
+</head>
+<body class="two-way">
+  <a class="skip" href="#comparativa">Saltar a la comparativa</a>
+  <header class="masthead"><a class="brand-name" href="./">LKS NEXT <span> / </span> PERSPECTIVAS TECNOLÓGICAS</a><div class="header-actions"><button id="theme" class="icon-button" aria-label="Activar tema oscuro" title="Cambiar tema">◐</button><img src="assets/lks.svg" alt="LKS Next" width="44" height="44"></div></header>
+  <nav class="comparison-switcher" id="elegir" aria-label="Seleccionar comparativa">
+    <div class="switcher-intro"><p class="switcher-heading">Elige tu comparativa</p><p>LKS-SDD frente a otros enfoques de desarrollo con IA.</p></div>
+    <div class="switcher-options"><a class="comparison-option" href="kiro-spec.html"  aria-label="LKS-SDD frente a Kiro y Spec Kit + Copilot"><span class="option-indicator" aria-hidden="true"></span><span class="option-copy"><span>LKS-SDD frente a</span><strong>Kiro y Spec Kit + Copilot</strong></span><span class="option-state" aria-hidden="true">Cambiar →</span></a><a class="comparison-option" href="nextpath.html" aria-current="page" aria-label="LKS-SDD frente a LKS-NEXTPATH"><span class="option-indicator" aria-hidden="true">✓</span><span class="option-copy"><span>LKS-SDD frente a</span><strong>LKS-NEXTPATH</strong></span><span class="option-state" aria-hidden="true">Seleccionada</span></a></div>
+    <div class="switcher-foot"><span>Cambia de opción para consultar la otra comparativa.</span><a href="./">Ver solo el selector</a></div>
+  </nav>
+  <main id="inicio">
+    <div class="provenance"><strong>BASE DE LA COMPARATIVA</strong><p><b>LKS-SDD:</b> análisis propio de la documentación y el código del plugin. <b>LKS-NEXTPATH:</b> presentación «Metodología IA – NextPaths», especialmente las diapositivas 4, 5 y 7.</p><a href="#fuentes">Ver alcance ↗</a></div>
+    <section class="hero">
+      <div class="hero-copy"><p class="eyebrow"><span class="live-dot"></span> METODOLOGÍAS EN LKS / OCTUBRE 2026</p><h1>LKS-SDD frente a<br><em>LKS-NEXTPATH.</em></h1><p class="intro">Una base SDD compartida. Dos formas de organizar el trabajo. Qué tienen en común, dónde difieren y qué aporta cada enfoque.</p><a class="primary-link" href="#comparativa">Explorar la comparativa <span aria-hidden="true">↘</span></a></div>
+      <div class="map nextpath-map" aria-label="LKS-SDD se observa como método y plugin reutilizable. NextPath se observa como una metodología aplicada a un proyecto. Ambos conectan especificaciones, agentes y personas.">
+        <div class="map-top"><span>DOS ENFOQUES / UNA BASE SDD</span><span class="map-label">LKS</span></div>
+        <div class="approach-pair"><div><span>01</span><strong>LKS-SDD</strong><p>Método y plugin<br>reutilizable</p></div><span class="approach-cross" aria-hidden="true">×</span><div><span>02</span><strong>LKS-NEXTPATH</strong><p>Metodología aplicada<br>a un proyecto</p></div></div>
+        <div class="shared-base">ESPECIFICACIONES <span>→</span> AGENTES <span>→</span> VERIFICACIÓN</div>
+        <div class="map-footer"><span>SUPERVISIÓN HUMANA · ADAPTACIÓN AL PROYECTO</span><span class="map-cross">+</span></div>
+      </div>
+    </section>
+    <div class="overview"><p><strong>2 enfoques SDD</strong><span>comparados por su función</span></p><p><strong>5 dimensiones</strong><span>+ correspondencia de skills</span></p><p><strong id="total-count">49 aspectos</strong><span>con alcance y fuentes explícitos</span></p></div>
+    <section class="compare" id="comparativa" aria-label="Comparativa interactiva">
+      <div class="explorer-bar"><nav class="section-nav" aria-label="Dimensiones de comparación"></nav><a class="source-shortcut" href="#fuentes">Fuentes <span aria-hidden="true">↗</span></a></div>
+      <div class="filters"><label class="toggle" title="Compara el valor principal; los matices se muestran por separado."><input type="checkbox" id="differences"><span class="switch"></span>Solo diferencias</label><label class="toggle"><input type="checkbox" id="details" checked><span class="switch"></span>Mostrar matices</label><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar un aspecto o skill…" aria-label="Buscar un aspecto"></label><button class="print-button" id="print" title="Imprimir o guardar como PDF">Imprimir <span aria-hidden="true">↗</span></button></div>
+      <div class="reading-guide"><p><strong>Cómo leer las tablas.</strong> «Sí» indica cobertura documentada; «Configurable» o «Adaptable» requiere concretarla en el entorno. <strong>«No detallado» no significa «No»:</strong> la fuente no permite confirmarlo. «Solo diferencias» compara el valor principal, no los matices.</p><span id="result-count" aria-live="polite"></span></div>
+      <div id="tables"></div>
+      <div id="empty" hidden><p>No hay aspectos que coincidan con la búsqueda.</p><button id="reset">Restablecer filtros</button></div>
+    </section>
+    <section class="closing"><div><p class="eyebrow">UNA LECTURA PARA LA DECISIÓN</p><h2>Una base común.<br>Distinta forma de organizarla.</h2></div><p>LKS-SDD explicita condiciones, decisiones y evidencia en un núcleo adaptable. NextPath concreta un recorrido operativo, con skills y herramientas conectadas al trabajo del proyecto.</p></section>
+    <section id="fuentes" class="sources"><div class="sources-head"><p class="eyebrow">ALCANCE Y FUENTES</p><h2>Documentación distinta.<br>Comparación con límites claros.</h2></div><div class="source-content"><p>Revisión documental: <strong>7 de octubre de 2026</strong>. Se compara la cobertura documentada, sin medir productividad, calidad ni coste. Los resúmenes son una interpretación del análisis.</p><p id="fuente-sdd"><strong>LKS-SDD 3.1.0.</strong> Análisis propio de README, arquitectura, procedimientos, seis skills y módulos de coordinación, Git y verificación del plugin. Se distingue el núcleo del método de las capacidades del entorno y de las integraciones por configurar.</p><p id="fuente-nextpath"><strong>LKS-NEXTPATH.</strong> Presentación «Metodología IA – NextPaths»: marco general en las diapositivas 4–5 y flujo concreto en la 7. No se han auditado el repositorio, los agentes ni las pipelines del proyecto. Una capacidad descrita no acredita por sí sola su funcionamiento en producción.</p><p>El marco de NextPath prevé diferentes tecnologías; FastAPI, React, Claude Code y GitHub corresponden a la instancia presentada. «No detallado» identifica información pendiente de contrastar, sin atribuir una carencia al enfoque.</p><details><summary>Referencias utilizadas en las tablas <span>+</span></summary><div class="source-links" id="source-links"></div><p class="source-note">Las referencias remiten al alcance descrito aquí. La adaptación de LKS-SDD a otros entornos, agentes especializados y herramientas del cliente requiere configuración y validación; no implica conectores universales incorporados al plugin.</p></details></div></section>
+    <a class="other-comparison" href="kiro-spec.html"><span>EXPLORAR LA OTRA COMPARATIVA</span><strong>LKS-SDD frente a Kiro y Spec Kit + Copilot</strong><span aria-hidden="true">→</span></a>
+  </main>
+  <footer><span>LKS NEXT <span class="footer-divider">/</span> DESARROLLO CON IA</span><span>Comparativa para responsables de desarrollo</span><a href="#inicio">Volver arriba ↑</a></footer>
+</body>
+</html>

@@ -210,6 +210,7 @@ EXCLUDED_PARTS = {
     ".venv",
     "node_modules",
     "dist",
+    "sites",
     "pilot-data",
 }
 SECRET_PATTERNS = (

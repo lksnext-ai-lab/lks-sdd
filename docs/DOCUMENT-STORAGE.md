@@ -10,7 +10,7 @@ Por separado, ejecuciones y checkpoints incluían inventarios completos repetido
 El límite de 32 MiB excluye historia: resolver el archivado no basta para resolver
 el exceso de Markdown activo.
 
-El destino público de este candidato es schema 3.1 y método 3.1.0. Proyectos v2
+El destino público de la release 3.2.0 es schema 3.1 y método 3.1.0. Proyectos v2
 se convierten directamente; 3.0 y 3.1 con runtime anterior preparan un corte
 explícito con configuración confirmada y runtime fijado. Actualizar el plugin
 personal no migra un consumidor. Las consultas no escriben ni migran.
@@ -27,7 +27,7 @@ No se convierte JSON arbitrario ni se sustituyen obligaciones por resúmenes.
 
 ## Formatos, consumidores y compatibilidad
 
-| Formato | Resultado en este candidato |
+| Formato | Resultado en 3.2.0 |
 |---|---|
 | v3.1 operativo | Inicialización pública directamente 3.1; contrato/configuración/runtime comprobados antes de modificar. |
 | v3.0 y v3.1 anterior | Lectura conservada; corte explícito a funcionamiento actual. No basta cambiar el índice. |

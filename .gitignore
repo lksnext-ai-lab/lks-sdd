@@ -6,3 +6,4 @@ tests/reports/
 dist/
 pilot-data/
 pilot/runs/
+sites/*.tar.gz

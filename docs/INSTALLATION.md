@@ -2,12 +2,12 @@
 
 ## Antes de actualizar a v3
 
-Esta guía describe la release publicada 3.1.0. El candidato de eficiencia aún no
-está publicado: exigirá corte explícito a método 3.1.0 y runtime con capacidades
-actuales, también sin lock previo. Su actualización recuperable se documenta en
+Esta guía describe la release 3.2.0. Para continuar trabajo en proyectos anteriores
+exige corte explícito a método 3.1.0 y runtime con capacidades actuales, también sin
+lock previo. Su actualización recuperable se documenta en
 [V3-MIGRATION](V3-MIGRATION.md); instalar el plugin personal no ejecuta ese corte.
 
-Descarga los assets de [v3.1.0](https://github.com/lksnext-ai-lab/lks-sdd/releases/tag/v3.1.0)
+Descarga los assets de [v3.2.0](https://github.com/lksnext-ai-lab/lks-sdd/releases/tag/v3.2.0)
 y comprueba `SHA256SUMS`. El paquete personal, el runtime del proyecto y el contrato
 documental son tres cosas distintas. Un proyecto 1.5 conserva sus fuentes y runtime
 hasta autorizar la [migración 1.5 → 2.0](V2-MIGRATION.md); el setup no la sustituye.
@@ -17,13 +17,13 @@ doctor 1.x de esta guía solo aplican a consumidores 1.5: en v2 usa `v2 visual-i
 `validate-project` y `status` según la guía. La aceptación conversacional v2 sigue
 el [protocolo por host](V2-HOST-ACCEPTANCE.md), no se infiere de una instalación válida.
 
-La distribución 3.1.0 tiene un núcleo y dos destinos. Para Copilot se recomienda
-el **plugin de agente** `lks-sdd-copilot-plugin-v3.1.0.zip` y el procedimiento
+La distribución 3.2.0 tiene un núcleo y dos destinos. Para Copilot se recomienda
+el **plugin de agente** `lks-sdd-copilot-plugin-v3.2.0.zip` y el procedimiento
 de la siguiente sección. No es una extensión VSIX y no requiere crear otra extensión.
 Si no conoces estas herramientas, empieza por la [guía desde cero](LEARNING-GUIDE.md).
 
 Para preparar Codex o usar la alternativa de skills de proyecto, el ZIP es
-`lks-sdd-setup-v3.1.0.zip`: incluye instalador, manifiesto de integridad y ambos
+`lks-sdd-setup-v3.2.0.zip`: incluye instalador, manifiesto de integridad y ambos
 payloads. No instala Python, extensiones, MCP, credenciales ni herramientas de terceros.
 Los paquetes `development-unreleased` son instalables para evaluación, no releases
 certificadas. Consulte [la aceptación por host](V2-HOST-ACCEPTANCE.md) antes de distribuirlos.
@@ -62,9 +62,9 @@ incluye los wheels y no promete bootstrap offline sin esos prerrequisitos.
 
 ## GitHub Copilot: plugin nativo
 
-El catálogo Git de 3.1.0 apunta a `copilot-v3.1.0`, la etiqueta del paquete nativo.
+El catálogo Git de 3.2.0 apunta a `copilot-v3.2.0`, la etiqueta del paquete nativo.
 Use «Install Plugin From Source» solo cuando esa etiqueta esté publicada y su
-contenido se haya validado contra `lks-sdd-copilot-plugin-v3.1.0.zip`. Antes de
+contenido se haya validado contra `lks-sdd-copilot-plugin-v3.2.0.zip`. Antes de
 eso puede usar la alternativa local desde el ZIP validado, sin registrar un
 marketplace Git.
 
@@ -77,18 +77,18 @@ no modifica automáticamente aplicaciones, no habilita servicios ni concede perm
 ### Distribución al equipo desde el panel
 
 Una vez verificada esa referencia, cada compañero necesita
-acceso de lectura al repositorio público de GitHub y Git disponible en su equipo.
+acceso de lectura al repositorio de GitHub y Git disponible en su equipo.
 
 1. En VS Code pulsa `Ctrl+Shift+P` y ejecuta **Chat: Install Plugin From Source**.
 2. Introduce `https://github.com/lksnext-ai-lab/lks-sdd.git`.
-3. Con una referencia nativa verificada, el catálogo ofrecerá **lks-sdd**, versión **3.1.0**. Selecciónalo y
+3. Con una referencia nativa verificada, el catálogo ofrecerá **lks-sdd**, versión **3.2.0**. Selecciónalo y
    confirma la confianza únicamente después de comprobar el origen LKS.
 4. En Agent Customizations → Plugins, comprueba que esté habilitado. Abre una
    conversación nueva en modo Agent y pide «Explícame LKS-SDD sin modificar archivos».
 5. Sigue «Preparar el proyecto compartido» más abajo. Instalar el plugin personal y
    preparar el repositorio de la aplicación son pasos distintos.
 
-El catálogo `.github/plugin/marketplace.json` apunta a `copilot-v3.1.0`, etiqueta
+El catálogo `.github/plugin/marketplace.json` apunta a `copilot-v3.2.0`, etiqueta
 del paquete nativo en este mismo repositorio. No pegues URLs de páginas
 `/tree/` ni de ZIP en el cuadro que solicita una URL Git.
 
@@ -104,10 +104,10 @@ comprueba el resultado con el [piloto guiado](COPILOT-PILOT.md).
 
 ### Alternativa local desde Ajustes (sin editar JSON)
 
-1. Verifica el SHA-256 y extrae `lks-sdd-copilot-plugin-v3.1.0.zip` en una
+1. Verifica el SHA-256 y extrae `lks-sdd-copilot-plugin-v3.2.0.zip` en una
    carpeta corta y estable, por ejemplo `C:\LksPilot`. Debe quedar
    `C:\LksPilot\lks-sdd\plugin.json` junto a `skills`, `core` y `setup`.
-   El paquete 3.1.0 resuelve internamente rutas largas de Windows y mantiene las
+   El paquete 3.2.0 resuelve internamente rutas largas de Windows y mantiene las
    comprobaciones de integridad, enlaces y secretos.
    Si eliges manualmente un destino con un prefijo excepcionalmente largo, no uses una
    extracción parcial: usa una carpeta más corta o un extractor compatible con rutas largas.
@@ -168,7 +168,7 @@ el runtime ni los documentos del proyecto.
 
 ## Alternativa Copilot: skills instaladas una vez en el proyecto
 
-Esta alternativa usa el ZIP `lks-sdd-setup-v3.1.0.zip`, no el setup incluido en
+Esta alternativa usa el ZIP `lks-sdd-setup-v3.2.0.zip`, no el setup incluido en
 el plugin nativo. Es útil cuando se prefieren skills versionadas y no se usa plugin.
 
 Desde la carpeta extraída:
@@ -233,7 +233,7 @@ lks-sdd-development` y registre la nueva carpeta verificada. Para un origen Git,
 Compruebe la versión instalada, reinicie Codex y abra un chat nuevo; un chat ya
 abierto puede conservar las instrucciones anteriores.
 
-Alternativamente, el ZIP `lks-sdd-marketplace-v3.1.0.zip` se puede extraer en esa
+Alternativamente, el ZIP `lks-sdd-marketplace-v3.2.0.zip` se puede extraer en esa
 carpeta estable y registrar de la misma manera. El instalador es preferible para
 actualizaciones por sus comprobaciones de propiedad, colisiones y recuperación.
 La extensión Codex de VS Code está fuera del alcance de esta entrega.

@@ -1,13 +1,13 @@
 # Compatibilidad de LKS-SDD
 
-## Desarrollo pendiente de publicación
+## Versión 3.2.0
 
 El destino nuevo es schema 3.1/método 3.1.0 con configuración explícita y runtime
 local fijado, incluso si el origen no tenía lock. El CLI público bloquea escrituras
 v2/3.0 hasta el corte; admite consultas y recuperación anteriores. Las APIs de
 compatibilidad internas y los siguientes antecedentes publicados permanecen para
 lectura, migración y pruebas. La ruta directa y sus límites están en
-[migración v3.1](V3-MIGRATION.md). La release publicada 3.1.0 aún no incorpora este cambio.
+[migración v3.1](V3-MIGRATION.md). La release 3.2.0 incorpora este cambio; 3.1.0 no lo incluía.
 
 Las decisiones nuevas usan `decision-view` y `presented` para vincular la respuesta
 al contenido mostrado. El formato `lks-sdd-presentation/1` añade procedencia a los
@@ -58,10 +58,10 @@ legacy pendiente bloquea la TASK afectada, no todo el proyecto.
 
 ## Evidencia e historia
 
-La corrección de almacenamiento en desarrollo conserva la lectura de formatos
+La corrección de almacenamiento de 3.2.0 conserva la lectura de formatos
 anteriores y versiona las representaciones técnicas nuevas. Su alcance, enlaces,
 exportación, recuperación y condiciones de actualización están documentados en
-[almacenamiento documental](DOCUMENT-STORAGE.md). No está publicada en 3.1.0.
+[almacenamiento documental](DOCUMENT-STORAGE.md). Se incorpora en 3.2.0; no estaba incluida en 3.1.0.
 
 Los originales, EVID y activos históricos se conservan. La migración no transforma
 autorizaciones antiguas en permiso v2 ni pruebas de componente en evidencia de

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cinco enfoques de desarrollo con IA comparados: LKS-SDD, Kiro, Spec Kit + Copilot, desarrollo asistido y vibe coding. Una guía para responsables de desarrollo.">
+  <meta name="theme-color" content="#102c36">
+  <title>LKS-SDD, Kiro y Spec Kit + Copilot · LKS Next</title>
+  <link rel="icon" href="assets/lks.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css?v=4"><link rel="stylesheet" href="navigation.css?v=4">
+  <script src="shared.js?v=4" defer></script><script src="data.js" defer></script><script src="app.js?v=4" defer></script>
+</head>
+<body>
+  <a class="skip" href="#comparativa">Saltar a la comparativa</a>
+  <header class="masthead"><a class="brand-name" href="./">LKS NEXT <span> / </span> PERSPECTIVAS TECNOLÓGICAS</a><div class="header-actions"><button id="theme" class="icon-button" aria-label="Activar tema oscuro" title="Cambiar tema">◐</button><img src="assets/lks.svg" alt="LKS Next" width="44" height="44"></div></header>
+  <nav class="comparison-switcher" id="elegir" aria-label="Seleccionar comparativa">
+    <div class="switcher-intro"><p class="switcher-heading">Elige tu comparativa</p><p>LKS-SDD frente a otros enfoques de desarrollo con IA.</p></div>
+    <div class="switcher-options"><a class="comparison-option" href="kiro-spec.html" aria-current="page" aria-label="LKS-SDD frente a Kiro y Spec Kit + Copilot"><span class="option-indicator" aria-hidden="true">✓</span><span class="option-copy"><span>LKS-SDD frente a</span><strong>Kiro y Spec Kit + Copilot</strong></span><span class="option-state" aria-hidden="true">Seleccionada</span></a><a class="comparison-option" href="nextpath.html"  aria-label="LKS-SDD frente a LKS-NEXTPATH"><span class="option-indicator" aria-hidden="true"></span><span class="option-copy"><span>LKS-SDD frente a</span><strong>LKS-NEXTPATH</strong></span><span class="option-state" aria-hidden="true">Cambiar →</span></a></div>
+    <div class="switcher-foot"><span>Cambia de opción para consultar la otra comparativa.</span><a href="./">Ver solo el selector</a></div>
+  </nav>
+  <main id="inicio">
+    <div class="provenance"><strong>BASE DE LA COMPARATIVA</strong><p><b>Kiro y GitHub Spec Kit/Copilot:</b> documentación pública. <b>LKS-SDD:</b> análisis propio de la documentación y el código del plugin.</p><a href="#fuentes">Ver fuentes ↗</a></div>
+    <section class="hero">
+      <div class="hero-copy"><p class="eyebrow"><span class="live-dot"></span> DESARROLLO DE SOFTWARE / OCTUBRE 2026</p><h1>Desarrollo con IA,<br>puesto en <em>perspectiva.</em></h1><p class="intro">Qué comparten y qué diferencia a LKS-SDD, Kiro y Spec Kit + Copilot. Un marco común para decidir cómo organizar el desarrollo.</p><a class="primary-link" href="#comparativa">Explorar la comparativa <span aria-hidden="true">↘</span></a></div>
+      <div class="map" aria-label="El desarrollo guiado por especificaciones conecta definición, planificación, ejecución y verificación">
+        <div class="map-top"><span>DEL ACUERDO AL RESULTADO</span><span class="map-label">SDD</span></div>
+        <div class="map-flow"><div class="map-step"><span>01</span><strong>Definir</strong><small>Qué debe hacer</small></div><div class="map-step"><span>02</span><strong>Planificar</strong><small>Cómo realizarlo</small></div><div class="map-step"><span>03</span><strong>Implementar</strong><small>Ejecutar con agentes</small></div><div class="map-step"><span>04</span><strong>Verificar</strong><small>Contrastar el resultado</small></div></div>
+        <div class="map-return"><span>↶</span> Los acuerdos orientan el trabajo y su evolución</div>
+        <div class="map-footer"><span>PERSONAS · ESPECIFICACIONES · AGENTES</span><span class="map-cross">+</span></div>
+      </div>
+    </section>
+    <div class="overview"><p><strong>3 propuestas SDD</strong> <span>+ 2 enfoques de referencia</span></p><p><strong>5 dimensiones</strong> <span>para comparar con el mismo criterio</span></p><p><strong id="total-count">32 aspectos</strong> <span>sin puntuaciones ni ranking</span></p></div>
+    <section class="compare" id="comparativa" aria-label="Comparativa interactiva">
+      <div class="explorer-bar"><nav class="section-nav" aria-label="Dimensiones de comparación"></nav><a class="source-shortcut" href="#fuentes">Fuentes <span aria-hidden="true">↗</span></a></div>
+      <div class="filters"><div class="segmented" role="group" aria-label="Enfoques visibles"><button id="all-mode" aria-pressed="true">Los 5 enfoques</button><button id="sdd-mode" aria-pressed="false">Solo SDD</button></div><label class="toggle" title="Compara el valor principal de las columnas visibles; los matices se muestran por separado."><input type="checkbox" id="differences"><span class="switch"></span>Solo diferencias</label><label class="toggle"><input type="checkbox" id="details" checked><span class="switch"></span>Mostrar matices</label><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Buscar un aspecto…" aria-label="Buscar un aspecto"></label><button class="print-button" id="print" title="Imprimir o guardar como PDF">Imprimir <span aria-hidden="true">↗</span></button></div>
+      <div class="reading-guide"><p><strong>Cómo leer las tablas.</strong> «Sí» indica una capacidad aportada; «Parcial», una cobertura limitada; «No (equipo)», una responsabilidad que debe resolver el equipo. Los matices precisan el alcance.</p><span id="result-count" aria-live="polite"></span></div>
+      <div id="tables"></div>
+      <div id="empty" hidden><p>No hay aspectos que coincidan con la búsqueda.</p><button id="reset">Restablecer filtros</button></div>
+    </section>
+    <section class="closing"><div><p class="eyebrow">UNA LECTURA PARA LA DECISIÓN</p><h2>La capacidad de generar código<br>es solo una parte de la elección.</h2></div><p>El marco ayuda a comparar cómo se define el trabajo, quién decide, cómo se coordina el equipo y qué evidencia permite aceptar el resultado.</p></section>
+    <section id="fuentes" class="sources"><div class="sources-head"><p class="eyebrow">ALCANCE Y FUENTES</p><h2>Comparar capacidades.<br>Conservar los matices.</h2></div><div class="source-content"><p>Revisión documental: <strong>7 de octubre de 2026</strong>. LKS-SDD 3.1.0 y documentación oficial consultada de Kiro y GitHub Spec Kit. Se compara el flujo SDD de Kiro, no todas las capacidades de su ecosistema.</p><p>Desarrollo asistido por IA y vibe coding son formas de trabajo, no productos. Un equipo puede añadirles prácticas de ingeniería. Esta comparación no es una medición de calidad, productividad ni coste.</p><details><summary>Documentación y criterios de comparación <span>+</span></summary><div class="source-links" id="source-links"></div><p class="source-note">LKS-SDD: README, ARCHITECTURE, V3-COMMON, V31-REVIEW y módulos de coordinación, Git y verificación del repositorio del proyecto. La adaptación a Kiro y Claude Code es una valoración de viabilidad: está pendiente de implementación y validación.</p></details></div></section>
+  </main>
+  <footer><span>LKS NEXT <span class="footer-divider">/</span> DESARROLLO CON IA</span><span>Comparativa para responsables de desarrollo</span><a href="#inicio">Volver arriba ↑</a></footer>
+</body>
+</html>

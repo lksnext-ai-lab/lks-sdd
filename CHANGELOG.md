@@ -1,6 +1,6 @@
 # Changelog
 
-## Pendiente de publicación
+## 3.2.0 — 2026-10-08 — validaciones claras y contexto eficiente
 
 - Presenta decisiones con un título claro y apartados específicos: dieciocho perfiles
   cubren configuración, especificaciones, planificación, encargos, resultados,
@@ -33,6 +33,10 @@
   antes de leer; reduce memoria de archivado y conserva recuperación de árboles anteriores.
 - Añade reproducción sintética temporal, regresiones y [documentación de compatibilidad,
   publicación y futuras compactaciones](docs/DOCUMENT-STORAGE.md).
+
+- Incluye en el repositorio la web comparativa estática y sus recursos; queda fuera
+  de los paquetes del plugin. La aprobación de publicación y la instalación personal
+  no acreditan aceptación conversacional ni migran proyectos consumidores.
 
 ## 3.1.0 — 2026-09-30 — revisión integral y recorrido guiado
 

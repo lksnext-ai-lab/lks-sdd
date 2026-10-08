@@ -23,6 +23,6 @@ if ($Target -eq 'copilot') {
 } elseif (-not $Remove) {
     Write-Host 'Archivos preparados. La activación en Codex es un paso separado:'
     Write-Host ('codex plugin marketplace add "{0}"' -f $preview.destination)
-    Write-Host 'codex plugin add lks-sdd@lks-sdd-development'
+    Write-Host 'Instala o activa lks-sdd desde la gestión de plugins de Codex.'
     Write-Host 'Comprueba antes si ya tienes registrado ese marketplace. Después abre una tarea nueva.'
 }

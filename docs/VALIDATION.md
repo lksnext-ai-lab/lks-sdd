@@ -96,7 +96,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v3.1.0.json `
+  --release-approval quality\release-approval-v3.2.0.json `
   --output $releaseGate
 ```
 
