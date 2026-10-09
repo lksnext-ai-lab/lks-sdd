@@ -26,7 +26,7 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 
 from validate_project import validate_project  # noqa: E402
 
-PLUGIN_VERSION = "3.0.0"
+PLUGIN_VERSION = "3.3.0"
 METHOD_VERSION = "1.5.0"
 SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"
@@ -577,6 +577,10 @@ def main() -> int:
     parser.add_argument("--preview-hash")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
+    if args.apply:
+        print(json.dumps({"status": "blocked", "changed": False, "writes": [],
+                          "reason": "Use lks_sdd.py v3 init/adopt or migration-preview with explicit current configuration"}, ensure_ascii=False))
+        return 2
     try:
         code, result = materialize(args)
     except AdoptionError as exc:

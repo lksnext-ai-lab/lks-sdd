@@ -56,6 +56,7 @@ def parser_for(command=None):
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--containers", action="store_true")
     parser.add_argument("--export", action="store_true")
+    parser.add_argument("--output", type=Path, help="New external directory for an exact historical export")
     parser.add_argument("--snapshot")
     parser.add_argument("--receipt")
     parser.add_argument("--id")
@@ -162,6 +163,11 @@ def run(command, args):
     if command == "history":
         if not args.snapshot:
             raise ContractError("History requires an exact --snapshot")
+        if args.export:
+            if not args.output:
+                raise ContractError("Historical export requires --output outside the consumer")
+            from v2_history import export_history
+            return export_history(root, args.snapshot, args.output)
         return historical(root, args.snapshot)
     if command == "context":
         return execution_context(model, args.task)
@@ -335,7 +341,10 @@ def main(argv=None, *, command=None):
     args = parser_for(command).parse_args(argv)
     command = command or args.command
     try:
-        value = run(command, args)
+        readonly = {"status", "validate", "readiness", "catalog", "context", "history", "diff", "migration-diagnose", "migration-preview", "migration-status", "migration-continuation", "method-upgrade-diagnose", "tracking-status", "retention-status", "visual-inspect"}
+        if command not in readonly | {"recover", "rollback"} or (command == "catalog" and args.export):
+            value = {"status": "blocked", "error": "needs-migration: use v3 migration-preview; current public operations require method 3.1.0", "writes": []}
+        else: value = run(command, args)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         value = {"status": "blocked", "error": str(exc), "writes": []}
     from v2_guidance import enrich

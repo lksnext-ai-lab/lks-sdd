@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `3.0.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `3.3.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -20,6 +20,7 @@ plan. Las decisiones vigentes se reutilizan y las excepciones quedan delimitadas
 |---|---|
 | Trabajar individualmente o con especialistas | [Reglas comunes](docs/V3-COMMON.md) |
 | Consultar operaciones y datos concretos | [Referencia bajo demanda](docs/V3-OPERATIONS.md) |
+| Activar revisión conjunta, encargos e integración por hitos | [Recorrido integral optativo 3.1](docs/V31-REVIEW.md) |
 | Convertir un proyecto v2 conservando su historia | [Migración v3](docs/V3-MIGRATION.md) |
 
 Las seis skills cargan solamente la ruta de la versión del proyecto. Sonar y
@@ -94,13 +95,14 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 3.0.0, schema 3.0 y método 3.0.0 son versiones distintas. Los consumidores v2
-conservan schema 2.0 y método 2.0.0/2.1.0 hasta una migración explícita. Los consumidores
-con método 2.0.0 siguen legibles y se actualizan explícitamente.
-Los consumidores 1.5/1.5.0 siguen su workflow y runtime fijado hasta autorizar
-una migración.
-La compatibilidad 1.5 se limita al runtime fijado y a su migración explícita; no
-sustituye las reglas v2.
+Plugin 3.3.0, schema y método son versiones distintas. Los proyectos nuevos usan
+schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
+Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
+recuperación; continuar trabajo con esta versión exige el corte explícito descrito
+en [la migración v3.1](docs/V3-MIGRATION.md), con recuperación y actualización del
+runtime fijado. Instalar el plugin personal no realiza ese corte.
+Los consumidores 1.5 conservan sus fuentes y runtime hasta autorizar la migración
+por las rutas admitidas; no se añade una conversión directa 1.5 → 3.1.
 
 ## Distribución y límites
 
@@ -121,14 +123,16 @@ Los controles locales detectan incumplimientos, pero no interceptan toda escritu
 del host. La [guía de guardrails](docs/V2-GUARDRAILS.md) explica cómo comprobar un
 cambio desde una base confiable sin permitir que se autoapruebe.
 
-Esta versión incorpora la corrección del observador Oracle. La integración en
-`main`, el gate estable, la etiqueta, la publicación y la instalación se acreditan
-por separado. La [aprobación de 2.3.1](quality/release-approval-v2.3.1.json)
-autoriza preparar la release técnica, condicionada al gate y a la revisión de los
-assets; no acredita por sí sola su publicación.
-El paquete nativo Copilot puede actualizarse desde el ZIP verificado. La ruta Git
-del catálogo apunta a `copilot-v2.3.1` y exige que esa etiqueta contenga exactamente
-los archivos del ZIP antes de anunciar la instalación desde el panel.
+Esta versión incorpora revisión integral por personas, encargos y correcciones
+trazables, con intervenciones agrupadas para equipos pequeños y desarrollo individual.
+Antes de anunciar implementación o editar código se comprueba la cobertura vigente
+SPEC → PLAN/TASK y la autorización; las decisiones pendientes se registran y se
+evalúa qué alcance independiente puede continuar.
+La [decisión de versión 3.3.0](quality/release-approval-v3.3.0.json) se registra
+por separado del gate técnico del commit final y de la publicación.
+El catálogo Copilot apunta a `copilot-v3.3.0`; su árbol debe coincidir exactamente
+con el ZIP nativo verificado. Las ilustraciones en `output/infografias/` son bocetos
+históricos provisionales y no sustituyen la definición vigente del proceso.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte
 universal. Los ensayos reales de host, piloto, comprensión humana e interoperabilidad
 Rovo/Jira o Entra sin evidencia siguen `not-run`. La tecnología se documenta y

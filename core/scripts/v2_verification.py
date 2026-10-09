@@ -579,9 +579,12 @@ def close(model: Model, tasks: list[str], evidence_id: str, *, actor: str, at: s
         raise ContractError("Exact-result human/visual acceptance remains pending")
     identifier = next_id(model, "CKPT")
     completion = "with accepted reservations" if value["classification"] != "verified" else "verified"
+    from content_store import prepare_inventory
+    objects = {}
+    inventory_ref = prepare_inventory(model.root, guard["files"], objects)
     path, data = record(model, identifier, "checkpoint", "Verificación del trabajo", "Evidencia: " + evidence_id + ". Entrega y aceptación humana independientes.",
                         state="active", actor=actor, recorded_at=at, next_action="Revisar condiciones de entrega",
-                        files=guard["files"], evidence_ids=[evidence_id], completion=completion,
+                        files_ref=inventory_ref, evidence_ids=[evidence_id], completion=completion,
                         reservations=reservations, acceptance_receipt_id=receipt_id,
                         relations={"execution": [execution.id], "implements": tasks})
     task_state = "done-with-reservations" if value["classification"] != "verified" else "done"
@@ -597,7 +600,7 @@ def close(model: Model, tasks: list[str], evidence_id: str, *, actor: str, at: s
                    for c in value["checks"] if c.get("required")):
                 raise ContractError("Problem requires evidence observed after the finding")
             updates[problem.id] = dict(problem.meta, state="resolved", evidence_id=evidence_id)
-    changes = {path: data, **receipt_changes, **edit_elements(model, updates)}
+    changes = {**objects, path: data, **receipt_changes, **edit_elements(model, updates)}
     operation = "complete-task-with-reservations" if task_state == "done-with-reservations" else "complete-verified-task"
     plan = preview(model.root, changes, sources=model.hashes, operation=operation)
     return apply(model.root, changes, plan, authorized_hash) if authorized_hash else plan

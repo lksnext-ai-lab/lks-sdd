@@ -1,0 +1,1 @@
+{"passed": true, "duration_seconds": 83.508, "counts": {"total": 2, "passed": 2, "skipped": 0, "failed": 0}, "results": [{"id": "test_v31_review.IntegralTests.test_independent_review_is_not_removed_for_same_person", "status": "passed"}, {"id": "test_v31_review.IntegralTests.test_rejection_records_correction_and_blocks_old_acceptance", "status": "passed"}]}

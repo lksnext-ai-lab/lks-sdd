@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["proposal_review_required", "task_review_required", "defaults"],
+  "properties": {
+    "proposal_review_required": {"type": "boolean"},
+    "task_review_required": {"type": "boolean"},
+    "defaults": {
+      "type": "object", "additionalProperties": false,
+      "required": ["responsible", "integration_validator", "functional_validator", "reviewers"],
+      "properties": {
+        "responsible": {"type": "string", "format": "uuid"},
+        "integration_validator": {"type": "string", "format": "uuid"},
+        "functional_validator": {"type": "string", "format": "uuid"},
+        "reviewers": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["member", "required", "domains"],
+          "properties": {
+            "member": {"type": "string", "format": "uuid"},
+            "required": {"type": "boolean"},
+            "domains": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+          }
+        }}
+      }
+    }
+  }
+}

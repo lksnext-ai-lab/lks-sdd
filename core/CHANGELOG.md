@@ -1,5 +1,102 @@
 # Changelog
 
+## 3.3.0 — 2026-10-10 — contexto aplicable y continuidad proporcionada
+
+- Unifica selección literal en decisiones y ejecución: resuelve pertenencia antes de
+  PLAN, conserva reglas globales, contratos compartidos, dependencias entrantes y dudas.
+  La referencia completa se recupera expresamente con `reference: true`.
+- Añade declaraciones de prosa ligadas a contenido y decisión de gobierno, y catálogo
+  paginado para reconciliarlas por lotes. Datos no aprobados, obsoletos o contradictorios
+  conservan el contenido. Schema 3.1 y método 3.1.0 permanecen; el runtime se actualiza
+  por migración explícita y recuperable. No se exige reclasificar todo el histórico.
+- Añade `--compact` para transportar un solo cuerpo en review/decision-view, conservando
+  el recibo, JSON detallado anterior, biblioteca y exportación. La presentación `/2`
+  distingue contenido seleccionado de hashes físicos de concurrencia.
+- Reutiliza modelo y hechos dentro de consultas; cada operación y los guards de
+  mutación conservan comprobaciones frescas. La paginación no promete lectura sublineal.
+- Selecciona continuidad actual sin reenviar checkpoints simples anteriores; conserva
+  pendientes, problemas, decisiones, evidencia e historia recuperable. `operation_id`
+  distingue reintentos de observaciones nuevas. Logs, código y HTML fuente se leen como texto.
+- Corrige inventarios de migración grandes: separa rutas/bytes físicos de contenido único,
+  conserva cada fuente y admite orígenes v2 cuyo proyecto solo constaba en el índice.
+- Las pruebas automatizadas y medidas sintéticas acreditan sus canales técnicos;
+  ahorro facturado, comprensión humana y aceptación real de hosts requieren observación.
+
+## 3.3.0-rc.1 — 2026-10-09 — contexto aplicable y continuidad proporcionada
+
+Candidata integrada en main en `51a4112`, con gate candidate y CI superados.
+No se publicó como release; la promoción estable tiene su aprobación y gate propios.
+
+- Unifica selección literal en decisiones y ejecución: resuelve pertenencia antes de
+  PLAN, conserva reglas globales, contratos compartidos, dependencias entrantes y dudas.
+  La referencia completa se recupera expresamente con `reference: true`.
+- Añade declaraciones de prosa ligadas a contenido y decisión de gobierno, y catálogo
+  paginado para reconciliarlas por lotes. Datos no aprobados, obsoletos o contradictorios
+  conservan el contenido. Schema 3.1 y método 3.1.0 permanecen; el runtime se actualiza
+  por migración explícita y recuperable. No se exige reclasificar todo el histórico.
+- Añade `--compact` para transportar un solo cuerpo en review/decision-view, conservando
+  el recibo, JSON detallado anterior, biblioteca y exportación. La presentación `/2`
+  distingue contenido seleccionado de hashes físicos de concurrencia.
+- Reutiliza modelo y hechos dentro de consultas; cada operación y los guards de
+  mutación conservan comprobaciones frescas. La paginación no promete lectura sublineal.
+- Selecciona continuidad actual sin reenviar checkpoints simples anteriores; conserva
+  pendientes, problemas, decisiones, evidencia e historia recuperable. `operation_id`
+  distingue reintentos de observaciones nuevas. Logs, código y HTML fuente se leen como texto.
+- Corrige inventarios de migración grandes: separa rutas/bytes físicos de contenido único,
+  conserva cada fuente y admite orígenes v2 cuyo proyecto solo constaba en el índice.
+- Las medidas sintéticas y paquetes de desarrollo acreditan sus canales técnicos;
+  ahorro facturado, comprensión humana y aceptación real de hosts requieren observación.
+
+## 3.2.0 — 2026-10-08 — validaciones claras y contexto eficiente
+
+- Presenta decisiones con un título claro y apartados específicos: dieciocho perfiles
+  cubren configuración, especificaciones, planificación, encargos, resultados,
+  correcciones, excepciones, continuidad y entrega. Las especificaciones detallan
+  componentes, interfaces, datos, seguridad y comprobación de la solución técnica.
+- Vincula las decisiones nuevas a fuentes y contenido mostrado mediante
+  `decision-view`; conserva las decisiones anteriores vigentes y permite consultar
+  borradores incompletos y registrar desacuerdos sin fabricar evidencia.
+- Organiza las instrucciones en un índice y nueve guías cargadas por evento; las seis
+  skills comparten catálogo y composición. La salida compacta evita repetir el mensaje,
+  sin recortar obligaciones. Las medidas estáticas no acreditan ahorro facturado.
+
+- Establece 3.1 como destino de las entradas públicas: inicialización nativa,
+  corte directo v2 → 3.1 y adopción/actualización 3.0/3.1 con configuración y runtime
+  fijado en un paquete recuperable. Consultas y recuperación antiguas se conservan.
+- Externaliza sujetos completos y artefactos de dependencias v3 con resolución
+  semántica común; conserva hashes normativos de las representaciones y sus pruebas.
+- Añade estados documentales exactos con recursos y transporte portable referenciado,
+  migración del exceso activo debido a inventarios y guard de pertenencia histórica.
+- Reduce repetición de consultas y checkpoints mediante las reglas comunes de las
+  seis skills; no activa el selector reducido ni acredita ahorro de tokens facturados.
+- Evita recalcular el mismo cierre global por cada unidad aprobada, conservando
+  todas sus obligaciones; las entradas auxiliares antiguas no crean nuevos formatos legados.
+
+- Deduplica snapshots v2 y payloads de recuperación mediante objetos por contenido;
+  conserva lectura de árboles y diarios anteriores, identidad de estados y exportación exacta.
+- Reutiliza inventarios técnicos verificables en EXEC/CKPT v2 y avances v3, manteniendo
+  Markdown canónico, autoridad, evidencias, guards y el límite activo de 32 MiB.
+- Protege dependencias de enlaces históricos, publicación sin sobrescritura y presupuestos
+  antes de leer; reduce memoria de archivado y conserva recuperación de árboles anteriores.
+- Añade reproducción sintética temporal, regresiones y [documentación de compatibilidad,
+  publicación y futuras compactaciones](docs/DOCUMENT-STORAGE.md).
+
+- Incluye en el repositorio la web comparativa estática y sus recursos; queda fuera
+  de los paquetes del plugin. La aprobación de publicación y la instalación personal
+  no acreditan aceptación conversacional ni migran proyectos consumidores.
+
+## 3.1.0 — 2026-09-30 — revisión integral y recorrido guiado
+
+- Recorrido optativo H1–H7: propuesta, revisión conjunta, plan autorizado, revisión de encargos, ejecución/verificación, integración y preparación de PR.
+- Participación por personas reales y responsabilidades; agrupa decisiones compatibles sin duplicar validaciones en proyectos individuales o equipos pequeños.
+- Aportaciones de especialistas sobre la propuesta integral, cierre por el responsable y tareas detalladas con revisión de su destinatario.
+- Correcciones de integración y aceptación vinculadas a requisitos, tareas y nueva evidencia; un resultado anterior no vuelve a aceptar un defecto conocido.
+- Estado y siguiente paso compartidos entre consulta y readiness, con recomendaciones y reservas explícitas, sin modificar el proyecto al consultar.
+- Adopción explícita 3.0 → 3.1 con actualización del runtime fijado y rollback; formatos anteriores conservan su recorrido hasta autorizar el cambio.
+- Refuerza las seis skills y adaptadores de Codex/Copilot: una petición directa de implementación exige comprobar primero especificación, plan y autoridad. Registra decisiones aplazadas y evalúa su impacto.
+- Conserva Sonar y Dependency-Check en implementación según configuración; CI/CD y aprobación remota del PR quedan fuera.
+- La aprobación de publicación se registra por separado del gate técnico. La aceptación conversacional real, el piloto y las mediciones de ahorro de contexto siguen pendientes de evidencia.
+
 ## 3.0.0 — 2026-09-29 — procesos de proyecto y trabajo en equipo
 
 - Proceso configurable para trabajo individual y equipos, identidades estables y trazabilidad de responsabilidades, ramas, excepciones y relevos.

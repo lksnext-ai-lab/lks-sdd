@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import argparse
+import importlib.util
 from pathlib import Path
 import subprocess
 import sys
@@ -148,27 +150,11 @@ class V2TechnologyDeclarationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="lks-sdd-v2-migration-") as directory:
             root = Path(directory) / "project"
             root.mkdir()
-            initialized = subprocess.run(
-                [
-                    sys.executable,
-                    "-B",
-                    "-X",
-                    "utf8",
-                    str(ROOT / "skills/lks-sdd-define/scripts/init_project.py"),
-                    str(root),
-                    "--project-id",
-                    "technology-migration",
-                    "--date",
-                    "2026-09-19",
-                    "--json",
-                ],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                check=False,
-            )
-            self.assertEqual(initialized.returncode, 0, initialized.stdout + initialized.stderr)
+            spec = importlib.util.spec_from_file_location("legacy_fixture", ROOT / "skills/lks-sdd-define/scripts/init_project.py")
+            legacy = importlib.util.module_from_spec(spec); spec.loader.exec_module(legacy)
+            code, result = legacy.initialize(argparse.Namespace(project_root=root, project_id="technology-migration",
+                      documentation_level="standard", risk_profile="undetermined", date="2026-09-19", dry_run=False))
+            self.assertEqual(code, 0, result)
 
             manifest_path = root / ".lks-sdd/project.json"
             generated_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

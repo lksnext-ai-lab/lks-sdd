@@ -70,21 +70,23 @@ def block_parts(data):
     return left, (BEGIN + middle + END).replace("\r\n", "\n").encode("utf-8"), right
 
 
-def load_payload(bundle, host):
+def load_payload(bundle, host, *, byte_limit=1024*1024*1024):
+    if (bundle/"payload-manifest.json").stat().st_size > 8*1024*1024: raise ValueError("Payload manifest is too large")
     manifest = json.loads((bundle / "payload-manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("schema_version") != "1.0" or not isinstance(manifest.get("files"), dict):
+    if manifest.get("schema_version") != "1.0" or not isinstance(manifest.get("files"), dict) or len(manifest["files"]) > 10000:
         raise ValueError("Invalid payload manifest")
     files = {}
     payload_name = f"payload/{host}.zip"
     # Validate the whole setup, including launcher scripts, before accepting any bytes.
     for name, expected in manifest["files"].items():
+        if safe(bundle, name).stat().st_size > byte_limit: raise ValueError("Setup file exceeds payload budget")
         data = read(bundle, name)
         if data is None or sha(data) != expected:
             raise ValueError(f"Damaged setup payload: {name}")
         if name == payload_name:
             with zipfile.ZipFile(io.BytesIO(data)) as archive:
                 seen = set()
-                if sum(item.file_size for item in archive.infolist()) > 1024 * 1024 * 1024:
+                if len(archive.infolist()) > 10000 or sum(item.file_size for item in archive.infolist()) > byte_limit:
                     raise ValueError("Payload is too large")
                 for item in archive.infolist():
                     safe(bundle, item.filename)
@@ -101,7 +103,7 @@ def receipt_name(host):
     return ".lks-sdd/installation.json" if host == "copilot" else ".lks-sdd-installation.json"
 
 
-def plan(bundle, destination, host, remove=False, *, contract_transition=None):
+def plan(bundle, destination, host, remove=False, *, contract_transition=None, payload_limit=1024*1024*1024):
     destination = filesystem_root(destination)
     if host == "copilot" and not destination.is_dir():
         raise ValueError("Copilot destination must be the existing consumer project root")
@@ -114,13 +116,21 @@ def plan(bundle, destination, host, remove=False, *, contract_transition=None):
         raise ValueError("Incompatible installation receipt")
     if remove and previous is None:
         raise ValueError("No managed installation to remove")
-    metadata, payload = ({}, {}) if remove else load_payload(bundle, host)
+    metadata, payload = ({}, {}) if remove else load_payload(bundle, host, byte_limit=payload_limit)
+    if not remove and host == "copilot" and contract_transition is not None:
+        # Only the explicit migrator invokes this path, using the verified bundle's core.
+        from dual_distribution import project_files
+        incoming_lock = json.loads(payload[".lks-sdd/distribution-lock.json"])
+        prefix = incoming_lock["runtime"] + "/"
+        core = {name[len(prefix):]: raw for name, raw in payload.items() if name.startswith(prefix)}
+        payload = project_files(core, incoming_lock["source"], incoming_lock["channel"],
+                                plugin_entrypoints=incoming_lock.get("entrypoints") == "plugin", project_schema=contract_transition[1])
     if not remove and host == "copilot" and (destination / ".lks-sdd/project.json").is_file():
         origin = json.loads(read(destination, ".lks-sdd/project.json"))["schema_version"]
         incoming = json.loads(payload[".lks-sdd/distribution-lock.json"])["project_schema"]
         if origin != incoming and contract_transition != (origin, incoming):
             raise ValueError("Changing project contract requires the explicit v2 migrator, not runtime setup")
-        if contract_transition is not None and contract_transition != ("2.0", "3.0"):
+        if contract_transition is not None and contract_transition not in {("2.0", "3.0"), ("2.0", "3.1"), ("3.0", "3.1"), ("3.1", "3.1")}:
             raise ValueError("Unsupported explicit runtime cutover")
     if previous and (remove or old.get("runtime_digest") != metadata.get("runtime_digest")):
         handoffs = destination / ".lks-sdd/handoffs/visual"

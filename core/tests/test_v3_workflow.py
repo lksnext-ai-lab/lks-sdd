@@ -1,4 +1,5 @@
 """Behavioral tests against actual temporary Git projects and canonical Markdown."""
+from presentation_test_support import present, technical_solution
 import copy
 import json
 from pathlib import Path
@@ -7,7 +8,10 @@ import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+# The measurement runner loads an explicitly frozen runtime before this fixture.
+# Preserve that selection instead of mixing its modules with the source checkout.
+if "v3_contract" not in sys.modules:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from v3_contract import ContractError, element, load
 from v3_storage import apply
 from v3_authoring import initialize, author, approve, approve_and_authorize
@@ -32,7 +36,7 @@ class ProjectFixture(unittest.TestCase):
         git(self.root, "checkout", "-b", "codex/request")
         controls = {key: {"mode": "not-used", "reason": "Decisión explícita de este proyecto de prueba"}
                     for key in ("sonar", "dependency-check")}
-        packet = initialize(self.root, "Fixture", "Operador de prueba", "individual-brief", controls,
+        packet = present(initialize, self.root, "Fixture", "Operador de prueba", "individual-brief", controls,
                             "Confirmo estas reglas y mi responsabilidad", target="main")
         self.actor = packet["summary"]["member"]
         commit_packet(self.root, packet)
@@ -42,12 +46,12 @@ class ProjectFixture(unittest.TestCase):
         acceptance = element("acceptance", "Saludo verificable", "El módulo devuelve el saludo acordado.")
         prop = element("proposal", "Propuesta concreta", "Se cambia el saludo del módulo app.py y se conserva su interfaz pública.",
                        part="joint", objective="Saludo", included=["app.py"], excluded=["UI"], behavior="Devuelve Hola",
-                       solution="Función Python existente", impact="Módulo aislado", acceptance=["saludo"], request=req["meta"]["uid"])
+                       solution=technical_solution(), impact="Módulo aislado", acceptance=["saludo"], request=req["meta"]["uid"])
         prop["meta"]["relations"] = {"acceptance": [acceptance["meta"]["uid"]]}
         req["meta"]["relations"] = {"proposal": [prop["meta"]["uid"]]}
         commit_packet(self.root, author(self.root, self.actor, [req, prop, acceptance]))
         self.req, self.prop = req["meta"]["uid"], prop["meta"]["uid"]
-        commit_packet(self.root, approve(self.root, self.actor, [self.prop], "proposal", "Valido exactamente esta propuesta"))
+        commit_packet(self.root, present(approve, self.root, self.actor, [self.prop], "proposal", "Valido exactamente esta propuesta"))
         task = element("task", "Cambiar saludo", "Implementar y comprobar el saludo acordado.", request=self.req,
                        owner=self.actor, scope=["app.py"], acceptance=["saludo"], tests=["test_saludo"])
         task["meta"]["relations"] = {"covers": [acceptance["meta"]["uid"]]}
@@ -55,12 +59,27 @@ class ProjectFixture(unittest.TestCase):
         plan["meta"]["relations"] = {"tasks": [task["meta"]["uid"]]}
         commit_packet(self.root, author(self.root, self.actor, [task, plan]))
         self.task, self.plan_id = task["meta"]["uid"], plan["meta"]["uid"]
-        commit_packet(self.root, approve_and_authorize(self.root, self.actor, self.plan_id, "Valido y autorizo este plan"))
+        commit_packet(self.root, present(approve_and_authorize, self.root, self.actor, self.plan_id, "Valido y autorizo este plan"))
 
     def advance(self, action):
-        commit_packet(self.root, transition(self.root, self.actor, self.task, action, "Resultado comprobado del escenario"))
+        commit_packet(self.root, present(transition, self.root, self.actor, self.task, action, "Resultado comprobado del escenario"))
 
 class WorkflowTests(ProjectFixture):
+    def test_execution_baselines_share_verified_inventory_and_preserve_scope(self):
+        from content_store import inventory, object_path
+        (self.root/"unchanged.txt").write_bytes(b"pre-existing unrelated work")
+        self.plan(); self.advance("start"); self.advance("pause"); self.advance("resume")
+        model = load(self.root).require_valid()
+        events = [e for e in model.by_kind("execution") if e.data.get("task") == self.task]
+        self.assertEqual(len({e.data["baseline_ref"]["sha256"] for e in events}), 1)
+        for e in events:
+            self.assertIn("unchanged.txt", inventory(self.root, e.data, "baseline"))
+            self.assertNotIn("baseline", e.data)
+        (self.root/"unchanged.txt").write_bytes(b"out-of-scope change")
+        with self.assertRaisesRegex(ContractError, "fuera del alcance"): self.advance("implement")
+        (self.root/object_path(events[0].data["baseline_ref"])).write_bytes(b"tampered")
+        with self.assertRaises(ContractError): load(self.root).require_valid()
+
     def test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close(self):
         self.plan()
         item = copy.deepcopy(load(self.root).get(self.task).item())

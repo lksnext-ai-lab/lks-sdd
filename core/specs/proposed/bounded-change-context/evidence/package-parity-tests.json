@@ -1,0 +1,1 @@
+{"passed": true, "duration_seconds": 37.685, "counts": {"total": 1, "passed": 1, "skipped": 0, "failed": 0}, "results": [{"id": "test_v3_instruction_routing.RoutingTests.test_both_packages_execute_the_same_decision_view", "status": "passed"}]}

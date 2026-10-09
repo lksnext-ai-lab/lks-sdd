@@ -1,4 +1,4 @@
-# Operaciones del contrato 3.0
+# Operaciones del contrato 3.1
 
 Referencia de campos bajo demanda. Punto de entrada:
 `python -B <runtime>/scripts/lks_sdd.py v3 ACCION <proyecto> --input <datos.json>`.
@@ -6,6 +6,25 @@ Consultas no escriben. Las mutaciones producen preview; `--output` guarda el paq
 completo. `--apply` aplica cuando la decisión de la sesión ya autoriza esos datos.
 `apply --input <paquete> --authorize <preview_hash>` aplica un paquete presentado.
 La entrada JSON es un transporte; el resultado canónico sigue siendo Markdown.
+`decision-view` y `review` con `--compact` devuelven una presentación literal sin
+duplicar cuerpos, incluido `--json`. Sin esa opción, `--json` mantiene el resultado
+detallado anterior; `--details` lo solicita expresamente y `--output` lo exporta completo.
+La salida ordinaria sin `--json` es compacta. El recibo y los guards son los mismos.
+`context` usa aplicabilidad literal; `reference: true` obtiene el diagnóstico completo.
+`catalog` con `kind: prose` pagina fuentes, hashes y estado de clasificación sin sus cuerpos.
+Las declaraciones canónicas se explican en [DOCUMENT-CONTEXT.md](DOCUMENT-CONTEXT.md).
+El CLI público exige método 3.1.0, colaboración y runtime fijado para escrituras
+ordinarias. Los lectores antiguos y recuperadores permanecen. `migration-preview`
+prepara v2 → 3.1, 3.0 → 3.1 o actualización de runtime 3.1.
+`packet_directory` selecciona un directorio nuevo externo para preparar volúmenes
+grandes: contiene `packet.json` y sus objetos. Conserve y transporte ambos.
+`--output` guarda también un descriptor y su directorio de objetos adyacente.
+
+`checkpoint` admite `operation_id` para reintentar una observación exacta sin crear
+otro evento. Una clave reutilizada con contenido, actor o sujeto distinto se rechaza;
+otra observación usa otra clave. Sin clave, cada llamada conserva su hecho distinto.
+La presentación omite checkpoints simples anteriores cuando hay uno posterior del
+mismo ámbito; conserva pendientes, problemas y evidencia. `trace` recupera el historial.
 
 ## Configuración y autoría
 
@@ -16,7 +35,11 @@ La entrada JSON es un transporte; el resultado canónico sigue siendo Markdown.
   existing-report/existing-command, scope, timeout_seconds y max_retries.
   availability declara state: available, source comprobable y phase: implementation.
   Si solo existe análisis en PR o falta acceso, resuelva ese impedimento antes de
-  confirmar el recorrido. init admite lifecycle y members [{name,roles}].
+  confirmar el recorrido. init admite lifecycle y members [{key,name,roles}].
+  Exige runtime_bundle y collaboration con los campos de `collaboration-3.1.schema.json`.
+  Para nuevas personas use `$owner` y las claves declaradas en members; se resuelven
+  a UUID sin escoger personas automáticamente. Declare explícitamente los dos
+  indicadores de revisión, los tres validadores y la lista de revisores, incluso vacía.
 - `author`: actor, items. Cada item contiene meta y body; los campos cerrados de
   meta están en `schemas/element-3.0.schema.json`. El helper local
   `v3_contract.element(kind, title, body, **data)` genera UUID independiente.
@@ -106,3 +129,90 @@ confirmed_intent/statement. Un sistema existente sin SDD no pasa por un v2 ficti
 Para v2 use [la guía específica](V3-MIGRATION.md). `recover` o `rollback` requiere
 --authorize con hash de la operación interrumpida. Para una operación completada,
 --receipt identifica el almacén devuelto. La recuperación rechaza cambios posteriores.
+
+## Decisiones presentadas
+
+`decision-view` es de solo lectura: recibe `event` y `data` de la operación prevista,
+sin declaración ficticia. La CLI devuelve `markdown`, `instruction_refs`,
+`intervention`, `issues`, `complete` y `receipt`; `--json` añade `sections`,
+`sources`, `attachments` y la base detallada. Presente el
+contenido antes de recoger una decisión. Una decisión nueva recibe `presented` con
+el receipt exacto además de su `statement`; los campos y fuentes no pueden cambiar
+entre ambos pasos. Una respuesta vigente se reutiliza.
+
+Ejemplo de consulta: `{"event":"authorize-plan","data":{"actor":"<UID>","plan":"<UID>"}}`.
+Después de mostrar la vista y recibir la respuesta, `authorize-plan` recibe esos
+mismos datos, `statement` con la decisión real y `presented` con el receipt devuelto.
+Los helpers Python admiten el mismo argumento adicional `presented`.
+
+Para explicar `recover` o `rollback`, use `data.authorized_hash` y, cuando exista,
+`data.receipt` de la transacción. La vista conserva el registro y explica sus
+archivos afectados; no inicia la recuperación. Para imágenes, `assets` contiene
+rutas locales y `observed_assets` relaciona cada ruta con la huella del archivo
+efectivamente observado. No declare observación por haber leído únicamente la ruta.
+
+Los eventos `clarify`, `identity`, `technology-choice`, `visual-choice`,
+`external-action` y `client-view` son perfiles de consulta, no comandos ejecutores.
+Las rutas históricas muestran su indisponibilidad y no habilitan escrituras.
+Para propuesta técnica, consulte el formato de componentes en
+[especificaciones](decision-guides/specifications.md).
+
+## Configuración explícita del recorrido integral
+
+`configure-collaboration`: actor, statement, collaboration y requests opcionales.
+collaboration contiene proposal_review_required y task_review_required (booleanos),
+y defaults con responsible, integration_validator, functional_validator (UID de
+miembros) y reviewers [{member, required, domains}]. Se deduplican personas, no roles.
+El campo coordination opcional aplica una designación específica a las peticiones
+seleccionadas. El motivo y las designaciones deben proceder de una decisión explícita.
+
+La operación actualiza formato/método a 3.1/3.1.0, conserva las reglas fijadas de
+peticiones no seleccionadas y no fabrica revisiones históricas. La entrada pública
+requiere runtime_bundle compatible, también sin lock previo; la vista previa incluye el corte del runtime y
+documentos. apply/recover/rollback conservan el mecanismo transaccional existente.
+
+## Revisión y ejecución
+
+- `review-comment`: actor, request, target, statement, blocking y critical.
+- `resolve-comment`: actor, request, comment, statement y treatment
+  incorporated/dismissed. El autor de una objeción confirma su tratamiento al revisar.
+- `review-proposal`: actor, request, statement, outcome approved/changes-requested.
+- `close-proposal`: actor, request, statement, review opcional. review=true registra
+  conjuntamente la revisión propia y el cierre cuando faltaba solo esa conformidad.
+- `authorize-plan`: admite review_tasks con los UID exactos de tareas propias
+  presentadas y revisadas por esa misma respuesta. Omitirlo no inventa revisión.
+- `review-task`: actor, request, tasks, statement, outcome approved/changes-requested.
+- `start`/`resume`: review=true agrupa revisión e inicio; offer permite aceptar una
+  oferta de asignación/relevo del destinatario en el mismo paquete recuperable.
+- `review-exception`: actor competente, request, statement, rule integral-review,
+  action close-proposal, effect y expires_at. Mantiene reservas y firmas ausentes.
+
+Un cambio material del paquete requiere conformidades nuevas. Las tareas conservan
+su revisión mientras no cambie el contrato, destinatario o porción; editar código
+durante la implementación no obliga a revisar de nuevo el encargo.
+
+## Resultado y correcciones
+
+`integrate` conserva trusted_root y admite accept_result=true si la misma persona
+puede comprobar integración y aceptar funcionalmente el candidato ya presentado.
+Las dos acreditaciones se conservan; no se realiza merge.
+
+`reject-result`: actor, request, statement, phase integration/acceptance/external,
+tasks, expected y observed; artifact y requirements son opcionales. La evidencia ausente queda pendiente. Registra fallo y
+definición correctiva en borrador, incluso antes de poder cerrar la integración.
+
+`define-correction`: actor, correction, classification defect/agreement-change/
+new-request/external, statement, acceptance y tasks/requirements opcionales.
+Confirmar el defecto no autoriza otro alcance. Reabra trabajo cubierto por la
+autorización vigente o revise propuesta/plan antes de ampliar el encargo.
+
+`resolve-defect`: actor, problem, statement; exige definición confirmada y evidencia
+de corrección vigente. Después repita integración/aceptación del nuevo resultado.
+`prepare-delivery`: actor, request, statement, pr_url opcional observado. Requiere
+aceptación vigente; preparar el resumen no crea ni aprueba el PR, ni ejecuta CI/CD.
+
+Las operaciones de revisión, rechazo, definición/resolución correctiva y entrega admiten
+refresh cuando el proyecto exige comprobar referencias compartidas. Los resúmenes
+muestran completed-with-reservations para cierres dispensados y not-required para
+revisión de encargos desactivada: ninguno acredita una firma ausente. Un reintento
+de revisión o cierre vigente devuelve already-recorded, sin duplicar eventos.

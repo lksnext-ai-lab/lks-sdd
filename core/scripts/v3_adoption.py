@@ -1,4 +1,5 @@
 """Bounded static observations do not infer the intended behavior of an existing system."""
+from v3_presentation_guard import reviewed
 from pathlib import Path
 from v3_contract import ContractError, element, load, read_bytes, sha, now
 from v3_authoring import initialize
@@ -20,6 +21,7 @@ def inspect(root, paths, purpose):
             "next": "Describa las observaciones con sus fuentes y confirme la intención de la porción; no deduzca ausencia de funciones"}
 
 
+@reviewed('adopt')
 def record(root, actor, inspection, observations, confirmed_intent, statement):
     model = load(root).require_valid(); identity = operator(model, actor, "define")
     if not observations or not statement.strip(): raise ContractError("Faltan observaciones y decisión sobre su incorporación")

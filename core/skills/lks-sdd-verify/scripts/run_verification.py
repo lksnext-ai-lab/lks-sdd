@@ -13,7 +13,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true")
     args, _ = parser.parse_known_args(argv)
     result = {"status": "blocked", "project_root": str(args.project_root),
-              "reason": "Legacy global technology workflows were removed; migrate and use the local v2 technology declaration."}
+              "reason": "Use lks_sdd.py v3 migration-diagnose before continuing through the current governed workflow."}
     print(json.dumps(result, ensure_ascii=False) if args.json else result["reason"])
     return 2
 

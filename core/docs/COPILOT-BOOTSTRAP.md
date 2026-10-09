@@ -4,6 +4,12 @@ Resuelva la raíz del plugin desde el archivo de la skill instalada, nunca desde
 directorio de trabajo ni una variable inventada. Para ayuda, lea la skill help del
 core y la guía desde cero en modo de solo lectura. Una consulta no inicializa nada.
 
+Antes de delegar trabajo gobernado, lea `core/docs/V3-COMMON.md` del plugin
+instalado. Un lock anterior conserva su autoridad para lectura y recuperación;
+no permite omitir el corte explícito al método y capacidades actuales. Prepare
+la migración con el bundle compatible del plugin y las decisiones confirmadas,
+compruebe la integridad del runtime de origen y continúe desde el destino validado.
+
 Para definir, adoptar o implementar un proyecto sin lock, presente la preparación
 concreta mediante setup/install.py copilot <proyecto> del plugin instalado.
 Obtenga su preview; --apply --authorize HASH solo aplica los cambios comprendidos

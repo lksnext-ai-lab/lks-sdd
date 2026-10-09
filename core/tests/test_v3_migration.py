@@ -1,3 +1,4 @@
+from presentation_test_support import present, technical_solution
 import json
 import copy
 from pathlib import Path
@@ -42,15 +43,15 @@ class MigrationTests(unittest.TestCase):
             item["meta"]["data"].update(request=request["meta"]["uid"], proposal_units=[feature])
         task["meta"]["data"].update(owner=actor, scope=["src"], acceptance=["Acknowledgement"], tests=["TST-001"])
         task["meta"]["relations"]["covers"] = task["meta"]["relations"]["requirements"] + task["meta"]["relations"]["acceptance"]
-        pending = reconcile_migrated(self.root, actor, [task, plan], "Conservo negocio y plan; asigno responsabilidad y rutas vigentes")
+        pending = present(reconcile_migrated, self.root, actor, [task, plan], "Conservo negocio y plan; asigno responsabilidad y rutas vigentes")
         v3_storage.apply(self.root, pending, pending["preview"]["preview_hash"])
         model = load(self.root)
         self.assertTrue(approved(model, [feature])["valid"])
         self.assertFalse(task_authority(model, model.get(task_id), model.get(plan_id), "execution")["valid"])
-        with self.assertRaises(ContractError): transition(self.root, actor, task_id, "start", "No hay autorización vigente")
-        pending = approve_and_authorize(self.root, actor, plan_id, "Autorizo continuar bajo el nuevo método")
+        with self.assertRaises(ContractError): present(transition, self.root, actor, task_id, "start", "No hay autorización vigente")
+        pending = present(approve_and_authorize, self.root, actor, plan_id, "Autorizo continuar bajo el nuevo método")
         v3_storage.apply(self.root, pending, pending["preview"]["preview_hash"])
-        pending = transition(self.root, actor, task_id, "start", "Continúo el trabajo existente")
+        pending = present(transition, self.root, actor, task_id, "start", "Continúo el trabajo existente")
         v3_storage.apply(self.root, pending, pending["preview"]["preview_hash"])
         self.assertEqual(task_id, load(self.root).get(task_id).uid)
 
@@ -81,6 +82,38 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(entry["sha256"], sha(read_bytes(self.root, entry["original"])))
         self.assertEqual(b"unchanged application", (self.root / "business.txt").read_bytes())
         with self.assertRaises(ContractError): v2_contract.load(self.root)
+
+    def test_conversion_preserves_referenced_v2_inventories_and_rollback(self):
+        from eval_support import materialize_ready_increment, authorize_implementation
+        from v2_lifecycle import start
+        from content_store import inventory, object_path
+        materialize_ready_increment(self.root); authorize_implementation(self.root)
+        (self.root / "src").mkdir(exist_ok=True)
+        (self.root / "src/synthetic.txt").write_bytes(b"stable code")
+        options = {"actor": "synthetic-human", "at": "2026-01-02T00:00:00+00:00",
+                   "technology": lambda *_: {"status": "documented"}}
+        pending = start(v2_contract.load(self.root), ["TASK-001"], "test", **options)
+        start(v2_contract.load(self.root), ["TASK-001"], "test", authorized_hash=pending["preview_hash"], **options)
+        old = v2_contract.load(self.root); old.require_valid()
+        execution = old.by_kind("execution")[0]
+        ref = execution.meta["baseline_files_ref"]
+        expected = inventory(self.root, execution.meta, "baseline_files")
+        original_object = read_bytes(self.root, object_path(ref))
+        authorization = old.by_kind("authorization")[0]
+        original_authorization = read_bytes(self.root, authorization.path)
+        packet = self.packet()
+        result = v3_storage.apply(self.root, packet, packet["preview"]["preview_hash"])
+        migrated = load(self.root).require_valid().get(execution.meta["uid"])
+        self.assertEqual(migrated.data["baseline_files_ref"], ref)
+        self.assertEqual(inventory(self.root, migrated.data, "baseline_files"), expected)
+        self.assertTrue(migrated.data["historical_only"])
+        self.assertEqual(read_bytes(self.root, object_path(ref)), original_object)
+        v3_storage.recover(self.root, packet["preview"]["preview_hash"], rollback=True, receipt=result["receipt"])
+        restored_model = v2_contract.load(self.root); restored_model.require_valid()
+        restored = restored_model.elements[execution.id]
+        self.assertEqual(restored.meta, execution.meta)
+        self.assertEqual(read_bytes(self.root, authorization.path), original_authorization)
+        self.assertEqual(inventory(self.root, restored.meta, "baseline_files"), expected)
 
     def test_unknown_method_is_diagnosed_without_writes(self):
         index = json.loads(read_bytes(self.root, ".lks-sdd/project.json")); index["method_version"] = "2.9.0"

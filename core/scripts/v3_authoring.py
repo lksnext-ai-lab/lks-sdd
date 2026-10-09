@@ -1,4 +1,5 @@
 """Creation, authoring and explicit decisions. No application code is generated."""
+from v3_presentation_guard import reviewed
 import copy
 from pathlib import Path
 import tempfile
@@ -13,7 +14,9 @@ from v2_storage import write_one
 from v2_contract import read_bytes, canonical
 
 
-def initialize(root, name, actor_name, process, controls, statement, *, target, lifecycle="evolution", members=None):
+@reviewed('init')
+def initialize(root, name, actor_name, process, controls, statement, *, target, lifecycle="evolution", members=None,
+               method=METHOD, collaboration=None, runtime_bundle=None, packet_directory=None):
     root = Path(root).resolve()
     if (root / INDEX).exists() or (root / DOCS).exists():
         raise ContractError("El proyecto ya tiene documentación; adoptar o migrar explícitamente")
@@ -28,6 +31,7 @@ def initialize(root, name, actor_name, process, controls, statement, *, target, 
     if lifecycle not in {"new", "bounded-delivery", "evolution", "maintenance"}: raise ContractError("Momento de vida no reconocido")
     policy["meta"]["data"]["lifecycle"] = lifecycle
     additional = []
+    declared = []
     from v3_policy import ROLES
     for value in members or []:
         if not value.get("name") or not value.get("roles") or set(value["roles"])-ROLES:
@@ -35,10 +39,17 @@ def initialize(root, name, actor_name, process, controls, statement, *, target, 
         person = element("member", value["name"], "Miembro declarado en la configuración inicial.", roles=value["roles"], active=True,
                          identity_history=[{"name": value["name"], "source": "explicit-bootstrap", "since": now()}])
         person["meta"].update(state="active", nature="decision"); additional.append(person)
+        declared.append((value.get("key"), person))
     if policy["meta"]["data"]["independent_review"] and not any("reviewer" in m["meta"]["data"]["roles"] for m in additional):
         raise ContractError("La revisión separada necesita un segundo miembro con función de revisión")
+    changes = {}
+    if method == "3.1.0":
+        from v3_current import declared_collaboration, runtime_changes
+        policy["meta"]["data"]["collaboration"] = declared_collaboration(collaboration, owner, declared)
+        changes = runtime_changes(root, runtime_bundle)
+    elif method != METHOD: raise ContractError("Método de inicialización desconocido")
     project = element("project", name, "Proyecto con Markdown canónico e índice derivado.",
-                      method_version=METHOD, policy=policy["meta"]["uid"], target=target,
+                      method_version=method, policy=policy["meta"]["uid"], target=target,
                       initialized_by=owner["meta"]["uid"], initialized_at=now())
     project["meta"]["relations"] = {"policy": [policy["meta"]["uid"]], "members": [owner["meta"]["uid"], *(m["meta"]["uid"] for m in additional)]}
     for obj in (owner, policy, project): obj["meta"].update(state="active", nature="decision")
@@ -50,7 +61,7 @@ def initialize(root, name, actor_name, process, controls, statement, *, target, 
                         descriptor={"units": units, "digest": fingerprint(units)}, decided_at=now(), bootstrap=True)
     bootstrap["meta"].update(state="approved", nature="decision")
     items.append(bootstrap)
-    packet = prepare(root, items, "initialize")
+    packet = prepare(root, items, "initialize", changes=changes, guards={"target_runtime": method == "3.1.0"}, packet_directory=packet_directory)
     packet["summary"].update(project=project["meta"]["uid"], member=owner["meta"]["uid"], policy=policy["meta"]["uid"], branch=git["branch"])
     return packet
 
@@ -67,6 +78,9 @@ def candidate(root, items, callback):
         for path in model.hashes: staged_write(stage, path, read_bytes(model.root, path))
         for item in items:
             old = model.elements.get(item["meta"]["uid"])
+            if old:
+                from v3_contract import HISTORY
+                staged_write(stage, HISTORY + "/" + old.uid + "/" + old.digest() + ".md", render(old.item()))
             if old and sum(e.path == old.path for e in model.elements.values()) > 1:
                 from v3_contract import BLOCK
                 import json
@@ -104,6 +118,12 @@ def author(root, actor, items):
             raise ContractError("Cambios de gobierno requieren governance con motivo y alcance explícitos")
         if meta["kind"] == "request":
             policy = model.get(model.project.data["policy"], "policy")
+            from v31_review import validate_roster
+            if not previous and policy.data.get("collaboration"):
+                meta["data"].setdefault("coordination", copy.deepcopy(policy.data["collaboration"]["defaults"]))
+                validate_roster(meta["data"]["coordination"])
+            if previous and any(meta["data"].get(k) != previous.data.get(k) for k in ("coordination", "policy", "policy_digest")):
+                raise ContractError("Cambiar coordinación/política requiere configure-collaboration")
             meta["data"].setdefault("policy", policy.uid)
             meta["data"].setdefault("policy_digest", policy.digest())
             obs = observe(model.root)
@@ -117,7 +137,11 @@ def author(root, actor, items):
             if meta["data"]["request"] not in requests: branch_check(model, model.get(meta["data"]["request"], "request"))
     def check(prospective):
         for obj in items:
-            if obj["meta"]["kind"] == "plan": plan_coverage(prospective, prospective.get(obj["meta"]["uid"]))
+            if obj["meta"]["kind"] == "plan":
+                plan = prospective.get(obj["meta"]["uid"])
+                from v31_review import designated
+                designated(prospective, prospective.get(plan.data["request"]), actor, "responsible", "plan")
+                plan_coverage(prospective, plan)
             if obj["meta"]["kind"] == "task":
                 task = prospective.get(obj["meta"]["uid"])
                 request = prospective.get(task.data["request"], "request")
@@ -131,19 +155,27 @@ def author(root, actor, items):
     return prepare(root, items + [entry], "author", guards={"git": observe(model.root)})
 
 
+@reviewed('approve')
 def approve(root, actor, identifiers, purpose, statement, *, reason=""):
     model = load(root).require_valid()
     if purpose not in {"proposal", "plan", "execution", "technology"}:
         raise ContractError("Finalidad de aprobación desconocida")
     ids = [model.get(x).uid for x in identifiers]
     if purpose in {"plan", "execution"}:
-        for key in ids: plan_coverage(model, model.get(key, "plan"))
+        for key in ids:
+            plan = model.get(key, "plan")
+            from v31_review import designated
+            designated(model, model.get(plan.data["request"]), actor, "responsible", "authorize" if purpose == "execution" else "approve")
+            plan_coverage(model, plan)
         if purpose == "execution" and not approved(model, ids, "plan")["valid"]:
             raise ContractError("El plan concreto todavía no está aprobado")
     if purpose == "proposal":
         for request in model.by_kind("request"):
             selected = set(request.relations.get("proposal", [])) & set(ids)
             if selected:
+                from v31_review import config, closure_valid
+                if config(model, request) and not closure_valid(model, request):
+                    raise ContractError("Use close-proposal: faltan revisión integral y cierre competente")
                 proposal_ready(model, request, sorted(selected), require_complete=False)
                 approval_process(model, request, "approve-proposal", [], sorted(selected))
     if purpose in {"plan", "execution"}:
@@ -162,16 +194,22 @@ def approval_process(model, request, action, tasks, units):
     require_process(policy_for(model, request).data, action, facts, request.data.get("flags", {}))
 
 
-def approve_and_authorize(root, actor, plan_uid, statement):
+@reviewed('authorize-plan')
+def approve_and_authorize(root, actor, plan_uid, statement, *, review_tasks=()):
     model = load(root).require_valid()
     plan = model.get(plan_uid, "plan")
+    from v31_review import designated, task_review_event, group_intervention
+    designated(model, model.get(plan.data["request"]), actor, "responsible", "authorize")
     plan_coverage(model, plan)
     approval_process(model, model.get(plan.data["request"]), "authorize-plan",
                      [model.get(k) for k in plan.relations["tasks"]], plan.data.get("proposal_units"))
     records = [decision(model, actor, [plan.uid], purpose, statement) for purpose in ("plan", "execution")]
-    return prepare(root, records, "approve-plan-and-authorize")
+    if not set(review_tasks) <= set(plan.relations["tasks"]): raise ContractError("Seleccione tareas de este plan")
+    records += [task_review_event(model, model.get(key, "task"), actor, statement) for key in dict.fromkeys(review_tasks)]
+    return prepare(root, group_intervention(records), "approve-plan-and-authorize")
 
 
+@reviewed('governance')
 def governance(root, actor, items, statement, reason, *, requests=()):
     model = load(root).require_valid()
     identity = operator(model, actor, "govern")

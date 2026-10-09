@@ -244,8 +244,11 @@ RUNTIME_IMPORT_ALLOWLIST = {
     "scripts/v3_git.py": {"subprocess"},
     "scripts/v3_quality.py": {"subprocess"},
     "scripts/v3_context.py": {"urllib.parse"},
+    # Encodes local attachment paths for Markdown; no network capability.
+    "scripts/v3_decision_presentation.py": {"urllib.parse"},
     "scripts/v2_contract.py": {"urllib.parse"},
     "scripts/v2_storage.py": {"urllib.parse"},
+    "scripts/v3_storage.py": {"urllib.parse"},
     "scripts/consumer_observer.py": {"subprocess"},
     "scripts/integration_contract.py": {"urllib.parse"},
     # Pure URL/path encoding, not network access. Query execution stays offline.
@@ -959,7 +962,27 @@ def validate(root: Path) -> list[str]:
         "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "V2-HOST-ACCEPTANCE.md",
     )}
     shared_v2_policies = {(root / name).resolve() for name in
-                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md", "docs/V3-COMMON.md", "docs/V3-OPERATIONS.md")}
+                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md", "docs/V3-COMMON.md", "docs/V3-OPERATIONS.md", "docs/V3-MIGRATION.md")}
+    # Finite shared decision resources, with explicit transitive link validation.
+    from v3_decision_profiles import PROFILES
+    decision_resources = ["docs/USER-DECISIONS.md", "docs/V31-REVIEW.md"] + [
+        "docs/decision-guides/" + name + ".md" for name in sorted({p[0] for p in PROFILES.values()} - {None})]
+    shared_v2_policies.update((root / name).resolve() for name in decision_resources)
+    for name in decision_resources:
+        resource = root / name
+        if not resource.is_file():
+            errors.append("Recurso de decisión ausente: " + name)
+            continue
+        for target in link_re.findall(resource.read_text(encoding="utf-8")):
+            if "://" in target: continue
+            path, _, anchor = target.partition("#")
+            destination = (resource.parent / path).resolve() if path else resource.resolve()
+            if not destination.is_relative_to(root.resolve()) or not destination.is_file():
+                errors.append("Referencia de decisión inválida: " + name + ": " + target)
+            elif anchor:
+                headings = re.findall(r"^#{1,6}\s+(.+)$", destination.read_text(encoding="utf-8"), re.MULTILINE)
+                anchors = {re.sub(r"[^\w\s-]", "", heading.casefold()).replace(" ", "-") for heading in headings}
+                if anchor not in anchors: errors.append("Ancla de decisión ausente: " + name + ": " + target)
     for skill in EXPECTED_SKILLS:
         skill_root = skills_root / skill
         for markdown in [
@@ -1021,7 +1044,7 @@ def main() -> int:
         version = manifest.get("version", "unknown")
     except (OSError, json.JSONDecodeError, AttributeError):
         version = "unknown"
-    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0/3.0; six skills)")
+    print(f"VALID: LKS-SDD {version} active contract (readers 1.5/2.0/3.0/3.1; six skills)")
     return 0
 
 

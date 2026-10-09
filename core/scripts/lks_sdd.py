@@ -76,6 +76,23 @@ def main() -> int:
             f"(choose from {', '.join(repr(item) for item in COMMANDS)})"
         )
     forwarded = sys.argv[2:]
+    # Public historical aliases cannot continue writing an older contract with this runtime.
+    if command in {"define", "implement", "verify", "adopt-materialize", "planning", "tracking", "continuity", "tasks", "work"}:
+        for argument in forwarded[:2]:
+            if argument.startswith("-"): continue
+            candidate = Path(argument)
+            if candidate.is_dir() and (candidate/".lks-sdd/project.json").is_file():
+                try: schema = json.loads((candidate/".lks-sdd/project.json").read_bytes())["schema_version"]
+                except (ValueError, KeyError): schema = "unknown"
+                action = forwarded[1] if len(forwarded) > 1 else ""
+                query = command in {"planning", "tracking", "continuity", "tasks", "work"} and any(a in {"status", "board", "assess", "next", "diff"} for a in forwarded[:2])
+                if schema in {"3.0", "3.1"} and command in {"planning", "tracking", "continuity", "tasks", "work"}:
+                    print(json.dumps({"status": "blocked", "error": "Use lks_sdd.py v3 --help; an older writer cannot modify v3", "writes": []}))
+                    return 2
+                if schema not in {"3.0", "3.1"} and not query:
+                    print(json.dumps({"status": "blocked", "error": "needs-migration: current work requires method 3.1.0; use v3 migration-diagnose", "writes": []}))
+                    return 2
+                break
     # Legacy public work commands used action/root; accept both without ever
     # dispatching a v2 project into a writer for the table-based 1.5 contract.
     if command in {"work", "tasks", "planning", "continuity", "tracking"} and len(forwarded) > 1:
@@ -85,7 +102,7 @@ def main() -> int:
             forwarded = [forwarded[1], forwarded[0], *forwarded[2:]]
     # A shared project never silently runs a different global installation.
     migration_route = command == "migrate" or (command == "v3" and forwarded and forwarded[0] in {
-        "migration-diagnose", "migration-preview", "apply", "recover", "rollback"}) or (command == "v2" and forwarded and forwarded[0] in {
+        "migration-diagnose", "migration-preview", "configure-collaboration", "apply", "recover", "rollback"}) or (command == "v2" and forwarded and forwarded[0] in {
         "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
         "migrate", "recover", "rollback", "method-upgrade-diagnose", "method-upgrade"})
     if command not in {"runtime-doctor", "query"} and not migration_route:
@@ -106,6 +123,13 @@ def main() -> int:
                 return 2
             pinned = (candidate / runtime["runtime"]).resolve()
             if not same_filesystem_path(pinned, PLUGIN_ROOT):
+                from v3_current import FORMATS
+                lock = json.loads((candidate / ".lks-sdd/distribution-lock.json").read_bytes())
+                if lock["project_schema"] in {"2.0", "3.0", "3.1"} and not set(FORMATS) <= set(lock.get("storage_formats", [])):
+                    print(json.dumps({"status": "blocked", "error": "needs-runtime-update: prepare the explicit current-method cutover; the older pinned CLI is for read-only access/recovery",
+                                      "next": f"python {PLUGIN_ROOT / 'scripts/lks_sdd.py'} v3 migration-diagnose {candidate} --json",
+                                      "read_only_cli": str(pinned / "scripts/lks_sdd.py"), "writes": []}, ensure_ascii=False))
+                    return 2
                 print(json.dumps({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
                                   "cli": str(pinned / "scripts/lks_sdd.py")}, ensure_ascii=False))
                 return 2
@@ -127,7 +151,7 @@ def main() -> int:
         from v2_cli import is_v2, main as v2_main
         project = Path(forwarded[0])
         if command == "define" and project.is_dir() and not (project / ".lks-sdd/project.json").exists():
-            print(json.dumps({"status": "needs-configuration", "next": "Use v3 init with the confirmed process, owner, controls and target; v2 init remains explicit for legacy work."}))
+            print(json.dumps({"status": "needs-configuration", "next": "Use v3 init with the confirmed process, owner, controls, collaboration and compatible runtime_bundle."}))
             return 2
         if project.is_dir() and is_v2(project):
             route = {"validate-project": "validate", "validate-spec": "validate", "assess-readiness": "readiness",

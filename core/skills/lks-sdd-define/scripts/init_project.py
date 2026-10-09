@@ -11,7 +11,7 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-PLUGIN_VERSION = "3.0.0"
+PLUGIN_VERSION = "3.3.0"
 METHOD_VERSION = "1.5.0"
 SCHEMA_VERSION = "1.5"
 BASELINE_ID = "BL-0001"
@@ -392,6 +392,10 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
+    if not args.dry_run:
+        print(json.dumps({"status": "blocked", "changed": False, "writes": [],
+                          "reason": "Use lks_sdd.py v3 init with explicit configuration and compatible runtime_bundle"}, ensure_ascii=False))
+        return 2
     try:
         exit_code, result = initialize(args)
     except InitializationError as exc:

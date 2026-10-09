@@ -1,4 +1,5 @@
 """One workflow evaluator for entry, continuation, verification and closure."""
+from v3_presentation_guard import reviewed
 from v3_contract import ContractError, element, load, now, fingerprint
 from v3_policy import operator, policy_for, active_period, process_requirements
 from v3_approval import approved, proposal_ready, plan_coverage, descriptor, task_authority
@@ -91,6 +92,10 @@ def evaluate(action, current, facts, policy, exceptions=(), flags=None):
     causes = []
     if current not in allowed: causes.append({"rule": "state", "reason": "Estado " + current + " incompatible con " + action})
     needed = set(predicates)
+    if policy.get("collaboration"):
+        if action in {"start", "resume", "implement"}: needed.add("task-reviewed")
+        if action in {"start", "resume", "implement", "verify", "close"}: needed.add("proposal-approved")
+        if action in {"verify", "close"}: needed.add("defects-resolved")
     needed.add("branch")
     needed.update(process_requirements(policy, action, facts, flags))
     waived = {e["rule"]: e for e in exceptions if e.get("action") == action}
@@ -150,6 +155,10 @@ def facts_for(model, task, actor):
              "scope": bool(last and last.data.get("scope_verified")), "integrated": False, "accepted": False}
     try: branch_check(model, request); facts["branch"] = True
     except ContractError: facts["branch"] = False
+    from v31_review import task_reviewed
+    from v31_corrections import unresolved
+    facts["task-reviewed"] = task_reviewed(model, task, actor)
+    facts["defects-resolved"] = not unresolved(model, request, task)
     return facts, quality
 
 
@@ -186,17 +195,37 @@ def request_facts(model, request, *, tasks=None, proposal_units=None):
     return facts
 
 
-def transition(root, actor, task_id, action, reason, *, scope_verified=False, refresh=False):
+@reviewed()
+def transition(root, actor, task_id, action, reason, *, scope_verified=False, refresh=False, review=False, offer=None):
     model = load(root).require_valid(); task = model.get(task_id, "task")
     permission = "verify" if action in {"verify", "close"} else "authorize" if action == "cancel" else "implement"
     identity = operator(model, actor, permission, policy_for(model, task))
+    additions = []
+    from v31_review import task_review_event, overlay, group_intervention
+    if offer:
+        if action not in {"start", "resume"}: raise ContractError("Recepción agrupada solo al iniciar o reanudar")
+        from v3_team import assign, handoff
+        import base64
+        from v3_contract import parse
+        offered = model.get(offer)
+        if offered.kind == "assignment": packet = assign(root, actor, task.uid, actor, reason, accept=True, previous=offer)
+        elif offered.kind == "handoff": packet = handoff(root, actor, task.uid, actor, offered.data["scope"], reason, accept=True, previous=offer)
+        else: raise ContractError("Seleccione una oferta de asignación o relevo")
+        for path, raw in packet["payload"].items():
+            if path.startswith("docs/lks-sdd/elements/"):
+                additions += [e.item() for e in parse(base64.b64decode(raw), path)[0]]
+        overlay(model, additions)
+    if review:
+        if action not in {"start", "resume"}: raise ContractError("Revisión agrupada solo al iniciar o reanudar")
+        additions.append(task_review_event(model, task, actor, reason)); overlay(model, additions)
     request = model.get(task.data["request"], "request")
     from v3_git import observe
     branch = observe(model.root)
     coordination(model, request, action=action, refresh=refresh)
     facts, quality = facts_for(model, task, identity["member"])
     previous = latest(model, task)
-    baseline = previous.data.get("baseline", {}) if previous else code_inventory(model.root)
+    from content_store import inventory, prepare_inventory
+    baseline = inventory(model.root, previous.data, "baseline") if previous else code_inventory(model.root)
     if action in {"implement", "verify", "close"}:
         allowed = permitted_scope(model, task, identity["member"]) if action == "implement" else task.data["scope"]
         diff = scope_changes(model.root, baseline, allowed)
@@ -209,12 +238,14 @@ def transition(root, actor, task_id, action, reason, *, scope_verified=False, re
     result = evaluate(action, state(model, task), facts, policy_for(model, task).data, valid_exceptions(model, task, action), request.data.get("flags", {}))
     if result["status"] != "allowed": raise ContractError("; ".join(c["reason"] for c in result["causes"]))
     if not reason.strip(): raise ContractError("Explique el resultado o motivo del cambio")
+    objects = {}
+    baseline_ref = prepare_inventory(model.root, baseline, objects)
     event = element("execution", "Avance de " + task.id, reason, task=task.uid, basis=task.digest(),
                     action=action, state=result["state"], previous=previous.uid if previous else None,
                     actor=identity, subject=subject(model.root, task.data["scope"]), git=branch,
                     dependencies=dependency_subjects(model, task),
                     quality=quality, exceptions=result["exceptions"], recorded_at=now(),
-                    baseline=baseline, scope_verified=facts["scope"] if action != "reopen" else False)
+                    baseline_ref=baseline_ref, scope_verified=facts["scope"] if action != "reopen" else False)
     event["meta"].update(state="observed", nature="fact")
     guards = {"git": branch, "subject": event["meta"]["data"]["subject"], "code_inventory": fingerprint(code_inventory(model.root))}
     if result["exceptions"]:
@@ -231,9 +262,11 @@ def transition(root, actor, task_id, action, reason, *, scope_verified=False, re
                                 contributors=owners(model, task) if facts["assigned"] else [], original_owner=task.data["owner"])
     sources = {p: h for p, h in code_inventory(model.root).items() if h is not None}
     sources.update(model.hashes)
-    return prepare(root, [event], "transition:" + action, sources=sources, guards=guards)
+    return prepare(root, group_intervention(additions + [event]), "transition:" + action, sources=sources, guards=guards,
+                   changes=objects, state_sources=model.hashes)
 
 
+@reviewed('exception')
 def exception(root, actor, task_id, rule, action, reason, expires_at, *, revokes=None):
     model = load(root).require_valid(); task = model.get(task_id, "task")
     identity = operator(model, actor, "exception", policy_for(model, task))

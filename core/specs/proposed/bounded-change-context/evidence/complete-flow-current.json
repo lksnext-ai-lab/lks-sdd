@@ -1,0 +1,846 @@
+{
+  "runtime": "development-3.3.0-rc.1",
+  "scope": "Complete synthetic library journey with real Git/Markdown/guards; not host acceptance",
+  "model_calls": 0,
+  "real_consumer_writes": [],
+  "billed_tokens": null,
+  "human_seconds": null,
+  "timing_note": "Instrumented single run under concurrent storage regression; latency comparison is not accredited",
+  "transport": "ordinary decision-view/review presentation; full library results remain available",
+  "preparation": [
+    {
+      "operation": "initialize-and-draft-proposal",
+      "instrumented_seconds": 11.201797799993074,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 236
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 17
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 89
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 17
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 2
+        }
+      ]
+    },
+    {
+      "operation": "prepare-five-independent-units-and-global-contract",
+      "instrumented_seconds": 8.29716620000545,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 223
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 7
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 123
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 7
+        }
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "operation": "review",
+      "instrumented_seconds": 0.5115144999872427,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 27
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 25
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 1
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ],
+      "query_preserved_snapshot": true,
+      "ordinary_json_characters": 5898,
+      "full_json_characters": 24016
+    },
+    {
+      "operation": "close-proposal",
+      "instrumented_seconds": 10.071514500014018,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 411
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 7
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 184
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 7
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 2
+        }
+      ]
+    },
+    {
+      "operation": "create-and-authorize-plan",
+      "instrumented_seconds": 19.64273600000888,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 986
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 14
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 433
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 14
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 2
+        },
+        {
+          "file": "v3_workflow.py",
+          "function": "request_facts",
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "operation": "start",
+      "instrumented_seconds": 11.268145699985325,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 478
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 173
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-0",
+      "instrumented_seconds": 9.990582099999301,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 503
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 178
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-1",
+      "instrumented_seconds": 10.407807199982926,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 515
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 183
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-2",
+      "instrumented_seconds": 10.74767620000057,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 528
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 188
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-3",
+      "instrumented_seconds": 15.22465530000045,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 541
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 193
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-4",
+      "instrumented_seconds": 10.248017999983858,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 553
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 198
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-5",
+      "instrumented_seconds": 11.251825299987104,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 565
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 203
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-6",
+      "instrumented_seconds": 10.504713000002084,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 577
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 208
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-7",
+      "instrumented_seconds": 10.914968800003408,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 590
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 213
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-8",
+      "instrumented_seconds": 9.831958700000541,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 603
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 218
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "checkpoint-9",
+      "instrumented_seconds": 12.646175299974857,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 615
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 223
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "pause",
+      "instrumented_seconds": 18.07794479999575,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 739
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 7
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 318
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 7
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 3
+        }
+      ]
+    },
+    {
+      "operation": "resume",
+      "instrumented_seconds": 14.624261400022078,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 642
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 233
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "operation": "status",
+      "instrumented_seconds": 1.218181000003824,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 51
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 47
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 1
+        },
+        {
+          "file": "v3_workflow.py",
+          "function": "request_facts",
+          "calls": 1
+        }
+      ],
+      "query_preserved_snapshot": true,
+      "ordinary_json_characters": 6032,
+      "full_json_characters": 6032
+    },
+    {
+      "operation": "review",
+      "instrumented_seconds": 1.104467700002715,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 51
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 47
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 1
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ],
+      "query_preserved_snapshot": true,
+      "ordinary_json_characters": 5973,
+      "full_json_characters": 36858
+    },
+    {
+      "operation": "implement",
+      "instrumented_seconds": 18.995704000000842,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 665
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 238
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "operation": "record-passing-evidence",
+      "instrumented_seconds": 19.12961139998515,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 689
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 243
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    },
+    {
+      "operation": "verify",
+      "instrumented_seconds": 38.57368550001411,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 721
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 248
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "operation": "close",
+      "instrumented_seconds": 34.95329600002151,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 733
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 253
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ]
+    },
+    {
+      "operation": "integrate-and-accept",
+      "instrumented_seconds": 36.73720800000592,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 1464
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 14
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 637
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 14
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 3
+        },
+        {
+          "file": "v3_workflow.py",
+          "function": "request_facts",
+          "calls": 4
+        }
+      ]
+    },
+    {
+      "operation": "prepare-delivery",
+      "instrumented_seconds": 24.300522499979706,
+      "tracked": [
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 762
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 5
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 268
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "_load",
+          "calls": 5
+        }
+      ]
+    }
+  ],
+  "presentations": [
+    {
+      "event": "init",
+      "complete": true,
+      "sources": 0,
+      "checkpoint_sources": 0,
+      "literal_characters": 806,
+      "ordinary_json_characters": 1860,
+      "full_json_characters": 4618,
+      "global_obligation_present": null
+    },
+    {
+      "event": "configure-collaboration",
+      "complete": true,
+      "sources": 1,
+      "checkpoint_sources": 0,
+      "literal_characters": 1927,
+      "ordinary_json_characters": 3208,
+      "full_json_characters": 9234,
+      "global_obligation_present": null
+    },
+    {
+      "event": "close-proposal",
+      "complete": true,
+      "sources": 4,
+      "checkpoint_sources": 0,
+      "literal_characters": 1500,
+      "ordinary_json_characters": 2761,
+      "full_json_characters": 18713,
+      "global_obligation_present": true
+    },
+    {
+      "event": "authorize-plan",
+      "complete": true,
+      "sources": 8,
+      "checkpoint_sources": 0,
+      "literal_characters": 2870,
+      "ordinary_json_characters": 4395,
+      "full_json_characters": 33640,
+      "global_obligation_present": true
+    },
+    {
+      "event": "pause",
+      "complete": true,
+      "sources": 11,
+      "checkpoint_sources": 1,
+      "literal_characters": 2397,
+      "ordinary_json_characters": 3660,
+      "full_json_characters": 43401,
+      "global_obligation_present": true
+    },
+    {
+      "event": "integrate",
+      "complete": true,
+      "sources": 17,
+      "checkpoint_sources": 1,
+      "literal_characters": 4027,
+      "ordinary_json_characters": 5412,
+      "full_json_characters": 73684,
+      "global_obligation_present": true
+    }
+  ],
+  "run_status": "completed",
+  "result": {
+    "all_milestones": "completed",
+    "open_interventions": 0,
+    "greeting": "Hola",
+    "historical_checkpoints_preserved": 10,
+    "canonical_schema": "3.1"
+  },
+  "total_instrumented_seconds": 380.4761368999607,
+  "ordinary_presentation_characters": 39199
+}

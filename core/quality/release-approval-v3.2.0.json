@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "release_version": "3.2.0",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-acceptance",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-08",
+    "authority_role": "project-owner",
+    "rationale": "El responsable solicita subir todos los cambios a GitHub, publicar una nueva release y actualizar el plugin en Codex, y confirma expresamente v3.2 como release aprobada. La autorización incluye integrar y publicar 3.2.0, condicionada al gate técnico del commit final. No acredita observación conversacional ni piloto humano.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aceptación solicitada de la release se distingue de la observación conversacional de Codex/Copilot y de un piloto entre personas.",
+    "Los informes locales de pruebas no acreditan conectividad con una instancia real de Sonar ni un servicio Dependency-Check de un consumidor.",
+    "Las mediciones de caracteres o estimaciones no son tokens facturados ni acreditan ahorro económico.",
+    "Actualizar el plugin en Codex no migra proyectos consumidores ni demuestra que un chat ya abierto recargue sus skills."
+  ]
+}

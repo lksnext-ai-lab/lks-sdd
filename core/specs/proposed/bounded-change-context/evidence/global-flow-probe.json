@@ -1,0 +1,234 @@
+{
+  "scope": "Bounded library-dispatch diagnostics, not host observation or full public runtime boundary",
+  "runtime": "installed 3.2.0",
+  "model_calls": 0,
+  "consumer_writes": [],
+  "timing_note": "One instrumented observation per query, not a stable latency benchmark",
+  "cases": [
+    {
+      "query": "catalog-limit-1",
+      "instrumented_seconds": 0.1816650000109803,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 17
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 19
+        }
+      ],
+      "json_characters": 420,
+      "result_status": null,
+      "query_preserved_snapshot": true,
+      "elements": 1
+    },
+    {
+      "query": "catalog-limit-50",
+      "instrumented_seconds": 0.0889723000000231,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 17
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 19
+        }
+      ],
+      "json_characters": 5775,
+      "result_status": null,
+      "query_preserved_snapshot": true,
+      "elements": 17
+    },
+    {
+      "query": "status-selected-request",
+      "instrumented_seconds": 0.10267009999370202,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_workflow.py",
+          "function": "request_facts",
+          "calls": 2
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 17
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 19
+        },
+        {
+          "file": "v31_guidance.py",
+          "function": "interventions",
+          "calls": 1
+        }
+      ],
+      "json_characters": 6027,
+      "result_status": null,
+      "query_preserved_snapshot": true
+    },
+    {
+      "query": "readiness-dispatch-unpinned-fixture",
+      "instrumented_seconds": 0.19662179998704232,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 2
+        },
+        {
+          "file": "v3_workflow.py",
+          "function": "request_facts",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 34
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 38
+        },
+        {
+          "file": "v31_guidance.py",
+          "function": "interventions",
+          "calls": 1
+        }
+      ],
+      "json_characters": 1823,
+      "result_status": "blocked",
+      "query_preserved_snapshot": true
+    },
+    {
+      "query": "readiness-start-library",
+      "instrumented_seconds": 0.3779828999831807,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_workflow.py",
+          "function": "request_facts",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 17
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 19
+        },
+        {
+          "file": "v31_guidance.py",
+          "function": "interventions",
+          "calls": 1
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ],
+      "json_characters": 2455,
+      "result_status": "allowed",
+      "query_preserved_snapshot": true
+    },
+    {
+      "query": "review-before-extra-progress",
+      "instrumented_seconds": 0.12598159999470226,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 17
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 19
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ],
+      "json_characters": 28538,
+      "result_status": null,
+      "query_preserved_snapshot": true,
+      "sources": 6,
+      "attachments": 0,
+      "checkpoint_sources": 0,
+      "markdown_characters": 1364
+    },
+    {
+      "query": "review-after-10-extra-progress",
+      "instrumented_seconds": 0.17020839999895543,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "function": "load",
+          "calls": 1
+        },
+        {
+          "file": "v3_contract.py",
+          "function": "parse",
+          "calls": 27
+        },
+        {
+          "file": "v2_contract.py",
+          "function": "read_bytes",
+          "calls": 29
+        },
+        {
+          "file": "v3_context.py",
+          "function": "select",
+          "calls": 1
+        }
+      ],
+      "json_characters": 51108,
+      "result_status": null,
+      "query_preserved_snapshot": true,
+      "sources": 16,
+      "attachments": 0,
+      "checkpoint_sources": 10,
+      "markdown_characters": 1364
+    }
+  ],
+  "run_status": "completed",
+  "setup_seconds": 14.21506099999533
+}

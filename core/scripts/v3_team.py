@@ -1,4 +1,5 @@
 """Assignments and partial handoffs are immutable events, with explicit acceptance."""
+from v3_presentation_guard import reviewed
 from v3_contract import ContractError, element, load, now
 from v3_policy import operator, member, policy_for, active_period
 from v3_storage import prepare
@@ -39,6 +40,7 @@ def permitted_scope(model, task, actor):
     return mine
 
 
+@reviewed('assign')
 def assign(root, actor, task_id, recipient, reason, *, accept=False, previous=None):
     model = load(root).require_valid(); task = model.get(task_id, "task")
     policy = policy_for(model, task)
@@ -68,6 +70,7 @@ def assign(root, actor, task_id, recipient, reason, *, accept=False, previous=No
     return prepare(root, [event], "assign")
 
 
+@reviewed('handoff')
 def handoff(root, actor, task_id, recipient, scope, reason, *, previous=None, accept=False):
     model = load(root).require_valid(); task = model.get(task_id, "task")
     identity = operator(model, actor, "implement", policy_for(model, task))

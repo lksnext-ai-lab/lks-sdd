@@ -4,6 +4,16 @@ Estado inicial: **not-run**. La aceptación de publicación solicitada por el us
 en [DEC-V3-002](plans/lks-sdd-v3/AUTHORIZATION.md) no es una transcripción de uso
 con personas. TASK-V3-017 permanece abierta hasta obtener estas observaciones.
 
+La mejora de presentaciones del 2026-10-08 tiene comprobación técnica y una revisión
+independiente del Markdown por un agente sobre proyectos temporales. No sustituye
+la observación humana ni la ejecución real de Copilot. Su evidencia está en
+[la implementación](plans/specification-review-presentation/IMPLEMENTATION.md).
+Al observarla, comprobar: título y apartados; detalle por componente; asociación de
+tarea, responsable y evidencia; conservación de límites y negaciones; reutilización
+de decisiones; cambio de evento y recuperación de fuentes tras compactación. Contar
+lecturas, consultas, respuestas, reintentos y correcciones de la tarea completa,
+separando texto de instrucciones, contenido del proyecto y transporte de herramientas.
+
 Se ha solicitado disponibilidad de un proyecto de prueba y un participante en
 Copilot. No se presume esa disponibilidad ni se atribuye a fixtures la observación
 de Sonar, Dependency-Check o identidad corporativa reales.
@@ -20,6 +30,13 @@ de herramientas y espera humana. No inventar una referencia temporal anterior.
 | Mantenimiento | Reanuda con autorización vigente, entiende el efecto localizado de un cambio de proceso y conserva decisiones independientes. |
 | Migración | Revisa una conversión/configuración concreta, conserva la historia y el plan; identifica confirmaciones reutilizadas y permiso operativo pendiente. |
 | Verificación | Entiende qué se ha probado, lo que falla o queda pendiente y quién debe actuar. Una omisión excepcional sigue visible. |
+| Petición directa de implementación | Ante «implementa estos cambios», identifica y comunica cobertura documental vigente; si falta, registra y valida propuesta y plan antes de la primera edición de código. No requiere invocar el nombre del plugin. |
+| Decisiones aplazadas | Ante «el resto ya lo decidiré», registra los pendientes, comprueba su impacto y continúa solo una porción independiente cubierta. Una decisión crítica pendiente impide editar el código afectado. |
+
+En estos dos últimos casos observe el orden real de lecturas, registros, decisiones
+y ediciones, además de la explicación al usuario. Incluya un caso con cobertura
+válida para comprobar que se reutiliza sin pedir aprobaciones repetidas. Comprobar
+el texto de una skill o superar la CLI no acredita esta selección conversacional.
 
 Ejecutar las rutas disponibles en Codex y Copilot sobre copias autorizadas. Registrar
 observaciones minimizadas, intervenciones, defectos y fuentes, sin diálogos simulados.

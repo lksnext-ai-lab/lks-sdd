@@ -1,0 +1,99 @@
+{
+  "scope": "local working tree; focused development verification, not a release attestation",
+  "recorded_at": "2026-10-08T00:04:25.204220+00:00",
+  "unique_cases_passed": 56,
+  "checks": [
+    {
+      "modules": [
+        "test_v3_decision_presentation",
+        "test_v3_instruction_routing"
+      ],
+      "passed": 18,
+      "runner_evidence": "presentation-tests.json"
+    },
+    {
+      "modules": [
+        "test_v31_review"
+      ],
+      "passed": 11,
+      "note": "8 passed in suite; 3 corrected composition cases rerun successfully; final focused run 423.712 seconds."
+    },
+    {
+      "modules": [
+        "test_v3_workflow",
+        "test_v3_governance_quality"
+      ],
+      "passed": 17,
+      "duration_seconds": 1034.652,
+      "note": "Quality report recovery assertion additionally rerun successfully in 64.661 seconds."
+    },
+    {
+      "modules": [
+        "test_v3_integration"
+      ],
+      "passed": 5,
+      "duration_seconds": 411.941
+    },
+    {
+      "modules": [
+        "test_v3_distribution"
+      ],
+      "passed": 1,
+      "duration_seconds": 407.632
+    },
+    {
+      "modules": [
+        "test_v3_migration"
+      ],
+      "selection": [
+        "test_open_plan_reuses_exact_content_and_requires_current_execution_authority"
+      ],
+      "passed": 1,
+      "duration_seconds": 63.777
+    },
+    {
+      "modules": [
+        "test_v3_efficiency"
+      ],
+      "selection": [
+        "test_public_native31_complete_authorized_execution",
+        "test_native31_and_profiles_are_explicit_and_pinned",
+        "test_existing30_without_lock_migrates_and_legacy_writes_are_blocked"
+      ],
+      "passed": 3,
+      "duration_seconds": 530.218
+    }
+  ],
+  "plugin_contract": "passed",
+  "git_diff_check": "passed",
+  "canonical_contract_changes": [],
+  "human_host_acceptance": "not-run",
+  "real_copilot_execution": "not-run",
+  "publication": "not-performed",
+  "whole_task_billed_tokens": null,
+  "working_tree_source_sha256": {
+    "scripts/v3_decision_presentation.py": "2d15c4c2e52719249e4b2c7dd05424a652fedc359ab8b5883552572a5d900025",
+    "scripts/v3_decision_profiles.py": "c369e7141934132669bde8fd4c35f72881413287920f2cb1ea0098495b80df3b",
+    "scripts/v3_presentation_guard.py": "68cad8de9fde08fccf165a62095245cef934a85e0aa49641236d7ef22e51a221",
+    "scripts/v3_storage.py": "7f831748e0c3d2852820a1fc37e1993cd3e625a63260bb82ab3925f2c7bb1088",
+    "scripts/v3_cli.py": "de0ce14265e1924dc89176ac75b66262bd916794dc350e3c8013947ff027a217",
+    "scripts/v31_review.py": "0f7643f4bebf904229944b96ddee68b56f81cd4fc07a2520f903e4e06a491368",
+    "scripts/v31_corrections.py": "1b4e39131867356cc7f3e34ad10b38c6a1c8989b96d57c6958b498d7f6eba7ef",
+    "scripts/v31_guidance.py": "5723b74d6b0797fd6f544b51147b65366b4b44a8efe67ca322dffcfa75401662",
+    "docs/USER-DECISIONS.md": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+    "docs/decision-guides/assignments.md": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+    "docs/decision-guides/conditional-design.md": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+    "docs/decision-guides/corrections.md": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+    "docs/decision-guides/exceptions-continuity.md": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+    "docs/decision-guides/external-delivery.md": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+    "docs/decision-guides/planning.md": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+    "docs/decision-guides/project-setup.md": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+    "docs/decision-guides/specifications.md": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+    "docs/decision-guides/verification.md": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1"
+  },
+  "editorial_rechecks": {
+    "evidence": "editorial-checks.json",
+    "passed": 2,
+    "additional_unique_cases": 0
+  }
+}

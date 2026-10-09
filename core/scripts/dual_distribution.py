@@ -96,7 +96,7 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
             "Load linked workflow references relative to their actual runtime file. "
             "Do not copy or improvise a shorter workflow.\n"
         ).encode("utf-8")
-        if project_schema == "3.0":
+        if project_schema in {"3.0", "3.1"}:
             output[f".github/skills/{name}/SKILL.md"] = (
                 f"---\nname: {name}\ndescription: {text}\n---\n\n"
                 f"Read [host](../../lks-sdd-host.md), then [workflow](../../../{runtime}/skills/{name}/SKILL.md).\n"
@@ -108,7 +108,8 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "Read .lks-sdd/distribution-lock.json. Both hosts use its exact runtime and workflows.\n"
         "For every requested application change, including changes to existing features or TASKs, "
         "reconcile the request with the current SPEC and complete PLAN/TASK coverage before editing code. "
-        "For schema 3.0 read docs/V3-COMMON.md; for 2.0 read docs/V2-SPEC-PLAN-TASK.md in the pinned runtime. If coverage is missing, use define; "
+        "For schema 3.0/3.1 read docs/V3-COMMON.md in the pinned runtime. Current governed work requires method 3.1.0, explicit collaboration and a compatible pinned runtime. "
+        "Prepare the explicit migration cutover before older-format writes or application code; queries do not migrate. If coverage is missing, use define; "
         "readiness and help remain read-only. Reuse valid decisions and tasks.\n"
         f"Runtime: `{runtime}`. Before work run "
         f"`python {runtime}/scripts/lks_sdd.py runtime-doctor . --json`.\n"
@@ -125,12 +126,21 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "Prototype approval is not implementation authorization. Preserve human decisions, "
         "AUTH, EXEC, CKPT, EVID and all existing gates. No automatic commit, push or remote write.\n"
     )
-    if project_schema == "3.0":
+    if project_schema in {"3.0", "3.1"}:
         common = ("# Shared LKS-SDD project contract\n\n"
                   f"Both hosts use `{runtime}` and its six skills. Check runtime-doctor before work.\n"
                   "Markdown is canonical; the index is derived. For every change reconcile SPEC, validate the concrete proposal, "
                   "then complete PLAN/TASK before code. Follow the selected skill and docs/V3-COMMON.md in this runtime. "
                   "Reuse valid decisions; do not migrate or publish implicitly.\n")
+    common += (
+        "Before announcing implementation or editing application code, identify the validated SPEC, "
+        "approved PLAN/TASK and current execution authority covering the actual request, and briefly report those references. "
+        "If coverage is missing or scope changes, use define to record, validate and plan first. "
+        "Reuse valid decisions; never infer missing documents or approvals from 'implement these changes'. "
+        "Record deferred decisions and assess their impact before selecting an independent portion; "
+        "critical unresolved decisions block the affected implementation. Any permitted process exception needs "
+        "explicit competent validation, a reason and traceable scope.\n"
+    )
     for path, content in (("AGENTS.md", common), (".github/copilot-instructions.md",
                            "# LKS-SDD in Copilot\n\nRead `.github/lks-sdd-host.md` for LKS-SDD work.\n"
                            "For every application change, including an existing feature, reconcile the request "
@@ -138,9 +148,9 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
                            "docs/V3-COMMON.md for 3.0 or docs/V2-SPEC-PLAN-TASK.md for 2.0, and report missing coverage.\n"
                            "Use the six skills and the pinned runtime; the installed plugin must respect the project lock.\n")):
         output[path] = f"{BEGIN}\n{content}{END}\n".encode("utf-8")
-    if project_schema == "3.0":
+    if project_schema in {"3.0", "3.1"}:
         output[".github/copilot-instructions.md"] = (
-            f"{BEGIN}\nRead AGENTS.md and .github/lks-sdd-host.md for LKS-SDD 3.0. Use the pinned runtime's six skills "
+            f"{BEGIN}\nRead AGENTS.md and .github/lks-sdd-host.md for LKS-SDD {project_schema}. Use the pinned runtime's six skills "
             f"for SPEC and PLAN/TASK; preserve all gates.\n{END}\n"
         ).encode("utf-8")
     # Lock covers adapters as well as the runtime; it has no absolute paths or user identity.
@@ -150,6 +160,7 @@ def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_e
         "managed_files": inventory({k: v for k, v in output.items() if not k.startswith(runtime + "/")}),
         "source": source, "channel": channel, "hosts": ["codex", "copilot"],
         "project_schema": project_schema,
+        "storage_formats": distribution.get("storage_formats", []),
         "method_version": json.loads(core["distribution/dual.json"])["method_version"],
         "readable_method_versions": json.loads(core["distribution/dual.json"]).get("readable_method_versions", ["2.0.0", "2.1.0"]),
         "collaboration": json.loads(core["distribution/dual.json"])["collaboration"],
@@ -234,10 +245,15 @@ def copilot_plugin_files(core: dict[str, bytes], source: str, channel: str) -> d
             "never call ImageGen or a paid image API here. Preserve all canonical gates, human "
             "approvals and no-commit/no-push boundaries. Read linked full workflows, not summaries.\n"
         ).encode("utf-8")
-        if json.loads(core["distribution/dual.json"])["project_schema"] == "3.0":
+        if json.loads(core["distribution/dual.json"])["project_schema"] in {"3.0", "3.1"}:
             output[f"skills/{name}/SKILL.md"] = (
                 f"---\nname: {name}\ndescription: {description}\n---\n\n"
                 "Resolve the installed plugin root from this file's location, not cwd.\n"
+                "Before delegating governed work, read the installed core's "
+                "[current operating boundary](../../core/docs/V3-COMMON.md). A legacy pinned runtime "
+                "remains usable for reading/recovery; it cannot bypass the explicit current-method "
+                "and storage-capability cutover. Prepare migration with this plugin's compatible "
+                "setup bundle and confirmed configuration before continuing governed writes.\n"
                 "With a project lock, run its exact runtime-doctor; stop on invalid integrity. "
                 "If entrypoints is project, stop this duplicate plugin route. Otherwise read "
                 f".github/lks-sdd-host.md and the pinned runtime's skills/{name}/SKILL.md; resolve references there.\n"

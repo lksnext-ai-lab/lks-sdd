@@ -1,0 +1,244 @@
+{
+  "scope": "Original incident log and saved presentation; aggregate read-only analysis",
+  "events_sha256": "d3c30e53e220c9fb2978c969655f33b6dc6f133c5ba348710208ac87c6b8dd47",
+  "events_bytes": 3992008,
+  "events_lines": 1336,
+  "last_event_timestamp": "2026-10-09T17:27:17.242Z",
+  "initial_segment_start_line": 8,
+  "initial_segment_end_line_exclusive": 712,
+  "initial_segment": {
+    "completed_calls": 114,
+    "calls_by_tool": {
+      "skill": 1,
+      "view": 71,
+      "glob": 1,
+      "powershell": 26,
+      "tool_search_tool": 1,
+      "oraios-serena-initial_instructions": 1,
+      "rg": 2,
+      "ask_user": 6,
+      "sql": 3,
+      "apply_patch": 1,
+      "read_powershell": 1
+    },
+    "reported_result_tokens": 91856,
+    "tokens_by_tool": {
+      "skill": 20,
+      "view": 73084,
+      "glob": 70,
+      "powershell": 18053,
+      "rg": 8,
+      "ask_user": 117,
+      "sql": 98,
+      "apply_patch": 52,
+      "read_powershell": 354
+    },
+    "missing_metric_calls": 3,
+    "view_categories_heuristic": {
+      "repository_instructions": {
+        "calls": 3,
+        "reported_tokens": 4464,
+        "missing_metric": 0
+      },
+      "other": {
+        "calls": 5,
+        "reported_tokens": 2744,
+        "missing_metric": 0
+      },
+      "plugin_instructions": {
+        "calls": 18,
+        "reported_tokens": 14339,
+        "missing_metric": 0
+      },
+      "consumer_sdd": {
+        "calls": 8,
+        "reported_tokens": 7785,
+        "missing_metric": 1
+      },
+      "application_code": {
+        "calls": 24,
+        "reported_tokens": 25221,
+        "missing_metric": 0
+      },
+      "saved_tool_output": {
+        "calls": 4,
+        "reported_tokens": 6892,
+        "missing_metric": 0
+      },
+      "plugin_code": {
+        "calls": 9,
+        "reported_tokens": 11639,
+        "missing_metric": 0
+      }
+    },
+    "long_tool_calls": [
+      {
+        "source_start_line": 56,
+        "source_end_line": 63,
+        "tool": "oraios-serena-initial_instructions",
+        "seconds": 26.277999877929688
+      },
+      {
+        "source_start_line": 227,
+        "source_end_line": 235,
+        "tool": "ask_user",
+        "seconds": 151.96000003814697
+      },
+      {
+        "source_start_line": 261,
+        "source_end_line": 266,
+        "tool": "ask_user",
+        "seconds": 45.680999994277954
+      },
+      {
+        "source_start_line": 271,
+        "source_end_line": 276,
+        "tool": "ask_user",
+        "seconds": 98.80700016021729
+      },
+      {
+        "source_start_line": 333,
+        "source_end_line": 338,
+        "tool": "ask_user",
+        "seconds": 4253.4509999752045
+      },
+      {
+        "source_start_line": 343,
+        "source_end_line": 348,
+        "tool": "powershell",
+        "seconds": 40.51400017738342
+      },
+      {
+        "source_start_line": 495,
+        "source_end_line": 512,
+        "tool": "powershell",
+        "seconds": 120.5329999923706
+      },
+      {
+        "source_start_line": 558,
+        "source_end_line": 563,
+        "tool": "powershell",
+        "seconds": 72.86899995803833
+      },
+      {
+        "source_start_line": 597,
+        "source_end_line": 605,
+        "tool": "ask_user",
+        "seconds": 28.073999881744385
+      },
+      {
+        "source_start_line": 691,
+        "source_end_line": 696,
+        "tool": "ask_user",
+        "seconds": 116.00400018692017
+      }
+    ]
+  },
+  "usage_checkpoints": [
+    {
+      "source_line": 705,
+      "timestamp_utc": "2026-10-09T15:17:53.306Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 135635,
+      "cache_read": 134867,
+      "cache_write": 765
+    },
+    {
+      "source_line": 766,
+      "timestamp_utc": "2026-10-09T15:22:45.077Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 144705,
+      "cache_read": 144079,
+      "cache_write": 623
+    },
+    {
+      "source_line": 822,
+      "timestamp_utc": "2026-10-09T15:54:15.484Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 147884,
+      "cache_read": 147097,
+      "cache_write": 784
+    },
+    {
+      "source_line": 879,
+      "timestamp_utc": "2026-10-09T15:59:15.901Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 156715,
+      "cache_read": 156194,
+      "cache_write": 518
+    },
+    {
+      "source_line": 932,
+      "timestamp_utc": "2026-10-09T16:11:18.016Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 163878,
+      "cache_read": 163491,
+      "cache_write": 384
+    },
+    {
+      "source_line": 1060,
+      "timestamp_utc": "2026-10-09T17:00:46.378Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 177637,
+      "cache_read": 177282,
+      "cache_write": 352
+    },
+    {
+      "source_line": 1075,
+      "timestamp_utc": "2026-10-09T17:09:39.567Z",
+      "model": "gpt-6.1-sol",
+      "prompt_tokens": 178148,
+      "cache_read": 175110,
+      "cache_write": 3035
+    }
+  ],
+  "presentation": {
+    "sha256": "ab14008bf003d701aafb71c50b26e4ec02f82e81123fa994ceaabd8a254041ef",
+    "file_bytes": 41471970,
+    "file_characters": 41384143,
+    "event": "close-proposal",
+    "complete": false,
+    "sources": 1213,
+    "attachments": 245,
+    "issues": 92,
+    "markdown_characters": 11610121,
+    "section_body_characters": 11609905,
+    "source_text_characters": 2083312,
+    "prose_text_characters": 1277018,
+    "source_reason_counts": {
+      "regla global o alcance incierto": 193,
+      "relación entre elementos": 191,
+      "contrato/contribución entrante": 66,
+      "raíz solicitada": 1,
+      "proceso aplicable": 2,
+      "prosa fuera de bloques; ámbito no acreditado": 756,
+      "Evidencia o decisión del alcance": 4
+    },
+    "attachment_observation_required": 92,
+    "serialized_field_characters": {
+      "version": 24,
+      "event": 16,
+      "profiles": 17,
+      "title": 41,
+      "sections": 12398993,
+      "sources": 5758095,
+      "attachments": 8310466,
+      "basis": 362872,
+      "receipt": 234,
+      "instruction_refs": 441,
+      "intervention": 15,
+      "issues": 9867,
+      "complete": 5,
+      "markdown": 12398926,
+      "writes": 2
+    }
+  },
+  "limitations": [
+    "Tool result_token_count measures emitted tool results, not total model input, billing or generated output.",
+    "Usage checkpoints describe call snapshots. They are not summed as total session consumption.",
+    "View categories use path heuristics and do not prove each read was unnecessary.",
+    "Tool durations can include human waiting. Summing them does not measure model compute time.",
+    "The 39.6 MiB presentation was truncated by the tool host; full file size is not model tokens.",
+    "No real consumer files were changed and no logged command was executed."
+  ]
+}

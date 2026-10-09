@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime, timezone
 import json
 import os
@@ -12,6 +14,7 @@ import uuid
 from v2_contract import ContractError, canonical, fingerprint, path_at, read_bytes, sha
 
 VERSION, METHOD = "3.0", "3.0.0"
+METHODS = {"3.0.0": "3.0", "3.1.0": "3.1"}
 DOCS = "docs/lks-sdd"
 HISTORY = DOCS + "/00-control/history"
 INDEX = ".lks-sdd/project.json"
@@ -19,6 +22,20 @@ BLOCK = re.compile(r'^<!-- lks-sdd: (\{[^\r\n]*\}) -->\r?\n(.*?)^<!-- /lks-sdd -
 KINDS = set("project policy member request proposal requirement acceptance rule constraint task plan test decision interface technology assignment handoff exception analysis execution checkpoint evidence problem migration adoption feature group increment release binding environment authorization applicability legacy receipt visual change".split())
 EVENTS = set("decision assignment handoff exception analysis execution checkpoint evidence problem migration authorization receipt".split())
 NORMATIVE = KINDS - EVENTS - {"legacy"}
+_QUERY_MODELS = ContextVar("lks_sdd_query_models", default=None)
+
+
+@contextmanager
+def query_evaluation():
+    """Reuse a validated snapshot only during one read-only public operation."""
+    if _QUERY_MODELS.get() is not None:
+        yield
+        return
+    token = _QUERY_MODELS.set({})
+    try:
+        yield
+    finally:
+        _QUERY_MODELS.reset(token)
 STATES = set("draft proposed confirmed approved active effective superseded retired cancelled unknown conflict backlog ready in-progress in-review done done-with-reservations blocked paused completed revoked open resolved reconciliation-required observed transition".split())
 
 
@@ -44,9 +61,9 @@ def element(kind, title, body, *, identifier=None, **data):
                      "relations": {}, "data": data}, "body": body}
 
 
-def render(item):
+def render(item, version=VERSION):
     # Body bytes, including line endings, are preserved. No semantic normalization.
-    return (f'---\nschema_version: "{VERSION}"\nartifact_type: "{item["meta"]["kind"]}"\n---\n\n'
+    return (f'---\nschema_version: "{version}"\nartifact_type: "{item["meta"]["kind"]}"\n---\n\n'
             + "<!-- lks-sdd: " + canonical(item["meta"]).decode() + " -->\n"
             + item["body"] + "\n<!-- /lks-sdd -->\n").encode("utf-8")
 
@@ -61,6 +78,7 @@ class Element:
     body: str
     path: str
     line: int = 1
+    resolved_data: dict | None = field(default=None, repr=False)
 
     @property
     def uid(self): return self.meta["uid"]
@@ -69,7 +87,7 @@ class Element:
     @property
     def kind(self): return self.meta["kind"]
     @property
-    def data(self): return self.meta["data"]
+    def data(self): return self.resolved_data if self.resolved_data is not None else self.meta["data"]
     @property
     def relations(self): return self.meta["relations"]
     @property
@@ -93,8 +111,9 @@ class Element:
 
 def parse(raw, path):
     text = raw.decode("utf-8")
-    if not re.search(r'^schema_version: [\"\']?3\.0[\"\']?\r?$', text, re.M):
-        raise ContractError("Se esperaba Markdown 3.0: " + path)
+    version_match = re.search(r'^schema_version: [\"\']?(3\.[01])[\"\']?\r?$', text, re.M)
+    if not version_match:
+        raise ContractError("Se esperaba Markdown 3.0/3.1: " + path)
     matches = list(BLOCK.finditer(text))
     if len(matches) != text.count("<!-- lks-sdd:") or len(matches) != text.count("<!-- /lks-sdd -->"):
         raise ContractError("Bloques incompletos: " + path)
@@ -102,7 +121,7 @@ def parse(raw, path):
     from v3_schema import validate
     for match in matches:
         meta = json.loads(match[1])
-        validate("element", meta)
+        validate("element", meta, version_match[1])
         uid(meta["uid"])
         if meta["kind"] not in KINDS or meta["state"] not in STATES:
             raise ContractError("Tipo o estado desconocido: " + path)
@@ -176,17 +195,35 @@ class Model:
         values, _ = parse(raw, path)
         if len(values) != 1 or values[0].uid != current.uid or values[0].digest() != digest:
             raise ContractError("Snapshot aprobado no recuperable")
+        from v3_inventories import resolve
+        resolve(self, values[0], {})
         return values[0]
 
     def index(self):
-        return {"schema_version": VERSION, "method_version": METHOD, "project_id": self.project.uid,
+        method = self.project.data["method_version"]
+        return {"schema_version": METHODS[method], "method_version": method, "project_id": self.project.uid,
                 "elements": {e.uid: {"path": e.path, "id": e.id, "kind": e.kind} for e in self.elements.values()}}
 
 
 def load(root):
     root = Path(root).resolve()
+    cache = _QUERY_MODELS.get()
+    if cache is not None and root in cache:
+        return cache[root]
+    model = _load(root)
+    if cache is not None and not model.errors:
+        cache[root] = model
+    return model
+
+
+def _load(root):
     model = Model(root)
+    from v2_storage import VALIDATING, PENDING
+    if (root/PENDING).exists() and not VALIDATING.get():
+        model.errors.append("Interrupted transaction: recover or rollback before normal operations")
+        return model
     total = 0
+    inventory_cache = {}
     for path in document_paths(root):
         try:
             raw = read_bytes(root, path)
@@ -198,10 +235,12 @@ def load(root):
             for e in values:
                 if e.uid in model.elements: raise ContractError("Identidad duplicada: " + e.uid)
                 model.elements[e.uid] = e
+                from v3_inventories import resolve
+                resolve(model, e, inventory_cache)
         except (ValueError, UnicodeError, KeyError) as exc: model.errors.append(str(exc))
     try:
         project = model.project
-        if project.data.get("method_version") != METHOD:
+        if project.data.get("method_version") not in METHODS:
             raise ContractError("Método desconocido; conserve el origen sin convertir")
         for e in model.elements.values():
             for ref in e.targets():
@@ -210,13 +249,17 @@ def load(root):
                     model.warnings.append("Dependencia entre proyectos requiere evidencia explícita: " + ref)
                 elif target[-1] not in model.elements:
                     model.errors.append("Referencia no resuelta: " + ref)
+        from v31_review import validate_model
+        validate_model(model)
+        from v3_scope import validate_prose_scope
+        validate_prose_scope(model)
     except ContractError as exc: model.errors.append(str(exc))
     index = path_at(root, INDEX, missing=True)
     if index.exists():
         model.hashes[INDEX] = sha(read_bytes(root, INDEX))
         try:
             value = json.loads(read_bytes(root, INDEX))
-            if value.get("schema_version") != VERSION: model.errors.append("Índice de otro formato; migración incompleta")
+            if value.get("schema_version") != METHODS.get(model.project.data.get("method_version")): model.errors.append("Índice de otro formato; migración incompleta")
             elif model.elements and value != model.index(): model.warnings.append("Índice desactualizado; reconstruible desde Markdown")
         except (ValueError, ContractError): model.warnings.append("Índice ilegible; reconstruible desde Markdown")
     return model

@@ -1,0 +1,41 @@
+{
+  "scope": "Synthetic exact-content governance and ordinary presentation characters; not AI billing or human review",
+  "billed_tokens": null,
+  "human_seconds": null,
+  "real_consumer_writes": [],
+  "run_status": "completed",
+  "fixture_setup_seconds": 15.271254699997371,
+  "governance_prepare_apply_seconds": 40.2274533000018,
+  "before": {
+    "ordinary_json_characters": 102220,
+    "literal_characters": 100875,
+    "sources": 29,
+    "attachments": 0,
+    "complete": true
+  },
+  "classification_review": {
+    "ordinary_json_characters": 107105,
+    "literal_characters": 105597,
+    "sources": 28,
+    "attachments": 0,
+    "complete": true
+  },
+  "after": {
+    "ordinary_json_characters": 2605,
+    "literal_characters": 1360,
+    "sources": 4,
+    "attachments": 0,
+    "complete": true
+  },
+  "literal_sources_read_for_classification": 25,
+  "source_prose_characters_reviewed": 98515,
+  "canonical_declaration_characters_written": 7139,
+  "ordinary_characters_saved_per_equivalent_view": 99615,
+  "equivalent_views_to_offset_extra_classification_view_characters": 2,
+  "limitations": [
+    "Fixtures define independent prose explicitly; this is not a semantic audit of the original consumer.",
+    "Exact governance review itself retains other unclassified prose; its first-use cost may be high in a large consumer.",
+    "Offset is a character-only conditional scenario; token caching, model reading, human decisions and elapsed time have no measured break-even.",
+    "No corpus-wide conversion is required. The proposed runtime update remains explicit and recoverable."
+  ]
+}

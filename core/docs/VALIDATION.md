@@ -36,6 +36,27 @@ La comprobación automática de una PR es solo el contrato del plugin:
 python -B -X utf8 scripts\validate_plugin_contract.py .
 ```
 
+## Desarrollo del recorrido integral
+
+Las pruebas focales de `tests/test_v31_review.py` comprueban decisiones agrupadas,
+revisión conjunta, encargos, correcciones, excepciones y orientación de solo lectura.
+`tests/test_v3_distribution.py` comprueba adopción 3.0 → 3.1 con runtime fijado y
+rollback. Son comprobaciones de desarrollo de este cambio; no acreditan aceptación
+humana de Codex/Copilot ni modifican la puerta de publicación descrita aquí.
+La implementación y su evidencia se documentan en
+[el plan de revisión integral](plans/integral-review/PLAN.md).
+
+Para cambios de presentación y selección de instrucciones se añaden las regresiones
+focales `test_v3_decision_presentation` y `test_v3_instruction_routing`. Comprueban
+prosa literal, borradores, decisiones antiguas, caducidad del contenido mostrado,
+composición, recogida de evidencia por petición y ejecución desde ambos paquetes.
+Los recorridos de revisión, equipo, calidad, integración y distribución se mantienen.
+Las comprobaciones y límites quedan en
+[la cobertura de esta implementación](plans/specification-review-presentation/IMPLEMENTATION.md).
+La comparación de instrucciones se reproduce con
+`python -B -X utf8 tests/measure_v3_instruction_context.py`; registra caracteres,
+lecturas previstas y huellas, sin presentarlos como tokens facturados ni coste total.
+
 ## Release estable
 
 Ejecute una vez desde un checkout limpio del commit ya integrado. El comando no acepta
@@ -75,7 +96,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v3.0.0.json `
+  --release-approval quality\release-approval-v3.3.0.json `
   --output $releaseGate
 ```
 
@@ -159,6 +180,17 @@ migración y consultas v2 están documentados en
 
 ## Retención operativa
 
+La corrección de crecimiento documental tiene una reproducción temporal y pruebas
+focales, sin añadir controles al gate de publicación:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_document_storage
+python -B -X utf8 tests/run_unit_tests.py --module test_v3_efficiency
+```
+
+El formato, compatibilidad, mediciones y condiciones de compactación separada se
+documentan en [almacenamiento documental](DOCUMENT-STORAGE.md).
+
 La acumulación de controles se diagnostica sin mutación:
 
 ```powershell
@@ -175,6 +207,11 @@ python -B -X utf8 scripts\v2_cli.py retention-compact <project-root> --apply `
   --at 2026-01-02T00:00:00+00:00 --authorize <PREVIEW_HASH> --json
 ```
 
-La operación es reversible mediante `retention-restore --id AUTH-001` (o el
+Los comandos de compactación anteriores describen el runtime v2 publicado, no
+un canal de escritura del candidato actual. En este candidato se conservan
+consulta y recuperación; continuar trabajo exige el corte v3.1 documentado en
+[V3-MIGRATION](V3-MIGRATION.md). La limpieza de historia existente es otro encargo.
+
+La operación histórica es reversible mediante `retention-restore --id AUTH-001` (o el
 identificador operativo correspondiente), también con preview y autorización
 exacta. EVID y los documentos normativos no son candidatos.

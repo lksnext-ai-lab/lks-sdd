@@ -1,0 +1,23 @@
+{
+  "scope": "Current documents and evidence integrity, not human acceptance or release gate",
+  "checks": {
+    "markdown": 5,
+    "json": 34,
+    "python": 7,
+    "links": 53
+  },
+  "issues": [],
+  "document_revisions": {
+    "PROPOSAL.md": 6,
+    "PLAN.md": 4
+  },
+  "document_sha256": {
+    "ANALYSIS.md": "74644505e6e093396c015b69d20088acfb5df7460911395f81c62eb58637f21f",
+    "GLOBAL-AUDIT.md": "cf3568c6b8cc80a56cda7ba2ba4d88e312e4b8dcb3eda3acf43885e544afafa7",
+    "IMPLEMENTATION.md": "d2b07a0acec69d2c671c001d9b74d01f0fee1b2ce4f4d29aa407fa427d5dda1b",
+    "PLAN.md": "418a6a8142877ce50de75449028d7d070bdb21d0ef1108a39f24884cd5336cff",
+    "PROPOSAL.md": "d61f0a77ddcb36088429f856406ce260720a3b30eba16cbcfd765775dd483c6e"
+  },
+  "candidate_validation_sha256": "0e1658e9624661d230c0b34057ba7d517c233c85e72dc950763f79ecf0f5045d",
+  "prior_reports_preserved": true
+}

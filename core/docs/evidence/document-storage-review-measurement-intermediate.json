@@ -1,0 +1,340 @@
+{
+  "baseline_commit": "628d15c3d8759c6deb70d88bda9f045562c485a6",
+  "after_source_hashes": {
+    ".codex-plugin/plugin.json": "9de086e0e7b4f1f525382a010b1c017e47ff4064f24f2c0a3a63eae6fc347988",
+    "distribution/dual.json": "13202a41d68a1b33ff3260e68dc682e41b581e6590ba7afe346cc52d81f99d0e",
+    "distribution/host-copilot.md": "cae914c21f8452b17f6027daf9738057a37575e61d134ea7bf5e24db8840668b",
+    "distribution/install.ps1": "d5d62dd1c2a82f126b1f189004df6510ed9fdbab0a7b470f94caafa7aadad4ec",
+    "distribution/install.py": "5849ef62f45826f9be4f5ec333f2be8742f307a2868e5f2272bd6009c7888135",
+    "distribution/marketplace.template.json": "42408393b1d1d0c1cf99ca21826d59beebc1b914cd5d10e9de0622624d58348c",
+    "schemas/catalogs.json": "cfc472a1c3b123a09d2e539754f0a062fafbcabc4f8066cc8cf46ede31d60e03",
+    "schemas/collaboration-3.1.schema.json": "183747629ce55889cb5963c8c8c6d25a4bd4b10637577bbea59a50fb46391eaa",
+    "schemas/consumer-observation.schema.json": "b4c704ea5fc29764bee305e50d2362b29f3d9f183ff874b0ad6670ad6704cd3b",
+    "schemas/delivery-evidence.schema.json": "26385233444eebbb35cc403a91cc68fc9f3f09c04c5b4d6994fcbd28a68e4587",
+    "schemas/document-contracts.json": "9ec16c120624cc0872d6b3561055acd501e4fa764cadeffd4d874744be211009",
+    "schemas/document-contracts.schema.json": "82965e0f6416a6bd65cdef3d3bce9b569bc2ef20ec2a92ea897344f65199f4a6",
+    "schemas/element-2.0.schema.json": "5030cc7199eaac8b4d0c134012656d94a5572570605c783777fcb1e9bc2a4d1c",
+    "schemas/element-3.0.schema.json": "a388315a7b038e5cb3693ff28578d4e989ac52cd9f7115aa910c9d9a16880783",
+    "schemas/element-3.1.schema.json": "a0c98eff991fca7814a34bb11038fdffcf54d8a8ccf8252e07e9bd238126688a",
+    "schemas/frontmatter-1.5.schema.json": "98fc69e8761c867c1b7fd1edd43421bcd5a9b4d1349b5b04dbbe24229378b774",
+    "schemas/migration-receipt-2.0.schema.json": "c982b630f7904d0dd87846cbe54190077bc4193a3fa38323f5643b51d82dfe49",
+    "schemas/pilot-config.schema.json": "5f4ef4ad97e28bbe2c29c54803ab80293c7eae2216bbbe890f2e38ffc3493874",
+    "schemas/pilot-observation.schema.json": "829ebce79fb99cc8ed9ab1ebae7ddb9a6e84d5299173383e130e2407ce2ebffe",
+    "schemas/pilot-summary.schema.json": "507ea8bd9ca25629b9457a5a230ee3e9befcd8179c6d0a14ba3cd74ad2f0fc3d",
+    "schemas/project-1.5.schema.json": "b75b231102c2eb1905a88ed37b45db2987ab804574ba269880828dfc865a17b3",
+    "schemas/project-2.0-pre-technology.schema.json": "20109256237b79349948d2b1d3e6ad2678ed4aeb11c0f9f190b7073bab56a41f",
+    "schemas/project-2.0.schema.json": "82f0ac376706c3c7a91a662c4dc969d800a33106e3067d214009429a0ba5fc4f",
+    "schemas/project-3.0.schema.json": "5a9dd3436332c04d205383085b6b3f5133ec3aa9d706bdad0026d99f6bef02f4",
+    "schemas/project-3.1.schema.json": "42d8833709ac8da3c6d49bc051cba50aaa1e9860eb355f39ceb545a96738ff9e",
+    "schemas/query-context.schema.json": "0b59a39c8c2da3d5109fe8d00329827319e596c567224b3a9425a54981742d9c",
+    "schemas/task-evidence-summary-1.0.schema.json": "6881c2e72a8b2fecb867afd5c8148a17d50254a1f2f8a217c92175757b18f417",
+    "schemas/technology-declaration-2.0.schema.json": "83897e42b113715ed2dc4b08fca37049372d7e002fd8c53514539d09a94b32ad",
+    "schemas/verification-evidence-1.2.schema.json": "40ac666a618378c56bfbbbdad807a7497fdb867a94a21abde718980a2aba272f",
+    "schemas/verification-evidence-1.3.schema.json": "9c2c16a42eaa025c780c3654bf9373452af7e6299c7ca6fd2cc8f5a5860716d6",
+    "schemas/verification-evidence-2.0.schema.json": "c26b4c956e91e0cc98dd4dcf2a0fa79c15f2c2e1b7ab21aff1cb43b9eae091ac",
+    "schemas/visual-evidence-policy.schema.json": "68489bf8d7478b1f990afbb73d399d0379404dff97fb1062a970add73db26d30",
+    "schemas/visual-handoff.schema.json": "27bafe4c6504be78b34e8539f603b49aad3bf2b7ec3f1fc0b36b9f3d24a9bbe8",
+    "schemas/visual-review-evidence-1.2.schema.json": "d61e94c63c4aefdd6bf8d5bbd122924db753a55ce4d751e269fbff8062b096a3",
+    "scripts/benchmark_experience.py": "3c468d9b42cfa3083e155f47b68b4505202d77e7a7947844e79bf653f7615b48",
+    "scripts/build_candidate_package.py": "a7ab5e43c4819fb6e84ee6218fab5692e26b08acf0c143e8302520ea7d3ff4a1",
+    "scripts/build_dual_distribution.py": "0f8b6d96f7eff8f73cb84856f972ff714af53f1cbb186bbcf925d0399207a73e",
+    "scripts/check_traceability.py": "2940311cf7a82f7810fbd1367ec93918503b749c8749d8a2d6c0952b79b4e401",
+    "scripts/composition_contract.py": "0a05a26a36b1e35366c6424ca20ef0a4fbd699c3cb4efeb9fcb9d8f73dcb9085",
+    "scripts/consumer_observer.py": "15c20e15ca1a67508b0eb41d1ebe54baebba156ea5b24f02ce9ae752b7dcda57",
+    "scripts/content_store.py": "950683da12e9e751979e8fb85b6731c2f9590a8913fc37d93893ccc8614000bb",
+    "scripts/contract_engine.py": "e2c7c8150692ccc43036666fa08923cc8e7fa0205aeddbc8ee544739947de519",
+    "scripts/delivery_engine.py": "71d37572c9a71f2efd08511420140e6743e2447befd3a734e67d10de504c4647",
+    "scripts/doctor_project.py": "7f05fb15b48144883783aa357667445f72b3e9aa6b3891b90017e4d0f68cb394",
+    "scripts/dual_distribution.py": "ab278a25116b89e73cea060909e5b52d46da3137c97f5087bff1fd132dc45e0a",
+    "scripts/evidence_contract.py": "a52c1eb652e468290b70ccc6e4f08adc1a1d5e5ce6b3b8d923fea85505dd67d3",
+    "scripts/evidence_safety.py": "27a291ed9314a60b5d793749b00a51498530f4136adc5aa463658bb61a59f84d",
+    "scripts/experience_engine.py": "c591d749c888abe631fe831a37b90da3d7a8bc59d80d9153f410efe2807d48fc",
+    "scripts/experience_fixture.py": "2f16b8f7a519bf58815b534f23547dbd4164413978c570ff6d8a8acb8ed8c767",
+    "scripts/import_bootstrap.py": "f537ad8550bb18d6f70e9c5e6532b7bbfcb5fc9a2c5a0fb2e3292243ee3163be",
+    "scripts/integration_contract.py": "5df364342b81c426183e0c5c7e5441aa548b064fabf89d588c0a1b895246102b",
+    "scripts/jira_reporting_engine.py": "bade031604bac0a5bbdceb4a94f675c64ee016422db77ff1510f2e4268769223",
+    "scripts/lks_sdd.py": "0238f17eabc1b2f5f51e47fcb56f7a60e0d5f2a4abcd7fa4172d0d3c7cbfa020",
+    "scripts/manage_continuity.py": "3dc17b91320004afe72690c4d5e6c9fe5b0d4ea431a302e7b4e2172f4e29b294",
+    "scripts/manage_pilot.py": "7ff4110f5227ec0573d7fc61e79d6ad9c5dda8a202fb82f7c340e9b67287a447",
+    "scripts/manage_planning.py": "69716ffff3471e133dba3f8ee4ca8161f5162d267bf16ea69ba08b0cb98d643c",
+    "scripts/manage_task_tracking.py": "1f7777a62f2144fca001cffa519cb4794bc96fb4377b7a9c7520d646c41cf07b",
+    "scripts/manage_tasks.py": "90d0bce607117862d25ec4acb7622c6f3e2dbd0408adad282ee4984d3c2b78f7",
+    "scripts/manage_visual_handoff.py": "35fde87c745a1afc15196d34cabc0dc1a4035b4f8d532769cc5ea57b29e04fe3",
+    "scripts/observation_contract.py": "798347b82dfe4fbbf243fe3e5564ff9269dea0449982526f8be21c161c307ea2",
+    "scripts/path_utils.py": "9af1fd681b4b1d7314d6c8fb873d9dc7d683d4f664b610d8166042d37cd77a5e",
+    "scripts/planning_engine.py": "ee6bd7191758b5168abb9c7abfebfb748dea011cd6079ac56b6bfa6cc6168372",
+    "scripts/project_status.py": "ea10751e48d48272116bce718d0e14681afa3f8fe8fccf08aa1d4ac5a61f8d43",
+    "scripts/query_code.py": "f8546fb099180b7026eaaeeac855cbfaef132a19ee97119799ce381cfd2d87c6",
+    "scripts/query_context.py": "9337c93bfa02b39435bc6956ad8bec9d8b13f2026417116ad792afe902968195",
+    "scripts/query_project.py": "31a316e5de8208e171ce67b3e42bc272494a45bd6bdea6b3ae3c289e42dcea60",
+    "scripts/query_render.py": "50e47130a9646a622c8a371702abddd265b9cda435a52ebd19e19ebe560d3fbf",
+    "scripts/query_runtime.py": "1b7f4f1636fdf77b825a0d17792a34854c527f40c4d5e79a5b9d5f7c68884180",
+    "scripts/query_sources.py": "b5a38e2ed95b2fdebd2c39b4ff814f65231e0f447d92fa72f32536599dfcd09c",
+    "scripts/release_notes.py": "85d92e89c9c98c9952540cc74dfe87b98b1e6f020ac66f07b30fd20be7930caa",
+    "scripts/release_observability.py": "cfd716d75cd7c517fcdaf0f075af3d57bb1e34df2abb8618f5369b7dc2beb2d1",
+    "scripts/release_readiness.py": "814a9c0fe59b7c725a79aea292e5b34d86e5c4c0508079f4d4b9b82928444dbc",
+    "scripts/render_client_view.py": "7d37a5ac301661101fdb9e43fbd71750453d5e6fd3ab56c8463eabe14cfcf7a6",
+    "scripts/run_release_gate.py": "68616c1f40a44c4999eb1ca0700a899bb27d3c3d051998b680b0d20b667a309d",
+    "scripts/runtime_doctor.py": "14b7139c44ad66dbe4206fa049f50bd19c5cd650da62060abbf114bc102ec4b9",
+    "scripts/task_tracking_engine.py": "60184fe885749267f6933d885af5d8b9d57eee52bbc32cbd5121a32574fb27ce",
+    "scripts/technology_resolution.py": "8cfd8d31efa3fd790b1640c16277d1db23b65d412946fa40b838377dfd483fe3",
+    "scripts/v2_adoption.py": "f174d9c6713f93c92652a28367ed078485a217aaaa9593a1dd105bb54e74ee3a",
+    "scripts/v2_authoring.py": "eee46310c95240038e5cf8481275eb8548bd92a8dbb99e2257f220d10c7eadaf",
+    "scripts/v2_change_control.py": "33c2c5e957059b950cee436bb27fabb810b461f0bb1e604380621561c8956c4b",
+    "scripts/v2_cli.py": "2a411af7ec0be049942a6e7d1d82b471ad75ed1161bfcfe4cc58f4b2f5d1b068",
+    "scripts/v2_composition.py": "5d7df93fd00893e06128af848b3b69ebf4a02deb555365c96643fef5ff5c20f7",
+    "scripts/v2_contract.py": "45deb48cebb909f9b97906292e7856f862fa3a124163d107e73b5ef1b7a6026e",
+    "scripts/v2_controls.py": "5d06be84f9c8f480eca7d363761c9016e6595dba20edfe38792ea7c7c97af4d0",
+    "scripts/v2_features.py": "2b2fa87718fe937b73e911456c118d82141af4bf03f02023f9d943085146ea50",
+    "scripts/v2_guidance.py": "148ca6af8dfd8d015edcafd9896415dde7316a280df04be367e05f4f1b08c8a9",
+    "scripts/v2_history.py": "65ae3377743beac5781d82b0961eaf4ee866ecf6dedd4445e710fd7f483abf03",
+    "scripts/v2_integration_guard.py": "0c9f56c862f5d8039e15eff671821cd4f27a532424f74979f806fb144f4da6ff",
+    "scripts/v2_lifecycle.py": "e8a6c859d45722eb4a5bcfa40712538e33605f53fd82279e8dab99ed3ae3705b",
+    "scripts/v2_method_upgrade.py": "ce6b17541fd380755eb8908d0a3589d38b11c0d779ac11fa7aad90cfeebb8891",
+    "scripts/v2_migration.py": "7d2d03445be6dd61118ccaed67be866f2a2b3b454bdbe5faa9b60dc721544f39",
+    "scripts/v2_preparation.py": "8bf1fde4f6d6300bb9cda660d83c771a6f0227f763812d6623bf3fcd99c3a060",
+    "scripts/v2_quality.py": "a2117f9a4fef294070d4585af516c2a190b6f06d4806cd4f01983afb556a80e5",
+    "scripts/v2_query.py": "1d49f23bb6c1de777ab08b4c4408fc9f8abd771c5b6e9ffb33e3c74a97421d4b",
+    "scripts/v2_retention.py": "1af2aedfad1519a9df2eaaf6426913e306dabf3ac5942ae9132702953628b4bb",
+    "scripts/v2_schema.py": "ddcadadfe5751c01fcca8d61cd5eb46bfc00246f964edf647e078c7bed4f432f",
+    "scripts/v2_storage.py": "983a34cd340c0707ca0a9dd57d2f2f14b8aeaac1a4939b5515c82aac564d83ab",
+    "scripts/v2_tracking.py": "92fae7a4bda0afe76e811726b4e439b03945cd78138a6ba92ee3a88416386d0e",
+    "scripts/v2_verification.py": "05a2d5aba911a56f8829cf750797980217b1af5e1c88f1c43eaaf7fc27d3a226",
+    "scripts/v2_visual.py": "2dde18a3d6f59aa4655d8c0b876b9f7c49dfd53cecbd1c0ef785a9ba9e940f10",
+    "scripts/v31_corrections.py": "cf07d87b6df9e4887eaaa0bb07ff1010f2b5d0b6641d1f2863c03a204bca7287",
+    "scripts/v31_guidance.py": "278b025d1bd60dfd92175dadca866db6f630d52bb84fc16403f7cf9746039403",
+    "scripts/v31_review.py": "2c911245d842cf05a2a4f3e81b5b2f429ecab78d4821dd2fcf270a7864c070cd",
+    "scripts/v3_adoption.py": "f7b02a8e0f91451cadc520933c681bd2545cf0afc6bf14fd8c662fa05aa540ee",
+    "scripts/v3_approval.py": "e0e7dd861df5de10c8e7a2b283eb18160135453692d09b5b8ece3b8d391c82ae",
+    "scripts/v3_authoring.py": "291b8081c6cd748a8f7399641f90c5b117f06828dcdc3d7b841d37eeeacafeb1",
+    "scripts/v3_cli.py": "22d12eed5f1fcd2794ce4063e215f3242fa0d258f6903d1a437bc997df86f07c",
+    "scripts/v3_context.py": "1c5f257812120c2cc66557332de4579a2628fedecde1800ac50958a2de5e51e5",
+    "scripts/v3_contract.py": "c0f956d0973f1dd8a642c61389bba5d3d9445215fecae4715f69b8c6ed9e28a6",
+    "scripts/v3_git.py": "217ae09a0286979dac42310aa7ca1747acb1df0bc048efab257375918b82d975",
+    "scripts/v3_guidance.py": "56a53d7f3fe8ffe52b081f6ae71b9c14f560b5b5e22fb571dcc0124c0c2c0a7e",
+    "scripts/v3_lifecycle.py": "c00ef9b7f4bc44bcbf743df0452c3dd457ccde056adbda513a373f2a35db3267",
+    "scripts/v3_migration.py": "8bf8cd6fb26b79fa0e7392e2f4d8e580009402486f210de0b8f22d010db80df0",
+    "scripts/v3_policy.py": "9858ae952c5de4a73f77964a9457080f6016ff6eba76d8f1f5f9d1833f8de0fb",
+    "scripts/v3_quality.py": "f0c577788e0a20f751181809bf852ee01475cb39871afd56c84e71719dfbe956",
+    "scripts/v3_schema.py": "fc8d753e1da5bafcf41e9b19ada09529149eb93fcea2ee913d58aa9d74281fe2",
+    "scripts/v3_scope.py": "9c047c86f0069ee8f83fbcb536b65155465d5a968c3a79fd171847887ca4bc6f",
+    "scripts/v3_storage.py": "81b97eaeba6b765875f29b0607e96cef3f5151b95d75335891a3e61c8191c50b",
+    "scripts/v3_team.py": "b155e45c0592022d0eb070822807ea2271e7b248ca8fe00fa389c2a6e37189f4",
+    "scripts/v3_verification.py": "f46e4df9e4631e6077ca3da3b854adb62ee3b0c6fc31b9b58153ed989a090554",
+    "scripts/v3_workflow.py": "68bd8571404032816c1082400a5377595ba47894d509bf55fcfaeef167786838",
+    "scripts/validate_copilot_package.py": "d16698272bff80549b5f98ffa6e6650218c934628b50b877ba64527d414343cf",
+    "scripts/validate_distribution_reference.py": "1309a8e5d91336accb3c82425fbae6023cd789851ef6c683a502b37ff1941542",
+    "scripts/validate_fixture_manifest.py": "a202452504cfe4d988d174907e8660b6f5cecfa1567e22ce9a729f28bb6735d2",
+    "scripts/validate_plugin_contract.py": "5e19e39a6b4c5ec187c322b7c1150ba05ad089843f14381a52a71e0f7b78662b",
+    "scripts/validate_project.py": "9dece471ee411472305d8cfd1ed188d6857b9330a1c32057b11d8e0beb40d2a9",
+    "scripts/validate_release_artifacts.py": "05ffa3d31447aa722e8d6adf0801228764114498c692d26115ecdc178381768a",
+    "scripts/validate_spec.py": "3f35a506896e1b446ee5a6276cd95b32fcbef4023da2a90722a76cd306d48428",
+    "scripts/validation_evidence.py": "4e77a6767eda07be6a4a6f976910ba18f7899845287c9e5a3b02b2ee5487c51a",
+    "scripts/verify_draft_promotion.py": "41d7953915883fc74fe68424e8947a1cfc1a5831dbf80b7e3838c55c226f4d04",
+    "scripts/verify_preflight_provenance.py": "7f2032c4d5a088d7ccc9b014b95e7381b986800aa82b8380a436dfdd0201ce45",
+    "scripts/work_task.py": "3a337538297bb544b0b808328854a1a8104017c85c640c87e5b92a044a34173d",
+    "tests/eval_support.py": "5cf948ad8964b6ae7182fd0c4a3bbe047a39e670c1d17b1af962a2fbfe2b0161",
+    "tests/measure_document_storage.py": "cd179d27f0686e5e3dd16a1883e161ac27fe93397ab2e35a7c7e89229a6f7217"
+  },
+  "configuration": {
+    "documents": 12,
+    "resources": 20,
+    "resource_bytes": 4096,
+    "code_files": 30,
+    "rounds": 3,
+    "checkpoints": 2
+  },
+  "results": {
+    "before": {
+      "snapshot_count": 13,
+      "history_tree": {
+        "files": 631,
+        "unique_contents": 103,
+        "bytes": 2126064
+      },
+      "history_and_recovery": {
+        "files": 632,
+        "unique_contents": 104,
+        "bytes": 6330507
+      },
+      "active_markdown": {
+        "files": 36,
+        "unique_contents": 36,
+        "bytes": 102105
+      },
+      "load_seconds": [
+        0.43167600000015227,
+        0.5143255000002682,
+        0.5611885999996957
+      ],
+      "load_median_seconds": 0.5143255000002682,
+      "archive_operations": [
+        {
+          "operation": "author",
+          "prepare_seconds": 1.0787578999998004,
+          "apply_seconds": 0.9382603000003655
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 0.45455760000004375,
+          "apply_seconds": 3.210819399999309
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 0.450372299999799,
+          "apply_seconds": 3.347970499999974
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 2.028020099999594,
+          "apply_seconds": 2.198754999999437
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 2.6611493999998856,
+          "apply_seconds": 2.520101699999941
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 0.4919192999996085,
+          "apply_seconds": 3.8553422999993927
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 0.5567510999999286,
+          "apply_seconds": 4.22422159999951
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.1829999999999927,
+          "apply_seconds": 3.094631899999513
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 2.9789780999999493,
+          "apply_seconds": 2.7910859000003256
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 0.47648150000077294,
+          "apply_seconds": 4.230871300000217
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 0.7813547000005201,
+          "apply_seconds": 5.415082900000016
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.3841027999997095,
+          "apply_seconds": 3.5679518999995707
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.175658900000599,
+          "apply_seconds": 3.3881129999999757
+        }
+      ],
+      "archive_prepare_total_seconds": 21.701103700000203,
+      "archive_apply_total_seconds": 42.78320769999755
+    },
+    "after": {
+      "snapshot_count": 13,
+      "history_tree": {
+        "files": 13,
+        "unique_contents": 13,
+        "bytes": 249896
+      },
+      "history_and_recovery": {
+        "files": 159,
+        "unique_contents": 146,
+        "bytes": 1062176
+      },
+      "active_markdown": {
+        "files": 36,
+        "unique_contents": 36,
+        "bytes": 52290
+      },
+      "load_seconds": [
+        1.0402102999996714,
+        0.8397449000003689,
+        0.9194360999999844
+      ],
+      "load_median_seconds": 0.9194360999999844,
+      "archive_operations": [
+        {
+          "operation": "author",
+          "prepare_seconds": 1.8764233000001695,
+          "apply_seconds": 1.7601766000007046
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.14920980000079,
+          "apply_seconds": 4.504358299999694
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 0.7677219000006517,
+          "apply_seconds": 4.5588096000001315
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.4213446000003387,
+          "apply_seconds": 2.1406519000001936
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 2.9911505999998553,
+          "apply_seconds": 2.065914600000724
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.6148281000005227,
+          "apply_seconds": 5.3186737999994875
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 0.7781537999999273,
+          "apply_seconds": 3.728535500000362
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.745492500000182,
+          "apply_seconds": 3.0868746999994983
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 2.958659599999919,
+          "apply_seconds": 2.3219225000002552
+        },
+        {
+          "operation": "correct",
+          "prepare_seconds": 1.4959490000001097,
+          "apply_seconds": 5.670126699999855
+        },
+        {
+          "operation": "replan",
+          "prepare_seconds": 0.9766427999993539,
+          "apply_seconds": 4.702014800000143
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.7299791000004916,
+          "apply_seconds": 3.2593949000001885
+        },
+        {
+          "operation": "author",
+          "prepare_seconds": 3.7338845000003857,
+          "apply_seconds": 2.6944742000005135
+        }
+      ],
+      "archive_prepare_total_seconds": 29.239439600002697,
+      "archive_apply_total_seconds": 45.81192810000175
+    }
+  },
+  "limitations": [
+    "Synthetic local Windows experiment; timings include filesystem, fsync and staging costs",
+    "No host acceptance or consumer migration executed",
+    "Logical byte counts exclude filesystem allocation and Git object sharing"
+  ]
+}

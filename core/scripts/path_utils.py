@@ -4,6 +4,28 @@ from __future__ import annotations
 import ctypes
 import os
 from pathlib import Path
+import tempfile
+
+
+def publish_new_file(path: Path, data: bytes, *, prefix=".lks-new-") -> None:
+    """Publish complete, fsynced bytes without replacing an existing destination.
+
+    Callers validate the path and create its parent before entering this helper.
+    FileExistsError leaves the winning writer's file intact.
+    """
+    descriptor, temporary = tempfile.mkstemp(prefix=prefix, dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        if os.name == "nt":
+            os.rename(temporary, path)
+        else:
+            os.link(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def filesystem_root(path: Path) -> Path:

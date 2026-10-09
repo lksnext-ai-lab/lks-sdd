@@ -1,0 +1,2 @@
+# Preserve original report bytes referenced by historical SHA-256 evidence.
+*.json -text whitespace=cr-at-eol
