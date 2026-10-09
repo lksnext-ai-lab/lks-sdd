@@ -1,6 +1,6 @@
 # Compatibilidad de LKS-SDD
 
-## Candidata 3.3.0-rc.1
+## Versión 3.3.0
 
 Conserva schema 3.1/método 3.1.0 y JSON detallado anterior. `--compact` añade transporte
 sin duplicación y `--details` solicita inspección completa. La presentación `/2` separa

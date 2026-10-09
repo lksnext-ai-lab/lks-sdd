@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `3.3.0-rc.1` (candidata local pendiente de publicación) de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `3.3.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -95,7 +95,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 3.3.0-rc.1, schema y método son versiones distintas. Los proyectos nuevos usan
+Plugin 3.3.0, schema y método son versiones distintas. Los proyectos nuevos usan
 schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
 Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
 recuperación; continuar trabajo con esta versión exige el corte explícito descrito
@@ -128,9 +128,9 @@ trazables, con intervenciones agrupadas para equipos pequeños y desarrollo indi
 Antes de anunciar implementación o editar código se comprueba la cobertura vigente
 SPEC → PLAN/TASK y la autorización; las decisiones pendientes se registran y se
 evalúa qué alcance independiente puede continuar.
-La [aprobación anterior de 3.2.0](quality/release-approval-v3.2.0.json) corresponde a esa release.
-Esta candidata requiere su propia aprobación y el gate técnico del commit final.
-El catálogo Copilot apunta a `copilot-v3.3.0-rc.1`; su árbol debe coincidir exactamente
+La [decisión de versión 3.3.0](quality/release-approval-v3.3.0.json) se registra
+por separado del gate técnico del commit final y de la publicación.
+El catálogo Copilot apunta a `copilot-v3.3.0`; su árbol debe coincidir exactamente
 con el ZIP nativo verificado. Las ilustraciones en `output/infografias/` son bocetos
 históricos provisionales y no sustituyen la definición vigente del proceso.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte

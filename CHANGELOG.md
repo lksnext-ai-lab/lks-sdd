@@ -1,8 +1,31 @@
 # Changelog
 
+## 3.3.0 — 2026-10-10 — contexto aplicable y continuidad proporcionada
+
+- Unifica selección literal en decisiones y ejecución: resuelve pertenencia antes de
+  PLAN, conserva reglas globales, contratos compartidos, dependencias entrantes y dudas.
+  La referencia completa se recupera expresamente con `reference: true`.
+- Añade declaraciones de prosa ligadas a contenido y decisión de gobierno, y catálogo
+  paginado para reconciliarlas por lotes. Datos no aprobados, obsoletos o contradictorios
+  conservan el contenido. Schema 3.1 y método 3.1.0 permanecen; el runtime se actualiza
+  por migración explícita y recuperable. No se exige reclasificar todo el histórico.
+- Añade `--compact` para transportar un solo cuerpo en review/decision-view, conservando
+  el recibo, JSON detallado anterior, biblioteca y exportación. La presentación `/2`
+  distingue contenido seleccionado de hashes físicos de concurrencia.
+- Reutiliza modelo y hechos dentro de consultas; cada operación y los guards de
+  mutación conservan comprobaciones frescas. La paginación no promete lectura sublineal.
+- Selecciona continuidad actual sin reenviar checkpoints simples anteriores; conserva
+  pendientes, problemas, decisiones, evidencia e historia recuperable. `operation_id`
+  distingue reintentos de observaciones nuevas. Logs, código y HTML fuente se leen como texto.
+- Corrige inventarios de migración grandes: separa rutas/bytes físicos de contenido único,
+  conserva cada fuente y admite orígenes v2 cuyo proyecto solo constaba en el índice.
+- Las pruebas automatizadas y medidas sintéticas acreditan sus canales técnicos;
+  ahorro facturado, comprensión humana y aceptación real de hosts requieren observación.
+
 ## 3.3.0-rc.1 — 2026-10-09 — contexto aplicable y continuidad proporcionada
 
-Candidata local en desarrollo; aprobación, commit final, gate y publicación pendientes.
+Candidata integrada en main en `51a4112`, con gate candidate y CI superados.
+No se publicó como release; la promoción estable tiene su aprobación y gate propios.
 
 - Unifica selección literal en decisiones y ejecución: resuelve pertenencia antes de
   PLAN, conserva reglas globales, contratos compartidos, dependencias entrantes y dudas.
