@@ -1,0 +1,112 @@
+{
+  "measurement": "same selected instruction files, normalized characters; conditional DOCUMENT-CONTEXT is additional only for reconciliation",
+  "routes": [
+    {
+      "skill": "help",
+      "event": "status",
+      "files": [
+        "skills/lks-sdd-help/SKILL.md",
+        "skills/lks-sdd-help/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md"
+      ],
+      "characters": {
+        "3.2.0": 13004,
+        "3.3.0-rc.1": 13663
+      }
+    },
+    {
+      "skill": "define",
+      "event": "review",
+      "files": [
+        "skills/lks-sdd-define/SKILL.md",
+        "skills/lks-sdd-define/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md",
+        "docs/decision-guides/specifications.md"
+      ],
+      "characters": {
+        "3.2.0": 17106,
+        "3.3.0-rc.1": 18056
+      }
+    },
+    {
+      "skill": "define",
+      "event": "authorize-plan",
+      "files": [
+        "skills/lks-sdd-define/SKILL.md",
+        "skills/lks-sdd-define/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md",
+        "docs/decision-guides/planning.md",
+        "docs/decision-guides/assignments.md"
+      ],
+      "characters": {
+        "3.2.0": 17041,
+        "3.3.0-rc.1": 17662
+      }
+    },
+    {
+      "skill": "implement",
+      "event": "resume",
+      "files": [
+        "skills/lks-sdd-implement/SKILL.md",
+        "skills/lks-sdd-implement/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md",
+        "docs/decision-guides/assignments.md"
+      ],
+      "characters": {
+        "3.2.0": 15672,
+        "3.3.0-rc.1": 16293
+      }
+    },
+    {
+      "skill": "verify",
+      "event": "integrate",
+      "files": [
+        "skills/lks-sdd-verify/SKILL.md",
+        "skills/lks-sdd-verify/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md",
+        "docs/decision-guides/verification.md"
+      ],
+      "characters": {
+        "3.2.0": 15612,
+        "3.3.0-rc.1": 16233
+      }
+    },
+    {
+      "skill": "adopt-existing",
+      "event": "migration-preview",
+      "files": [
+        "skills/lks-sdd-adopt-existing/SKILL.md",
+        "skills/lks-sdd-adopt-existing/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md",
+        "docs/decision-guides/project-setup.md"
+      ],
+      "characters": {
+        "3.2.0": 15066,
+        "3.3.0-rc.1": 15687
+      }
+    },
+    {
+      "skill": "assess-readiness",
+      "event": "readiness",
+      "files": [
+        "skills/lks-sdd-assess-readiness/SKILL.md",
+        "skills/lks-sdd-assess-readiness/references/v3.md",
+        "docs/V3-COMMON.md",
+        "docs/USER-DECISIONS.md"
+      ],
+      "characters": {
+        "3.2.0": 13262,
+        "3.3.0-rc.1": 13883
+      }
+    }
+  ],
+  "billed_tokens": null,
+  "host_observation": "not-run",
+  "note": "Instructions grew slightly; output and evaluation savings must cover this overhead. No old all-guides baseline is substituted."
+}

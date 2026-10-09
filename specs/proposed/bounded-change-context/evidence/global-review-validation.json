@@ -1,0 +1,24 @@
+{
+  "scope": "Documentation and evidence integrity, not release or implementation acceptance",
+  "checks": {
+    "markdown": 4,
+    "json": 7,
+    "python": 3,
+    "links": 42
+  },
+  "issues": [],
+  "all_cli_operations_mapped": true,
+  "probe_queries_preserved_snapshots": true,
+  "validation_report_excluded_from_json_count": true,
+  "document_revisions": {
+    "PROPOSAL.md": 5,
+    "PLAN.md": 2
+  },
+  "document_sha256": {
+    "ANALYSIS.md": "74644505e6e093396c015b69d20088acfb5df7460911395f81c62eb58637f21f",
+    "GLOBAL-AUDIT.md": "cf3568c6b8cc80a56cda7ba2ba4d88e312e4b8dcb3eda3acf43885e544afafa7",
+    "PLAN.md": "3f7b18849d4e2ebff591e2bff59cd3a3d943fe1ee221614f76724b2c91d8cbc5",
+    "PROPOSAL.md": "d140e06c7f01934edb36662473968ce21ebec28be44ecec2ac79dea282ad2204"
+  },
+  "plugin_contract_validation": "passed; LKS-SDD 3.2.0 active contract; documentation change only"
+}

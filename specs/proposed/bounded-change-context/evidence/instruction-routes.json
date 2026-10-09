@@ -1,0 +1,1499 @@
+{
+  "measurement": "static-instruction-routes; UTF-8 normalized LF characters",
+  "scenarios": [
+    {
+      "scenario": "consulta",
+      "event": "status",
+      "selected": {
+        "characters": 8773,
+        "reads": 3,
+        "files": [
+          {
+            "path": "skills/lks-sdd-help/SKILL.md",
+            "sha256": "aa8a0bd42c7b8c67cabcc23b9869c716d34e912d6f43a68484e89f09f911665a",
+            "characters": 1143,
+            "words": 160
+          },
+          {
+            "path": "skills/lks-sdd-help/references/v3.md",
+            "sha256": "f84f144459d19d5954fe1d09587f6f4fd306922609b83d2b850be258ec74f470",
+            "characters": 1807,
+            "words": 239
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 27664,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-help/SKILL.md",
+            "sha256": "aa8a0bd42c7b8c67cabcc23b9869c716d34e912d6f43a68484e89f09f911665a",
+            "characters": 1143,
+            "words": 160
+          },
+          {
+            "path": "skills/lks-sdd-help/references/v3.md",
+            "sha256": "f84f144459d19d5954fe1d09587f6f4fd306922609b83d2b850be258ec74f470",
+            "characters": 1807,
+            "words": 239
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 68.29
+    },
+    {
+      "scenario": "especificación",
+      "event": "review",
+      "selected": {
+        "characters": 17106,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29114,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 41.24
+    },
+    {
+      "scenario": "plan y encargos",
+      "event": "authorize-plan",
+      "selected": {
+        "characters": 17041,
+        "reads": 6,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29114,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 41.47
+    },
+    {
+      "scenario": "relevo e inicio",
+      "event": "resume",
+      "selected": {
+        "characters": 15672,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-implement/SKILL.md",
+            "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+            "characters": 1742,
+            "words": 237
+          },
+          {
+            "path": "skills/lks-sdd-implement/references/v3.md",
+            "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+            "characters": 2674,
+            "words": 346
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29130,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-implement/SKILL.md",
+            "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+            "characters": 1742,
+            "words": 237
+          },
+          {
+            "path": "skills/lks-sdd-implement/references/v3.md",
+            "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+            "characters": 2674,
+            "words": 346
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 46.2
+    },
+    {
+      "scenario": "integración y aceptación",
+      "event": "integrate",
+      "selected": {
+        "characters": 15612,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-verify/SKILL.md",
+            "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+            "characters": 1192,
+            "words": 166
+          },
+          {
+            "path": "skills/lks-sdd-verify/references/v3.md",
+            "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+            "characters": 2498,
+            "words": 326
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 28404,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-verify/SKILL.md",
+            "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+            "characters": 1192,
+            "words": 166
+          },
+          {
+            "path": "skills/lks-sdd-verify/references/v3.md",
+            "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+            "characters": 2498,
+            "words": 326
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 45.04
+    },
+    {
+      "scenario": "rechazo",
+      "event": "reject-result",
+      "selected": {
+        "characters": 15191,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-verify/SKILL.md",
+            "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+            "characters": 1192,
+            "words": 166
+          },
+          {
+            "path": "skills/lks-sdd-verify/references/v3.md",
+            "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+            "characters": 2498,
+            "words": 326
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 28404,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-verify/SKILL.md",
+            "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+            "characters": 1192,
+            "words": 166
+          },
+          {
+            "path": "skills/lks-sdd-verify/references/v3.md",
+            "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+            "characters": 2498,
+            "words": 326
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 46.52
+    },
+    {
+      "scenario": "excepción",
+      "event": "exception",
+      "selected": {
+        "characters": 16013,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-implement/SKILL.md",
+            "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+            "characters": 1742,
+            "words": 237
+          },
+          {
+            "path": "skills/lks-sdd-implement/references/v3.md",
+            "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+            "characters": 2674,
+            "words": 346
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29130,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-implement/SKILL.md",
+            "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+            "characters": 1742,
+            "words": 237
+          },
+          {
+            "path": "skills/lks-sdd-implement/references/v3.md",
+            "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+            "characters": 2674,
+            "words": 346
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 45.03
+    },
+    {
+      "scenario": "migración",
+      "event": "migration-preview",
+      "selected": {
+        "characters": 15066,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-adopt-existing/SKILL.md",
+            "sha256": "03389d2477b59351b41b6d3ac64b8b564c6438202834df662e2c15801830a8aa",
+            "characters": 1160,
+            "words": 165
+          },
+          {
+            "path": "skills/lks-sdd-adopt-existing/references/v3.md",
+            "sha256": "91748bc34f2c8db5467b83121332c7ee94759238a1e2c5a351a8951202bf36a2",
+            "characters": 2149,
+            "words": 270
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 28023,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-adopt-existing/SKILL.md",
+            "sha256": "03389d2477b59351b41b6d3ac64b8b564c6438202834df662e2c15801830a8aa",
+            "characters": 1160,
+            "words": 165
+          },
+          {
+            "path": "skills/lks-sdd-adopt-existing/references/v3.md",
+            "sha256": "91748bc34f2c8db5467b83121332c7ee94759238a1e2c5a351a8951202bf36a2",
+            "characters": 2149,
+            "words": 270
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 46.24
+    },
+    {
+      "scenario": "dirección visual",
+      "event": "visual-choice",
+      "selected": {
+        "characters": 16207,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29114,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 44.33
+    },
+    {
+      "scenario": "aclaración",
+      "event": "clarify",
+      "selected": {
+        "characters": 16207,
+        "reads": 5,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29114,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-define/SKILL.md",
+            "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+            "characters": 1658,
+            "words": 232
+          },
+          {
+            "path": "skills/lks-sdd-define/references/v3.md",
+            "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+            "characters": 2742,
+            "words": 345
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 44.33
+    },
+    {
+      "scenario": "corrección comprobada",
+      "event": "resolve-defect",
+      "selected": {
+        "characters": 17059,
+        "reads": 6,
+        "files": [
+          {
+            "path": "skills/lks-sdd-verify/SKILL.md",
+            "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+            "characters": 1192,
+            "words": 166
+          },
+          {
+            "path": "skills/lks-sdd-verify/references/v3.md",
+            "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+            "characters": 2498,
+            "words": 326
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 28404,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-verify/SKILL.md",
+            "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+            "characters": 1192,
+            "words": 166
+          },
+          {
+            "path": "skills/lks-sdd-verify/references/v3.md",
+            "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+            "characters": 2498,
+            "words": 326
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 39.94
+    },
+    {
+      "scenario": "continuación tras compactación",
+      "event": "start",
+      "selected": {
+        "characters": 10239,
+        "reads": 3,
+        "files": [
+          {
+            "path": "skills/lks-sdd-implement/SKILL.md",
+            "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+            "characters": 1742,
+            "words": 237
+          },
+          {
+            "path": "skills/lks-sdd-implement/references/v3.md",
+            "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+            "characters": 2674,
+            "words": 346
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          }
+        ]
+      },
+      "same_functionality_all_guides": {
+        "characters": 29130,
+        "reads": 13,
+        "files": [
+          {
+            "path": "skills/lks-sdd-implement/SKILL.md",
+            "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+            "characters": 1742,
+            "words": 237
+          },
+          {
+            "path": "skills/lks-sdd-implement/references/v3.md",
+            "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+            "characters": 2674,
+            "words": 346
+          },
+          {
+            "path": "docs/V3-COMMON.md",
+            "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+            "characters": 5823,
+            "words": 812
+          },
+          {
+            "path": "docs/USER-DECISIONS.md",
+            "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+            "characters": 4231,
+            "words": 573
+          },
+          {
+            "path": "docs/decision-guides/assignments.md",
+            "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+            "characters": 1202,
+            "words": 177
+          },
+          {
+            "path": "docs/decision-guides/conditional-design.md",
+            "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+            "characters": 1753,
+            "words": 235
+          },
+          {
+            "path": "docs/decision-guides/corrections.md",
+            "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+            "characters": 1447,
+            "words": 194
+          },
+          {
+            "path": "docs/decision-guides/exceptions-continuity.md",
+            "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+            "characters": 1543,
+            "words": 208
+          },
+          {
+            "path": "docs/decision-guides/external-delivery.md",
+            "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+            "characters": 1107,
+            "words": 159
+          },
+          {
+            "path": "docs/decision-guides/planning.md",
+            "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+            "characters": 1385,
+            "words": 201
+          },
+          {
+            "path": "docs/decision-guides/project-setup.md",
+            "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+            "characters": 1703,
+            "words": 216
+          },
+          {
+            "path": "docs/decision-guides/specifications.md",
+            "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+            "characters": 2652,
+            "words": 360
+          },
+          {
+            "path": "docs/decision-guides/verification.md",
+            "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+            "characters": 1868,
+            "words": 248
+          }
+        ]
+      },
+      "character_reduction_percent": 64.85
+    }
+  ],
+  "billed_tokens": null,
+  "observed_host_tokens": null,
+  "whole_task_latency": null,
+  "agent_error_reduction": "not-measured",
+  "consumer_writes": [],
+  "limitations": "Reading counts describe selected resources, not actual host/tool reads. Full-task and semantic observations are separate."
+}

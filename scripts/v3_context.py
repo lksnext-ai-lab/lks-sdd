@@ -1,7 +1,7 @@
 """Sufficient, literal, deduplicated project context. No canonical cache writes."""
 import json
 import copy
-from collections import OrderedDict
+from collections import OrderedDict, deque
 import posixpath
 import re
 from urllib.parse import unquote, urlsplit
@@ -12,22 +12,47 @@ from v3_policy import policy_for
 LINK = re.compile(r'!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))\)')
 EDGE = {"requirements", "acceptance", "constraints", "interfaces", "uses", "depends_on", "covers", "tests", "technology", "proposal"}
 _CACHE = OrderedDict()
-SELECTOR_VERSION = "lks-sdd-v3/2"
+SELECTOR_VERSION = "lks-sdd-v3/3"
+TEXT_SUFFIXES = (".md", ".txt", ".json", ".yaml", ".yml", ".csv", ".log", ".py", ".html", ".htm", ".js", ".ts", ".css", ".sql", ".xml")
+
+
+def linked_assets(model, sources, *, included_paths=()):
+    """Recover referenced bytes only after selecting the literal sources."""
+    assets, seen = [], set()
+    included_paths = set(included_paths) | {s["source"]["path"] for s in sources}
+    queue = deque((s["source"]["path"], s["text"]) for s in sources)
+    while queue:
+        path, text = queue.popleft()
+        for match in LINK.finditer(text):
+            raw = match[1] or match[2]; link = urlsplit(raw)
+            if link.scheme or link.netloc: continue
+            target = unquote(link.path)
+            if not target: continue
+            relative = posixpath.normpath(posixpath.join(posixpath.dirname(path), target))
+            if relative in seen or relative in included_paths: continue
+            seen.add(relative)
+            data = read_bytes(model.root, relative)
+            asset = {"path": relative, "sha256": sha(data), "bytes": len(data), "reason": "adjunto referenciado"}
+            if relative.lower().endswith(TEXT_SUFFIXES):
+                asset["text"] = data.decode("utf-8"); queue.append((relative, asset["text"]))
+            else: asset["requires_observation"] = True
+            assets.append(asset)
+    return assets
 
 
 def select(model, roots, operation="implement", *, conservative=False):
     if not roots: raise ContractError("Seleccione una petición o tarea; una raíz vacía no acredita suficiencia")
     selected, reasons, widened = {}, {}, []
-    from v3_scope import memberships
-    classified = memberships(model)
-    allowed_units = {u for key in roots for u in model.get(key).data.get("proposal_units", [])}
-    for key in roots:
-        root = model.get(key)
-        if root.kind == "task" and not root.data.get("proposal_units"):
-            plans = [p for p in model.by_kind("plan") if root.uid in p.relations.get("tasks", [])]
-            allowed_units.update(u for p in plans for u in p.data.get("proposal_units", []))
+    from v3_scope import work_scope, prose_scopes
+    allowed_units, requested, classified = work_scope(model, roots)
+    conflicts = set()
+    for e in model.elements.values():
+        owners = {model.get(u).data.get("request") for u in classified.get(e.uid, set())} - {None}
+        if e.data.get("request") and owners and e.data["request"] not in owners:
+            conflicts.add(e.uid)
     def outside(e):
-        return bool(allowed_units and classified.get(e.uid) and not classified[e.uid] & allowed_units and not e.data.get("global"))
+        return bool(allowed_units and classified.get(e.uid) and not classified[e.uid] & allowed_units
+                    and not e.data.get("global") and e.uid not in conflicts)
     def add(e, reason):
         if e.uid in selected: return
         selected[e.uid] = e; reasons[e.uid] = reason
@@ -50,8 +75,10 @@ def select(model, roots, operation="implement", *, conservative=False):
         if e.retired or e.kind in EVENTS | {"legacy", "member", "project", "policy", "plan", "task", "request"}: continue
         if outside(e): continue
         scope = e.data.get("request")
+        if e.uid in conflicts:
+            widened.append({"uid": e.uid, "code": "conflicting-membership", "reason": "Petición declarada y pertenencia por relaciones discrepantes; conservar"})
         # Missing ownership is uncertainty, not proof of irrelevance.
-        if e.data.get("global") or scope in requests or not scope:
+        if e.uid in conflicts or e.data.get("global") or scope in requests or classified.get(e.uid, set()) & allowed_units or not scope:
             if e.uid not in selected and not scope and not e.data.get("global"):
                 widened.append({"uid": e.uid, "reason": "Sin clasificación de ámbito; conservar hasta aclarar"})
             add(e, "regla global o alcance incierto" if not scope else "contrato de la petición")
@@ -81,30 +108,23 @@ def select(model, roots, operation="implement", *, conservative=False):
         if key not in {s["key"] for s in sources}:
             sources.append({"key": key, "source": policy.source(), "reason": "proceso aplicable", "meta": policy.meta, "text": policy.body})
     # Unclassified preambles and standalone Markdown cannot be silently discarded.
+    declarations, proof = prose_scopes(model)
+    excluded = []
     for path, prose in model.prose.items():
+        declaration = declarations.get(path)
+        if declaration and not conservative and not declaration["global"]:
+            applicable = set(declaration["units"]) & (set(selected) | allowed_units | requests)
+            if not applicable:
+                excluded.append({"path": path, "sha256": declaration["sha256"], "reason": declaration["reason"], "decision": proof.uid})
+                continue
         sources.append({"key": "prose:" + path, "source": {"path": path, "sha256": model.hashes[path]},
-                        "reason": "prosa fuera de bloques; ámbito no acreditado", "text": prose})
-    assets, seen = [], set()
-    queue = [(s["source"]["path"], s["text"]) for s in sources]
-    while queue:
-        path, text = queue.pop(0)
-        for match in LINK.finditer(text):
-            raw = match[1] or match[2]; link = urlsplit(raw)
-            if link.scheme or link.netloc: continue
-            target = unquote(link.path)
-            if not target: continue
-            relative = posixpath.normpath(posixpath.join(posixpath.dirname(path), target))
-            if relative in seen or relative in {s["source"]["path"] for s in sources}: continue
-            seen.add(relative)
-            data = read_bytes(model.root, relative)
-            asset = {"path": relative, "sha256": sha(data), "bytes": len(data), "reason": "adjunto referenciado"}
-            if relative.endswith((".md", ".txt", ".json", ".yaml", ".yml")):
-                asset["text"] = data.decode("utf-8"); queue.append((relative, asset["text"]))
-            else: asset["requires_observation"] = True
-            assets.append(asset)
+                        "reason": "prosa con alcance acreditado" if declaration else "prosa fuera de bloques; ámbito no acreditado", "text": prose})
+    provenance = [model.project.source(), proof.source()] if proof else []
+    assets = linked_assets(model, sources)
     characters = sum(len(s["text"]) + len(json.dumps(s.get("meta", {}), ensure_ascii=False)) for s in sources)
     characters += sum(len(a.get("text", "")) for a in assets)
-    return {"operation": operation, "roots": roots, "sources": sources, "attachments": assets, "widened": widened,
+    return {"operation": operation, "roots": roots, "sources": sources, "attachments": assets, "widened": widened, "excluded_prose": excluded,
+            "scope_provenance": provenance,
             "snapshot": model.snapshot(), "selection_digest": fingerprint({s["key"]: s["source"] for s in sources}),
             "measurement": {"method": "characters-divided-by-4-estimate", "characters": characters,
                             "estimated_tokens": (characters+3)//4, "billed_tokens": None},
@@ -113,13 +133,13 @@ def select(model, roots, operation="implement", *, conservative=False):
             "session_reuse": "full-core-reloaded; host retention not assumed"}
 
 
-def context(root, roots, operation="implement", *, comparison=False):
+def context(root, roots, operation="implement", *, comparison=False, reference=False):
     model = load(root).require_valid()
     from v3_git import observe
     git = observe(model.root)
     for request in model.by_kind("request"): policy_for(model, request)
     key = fingerprint({"selector": SELECTOR_VERSION, "root": str(model.root), "sources": model.hashes,
-                       "operation": operation, "roots": roots, "branch": git["branch"], "head": git["head"], "comparison": comparison})
+                       "operation": operation, "roots": roots, "branch": git["branch"], "head": git["head"], "comparison": comparison, "reference": reference})
     cached = _CACHE.get(key)
     if cached:
         try:
@@ -129,9 +149,9 @@ def context(root, roots, operation="implement", *, comparison=False):
             result = copy.deepcopy(cached); result["runtime_cache"] = "hit; literal text reloaded for host"
             _CACHE.move_to_end(key)
             return result
-    result = select(model, roots, operation, conservative=not comparison)
-    result["selector_mode"] = "comparison-only" if comparison else "conservative-reference"
-    result["activation"] = "Optimized selector pending observed acceptance; comparison must not replace execution context"
+    result = select(model, roots, operation, conservative=reference)
+    result["selector_mode"] = "conservative-reference" if reference else "comparison-only" if comparison else "applicable-literal"
+    result["activation"] = "Literal applicability closure; unclassified obligations retained; full reference available explicitly"
     result["runtime_cache"] = "miss"
     _CACHE[key] = copy.deepcopy(result)
     while len(_CACHE) > 8: _CACHE.popitem(last=False)

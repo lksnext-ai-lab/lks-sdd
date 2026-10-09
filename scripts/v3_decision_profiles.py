@@ -2,7 +2,7 @@
 from pathlib import Path
 from v3_contract import ContractError, sha
 
-VERSION = "lks-sdd-presentation/1"
+VERSION = "lks-sdd-presentation/2"
 PROFILES = {
     "clarification": ("conditional-design", "Qué falta decidir|Opciones y efecto"),
     "configuration": ("project-setup", "Objetivo|Configuración propuesta|Personas y responsabilidades|Controles y condiciones|Cambios respecto a la situación actual|Impacto y pendientes"),

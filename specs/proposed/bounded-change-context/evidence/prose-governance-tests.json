@@ -1,0 +1,1 @@
+{"passed": true, "duration_seconds": 33.649, "counts": {"total": 1, "passed": 1, "skipped": 0, "failed": 0}, "results": [{"id": "test_v3_documentary_flow.DocumentaryFlowTests.test_prose_declaration_needs_exact_governance_and_content_then_goes_stale", "status": "passed"}]}

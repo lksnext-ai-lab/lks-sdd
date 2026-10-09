@@ -1,0 +1,31 @@
+{
+  "scope": "Synthetic exact-content governance and ordinary presentation characters; not AI billing or human review",
+  "billed_tokens": null,
+  "human_seconds": null,
+  "real_consumer_writes": [],
+  "run_status": "incomplete",
+  "fixture_setup_seconds": 14.484417100000428,
+  "governance_prepare_apply_seconds": 25.092571299988776,
+  "before": {
+    "ordinary_json_characters": 102220,
+    "literal_characters": 100875,
+    "sources": 29,
+    "attachments": 0,
+    "complete": true
+  },
+  "classification_review": {
+    "ordinary_json_characters": 102762,
+    "literal_characters": 101404,
+    "sources": 28,
+    "attachments": 0,
+    "complete": true
+  },
+  "after": {
+    "ordinary_json_characters": 2605,
+    "literal_characters": 1360,
+    "sources": 4,
+    "attachments": 0,
+    "complete": true
+  },
+  "error": "AssertionError: "
+}

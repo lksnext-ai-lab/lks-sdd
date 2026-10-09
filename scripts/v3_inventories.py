@@ -57,10 +57,11 @@ def resolve(model, element, cache, *, objects=None):
     if element.kind == "migration" and "inventory_ref" in raw:
         import json
         from content_store import read_object, object_path
+        from source_inventory import MIGRATION_CATALOG_BYTES, MIGRATION_PATH_LIMIT
         ref = raw["inventory_ref"]
-        if ref["bytes"] > 32*1024*1024: raise ContractError("Migration inventory budget exceeded")
+        if ref["bytes"] > MIGRATION_CATALOG_BYTES: raise ContractError("Migration inventory budget exceeded")
         value = json.loads(read_object(model.root, ref))
-        if not isinstance(value, dict) or value.get("format") != "lks-sdd-migration-inventory/1" or not isinstance(value.get("entries"), list) or len(value["entries"]) > 100000:
+        if not isinstance(value, dict) or value.get("format") != "lks-sdd-migration-inventory/1" or not isinstance(value.get("entries"), list) or len(value["entries"]) > MIGRATION_PATH_LIMIT:
             raise ContractError("Invalid migration inventory")
         hashes = {row["path"]: row["sha256"] for row in value["entries"]}
         if len(hashes) != len(value["entries"]) or fingerprint(hashes) != raw["source"]["snapshot"]:

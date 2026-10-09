@@ -19,6 +19,8 @@ No inicialice sobre un índice ausente/contradictorio con documentación existen
 Genere únicamente información nueva necesaria para decisiones, evidencia o continuidad.
 No copie inventarios en prosa: el núcleo conserva sus mapas exactos mediante referencias.
 Use páginas y consultas del núcleo; no guarde resultados de consulta como nuevos documentos.
+En `decision-view` y `review` use `--compact`, también si necesita `--json`. Cargue
+`--details` solo para inspección técnica; `--output` exporta el resultado completo.
 Un checkpoint registra un avance, impedimento o relevo real; consultar o repetir un
 comando sin nuevo hecho no requiere otro checkpoint. Conserve cada observación distinta.
 
@@ -43,9 +45,11 @@ las excepciones admitidas requieren decisión competente, motivo y alcance traza
 Lea las obligaciones literales, reglas globales, interfaces, criterios, adjuntos
 y dependencias aplicables. Lo no clasificado exige ampliar, no descartar. Inspeccione
 imágenes necesarias. Tras chat nuevo o compactación recargue fuentes: un hash o
-resumen no es su contenido. La ruta normal conserva el contrato normativo activo;
-el selector reducido sigue en comparación hasta acreditar uso y calidad. No recorte
-obligaciones para cumplir presupuestos; proponga dividir el alcance si no cabe.
+resumen no es su contenido. `context` devuelve el cierre literal aplicable y conserva
+obligaciones inciertas; `reference: true` amplía al contrato activo completo para diagnóstico.
+La misma aplicabilidad rige decisiones y ejecución. No recorte obligaciones para
+cumplir presupuestos; proponga dividir el alcance si no cabe. Si necesita reconciliar
+prosa histórica, lea [contexto documental](DOCUMENT-CONTEXT.md); no clasifique por carpeta.
 
 El proyecto confirma proceso, miembros, controles y ciclo de vida. Valide la propuesta
 funcional/técnica concreta antes del plan. Aprobación del plan y permiso de ejecución

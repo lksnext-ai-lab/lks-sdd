@@ -65,14 +65,34 @@ def source_model(root, *, normalize=False):
 
 def inventory(root, model):
     result = dict(model.hashes)
-    from source_inventory import documents, digest as observed_digest
-    for path, entry in documents(root, byte_limit=2*1024*1024*1024).items():
-        digest = observed_digest(entry)
+    from source_inventory import (documents, read as observed_read, MIGRATION_PATH_LIMIT,
+                                  MIGRATION_SCAN_BYTES, MIGRATION_UNIQUE_BYTES)
+    observed = documents(root, limit=MIGRATION_PATH_LIMIT, byte_limit=MIGRATION_SCAN_BYTES)
+    unique, total, physical = {}, 0, 0
+    def account(raw):
+        nonlocal total, physical
+        physical += len(raw)
+        if physical > MIGRATION_SCAN_BYTES:
+            raise ContractError("Migration physical source byte budget exceeded")
+        digest = sha(raw)
+        if digest not in unique:
+            total += len(raw)
+            if total > MIGRATION_UNIQUE_BYTES:
+                raise ContractError("Migration unique source byte budget exceeded")
+            unique[digest] = len(raw)
+        elif unique[digest] != len(raw):
+            raise ContractError("Conflicting migration source size")
+        return digest
+    for path, entry in observed.items():
+        digest = account(observed_read(entry))
         if path in model.hashes and model.hashes[path] != digest: raise ContractError("Source changed while preparing migration: " + path)
         result[path] = digest
-        if len(result) > 100000: raise ContractError("Migration source file budget exceeded (100000)")
     for path in (".lks-sdd/distribution-lock.json", "AGENTS.md", ".github/copilot-instructions.md", ".github/lks-sdd-host.md"):
         if (root / path).exists(): result[path] = sha(read_bytes(root, path))
+    for path in result.keys() - observed.keys():
+        digest = account(read_bytes(root, path, limit=64*1024*1024))
+        if digest != result[path]: raise ContractError("Source changed while preparing migration: " + path)
+    if len(result) > MIGRATION_PATH_LIMIT: raise ContractError("Migration source file budget exceeded")
     return result
 
 
@@ -227,6 +247,20 @@ def preview(root, actor_name, process, controls, statement, *, target, runtime_c
         receipt["meta"]["data"]["inventory_ref"] = prepare_object(root, canonical({"format": "lks-sdd-migration-inventory/1", "entries": dispositions}), changes)
         receipt["meta"]["data"].pop("inventory", None)
     additions = [person, policy, *additional, receipt]
+    if not source.by_kind("project"):
+        # Adopted v2/pre-technology contracts may identify their project only in
+        # the canonical index. Preserve that index; do not require or invent a
+        # historical PRJ unit that the valid source never contained.
+        project = element("project", source.manifest.get("name") or source.manifest["project_id"],
+                          "Proyecto heredado identificado por el índice v2 conservado. "
+                          "Este registro nace en la migración y no atribuye decisiones históricas nuevas.",
+                          method_version=method, policy=policy["meta"]["uid"], target=target,
+                          legacy_project_id=source.manifest["project_id"], migrated_at=now(),
+                          legacy={"schema": "2.0", "method": source.manifest["method_version"],
+                                  "path": INDEX, "source_sha256": source.hashes[INDEX],
+                                  "original": prefix + INDEX, "migration": receipt["meta"]["uid"]})
+        project["meta"].update(state="active", nature="fact")
+        additions.append(project)
     if not source.by_kind("technology"):
         unknown = element("technology", "Tecnología heredada por reconciliar", "El formato de origen no incluía una declaración tecnológica local. Conserve las decisiones existentes y confirme únicamente la porción activa.", critical=True)
         unknown["meta"].update(state="unknown", nature="unknown")

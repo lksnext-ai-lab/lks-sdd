@@ -86,6 +86,15 @@ def text(value, model=None):
     if isinstance(value, dict):
         rows = []
         for key, entry in value.items():
+            if key == "context_scopes" and isinstance(entry, dict):
+                declarations = []
+                for scope in entry.get("sources", []):
+                    if not isinstance(scope, dict): continue
+                    applies = "Todo el trabajo del proyecto" if scope.get("global") else text(scope.get("units", []), model)
+                    declarations.append("**Documento:** " + safe(scope.get("path", "Fuente pendiente")) +
+                                        "\n\n**Aplica a:** " + applies + "\n\n**Motivo:** " + safe(scope.get("reason", "Pendiente de justificar")))
+                rows.append("**Alcance documental propuesto**\n\n" + ("\n\n".join(declarations) or "Sin declaraciones; la prosa permanece incluida."))
+                continue
             if key == "uid" and model:
                 rows.append("**Trabajo del que depende:** " + safe(human(entry, model)))
                 continue
@@ -123,8 +132,8 @@ def roots_for(model, data):
 
 
 def collect(model, roots, selected=()):
-    """Reuse literal dependency traversal; execution context mode stays unchanged."""
-    from v3_context import select
+    """One applicability closure plus necessary continuity and recoverable evidence."""
+    from v3_context import select, TEXT_SUFFIXES
     normative = [k for k in roots if model.get(k).kind not in EVENTS | {"member", "legacy"}]
     for key in roots:
         obj = model.get(key)
@@ -146,8 +155,22 @@ def collect(model, roots, selected=()):
     related = set(roots) | {s["key"] for s in sources}
     requests = {model.get(k).data.get("request") for k in roots}
     requests |= {k for k in roots if model.get(k).kind == "request"}
+    recent = {}
+    for e in model.by_kind("checkpoint"):
+        group = (e.data.get("task"), e.data.get("request"))
+        rank = (e.data.get("recorded_at", ""), e.uid)
+        if group not in recent or rank > recent[group][0]: recent[group] = (rank, e.uid)
+    omitted = 0
     for e in model.elements.values():
         if e.uid in roots or (e.kind in EVENTS and (e.data.get("request") in requests - {None} or e.data.get("task") in related or set(e.data.get("tasks", [])) & related)):
+            simple = (e.kind == "checkpoint" and e.data.get("classification") == "progress" and e.meta.get("nature") == "fact"
+                      and not e.data.get("pending") and not e.data.get("analysis") and not e.data.get("critical")
+                      and e.data.get("outcome") in (None, "passed"))
+            if e.kind == "checkpoint" and e.uid not in roots and simple:
+                group = (e.data.get("task"), e.data.get("request"))
+                if e.uid != recent[group][1]:
+                    omitted += 1
+                    continue
             if e.uid not in seen:
                 sources.append({"key": e.uid, "source": e.source(), "meta": e.meta, "text": e.body, "reason": "Evidencia o decisión del alcance"})
                 seen.add(e.uid)
@@ -158,10 +181,11 @@ def collect(model, roots, selected=()):
         if not isinstance(path, str) or path in asset_paths: continue
         raw = read_bytes(model.root, path)
         asset = {"path": path, "sha256": sha(raw), "bytes": len(raw), "reason": "Evidencia recuperable del resultado"}
-        if Path(path).suffix.lower() in {".txt", ".md", ".json", ".yaml", ".yml", ".csv", ".log"}:
+        if Path(path).suffix.lower() in TEXT_SUFFIXES:
             asset["text"] = raw.decode("utf-8")
         else: asset["requires_observation"] = True
         packet["attachments"].append(asset); asset_paths.add(path)
+    packet["history"] = {"omitted_checkpoints": omitted, "query": {"action": "trace", "uid": normative[0]}}
     return packet
 
 
@@ -339,6 +363,12 @@ def _generic(model, selected, data, packet, roots, issues):
         for item in data.get("items", []):
             meta = item.get("meta", item)
             facts.append(("Configuración propuesta: " + meta.get("title", "Cambio"), meta.get("data", {})))
+        if any(p in selected for p in ("continuity", "information")):
+            for row in packet.get("sources", []):
+                meta = row.get("meta", {}); d = meta.get("data", {})
+                if meta.get("kind") not in {"checkpoint", "problem"}: continue
+                content = {"explanation": row["text"], "outcome": d["outcome"]} if d.get("outcome") is not None else row["text"]
+                facts.append((meta["title"], {"current": content, "result": content, "pending": d.get("pending", [])}))
         if any(p in selected for p in ("verification", "integration", "acceptance", "correction")):
             for row in packet.get("sources", []):
                 meta = row.get("meta", {}); d = meta.get("data", {})
@@ -569,15 +599,17 @@ def operation_facts(root, event, data, model, issues):
     return shown, extra_basis
 
 
-def decision_view(root, event, data=None):
+def decision_view(root, event, data=None, *, model=None):
     data = normalize(data); issues = []; selected = profiles(event, data)
     if "outcome" in data and event not in {"review-proposal", "review-task", "evidence"}:
         raise ContractError("Esta operación no admite outcome; seleccione la acción que realmente corresponda a la decisión")
     refs = instruction_refs(selected)
-    root = Path(root).resolve(); model = None; roots = []; packet = {"sources": [], "attachments": []}
+    root = Path(root).resolve(); roots = []; packet = {"sources": [], "attachments": []}
+    if model is not None and model.root != root:
+        raise ContractError("El modelo de evaluación pertenece a otro proyecto")
     from v3_cli import is_v3
     if is_v3(root):
-        model = load(root)
+        model = model if model is not None else load(root)
         if model.errors and selected == ["recovery"]:
             issues.append("El estado documental está incompleto; la recuperación debe contrastarse con el paquete conservado.")
             model = None
@@ -586,6 +618,33 @@ def decision_view(root, event, data=None):
             packet = collect(model, roots, selected)
     elif event not in {"init", "clarify", "identity", "migration-preview", "migration-diagnose", "recover", "rollback", "external-action", "client-view"} | HISTORICAL:
         issues.append("Faltan fuentes válidas del proyecto para esta decisión.")
+    if event == "governance" and model:
+        # A proposed scope change must show the affected prose even if its old
+        # declaration excluded it. Metadata alone cannot justify a new exclusion.
+        old = {r["path"]: r for r in model.project.data.get("context_scopes", {}).get("sources", [])}
+        extra = []
+        for item in data.get("items", []):
+            meta = item.get("meta", item)
+            if meta.get("kind") != "project": continue
+            declarations = meta.get("data", {}).get("context_scopes", {})
+            if not isinstance(declarations, dict) or not isinstance(declarations.get("sources", []), list):
+                issues.append("Declaraciones de prosa inválidas"); continue
+            for row in declarations.get("sources", []):
+                if not isinstance(row, dict):
+                    issues.append("Declaración de prosa inválida"); continue
+                path = row.get("path")
+                if not isinstance(path, str):
+                    issues.append("Fuente de prosa inválida"); continue
+                if row == old.get(path): continue
+                prose = model.prose.get(path)
+                if prose is None or sha(prose.encode("utf-8")) != row.get("sha256"):
+                    issues.append("La declaración no identifica la prosa vigente: " + str(path)); continue
+                if "prose:"+path not in {s["key"] for s in packet["sources"]}:
+                    extra.append({"key": "prose:"+path, "source": {"path": path, "sha256": model.hashes[path]},
+                                  "reason": "prosa cuyo alcance se propone cambiar", "text": prose})
+        from v3_context import linked_assets
+        packet["attachments"].extend(linked_assets(model, extra, included_paths=[s["source"]["path"] for s in packet["sources"]] + [a["path"] for a in packet["attachments"]]))
+        packet["sources"].extend(extra)
     if event in HISTORICAL: issues.append("Esta operación histórica no está disponible para escritura en el recorrido actual.")
     _requirements(event, data, model, roots, issues)
     shown, operation_basis = operation_facts(root, event, data, model, issues)
@@ -613,6 +672,12 @@ def decision_view(root, event, data=None):
     else: headings, bodies = _generic(model, selected, shown, packet, roots, issues)
     if model:
         informational_pending = []
+        for uncertainty in packet.get("widened", []):
+            if uncertainty.get("code") != "conflicting-membership": continue
+            message = "Aclare la discrepancia entre petición y pertenencia por relaciones de: " + model.get(uncertainty["uid"]).meta["title"]
+            if any(p in selected for p in ("configuration", "migration", "recovery", "continuity", "clarification", "information")):
+                informational_pending.append(message)
+            else: issues.append(message)
         for row in packet["sources"]:
             meta = row.get("meta", {}); d = meta.get("data", {})
             if d.get("critical") and (d.get("unresolved") or meta.get("state") in {"unknown", "draft", "conflict"}):
@@ -663,15 +728,29 @@ def decision_view(root, event, data=None):
     runtime = Path(__file__).resolve().parent
     implementation = {name: sha((runtime / name).read_bytes()) for name in ("v3_decision_presentation.py", "v3_decision_profiles.py", "v3_presentation_guard.py")}
     source_files = {s["source"]["path"]: model.hashes[s["source"]["path"]] for s in packet["sources"]} if model else {}
+    for source in packet.get("scope_provenance", []):
+        source_files[source["path"]] = model.hashes[source["path"]]
     basis = {"version": VERSION, "implementation": implementation, "event": event, "inputs": data, "sources": [s["source"] for s in packet["sources"]], "source_files": source_files, "trusted": trusted, "instructions": refs,
-             "attachments": [{k: a[k] for k in ("path", "sha256")} for a in assets], "subject": subject, "operation": operation_basis}
-    receipt = {"version": VERSION, "event": event, "basis_digest": fingerprint(basis), "content_digest": sha(markdown.encode("utf-8"))}
+             "attachments": [{k: a[k] for k in ("path", "sha256")} for a in assets], "subject": subject, "operation": operation_basis,
+             "scope_provenance": packet.get("scope_provenance", [])}
+    # A file may contain several independent units. Bind the receipt to the
+    # selected literal content, while retaining fresh whole-file hashes in the
+    # transaction guard. An unrelated edit before the guard needs no new assent;
+    # an edit after the guard still fails stamp/prepare/apply concurrency checks.
+    semantic_basis = {k: v for k, v in basis.items() if k not in {"sources", "source_files"}}
+    semantic_basis["sources"] = [{"key": row["key"], "path": row["source"]["path"],
+                                  "digest": row["source"].get("digest", sha(row["text"].encode("utf-8")))}
+                                 for row in packet["sources"]]
+    semantic_basis["scope_provenance"] = [{k: row[k] for k in ("uid", "path", "digest")} for row in packet.get("scope_provenance", [])]
+    receipt = {"version": VERSION, "event": event, "basis_digest": fingerprint(semantic_basis), "content_digest": sha(markdown.encode("utf-8"))}
     return {"version": VERSION, "event": event, "profiles": selected, "title": str(name), "sections": sections,
             "sources": packet["sources"], "attachments": assets, "basis": basis, "receipt": receipt,
             "instruction_refs": refs, "intervention": state, "issues": list(dict.fromkeys(issues)),
-            "complete": not issues, "markdown": markdown, "writes": []}
+            "complete": not issues, "markdown": markdown, "history": packet.get("history"), "writes": []}
 
 
 def compact(view):
     """One visible body and receipt; details remain available through --json."""
-    return {k: view[k] for k in ("version", "event", "profiles", "markdown", "receipt", "instruction_refs", "intervention", "complete", "issues", "writes")}
+    result = {k: view[k] for k in ("version", "event", "profiles", "markdown", "receipt", "instruction_refs", "intervention", "complete", "issues", "writes")}
+    if view.get("history"): result["history"] = view["history"]
+    return result

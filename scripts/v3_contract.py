@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime, timezone
 import json
 import os
@@ -20,6 +22,20 @@ BLOCK = re.compile(r'^<!-- lks-sdd: (\{[^\r\n]*\}) -->\r?\n(.*?)^<!-- /lks-sdd -
 KINDS = set("project policy member request proposal requirement acceptance rule constraint task plan test decision interface technology assignment handoff exception analysis execution checkpoint evidence problem migration adoption feature group increment release binding environment authorization applicability legacy receipt visual change".split())
 EVENTS = set("decision assignment handoff exception analysis execution checkpoint evidence problem migration authorization receipt".split())
 NORMATIVE = KINDS - EVENTS - {"legacy"}
+_QUERY_MODELS = ContextVar("lks_sdd_query_models", default=None)
+
+
+@contextmanager
+def query_evaluation():
+    """Reuse a validated snapshot only during one read-only public operation."""
+    if _QUERY_MODELS.get() is not None:
+        yield
+        return
+    token = _QUERY_MODELS.set({})
+    try:
+        yield
+    finally:
+        _QUERY_MODELS.reset(token)
 STATES = set("draft proposed confirmed approved active effective superseded retired cancelled unknown conflict backlog ready in-progress in-review done done-with-reservations blocked paused completed revoked open resolved reconciliation-required observed transition".split())
 
 
@@ -191,6 +207,16 @@ class Model:
 
 def load(root):
     root = Path(root).resolve()
+    cache = _QUERY_MODELS.get()
+    if cache is not None and root in cache:
+        return cache[root]
+    model = _load(root)
+    if cache is not None and not model.errors:
+        cache[root] = model
+    return model
+
+
+def _load(root):
     model = Model(root)
     from v2_storage import VALIDATING, PENDING
     if (root/PENDING).exists() and not VALIDATING.get():
@@ -225,6 +251,8 @@ def load(root):
                     model.errors.append("Referencia no resuelta: " + ref)
         from v31_review import validate_model
         validate_model(model)
+        from v3_scope import validate_prose_scope
+        validate_prose_scope(model)
     except ContractError as exc: model.errors.append(str(exc))
     index = path_at(root, INDEX, missing=True)
     if index.exists():

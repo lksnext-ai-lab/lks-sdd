@@ -92,7 +92,7 @@ class GovernanceQualityTests(ProjectFixture):
         path.write_text("Complete changed rule")
         third = context(self.root, [self.task])
         self.assertNotEqual(first["attachments"][0]["sha256"], third["attachments"][0]["sha256"])
-        self.assertEqual("conservative-reference", third["selector_mode"])
+        self.assertEqual("applicable-literal", third["selector_mode"])
         from v3_authoring import approve
         commit_packet(self.root, present(approve, self.root, self.actor, [self.prop], "proposal", "Acepto también la nueva restricción global"))
         item = copy.deepcopy(load(self.root).get(self.task).item()); item["meta"].update(state="retired", revision=item["meta"]["revision"]+1)

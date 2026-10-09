@@ -44,7 +44,7 @@ def request_readiness(model, request_id, actor, action):
             "next": "Resuelva las causas indicadas" if causes else "El contenido está preparado; la operación volverá a comprobar la base y evidencia exactas"}
 
 
-def interventions(model, request_id, *, actor=None, offset=0, limit=20, object_offset=0):
+def interventions(model, request_id, *, actor=None, offset=0, limit=20, object_offset=0, facts=None):
     if offset < 0 or object_offset < 0 or not 1 <= limit <= 50: raise ContractError("Página de intervenciones inválida")
     request = model.get(request_id, "request")
     if not config(model, request): return {"request": request.source(), "enabled": False, "writes": []}
@@ -77,7 +77,7 @@ def interventions(model, request_id, *, actor=None, offset=0, limit=20, object_o
         review = review_status(model, request); prepared = True
     except ContractError as exc:
         review = None; prepared = False; issues.append(str(exc))
-    try: facts = request_facts(model, request, tasks=tasks)
+    try: facts = request_facts(model, request, tasks=tasks) if facts is None else facts
     except ContractError as exc: facts = {}; issues.append(str(exc))
     closed = bool(prepared and closure_valid(model, request))
     if not prepared:

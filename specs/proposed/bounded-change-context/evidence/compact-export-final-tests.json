@@ -1,0 +1,1 @@
+{"passed": true, "duration_seconds": 13.244, "counts": {"total": 1, "passed": 1, "skipped": 0, "failed": 0}, "results": [{"id": "test_v3_documentary_flow.DocumentaryFlowTests.test_cli_review_has_one_body_and_explicit_details_with_same_receipt", "status": "passed"}]}

@@ -1,5 +1,10 @@
 # Instalación sencilla: Codex y GitHub Copilot
 
+La candidata local `3.3.0-rc.1` está pendiente de integración y publicación.
+Los enlaces de descarga de esta guía corresponden a la release publicada 3.2.0.
+El cambio de selección documental se describe en [DOCUMENT-CONTEXT.md](DOCUMENT-CONTEXT.md)
+y requiere actualizar expresamente el runtime del consumidor.
+
 ## Antes de actualizar a v3
 
 Esta guía describe la release 3.2.0. Para continuar trabajo en proyectos anteriores

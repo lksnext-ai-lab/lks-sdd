@@ -39,20 +39,20 @@ def protected_inventory(root, extra=()):
     """Include later evidence/assets, not only Markdown, in recovery safety."""
     root = filesystem_root(root)
     from source_inventory import documents
-    result = list(documents(root, excluded=(DOCS + "/00-control/history", DOCS + "/00-control/migrations"), limit=10000))
+    result = set(documents(root, excluded=(DOCS + "/00-control/history", DOCS + "/00-control/migrations"), limit=10000))
     known = {}
     if len(extra) >= 128:
-        from source_inventory import documents
-        known = documents(root)
+        from source_inventory import documents, MIGRATION_PATH_LIMIT, MIGRATION_SCAN_BYTES
+        known = documents(root, limit=MIGRATION_PATH_LIMIT, byte_limit=MIGRATION_SCAN_BYTES)
     for relative in extra:
         if relative not in result:
             if relative in known:
-                result.append(relative)
+                result.add(relative)
                 continue
             path_at(root, relative, missing=True, package_data=True)
             if path_at(root, relative, missing=True, package_data=True).exists():
-                result.append(relative)
-    return sorted(set(result))
+                result.add(relative)
+    return sorted(result)
 
 
 def assert_sources(root, sources):
@@ -60,8 +60,8 @@ def assert_sources(root, sources):
     # hashed freshly; virtual sources retain the reference-aware reader.
     known = {}
     if len(sources) >= 128:
-        from source_inventory import documents
-        known = documents(root)
+        from source_inventory import documents, MIGRATION_PATH_LIMIT, MIGRATION_SCAN_BYTES
+        known = documents(root, limit=MIGRATION_PATH_LIMIT, byte_limit=MIGRATION_SCAN_BYTES)
     from source_inventory import digest
     for relative, expected in sources.items():
         current = digest(known[relative]) if relative in known else exists_hash(root, relative)

@@ -1,0 +1,2154 @@
+{
+  "scope": "Static inventory supporting global documentary-flow review; indexing does not assert every line or legacy engine was audited",
+  "head": "6e1c4380c130d2ff4f7a9cae97b1257e05294724",
+  "branch": "codex/fix-legacy-migration-inventory",
+  "installed_version": "3.2.0",
+  "sources": [
+    {
+      "path": "skills/lks-sdd-help/SKILL.md",
+      "bytes": 1156,
+      "characters": 1143,
+      "sha256": "aa8a0bd42c7b8c67cabcc23b9869c716d34e912d6f43a68484e89f09f911665a",
+      "installed_sha256": "aa8a0bd42c7b8c67cabcc23b9869c716d34e912d6f43a68484e89f09f911665a",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Consultar y explicar"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-help/references/v3.md",
+      "bytes": 1837,
+      "characters": 1807,
+      "sha256": "f84f144459d19d5954fe1d09587f6f4fd306922609b83d2b850be258ec74f470",
+      "installed_sha256": "f84f144459d19d5954fe1d09587f6f4fd306922609b83d2b850be258ec74f470",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Consultar y explicar en v3"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-help/references/v2-and-legacy.md",
+      "bytes": 10227,
+      "characters": 10222,
+      "sha256": "a2b514f0ad861a0309258e5ce30302e27775c94446212a5552c4fbfd5b5106ab",
+      "installed_sha256": "a2b514f0ad861a0309258e5ce30302e27775c94446212a5552c4fbfd5b5106ab",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# LKS-SDD Help"
+        },
+        {
+          "line": 8,
+          "title": "## Routing por contrato"
+        },
+        {
+          "line": 28,
+          "title": "## Workflow conservado para contrato 1.5"
+        },
+        {
+          "line": 75,
+          "title": "## Default status and narration in 0.18"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-define/SKILL.md",
+      "bytes": 1683,
+      "characters": 1658,
+      "sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+      "installed_sha256": "3cfe2ebc5df50a52588d7c0361f67a7e6744cc61840490a93cfd8a9f6419daea",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Definir, validar y planificar"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-define/references/v3.md",
+      "bytes": 2771,
+      "characters": 2742,
+      "sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+      "installed_sha256": "1dee57b33f1971d4947efd798409a849c703c1325ce0b6e0bf5d0f86a6cb8f54",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Definir, validar y planificar en v3"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-define/references/v2-and-legacy.md",
+      "bytes": 14083,
+      "characters": 14073,
+      "sha256": "41d786b74963e9afd39495cc20fc4e72a05495a97e804595da1b350044d0b6f3",
+      "installed_sha256": "41d786b74963e9afd39495cc20fc4e72a05495a97e804595da1b350044d0b6f3",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Define with LKS-SDD"
+        },
+        {
+          "line": 8,
+          "title": "## Routing por contrato"
+        },
+        {
+          "line": 30,
+          "title": "## Workflow conservado para contrato 1.5"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-adopt-existing/SKILL.md",
+      "bytes": 1173,
+      "characters": 1160,
+      "sha256": "03389d2477b59351b41b6d3ac64b8b564c6438202834df662e2c15801830a8aa",
+      "installed_sha256": "03389d2477b59351b41b6d3ac64b8b564c6438202834df662e2c15801830a8aa",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Adoptar o migrar"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-adopt-existing/references/v3.md",
+      "bytes": 2179,
+      "characters": 2149,
+      "sha256": "91748bc34f2c8db5467b83121332c7ee94759238a1e2c5a351a8951202bf36a2",
+      "installed_sha256": "91748bc34f2c8db5467b83121332c7ee94759238a1e2c5a351a8951202bf36a2",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Adoptar o migrar en v3"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-adopt-existing/references/v2-and-legacy.md",
+      "bytes": 7392,
+      "characters": 7313,
+      "sha256": "f8649126e2ee67fe51a5ed2114617f4db7ab990bed813ce4ff97770edcd65c29",
+      "installed_sha256": "f8649126e2ee67fe51a5ed2114617f4db7ab990bed813ce4ff97770edcd65c29",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Adoptar una aplicación existente"
+        },
+        {
+          "line": 8,
+          "title": "## Routing por contrato"
+        },
+        {
+          "line": 27,
+          "title": "## Workflow conservado para contrato 1.5"
+        },
+        {
+          "line": 49,
+          "title": "## Secuencia obligatoria"
+        },
+        {
+          "line": 62,
+          "title": "## Límites no negociables"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-assess-readiness/SKILL.md",
+      "bytes": 1192,
+      "characters": 1178,
+      "sha256": "556603392949e4204af4896c81051bcb4839d232336a33d6875661412d4abdf7",
+      "installed_sha256": "556603392949e4204af4896c81051bcb4839d232336a33d6875661412d4abdf7",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Comprobar preparación"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-assess-readiness/references/v3.md",
+      "bytes": 2056,
+      "characters": 2030,
+      "sha256": "8a09e67a223c4a114154852a1ba43c1b5b87e3615b6a866ae54a46b52f95bd66",
+      "installed_sha256": "8a09e67a223c4a114154852a1ba43c1b5b87e3615b6a866ae54a46b52f95bd66",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Comprobar preparación en v3"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-assess-readiness/references/v2-and-legacy.md",
+      "bytes": 9426,
+      "characters": 9417,
+      "sha256": "4e72b6d5abccca0e72544b56a42ad01465f664c3b4154c9623a8e96c367bff53",
+      "installed_sha256": "4e72b6d5abccca0e72544b56a42ad01465f664c3b4154c9623a8e96c367bff53",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Assess LKS-SDD Readiness"
+        },
+        {
+          "line": 8,
+          "title": "## Routing por contrato"
+        },
+        {
+          "line": 27,
+          "title": "## Workflow conservado para contrato 1.5"
+        },
+        {
+          "line": 61,
+          "title": "## Default status and narration in 0.16"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-implement/SKILL.md",
+      "bytes": 1763,
+      "characters": 1742,
+      "sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+      "installed_sha256": "b42cfcb0344c0ff32bb709649828fa24e7cd2855caba9d84a3bba5e934014d06",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Implementar y corregir"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-implement/references/v3.md",
+      "bytes": 2706,
+      "characters": 2674,
+      "sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+      "installed_sha256": "d8d2fb7c0e9f443c19fc10375e887c7604e49d93c51db814efcb7a25ef3d13eb",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Implementar y corregir en v3"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-implement/references/v2-and-legacy.md",
+      "bytes": 11691,
+      "characters": 11675,
+      "sha256": "6813a714cfad0f690edfefd19a266209b771d8c5cc55195f3877bd3d891ef4bc",
+      "installed_sha256": "6813a714cfad0f690edfefd19a266209b771d8c5cc55195f3877bd3d891ef4bc",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Implement an LKS-SDD Increment with Codex"
+        },
+        {
+          "line": 8,
+          "title": "## Routing por contrato"
+        },
+        {
+          "line": 31,
+          "title": "## Workflow conservado para contrato 1.5"
+        },
+        {
+          "line": 69,
+          "title": "## Fast path and narration in 0.18"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-verify/SKILL.md",
+      "bytes": 1205,
+      "characters": 1192,
+      "sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+      "installed_sha256": "ac9677552dea3f774a33ca017c74a5498a2a270c7e0894f44df0315d778420a5",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Verificar y cerrar"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-verify/references/v3.md",
+      "bytes": 2523,
+      "characters": 2498,
+      "sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+      "installed_sha256": "e27b93fa2791a97cf79e2b0b6ef1d33636624a7cf3b748f2d2a09c509f6b08fe",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Verificar y cerrar en v3"
+        }
+      ]
+    },
+    {
+      "path": "skills/lks-sdd-verify/references/v2-and-legacy.md",
+      "bytes": 15035,
+      "characters": 15021,
+      "sha256": "152f738a5c1b0c3edbac03e76dcbf0e8da5e7d3349d580f7ff8bb0e3fe9fcc32",
+      "installed_sha256": "152f738a5c1b0c3edbac03e76dcbf0e8da5e7d3349d580f7ff8bb0e3fe9fcc32",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 6,
+          "title": "# Verify an LKS-SDD Increment with Codex"
+        },
+        {
+          "line": 8,
+          "title": "## Routing por contrato"
+        },
+        {
+          "line": 27,
+          "title": "## Workflow conservado para contrato 1.5"
+        },
+        {
+          "line": 72,
+          "title": "## Reuse, health and narration in 0.18"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/assignments.md",
+      "bytes": 1216,
+      "characters": 1202,
+      "sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+      "installed_sha256": "fce553c8bf7b49e3eadb7e631ef79e1cbc789c5cc7882ca27dc4c7116717fb67",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Revisar o transferir un encargo"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/conditional-design.md",
+      "bytes": 1790,
+      "characters": 1753,
+      "sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+      "installed_sha256": "e9f2c270c85876d56cbbfff5ed1d70c05086a53d7bda3021dd2ff89605b01342",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Aclaraciones, tecnología y dirección visual"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/corrections.md",
+      "bytes": 1462,
+      "characters": 1447,
+      "sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+      "installed_sha256": "4d39e8dd5fddae58505bc385dc639b3b4259349d0ab83abad8ccd87d8b69466e",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Tratar observaciones y resultados rechazados"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/exceptions-continuity.md",
+      "bytes": 1570,
+      "characters": 1543,
+      "sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+      "installed_sha256": "0cce19126e3235f407c994c32af9575cf6a1c71479fcf45aee921ad767b43123",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Excepciones, revocación y recuperación"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/external-delivery.md",
+      "bytes": 1120,
+      "characters": 1107,
+      "sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+      "installed_sha256": "a9052decd29a85eff98bb1e132a0019b0e6a397f70529766297cb14734b76678",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Revisar una entrega o acción externa"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/planning.md",
+      "bytes": 1405,
+      "characters": 1385,
+      "sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+      "installed_sha256": "9549fbaf49c5df14117d509ba57eff08541ab75e168c3daa9ec29c06f328054e",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Presentar el plan y su ejecución"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/project-setup.md",
+      "bytes": 1726,
+      "characters": 1703,
+      "sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+      "installed_sha256": "e4636d89e010fd33a0e8b6abef4ac8ac5e76037100ed6a3480ff063771f121ba",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Configurar, adoptar o migrar un proyecto"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/specifications.md",
+      "bytes": 2689,
+      "characters": 2652,
+      "sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+      "installed_sha256": "d54eb9cb3089fb2c10d339bd73d8d4054836ebd133607ddbb20b74673a520158",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Revisar las especificaciones"
+        }
+      ]
+    },
+    {
+      "path": "docs/decision-guides/verification.md",
+      "bytes": 1888,
+      "characters": 1868,
+      "sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+      "installed_sha256": "8e757624e53500c147eda2ea9435f3fee36b89fd87b78eaa58762a6140bd6eb1",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Presentar pruebas, integración y aceptación"
+        }
+      ]
+    },
+    {
+      "path": "docs/V3-COMMON.md",
+      "bytes": 5911,
+      "characters": 5823,
+      "sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+      "installed_sha256": "31265a75769e8c493c28f11aed94708b41b053746e4a98c54fba058a748d6904",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Reglas comunes v3"
+        }
+      ]
+    },
+    {
+      "path": "docs/V31-REVIEW.md",
+      "bytes": 3018,
+      "characters": 2977,
+      "sha256": "7b9b17e3c4bf120f9123ea07a2f30a7852b833e6bd1207436152dd2e3d7a67a6",
+      "installed_sha256": "7b9b17e3c4bf120f9123ea07a2f30a7852b833e6bd1207436152dd2e3d7a67a6",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Recorrido integral 3.1"
+        },
+        {
+          "line": 8,
+          "title": "## Hitos y personas"
+        },
+        {
+          "line": 25,
+          "title": "## Consultar y continuar"
+        }
+      ]
+    },
+    {
+      "path": "docs/USER-DECISIONS.md",
+      "bytes": 4287,
+      "characters": 4231,
+      "sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+      "installed_sha256": "69ca8f8bcd2ebea66026fe0a2d02cab63a28a5bb182ba6d5d429438165172425",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Presentar una decisión del proyecto"
+        }
+      ]
+    },
+    {
+      "path": "docs/V3-OPERATIONS.md",
+      "bytes": 13771,
+      "characters": 13629,
+      "sha256": "e51df2a7b9e62996631dfc55fd61b69172259d455c079b71256130bd0c38b814",
+      "installed_sha256": "e51df2a7b9e62996631dfc55fd61b69172259d455c079b71256130bd0c38b814",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Operaciones del contrato 3.1"
+        },
+        {
+          "line": 16,
+          "title": "## Configuración y autoría"
+        },
+        {
+          "line": 53,
+          "title": "## Ejecución, equipo y evidencia"
+        },
+        {
+          "line": 82,
+          "title": "## Calidad durante la implementación"
+        },
+        {
+          "line": 106,
+          "title": "## Consulta, adopción, migración y recuperación"
+        },
+        {
+          "line": 120,
+          "title": "## Decisiones presentadas"
+        },
+        {
+          "line": 147,
+          "title": "## Configuración explícita del recorrido integral"
+        },
+        {
+          "line": 161,
+          "title": "## Revisión y ejecución"
+        },
+        {
+          "line": 181,
+          "title": "## Resultado y correcciones"
+        }
+      ]
+    },
+    {
+      "path": "docs/V3-MIGRATION.md",
+      "bytes": 5405,
+      "characters": 5346,
+      "sha256": "1f1e519830a5e5da6d7f61b181906e1835b7a9ba59156f0f4dd89587da600f6c",
+      "installed_sha256": "9a7069a4903a5ba2695b479c4489b43ec544f854ba87ae2aa3fe38c8aea7d4fc",
+      "same_as_installed": false,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Migración y continuación en v3.1"
+        }
+      ]
+    },
+    {
+      "path": "docs/DOCUMENT-STORAGE.md",
+      "bytes": 19681,
+      "characters": 19414,
+      "sha256": "1f7d6c22d40da7cec330e13bb3163d9660d91ce5cf0219ca601bf0bcfd069920",
+      "installed_sha256": "2f6e9b4df149f802a4fe4c00273065dfa448d27596a560da3833e4c4d2bd7f1c",
+      "same_as_installed": false,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Almacenamiento y funcionamiento v3.1"
+        },
+        {
+          "line": 3,
+          "title": "## Problema y decisión implementada"
+        },
+        {
+          "line": 28,
+          "title": "## Formatos, consumidores y compatibilidad"
+        },
+        {
+          "line": 77,
+          "title": "## Historial exacto, enlaces y recuperación"
+        },
+        {
+          "line": 125,
+          "title": "## Presupuestos y origen de gran volumen"
+        },
+        {
+          "line": 160,
+          "title": "## Eficiencia documental del conjunto del plugin"
+        },
+        {
+          "line": 186,
+          "title": "## Reproducción, resultados y límites"
+        },
+        {
+          "line": 292,
+          "title": "## Publicación, consumidores y compactación futura"
+        }
+      ]
+    },
+    {
+      "path": "docs/V3-HOST-ACCEPTANCE.md",
+      "bytes": 4724,
+      "characters": 4649,
+      "sha256": "cd698fe6d911f5e472a063ab8007ce78229b1a064d9c110366083c43a5179b71",
+      "installed_sha256": "cd698fe6d911f5e472a063ab8007ce78229b1a064d9c110366083c43a5179b71",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Aceptación observada de uso v3"
+        }
+      ]
+    },
+    {
+      "path": "docs/HOST-COPILOT-DETAILS.md",
+      "bytes": 3181,
+      "characters": 3181,
+      "sha256": "61a0705a5530daf081f2395f66a12fe28432a052e79c71db073e44b1d36dc066",
+      "installed_sha256": "61a0705a5530daf081f2395f66a12fe28432a052e79c71db073e44b1d36dc066",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# GitHub Copilot host contract"
+        },
+        {
+          "line": 16,
+          "title": "## Visual work (takes precedence over shared Codex rendering instructions)"
+        },
+        {
+          "line": 34,
+          "title": "## Other capabilities and authority"
+        }
+      ]
+    },
+    {
+      "path": "docs/COPILOT-BOOTSTRAP.md",
+      "bytes": 1664,
+      "characters": 1644,
+      "sha256": "f5797d79384a10732dde224122b8a552be198ebaef7e38892aa40dbb5b6971c0",
+      "installed_sha256": "f5797d79384a10732dde224122b8a552be198ebaef7e38892aa40dbb5b6971c0",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Entrada de Copilot sin runtime fijado"
+        }
+      ]
+    },
+    {
+      "path": "docs/VALIDATION.md",
+      "bytes": 10288,
+      "characters": 10168,
+      "sha256": "b656c045dc371f2ad73b5997ddeea3993728983d984cb82c616d0435d4e7806d",
+      "installed_sha256": "b656c045dc371f2ad73b5997ddeea3993728983d984cb82c616d0435d4e7806d",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# Validación y publicación"
+        },
+        {
+          "line": 3,
+          "title": "## Regla operativa"
+        },
+        {
+          "line": 31,
+          "title": "## Pull request"
+        },
+        {
+          "line": 39,
+          "title": "## Desarrollo del recorrido integral"
+        },
+        {
+          "line": 60,
+          "title": "## Release estable"
+        },
+        {
+          "line": 107,
+          "title": "## Un único build"
+        },
+        {
+          "line": 133,
+          "title": "## Promoción a draft release"
+        },
+        {
+          "line": 146,
+          "title": "## Observabilidad de release"
+        },
+        {
+          "line": 174,
+          "title": "## Diagnóstico opcional"
+        },
+        {
+          "line": 181,
+          "title": "## Retención operativa"
+        }
+      ]
+    },
+    {
+      "path": "distribution/host-copilot.md",
+      "bytes": 735,
+      "characters": 735,
+      "sha256": "cae914c21f8452b17f6027daf9738057a37575e61d134ea7bf5e24db8840668b",
+      "installed_sha256": "cae914c21f8452b17f6027daf9738057a37575e61d134ea7bf5e24db8840668b",
+      "same_as_installed": true,
+      "headings": [
+        {
+          "line": 1,
+          "title": "# GitHub Copilot host contract"
+        }
+      ]
+    },
+    {
+      "path": "distribution/dual.json",
+      "bytes": 1729,
+      "characters": 1729,
+      "sha256": "cd510a95c02edc66e66628bf450e90c19a020768e8059a1961e94a181fac913e",
+      "installed_sha256": "cd510a95c02edc66e66628bf450e90c19a020768e8059a1961e94a181fac913e",
+      "same_as_installed": true,
+      "headings": []
+    },
+    {
+      "path": "scripts/lks_sdd.py",
+      "bytes": 11778,
+      "characters": 11776,
+      "sha256": "afd749e86d38a204b616059ed19ec608a75d442018b00f00c34ecbe1efa55e08",
+      "installed_sha256": "afd749e86d38a204b616059ed19ec608a75d442018b00f00c34ecbe1efa55e08",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "main",
+          "line": 58,
+          "end_line": 198
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_cli.py",
+      "bytes": 16768,
+      "characters": 16756,
+      "sha256": "c2545e49abb817c6b1163860bb327b331721da6d128f1a55bf0c26ee4e38ac74",
+      "installed_sha256": "c2545e49abb817c6b1163860bb327b331721da6d128f1a55bf0c26ee4e38ac74",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "is_v3",
+          "line": 11,
+          "end_line": 23
+        },
+        {
+          "name": "items",
+          "line": 26,
+          "end_line": 27
+        },
+        {
+          "name": "_execute",
+          "line": 31,
+          "end_line": 151
+        },
+        {
+          "name": "execute",
+          "line": 161,
+          "end_line": 163
+        },
+        {
+          "name": "display_summary",
+          "line": 166,
+          "end_line": 170
+        },
+        {
+          "name": "main",
+          "line": 173,
+          "end_line": 229
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_current.py",
+      "bytes": 7206,
+      "characters": 7205,
+      "sha256": "992ac6a06f7ca57e29e0e3506ea0bb351357861a9266caf9e0a9547ab6d62e1f",
+      "installed_sha256": "992ac6a06f7ca57e29e0e3506ea0bb351357861a9266caf9e0a9547ab6d62e1f",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "require_requests",
+          "line": 15,
+          "end_line": 20
+        },
+        {
+          "name": "require_current",
+          "line": 23,
+          "end_line": 61
+        },
+        {
+          "name": "runtime_changes",
+          "line": 64,
+          "end_line": 79
+        },
+        {
+          "name": "declared_collaboration",
+          "line": 82,
+          "end_line": 97
+        },
+        {
+          "name": "upgrade",
+          "line": 101,
+          "end_line": 115
+        },
+        {
+          "name": "diagnose",
+          "line": 118,
+          "end_line": 139
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_contract.py",
+      "bytes": 11012,
+      "characters": 10997,
+      "sha256": "1e20435cdfec3c2e3974b9e747ccb0f3f5d2b99d293f677bc7b92b94b6704b9e",
+      "installed_sha256": "1e20435cdfec3c2e3974b9e747ccb0f3f5d2b99d293f677bc7b92b94b6704b9e",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "now",
+          "line": 26,
+          "end_line": 27
+        },
+        {
+          "name": "uid",
+          "line": 30,
+          "end_line": 36
+        },
+        {
+          "name": "element",
+          "line": 39,
+          "end_line": 45
+        },
+        {
+          "name": "render",
+          "line": 48,
+          "end_line": 52
+        },
+        {
+          "name": "location",
+          "line": 55,
+          "end_line": 56
+        },
+        {
+          "name": "parse",
+          "line": 96,
+          "end_line": 123
+        },
+        {
+          "name": "document_paths",
+          "line": 126,
+          "end_line": 137
+        },
+        {
+          "name": "load",
+          "line": 192,
+          "end_line": 237
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_scope.py",
+      "bytes": 711,
+      "characters": 711,
+      "sha256": "9c047c86f0069ee8f83fbcb536b65155465d5a968c3a79fd171847887ca4bc6f",
+      "installed_sha256": "9c047c86f0069ee8f83fbcb536b65155465d5a968c3a79fd171847887ca4bc6f",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "memberships",
+          "line": 5,
+          "end_line": 16
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_context.py",
+      "bytes": 8493,
+      "characters": 8477,
+      "sha256": "1c5f257812120c2cc66557332de4579a2628fedecde1800ac50958a2de5e51e5",
+      "installed_sha256": "1c5f257812120c2cc66557332de4579a2628fedecde1800ac50958a2de5e51e5",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "select",
+          "line": 18,
+          "end_line": 113
+        },
+        {
+          "name": "context",
+          "line": 116,
+          "end_line": 138
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_decision_presentation.py",
+      "bytes": 55624,
+      "characters": 55418,
+      "sha256": "2d15c4c2e52719249e4b2c7dd05424a652fedc359ab8b5883552572a5d900025",
+      "installed_sha256": "2d15c4c2e52719249e4b2c7dd05424a652fedc359ab8b5883552572a5d900025",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "safe",
+          "line": 64,
+          "end_line": 68
+        },
+        {
+          "name": "title",
+          "line": 71,
+          "end_line": 72
+        },
+        {
+          "name": "human",
+          "line": 75,
+          "end_line": 82
+        },
+        {
+          "name": "text",
+          "line": 85,
+          "end_line": 98
+        },
+        {
+          "name": "normalize",
+          "line": 101,
+          "end_line": 113
+        },
+        {
+          "name": "roots_for",
+          "line": 116,
+          "end_line": 122
+        },
+        {
+          "name": "collect",
+          "line": 125,
+          "end_line": 165
+        },
+        {
+          "name": "_covered",
+          "line": 168,
+          "end_line": 185
+        },
+        {
+          "name": "_technical",
+          "line": 188,
+          "end_line": 209
+        },
+        {
+          "name": "_specification",
+          "line": 212,
+          "end_line": 235
+        },
+        {
+          "name": "_sources_text",
+          "line": 238,
+          "end_line": 269
+        },
+        {
+          "name": "_generic",
+          "line": 272,
+          "end_line": 455
+        },
+        {
+          "name": "_requirements",
+          "line": 458,
+          "end_line": 496
+        },
+        {
+          "name": "operation_facts",
+          "line": 499,
+          "end_line": 569
+        },
+        {
+          "name": "decision_view",
+          "line": 572,
+          "end_line": 672
+        },
+        {
+          "name": "compact",
+          "line": 675,
+          "end_line": 677
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_decision_profiles.py",
+      "bytes": 6723,
+      "characters": 6685,
+      "sha256": "c369e7141934132669bde8fd4c35f72881413287920f2cb1ea0098495b80df3b",
+      "installed_sha256": "c369e7141934132669bde8fd4c35f72881413287920f2cb1ea0098495b80df3b",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "profiles",
+          "line": 52,
+          "end_line": 66
+        },
+        {
+          "name": "instruction_refs",
+          "line": 69,
+          "end_line": 79
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_presentation_guard.py",
+      "bytes": 4258,
+      "characters": 4254,
+      "sha256": "8258a8a73e8b5ed6d8a8d59e2a86401d80cc020c6d287685ff5785804e6c29fc",
+      "installed_sha256": "8258a8a73e8b5ed6d8a8d59e2a86401d80cc020c6d287685ff5785804e6c29fc",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "call_data",
+          "line": 13,
+          "end_line": 20
+        },
+        {
+          "name": "required",
+          "line": 23,
+          "end_line": 29
+        },
+        {
+          "name": "reviewed",
+          "line": 32,
+          "end_line": 56
+        },
+        {
+          "name": "stamp",
+          "line": 59,
+          "end_line": 74
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_authoring.py",
+      "bytes": 16452,
+      "characters": 16418,
+      "sha256": "9dc5e2c8f3621f6ac9092995a4434a784e2b3ad291f473a2b5078aa736856a01",
+      "installed_sha256": "9dc5e2c8f3621f6ac9092995a4434a784e2b3ad291f473a2b5078aa736856a01",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "initialize",
+          "line": 18,
+          "end_line": 66
+        },
+        {
+          "name": "candidate",
+          "line": 69,
+          "end_line": 93
+        },
+        {
+          "name": "author",
+          "line": 96,
+          "end_line": 155
+        },
+        {
+          "name": "approve",
+          "line": 159,
+          "end_line": 187
+        },
+        {
+          "name": "approval_process",
+          "line": 190,
+          "end_line": 194
+        },
+        {
+          "name": "approve_and_authorize",
+          "line": 198,
+          "end_line": 209
+        },
+        {
+          "name": "governance",
+          "line": 213,
+          "end_line": 247
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_approval.py",
+      "bytes": 11425,
+      "characters": 11406,
+      "sha256": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+      "installed_sha256": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "descriptor",
+          "line": 38,
+          "end_line": 39
+        },
+        {
+          "name": "decisions",
+          "line": 42,
+          "end_line": 46
+        },
+        {
+          "name": "approved",
+          "line": 49,
+          "end_line": 74
+        },
+        {
+          "name": "decision",
+          "line": 77,
+          "end_line": 94
+        },
+        {
+          "name": "task_basis",
+          "line": 97,
+          "end_line": 107
+        },
+        {
+          "name": "task_authority",
+          "line": 110,
+          "end_line": 121
+        },
+        {
+          "name": "proposal_ready",
+          "line": 124,
+          "end_line": 156
+        },
+        {
+          "name": "plan_coverage",
+          "line": 159,
+          "end_line": 193
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_lifecycle.py",
+      "bytes": 5905,
+      "characters": 5890,
+      "sha256": "d968b42b2c06a50ed0fffbd9ccc937855a377aee1f89264731db7f952c423b1d",
+      "installed_sha256": "d968b42b2c06a50ed0fffbd9ccc937855a377aee1f89264731db7f952c423b1d",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "review",
+          "line": 11,
+          "end_line": 36
+        },
+        {
+          "name": "revoke",
+          "line": 40,
+          "end_line": 49
+        },
+        {
+          "name": "checkpoint",
+          "line": 52,
+          "end_line": 68
+        },
+        {
+          "name": "reconcile_migrated",
+          "line": 72,
+          "end_line": 83
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_guidance.py",
+      "bytes": 9566,
+      "characters": 9548,
+      "sha256": "32dea94aeb609c61d9f92de45414c54ccf1ce63215fb894304b0a03f07ba5d16",
+      "installed_sha256": "32dea94aeb609c61d9f92de45414c54ccf1ce63215fb894304b0a03f07ba5d16",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "status",
+          "line": 13,
+          "end_line": 59
+        },
+        {
+          "name": "exception_patterns",
+          "line": 62,
+          "end_line": 70
+        },
+        {
+          "name": "trace",
+          "line": 73,
+          "end_line": 104
+        },
+        {
+          "name": "readiness",
+          "line": 107,
+          "end_line": 125
+        }
+      ]
+    },
+    {
+      "path": "scripts/v31_guidance.py",
+      "bytes": 13590,
+      "characters": 13564,
+      "sha256": "5723b74d6b0797fd6f544b51147b65366b4b44a8efe67ca322dffcfa75401662",
+      "installed_sha256": "5723b74d6b0797fd6f544b51147b65366b4b44a8efe67ca322dffcfa75401662",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "request_readiness",
+          "line": 15,
+          "end_line": 44
+        },
+        {
+          "name": "interventions",
+          "line": 47,
+          "end_line": 175
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_workflow.py",
+      "bytes": 19501,
+      "characters": 19485,
+      "sha256": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730",
+      "installed_sha256": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "latest",
+          "line": 24,
+          "end_line": 29
+        },
+        {
+          "name": "state",
+          "line": 32,
+          "end_line": 41
+        },
+        {
+          "name": "plan_for",
+          "line": 44,
+          "end_line": 47
+        },
+        {
+          "name": "dependencies",
+          "line": 50,
+          "end_line": 75
+        },
+        {
+          "name": "dependency_subjects",
+          "line": 78,
+          "end_line": 85
+        },
+        {
+          "name": "evaluate",
+          "line": 88,
+          "end_line": 108
+        },
+        {
+          "name": "evidence_valid",
+          "line": 111,
+          "end_line": 128
+        },
+        {
+          "name": "facts_for",
+          "line": 131,
+          "end_line": 162
+        },
+        {
+          "name": "valid_exceptions",
+          "line": 165,
+          "end_line": 175
+        },
+        {
+          "name": "request_facts",
+          "line": 178,
+          "end_line": 195
+        },
+        {
+          "name": "transition",
+          "line": 199,
+          "end_line": 266
+        },
+        {
+          "name": "exception",
+          "line": 270,
+          "end_line": 282
+        },
+        {
+          "name": "propose_exception",
+          "line": 285,
+          "end_line": 293
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_team.py",
+      "bytes": 6936,
+      "characters": 6926,
+      "sha256": "fdd94d7c711d19986f112cdf7c9eb4b73aa124aa8f6e182befb6b82053ff0f3a",
+      "installed_sha256": "fdd94d7c711d19986f112cdf7c9eb4b73aa124aa8f6e182befb6b82053ff0f3a",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "assignment",
+          "line": 8,
+          "end_line": 13
+        },
+        {
+          "name": "owners",
+          "line": 16,
+          "end_line": 29
+        },
+        {
+          "name": "contains",
+          "line": 32,
+          "end_line": 33
+        },
+        {
+          "name": "permitted_scope",
+          "line": 36,
+          "end_line": 40
+        },
+        {
+          "name": "assign",
+          "line": 44,
+          "end_line": 70
+        },
+        {
+          "name": "handoff",
+          "line": 74,
+          "end_line": 107
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_quality.py",
+      "bytes": 14423,
+      "characters": 14399,
+      "sha256": "f0c577788e0a20f751181809bf852ee01475cb39871afd56c84e71719dfbe956",
+      "installed_sha256": "f0c577788e0a20f751181809bf852ee01475cb39871afd56c84e71719dfbe956",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "config_digest",
+          "line": 17,
+          "end_line": 18
+        },
+        {
+          "name": "age_seconds",
+          "line": 21,
+          "end_line": 28
+        },
+        {
+          "name": "analysis_context",
+          "line": 31,
+          "end_line": 35
+        },
+        {
+          "name": "normalize",
+          "line": 38,
+          "end_line": 64
+        },
+        {
+          "name": "record",
+          "line": 67,
+          "end_line": 105
+        },
+        {
+          "name": "required_groups",
+          "line": 108,
+          "end_line": 112
+        },
+        {
+          "name": "checks",
+          "line": 115,
+          "end_line": 149
+        },
+        {
+          "name": "valid_until",
+          "line": 152,
+          "end_line": 164
+        },
+        {
+          "name": "findings",
+          "line": 167,
+          "end_line": 177
+        },
+        {
+          "name": "run_existing",
+          "line": 180,
+          "end_line": 223
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_verification.py",
+      "bytes": 12508,
+      "characters": 12483,
+      "sha256": "aa6a58a14ea1650c389d2ce70f4bca66a96509ad6b7c9cd5c6a7a238f87bef9a",
+      "installed_sha256": "aa6a58a14ea1650c389d2ce70f4bca66a96509ad6b7c9cd5c6a7a238f87bef9a",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "result_basis",
+          "line": 12,
+          "end_line": 13
+        },
+        {
+          "name": "result_current",
+          "line": 16,
+          "end_line": 25
+        },
+        {
+          "name": "evidence",
+          "line": 28,
+          "end_line": 44
+        },
+        {
+          "name": "integrate",
+          "line": 48,
+          "end_line": 126
+        },
+        {
+          "name": "accept",
+          "line": 130,
+          "end_line": 167
+        }
+      ]
+    },
+    {
+      "path": "scripts/v31_review.py",
+      "bytes": 23018,
+      "characters": 22975,
+      "sha256": "45b5918d838cfd3eda3799952a214cc9c7c9359933af5fc96692889e795771ee",
+      "installed_sha256": "45b5918d838cfd3eda3799952a214cc9c7c9359933af5fc96692889e795771ee",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "config",
+          "line": 14,
+          "end_line": 15
+        },
+        {
+          "name": "validate_config",
+          "line": 18,
+          "end_line": 28
+        },
+        {
+          "name": "validate_roster",
+          "line": 31,
+          "end_line": 42
+        },
+        {
+          "name": "validate_model",
+          "line": 45,
+          "end_line": 93
+        },
+        {
+          "name": "roster",
+          "line": 96,
+          "end_line": 99
+        },
+        {
+          "name": "reviewers",
+          "line": 102,
+          "end_line": 108
+        },
+        {
+          "name": "designated",
+          "line": 111,
+          "end_line": 115
+        },
+        {
+          "name": "proposal_basis",
+          "line": 118,
+          "end_line": 121
+        },
+        {
+          "name": "records",
+          "line": 124,
+          "end_line": 127
+        },
+        {
+          "name": "event",
+          "line": 130,
+          "end_line": 135
+        },
+        {
+          "name": "group_intervention",
+          "line": 139,
+          "end_line": 145
+        },
+        {
+          "name": "overlay",
+          "line": 148,
+          "end_line": 155
+        },
+        {
+          "name": "review_event",
+          "line": 158,
+          "end_line": 166
+        },
+        {
+          "name": "dispositions",
+          "line": 169,
+          "end_line": 172
+        },
+        {
+          "name": "vote_tip",
+          "line": 175,
+          "end_line": 180
+        },
+        {
+          "name": "waivers",
+          "line": 183,
+          "end_line": 191
+        },
+        {
+          "name": "review_status",
+          "line": 194,
+          "end_line": 212
+        },
+        {
+          "name": "closure_valid",
+          "line": 215,
+          "end_line": 226
+        },
+        {
+          "name": "check_close",
+          "line": 229,
+          "end_line": 238
+        },
+        {
+          "name": "task_review_basis",
+          "line": 241,
+          "end_line": 248
+        },
+        {
+          "name": "task_review_event",
+          "line": 251,
+          "end_line": 258
+        },
+        {
+          "name": "task_reviewed",
+          "line": 261,
+          "end_line": 266
+        },
+        {
+          "name": "execute",
+          "line": 270,
+          "end_line": 332
+        },
+        {
+          "name": "configure",
+          "line": 336,
+          "end_line": 375
+        }
+      ]
+    },
+    {
+      "path": "scripts/v31_corrections.py",
+      "bytes": 14227,
+      "characters": 14210,
+      "sha256": "1fe19699ad4baf138a1d29a78bafab4cdeeab8a08ac1e31d92278c8a6117bab0",
+      "installed_sha256": "1fe19699ad4baf138a1d29a78bafab4cdeeab8a08ac1e31d92278c8a6117bab0",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "affected",
+          "line": 10,
+          "end_line": 11
+        },
+        {
+          "name": "scope_for",
+          "line": 14,
+          "end_line": 15
+        },
+        {
+          "name": "defect_ids",
+          "line": 18,
+          "end_line": 19
+        },
+        {
+          "name": "unresolved",
+          "line": 22,
+          "end_line": 59
+        },
+        {
+          "name": "reject",
+          "line": 62,
+          "end_line": 91
+        },
+        {
+          "name": "define",
+          "line": 95,
+          "end_line": 117
+        },
+        {
+          "name": "resolve",
+          "line": 121,
+          "end_line": 168
+        },
+        {
+          "name": "delivery",
+          "line": 171,
+          "end_line": 195
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_adoption.py",
+      "bytes": 2526,
+      "characters": 2515,
+      "sha256": "3e1cb149fb8a489035b77e16e69661a47342c57c0bdde7695d63beb3394f09ec",
+      "installed_sha256": "3e1cb149fb8a489035b77e16e69661a47342c57c0bdde7695d63beb3394f09ec",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "inspect",
+          "line": 11,
+          "end_line": 21
+        },
+        {
+          "name": "record",
+          "line": 25,
+          "end_line": 39
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_migration.py",
+      "bytes": 23702,
+      "characters": 23673,
+      "sha256": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+      "installed_sha256": "9811bd4f2f8f81680024e5c42fe937dc96c98e0784c0ba17c0127c9571ed61a4",
+      "same_as_installed": false,
+      "function_index": [
+        {
+          "name": "source_model",
+          "line": 15,
+          "end_line": 63
+        },
+        {
+          "name": "inventory",
+          "line": 66,
+          "end_line": 96
+        },
+        {
+          "name": "diagnose",
+          "line": 99,
+          "end_line": 122
+        },
+        {
+          "name": "preview",
+          "line": 125,
+          "end_line": 284
+        },
+        {
+          "name": "inherited_confirmations",
+          "line": 287,
+          "end_line": 310
+        },
+        {
+          "name": "include_confirmation_sources",
+          "line": 313,
+          "end_line": 320
+        },
+        {
+          "name": "continuation",
+          "line": 323,
+          "end_line": 328
+        },
+        {
+          "name": "old_branch",
+          "line": 331,
+          "end_line": 344
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_storage.py",
+      "bytes": 17970,
+      "characters": 17948,
+      "sha256": "e51f34357885ff842a69c61ee6ac5cdd251b6b5764ce8dae772db4a95c52cea0",
+      "installed_sha256": "76a953b4c10eddb9a8ea3cd145550e8da9214aca0ec0212b3eed77e01b10df55",
+      "same_as_installed": false,
+      "function_index": [
+        {
+          "name": "staged_write",
+          "line": 14,
+          "end_line": 22
+        },
+        {
+          "name": "stage",
+          "line": 25,
+          "end_line": 62
+        },
+        {
+          "name": "prepare",
+          "line": 65,
+          "end_line": 166
+        },
+        {
+          "name": "documentary_membership",
+          "line": 169,
+          "end_line": 171
+        },
+        {
+          "name": "check_guards",
+          "line": 174,
+          "end_line": 214
+        },
+        {
+          "name": "validate_runtime",
+          "line": 217,
+          "end_line": 221
+        },
+        {
+          "name": "apply",
+          "line": 224,
+          "end_line": 281
+        },
+        {
+          "name": "recover",
+          "line": 284,
+          "end_line": 300
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_packet.py",
+      "bytes": 7065,
+      "characters": 7065,
+      "sha256": "09f9dc11677cee69fadec00dd49fb04d8ba4dabff60c933d2113b0e0bfe28369",
+      "installed_sha256": "09f9dc11677cee69fadec00dd49fb04d8ba4dabff60c933d2113b0e0bfe28369",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "payload_bytes",
+          "line": 54,
+          "end_line": 58
+        },
+        {
+          "name": "finish",
+          "line": 109,
+          "end_line": 114
+        },
+        {
+          "name": "read",
+          "line": 117,
+          "end_line": 121
+        },
+        {
+          "name": "persist",
+          "line": 124,
+          "end_line": 130
+        },
+        {
+          "name": "save",
+          "line": 133,
+          "end_line": 156
+        }
+      ]
+    },
+    {
+      "path": "scripts/document_state.py",
+      "bytes": 6008,
+      "characters": 6008,
+      "sha256": "75a42da8390880a3541d7aef83141258ab7b3ea200ada52b9cea13dab55b1b5f",
+      "installed_sha256": "75a42da8390880a3541d7aef83141258ab7b3ea200ada52b9cea13dab55b1b5f",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "bucket",
+          "line": 16,
+          "end_line": 16
+        },
+        {
+          "name": "name",
+          "line": 19,
+          "end_line": 21
+        },
+        {
+          "name": "prepare",
+          "line": 24,
+          "end_line": 47
+        },
+        {
+          "name": "manifest",
+          "line": 50,
+          "end_line": 54
+        },
+        {
+          "name": "_manifest",
+          "line": 57,
+          "end_line": 84
+        },
+        {
+          "name": "linked",
+          "line": 87,
+          "end_line": 95
+        },
+        {
+          "name": "dependencies",
+          "line": 98,
+          "end_line": 103
+        },
+        {
+          "name": "export",
+          "line": 106,
+          "end_line": 122
+        }
+      ]
+    },
+    {
+      "path": "scripts/content_store.py",
+      "bytes": 5295,
+      "characters": 5295,
+      "sha256": "f8eca4652fbaebf9b7f33a05015656a8789840edf956f2993ea1b6f88f92cf85",
+      "installed_sha256": "f8eca4652fbaebf9b7f33a05015656a8789840edf956f2993ea1b6f88f92cf85",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "reference",
+          "line": 15,
+          "end_line": 19
+        },
+        {
+          "name": "object_path",
+          "line": 22,
+          "end_line": 28
+        },
+        {
+          "name": "read_object",
+          "line": 31,
+          "end_line": 36
+        },
+        {
+          "name": "prepare_object",
+          "line": 39,
+          "end_line": 50
+        },
+        {
+          "name": "publish_object",
+          "line": 53,
+          "end_line": 71
+        },
+        {
+          "name": "validate_inventory",
+          "line": 74,
+          "end_line": 81
+        },
+        {
+          "name": "prepare_inventory",
+          "line": 84,
+          "end_line": 89
+        },
+        {
+          "name": "inventory",
+          "line": 92,
+          "end_line": 121
+        },
+        {
+          "name": "validate_references",
+          "line": 124,
+          "end_line": 131
+        }
+      ]
+    },
+    {
+      "path": "scripts/source_inventory.py",
+      "bytes": 3922,
+      "characters": 3922,
+      "sha256": "fd3faf356cf1a8f4007b3a53fb35cb6380584c7f405055f671e624d2c7576cf2",
+      "installed_sha256": "79b8c161225bc2749dbb59badd17c60c5e40d338c743dca4a8338055b99a2db6",
+      "same_as_installed": false,
+      "function_index": [
+        {
+          "name": "logical",
+          "line": 17,
+          "end_line": 21
+        },
+        {
+          "name": "signature",
+          "line": 24,
+          "end_line": 25
+        },
+        {
+          "name": "linked",
+          "line": 28,
+          "end_line": 29
+        },
+        {
+          "name": "documents",
+          "line": 32,
+          "end_line": 65
+        },
+        {
+          "name": "read",
+          "line": 68,
+          "end_line": 79
+        },
+        {
+          "name": "digest",
+          "line": 82,
+          "end_line": 82
+        }
+      ]
+    },
+    {
+      "path": "scripts/v3_inventories.py",
+      "bytes": 3996,
+      "characters": 3996,
+      "sha256": "189329c12172b3400cf2ed8d8db0bd53896fb3d7c6bced33f1cdde3c84e355c4",
+      "installed_sha256": "988e9b6fbf52ab3fb777922d747f8008bbe11d3bef3b82bd07d6c535e206e349",
+      "same_as_installed": false,
+      "function_index": [
+        {
+          "name": "subject",
+          "line": 13,
+          "end_line": 25
+        },
+        {
+          "name": "subjects",
+          "line": 28,
+          "end_line": 36
+        },
+        {
+          "name": "externalize",
+          "line": 39,
+          "end_line": 51
+        },
+        {
+          "name": "resolve",
+          "line": 54,
+          "end_line": 74
+        }
+      ]
+    },
+    {
+      "path": "scripts/runtime_doctor.py",
+      "bytes": 5312,
+      "characters": 5312,
+      "sha256": "3859c153e25f3caeca06ca1e0338d209c894d019075684d6411c76d0d66d4931",
+      "installed_sha256": "3859c153e25f3caeca06ca1e0338d209c894d019075684d6411c76d0d66d4931",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "check",
+          "line": 13,
+          "end_line": 82
+        },
+        {
+          "name": "main",
+          "line": 85,
+          "end_line": 92
+        }
+      ]
+    },
+    {
+      "path": "scripts/dual_distribution.py",
+      "bytes": 19115,
+      "characters": 19102,
+      "sha256": "dd3f15a289ef6a2923e01a3c3caa8ddfd1415dc152479a882afbb58694e3c3b5",
+      "installed_sha256": "dd3f15a289ef6a2923e01a3c3caa8ddfd1415dc152479a882afbb58694e3c3b5",
+      "same_as_installed": true,
+      "function_index": [
+        {
+          "name": "digest",
+          "line": 19,
+          "end_line": 20
+        },
+        {
+          "name": "json_bytes",
+          "line": 23,
+          "end_line": 26
+        },
+        {
+          "name": "safe_name",
+          "line": 29,
+          "end_line": 35
+        },
+        {
+          "name": "inventory",
+          "line": 38,
+          "end_line": 39
+        },
+        {
+          "name": "runtime_identity",
+          "line": 42,
+          "end_line": 43
+        },
+        {
+          "name": "zip_bytes",
+          "line": 46,
+          "end_line": 59
+        },
+        {
+          "name": "compact_distribution_core",
+          "line": 62,
+          "end_line": 64
+        },
+        {
+          "name": "project_files",
+          "line": 66,
+          "end_line": 169
+        },
+        {
+          "name": "copilot_plugin_files",
+          "line": 172,
+          "end_line": 264
+        },
+        {
+          "name": "artifacts",
+          "line": 267,
+          "end_line": 300
+        }
+      ]
+    }
+  ],
+  "skill_routes": [
+    {
+      "skill": "help",
+      "base_v3_characters": 8773,
+      "base_v3_files": 3,
+      "legacy_reference_characters": 10222,
+      "conditional_guides_excluded": true
+    },
+    {
+      "skill": "define",
+      "base_v3_characters": 10223,
+      "base_v3_files": 3,
+      "legacy_reference_characters": 14073,
+      "conditional_guides_excluded": true
+    },
+    {
+      "skill": "adopt-existing",
+      "base_v3_characters": 9132,
+      "base_v3_files": 3,
+      "legacy_reference_characters": 7313,
+      "conditional_guides_excluded": true
+    },
+    {
+      "skill": "assess-readiness",
+      "base_v3_characters": 9031,
+      "base_v3_files": 3,
+      "legacy_reference_characters": 9417,
+      "conditional_guides_excluded": true
+    },
+    {
+      "skill": "implement",
+      "base_v3_characters": 10239,
+      "base_v3_files": 3,
+      "legacy_reference_characters": 11675,
+      "conditional_guides_excluded": true
+    },
+    {
+      "skill": "verify",
+      "base_v3_characters": 9513,
+      "base_v3_files": 3,
+      "legacy_reference_characters": 15021,
+      "conditional_guides_excluded": true
+    }
+  ],
+  "tokens": null,
+  "model_usage": null,
+  "operation_families": {
+    "method": "Primary responsibility for static audit; cross-skill operations remain shared",
+    "groups": {
+      "help": [
+        "validate",
+        "status",
+        "trace",
+        "review",
+        "interventions",
+        "catalog",
+        "history",
+        "state-history"
+      ],
+      "define": [
+        "init",
+        "configure-collaboration",
+        "author",
+        "approve",
+        "authorize-plan",
+        "governance",
+        "review-proposal",
+        "close-proposal",
+        "review-comment",
+        "resolve-comment"
+      ],
+      "adopt-existing": [
+        "adopt-inspect",
+        "adopt",
+        "migration-diagnose",
+        "migration-preview",
+        "migration-continuation",
+        "migration-reconcile",
+        "old-branch"
+      ],
+      "assess-readiness": [
+        "readiness"
+      ],
+      "implement": [
+        "context",
+        "start",
+        "resume",
+        "implement",
+        "checkpoint",
+        "assign",
+        "handoff",
+        "analysis",
+        "analysis-run",
+        "analysis-findings",
+        "review-task"
+      ],
+      "verify": [
+        "evidence",
+        "verify",
+        "close",
+        "integrate",
+        "accept",
+        "reject-result",
+        "define-correction",
+        "resolve-defect",
+        "prepare-delivery"
+      ],
+      "shared": [
+        "decision-view",
+        "revoke",
+        "pause",
+        "cancel",
+        "reopen",
+        "exception",
+        "propose-exception",
+        "review-exception",
+        "reindex",
+        "apply",
+        "recover",
+        "rollback"
+      ]
+    },
+    "cli_action_count": 58,
+    "unmapped": [],
+    "unknown": []
+  }
+}

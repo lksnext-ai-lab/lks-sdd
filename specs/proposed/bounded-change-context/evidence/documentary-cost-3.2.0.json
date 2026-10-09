@@ -1,0 +1,862 @@
+{
+  "runtime_version": "3.2.0",
+  "runtime_origin": "installed plugin supplied via --runtime",
+  "python_version": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+  "repeats": 3,
+  "scope": "Synthetic library queries and selected fresh CLI processes; no model calls or real consumer",
+  "billing_tokens": null,
+  "host_tokens": null,
+  "whole_development_latency": null,
+  "module_sha256": {
+    "v3_context.py": "1c5f257812120c2cc66557332de4579a2628fedecde1800ac50958a2de5e51e5",
+    "v3_contract.py": "1e20435cdfec3c2e3974b9e747ccb0f3f5d2b99d293f677bc7b92b94b6704b9e",
+    "v3_decision_presentation.py": "2d15c4c2e52719249e4b2c7dd05424a652fedc359ab8b5883552572a5d900025",
+    "v3_lifecycle.py": "d968b42b2c06a50ed0fffbd9ccc937855a377aee1f89264731db7f952c423b1d",
+    "v3_storage.py": "76a953b4c10eddb9a8ea3cd145550e8da9214aca0ec0212b3eed77e01b10df55"
+  },
+  "cases": [
+    {
+      "operation": "load",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        0.8442773999995552,
+        0.8049705000012182,
+        1.0340688999858685
+      ],
+      "median_seconds": 0.8442773999995552,
+      "serialization_seconds": 7.880001794546843e-05,
+      "json_characters": 19,
+      "utf8_bytes": 19
+    },
+    {
+      "operation": "decision_view",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        0.5514876999950502,
+        0.4301164999778848,
+        1.0814650999964215
+      ],
+      "median_seconds": 0.5514876999950502,
+      "serialization_seconds": 0.0005469000025186688,
+      "json_characters": 17046,
+      "utf8_bytes": 17111,
+      "complete": true,
+      "sources": 3,
+      "attachments": 0,
+      "issues": 0,
+      "markdown_characters": 1405,
+      "source_reason_counts": {
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1
+      }
+    },
+    {
+      "operation": "decision_view_compact_transport",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        1.209997572004795e-05,
+        3.9000005926936865e-06,
+        2.4999899324029684e-06
+      ],
+      "median_seconds": 3.9000005926936865e-06,
+      "serialization_seconds": 0.00010070001007989049,
+      "json_characters": 2512,
+      "utf8_bytes": 2533,
+      "complete": true,
+      "issues": 0,
+      "markdown_characters": 1405
+    },
+    {
+      "operation": "review",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        1.3887394999910612,
+        1.3472583999973722,
+        1.9924065999803133
+      ],
+      "median_seconds": 1.3887394999910612,
+      "serialization_seconds": 0.0012907999916933477,
+      "json_characters": 22029,
+      "utf8_bytes": 22114
+    },
+    {
+      "operation": "context_default",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        1.6241650999872945,
+        1.3199568999989424,
+        1.1948241000063717
+      ],
+      "median_seconds": 1.3199568999989424,
+      "serialization_seconds": 0.0004707000043708831,
+      "json_characters": 12152,
+      "utf8_bytes": 12178,
+      "selector_mode": "conservative-reference",
+      "runtime_cache": "hit; literal text reloaded for host",
+      "sources": 4,
+      "attachments": 0,
+      "source_reason_counts": {
+        "referencia conservadora para comparación del selector": 1,
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1
+      }
+    },
+    {
+      "operation": "context_comparison",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        2.279893200000515,
+        2.4760034999926575,
+        2.5641104000096675
+      ],
+      "median_seconds": 2.4760034999926575,
+      "serialization_seconds": 0.00033299997448921204,
+      "json_characters": 10877,
+      "utf8_bytes": 10900,
+      "selector_mode": "comparison-only",
+      "runtime_cache": "hit; literal text reloaded for host",
+      "sources": 3,
+      "attachments": 0,
+      "source_reason_counts": {
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1
+      }
+    },
+    {
+      "operation": "status_selected",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        1.3941214999940712,
+        4.160146599984728,
+        10.87272870002198
+      ],
+      "median_seconds": 4.160146599984728,
+      "serialization_seconds": 0.0001947999990079552,
+      "json_characters": 6623,
+      "utf8_bytes": 6633,
+      "issues": 0
+    },
+    {
+      "operation": "interventions",
+      "phase": "before_plan",
+      "variant": "base",
+      "seconds": [
+        3.7192475000047125,
+        1.5318116999987978,
+        1.158628300006967
+      ],
+      "median_seconds": 1.5318116999987978,
+      "serialization_seconds": 7.770000956952572e-05,
+      "json_characters": 2755,
+      "utf8_bytes": 2758,
+      "issues": 0
+    },
+    {
+      "operation": "load",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        2.246174700005213,
+        1.6556332999898586,
+        1.6718276999890804
+      ],
+      "median_seconds": 1.6718276999890804,
+      "serialization_seconds": 3.789999755099416e-05,
+      "json_characters": 19,
+      "utf8_bytes": 19
+    },
+    {
+      "operation": "decision_view",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        1.8008515000110492,
+        2.171093799988739,
+        3.3715704000205733
+      ],
+      "median_seconds": 2.171093799988739,
+      "serialization_seconds": 0.010694399999920279,
+      "json_characters": 344621,
+      "utf8_bytes": 344761,
+      "complete": true,
+      "sources": 28,
+      "attachments": 0,
+      "issues": 0,
+      "markdown_characters": 105730,
+      "source_reason_counts": {
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 25
+      }
+    },
+    {
+      "operation": "decision_view_compact_transport",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        1.789999078027904e-05,
+        4.799978341907263e-06,
+        3.0999945010989904e-06
+      ],
+      "median_seconds": 4.799978341907263e-06,
+      "serialization_seconds": 0.002117800002451986,
+      "json_characters": 107012,
+      "utf8_bytes": 107058,
+      "complete": true,
+      "issues": 0,
+      "markdown_characters": 105730
+    },
+    {
+      "operation": "review",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        4.047308699984569,
+        3.3478008000238333,
+        3.594201800005976
+      ],
+      "median_seconds": 3.594201800005976,
+      "serialization_seconds": 0.004745399986859411,
+      "json_characters": 350304,
+      "utf8_bytes": 350464
+    },
+    {
+      "operation": "context_default",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        2.0513284000044223,
+        2.1935315000009723,
+        2.6148831000027712
+      ],
+      "median_seconds": 2.1935315000009723,
+      "serialization_seconds": 0.008289399993373081,
+      "json_characters": 123821,
+      "utf8_bytes": 123872,
+      "selector_mode": "conservative-reference",
+      "runtime_cache": "hit; literal text reloaded for host",
+      "sources": 29,
+      "attachments": 0,
+      "source_reason_counts": {
+        "referencia conservadora para comparación del selector": 1,
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 25
+      }
+    },
+    {
+      "operation": "context_comparison",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        3.432912699994631,
+        2.7006773999892175,
+        2.5038737999857403
+      ],
+      "median_seconds": 2.7006773999892175,
+      "serialization_seconds": 0.007471900025848299,
+      "json_characters": 122546,
+      "utf8_bytes": 122594,
+      "selector_mode": "comparison-only",
+      "runtime_cache": "hit; literal text reloaded for host",
+      "sources": 28,
+      "attachments": 0,
+      "source_reason_counts": {
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 25
+      }
+    },
+    {
+      "operation": "status_selected",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        3.341539700020803,
+        4.413997099996777,
+        11.943546499998774
+      ],
+      "median_seconds": 4.413997099996777,
+      "serialization_seconds": 0.0003619000199250877,
+      "json_characters": 6623,
+      "utf8_bytes": 6633,
+      "issues": 0
+    },
+    {
+      "operation": "interventions",
+      "phase": "before_plan",
+      "variant": "prose-25",
+      "seconds": [
+        6.368822899996303,
+        14.629846900003031,
+        6.742652200016892
+      ],
+      "median_seconds": 6.742652200016892,
+      "serialization_seconds": 0.00014940000255592167,
+      "json_characters": 2755,
+      "utf8_bytes": 2758,
+      "issues": 0
+    },
+    {
+      "operation": "load",
+      "phase": "before_plan",
+      "variant": "prose-100",
+      "seconds": [
+        23.433529799978714,
+        33.56511760002468,
+        9.815699500002665
+      ],
+      "median_seconds": 23.433529799978714,
+      "serialization_seconds": 5.7600002037361264e-05,
+      "json_characters": 19,
+      "utf8_bytes": 19
+    },
+    {
+      "operation": "decision_view",
+      "phase": "before_plan",
+      "variant": "prose-100",
+      "seconds": [
+        25.526888399996096,
+        8.684554399980698,
+        20.919399899983546
+      ],
+      "median_seconds": 20.919399899983546,
+      "serialization_seconds": 0.030557300022337586,
+      "json_characters": 1327346,
+      "utf8_bytes": 1327711,
+      "complete": true,
+      "sources": 103,
+      "attachments": 0,
+      "issues": 0,
+      "markdown_characters": 418705,
+      "source_reason_counts": {
+        "proposal de REQUEST-95d9e1c3": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 100
+      }
+    },
+    {
+      "operation": "decision_view_compact_transport",
+      "phase": "before_plan",
+      "variant": "prose-100",
+      "seconds": [
+        1.819999306462705e-05,
+        0.00016769999638199806,
+        1.090002479031682e-05
+      ],
+      "median_seconds": 1.819999306462705e-05,
+      "serialization_seconds": 0.015162099996814504,
+      "json_characters": 420512,
+      "utf8_bytes": 420633,
+      "complete": true,
+      "issues": 0,
+      "markdown_characters": 418705
+    },
+    {
+      "operation": "review",
+      "phase": "before_plan",
+      "variant": "prose-100",
+      "seconds": [
+        23.584391899988987,
+        28.015882300009253,
+        12.019961799989687
+      ],
+      "median_seconds": 23.584391899988987,
+      "serialization_seconds": 0.024206800007959828,
+      "json_characters": 1335129,
+      "utf8_bytes": 1335514
+    }
+  ],
+  "profiles": [
+    {
+      "operation": "base:decision_view",
+      "instrumented_seconds": 1.2485323,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "line": 96,
+          "function": "parse",
+          "calls": 8,
+          "self_seconds": 0.0025067,
+          "cumulative_seconds": 0.036453200000000005
+        },
+        {
+          "file": "v3_decision_presentation.py",
+          "line": 572,
+          "function": "decision_view",
+          "calls": 1,
+          "self_seconds": 0.0007486000000000001,
+          "cumulative_seconds": 1.2467110000000001
+        },
+        {
+          "file": "v3_contract.py",
+          "line": 153,
+          "function": "get",
+          "calls": 36,
+          "self_seconds": 0.0007931,
+          "cumulative_seconds": 0.0027339
+        },
+        {
+          "file": "v2_contract.py",
+          "line": 108,
+          "function": "read_bytes",
+          "calls": 10,
+          "self_seconds": 0.0041579,
+          "cumulative_seconds": 0.46091230000000005
+        },
+        {
+          "file": "v3_contract.py",
+          "line": 192,
+          "function": "load",
+          "calls": 1,
+          "self_seconds": 0.0007382,
+          "cumulative_seconds": 1.1251797000000001
+        },
+        {
+          "file": "v3_policy.py",
+          "line": 143,
+          "function": "policy_for",
+          "calls": 5,
+          "self_seconds": 0.00018140000000000002,
+          "cumulative_seconds": 0.007861100000000001
+        },
+        {
+          "file": "v3_context.py",
+          "line": 18,
+          "function": "select",
+          "calls": 1,
+          "self_seconds": 0.00043910000000000005,
+          "cumulative_seconds": 0.0048186
+        }
+      ],
+      "top_self": [
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.lstat>",
+          "calls": 101,
+          "self_seconds": 0.2495188
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_lexists>",
+          "calls": 81,
+          "self_seconds": 0.2250696
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_isdir>",
+          "calls": 81,
+          "self_seconds": 0.209592
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_exists>",
+          "calls": 65,
+          "self_seconds": 0.07081230000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._getfinalpathname>",
+          "calls": 16,
+          "self_seconds": 0.055126
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method _io.open>",
+          "calls": 17,
+          "self_seconds": 0.0428438
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_isfile>",
+          "calls": 13,
+          "self_seconds": 0.029877400000000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.stat>",
+          "calls": 10,
+          "self_seconds": 0.023176000000000002
+        },
+        {
+          "file": "__init__.py",
+          "line": 135,
+          "function": "__init__",
+          "calls": 541,
+          "self_seconds": 0.0200702
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'read' of '_io.FileIO' objects>",
+          "calls": 7,
+          "self_seconds": 0.0157171
+        },
+        {
+          "file": "__init__.py",
+          "line": 251,
+          "function": "__str__",
+          "calls": 710,
+          "self_seconds": 0.014712900000000001
+        },
+        {
+          "file": "<frozen ntpath>",
+          "line": 99,
+          "function": "join",
+          "calls": 177,
+          "self_seconds": 0.0138294
+        }
+      ]
+    },
+    {
+      "operation": "base:review",
+      "instrumented_seconds": 2.5869687000000012,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "line": 96,
+          "function": "parse",
+          "calls": 16,
+          "self_seconds": 0.0027264000000000004,
+          "cumulative_seconds": 0.0675487
+        },
+        {
+          "file": "v3_decision_presentation.py",
+          "line": 572,
+          "function": "decision_view",
+          "calls": 1,
+          "self_seconds": 0.0005554000000000001,
+          "cumulative_seconds": 1.4820217
+        },
+        {
+          "file": "v3_contract.py",
+          "line": 153,
+          "function": "get",
+          "calls": 79,
+          "self_seconds": 0.0015657000000000002,
+          "cumulative_seconds": 0.008524200000000001
+        },
+        {
+          "file": "v2_contract.py",
+          "line": 108,
+          "function": "read_bytes",
+          "calls": 20,
+          "self_seconds": 0.0006443,
+          "cumulative_seconds": 1.1534225
+        },
+        {
+          "file": "v3_contract.py",
+          "line": 192,
+          "function": "load",
+          "calls": 2,
+          "self_seconds": 0.001577,
+          "cumulative_seconds": 2.4679185
+        },
+        {
+          "file": "v3_policy.py",
+          "line": 143,
+          "function": "policy_for",
+          "calls": 14,
+          "self_seconds": 0.0013304,
+          "cumulative_seconds": 0.026153600000000003
+        },
+        {
+          "file": "v3_context.py",
+          "line": 18,
+          "function": "select",
+          "calls": 1,
+          "self_seconds": 0.00040580000000000005,
+          "cumulative_seconds": 0.009395200000000001
+        }
+      ],
+      "top_self": [
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_lexists>",
+          "calls": 162,
+          "self_seconds": 0.5338299000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.lstat>",
+          "calls": 202,
+          "self_seconds": 0.5142217
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_isdir>",
+          "calls": 162,
+          "self_seconds": 0.44396990000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_exists>",
+          "calls": 130,
+          "self_seconds": 0.2288185
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method _io.open>",
+          "calls": 27,
+          "self_seconds": 0.0774619
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_isfile>",
+          "calls": 23,
+          "self_seconds": 0.0690776
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.stat>",
+          "calls": 20,
+          "self_seconds": 0.06149
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._getfinalpathname>",
+          "calls": 18,
+          "self_seconds": 0.048827300000000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.scandir>",
+          "calls": 8,
+          "self_seconds": 0.034709000000000004
+        },
+        {
+          "file": "__init__.py",
+          "line": 346,
+          "function": "drive",
+          "calls": 912,
+          "self_seconds": 0.026698100000000002
+        },
+        {
+          "file": "__init__.py",
+          "line": 251,
+          "function": "__str__",
+          "calls": 1392,
+          "self_seconds": 0.0265536
+        },
+        {
+          "file": "__init__.py",
+          "line": 198,
+          "function": "_str_normcase",
+          "calls": 704,
+          "self_seconds": 0.0235911
+        }
+      ]
+    },
+    {
+      "operation": "base:context_cached",
+      "instrumented_seconds": 1.6301534000000004,
+      "tracked": [
+        {
+          "file": "v3_contract.py",
+          "line": 96,
+          "function": "parse",
+          "calls": 8,
+          "self_seconds": 0.0014750000000000002,
+          "cumulative_seconds": 0.0285215
+        },
+        {
+          "file": "v3_contract.py",
+          "line": 153,
+          "function": "get",
+          "calls": 6,
+          "self_seconds": 0.0001095,
+          "cumulative_seconds": 0.0001852
+        },
+        {
+          "file": "subprocess.py",
+          "line": 512,
+          "function": "run",
+          "calls": 3,
+          "self_seconds": 0.00020170000000000002,
+          "cumulative_seconds": 0.8077835000000001
+        },
+        {
+          "file": "v2_contract.py",
+          "line": 108,
+          "function": "read_bytes",
+          "calls": 10,
+          "self_seconds": 0.0034073000000000003,
+          "cumulative_seconds": 0.3912639
+        },
+        {
+          "file": "v3_contract.py",
+          "line": 192,
+          "function": "load",
+          "calls": 1,
+          "self_seconds": 0.0006874,
+          "cumulative_seconds": 0.8125877
+        },
+        {
+          "file": "v3_policy.py",
+          "line": 143,
+          "function": "policy_for",
+          "calls": 2,
+          "self_seconds": 5.3400000000000004e-05,
+          "cumulative_seconds": 0.0020080000000000002
+        }
+      ],
+      "top_self": [
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'read' of '_io.BufferedReader' objects>",
+          "calls": 16,
+          "self_seconds": 0.4834512
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method _winapi.CreateProcess>",
+          "calls": 3,
+          "self_seconds": 0.2701024
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.lstat>",
+          "calls": 101,
+          "self_seconds": 0.1865738
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_lexists>",
+          "calls": 81,
+          "self_seconds": 0.1517554
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_isdir>",
+          "calls": 81,
+          "self_seconds": 0.13767870000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_exists>",
+          "calls": 65,
+          "self_seconds": 0.0806512
+        },
+        {
+          "file": "threading.py",
+          "line": 1064,
+          "function": "_bootstrap_inner",
+          "calls": 6,
+          "self_seconds": 0.0435385
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._path_isfile>",
+          "calls": 10,
+          "self_seconds": 0.026939300000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt.stat>",
+          "calls": 10,
+          "self_seconds": 0.0248125
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method _io.open>",
+          "calls": 16,
+          "self_seconds": 0.0230096
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method nt._getfinalpathname>",
+          "calls": 4,
+          "self_seconds": 0.0110506
+        },
+        {
+          "file": "v2_contract.py",
+          "line": 76,
+          "function": "path_at",
+          "calls": 23,
+          "self_seconds": 0.010624900000000001
+        }
+      ]
+    }
+  ],
+  "cli": [
+    {
+      "variant": "base",
+      "operation": "decision-default",
+      "seconds": 1.561316400009673,
+      "stdout_bytes": 2569,
+      "returncode": 0
+    },
+    {
+      "variant": "base",
+      "operation": "decision-json",
+      "seconds": 1.52646189997904,
+      "stdout_bytes": 17576,
+      "returncode": 0
+    },
+    {
+      "variant": "base",
+      "operation": "review-default",
+      "seconds": 2.1577513000229374,
+      "stdout_bytes": 22697,
+      "returncode": 0
+    },
+    {
+      "variant": "base",
+      "operation": "context-default",
+      "seconds": 2.2734777000150643,
+      "stdout_bytes": 12538,
+      "returncode": 0
+    }
+  ],
+  "setup_seconds": 59.28099820000352,
+  "run_status": "stopped_after_sufficient_scaling_evidence",
+  "unexecuted_scope": [
+    "Remaining prose-100 queries",
+    "prose-500",
+    "structured-100",
+    "authorized_task",
+    "repeated checkpoint previews"
+  ],
+  "stop_reason": "Analysis bounded after confirmed selection and transport growth; no plugin release benchmark required."
+}

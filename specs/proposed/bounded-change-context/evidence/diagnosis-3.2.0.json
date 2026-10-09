@@ -1,0 +1,162 @@
+{
+  "cases": [
+    {
+      "case": "new_request_only",
+      "sources": 3,
+      "attachments": 0,
+      "issues": [],
+      "complete": true,
+      "markdown_characters": 1405,
+      "compact_markdown_characters": 1405,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    },
+    {
+      "case": "other_scoped_proposal_with_image_inside_block",
+      "sources": 3,
+      "attachments": 0,
+      "issues": [],
+      "complete": true,
+      "markdown_characters": 1405,
+      "compact_markdown_characters": 1405,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    },
+    {
+      "case": "same_other_scoped_document_with_image_in_preamble",
+      "sources": 4,
+      "attachments": 1,
+      "issues": [
+        "Debe observar el adjunto antes de validar: docs/lks-sdd/historical-screen.png"
+      ],
+      "complete": false,
+      "markdown_characters": 1826,
+      "compact_markdown_characters": 1826,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 1
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    },
+    {
+      "case": "plus_25_unrelated_prose_documents",
+      "sources": 29,
+      "attachments": 1,
+      "issues": [
+        "Debe observar el adjunto antes de validar: docs/lks-sdd/historical-screen.png"
+      ],
+      "complete": false,
+      "markdown_characters": 105626,
+      "compact_markdown_characters": 105626,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 26
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    },
+    {
+      "case": "plus_historical_text_log_link",
+      "sources": 29,
+      "attachments": 2,
+      "issues": [
+        "Debe observar el adjunto antes de validar: docs/lks-sdd/historical-screen.png",
+        "Debe observar el adjunto antes de validar: docs/lks-sdd/prior-build.log"
+      ],
+      "complete": false,
+      "markdown_characters": 105907,
+      "compact_markdown_characters": 105907,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 26
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    },
+    {
+      "case": "other_requirement_linked_by_proposal_without_request_field",
+      "sources": 29,
+      "attachments": 1,
+      "issues": [
+        "Debe observar el adjunto antes de validar: docs/lks-sdd/historical-screen.png"
+      ],
+      "complete": false,
+      "markdown_characters": 105607,
+      "compact_markdown_characters": 105607,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "regla global o alcance incierto": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 25
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    },
+    {
+      "case": "same_requirement_with_explicit_request_field",
+      "sources": 28,
+      "attachments": 0,
+      "issues": [],
+      "complete": true,
+      "markdown_characters": 105205,
+      "compact_markdown_characters": 105205,
+      "source_reasons": {
+        "proposal de REQUEST-1a815203": 1,
+        "raíz solicitada": 1,
+        "proceso aplicable": 1,
+        "prosa fuera de bloques; ámbito no acreditado": 25
+      },
+      "query_writes": [],
+      "snapshot_unchanged": true
+    }
+  ],
+  "guard": "Complete el contenido antes de aprobar: Debe observar el adjunto antes de validar: docs/lks-sdd/historical-screen.png",
+  "guard_wrote_nothing": true,
+  "other_normative_proposal_excluded_but_its_preamble_included": true,
+  "comparison_retains_historical_image": true,
+  "growth_characters_from_unlinked_history": 103800,
+  "receipt_changed_from_unlinked_history": true,
+  "log_attachment": {
+    "path": "docs/lks-sdd/prior-build.log",
+    "sha256": "b7621d123c15c2636a48e737114492e52bea5251ec0b639f2e7a5bc81029c1b6",
+    "bytes": 37,
+    "reason": "adjunto referenciado",
+    "requires_observation": true
+  },
+  "requirement_classified_by_membership": true,
+  "other_requirement_incorrectly_selected": true,
+  "explicit_request_excludes_other_requirement": true,
+  "all_expected_checks_passed": true,
+  "provenance": {
+    "observed_on": "2026-10-09",
+    "purpose": "Synthetic reproduction of existing behavior; no fix or release acceptance",
+    "runtime_version": "3.2.0",
+    "runtime_origin": "Installed Codex plugin lks-sdd-development/lks-sdd",
+    "original_report_sha256": "da3299b20c001ea552eca2944d19a001036cdb3c536725cd39fdea790e57463c",
+    "modules_sha256": {
+      "v3_context.py": "1c5f257812120c2cc66557332de4579a2628fedecde1800ac50958a2de5e51e5",
+      "v3_decision_presentation.py": "2d15c4c2e52719249e4b2c7dd05424a652fedc359ab8b5883552572a5d900025",
+      "v3_presentation_guard.py": "8258a8a73e8b5ed6d8a8d59e2a86401d80cc020c6d287685ff5785804e6c29fc"
+    },
+    "consumer_incident_reproduced_exactly": false,
+    "note": "All expected checks passed means the diagnostic assertions reproduced the defect, not that the improvement is implemented."
+  }
+}

@@ -1,5 +1,17 @@
 # Compatibilidad de LKS-SDD
 
+## Candidata 3.3.0-rc.1
+
+Conserva schema 3.1/método 3.1.0 y JSON detallado anterior. `--compact` añade transporte
+sin duplicación y `--details` solicita inspección completa. La presentación `/2` separa
+contenido seleccionado de hashes físicos de concurrencia; `/1` permanece en hechos
+históricos. Las aprobaciones anteriores conservan sus reglas de vigencia.
+
+`context` usa el cierre literal aplicable; `reference: true` recupera la referencia
+completa. La prosa no acreditada continúa incluida. Las declaraciones de alcance requieren
+contenido exacto y gobierno competente; el consumidor adopta esta lógica actualizando
+explícitamente su runtime. Véase [contexto documental](DOCUMENT-CONTEXT.md).
+
 ## Versión 3.2.0
 
 El destino nuevo es schema 3.1/método 3.1.0 con configuración explícita y runtime

@@ -29,6 +29,10 @@ de tercer nivel. `interactions` explica la secuencia conjunta o por qué es aisl
 Las cadenas técnicas antiguas siguen siendo consultables y sus acuerdos vigentes
 se conservan. Una nueva aprobación necesita suficiente detalle. El validador de
 campos detecta ausencias, pero el revisor debe contrastar precisión y coherencia.
+Para un cambio acotado use una propuesta conjunta y solo componentes afectados.
+Cada campo puede ser una frase concreta; referencie los contratos existentes sin
+redactarlos de nuevo. Una corrección comprendida en cobertura y autorización vigentes
+continúa por implementación y verificación, conservando únicamente hechos nuevos.
 Incluya restricciones y criterios enlazados, prosa aplicable y adjuntos. Distinga
 arquitectura observada, propuesta y cuestiones todavía desconocidas.
 

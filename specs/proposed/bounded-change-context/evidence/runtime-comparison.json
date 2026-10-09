@@ -1,0 +1,35 @@
+{
+  "scope": "Read-only comparison of installed and consumer-current files, not historical runtime attestation",
+  "modules": {
+    "v3_context.py": {
+      "installed_sha256": "1c5f257812120c2cc66557332de4579a2628fedecde1800ac50958a2de5e51e5",
+      "consumer_current_sha256": "6bc307a97a7ddadcf7542d3380a2e6e9c2f7afda061a9031471fe552fef2218a",
+      "identical": false
+    },
+    "v3_decision_presentation.py": {
+      "installed_sha256": "2d15c4c2e52719249e4b2c7dd05424a652fedc359ab8b5883552572a5d900025",
+      "consumer_current_sha256": "5db3d4693bee67f94c2ad290c70a9161225a8f030293c23f90fb6919cb8923e4",
+      "identical": false
+    },
+    "v3_lifecycle.py": {
+      "installed_sha256": "d968b42b2c06a50ed0fffbd9ccc937855a377aee1f89264731db7f952c423b1d",
+      "consumer_current_sha256": "d968b42b2c06a50ed0fffbd9ccc937855a377aee1f89264731db7f952c423b1d",
+      "identical": true
+    },
+    "v3_presentation_guard.py": {
+      "installed_sha256": "8258a8a73e8b5ed6d8a8d59e2a86401d80cc020c6d287685ff5785804e6c29fc",
+      "consumer_current_sha256": "8258a8a73e8b5ed6d8a8d59e2a86401d80cc020c6d287685ff5785804e6c29fc",
+      "identical": true
+    },
+    "v3_contract.py": {
+      "installed_sha256": "1e20435cdfec3c2e3974b9e747ccb0f3f5d2b99d293f677bc7b92b94b6704b9e",
+      "consumer_current_sha256": "1e20435cdfec3c2e3974b9e747ccb0f3f5d2b99d293f677bc7b92b94b6704b9e",
+      "identical": true
+    }
+  },
+  "observations": [
+    "Consumer adds global_scope checks and acknowledgement of unavailable historical references.",
+    "Consumer retains unconditional inclusion of model.prose, full-core host reload and duplicate sections/markdown.",
+    "Consumer-current files are not assumed to be exact bytes at incident time."
+  ]
+}

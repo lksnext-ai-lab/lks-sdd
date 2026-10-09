@@ -131,11 +131,12 @@ despacho/rechazo, pero no aceptación de un host real.
 | Inventario técnico individual | 16 MiB / 50.000 entradas |
 | Inventarios técnicos distintos por carga | 32 MiB |
 | Sujeto v3 | 20.000 miembros |
-| Estado v3 y catálogo de migración | 100.000 fuentes / 32 MiB de metadatos |
+| Estado v3 | 100.000 fuentes / 32 MiB de metadatos |
+| Catálogo completo de migración | 250.000 rutas / 64 MiB de metadatos |
 | Descriptor portable | 64 MiB |
 | Payload portable, bytes únicos | 2 GiB |
 | Markdown original del migrador v2 | 256 MiB |
-| Fuentes documentales originales de migración, incluidas históricas | 100.000 / 2 GiB |
+| Fuentes documentales originales de migración, incluidas históricas | 250.000 rutas / 2 GiB de contenidos únicos / 16 GiB de lectura física |
 
 Se conservan además los presupuestos previos de documentos, Git, catálogo y
 colección transaccional. Los manifiestos CAS v2 conservan 4 MiB/10.000 fuentes;
@@ -147,6 +148,12 @@ antes del límite activo. Cuerpos y decisiones irreducibles que aún excedan 32 
 siguen bloqueados; no se truncan ni se omiten verificaciones.
 El catálogo se enumera de nuevo, rechaza enlaces/junctions/repositorios anidados
 y comprueba identidad/tamaño antes y después de cada lectura.
+El límite de contenido único se calcula con hashes de bytes recién leídos;
+todas las copias físicas conservan su ruta y se verifican individualmente.
+La enumeración y los guards de aplicación/recuperación admiten el mismo número
+de rutas. El límite de lectura física controla el coste del escaneo sin confundirlo
+con el volumen deduplicado. Los límites normales de contrato, inventario técnico,
+estado, descriptor y escrituras no cambian.
 El lector solicita tamaño observado más un byte, evitando reservas de 64 MiB
 por cada archivo pequeño. No hay cache persistente de confianza.
 

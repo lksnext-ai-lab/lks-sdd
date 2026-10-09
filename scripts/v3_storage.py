@@ -167,8 +167,8 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None, 
 
 
 def documentary_membership(root):
-    from source_inventory import documents
-    return sorted(documents(root))
+    from source_inventory import documents, MIGRATION_PATH_LIMIT, MIGRATION_SCAN_BYTES
+    return sorted(documents(root, limit=MIGRATION_PATH_LIMIT, byte_limit=MIGRATION_SCAN_BYTES))
 
 
 def check_guards(root, guards, *, phase="before", changes=None):

@@ -6,6 +6,13 @@ import stat
 from v2_contract import ContractError, path_at, relative_parts, sha
 from path_utils import filesystem_root
 
+# Legacy trees retain every physical path, even when their content is repeated.
+# Bound scan work separately from unique migration payload bytes.
+MIGRATION_PATH_LIMIT = 250000
+MIGRATION_SCAN_BYTES = 16 * 1024 * 1024 * 1024
+MIGRATION_UNIQUE_BYTES = 2 * 1024 * 1024 * 1024
+MIGRATION_CATALOG_BYTES = 64 * 1024 * 1024
+
 
 def logical(path):
     value = str(path)

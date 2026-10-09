@@ -78,7 +78,7 @@ def _execute(action, root, data):
         return {"status": "valid" if not model.errors else "blocked", "errors": model.errors, "warnings": model.warnings, "elements": len(model.elements), "writes": []}
     if action == "status": return status(root, request_id=data.get("request"), task_id=data.get("task"), offset=data.get("offset", 0), limit=data.get("limit", 10), task_offset=data.get("task_offset", 0), task_limit=data.get("task_limit", 10))
     if action == "trace": return trace(root, data["uid"], offset=data.get("offset", 0), limit=data.get("limit", 20))
-    if action == "context": return context(root, data["roots"], data.get("operation", "implement"), comparison=data.get("comparison", False))
+    if action == "context": return context(root, data["roots"], data.get("operation", "implement"), comparison=data.get("comparison", False), reference=data.get("reference", False))
     if action == "readiness":
         # A read-only readiness query must describe the actual public operating
         # boundary, including a required cutover, before suggesting execution.
@@ -102,7 +102,7 @@ def _execute(action, root, data):
         return readiness(root, data["task"], actor, data.get("action", "start"))
     if action == "review": return review(root, data["request"], data.get("units"))
     if action == "revoke": return revoke(root, actor, data["decision"], data["reason"])
-    if action == "checkpoint": return checkpoint(root, actor, data["task"], data["result"], data.get("pending", []), classification=data.get("classification", "progress"), analysis=data.get("analysis"))
+    if action == "checkpoint": return checkpoint(root, actor, data["task"], data["result"], data.get("pending", []), classification=data.get("classification", "progress"), analysis=data.get("analysis"), operation_id=data.get("operation_id"))
     if action == "migration-reconcile": return reconcile_migrated(root, actor, data["items"], data["statement"])
     if action == "author": return author(root, actor, items(data["items"]))
     if action == "approve": return approve(root, actor, data["units"], data["purpose"], data["statement"], reason=data.get("reason", ""))
@@ -131,7 +131,11 @@ def _execute(action, root, data):
     if action == "migration-continuation": return continuation(root)
     if action == "old-branch": return old_branch(root, data["old_root"])
     if action == "catalog":
-        model = load(root).require_valid(); entities = sorted(model.elements.values(), key=lambda e: (e.kind, e.uid))
+        model = load(root).require_valid()
+        if data.get("kind") == "prose":
+            from v3_scope import prose_catalog
+            return prose_catalog(model, data.get("offset", 0), data.get("limit", 20))
+        entities = sorted(model.elements.values(), key=lambda e: (e.kind, e.uid))
         if data.get("kind"): entities = [e for e in entities if e.kind == data["kind"]]
         offset, limit = data.get("offset", 0), data.get("limit", 20)
         if offset < 0 or not 1 <= limit <= 100: raise ContractError("Página fuera de límites")
@@ -160,7 +164,25 @@ ACTIONS = ("decision-view configure-collaboration review-proposal close-proposal
 @reviewed()
 def execute(action, root, data):
     from v3_packet import persist
+    from v3_current import READ_ONLY
+    if action in READ_ONLY:
+        from v3_contract import query_evaluation
+        with query_evaluation():
+            return persist(_execute(action, root, data))
     return persist(_execute(action, root, data))
+
+
+def presentation_output(action, result):
+    """One literal presentation body; library/export results keep all detail."""
+    from v3_decision_presentation import compact
+    if action == "decision-view": return compact(result)
+    if action == "review":
+        shown = {k: v for k, v in result.items() if k not in {"units", "presentation"}}
+        shown["units"] = [{k: v for k, v in unit.items() if k not in {"description", "details"}}
+                          for unit in result["units"]]
+        shown["presentation"] = compact(result["presentation"])
+        return shown
+    return result
 
 
 def display_summary(value):
@@ -180,6 +202,9 @@ def main(argv=None, command=None):
     parser.add_argument("--authorize", help="Hash exacto del paquete para apply/recover/rollback")
     parser.add_argument("--receipt")
     parser.add_argument("--json", action="store_true")
+    transport = parser.add_mutually_exclusive_group()
+    transport.add_argument("--details", action="store_true", help="Incluir fuentes, secciones y diagnóstico completo")
+    transport.add_argument("--compact", action="store_true", help="Un solo cuerpo de presentación, también con --json")
     args = parser.parse_args(argv); action = command or args.action
     try:
         root = args.project_root.resolve()
@@ -219,9 +244,8 @@ def main(argv=None, command=None):
                      "next": "Use --output para guardar el paquete completo, o --apply si esta operación ya está autorizada"}
             if hasattr(result, "base"): shown["packet"] = str(result.base/"packet.json")
         else: shown = {**result, "summary": display_summary(result["summary"])} if "summary" in result else result
-        if action == "decision-view" and not args.json and not args.output:
-            from v3_decision_presentation import compact
-            shown = compact(result)
+        if not args.details and (args.compact or (not args.json and not args.output)) and "preview" not in result:
+            shown = presentation_output(action, result)
         print(json.dumps(shown, ensure_ascii=False, indent=2))
         return 2 if result.get("status") in {"blocked", "unsupported", "reconciliation-required"} else 0
     except (ContractError, OSError, ValueError, KeyError, TypeError) as exc:

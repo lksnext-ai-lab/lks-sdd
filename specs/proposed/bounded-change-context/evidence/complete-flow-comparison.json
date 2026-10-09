@@ -1,0 +1,37 @@
+{
+  "scope": "Paired complete synthetic library journey; selected ordinary presentations and queries only",
+  "result_equivalent": true,
+  "result": {
+    "all_milestones": "completed",
+    "open_interventions": 0,
+    "greeting": "Hola",
+    "historical_checkpoints_preserved": 10,
+    "canonical_schema": "3.1"
+  },
+  "selected_ordinary_output_characters": {
+    "3.2.0": 202100,
+    "candidate": 39199
+  },
+  "physical_model_loads": {
+    "3.2.0": 156,
+    "candidate": 154
+  },
+  "parse_calls": {
+    "3.2.0": 5636,
+    "candidate": 5564
+  },
+  "whole_instrumented_seconds": {
+    "3.2.0": 470.45938810004736,
+    "candidate": 380.4761368999607
+  },
+  "selection_reduction_percent": 80.6,
+  "billed_tokens": null,
+  "human_seconds": null,
+  "whole_tool_transport": null,
+  "limitations": [
+    "Single instrumented runs with concurrent large storage regression; measured durations do not establish a reliable speedup.",
+    "Output sums cover the requested ordinary decision/review presentations and queries. Mutation previews, apply descriptors, source inputs, AI instruction/input/cache/output tokens and tool infrastructure are not totalled.",
+    "Five independent normative units and ten checkpoints are synthetic. Unknown prose and shared/global obligations are preserved.",
+    "The flow completes real Git/Markdown transactions and runs its deterministic code assertion, but uses library mutation entrypoints and synthetic reviewer decisions; no host acceptance or real consumer correction."
+  ]
+}

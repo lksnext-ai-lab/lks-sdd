@@ -51,9 +51,12 @@ La lectura de gran volumen utiliza los parsers y verificaciones globales v2:
 solo externaliza los mapas conocidos de ejecución/checkpoint antes del límite
 normalizado de 32 MiB. No recorta cuerpos, relaciones, reglas, evidencia o decisiones.
 Un contrato cuyo contenido irreducible aún excede ese límite permanece bloqueado.
-Los presupuestos del migrador son 256 MiB de Markdown original, 100.000 fuentes
-documentales y 2 GiB de fuentes/payload únicos; objeto 64 MiB, manifiesto 32 MiB,
-descriptor 64 MiB. Se mantienen 16 MiB/50.000 entradas por inventario, 32 MiB de
+Los presupuestos del migrador son 256 MiB de Markdown original, 250.000 rutas
+documentales, 16 GiB de lectura física y 2 GiB de contenidos originales únicos.
+Cada copia se lee y verifica: compartir un hash no autoriza omitir otra ruta.
+El catálogo completo de migración admite 64 MiB; los estados independientes
+conservan 100.000 fuentes/32 MiB. Objeto 64 MiB y descriptor 64 MiB; payload
+portable 2 GiB únicos/100.000 escrituras. Se mantienen 16 MiB/50.000 entradas por inventario, 32 MiB de
 inventarios únicos por carga y 20.000 miembros por sujeto v3. Fragmentar no dispensa
 estos límites ni las comprobaciones de identidades y enlaces entre documentos.
 

@@ -1,6 +1,6 @@
 """Reviewable decisions, corrections and checkpoints without rewriting prior facts."""
 from v3_presentation_guard import reviewed
-from v3_contract import ContractError, element, load, now
+from v3_contract import ContractError, element, load, now, fingerprint
 from v3_policy import operator, policy_for
 from v3_approval import descriptor, proposal_ready, approved
 from v3_workflow import state, latest
@@ -26,7 +26,7 @@ def review(root, request_id, selected=None):
         collaboration = {"reviewers": reviewers(model, request), "status": review_state,
                          "scope": "La conformidad se refiere a la propuesta integral; leer porciones no aprueba el conjunto"}
     from v3_decision_presentation import decision_view
-    presentation = decision_view(root, "review", {"request": request.uid, "units": units})
+    presentation = decision_view(root, "review", {"request": request.uid, "units": units}, model=model)
     return {"moment": "Validación de la propuesta funcional y técnica antes de planificar", "request": request.source(), "collaboration": collaboration,
             "effect": "Aceptar este contenido permite preparar su plan; la implementación se autoriza después",
             "units": [{"source": model.get(k).source(), "part": model.get(k).data.get("part"),
@@ -49,7 +49,7 @@ def revoke(root, actor, decision_id, reason):
     return prepare(root, [event], "revoke")
 
 
-def checkpoint(root, actor, task_id, result, pending, *, classification="progress", analysis=None):
+def checkpoint(root, actor, task_id, result, pending, *, classification="progress", analysis=None, operation_id=None):
     model = load(root).require_valid(); task = model.get(task_id, "task")
     identity = operator(model, actor, "approve" if classification in {"false-positive", "accepted-risk"} else "implement", policy_for(model, task))
     if classification not in {"progress", "correction", "previous-debt", "deviation", "false-positive", "accepted-risk", "new-scope"}:
@@ -59,11 +59,26 @@ def checkpoint(root, actor, task_id, result, pending, *, classification="progres
         observed = model.get(analysis, "analysis")
         if task.uid not in observed.data["tasks"]: raise ContractError("El hallazgo pertenece a otra tarea")
     old = latest(model, task)
+    observed_subject = subject(model.root, task.data["scope"])
+    retry = {}
+    if operation_id is not None:
+        if not isinstance(operation_id, str) or not 1 <= len(operation_id) <= 200 or not operation_id.isprintable():
+            raise ContractError("Clave de operación de checkpoint inválida")
+        identity_digest = fingerprint({"task": task.uid, "actor": {k: v for k, v in identity.items() if k != "observed_at"}, "basis": task.digest(), "result": result,
+                                       "pending": pending, "classification": classification, "analysis": analysis,
+                                       "execution": old.uid if old else None, "subject": observed_subject})
+        existing = [e for e in model.by_kind("checkpoint") + model.by_kind("problem")
+                    if e.data.get("task") == task.uid and e.data.get("operation_id") == operation_id]
+        if existing:
+            if len(existing) != 1 or existing[0].data.get("operation_digest") != identity_digest:
+                raise ContractError("La clave de operación ya corresponde a otro hecho; use una nueva para una observación distinta")
+            return {"status": "already-recorded", "checkpoint": existing[0].source(), "writes": []}
+        retry = {"operation_id": operation_id, "operation_digest": identity_digest}
     event = element("problem" if classification != "progress" else "checkpoint", "Continuidad de " + task.id,
                     result, task=task.uid, basis=task.digest(), actor=identity, classification=classification,
                     pending=pending, analysis=analysis, execution=old.uid if old else None, state=state(model, task),
-                    subject=subject(model.root, task.data["scope"]), recorded_at=now(),
-                    effect="informative-does-not-change-quality-result")
+                    subject=observed_subject, recorded_at=now(),
+                    effect="informative-does-not-change-quality-result", **retry)
     event["meta"].update(state="observed", nature="fact" if classification in {"progress", "correction", "previous-debt", "deviation"} else "decision")
     return prepare(root, [event], "checkpoint", guards={"git": observe(model.root), "subject": event["meta"]["data"]["subject"]})
 

@@ -36,7 +36,8 @@ def status(root, *, request_id=None, task_id=None, offset=0, limit=10, task_offs
             task_rows.append({"uid": task.uid, "title": task.meta["title"], "state": current, "label": LABELS.get(current, current),
                               "owner": owner, "contributions": contributions, "next_action": NEXT.get(current), "source": task.source()})
         flags = {"proposal-approved": proposal}
-        try: flags = request_facts(model, request)
+        journey_facts = None
+        try: flags = request_facts(model, request); journey_facts = flags
         except ContractError as exc: issues.append({"source": request.source(), "cause": str(exc)})
         steps = steps_state(policy.data, flags, request.data.get("flags", {}))
         active_steps = [s for s in steps if s["state"] in {"available", "needs-decision"}]
@@ -50,7 +51,7 @@ def status(root, *, request_id=None, task_id=None, offset=0, limit=10, task_offs
                      "recommendation_basis": "Propuesta vigente y evidencia de las tareas de esta petición"})
         if policy.data.get("collaboration"):
             from v31_guidance import interventions
-            rows[-1]["journey"] = interventions(model, request.uid)
+            rows[-1]["journey"] = interventions(model, request.uid, facts=journey_facts)
     return {"project": {"title": model.project.meta["title"], "source": model.project.source()},
             "requests": rows, "total": len(requests), "offset": offset,
             "next_offset": offset+limit if offset+limit < len(requests) else None, "issues": issues,

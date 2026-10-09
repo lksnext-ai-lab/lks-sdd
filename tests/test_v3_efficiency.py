@@ -73,6 +73,34 @@ class EfficiencyTests(unittest.TestCase):
                        "controls": self.controls, "statement": "Explicit conversion and runtime", "target": "main",
                        "collaboration": configuration(), "runtime_bundle": str(self.bundle), **extra})
 
+    def test_adopted_v2_with_index_only_project_migrates_without_inventing_old_identity(self):
+        self.old("2.0.1")
+        index_path = self.root / ".lks-sdd/project.json"
+        original_index = json.loads(index_path.read_bytes())
+        original_index["method_version"] = "2.0.0"
+        removed = {"PRJ-001", "TECH-001"}
+        for row in original_index["artifacts"]:
+            if row.get("id") in removed:
+                (self.root / row["path"]).unlink()
+        original_index["artifacts"] = [row for row in original_index["artifacts"] if row.get("id") not in removed]
+        index_path.write_bytes(canonical(original_index))
+        original_bytes = index_path.read_bytes()
+        from v3_migration import source_model
+        old = source_model(self.root, normalize=True)
+        self.assertEqual([], old.by_kind("project"))
+        identities = {e.id: e.meta["uid"] for e in old.elements.values()}
+        packet = self.migration()
+        apply(self.root, packet, packet["preview"]["preview_hash"], current=True)
+        current = load(self.root).require_valid()
+        self.assertEqual(original_index["project_id"], current.project.data["legacy_project_id"])
+        self.assertEqual("fact", current.project.meta["nature"])
+        self.assertNotIn(current.project.uid, identities.values())
+        self.assertEqual(identities, packet["summary"]["mapping"])
+        from v3_contract import read_bytes
+        self.assertEqual(original_bytes, read_bytes(self.root, current.project.data["legacy"]["original"]))
+        for identifier, identity in identities.items():
+            self.assertEqual(identity, current.get(identifier).uid)
+
     def test_native31_and_profiles_are_explicit_and_pinned(self):
         from runtime_doctor import check
         with self.assertRaises(ContractError): present(execute, "init", self.root, {"name": "X", "actor_name": "X", "profile": "individual-brief",
@@ -352,7 +380,7 @@ class EfficiencyTests(unittest.TestCase):
             (self.root/path).parent.mkdir(parents=True, exist_ok=True); (self.root/path).write_bytes(raw)
             originals[value["meta"]["uid"]] = (path, raw)
         with self.assertRaisesRegex(ContractError, "byte budget"): v2_contract.load(self.root)
-        for i in range(10005):
+        for i in range(100005):
             path = self.root/DOCS/f"00-control/history/old/{i}.txt"
             path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"preserved old history")
         normalized = source_model(self.root, normalize=True); normalized.require_valid()
@@ -369,13 +397,87 @@ class EfficiencyTests(unittest.TestCase):
             self.assertEqual("historical-authorization", event.data["authorization"])
             self.assertEqual(["evidence-kept"], event.data["evidence_ids"])
             self.assertEqual(originals[event.uid][1], v2_contract.read_bytes(self.root, event.data["legacy"]["original"], limit=4*1024*1024))
-        self.assertEqual(10005, len(list((self.root/DOCS/"00-control/history/old").iterdir())))
+        self.assertEqual(100005, len(list((self.root/DOCS/"00-control/history/old").iterdir())))
 
 
 class StorageBoundaryTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="v31-boundary-"); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)/"project"; self.root.mkdir()
+
+    def test_migration_counts_unique_bytes_but_retains_every_physical_path(self):
+        from types import SimpleNamespace
+        from v3_migration import inventory
+        from v3_storage import documentary_membership
+        from v2_storage import protected_inventory, assert_sources
+        names = [DOCS+f"/00-control/history/old/{i}.txt" for i in range(3)]
+        for name in names:
+            path = self.root/name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"same")
+        with patch("source_inventory.MIGRATION_UNIQUE_BYTES", 4):
+            sources = inventory(self.root, SimpleNamespace(hashes={}))
+        self.assertEqual({name: sha(b"same") for name in names}, sources)
+        self.assertEqual(names, documentary_membership(self.root))
+        self.assertEqual(names, protected_inventory(self.root, sources))
+        assert_sources(self.root, sources)
+        (self.root/names[0]).write_bytes(b"edit")
+        with self.assertRaisesRegex(ContractError, "Source changed"):
+            assert_sources(self.root, sources)
+
+    def test_migration_rejects_unique_byte_scan_and_path_budget_overflow(self):
+        from types import SimpleNamespace
+        from v3_migration import inventory
+        for i in range(3):
+            path = self.root/DOCS/f"assets/{i}.txt"
+            path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"same")
+        for budget, limit in (("MIGRATION_SCAN_BYTES", 8), ("MIGRATION_PATH_LIMIT", 2)):
+            with self.subTest(budget=budget), patch("source_inventory."+budget, limit):
+                with self.assertRaisesRegex(ContractError, "resource budget"):
+                    inventory(self.root, SimpleNamespace(hashes={}))
+        (self.root/DOCS/"assets/1.txt").write_bytes(b"else")
+        with patch("source_inventory.MIGRATION_UNIQUE_BYTES", 4):
+            with self.assertRaisesRegex(ContractError, "unique source byte budget"):
+                inventory(self.root, SimpleNamespace(hashes={}))
+
+    def test_migration_rechecks_original_hashes_and_counts_external_sources(self):
+        from types import SimpleNamespace
+        from v3_migration import inventory
+        path = self.root/DOCS/"assets/source.txt"
+        path.parent.mkdir(parents=True); path.write_bytes(b"same")
+        with self.assertRaisesRegex(ContractError, "Source changed"):
+            inventory(self.root, SimpleNamespace(hashes={DOCS+"/assets/source.txt": sha(b"edit")}))
+        (self.root/"AGENTS.md").write_bytes(b"external")
+        with patch("source_inventory.MIGRATION_SCAN_BYTES", 10):
+            with self.assertRaisesRegex(ContractError, "physical source byte budget"):
+                inventory(self.root, SimpleNamespace(hashes={}))
+        with patch("source_inventory.MIGRATION_UNIQUE_BYTES", 4):
+            with self.assertRaisesRegex(ContractError, "unique source byte budget"):
+                inventory(self.root, SimpleNamespace(hashes={}))
+
+    def test_large_migration_catalog_preserves_all_paths_and_detects_corruption(self):
+        from content_store import prepare_object, object_path
+        from v2_storage import write_one
+        from v3_contract import Model, Element
+        from v3_inventories import resolve
+        from v2_contract import fingerprint
+        paths = [DOCS+"/00-control/history/old/"+"stable-"*18+f"/{i}.txt" for i in range(100001)]
+        hashes = {name: sha(b"same") for name in paths}
+        raw = canonical({"format": "lks-sdd-migration-inventory/1", "entries":
+                         [{"path": name, "sha256": digest, "original": name, "disposition": "preserved"}
+                          for name, digest in hashes.items()]})
+        self.assertGreater(len(raw), 32*1024*1024)
+        changes = {}; ref = prepare_object(self.root, raw, changes)
+        for path, data in changes.items(): write_one(self.root, path, data)
+        item = element("migration", "Large legacy catalog", "All paths retained without copying old trees.",
+                       inventory_ref=ref, source={"snapshot": fingerprint(hashes)})
+        saved = Element(item["meta"], item["body"], DOCS+"/migration.md")
+        model = Model(self.root); resolve(model, saved, {})
+        self.assertEqual({object_path(ref): ref["sha256"]}, model.hashes)
+        with patch("source_inventory.MIGRATION_PATH_LIMIT", 100000):
+            with self.assertRaisesRegex(ContractError, "Invalid migration inventory"):
+                resolve(Model(self.root), saved, {})
+        (self.root/object_path(ref)).write_bytes(raw[:-1]+b"x")
+        with self.assertRaisesRegex(ContractError, "integrity mismatch"):
+            resolve(Model(self.root), saved, {})
 
     def test_migration_normalization_keeps_irreducible_markdown_budget(self):
         import v2_authoring, v2_contract

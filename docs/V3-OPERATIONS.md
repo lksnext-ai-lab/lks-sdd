@@ -6,12 +6,25 @@ Consultas no escriben. Las mutaciones producen preview; `--output` guarda el paq
 completo. `--apply` aplica cuando la decisión de la sesión ya autoriza esos datos.
 `apply --input <paquete> --authorize <preview_hash>` aplica un paquete presentado.
 La entrada JSON es un transporte; el resultado canónico sigue siendo Markdown.
+`decision-view` y `review` con `--compact` devuelven una presentación literal sin
+duplicar cuerpos, incluido `--json`. Sin esa opción, `--json` mantiene el resultado
+detallado anterior; `--details` lo solicita expresamente y `--output` lo exporta completo.
+La salida ordinaria sin `--json` es compacta. El recibo y los guards son los mismos.
+`context` usa aplicabilidad literal; `reference: true` obtiene el diagnóstico completo.
+`catalog` con `kind: prose` pagina fuentes, hashes y estado de clasificación sin sus cuerpos.
+Las declaraciones canónicas se explican en [DOCUMENT-CONTEXT.md](DOCUMENT-CONTEXT.md).
 El CLI público exige método 3.1.0, colaboración y runtime fijado para escrituras
 ordinarias. Los lectores antiguos y recuperadores permanecen. `migration-preview`
 prepara v2 → 3.1, 3.0 → 3.1 o actualización de runtime 3.1.
 `packet_directory` selecciona un directorio nuevo externo para preparar volúmenes
 grandes: contiene `packet.json` y sus objetos. Conserve y transporte ambos.
 `--output` guarda también un descriptor y su directorio de objetos adyacente.
+
+`checkpoint` admite `operation_id` para reintentar una observación exacta sin crear
+otro evento. Una clave reutilizada con contenido, actor o sujeto distinto se rechaza;
+otra observación usa otra clave. Sin clave, cada llamada conserva su hecho distinto.
+La presentación omite checkpoints simples anteriores cuando hay uno posterior del
+mismo ámbito; conserva pendientes, problemas y evidencia. `trace` recupera el historial.
 
 ## Configuración y autoría
 

@@ -45,6 +45,7 @@
     "schemas/project-3.1.schema.json",
     "docs/V31-REVIEW.md",
     "docs/DOCUMENT-STORAGE.md",
+    "docs/DOCUMENT-CONTEXT.md",
     "scripts/v3_decision_profiles.py",
     "scripts/v3_decision_presentation.py",
     "scripts/v3_presentation_guard.py",
@@ -60,6 +61,7 @@
     "docs/decision-guides/verification.md",
     "tests/presentation_test_support.py",
     "tests/test_v3_decision_presentation.py",
+    "tests/test_v3_documentary_flow.py",
     "tests/test_v3_instruction_routing.py"
   ]
 }
