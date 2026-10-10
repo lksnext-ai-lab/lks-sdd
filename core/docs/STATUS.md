@@ -1,14 +1,16 @@
 # Estado actual de LKS-SDD
 
-La implementación 3.1.0 añade el recorrido integral optativo **3.1** / método
-**3.1.0**. El formato predeterminado sigue siendo **3.0** / método **3.0.0**.
-Los proyectos existentes mantienen su formato, método y runtime hasta una
-actualización explícita. La versión del plugin, el método y el schema son distintos.
-El seguimiento de esta evolución y las pruebas focales están en
-[el plan integral](plans/integral-review/PLAN.md); la autorización de publicación,
-en [DEC-V31-001](plans/integral-review/AUTHORIZATION.md).
-La integración, gate y publicación se acreditan con los commits, ejecuciones y
-assets de la release, no con un estado declarado antes de ejecutarlos.
+La versión 3.4.0 está en preparación: añade diagnóstico de uso para mejorar el
+plugin, con observaciones, hallazgos, reporte/prompt y paquete portable. El destino
+operativo es schema 3.1/método 3.1.0 y runtime con formato lks-sdd-usage/1. Los
+proyectos existentes conservan su runtime hasta un corte expresamente autorizado.
+El avance y sus comprobaciones se conservan en
+[el seguimiento](plans/plugin-improvement-feedback/IMPLEMENTATION.md).
+
+La aprobación propia de 3.4.0 y el commit/integración local se autorizaron el
+2026-10-10. Commit final limpio, gate stable, assets exactos, publicación e
+instalación se acreditan por separado. La preparación del código no
+se anuncia como release final ni como actualización de un host o consumidor.
 
 ## Estado técnico
 

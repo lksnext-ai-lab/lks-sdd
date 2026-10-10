@@ -24,6 +24,8 @@ from path_utils import filesystem_root, same_filesystem_path
 
 PLUGIN_ROOT = filesystem_root(Path(__file__).resolve().parents[1])
 COMMANDS = {
+    "usage-inspect": "scripts/usage_bundle.py",
+    "usage-export": "scripts/usage_bundle.py",
     "v3": "scripts/v3_cli.py",
     "v2": "scripts/v2_cli.py",
     "catalog": "scripts/v2_cli.py",
@@ -102,10 +104,10 @@ def main() -> int:
             forwarded = [forwarded[1], forwarded[0], *forwarded[2:]]
     # A shared project never silently runs a different global installation.
     migration_route = command == "migrate" or (command == "v3" and forwarded and forwarded[0] in {
-        "migration-diagnose", "migration-preview", "configure-collaboration", "apply", "recover", "rollback"}) or (command == "v2" and forwarded and forwarded[0] in {
+        "migration-diagnose", "migration-preview", "configure-collaboration", "apply", "recover", "rollback", "usage-report", "usage-export"}) or (command == "v2" and forwarded and forwarded[0] in {
         "migration-diagnose", "migration-preview", "migration-status", "migration-continuation",
         "migrate", "recover", "rollback", "method-upgrade-diagnose", "method-upgrade"})
-    if command not in {"runtime-doctor", "query"} and not migration_route:
+    if command not in {"runtime-doctor", "query", "usage-export", "usage-inspect"} and not migration_route:
         from runtime_doctor import check as check_runtime
         for argument in forwarded:
             if argument.startswith("-"):
@@ -119,22 +121,25 @@ def main() -> int:
                 continue
             runtime = check_runtime(candidate)
             if runtime["status"] == "blocked":
-                print(json.dumps(runtime, ensure_ascii=False))
+                from v3_usage import early
+                print(json.dumps(early(runtime, command, {"arguments":forwarded}), ensure_ascii=False))
                 return 2
             pinned = (candidate / runtime["runtime"]).resolve()
             if not same_filesystem_path(pinned, PLUGIN_ROOT):
                 from v3_current import FORMATS
                 lock = json.loads((candidate / ".lks-sdd/distribution-lock.json").read_bytes())
                 if lock["project_schema"] in {"2.0", "3.0", "3.1"} and not set(FORMATS) <= set(lock.get("storage_formats", [])):
-                    print(json.dumps({"status": "blocked", "error": "needs-runtime-update: prepare the explicit current-method cutover; the older pinned CLI is for read-only access/recovery",
+                    from v3_usage import early
+                    print(json.dumps(early({"status": "blocked", "error": "needs-runtime-update: prepare the explicit current-method cutover; the older pinned CLI is for read-only access/recovery",
                                       "next": f"python {PLUGIN_ROOT / 'scripts/lks_sdd.py'} v3 migration-diagnose {candidate} --json",
-                                      "read_only_cli": str(pinned / "scripts/lks_sdd.py"), "writes": []}, ensure_ascii=False))
+                                      "read_only_cli": str(pinned / "scripts/lks_sdd.py"), "writes": []}, command, {"arguments":forwarded}), ensure_ascii=False))
                     return 2
-                print(json.dumps({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
-                                  "cli": str(pinned / "scripts/lks_sdd.py")}, ensure_ascii=False))
+                from v3_usage import early
+                print(json.dumps(early({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
+                                  "cli": str(pinned / "scripts/lks_sdd.py")}, command, {"arguments":forwarded}), ensure_ascii=False))
                 return 2
             break
-    if command != "v3" and forwarded:
+    if command not in {"v3", "usage-export", "usage-inspect"} and forwarded:
         from v3_cli import is_v3, main as v3_main
         if Path(forwarded[0]).is_dir() and is_v3(Path(forwarded[0])):
             routes = {"help": "status", "status": "status", "query": "status", "doctor": "validate", "validate-project": "validate",
@@ -147,7 +152,7 @@ def main() -> int:
     if command in {"catalog", "context", "history", "migrate"}:
         from v2_cli import main as v2_main
         return v2_main(forwarded, command=command)
-    if command not in {"v2", "query", "runtime-doctor", "visual-handoff"} and forwarded and not forwarded[0].startswith("-"):
+    if command not in {"v2", "query", "runtime-doctor", "visual-handoff", "usage-export", "usage-inspect"} and forwarded and not forwarded[0].startswith("-"):
         from v2_cli import is_v2, main as v2_main
         project = Path(forwarded[0])
         if command == "define" and project.is_dir() and not (project / ".lks-sdd/project.json").exists():
@@ -187,7 +192,7 @@ def main() -> int:
     original_argv = sys.argv
     original_path = list(sys.path)
     try:
-        sys.argv = [str(target), *forwarded]
+        sys.argv = [str(target), *([command] if command in {"usage-inspect", "usage-export"} else []), *forwarded]
         sys.path.insert(0, str(target.parent))
         runpy.run_path(str(target), run_name="__main__")
     except SystemExit as exc:

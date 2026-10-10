@@ -45,8 +45,10 @@ GROUPS = {
 }
 ACTIONS = {action: profile for profile, actions in GROUPS.items() for action in actions.split()}
 ACTIONS["approve"] = "specification"
+ACTIONS.update({action: "information" for action in ("usage-record", "usage-report", "usage-export")})
 HISTORICAL = set("tracking-project tracking-authorize tracking-result tracking-reconcile tracking-milestone retention-compact retention-restore visual-request visual-accept visual-cancel visual-observe authorize-delivery".split())
 INFORMATION = set("validate status trace context readiness interventions checkpoint implement catalog history state-history reindex author decision-view adopt-inspect migration-diagnose migration-continuation old-branch evidence analysis analysis-run analysis-findings verify close prepare-delivery".split())
+INFORMATION.update({"usage-record", "usage-report", "usage-export"})
 
 
 def profiles(event, data):

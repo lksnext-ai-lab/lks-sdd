@@ -10,7 +10,8 @@
     "lks-sdd-object/1",
     "lks-sdd-inventory/1",
     "lks-sdd-state/1",
-    "lks-sdd-packet/1"
+    "lks-sdd-packet/1",
+    "lks-sdd-usage/1"
   ],
   "readable_project_schemas": [
     "1.5",
@@ -62,6 +63,25 @@
     "tests/presentation_test_support.py",
     "tests/test_v3_decision_presentation.py",
     "tests/test_v3_documentary_flow.py",
-    "tests/test_v3_instruction_routing.py"
+    "tests/test_v3_instruction_routing.py",
+    "scripts/v3_usage.py",
+    "scripts/usage_findings.py",
+    "scripts/usage_report.py",
+    "scripts/usage_bundle.py",
+    "schemas/usage-observation-1.0.schema.json",
+    "schemas/usage-finding-1.0.schema.json",
+    "schemas/usage-bundle-1.0.schema.json",
+    "tests/usage_test_support.py",
+    "tests/test_usage_observation.py",
+    "tests/test_usage_findings.py",
+    "tests/test_usage_report.py",
+    "tests/test_usage_bundle.py",
+    "tests/test_usage_workflow.py",
+    "docs/USAGE-FEEDBACK.md",
+    "docs/UPGRADE-3.4.0.md",
+    "tests/measure_usage_feedback.py",
+    "docs/plans/plugin-improvement-feedback/PLAN.md",
+    "docs/plans/plugin-improvement-feedback/IMPLEMENTATION.md",
+    "docs/plans/plugin-improvement-feedback/EXAMPLE.md"
   ]
 }

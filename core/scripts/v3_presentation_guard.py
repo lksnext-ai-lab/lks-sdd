@@ -14,7 +14,7 @@ def call_data(function, args, kwargs):
     bound = inspect.signature(function).bind(*args, **kwargs)
     values = dict(bound.arguments)
     root = values.pop("root")
-    action = values.pop("action", None) if function.__name__ in {"execute", "_execute", "transition"} else None
+    action = values.pop("action", None) if function.__name__ in {"execute", "_execute", "_execute_persist", "transition"} else None
     data = values.pop("data", values)
     if isinstance(data, dict) and "actor" in values and "actor" not in data: data = {**data, "actor": values["actor"]}
     return root, action, data

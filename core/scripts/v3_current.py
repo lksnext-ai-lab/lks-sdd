@@ -7,8 +7,8 @@ from pathlib import Path
 
 from v2_contract import ContractError
 
-FORMATS = ["lks-sdd-object/1", "lks-sdd-inventory/1", "lks-sdd-state/1", "lks-sdd-packet/1"]
-READ_ONLY = set("decision-view validate status trace context readiness review interventions analysis-findings adopt-inspect migration-diagnose migration-continuation old-branch catalog history state-history".split())
+FORMATS = ["lks-sdd-object/1", "lks-sdd-inventory/1", "lks-sdd-state/1", "lks-sdd-packet/1", "lks-sdd-usage/1"]
+READ_ONLY = set("decision-view validate status trace context readiness review interventions analysis-findings adopt-inspect migration-diagnose migration-continuation old-branch catalog history state-history usage-report usage-export".split())
 SPECIAL = {"init", "migration-preview", "configure-collaboration", "apply", "recover", "rollback"}
 
 

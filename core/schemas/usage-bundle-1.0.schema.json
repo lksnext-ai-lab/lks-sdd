@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks-sdd.invalid/usage-bundle-1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "lks-sdd-usage-bundle/1"
+    },
+    "status": {
+      "enum": [
+        "needs-material",
+        "ready-for-investigation",
+        "reproduced"
+      ]
+    },
+    "files": {
+      "type": "object",
+      "minProperties": 3,
+      "maxProperties": 10000,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+          }
+        },
+        "required": [
+          "sha256",
+          "bytes"
+        ]
+      }
+    },
+    "selection": {
+      "type": "object"
+    },
+    "missing": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 65536
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 65536
+      }
+    },
+    "reproduction": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "format",
+    "status",
+    "files",
+    "selection",
+    "missing",
+    "transformations",
+    "dependencies",
+    "reproduction"
+  ]
+}

@@ -1,5 +1,21 @@
 # Changelog
 
+
+## 3.4.0 — 2026-10-10 — diagnóstico para mejorar el plugin
+
+- Añade observaciones de uso por ventana, fases y etapas de preparación/aplicación, con procedencia y métricas acotadas; no atribuye lecturas ni tokens facturados al host.
+- Conserva lotes por el diario existente y fuentes únicas por contenido; excluye diagnósticos de contexto normativo y decisiones sin relajar guards.
+- Detecta siete familias de problemas/candidatos, conserva ocurrencias, genera resumen, reporte y prompt autónomo desde el primer intento, incluidos bloqueos previos.
+- Exporta paquetes exactos con inventario, transformaciones y material necesario; inspección independiente y reproducción aislada del selector conocido, sin ejecutar adjuntos.
+- Integra las seis skills y el mismo núcleo en Codex/Copilot. Mantiene schema 3.1 y método 3.1.0; el formato técnico lks-sdd-usage/1 exige corte explícito del runtime.
+- Preparación de release sujeta a aprobación propia, commit limpio, gate estable y paquetes del mismo SHA. Publicación, instalación y aceptación conversacional permanecen separadas.
+
+## 3.4.0-rc.1 — 2026-10-10 — diagnóstico de uso en validación
+
+Preparación de desarrollo de la capacidad promovida a 3.4.0 tras su aprobación
+propia. No se publicó como release ni acredita gate estable, instalación o
+aceptación de hosts.
+
 ## 3.3.0 — 2026-10-10 — contexto aplicable y continuidad proporcionada
 
 - Unifica selección literal en decisiones y ejecución: resuelve pertenencia antes de

@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lks-sdd.invalid/usage-observation-1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "lks-sdd-usage/1"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 65536
+        },
+        "tasks": {
+          "type": "array",
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          }
+        },
+        "state": {
+          "enum": [
+            "provisional",
+            "linked"
+          ]
+        }
+      },
+      "required": [
+        "request",
+        "tasks",
+        "state"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "operation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "stage": {
+      "enum": [
+        "query",
+        "prepared",
+        "applied",
+        "failed",
+        "declared"
+      ]
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "runtime-derived",
+            "host-observed",
+            "agent-declared"
+          ]
+        },
+        "mechanism": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "assurance": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "claimed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "mechanism",
+            "assurance"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "maxLength": 65536
+            },
+            "mechanism": {
+              "type": "string",
+              "maxLength": 65536
+            },
+            "assurance": {
+              "type": "string",
+              "maxLength": 65536
+            }
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "mechanism",
+        "assurance"
+      ]
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plugin_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "method_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "python": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "revision_scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "components": {
+          "type": "object",
+          "maxProperties": 20,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "required": [
+        "plugin_version",
+        "method_version",
+        "revision",
+        "python"
+      ]
+    },
+    "input": {
+      "type": "object"
+    },
+    "result_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "result": {
+      "type": "object"
+    },
+    "fragments": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 65536
+          },
+          "gap": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "text_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "format",
+              "sha256",
+              "bytes"
+            ],
+            "properties": {
+              "format": {
+                "const": "lks-sdd-object/1"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          "unit": {
+            "enum": [
+              "characters",
+              "bytes"
+            ]
+          },
+          "data_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "format",
+              "sha256",
+              "bytes"
+            ],
+            "properties": {
+              "format": {
+                "const": "lks-sdd-object/1"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          "transient_gap": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          }
+        },
+        "required": [
+          "source",
+          "revision",
+          "locator",
+          "start",
+          "end",
+          "sha256",
+          "bytes"
+        ]
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 20,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "method": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "coverage": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536
+          },
+          "status": {
+            "enum": [
+              "measured",
+              "estimated",
+              "declared",
+              "absent"
+            ]
+          },
+          "claimed_status": {
+            "enum": [
+              "measured",
+              "estimated",
+              "declared",
+              "absent"
+            ]
+          }
+        },
+        "required": [
+          "value",
+          "unit",
+          "method",
+          "coverage",
+          "status"
+        ]
+      }
+    },
+    "preview_hash": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "declarations": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object"
+      }
+    },
+    "application": {
+      "type": "object"
+    },
+    "output": {
+      "type": "object"
+    },
+    "window_state": {
+      "enum": [
+        "provisional",
+        "linked",
+        "in-progress",
+        "finished",
+        "blocked",
+        "interrupted"
+      ]
+    },
+    "gaps": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "string",
+        "maxLength": 65536
+      }
+    },
+    "invocation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "format",
+    "observation_id",
+    "run_id",
+    "binding",
+    "phase",
+    "operation",
+    "stage",
+    "origin",
+    "runtime",
+    "input",
+    "result_digest",
+    "result",
+    "fragments",
+    "metrics"
+  ]
+}

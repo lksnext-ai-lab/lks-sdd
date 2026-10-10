@@ -108,7 +108,7 @@ def text(value, model=None):
 
 
 def normalize(data):
-    value = copy.deepcopy({k: v for k, v in (data or {}).items() if k not in {"presented", "presentation", "statement", "_model", "packet_directory", "refresh"}})
+    value = copy.deepcopy({k: v for k, v in (data or {}).items() if k not in {"presented", "presentation", "statement", "_model", "packet_directory", "refresh", "usage_context"}})
     aliases = {"request_id": "request", "task_id": "task", "plan_uid": "plan", "identifiers": "units", "decision_id": "decision", "correction_id": "correction", "problem_id": "problem", "process": "profile"}
     for old, new in aliases.items():
         if old in value: value[new] = value.pop(old)
@@ -162,6 +162,8 @@ def collect(model, roots, selected=()):
         if group not in recent or rank > recent[group][0]: recent[group] = (rank, e.uid)
     omitted = 0
     for e in model.elements.values():
+        from v3_usage import diagnostic
+        if diagnostic(e): continue
         if e.uid in roots or (e.kind in EVENTS and (e.data.get("request") in requests - {None} or e.data.get("task") in related or set(e.data.get("tasks", [])) & related)):
             simple = (e.kind == "checkpoint" and e.data.get("classification") == "progress" and e.meta.get("nature") == "fact"
                       and not e.data.get("pending") and not e.data.get("analysis") and not e.data.get("critical")
