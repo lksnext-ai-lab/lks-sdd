@@ -83,6 +83,12 @@ class RoutingTests(unittest.TestCase):
                 view = json.loads(result.stdout); self.assertTrue(view["complete"], view["issues"])
                 self.assertNotIn("sources", view); self.assertEqual([], list(project.iterdir()))
                 rendered.append(view)
+            # Trace IDs/times describe distinct invocations; the decision itself
+            # must remain identical across hosts, including its exact receipt.
+            for value in rendered:
+                usage = value.pop("usage")
+                self.assertEqual("query",usage["observations"][0]["stage"])
+                self.assertEqual("lks-sdd-usage/1",usage["observations"][0]["format"])
             self.assertEqual(rendered[0], rendered[1])
 
 

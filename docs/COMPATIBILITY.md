@@ -1,5 +1,14 @@
 # Compatibilidad de LKS-SDD
 
+## Versión 3.4.0
+
+Añade el formato técnico `lks-sdd-usage/1` sin cambiar método/schema 3.1. Las consultas
+de proyectos anteriores siguen disponibles; conservar observaciones exige actualizar
+explícitamente su runtime. El diagnóstico no acredita lectura del host, calidad ni
+autoridad. Los receipts quedan fuera de bases semánticas de decisión y los guards
+frescos se conservan. El paquete se inspecciona sin un consumidor o instalación antigua.
+Véase [diagnóstico de uso](USAGE-FEEDBACK.md).
+
 ## Versión 3.3.0
 
 Conserva schema 3.1/método 3.1.0 y JSON detallado anterior. `--compact` añade transporte

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "release_version": "3.4.0",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-version-approval",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-10",
+    "authority_role": "project-owner",
+    "rationale": "El responsable responde «Autorizado. Adelante» a la solicitud concreta de aprobar 3.4.0, crear el commit e integrarlo localmente en main para ejecutar el gate stable y preparar los paquetes finales de Codex y Copilot. La aprobación exige gate stable y assets exactos del commit final limpio. Schema 3.1 y método 3.1.0 se mantienen. No autoriza push, etiquetas, publicación, instalación ni migración de consumidores.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aprobación de versión no acredita aceptación conversacional de Codex/Copilot, comprensión humana ni piloto.",
+    "La validación de desarrollo y el bundle rc.1 no sustituyen el gate stable y los assets del nuevo SHA.",
+    "La preparación local offline no acredita preflight remoto, disponibilidad Git ni referencias Copilot publicadas.",
+    "La medición focal no acredita tokens facturados, ahorro económico o tiempo humano.",
+    "Instalación, activación, actualización del runtime consumidor y publicación permanecen sin ejecutar."
+  ]
+}

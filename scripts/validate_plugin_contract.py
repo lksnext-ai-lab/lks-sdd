@@ -44,6 +44,9 @@ CANONICAL_HASHES = {
     "LKS-SDD_extension_planificacion_continuidad_v1.3.md": "1CE7721E3B75DF475572DDEEB451243B13EC5D1F0FCDEA0E3780E16327263942",
 }
 REQUIRED_ROOT_FILES = {
+    "scripts/v3_usage.py", "scripts/usage_findings.py", "scripts/usage_report.py", "scripts/usage_bundle.py",
+    "schemas/usage-observation-1.0.schema.json", "schemas/usage-finding-1.0.schema.json", "schemas/usage-bundle-1.0.schema.json",
+    "docs/USAGE-FEEDBACK.md",
     ".gitattributes",
     "README.md",
     "CHANGELOG.md",
@@ -962,7 +965,7 @@ def validate(root: Path) -> list[str]:
         "LEARNING-GUIDE.md", "INSTALLATION.md", "COPILOT-PILOT.md", "V2-HOST-ACCEPTANCE.md",
     )}
     shared_v2_policies = {(root / name).resolve() for name in
-                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md", "docs/V3-COMMON.md", "docs/V3-OPERATIONS.md", "docs/V3-MIGRATION.md")}
+                          ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md", "docs/V3-COMMON.md", "docs/V3-OPERATIONS.md", "docs/V3-MIGRATION.md", "docs/USAGE-FEEDBACK.md")}
     # Finite shared decision resources, with explicit transitive link validation.
     from v3_decision_profiles import PROFILES
     decision_resources = ["docs/USER-DECISIONS.md", "docs/V31-REVIEW.md"] + [

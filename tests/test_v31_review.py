@@ -199,7 +199,10 @@ class IntegralTests(ProjectFixture):
         from datetime import datetime, timedelta, timezone
         initial = load(self.root).snapshot()
         direct = interventions(load(self.root), self.req, actor=self.actor)
-        self.assertEqual(direct, cli("interventions", self.root, {"request": self.req, "actor": self.actor}))
+        shared = cli("interventions", self.root, {"request": self.req, "actor": self.actor})
+        usage = shared.pop("usage")
+        self.assertEqual("query",usage["observations"][0]["stage"])
+        self.assertEqual(direct, shared)
         self.assertEqual(direct, cli("readiness", self.root, {"request": self.req, "actor": self.actor, "action": "close-proposal"})["journey"])
         self.assertEqual(interventions(load(self.root), self.req), status(self.root, request_id=self.req)["requests"][0]["journey"])
         self.assertEqual(initial, load(self.root).snapshot())

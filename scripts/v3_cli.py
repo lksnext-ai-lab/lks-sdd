@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from functools import wraps
 
 from v3_contract import ContractError, INDEX, element, load, canonical
 
@@ -42,6 +43,32 @@ def _execute(action, root, data):
     from v3_adoption import inspect, record as adopt
     from v3_lifecycle import review, revoke, checkpoint, reconcile_migrated
     actor = data.get("actor")
+    if action == "usage-record":
+        from v3_usage import record
+        return record(root, data)
+    if action == "usage-report":
+        from usage_report import query
+        return query(root, data)
+    if action == "usage-export":
+        from usage_bundle import preview, export
+        if data.get("destination"):
+            return export(data["packet"], data["destination"], data["export_hash"], consumer=root)
+        from v3_usage import catalog
+        from content_store import read_object
+        rows = catalog(load(root).require_valid(), run_id=data.get("run_id"), request=data.get("request"), task=data.get("task"))
+        materials = dict(data.get("materials", {}))
+        for row in rows:
+            for f in row["fragments"]:
+                if "text_ref" in f or "data_ref" in f:
+                    path = "sources/" + f["sha256"] + (".bin" if f.get("unit") == "bytes" else ".txt")
+                    content = read_object(root,f.get("text_ref",f.get("data_ref")))
+                    if f.get("unit") == "bytes":
+                        import base64
+                        raw = {"encoding":"base64","data":base64.b64encode(content).decode("ascii")}
+                    else: raw = content.decode("utf-8")
+                    if path in materials and materials[path] != raw: raise ContractError("Conflicting export material")
+                    materials[path] = raw
+        return preview({**data, "observations": rows, "materials":materials})
     if action == "decision-view":
         from v3_decision_presentation import decision_view
         if set(data) - {"event", "data"}: raise ContractError("decision-view admite únicamente event y data")
@@ -158,11 +185,11 @@ def _execute(action, root, data):
 ACTIONS = ("decision-view configure-collaboration review-proposal close-proposal review-task review-comment resolve-comment review-exception interventions reject-result define-correction resolve-defect prepare-delivery "
            "init validate status trace context readiness review revoke checkpoint migration-reconcile author approve authorize-plan governance start resume implement verify close pause cancel reopen "
            "exception propose-exception assign handoff analysis analysis-run analysis-findings evidence integrate accept adopt-inspect adopt migration-diagnose migration-preview "
-           "migration-continuation old-branch catalog history state-history reindex apply recover rollback").split()
+           "migration-continuation old-branch catalog history state-history reindex apply recover rollback usage-record usage-report usage-export").split()
 
 
 @reviewed()
-def execute(action, root, data):
+def _execute_persist(action, root, data):
     from v3_packet import persist
     from v3_current import READ_ONLY
     if action in READ_ONLY:
@@ -170,6 +197,59 @@ def execute(action, root, data):
         with query_evaluation():
             return persist(_execute(action, root, data))
     return persist(_execute(action, root, data))
+
+
+@wraps(_execute_persist)
+def execute(action, root, data, **kwargs):
+    # The existing read-only snapshot also validates the observation's binding.
+    # Mutations keep their normal fresh loads and guards.
+    from v3_current import READ_ONLY
+    if action in READ_ONLY:
+        from v3_contract import query_evaluation
+        with query_evaluation(): return _observed_execute(action,root,data,**kwargs)
+    return _observed_execute(action,root,data,**kwargs)
+
+
+def _observed_execute(action, root, data, **kwargs):
+    """One observation at the shared boundary; transport never enters authority."""
+    import time
+    from v3_usage import session, observe
+    data = dict(data)
+    context = data.pop("usage_context", {})
+    if action.startswith("usage-"): return _execute_persist(action, root, data, **kwargs)
+    start = time.monotonic()
+    try:
+        with session(context, data) as usage_session: result = _execute_persist(action, root, data, **kwargs)
+    except (ContractError, OSError, ValueError, KeyError, TypeError) as exc:
+        failure = {"status": "blocked", "cause": str(exc)}
+        try:
+            from usage_report import report
+            rows = [observe(action, data, failure, context=context if isinstance(context,dict) else {}, elapsed=time.monotonic()-start, root=root)]
+            value = report(rows)
+            exc.usage = {"observations":rows, "summary":value["summary"], "prompt":value["prompt"]}
+        except (ContractError, OSError, ValueError, KeyError, TypeError) as diagnostic_error:
+            exc.usage = {"status":"incomplete","cause":str(diagnostic_error),"quality":"unchanged","observations":[]}
+        raise
+    try:
+        row = observe(action, data, result, context=context, elapsed=time.monotonic()-start, root=root)
+        result["usage"] = {"observations": [row], "continuation": "Conserve the envelope at the next authorized useful milestone; reuse run_id"}
+        if usage_session.get("deferred"):
+            result["usage"].update(conservation="deferred-until-project-valid", pending_observations=context["observations"])
+        if action in {"implement", "verify", "prepare-delivery"} or result.get("status") == "blocked":
+            from usage_report import report
+            from v3_usage import catalog
+            prior = context.get("observations", [])
+            try:
+                stored = catalog(load(root).require_valid(), run_id=row["run_id"])
+                saved_ids = {r["observation_id"] for r in stored}
+                prior = stored + [r for r in prior if r["observation_id"] not in saved_ids]
+            except ContractError: pass  # Invalid project: transient envelope remains exportable.
+            report_value = report(prior + [row])
+            result["usage"]["summary"] = report_value["summary"]
+            result["usage"]["prompt"] = report_value["prompt"]
+    except (ContractError, OSError, ValueError, KeyError, TypeError) as exc:
+        result["usage"] = {"status": "incomplete", "cause": str(exc), "quality": "unchanged"}
+    return result
 
 
 def presentation_output(action, result):
@@ -224,8 +304,16 @@ def main(argv=None, command=None):
             result = execute(action, root, data)
             if args.apply and result.get("status") != "already-recorded":
                 if "preview" not in result: raise ContractError("Esta operación es de solo lectura o ya está registrada")
+                prepared_usage = result.get("usage", {})
+                prepared_rows = prepared_usage.get("observations", [])
                 applied = apply(root, result, result["preview"]["preview_hash"], current=True)
                 result = {**applied, "summary": result["summary"], "next": "Consulte el estado actualizado y continúe el siguiente paso ya autorizado"}
+                if not action.startswith("usage-"):
+                    from v3_usage import observe
+                    result["usage"] = {**prepared_usage, "observations": prepared_rows + [observe(action, {k:v for k,v in data.items() if k != "usage_context"},
+                        {**result, "preview": {"preview_hash": applied["preview_hash"]}},
+                        context=data.get("usage_context",{}), invocation_id=prepared_rows[0]["invocation_id"] if prepared_rows else None,
+                        stage="applied",root=root)]}
         if args.output:
             # Operational artifacts are explicitly selected output files, never hidden canonical state.
             if "preview" in result:
@@ -246,10 +334,50 @@ def main(argv=None, command=None):
         else: shown = {**result, "summary": display_summary(result["summary"])} if "summary" in result else result
         if not args.details and (args.compact or (not args.json and not args.output)) and "preview" not in result:
             shown = presentation_output(action, result)
+        if not action.startswith("usage-"):
+            from v3_usage import observe
+            if action in {"apply", "recover", "rollback"} and "usage" not in result:
+                result["usage"] = {"observations": [observe(action, {"preview_hash": args.authorize}, result, stage="applied" if result.get("status") in {"applied", "previously-applied", "completed", "rolled-back"} else None)]}
+            if result.get("usage"):
+                from v3_contract import sha
+                body = {k:v for k,v in shown.items() if k != "usage"}
+                raw_body = (json.dumps(body,ensure_ascii=False,indent=2)+"\n").encode("utf-8")
+                transport = {"mode": "output-file" if args.output else "details" if args.details else "compact" if args.compact else "default",
+                    "requested_display":"details" if args.details else "compact" if args.compact else "default",
+                    "prepared_bytes": len(raw_body), "prepared_sha256": sha(raw_body),
+                    "coverage":"prepared display body excluding diagnostic envelope; output file includes full API payload", "host_received": "unobserved"}
+                if args.output:
+                    raw_file = args.output.read_bytes()
+                    transport["prepared_file"] = {"bytes":len(raw_file),"sha256":sha(raw_file),"coverage":"exact output descriptor; referenced packet objects remain in its inventory"}
+                result["usage"]["transport"] = transport
+                for row in result["usage"].get("observations",[]): row["output"] = transport
+                shown = {**shown, "usage": result["usage"]}
         print(json.dumps(shown, ensure_ascii=False, indent=2))
         return 2 if result.get("status") in {"blocked", "unsupported", "reconciliation-required"} else 0
     except (ContractError, OSError, ValueError, KeyError, TypeError) as exc:
-        print(json.dumps({"status": "blocked", "cause": str(exc), "next": "Resuelva esta causa concreta; se conserva el trabajo existente"}, ensure_ascii=False))
+        failure = {"status": "blocked", "cause": str(exc), "next": "Resuelva esta causa concreta; se conserva el trabajo existente"}
+        if not action.startswith("usage-"):
+            from v3_usage import observe
+            from usage_report import report
+            actual_data = locals().get("data", {})
+            observed_result = locals().get("result", {})
+            if observed_result.get("preview"): failure["preview"] = {"preview_hash":observed_result["preview"]["preview_hash"]}
+            elif action == "apply" and actual_data.get("preview",{}).get("preview_hash"):
+                failure["preview"] = {"preview_hash":actual_data["preview"]["preview_hash"]}
+            usage = getattr(exc, "usage", None)
+            if usage is None:
+                try:
+                    usage = {"observations":observed_result.get("usage",{}).get("observations",[]) +
+                        [observe(action, {k:v for k,v in actual_data.items() if k != "usage_context"}, failure,
+                                 context=actual_data.get("usage_context") if isinstance(actual_data.get("usage_context"),dict) else {}, stage="failed",root=locals().get("root"))]}
+                except (ContractError, OSError, ValueError, KeyError, TypeError) as diagnostic_error:
+                    usage = {"status":"incomplete","cause":str(diagnostic_error),"quality":"unchanged","observations":[]}
+            try:
+                value = report(usage["observations"])
+                usage.update(summary=value["summary"], prompt=value["prompt"])
+            except (ContractError, ValueError, KeyError, TypeError): usage["status"] = "incomplete"
+            failure["usage"] = usage
+        print(json.dumps(failure, ensure_ascii=False))
         return 2
 
 

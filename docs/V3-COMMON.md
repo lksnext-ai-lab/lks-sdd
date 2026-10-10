@@ -17,6 +17,12 @@ actual bloquea sus escrituras ordinarias. Un origen no soportado requiere reconc
 No inicialice sobre un índice ausente/contradictorio con documentación existente.
 
 Genere únicamente información nueva necesaria para decisiones, evidencia o continuidad.
+Recoja el diagnóstico de uso desde el inicio de cada funcionalidad: conserve los
+sobres del CLI en una ventana `usage_context.run_id`, agrupe pendientes en hitos ya
+autorizados y presente el reporte al implementar/verificar o ante un bloqueo relevante.
+Reutilice la ventana tras un relevo; no invente lecturas ni mediciones del host.
+Consulte [diagnóstico y mejora del plugin](USAGE-FEEDBACK.md) para conservar,
+investigar o exportar un caso, sin cargar la guía completa en cada operación.
 No copie inventarios en prosa: el núcleo conserva sus mapas exactos mediante referencias.
 Use páginas y consultas del núcleo; no guarde resultados de consulta como nuevos documentos.
 En `decision-view` y `review` use `--compact`, también si necesita `--json`. Cargue

@@ -59,6 +59,14 @@ lecturas previstas y huellas, sin presentarlos como tokens facturados ni coste t
 
 ## Release estable
 
+El diagnóstico de uso se comprueba con `test_usage_observation`,
+`test_usage_findings`, `test_usage_report`, `test_usage_bundle` y
+`test_usage_workflow`. Incluyen límites, procedencia, siete reglas, conservación,
+aislamiento de decisiones, guard fresco, exportación e inspección independiente.
+Son regresiones de desarrollo; no amplían la puerta estable de catorce pruebas.
+La cobertura y medición focal se conservan en
+[el seguimiento](plans/plugin-improvement-feedback/IMPLEMENTATION.md).
+
 Ejecute una vez desde un checkout limpio del commit ya integrado. El comando no acepta
 un árbol con cambios ni reutiliza un informe existente.
 
@@ -96,7 +104,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v3.3.0.json `
+  --release-approval quality\release-approval-v3.4.0.json `
   --output $releaseGate
 ```
 

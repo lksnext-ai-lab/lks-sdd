@@ -54,6 +54,9 @@ def externalize(root, kind, data, changes):
 def resolve(model, element, cache, *, objects=None):
     if element.kind not in KINDS: return
     raw = element.meta["data"]
+    if element.kind == "receipt" and raw.get("purpose") == "usage-observation":
+        from v3_usage import validate_receipt
+        validate_receipt(model, element, objects=objects)
     if element.kind == "migration" and "inventory_ref" in raw:
         import json
         from content_store import read_object, object_path

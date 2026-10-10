@@ -78,6 +78,12 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None, 
     else: changes = dict(changes or {})
     from v3_inventories import externalize
     items = copy.deepcopy(items)
+    from v3_usage import pending
+    usage_items, usage_changes = pending(root)
+    items += usage_items
+    for path, raw in usage_changes.items():
+        if path in changes and changes[path] != raw: raise ContractError("Conflicting usage object")
+        changes[path] = raw
     sources = dict(sources or {})
     guards = dict(guards or {})
     from v3_presentation_guard import stamp
@@ -104,6 +110,11 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None, 
         if inventory_kind not in KINDS: continue
         refs = [data[field + "_ref"] for field in FIELDS if inventory_kind in MAP_KINDS and field + "_ref" in data]
         refs += [parent[field]["files_ref"] for parent, field in subjects(data) if "files_ref" in parent[field]]
+        if inventory_kind == "receipt" and data.get("purpose") == "usage-observation":
+            ref = data["observations_ref"]; refs.append(ref)
+            raw = changes[object_path(ref)] if object_path(ref) in changes else read_object(root,ref)
+            value = json.loads(raw)
+            refs += [f.get("text_ref",f.get("data_ref")) for row in value["observations"] for f in row["fragments"] if "text_ref" in f or "data_ref" in f]
         for ref in refs:
             name = object_path(ref)
             if name not in changes:
