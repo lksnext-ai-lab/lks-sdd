@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 
 from v3_contract import ContractError, DOCS, fingerprint, now, path_at, read_bytes, sha
+from v2_contract import contract_input_allowed
 
 
 def git(root, *args, optional=False):
@@ -75,12 +76,13 @@ def branch_check(model, request):
 
 
 def code_inventory(root):
-    """Tracked and non-ignored files; existing unrelated work is retained as baseline."""
+    """Permitted tracked/non-ignored inputs; unrelated work is retained as baseline."""
     raw = git(root, "ls-files", "-z", "--cached", "--others", "--exclude-standard")
     paths = sorted(set(p.decode("utf-8") for p in raw.split(b"\0") if p))
     if len(paths) > 20000: raise ContractError("Inventario de código demasiado amplio")
     files = {}
     for path in paths:
+        if not contract_input_allowed(path): continue
         if path == DOCS or path.startswith((DOCS + "/", ".lks-sdd/")): continue
         files.update(subject(root, [path])["files"])
     return files

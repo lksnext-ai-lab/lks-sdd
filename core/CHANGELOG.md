@@ -1,6 +1,21 @@
 # Changelog
 
 
+## 3.4.1 — 2026-10-11 — corrección del inventario automático
+
+Versión, commit, integración y publicación autorizados expresamente. El gate estable
+y los paquetes del commit final acreditan por separado la entrega técnica.
+
+- Comparte la política de entradas entre el lector estricto y el inventario automático; omite rutas prohibidas antes de seleccionarlas o leerlas, incluidos nombres sensibles y componentes `.git` anidados.
+- Mantiene el rechazo explícito de entradas prohibidas y conserva los errores de rutas, integridad y permisos, los límites y la detección de cambios y eliminaciones permitidos.
+- Añade 15 regresiones sintéticas y un recorrido v3; 29 pruebas distintas superadas, contrato y manifiesto de fixtures válidos en la comprobación de la corrección.
+- Mantiene schema 3.1, método 3.1.0 y formatos técnicos. El runtime fijado del consumidor y las instalaciones activas permanecen intactos. Véase [la reproducción y cobertura](docs/CODE-INVENTORY.md).
+
+## 3.4.1-rc.1 — 2026-10-11 — preparación local del parche
+
+La candidata se preparó y validó localmente antes de aprobar 3.4.1. No se publicó
+ni se etiquetó; su validación de desarrollo no sustituye el gate estable.
+
 ## 3.4.0 — 2026-10-10 — diagnóstico para mejorar el plugin
 
 - Añade observaciones de uso por ventana, fases y etapas de preparación/aplicación, con procedencia y métricas acotadas; no atribuye lecturas ni tokens facturados al host.

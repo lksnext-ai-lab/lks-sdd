@@ -55,8 +55,8 @@ def fingerprint(value) -> str:
     return sha(canonical(value))
 
 
-def relative_parts(relative: str, *, package_data: bool = False) -> list[str]:
-    """Validate a recorded path without inspecting the present working tree."""
+def contract_input_allowed(relative: str, *, package_data: bool = False) -> bool:
+    """Exclude forbidden names; malformed paths still raise without filesystem access."""
     if (not isinstance(relative, str) or not relative or "\0" in relative or "\\" in relative or ":" in relative or
             PurePosixPath(relative).is_absolute() or
             any(p in {"", ".", ".."} for p in relative.split("/"))):
@@ -69,8 +69,15 @@ def relative_parts(relative: str, *, package_data: bool = False) -> list[str]:
             part == ".env.example"
         )
         if part.casefold() == ".git" or (SECRET_NAME.search(part) and not benign_package_leaf):
-            raise ContractError("Sensitive or Git path is not a contract input: " + relative)
-    return parts
+            return False
+    return True
+
+
+def relative_parts(relative: str, *, package_data: bool = False) -> list[str]:
+    """Validate a recorded path without inspecting the present working tree."""
+    if not contract_input_allowed(relative, package_data=package_data):
+        raise ContractError("Sensitive or Git path is not a contract input: " + relative)
+    return relative.split("/")
 
 
 def path_at(root: Path, relative: str, *, missing: bool = False, package_data: bool = False) -> Path:
