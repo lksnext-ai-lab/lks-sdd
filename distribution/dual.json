@@ -79,6 +79,8 @@
     "tests/test_usage_workflow.py",
     "docs/USAGE-FEEDBACK.md",
     "docs/UPGRADE-3.4.0.md",
+    "docs/UPGRADE-3.4.1.md",
+    "docs/CODE-INVENTORY.md",
     "tests/measure_usage_feedback.py",
     "docs/plans/plugin-improvement-feedback/PLAN.md",
     "docs/plans/plugin-improvement-feedback/IMPLEMENTATION.md",

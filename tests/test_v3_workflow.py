@@ -65,6 +65,25 @@ class ProjectFixture(unittest.TestCase):
         commit_packet(self.root, present(transition, self.root, self.actor, self.task, action, "Resultado comprobado del escenario"))
 
 class WorkflowTests(ProjectFixture):
+    def test_execution_inventory_excludes_forbidden_inputs_without_losing_allowed_code(self):
+        from content_store import inventory
+        from v3_contract import sha
+        from v3_workflow import latest
+        (self.root / "app.py").write_bytes(b"answer = 41\n")
+        (self.root / ".env.example").write_bytes(b"DEMO=placeholder\n")
+        self.plan(); self.advance("start")
+        model = load(self.root).require_valid()
+        event = latest(model, model.get(self.task))
+        baseline = inventory(self.root, event.data, "baseline")
+        self.assertEqual({"app.py": sha(b"answer = 41\n")}, baseline)
+        (self.root / "app.py").write_bytes(b"answer = 42\n")
+        (self.root / ".env.example").write_bytes(b"DEMO=changed-placeholder\n")
+        self.advance("implement")
+        model = load(self.root).require_valid()
+        self.assertEqual("implemented", state(model, model.get(self.task)))
+        event = latest(model, model.get(self.task))
+        self.assertEqual({"app.py": sha(b"answer = 42\n")}, event.data["subject"]["files"])
+
     def test_execution_baselines_share_verified_inventory_and_preserve_scope(self):
         from content_store import inventory, object_path
         (self.root/"unchanged.txt").write_bytes(b"pre-existing unrelated work")

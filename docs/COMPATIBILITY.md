@@ -1,5 +1,14 @@
 # Compatibilidad de LKS-SDD
 
+## Versión 3.4.1
+
+Corrige el inventario automático sin cambiar schema 3.1, método 3.1.0 ni los
+formatos técnicos de 3.4.0. Las entradas prohibidas se omiten antes de leerlas en
+la enumeración automática; la selección explícita sigue rechazándolas. Se conservan
+los hashes, cambios y eliminaciones de archivos permitidos y los guards existentes.
+No modifica ni migra runtimes fijados o instalaciones de consumidores. Véase
+[la reproducción y cobertura](CODE-INVENTORY.md).
+
 ## Versión 3.4.0
 
 Añade el formato técnico `lks-sdd-usage/1` sin cambiar método/schema 3.1. Las consultas

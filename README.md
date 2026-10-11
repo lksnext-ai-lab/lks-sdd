@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `3.4.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `3.4.1` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -88,7 +88,7 @@ nunca autoriza una escritura.
 El [diagnóstico de uso](docs/USAGE-FEEDBACK.md) identifica problemas y oportunidades
 de rapidez por funcionalidad, con reporte, prompt y paquete para investigarlos aquí.
 Las observaciones conservan su procedencia; selección no acredita lectura del host.
-La [guía de actualización y recuperación](docs/UPGRADE-3.4.0.md) distingue el plugin
+La [guía de actualización y recuperación](docs/UPGRADE-3.4.1.md) distingue el plugin
 del host del runtime fijado del consumidor.
 
 Los Markdown del consumidor son canónicos y `.lks-sdd/project.json` es un índice.
@@ -101,7 +101,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 3.4.0, schema y método son versiones distintas. Los proyectos nuevos usan
+Plugin 3.4.1, schema y método son versiones distintas. Los proyectos nuevos usan
 schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
 Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
 recuperación; continuar trabajo con esta versión exige el corte explícito descrito
@@ -134,10 +134,10 @@ trazables, con intervenciones agrupadas para equipos pequeños y desarrollo indi
 Antes de anunciar implementación o editar código se comprueba la cobertura vigente
 SPEC → PLAN/TASK y la autorización; las decisiones pendientes se registran y se
 evalúa qué alcance independiente puede continuar.
-La preparación de 3.4.0 se sigue en [su implementación](docs/plans/plugin-improvement-feedback/IMPLEMENTATION.md).
-La versión y el commit local tienen aprobación explícita; el gate del commit final,
-sus paquetes y la publicación se acreditan por separado.
-El catálogo Copilot apunta a `copilot-v3.4.0`; su árbol debe coincidir exactamente
+La preparación del parche 3.4.1 se sigue en [su corrección](docs/CODE-INVENTORY.md).
+La versión 3.4.1, su commit/integración y publicación cuentan con aprobación propia;
+gate, paquetes y disponibilidad remota se acreditan por separado.
+El catálogo Copilot declara `copilot-v3.4.1`; su árbol debe coincidir exactamente
 con el ZIP nativo verificado. Las ilustraciones en `output/infografias/` son bocetos
 históricos provisionales y no sustituyen la definición vigente del proceso.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte

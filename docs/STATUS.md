@@ -1,16 +1,17 @@
 # Estado actual de LKS-SDD
 
-La versión 3.4.0 está en preparación: añade diagnóstico de uso para mejorar el
-plugin, con observaciones, hallazgos, reporte/prompt y paquete portable. El destino
-operativo es schema 3.1/método 3.1.0 y runtime con formato lks-sdd-usage/1. Los
-proyectos existentes conservan su runtime hasta un corte expresamente autorizado.
-El avance y sus comprobaciones se conservan en
-[el seguimiento](plans/plugin-improvement-feedback/IMPLEMENTATION.md).
+La versión 3.4.1 corrige el
+inventario automático de código para excluir las entradas prohibidas antes de
+leerlas, conservando el rechazo explícito, los guards y los límites. Mantiene
+schema 3.1/método 3.1.0 y los formatos técnicos de 3.4.0. Los proyectos existentes
+conservan su runtime e instalación. La causa y 29 pruebas distintas superadas
+quedan en [la corrección del inventario](CODE-INVENTORY.md).
 
-La aprobación propia de 3.4.0 y el commit/integración local se autorizaron el
-2026-10-10. Commit final limpio, gate stable, assets exactos, publicación e
-instalación se acreditan por separado. La preparación del código no
-se anuncia como release final ni como actualización de un host o consumidor.
+La aprobación propia de 3.4.1, commit/integración y publicación se recibió el
+2026-10-11 y queda en `quality/release-approval-v3.4.1.json`. La decisión anterior
+de 3.4.0 no se reutiliza para este parche. Commit final limpio, gate stable, assets
+exactos y disponibilidad publicada se acreditan por separado mediante la evidencia
+de release. La publicación no actualiza un host ni un consumidor.
 
 ## Estado técnico
 
