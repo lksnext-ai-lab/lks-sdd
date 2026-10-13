@@ -51,6 +51,10 @@ focales `test_v3_decision_presentation` y `test_v3_instruction_routing`. Comprue
 prosa literal, borradores, decisiones antiguas, caducidad del contenido mostrado,
 composición, recogida de evidencia por petición y ejecución desde ambos paquetes.
 Los recorridos de revisión, equipo, calidad, integración y distribución se mantienen.
+La corrección de antecedentes migrados añade `test_v3_historical_presentation`:
+procedencia recuperable, responsables literales, pendientes, consultas directas,
+adjuntos, propietarios actuales estrictos y caducidad de receipts y guards. Su
+[cobertura](HISTORICAL-TASK-PRESENTATION.md) no amplía el gate estable.
 Las comprobaciones y límites quedan en
 [la cobertura de esta implementación](plans/specification-review-presentation/IMPLEMENTATION.md).
 La comparación de instrucciones se reproduce con

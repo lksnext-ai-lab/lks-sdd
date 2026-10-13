@@ -1,4 +1,4 @@
-# LKS-SDD para Copilot 3.4.1
+# LKS-SDD para Copilot 3.4.2
 
 Plugin de agente: registre esta carpeta (la que contiene plugin.json), no core/ ni setup/. No es una extensión VSIX.
 

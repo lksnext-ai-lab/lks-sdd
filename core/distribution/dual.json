@@ -81,6 +81,8 @@
     "docs/UPGRADE-3.4.0.md",
     "docs/UPGRADE-3.4.1.md",
     "docs/CODE-INVENTORY.md",
+    "docs/HISTORICAL-TASK-PRESENTATION.md",
+    "tests/test_v3_historical_presentation.py",
     "tests/measure_usage_feedback.py",
     "docs/plans/plugin-improvement-feedback/PLAN.md",
     "docs/plans/plugin-improvement-feedback/IMPLEMENTATION.md",

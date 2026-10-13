@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "release_version": "3.4.2",
+  "scope": "stable-release",
+  "basis": ["project-owner-version-approval", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-13",
+    "authority_role": "project-owner",
+    "rationale": "El responsable autoriza expresamente crear el commit de la corrección revisada, integrarlo en main, hacer push y publicar la versión estable 3.4.2 tras superar el gate y verificar los paquetes del commit final. La autorización excluye instalación y migración de consumidores.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aprobación no sustituye el gate estable, la regresión Windows ni la validación de los assets del SHA final.",
+    "Las 51 pruebas de desarrollo de la candidata no son evidencia del gate del commit integrado.",
+    "Las referencias de mantenimiento y Copilot identifican commits distintos y deben verificarse contra sus artefactos.",
+    "Publicación no acredita instalación, activación, aceptación humana ni actualización del runtime fijado del consumidor."
+  ]
+}

@@ -131,10 +131,96 @@ def roots_for(model, data):
     return list(dict.fromkeys(model.get(k).uid for k in keys))
 
 
+def _historical_task(model, task, cache):
+    """Only recoverable migration lineage permits a task to be shown as history."""
+    continuation = task.data.get("continuation")
+    if continuation not in {"historical", "reconciliation-required"}: return None
+    if task.uid in cache: return cache[task.uid]
+    try:
+        legacy = task.data["legacy"]
+        if legacy["schema"] != "2.0": raise ContractError("Formato de origen no soportado")
+        migration = model.get(legacy["migration"], "migration")
+        if migration.data["source"].get("format") != legacy["schema"] or migration.data["source"].get("method") != legacy["method"]:
+            raise ContractError("El formato o método no coinciden con la migración")
+        if migration.data["mapping"].get(legacy["id"]) != task.uid:
+            raise ContractError("La migración no identifica esta tarea")
+        inventory_key = ("inventory", migration.uid)
+        if inventory_key not in cache:
+            inventory = migration.data.get("inventory")
+            support = {}
+            if "inventory_ref" in migration.data:
+                import json
+                from content_store import read_object, object_path
+                ref = migration.data["inventory_ref"]
+                inventory = json.loads(read_object(model.root, ref))["entries"]
+                support[object_path(ref)] = ref["sha256"]
+            entries = {r["path"]: r for r in inventory}
+            hashes = {path: row["sha256"] for path, row in entries.items()}
+            if len(entries) != len(inventory) or fingerprint(hashes) != migration.data["source"]["snapshot"]:
+                raise ContractError("El inventario no coincide con el origen")
+            cache[inventory_key] = (entries, support)
+        inventory, support = cache[inventory_key]
+        original = inventory.get(legacy["path"])
+        if not original or any(original[k] != legacy[v] for k, v in
+                                   (("original", "original"), ("sha256", "source_sha256"))):
+            raise ContractError("El original no coincide con el inventario")
+        path = legacy["original"]
+        original_key = ("original", path)
+        if original_key not in cache:
+            from v2_contract import parse_document
+            raw = read_bytes(model.root, path, limit=64*1024*1024)
+            literal = raw.decode("utf-8")
+            cache[original_key] = (sha(raw), len(raw), literal, parse_document(literal, path)[0])
+        digest, size, literal, originals = cache[original_key]
+        if digest != legacy["source_sha256"]: raise ContractError("Hash del original modificado")
+        originals = [e for e in originals if e.id == legacy["id"] and e.meta["uid"] == task.uid and e.kind == "task"]
+        if len(originals) != 1 or originals[0].meta["state"] != legacy["state"]:
+            raise ContractError("La identidad o el estado no coinciden con el original")
+        expected = "historical" if legacy["state"] in {"done", "completed", "cancelled", "done-with-reservations"} else "reconciliation-required"
+        if continuation != expected: raise ContractError("Continuidad contradictoria con el original")
+        from document_state import LINK, dependencies
+        support = dict(support)
+        if LINK.fullmatch(path): support.update(dependencies(model.root, path))
+        result = (migration, {"path": path, "sha256": digest, "bytes": size,
+                              "text": literal, "reason": "Original verificable de la tarea migrada"}, support)
+        cache[task.uid] = result
+        return result
+    except (ContractError, KeyError, TypeError, ValueError, OSError, AttributeError) as exc:
+        raise ContractError("Procedencia histórica no verificable para " + task.id + ": " + str(exc)) from exc
+
+
+def _historical_text(value):
+    """Historical identifiers and technical data stay literal, with no current aliases."""
+    if isinstance(value, dict):
+        return "\n\n".join("**" + title(LABELS.get(k, k.replace("_", " "))) + ":** " +
+                           _historical_text(v) for k, v in value.items()) or "Ninguno declarado."
+    if isinstance(value, (list, tuple)):
+        return "\n".join("- " + _historical_text(v).replace("\n", "\n  ") for v in value) or "Ninguno declarado."
+    return safe(value)
+
+
 def collect(model, roots, selected=()):
     """One applicability closure plus necessary continuity and recoverable evidence."""
-    from v3_context import select, TEXT_SUFFIXES
-    normative = [k for k in roots if model.get(k).kind not in EVENTS | {"member", "legacy"}]
+    from v3_context import select, TEXT_SUFFIXES, EDGE
+    historical = {}; proof_cache = {}
+    for key in roots:
+        task = model.get(key)
+        if task.kind == "task" and _historical_task(model, task, proof_cache): historical[key] = True
+    # Detached cancelled history is not an executable work root. Keep its full
+    # applicability closure by selecting its references and restoring its source.
+    normative = []; detached = set()
+    def work_root(key):
+        obj = model.get(key)
+        if obj.kind in EVENTS | {"member", "legacy"}: return
+        if obj.retired and obj.kind == "task" and _historical_task(model, obj, proof_cache):
+            if obj.uid in detached: return
+            detached.add(obj.uid); historical[obj.uid] = True
+            for rel in EDGE:
+                for child in obj.relations.get(rel, []): work_root(child)
+            for dep in obj.data.get("dependencies", []): work_root(dep["uid"])
+            if obj.data.get("request"): work_root(obj.data["request"])
+        else: normative.append(obj.uid)
+    for key in roots: work_root(key)
     for key in roots:
         obj = model.get(key)
         if obj.data.get("request"): normative.append(obj.data["request"])
@@ -151,8 +237,9 @@ def collect(model, roots, selected=()):
     packet = select(model, list(dict.fromkeys(normative)), "decision-view")
     sources = packet["sources"]
     seen = {s["key"] for s in sources}
+    selected_keys = set(seen)
     # Event-specific evidence, comments, offers and reservations have content too.
-    related = set(roots) | {s["key"] for s in sources}
+    related = set(roots) | detached | {s["key"] for s in sources}
     requests = {model.get(k).data.get("request") for k in roots}
     requests |= {k for k in roots if model.get(k).kind == "request"}
     recent = {}
@@ -164,7 +251,7 @@ def collect(model, roots, selected=()):
     for e in model.elements.values():
         from v3_usage import diagnostic
         if diagnostic(e): continue
-        if e.uid in roots or (e.kind in EVENTS and (e.data.get("request") in requests - {None} or e.data.get("task") in related or set(e.data.get("tasks", [])) & related)):
+        if e.uid in set(roots) | detached or (e.kind in EVENTS and (e.data.get("request") in requests - {None} or e.data.get("task") in related or set(e.data.get("tasks", [])) & related)):
             simple = (e.kind == "checkpoint" and e.data.get("classification") == "progress" and e.meta.get("nature") == "fact"
                       and not e.data.get("pending") and not e.data.get("analysis") and not e.data.get("critical")
                       and e.data.get("outcome") in (None, "passed"))
@@ -176,7 +263,29 @@ def collect(model, roots, selected=()):
             if e.uid not in seen:
                 sources.append({"key": e.uid, "source": e.source(), "meta": e.meta, "text": e.body, "reason": "Evidencia o decisión del alcance"})
                 seen.add(e.uid)
+    packet["historical_tasks"] = historical
+    packet["historical_source_files"] = {}
     asset_paths = {a["path"] for a in packet["attachments"]}
+    for row in list(sources):
+        if row.get("meta", {}).get("kind") != "task": continue
+        task = model.get(row["key"])
+        proof = _historical_task(model, task, proof_cache)
+        if not proof: continue
+        historical[task.uid] = True
+        migration, original, support = proof
+        packet["historical_source_files"].update(support)
+        if migration.uid not in seen:
+            sources.append({"key": migration.uid, "source": migration.source(), "meta": migration.meta,
+                            "text": migration.body, "reason": "Procedencia verificable de la tarea migrada"})
+            seen.add(migration.uid)
+        if original["path"] not in asset_paths:
+            packet["attachments"].append(original); asset_paths.add(original["path"])
+    # A directly consulted cancelled task was added after the normal work closure;
+    # recover its linked attachments under the same observation rules too.
+    from v3_context import linked_assets
+    extra = [s for s in sources if s["key"] in historical and s["key"] not in selected_keys]
+    packet["attachments"].extend(linked_assets(model, extra, included_paths=asset_paths | {s["source"]["path"] for s in sources}))
+    asset_paths.update(a["path"] for a in packet["attachments"])
     for row in sources:
         if row.get("meta", {}).get("kind") not in {"evidence", "problem", "analysis"}: continue
         path = row["meta"]["data"].get("artifact") or row["meta"]["data"].get("report_path")
@@ -267,6 +376,11 @@ def _sources_text(model, packet, primary, specification=False):
         meta = row.get("meta", {}); kind = meta.get("kind")
         if kind in {"member", "project", "policy"} or kind in EVENTS: continue
         label = meta.get("title", "Condición adicional del proyecto")
+        if row["key"] in packet.get("historical_tasks", {}):
+            if row["key"] in primary and not specification: continue  # Placed literally by the primary adapter.
+            blocks.append("**" + title(label) + "**\n\nAntecedente migrado; no confiere autoridad actual.\n\n" +
+                          safe(row["text"]) + "\n\n" + _historical_text(meta))
+            continue
         # Body is always literal; structured normative data is not silently dropped.
         content = safe(row["text"])
         d = {k: v for k, v in meta.get("data", {}).items() if k not in PRIVATE}
@@ -301,7 +415,10 @@ def _generic(model, selected, data, packet, roots, issues):
     if model:
         for key in roots:
             e = model.get(key)
-            if e.kind not in {"task"} | EVENTS:
+            if key in packet.get("historical_tasks", {}):
+                rows.append("**" + title(e.meta["title"]) + "**\n\nAntecedente migrado; no confiere autoridad actual.\n\n" +
+                            safe(e.body) + "\n\n" + _historical_text(e.meta))
+            elif e.kind not in {"task"} | EVENTS:
                 rows.append("**" + title(e.meta["title"]) + "**\n\n" + safe(e.body))
     public = {k: v for k, v in data.items() if k not in PRIVATE and k not in {"actor", "trusted_root"}}
     if data.get("items"):
@@ -345,6 +462,11 @@ def _generic(model, selected, data, packet, roots, issues):
             related.update(row["key"] for row in packet.get("sources", []) if row.get("meta", {}).get("kind") == "task")
         for k in sorted(related):
             e = model.get(k)
+            if k in packet.get("historical_tasks", {}):
+                if "information" in selected:
+                    buckets["Impedimentos y siguiente paso"].append("**" + title(e.meta["title"]) + "**\n\n" +
+                        _historical_text({field: e.data[field] for field in ("continuation", "pending", "unresolved") if field in e.data}))
+                continue
             if e.kind == "task": tasks.append(e)
             if e.kind not in {"request", "project", "policy"} and e.kind not in EVENTS:
                 values = e.data
@@ -510,6 +632,11 @@ def _requirements(event, data, model, roots, issues):
             if not data.get(field): issues.append("Complete las personas, configuración y versión de destino de la migración.")
     if model and event in {"authorize-plan", "integrate", "accept", "resolve-defect"}:
         if event in {"integrate", "accept"} and data.get("request") and data.get("actor"):
+            if any(t.data.get("request") == model.get(data["request"]).uid and not t.retired
+                   and t.data.get("continuation") in {"historical", "reconciliation-required"}
+                   for t in model.by_kind("task")):
+                issues.append("La petición incluye resultados migrados pendientes de reconciliación y autorización actuales.")
+                return
             from v3_workflow import request_facts
             try:
                 facts = request_facts(model, model.get(data["request"], "request"))
@@ -682,6 +809,7 @@ def decision_view(root, event, data=None, *, model=None):
             else: issues.append(message)
         for row in packet["sources"]:
             meta = row.get("meta", {}); d = meta.get("data", {})
+            if row["key"] in packet.get("historical_tasks", {}): continue
             if d.get("critical") and (d.get("unresolved") or meta.get("state") in {"unknown", "draft", "conflict"}):
                 message = "Hay una condición crítica pendiente: " + str(meta.get("title", "condición del proyecto"))
                 if any(p in selected for p in ("configuration", "migration", "recovery", "continuity", "clarification", "information")) or event in {"resolve-comment", "review-comment", "reject-result", "define-correction"}:
@@ -693,7 +821,8 @@ def decision_view(root, event, data=None, *, model=None):
     subject = None
     if model and any(p in selected for p in ("integration", "acceptance", "verification", "correction", "assignment")):
         from v3_git import subject as observe_subject
-        scopes = {path for row in packet["sources"] if row.get("meta", {}).get("kind") == "task" for path in row["meta"]["data"].get("scope", [])}
+        scopes = {path for row in packet["sources"] if row.get("meta", {}).get("kind") == "task"
+                  and row["key"] not in packet.get("historical_tasks", {}) for path in row["meta"]["data"].get("scope", [])}
         if scopes: subject = observe_subject(root, sorted(scopes))
     assets = packet.get("attachments", [])
     for asset in assets:
@@ -730,6 +859,7 @@ def decision_view(root, event, data=None, *, model=None):
     runtime = Path(__file__).resolve().parent
     implementation = {name: sha((runtime / name).read_bytes()) for name in ("v3_decision_presentation.py", "v3_decision_profiles.py", "v3_presentation_guard.py")}
     source_files = {s["source"]["path"]: model.hashes[s["source"]["path"]] for s in packet["sources"]} if model else {}
+    source_files.update(packet.get("historical_source_files", {}))
     for source in packet.get("scope_provenance", []):
         source_files[source["path"]] = model.hashes[source["path"]]
     basis = {"version": VERSION, "implementation": implementation, "event": event, "inputs": data, "sources": [s["source"] for s in packet["sources"]], "source_files": source_files, "trusted": trusted, "instructions": refs,
