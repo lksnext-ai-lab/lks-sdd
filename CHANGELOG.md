@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.4.2 — 2026-10-13 — presentación de tareas históricas migradas
+
+Versión estable, commit, integración en main, push y publicación autorizados
+expresamente. Publicar exige gate superado y paquetes verificados del commit final.
+
+- Reconoce tareas `historical` y `reconciliation-required` por su migración,
+  identidad, inventario y bytes originales recuperables; rechaza procedencias falsas.
+- Conserva íntegros cuerpos, datos, responsables originales, pendientes, fuentes
+  y adjuntos, tanto en antecedentes relacionados como en consultas directas.
+  Los antecedentes no confieren autoridad ni alcance de ejecución actuales.
+- Mantiene propietarios y permisos actuales, incluidos los de tareas reconciliadas,
+  y bloquea aceptar resultados pendientes de reconciliación. Los originales,
+  inventarios y soportes se vinculan a receipts y guards frescos.
+- Añade regresiones sintéticas y una comprobación con el migrador real.
+  Verificación local: 51 pruebas distintas superadas, contrato y 13 fixtures válidos.
+  Véase [la corrección y su evidencia](docs/HISTORICAL-TASK-PRESENTATION.md).
+
+## 3.4.2-rc.1 — 2026-10-13 — preparación local de la corrección
+
+La candidata se preparó y validó localmente con 51 pruebas distintas antes de
+autorizar la promoción estable. No se publicó ni se etiquetó como candidata;
+su verificación de desarrollo no sustituye el gate del commit final.
+
 
 ## 3.4.1 — 2026-10-11 — corrección del inventario automático
 
