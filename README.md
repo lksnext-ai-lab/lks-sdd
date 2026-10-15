@@ -1,6 +1,6 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `3.4.2` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `3.4.3` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -101,7 +101,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 3.4.2, schema y método son versiones distintas. Los proyectos nuevos usan
+Plugin 3.4.3, schema y método son versiones distintas. Los proyectos nuevos usan
 schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
 Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
 recuperación; continuar trabajo con esta versión exige el corte explícito descrito
@@ -140,8 +140,11 @@ gate, paquetes y disponibilidad remota se acreditan por separado.
 La corrección de tareas históricas de 3.4.2 se documenta en
 [su cobertura](docs/HISTORICAL-TASK-PRESENTATION.md). Su commit, integración, push y
 publicación estable están autorizados; publicar exige superar el gate y verificar
-los paquetes del commit final. El catálogo Copilot declara `copilot-v3.4.2`;
-su árbol se comprueba contra el ZIP nativo acreditado.
+los paquetes del commit final. La versión 3.4.3 promueve el runtime de rc.3 con
+[índices y reutilización por evaluación](docs/APPROVAL-PERFORMANCE.md).
+El catálogo Copilot declara `copilot-v3.4.3`; su árbol se comprueba contra el ZIP
+nativo acreditado. La [promoción y sus límites](docs/plans/approval-performance/IMPLEMENTATION.md)
+distinguen validación técnica, publicación, instalación y activación de host.
 Las ilustraciones en `output/infografias/` son bocetos
 históricos provisionales y no sustituyen la definición vigente del proceso.
 No equivale a aceptación humana, política corporativa, despliegue ni soporte

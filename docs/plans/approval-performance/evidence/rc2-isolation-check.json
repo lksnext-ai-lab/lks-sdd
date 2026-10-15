@@ -1,0 +1,7 @@
+{
+  "blocked_conflicting_runner": true,
+  "clean_after_termination": {
+    "supported": true,
+    "conflicting_pids": []
+  }
+}

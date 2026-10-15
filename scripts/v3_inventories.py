@@ -18,6 +18,14 @@ def subject(root, value, *, model=None, cache=None, objects=None):
         raise ContractError("Invalid subject scope")
     for path in scope: relative_parts(path)
     files = inventory(root, value, "files", cache=cache, objects=objects)
+    # Keep one observable map per physical inventory, rather than wrapping a copy
+    # for every resolved event. The weak parent links are attached by Element.
+    from v3_contract import _observe
+    files = _observe(files)
+    if cache is not None and "files_ref" in value:
+        from content_store import object_path
+        ref = value["files_ref"]
+        cache[(object_path(ref), ref["bytes"])] = files
     if len(files) > SUBJECT_LIMIT or fingerprint(files) != value["digest"]:
         raise ContractError("Subject inventory/digest mismatch")
     if model is not None:

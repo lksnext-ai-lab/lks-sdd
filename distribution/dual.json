@@ -31,6 +31,15 @@
     "3.1.0"
   ],
   "additional_files": [
+    "scripts/v3_evaluation.py",
+    "docs/APPROVAL-PERFORMANCE.md",
+    "docs/plans/approval-performance/PLAN.md",
+    "docs/plans/approval-performance/IMPLEMENTATION.md",
+    "docs/plans/approval-performance/IMPLEMENTATION-RC1.md",
+    "docs/plans/approval-performance/IMPLEMENTATION-RC2.md",
+    "docs/plans/approval-performance/IMPLEMENTATION-RC3.md",
+    "docs/plans/approval-performance/MEMORY-EXPERIMENT-RC4.md",
+    "docs/evidence/approval-performance-3.4.3.json",
     "scripts/content_store.py",
     "scripts/v2_history.py",
     "scripts/v3_inventories.py",

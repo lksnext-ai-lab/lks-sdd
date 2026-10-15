@@ -128,6 +128,10 @@ def evidence_valid(model, task, identity):
     return bool(expected) and all(results.get(test) is True for test in expected)
 
 
+from v3_evaluation import evaluated
+
+
+@evaluated
 def facts_for(model, task, actor):
     plan = plan_for(model, task)
     request = model.get(task.data["request"], "request")
@@ -175,6 +179,7 @@ def valid_exceptions(model, task, action):
     return result
 
 
+@evaluated
 def request_facts(model, request, *, tasks=None, proposal_units=None):
     tasks = tasks if tasks is not None else [t for t in model.by_kind("task") if t.data.get("request") == request.uid and not t.retired]
     try: proposal = approved(model, proposal_ready(model, request, proposal_units))["valid"]

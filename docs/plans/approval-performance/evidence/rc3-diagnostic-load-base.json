@@ -1,0 +1,391 @@
+{
+  "revision": "base",
+  "phase": "load",
+  "size": 100,
+  "repetitions": 3,
+  "profiled_wall_seconds": 21.773437799998646,
+  "profiled_cpu_seconds": 11.921875,
+  "traced_live_bytes": 251377,
+  "traced_peak_bytes": 386555,
+  "traced_after_release_bytes": 40532,
+  "live_model_object_counts": {
+    "Model": 1,
+    "Element": 102
+  },
+  "allocations": [
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\decoder.py:361",
+      "bytes": 148823,
+      "count": 2462
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\jsonschema\\validators.py:347",
+      "bytes": 23912,
+      "count": 200
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\jsonschema\\_types.py:116",
+      "bytes": 17031,
+      "count": 362
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v3_contract.py:136",
+      "bytes": 11424,
+      "count": 102
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v2_contract.py:47",
+      "bytes": 10710,
+      "count": 102
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:328",
+      "bytes": 10404,
+      "count": 102
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v3_contract.py:135",
+      "bytes": 8215,
+      "count": 103
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v3_contract.py:117",
+      "bytes": 4606,
+      "count": 98
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v3_contract.py:237",
+      "bytes": 3264,
+      "count": 1
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v3_contract.py:232",
+      "bytes": 3264,
+      "count": 1
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:298",
+      "bytes": 2786,
+      "count": 50
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:136",
+      "bytes": 2184,
+      "count": 39
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\copy.py:202",
+      "bytes": 416,
+      "count": 2
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\copy.py:199",
+      "bytes": 384,
+      "count": 6
+    },
+    {
+      "location": "C:\\Users\\JFA93~1.ORM\\AppData\\Local\\Temp\\approval-reference-fzi6whc3\\v3_contract.py:220",
+      "bytes": 296,
+      "count": 1
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:666",
+      "bytes": 256,
+      "count": 10
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\jsonschema\\validators.py:294",
+      "bytes": 216,
+      "count": 3
+    },
+    {
+      "location": "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:776",
+      "bytes": 200,
+      "count": 2
+    }
+  ],
+  "calls": [
+    {
+      "file": "profile_approval_performance.py",
+      "line": 57,
+      "function": "<lambda>",
+      "calls": 3,
+      "self_seconds": 5.7100000000000006e-05,
+      "cumulative_seconds": 21.7722744
+    },
+    {
+      "file": "v3_contract.py",
+      "line": 208,
+      "function": "load",
+      "calls": 3,
+      "self_seconds": 0.0001997,
+      "cumulative_seconds": 21.772210100000002
+    },
+    {
+      "file": "v3_contract.py",
+      "line": 219,
+      "function": "_load",
+      "calls": 3,
+      "self_seconds": 0.0340619,
+      "cumulative_seconds": 21.7574848
+    },
+    {
+      "file": "v2_contract.py",
+      "line": 83,
+      "function": "path_at",
+      "calls": 621,
+      "self_seconds": 0.24200400000000002,
+      "cumulative_seconds": 15.5268381
+    },
+    {
+      "file": "v2_contract.py",
+      "line": 115,
+      "function": "read_bytes",
+      "calls": 306,
+      "self_seconds": 0.011889,
+      "cumulative_seconds": 11.095000500000001
+    },
+    {
+      "file": "v2_contract.py",
+      "line": 105,
+      "function": "_read_regular",
+      "calls": 306,
+      "self_seconds": 0.041519900000000005,
+      "cumulative_seconds": 11.039753600000001
+    },
+    {
+      "file": "v3_contract.py",
+      "line": 142,
+      "function": "document_paths",
+      "calls": 3,
+      "self_seconds": 0.0204,
+      "cumulative_seconds": 8.1067221
+    },
+    {
+      "file": "__init__.py",
+      "line": 661,
+      "function": "lstat",
+      "calls": 3075,
+      "self_seconds": 0.030024500000000003,
+      "cumulative_seconds": 4.8686675
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt.lstat>",
+      "calls": 3075,
+      "self_seconds": 4.7941247,
+      "cumulative_seconds": 4.838643
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._path_lexists>",
+      "calls": 2469,
+      "self_seconds": 4.0577049,
+      "cumulative_seconds": 4.2509683
+    },
+    {
+      "file": "query_sources.py",
+      "line": 72,
+      "function": "is_link",
+      "calls": 2463,
+      "self_seconds": 0.057933200000000004,
+      "cumulative_seconds": 3.9618235000000004
+    },
+    {
+      "file": "__init__.py",
+      "line": 679,
+      "function": "is_dir",
+      "calls": 2463,
+      "self_seconds": 0.035972500000000004,
+      "cumulative_seconds": 3.7212241
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._path_isdir>",
+      "calls": 2463,
+      "self_seconds": 3.6619861,
+      "cumulative_seconds": 3.6852516000000004
+    },
+    {
+      "file": "v3_contract.py",
+      "line": 112,
+      "function": "parse",
+      "calls": 306,
+      "self_seconds": 0.052652700000000004,
+      "cumulative_seconds": 2.1978197
+    },
+    {
+      "file": "v3_schema.py",
+      "line": 17,
+      "function": "validate",
+      "calls": 306,
+      "self_seconds": 0.020501400000000003,
+      "cumulative_seconds": 2.011762
+    },
+    {
+      "file": "__init__.py",
+      "line": 668,
+      "function": "exists",
+      "calls": 1860,
+      "self_seconds": 0.024459900000000003,
+      "cumulative_seconds": 1.9637717000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._path_exists>",
+      "calls": 1860,
+      "self_seconds": 1.6558934,
+      "cumulative_seconds": 1.9393118
+    },
+    {
+      "file": "<frozen importlib._bootstrap>",
+      "line": 1360,
+      "function": "_find_and_load",
+      "calls": 83,
+      "self_seconds": 0.0036532,
+      "cumulative_seconds": 1.6140015
+    },
+    {
+      "file": "<frozen importlib._bootstrap>",
+      "line": 1308,
+      "function": "_find_and_load_unlocked",
+      "calls": 82,
+      "self_seconds": 0.004717300000000001,
+      "cumulative_seconds": 1.6082551
+    },
+    {
+      "file": "<frozen importlib._bootstrap>",
+      "line": 914,
+      "function": "_load_unlocked",
+      "calls": 72,
+      "self_seconds": 0.0013572,
+      "cumulative_seconds": 1.5477715
+    },
+    {
+      "file": "<frozen importlib._bootstrap_external>",
+      "line": 756,
+      "function": "exec_module",
+      "calls": 68,
+      "self_seconds": 0.0013496,
+      "cumulative_seconds": 1.5465738
+    },
+    {
+      "file": "<frozen importlib._bootstrap>",
+      "line": 483,
+      "function": "_call_with_frames_removed",
+      "calls": 222,
+      "self_seconds": 0.0047350000000000005,
+      "cumulative_seconds": 1.5114799
+    },
+    {
+      "file": "source_inventory.py",
+      "line": 68,
+      "function": "read",
+      "calls": 306,
+      "self_seconds": 0.038906300000000005,
+      "cumulative_seconds": 1.441669
+    },
+    {
+      "file": "v3_schema.py",
+      "line": 8,
+      "function": "validator",
+      "calls": 1,
+      "self_seconds": 0.0001297,
+      "cumulative_seconds": 1.4240127
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.exec>",
+      "calls": 68,
+      "self_seconds": 0.0029660000000000003,
+      "cumulative_seconds": 1.3681479
+    },
+    {
+      "file": "__init__.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "self_seconds": 7.81e-05,
+      "cumulative_seconds": 1.2255879
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt.stat>",
+      "calls": 698,
+      "self_seconds": 0.9545684000000001,
+      "cumulative_seconds": 0.9569780000000001
+    },
+    {
+      "file": "_format.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "self_seconds": 0.0006132,
+      "cumulative_seconds": 0.837955
+    },
+    {
+      "file": "path_utils.py",
+      "line": 31,
+      "function": "filesystem_root",
+      "calls": 3090,
+      "self_seconds": 0.11468120000000001,
+      "cumulative_seconds": 0.7709094000000001
+    },
+    {
+      "file": "__init__.py",
+      "line": 251,
+      "function": "__str__",
+      "calls": 20094,
+      "self_seconds": 0.21533850000000002,
+      "cumulative_seconds": 0.7398587000000001
+    },
+    {
+      "file": "__init__.py",
+      "line": 346,
+      "function": "drive",
+      "calls": 12986,
+      "self_seconds": 0.18395150000000002,
+      "cumulative_seconds": 0.7241960000000001
+    },
+    {
+      "file": "validators.py",
+      "line": 349,
+      "function": "iter_errors",
+      "calls": 307,
+      "self_seconds": 0.010267,
+      "cumulative_seconds": 0.7146175
+    },
+    {
+      "file": "__init__.py",
+      "line": 190,
+      "function": "__fspath__",
+      "calls": 13911,
+      "self_seconds": 0.1232469,
+      "cumulative_seconds": 0.6873603
+    },
+    {
+      "file": "exceptions.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "self_seconds": 0.0002064,
+      "cumulative_seconds": 0.6711535000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.__import__>",
+      "calls": 56,
+      "self_seconds": 0.00045050000000000005,
+      "cumulative_seconds": 0.6470607
+    }
+  ],
+  "method": "cProfile timing then separate one-model tracemalloc reading; diagnostic only",
+  "evidence_status": "preliminary diagnostic; before final source freeze; excluded from rc3 final verification and timing"
+}

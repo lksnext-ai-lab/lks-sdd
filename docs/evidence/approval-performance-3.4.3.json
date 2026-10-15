@@ -1,0 +1,73 @@
+{
+  "schema_version": "approval-performance-release-1",
+  "version": "3.4.3",
+  "selected_candidate": "3.4.3-rc.3",
+  "runtime_sha256": {
+    "scripts/v3_contract.py": "0b8a6221e61fbf3b6ff814f596108d85bb826d5c8911955aa239f92bf3c5c4ca",
+    "scripts/v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+    "scripts/v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+    "scripts/v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+    "scripts/v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+    "scripts/v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+    "scripts/v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e",
+    "scripts/v2_contract.py": "5e101cadc78709d82576c2d904f56065ceb1d0d6aa335f5ec36c790bd17ebc27",
+    "scripts/path_utils.py": "c7ca0fb39c103150c55e9a0994761136ad1cf91176148834e55111689c9e5491",
+    "scripts/runtime_doctor.py": "17d224f94a99fbdbf74cad841d0b16703989dfd114a3679fc25fb26149278e3e"
+  },
+  "candidate_zip_sha256": "85c9eeda1df605028b3f32a49bad063482fb38ffe29d4c943b7b4bde4a23eff4",
+  "prior_verification": {
+    "complete": false,
+    "observed_utc": "2026-10-14T23:28:52.570631+00:00",
+    "source_tests": 63,
+    "packaged_host_checks": {
+      "codex": {
+        "passed": true,
+        "commands": 21,
+        "negative_cases": 5,
+        "package_sha256": "85c9eeda1df605028b3f32a49bad063482fb38ffe29d4c943b7b4bde4a23eff4"
+      },
+      "copilot": {
+        "passed": true,
+        "commands": 21,
+        "negative_cases": 5,
+        "package_sha256": "0bb7141bb9da5835a4395bcc73beff4916a56c05b819cde4cc24c45cace4f448"
+      }
+    },
+    "performance": "pending; coordinator waits for all foreign Python work to finish",
+    "accepted_workers_at_checkpoint": 0,
+    "completed_equivalence_comparisons_at_checkpoint": 0,
+    "prior_timing_series": "entirely excluded; previous audit allowed unrecognized Python coordinator names",
+    "source_and_packages_unchanged": true,
+    "conversational_activation": "not-run",
+    "release_gate": "not-run; uncommitted development tree",
+    "published": false,
+    "installed": false
+  },
+  "restored_source_tests": {
+    "file": "rc4-restored-source-tests.json",
+    "sha256": "c4de0139354cfca3195b023d09e45c14e3b988a22a541c62ec7f79ebe92138ec",
+    "passed": 22
+  },
+  "rejected_memory_experiment": {
+    "file": "rc4-final-report.md",
+    "sha256": "ccbfc39176e618fb620ef9aa1edeaf95ab0437389042b803cfe8476710c7a3be",
+    "decision": "both variants rejected"
+  },
+  "historical_report_sha256": {
+    "rc3-final-allocation-base.json": "90886fd24769bd7faea9b4225051f687ee1eee5b8968093ef21d33df57ee02e2",
+    "rc3-final-allocation-candidate.json": "8f1b5e7692a6db5769158186c69fe66f4b95ef42df9f6ae319e58088a6abc8e5",
+    "rc3-final-allocation-rc2.json": "b79833b98186994ddf277698d58fadfa37db8405be3e27e9771f1c38446bab59",
+    "rc3-final-core.json": "7ebeb144f843190c4fc6ec0517ba88f8ba4b14a311e909aa15508e50d63eb4d2",
+    "rc3-final-distribution.json": "ac4be4cc1932e52bbe4a889f3150a3e6e973c5668e1c4444ab89fd05c012d811",
+    "rc3-final-focused.json": "73274813d03cc91ad362b559c0169c6310694de6a9081db7c92910983043265f",
+    "rc3-final-guards.json": "f9d6b51572e820aa4ef20921e96d7af8e8565d74bd73fb3e354c146bd311d41b",
+    "rc3-final-isolation.json": "ac592f7df8d8619d3cbb2c265626ba9ecdb03d34d002d7714f611241b7c9f869",
+    "rc3-final-windows.json": "1ad401cf88b24e72949e280899c122e6373f054ef1fd6eaa6da109884b73a767"
+  },
+  "limitations": [
+    "complete isolated rc3 versus stable and rc2 matrix not completed",
+    "real conversational host and pilot not run",
+    "billed tokens not measured"
+  ],
+  "stable_gate": "separately recorded in GitHub Actions for the integrated commit"
+}

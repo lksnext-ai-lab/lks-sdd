@@ -6,6 +6,24 @@ import os
 from pathlib import Path
 import tempfile
 
+_GET_FILE_ATTRIBUTES = ctypes.windll.kernel32.GetFileAttributesW if os.name == "nt" else None
+if _GET_FILE_ATTRIBUTES is not None:
+    _GET_FILE_ATTRIBUTES.argtypes = [ctypes.c_wchar_p]
+    _GET_FILE_ATTRIBUTES.restype = ctypes.c_uint32
+
+
+def file_attributes(path: Path):
+    """Fresh Windows link/directory attributes; None requests the portable fallback.
+
+    No pathname or trust result is cached. Callers retain their existing error
+    behaviour when the API cannot observe a path. Windows returns the attributes
+    of a symbolic link itself, not its target.
+    https://learn.microsoft.com/windows/win32/api/fileapi/nf-fileapi-getfileattributesw
+    """
+    if _GET_FILE_ATTRIBUTES is None: return None
+    value = _GET_FILE_ATTRIBUTES(os.fspath(path))
+    return None if value == 0xFFFFFFFF else value
+
 
 def publish_new_file(path: Path, data: bytes, *, prefix=".lks-new-") -> None:
     """Publish complete, fsynced bytes without replacing an existing destination.

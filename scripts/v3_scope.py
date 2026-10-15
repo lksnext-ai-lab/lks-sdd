@@ -3,6 +3,13 @@ EDGES = {"requirements", "acceptance", "constraints", "interfaces", "uses", "dep
 
 
 def memberships(model):
+    from v3_evaluation import memo
+    result = memo(model, ("memberships",), lambda: _memberships(model),
+                  lambda result: (sum(map(len, result.values())), 0))
+    return {key: set(owners) for key, owners in result.items()}
+
+
+def _memberships(model):
     result = {}
     roots = model.by_kind("proposal") + [e for e in model.by_kind("feature") if e.data.get("legacy")]
     for proposal in roots:

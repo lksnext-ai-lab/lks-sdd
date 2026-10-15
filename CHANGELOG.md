@@ -1,5 +1,66 @@
 # Changelog
 
+## 3.4.3 — 2026-10-15 — rendimiento de identidades y aprobaciones
+
+Promoción de rc.3 autorizada expresamente: integración, commit, push, publicación
+y actualización de LKS-SDD en Codex. Mantiene schema 3.1 y método 3.1.0.
+
+- Indexa UID, alias y tipos; invalida los índices con las mutaciones del modelo.
+- Reutiliza cálculos dentro de una evaluación inmutable con límites de memoria;
+  conserva permisos, revocaciones, guards frescos y comprobaciones físicas.
+- Reduce la duplicación de propietarios e inventarios, agrupa la construcción
+  del modelo y calcula las huellas del doctor por bloques.
+- Conserva el runtime exacto de rc.3. Las dos optimizaciones de memoria de rc.4
+  se descartan por regresiones de CPU y tiempo en operaciones concretas.
+- La evidencia de desarrollo incluye equivalencia, guardias y ciclo CLI desde
+  ambos paquetes. El perfil de asignaciones de rc.3 reduce memoria frente a rc.2,
+  pero mantiene un coste respecto a 3.4.2; la matriz aislada completa contra esas
+  versiones quedó incompleta. No se afirma mejora universal ni ahorro de tokens.
+  Véase [la promoción y la evidencia](docs/plans/approval-performance/IMPLEMENTATION.md).
+
+## 3.4.3-rc.3 — 2026-10-14 — carga, memoria y ciclo CLI
+
+Candidata local de mantenimiento, sin publicar ni instalar. No cambia schema 3.1
+ni método 3.1.0. Commit, push e integración requieren autorización separada.
+
+- Reduce objetos auxiliares de propietarios e identidades y construye la tabla del
+  modelo en bloque antes de validarla; conserva observación, copias e invalidación.
+- Evita comprobaciones redundantes de rutas mediante atributos frescos de Windows;
+  mantiene rechazo de enlaces, repositorios anidados y cambios durante la lectura.
+- Verifica por bloques todos los bytes del runtime fijado, sin retener cada archivo
+  completo; conserva huellas, inventario y comprobaciones de instrucciones.
+- Añade equivalencia contra 3.4.2 y rc.2, mediciones secuenciales y ciclo CLI completo
+  con CPU de descendientes y memoria. La evidencia final acompaña a los paquetes
+  exactos fuera del runtime para no alterar lo medido. Véase el
+  [informe de preparación](docs/plans/approval-performance/IMPLEMENTATION.md).
+
+## 3.4.3-rc.2 — 2026-10-14 — guardia y regresiones de rendimiento
+
+Candidata local posterior a la revisión crítica de rc.1. Preparación autorizada;
+publicación, instalación, commit y push pendientes de autorización separada.
+
+- Sustituye la serialización completa por observación de mutaciones anidadas y
+  revisión monótona; rechaza cambios antes de aplicarlos y detecta intentos capturados.
+- Reconstruye observadores e índices al copiar modelos y conserva los inventarios
+  resueltos compartidos entre eventos.
+- Añade regresiones y equivalencia de copias, guardia e inventarios compartidos,
+  y benchmarks secuenciales de CPU/memoria con orden alternado y ciclo público.
+
+## 3.4.3-rc.1 — 2026-10-14 — rendimiento de identidades y aprobaciones
+
+Candidata local de mantenimiento. La petición autoriza parche, equivalencia y
+mediciones; commit, integración, push, publicación e instalación requieren decisión
+separada. No modifica schema 3.1 ni método 3.1.0.
+
+- Resuelve UID, alias y tipos mediante índices derivados que se invalidan con las
+  altas, sustituciones, bajas y modificaciones de identidades en memoria.
+- Comparte pertenencias, cierres y descriptores durante una evaluación inmutable,
+  incluidas aprobaciones heredadas; conserva cada fuente física y sus comprobaciones.
+- Mantiene el mecanismo individual de aprobación tecnológica o por propuesta,
+  permisos, obligaciones, revocaciones, guards frescos y recuperación transaccional.
+- Conserva la implementación 3.4.2 como referencia de pruebas y añade comparación
+  diferencial y mediciones sintéticas repetidas. Véase [alcance y evidencia](docs/APPROVAL-PERFORMANCE.md).
+
 ## 3.4.2 — 2026-10-13 — presentación de tareas históricas migradas
 
 Versión estable, commit, integración en main, push y publicación autorizados

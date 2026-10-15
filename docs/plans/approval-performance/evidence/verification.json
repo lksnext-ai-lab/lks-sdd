@@ -1,0 +1,109 @@
+{
+  "candidate_version": "3.4.3-rc.1",
+  "branch": "codex/approval-evaluation-performance",
+  "source": "working-tree; no commit or release attestation",
+  "checks": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_plugin_contract.py",
+        "."
+      ],
+      "status": "passed",
+      "output": "VALID: LKS-SDD 3.4.3-rc.1 active contract (readers 1.5/2.0/3.0/3.1; six skills)"
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_fixture_manifest.py",
+        "."
+      ],
+      "status": "passed",
+      "output": "VALID\nfixtures=13"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "status": "passed",
+      "output": ""
+    }
+  ],
+  "distinct_tests": 38,
+  "test_results": {
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_all_identity_mutators_rebuild_and_do_not_retain_missing_results": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_cached_results_cannot_be_poisoned_and_memory_is_released": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_development_distribution_includes_and_imports_the_new_runtime_module": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_differential_original_results_errors_sources_and_decisions": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_mixed_technology_mechanisms_remain_individual": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_originals_changed_after_shared_read_are_rejected_before_materializing": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_projects_revisions_threads_and_inherited_async_contexts_are_isolated": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_revision_changes_invalidate_only_at_immutable_evaluation_boundaries": "passed",
+    "test_v3_approval_performance.ApprovalPerformanceTests.test_single_reconstruction_and_original_parse_per_physical_path": "passed",
+    "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code": "passed",
+    "test_v3_migration.MigrationTests.test_conversion_preserves_referenced_v2_inventories_and_rollback": "passed",
+    "test_v3_migration.MigrationTests.test_interruption_and_later_edit_are_protected": "passed",
+    "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority": "passed",
+    "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats": "passed",
+    "test_v3_migration.MigrationTests.test_unknown_method_is_diagnosed_without_writes": "passed",
+    "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close": "passed",
+    "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start": "passed",
+    "test_v3_workflow.WorkflowTests.test_execution_baselines_share_verified_inventory_and_preserve_scope": "passed",
+    "test_v3_workflow.WorkflowTests.test_execution_inventory_excludes_forbidden_inputs_without_losing_allowed_code": "passed",
+    "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code": "passed",
+    "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards": "passed",
+    "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work": "passed",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis": "passed",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization": "passed",
+    "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec": "passed",
+    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept": "passed",
+    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration": "passed",
+    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration": "passed",
+    "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant": "passed",
+    "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change": "passed",
+    "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis": "passed",
+    "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct": "passed",
+    "test_windows_long_paths.WindowsLongPathTests.test_long_plugin_and_migration_paths_match_short_paths": "passed",
+    "test_v31_review.IntegralTests.test_grouped_result_respects_acceptance_before_integration": "passed",
+    "test_v31_review.IntegralTests.test_individual_three_decisions_and_no_role_duplicates": "passed",
+    "test_v31_review.IntegralTests.test_guidance_matches_queries_and_shows_review_reservations": "passed",
+    "test_v3_efficiency.StorageBoundaryTests.test_global_approval_checks_all_content_without_quadratic_digest_work": "passed",
+    "test_v3_efficiency.StorageBoundaryTests.test_large_migration_catalog_preserves_all_paths_and_detects_corruption": "passed"
+  },
+  "core_source_binding": {
+    "base_commit": "a657bf7b07461c8b03516f9adbb00bb7a6b9ed7c",
+    "candidate_version": "3.4.3-rc.1",
+    "files": {
+      "v3_contract.py": "d284d06697f69c1df6fe2e9d450a2ffd7043d1ac19d3914e7c0b46e81a23d64d",
+      "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+      "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+      "v3_migration.py": "55592e462142a0a9a8642a1529e6ea76a86653eaafeb678855c0b0b19d104127",
+      "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+      "v3_evaluation.py": "736b63b4fdca89584c97376ffc7db02f4370e108d9b220722c684b0a4f4313fb"
+    }
+  },
+  "release_gate": "not-run; requires an authorized clean commit",
+  "publication": "not-performed",
+  "installation": "not-performed",
+  "consumer_migration": "not-performed",
+  "host_acceptance": "not-run",
+  "matrix": {
+    "pairs": 18,
+    "measurements": 378,
+    "all_equivalent": true,
+    "final_core_binding_checked": true
+  },
+  "isolated_alternating_order": {
+    "pairs": 3,
+    "all_equivalent": true,
+    "final_core_binding_checked": true
+  }
+}
