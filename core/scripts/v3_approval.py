@@ -1,6 +1,7 @@
 """Recoverable exact approval units and complete plan coverage."""
 from v3_contract import ContractError, element, now, fingerprint
 from v3_policy import operator, policy_for
+from v3_evaluation import evaluated, memo
 
 
 class _Descriptors:
@@ -30,13 +31,23 @@ class _Descriptors:
     def descriptor(self, identifiers):
         keys = [self.model.get(key).uid for key in identifiers]
         if keys and all(key in self.globals for key in keys): return self.global_descriptor
+        return memo(self.model, ("descriptor", tuple(keys)), lambda: self._descriptor(keys),
+                    lambda result: (len(result["units"]) + len(keys), 0))
+
+    def _descriptor(self, keys):
         units = self.closure(keys, self.globals)
         if not units: raise ContractError("Paquete de aprobación vacío")
         return {"units": units, "digest": fingerprint(units)}
 
 
+def _reader(model):
+    return memo(model, ("descriptors",), lambda: _Descriptors(model), lambda reader: (len(reader.globals), 0))
+
+
+@evaluated
 def descriptor(model, identifiers):
-    return _Descriptors(model).descriptor(identifiers)
+    result = _reader(model).descriptor(identifiers)
+    return {"units": dict(result["units"]), "digest": result["digest"]}
 
 
 def decisions(model, purpose=None):
@@ -46,8 +57,9 @@ def decisions(model, purpose=None):
             and (purpose is None or e.data.get("purpose") == purpose)]
 
 
+@evaluated
 def approved(model, identifiers, purpose="proposal"):
-    reader = _Descriptors(model)
+    reader = _reader(model)
     expected = reader.descriptor(identifiers)["units"]
     from v3_migration import inherited_confirmations
     covered = inherited_confirmations(model, expected) if purpose in {"proposal", "technology"} else {}
@@ -71,9 +83,10 @@ def approved(model, identifiers, purpose="proposal"):
         for request in model.by_kind("request"):
             if set(request.relations.get("proposal", [])) & set(expected) and not closure_valid(model, request): valid = False
     return {"valid": valid, "covered": covered,
-            "pending": sorted(set(expected)-set(covered)), "descriptor": expected}
+            "pending": sorted(set(expected)-set(covered)), "descriptor": dict(expected)}
 
 
+@evaluated
 def decision(model, actor, identifiers, purpose, statement, *, outcome="approved", reason=""):
     if not statement.strip(): raise ContractError("Falta la decisión explícita observada; no inferirla del silencio")
     permission = "authorize" if purpose == "execution" else "govern" if purpose == "governance" else "approve"
@@ -94,6 +107,7 @@ def decision(model, actor, identifiers, purpose, statement, *, outcome="approved
     return result
 
 
+@evaluated
 def task_basis(model, task, plan):
     import copy
     rules = copy.deepcopy(plan.normative())
@@ -107,6 +121,7 @@ def task_basis(model, task, plan):
             "plan": plan.uid, "plan_rules": fingerprint(rules)}
 
 
+@evaluated
 def task_authority(model, task, plan, purpose):
     expected = task_basis(model, task, plan)
     matches = []
@@ -156,6 +171,7 @@ def proposal_ready(model, request, selected=None, *, require_complete=True):
     return units
 
 
+@evaluated
 def plan_coverage(model, plan):
     request = model.get(plan.data["request"], "request")
     roots = proposal_ready(model, request, plan.data.get("proposal_units"))

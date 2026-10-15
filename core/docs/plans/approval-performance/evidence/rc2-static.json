@@ -1,0 +1,14 @@
+{
+  "plugin": {
+    "exit_code": 0,
+    "stdout": "VALID: LKS-SDD 3.4.3-rc.2 active contract (readers 1.5/2.0/3.0/3.1; six skills)\n",
+    "stderr": ""
+  },
+  "fixtures": {
+    "exit_code": 0,
+    "stdout": "{\n  \"status\": \"passed\",\n  \"fixture_count\": 13,\n  \"errors\": []\n}\n",
+    "stderr": ""
+  },
+  "diff_check_passed": true,
+  "canonical_specs_unchanged": true
+}

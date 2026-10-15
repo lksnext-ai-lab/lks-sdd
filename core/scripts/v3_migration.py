@@ -288,6 +288,7 @@ def inherited_confirmations(model, expected):
     """Reuse only the exact canonical decisions supported by recoverable v2 bytes."""
     covered, originals = {}, {}
     from v3_approval import descriptor
+    from v3_evaluation import memo
     for receipt in model.by_kind("migration"):
         mapping = receipt.data.get("content_confirmations", {})
         for key, digest in expected.items():
@@ -295,12 +296,26 @@ def inherited_confirmations(model, expected):
             if not proof or proof.get("target_digest") != digest: continue
             try:
                 path = proof["original"]
+                if isinstance(path, (dict, list)):
+                    import copy
+                    path = copy.deepcopy(path)  # Preserve the original invalid-key error.
                 if path not in originals:
-                    raw = read_bytes(model.root, path)
-                    model.hashes[path] = sha(raw)
-                    if sha(raw) != proof["original_sha256"]: continue
-                    originals[path] = {e.id: e for e in v2.parse_document(raw.decode("utf-8"), path)[0]}
-                old = originals[path][proof["source_id"]]
+                    def original():
+                        raw = read_bytes(model.root, path)
+                        digest = sha(raw)
+                        model.hashes[path] = digest
+                        # Every physical route is checked, even for equal hashes.
+                        if digest != proof["original_sha256"]: raise ContractError("Original de migración modificado")
+                        return digest, {e.id: e for e in v2.parse_document(raw.decode("utf-8"), path)[0]}, len(raw)
+                    digest, values, _ = memo(model, ("migration-original", path, proof["original_sha256"]), original,
+                                            lambda value: (len(value[1]), value[2]))
+                    if digest != proof["original_sha256"]: continue
+                    originals[path] = values
+                source_id = proof["source_id"]
+                if isinstance(source_id, (dict, list)):
+                    import copy
+                    source_id = copy.deepcopy(source_id)
+                old = originals[path][source_id]
                 if old.meta["nature"] != "decision" or old.meta["state"] not in {"confirmed", "approved", "active", "effective"}: continue
                 if fingerprint(old.normative()) != proof["source_normative"]: continue
                 dependencies = descriptor(model, [key])["units"]

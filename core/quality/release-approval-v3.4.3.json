@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "release_version": "3.4.3",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-version-approval",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-15",
+    "authority_role": "project-owner",
+    "rationale": "El responsable considera rc.3 suficiente como mejora general y autoriza expresamente integrarla como release estable 3.4.3, crear commits, subir todo el trabajo pertinente a GitHub, publicar y actualizar LKS-SDD en Codex. Se excluyen las dos optimizaciones rechazadas de rc.4.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La aprobación no sustituye el gate estable ni la validación de paquetes del SHA integrado.",
+    "Se acepta rc.3 con el coste de memoria documentado respecto a 3.4.2 y la matriz aislada comparativa incompleta; no se afirma mejora universal.",
+    "Las referencias de mantenimiento y Copilot identifican commits distintos y se verifican contra sus artefactos.",
+    "Publicación e instalación no acreditan activación conversacional, aceptación humana, piloto, tokens facturados ni actualización del runtime fijado de consumidores."
+  ]
+}

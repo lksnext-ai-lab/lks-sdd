@@ -1,0 +1,64 @@
+{
+  "candidate": "3.4.3-rc.2",
+  "base_commit": "a657bf7b07461c8b03516f9adbb00bb7a6b9ed7c",
+  "passed": true,
+  "unique_tests": 40,
+  "reports": {
+    "rc2-equivalence.json": {
+      "total": 18,
+      "passed": 18,
+      "skipped": 0,
+      "failed": 0
+    },
+    "rc2-core.json": {
+      "total": 14,
+      "passed": 14,
+      "skipped": 0,
+      "failed": 0
+    },
+    "rc2-guards-and-inventories.json": {
+      "total": 7,
+      "passed": 7,
+      "skipped": 0,
+      "failed": 0
+    },
+    "rc2-windows.json": {
+      "total": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "test_report_files_sha256": {
+    "rc2-equivalence.json": "6dab86db9560ea03b65077e7b7db84f67019c73f2acf7ea2ccad6d50b727d02d",
+    "rc2-core.json": "29068af1ae99ccd312896df268528eb369557201a48f513657d545a6030b549b",
+    "rc2-guards-and-inventories.json": "ef5aa51703ce06b426cebf969e08f878fa8f590f216937039b2a8e1603c79402",
+    "rc2-windows.json": "306bd0bc5fa56895aed55113cf9a07c9cb2c92320584ca735576dd2e8213cf44"
+  },
+  "candidate_modules_unchanged": 7,
+  "measurement_files_unchanged": 6,
+  "original_modules_verified_against_base": 6,
+  "benchmark_pairs": 28,
+  "benchmark_cold_workers": 56,
+  "benchmark_operation_rows": 536,
+  "clean_before_after_audits": 112,
+  "benchmark_files_sha256": {
+    "rc2-isolated.json": "bf52820c777136d0cc84a8d3b7894333c4b19def9ac3e8df10a0df3f23f47524",
+    "rc2-shared-inventories.json": "70c46e7c678252fea1d5f546936e7b8400bf2fdb2a87ab0aee9d08b6a4a9a551",
+    "rc2-measurement.json": "56bf0cd74990fdde5f149ffec74b9de58f345cc71d460f7ca93f09355d6e46b8"
+  },
+  "release_gate": "not-run; uncommitted development tree",
+  "host_acceptance": "not-run",
+  "pilot": "not-run",
+  "performance_acceptance": "not-assessed; equivalence and measurements are not release acceptance",
+  "remaining_performance_limits": [
+    "load CPU medians rise at 500 and 1500 with overlapping broad ranges",
+    "several complete public operation CPU medians rise at 500; evidence rises at 1500",
+    "maximum accumulated public-cycle process peak at 1500 rises by 9.15 MiB (12.5 percent)",
+    "library cycle only, apply(current=False); CLI/runtime-doctor not measured"
+  ],
+  "commit_created": false,
+  "pushed": false,
+  "published": false,
+  "installed": false
+}

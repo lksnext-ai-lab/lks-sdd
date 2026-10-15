@@ -1,0 +1,1 @@
+{"passed": true, "duration_seconds": 583.799, "counts": {"total": 2, "passed": 2, "skipped": 0, "failed": 0}, "results": [{"id": "test_v31_review.IntegralTests.test_grouped_result_respects_acceptance_before_integration", "status": "passed"}, {"id": "test_v31_review.IntegralTests.test_individual_three_decisions_and_no_role_duplicates", "status": "passed"}]}

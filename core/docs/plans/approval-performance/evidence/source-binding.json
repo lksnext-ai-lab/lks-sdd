@@ -1,0 +1,12 @@
+{
+  "base_commit": "a657bf7b07461c8b03516f9adbb00bb7a6b9ed7c",
+  "candidate_version": "3.4.3-rc.1",
+  "files": {
+    "v3_contract.py": "d284d06697f69c1df6fe2e9d450a2ffd7043d1ac19d3914e7c0b46e81a23d64d",
+    "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+    "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+    "v3_migration.py": "55592e462142a0a9a8642a1529e6ea76a86653eaafeb678855c0b0b19d104127",
+    "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+    "v3_evaluation.py": "736b63b4fdca89584c97376ffc7db02f4370e108d9b220722c684b0a4f4313fb"
+  }
+}

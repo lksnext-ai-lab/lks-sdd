@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import uuid
+import weakref
 
 from v2_contract import ContractError, canonical, fingerprint, path_at, read_bytes, sha
 
@@ -23,6 +24,7 @@ KINDS = set("project policy member request proposal requirement acceptance rule 
 EVENTS = set("decision assignment handoff exception analysis execution checkpoint evidence problem migration authorization receipt".split())
 NORMATIVE = KINDS - EVENTS - {"legacy"}
 _QUERY_MODELS = ContextVar("lks_sdd_query_models", default=None)
+_COPY_OBSERVERS = object()
 
 
 @contextmanager
@@ -72,13 +74,76 @@ def location(item):
     return DOCS + "/elements/" + uid(item["meta"]["uid"]) + ".md"
 
 
-@dataclass
+@dataclass(init=False)
 class Element:
     meta: dict
     body: str
     path: str
     line: int = 1
     resolved_data: dict | None = field(default=None, repr=False)
+    _owners: object = field(default=None, init=False, repr=False, compare=False)
+
+    def __init__(self, meta, body, path, line=1, resolved_data=None):
+        # A fresh element has no model to invalidate. Reinitializing an attached
+        # element still rejects active evaluations and preserves its owners.
+        owners = getattr(self, "_owners", None)
+        if owners is not None: self._identity_changed()
+        object.__setattr__(self, "_owners", owners)
+        object.__setattr__(self, "meta", _observe(meta, self._identity_changed))
+        object.__setattr__(self, "body", body)
+        object.__setattr__(self, "path", path)
+        object.__setattr__(self, "line", line)
+        object.__setattr__(self, "resolved_data", _observe(resolved_data, self._identity_changed))
+
+    def __setattr__(self, name, value):
+        if name in {"meta", "body", "path", "line", "resolved_data"}:
+            self._identity_changed()
+        if name == "meta":
+            value = _observe(value, self._identity_changed)
+        elif name == "resolved_data" and value is not None:
+            value = _observe(value, self._identity_changed)
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name):
+        if name in {"meta", "body", "path", "line", "resolved_data"}:
+            self._identity_changed()
+        object.__delattr__(self, name)
+
+    def _identity_changed(self):
+        if getattr(self, "_owners", None) is not None: _notify_models(self._models())
+
+    def _models(self):
+        models = []
+        owners = getattr(self, "_owners", None)
+        for owner in tuple(owners.values()) if isinstance(owners, dict) else (owners,):
+            model = owner() if owner is not None else None
+            if model is not None and (model.elements.get(self.uid) is self or
+                                      any(e is self for e in model.elements.values())):
+                models.append(model)
+        return models
+
+    def _watch(self, model):
+        owners = self._owners
+        if owners is None or (not isinstance(owners, dict) and owners() is None):
+            self._owners = weakref.ref(model)
+        elif isinstance(owners, dict):
+            self._owners = {k: ref for k, ref in owners.items() if ref() is not None}
+            self._owners[id(model)] = weakref.ref(model)
+        elif owners() is not model:
+            self._owners = {id(owners()): owners, id(model): weakref.ref(model)}
+        # A shallow Element copy shares these roots, but needs its own parent link.
+        self.meta.watch(self._identity_changed)
+        if self.resolved_data is not None: self.resolved_data.watch(self._identity_changed)
+
+    def __deepcopy__(self, memo):
+        import copy
+        result = Element.__new__(Element)
+        memo[id(self)] = result
+        observed = memo.setdefault(_COPY_OBSERVERS, {})
+        Element.__init__(result, _observe(copy.deepcopy(dict(self.meta), memo), memo=observed),
+                         self.body, self.path, self.line,
+                         _observe(copy.deepcopy(self.resolved_data, memo), memo=observed))
+        return result
 
     @property
     def uid(self): return self.meta["uid"]
@@ -153,6 +218,171 @@ def document_paths(root):
     return sorted(result)
 
 
+def _notify_models(models):
+    models = {id(model): model for model in models}.values()
+    # Mark every affected model before raising: aliases may have active scopes
+    # in several models, and catching the first error must not leave another valid.
+    for model in models: model._revision += 1
+    if any(model._evaluations for model in models):
+        raise ContractError("El modelo cambió durante la evaluación; repita sobre una revisión inmutable")
+    for model in models: model._invalidate_identities()
+
+
+class _Observers:
+    """Weak parent links allow shared inventories without copying their contents."""
+    __slots__ = ()
+
+    def watch(self, changed):
+        if changed is None: return
+        parent = changed.__self__
+        parents = getattr(self, "_parents", None)
+        if parents is None:
+            self._parents = weakref.ref(parent)
+        elif isinstance(parents, dict):
+            parents[id(parent)] = weakref.ref(parent)
+        elif parents() is not parent:
+            previous = parents()
+            self._parents = {id(parent): weakref.ref(parent)}
+            if previous is not None: self._parents[id(previous)] = parents
+
+    def changed(self):
+        pending, seen, models = [self], set(), {}
+        while pending:
+            node = pending.pop()
+            if id(node) in seen: continue
+            seen.add(id(node))
+            parents = getattr(node, "_parents", None)
+            refs = tuple(parents.values()) if isinstance(parents, dict) else (parents,)
+            for ref in refs:
+                parent = ref() if ref is not None else None
+                if parent is None: continue
+                if isinstance(parent, dict): attached = any(v is node for v in parent.values())
+                elif isinstance(parent, list): attached = any(v is node for v in parent)
+                elif isinstance(parent, Element): attached = parent.meta is node or parent.resolved_data is node
+                else: attached = any(getattr(parent, name, None) is node for name in ("elements", "prose", "errors", "warnings"))
+                if attached:
+                    if isinstance(parent, Element): models.update((id(m), m) for m in parent._models())
+                    elif isinstance(parent, Model): models[id(parent)] = parent
+                    else: pending.append(parent)
+                elif isinstance(parents, dict): parents.pop(id(parent), None)
+                else: node._parents = None
+        _notify_models(models.values())
+
+
+def _observe(value, changed=None, memo=None):
+    """Own mutable JSON containers; preserve shared nodes within the input graph."""
+    if isinstance(value, (_ObservedDict, _ObservedList)):
+        value.watch(changed)
+        return value
+    if not isinstance(value, (dict, list)): return value
+    memo = {} if memo is None else memo
+    if id(value) in memo:
+        result = memo[id(value)]
+        result.watch(changed)
+        return result
+    return (_ObservedDict if isinstance(value, dict) else _ObservedList)(value, changed, memo=memo)
+
+
+class _ObservedDict(dict, _Observers):
+    """Notify before every normal edit, including edits through nested containers."""
+    __slots__ = ("_parents", "_recursive", "__weakref__")
+    def __init__(self, values, changed=None, *, memo=None, recursive=True):
+        super().__init__()
+        self.watch(changed)
+        self._recursive = recursive
+        memo = {} if memo is None else memo
+        memo[id(values)] = self
+        for key, value in values.items():
+            dict.__setitem__(self, key, _observe(value, self.changed, memo) if recursive else value)
+
+    def __setitem__(self, key, value):
+        self.changed()
+        super().__setitem__(key, _observe(value, self.changed) if self._recursive else value)
+
+    def __delitem__(self, key):
+        self.changed(); super().__delitem__(key)
+
+    def update(self, *args, **kwargs):
+        for key, value in dict(*args, **kwargs).items(): self[key] = value
+
+    def clear(self):
+        self.changed(); super().clear()
+
+    def pop(self, *args):
+        self.changed(); return super().pop(*args)
+
+    def popitem(self):
+        self.changed(); return super().popitem()
+
+    def setdefault(self, key, default=None):
+        if key not in self: self[key] = default
+        return self[key]
+
+    def __ior__(self, other):
+        self.update(other); return self
+
+    def __deepcopy__(self, memo):
+        # A copied item is an independent draft, not an observer of its source.
+        import copy
+        return copy.deepcopy(dict(self), memo)
+
+    def __copy__(self): return dict(self)
+
+    @classmethod
+    def fromkeys(cls, iterable, value=None): return dict.fromkeys(iterable, value)
+
+
+class _ObservedList(list, _Observers):
+    __slots__ = ("_parents", "__weakref__")
+    def __init__(self, values, changed=None, *, memo=None):
+        super().__init__()
+        self.watch(changed)
+        memo = {} if memo is None else memo
+        memo[id(values)] = self
+        list.extend(self, (_observe(value, self.changed, memo) for value in values))
+
+    def __setitem__(self, key, value):
+        self.changed()
+        if isinstance(key, slice): value = [_observe(v, self.changed) for v in value]
+        else: value = _observe(value, self.changed)
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key): self.changed(); super().__delitem__(key)
+    def append(self, value): self.changed(); super().append(_observe(value, self.changed))
+    def extend(self, values):
+        self.changed()
+        super().extend([_observe(v, self.changed) for v in values])
+    def insert(self, index, value): self.changed(); super().insert(index, _observe(value, self.changed))
+    def pop(self, index=-1): self.changed(); return super().pop(index)
+    def remove(self, value): self.changed(); super().remove(value)
+    def clear(self): self.changed(); super().clear()
+    def reverse(self): self.changed(); super().reverse()
+    def sort(self, *args, **kwargs): self.changed(); super().sort(*args, **kwargs)
+    def __iadd__(self, values): self.extend(values); return self
+    def __imul__(self, count): self.changed(); super().__imul__(count); return self
+
+    def __deepcopy__(self, memo):
+        import copy
+        return copy.deepcopy(list(self), memo)
+
+    def __copy__(self): return list(self)
+
+
+class _Elements(_ObservedDict):
+    __slots__ = ()
+    def __init__(self, values, model):
+        super().__init__(values, model._semantic_changed, recursive=False)
+        for entry in self.values(): entry._watch(model)
+
+    def __setitem__(self, key, value):
+        self.changed()
+        parents = self._parents
+        for ref in tuple(parents.values()) if isinstance(parents, dict) else (parents,):
+            model = ref() if ref is not None else None
+            if model is not None and model.elements is self: value._watch(model)
+        dict.__setitem__(self, key, value)
+
+
 @dataclass
 class Model:
     root: Path
@@ -161,6 +391,64 @@ class Model:
     prose: dict = field(default_factory=dict)
     errors: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
+    _identities: dict | None = field(default=None, init=False, repr=False, compare=False)
+    _kinds: dict | None = field(default=None, init=False, repr=False, compare=False)
+    _revision: int = field(default=0, init=False, repr=False, compare=False)
+    _evaluations: int = field(default=0, init=False, repr=False, compare=False)
+
+    def __setattr__(self, name, value):
+        if name in {"root", "elements", "prose", "errors", "warnings"}:
+            self._semantic_changed()
+        if name == "elements":
+            if isinstance(value, _Elements):
+                value.watch(self._semantic_changed)
+                for entry in value.values(): entry._watch(self)
+            else: value = _Elements(value, self)
+        elif name in {"prose", "errors", "warnings"}:
+            value = _observe(value, self._semantic_changed)
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name):
+        if name in {"root", "elements", "prose", "errors", "warnings"}:
+            self._semantic_changed()
+        object.__delattr__(self, name)
+
+    def _semantic_changed(self):
+        _notify_models([self])
+
+    def __deepcopy__(self, memo):
+        import copy
+        result = Model.__new__(Model)
+        memo[id(self)] = result
+        Model.__init__(result, self.root, copy.deepcopy(dict(self.elements), memo),
+                       copy.deepcopy(self.hashes, memo), copy.deepcopy(self.prose, memo),
+                       copy.deepcopy(self.errors, memo), copy.deepcopy(self.warnings, memo))
+        return result
+
+    def __copy__(self):
+        # Preserve ordinary shallow sharing, while binding every shared root and
+        # element to both models. Evaluation state and identity indexes are local.
+        result = Model.__new__(Model)
+        result.__dict__.update(self.__dict__)
+        result._evaluations = 0
+        result._invalidate_identities()
+        for name in ("elements", "prose", "errors", "warnings"):
+            getattr(result, name).watch(result._semantic_changed)
+        for entry in result.elements.values(): entry._watch(result)
+        return result
+
+    def _invalidate_identities(self):
+        self._identities = self._kinds = None
+
+    def _index_identities(self):
+        if self._identities is not None: return
+        identities, kinds = {}, {}
+        for e in self.elements.values():
+            for key in {e.uid, e.id}:
+                previous = identities.get(key)
+                identities[key] = e if previous is None else (*previous, e) if isinstance(previous, tuple) else (previous, e)
+            kinds.setdefault(e.kind, []).append(e)
+        self._kinds, self._identities = kinds, identities
 
     def require_valid(self):
         if self.errors: raise ContractError("; ".join(self.errors[:20]))
@@ -170,13 +458,16 @@ class Model:
         if isinstance(identifier, str) and "/" in identifier:
             project, identifier = identifier.split("/", 1)
             if project != self.project.uid: raise ContractError("La dependencia externa necesita un contrato recibido y comprobable")
-        candidates = [e for e in self.elements.values() if e.uid == identifier or e.id == identifier]
-        if len(candidates) != 1: raise ContractError("Identidad inexistente o alias ambiguo: " + str(identifier))
-        found = candidates[0]
+        self._index_identities()
+        try: found = self._identities.get(identifier)
+        except TypeError: found = None
+        if found is None or isinstance(found, tuple): raise ContractError("Identidad inexistente o alias ambiguo: " + str(identifier))
         if kind and found.kind != kind: raise ContractError("Tipo requerido: " + kind)
         return found
 
-    def by_kind(self, kind): return [e for e in self.elements.values() if e.kind == kind]
+    def by_kind(self, kind):
+        self._index_identities()
+        return list(self._kinds.get(kind, []))
 
     @property
     def project(self):
@@ -224,6 +515,7 @@ def _load(root):
         return model
     total = 0
     inventory_cache = {}
+    elements = {}
     for path in document_paths(root):
         try:
             raw = read_bytes(root, path)
@@ -233,11 +525,12 @@ def _load(root):
             values, prose = parse(raw, path)
             if prose: model.prose[path] = prose
             for e in values:
-                if e.uid in model.elements: raise ContractError("Identidad duplicada: " + e.uid)
-                model.elements[e.uid] = e
+                if e.uid in elements: raise ContractError("Identidad duplicada: " + e.uid)
+                elements[e.uid] = e
                 from v3_inventories import resolve
                 resolve(model, e, inventory_cache)
         except (ValueError, UnicodeError, KeyError) as exc: model.errors.append(str(exc))
+    model.elements = elements
     try:
         project = model.project
         if project.data.get("method_version") not in METHODS:

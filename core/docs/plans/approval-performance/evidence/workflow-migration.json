@@ -1,0 +1,21 @@
+{
+  "command": "python -B -X utf8 tests/run_unit_tests.py --module test_v3_workflow --module test_v3_migration",
+  "passed": true,
+  "duration_seconds": 817.584,
+  "counts": {"total": 13, "passed": 13, "skipped": 0, "failed": 0},
+  "results": [
+    {"id": "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code", "status": "passed"},
+    {"id": "test_v3_migration.MigrationTests.test_conversion_preserves_referenced_v2_inventories_and_rollback", "status": "passed"},
+    {"id": "test_v3_migration.MigrationTests.test_interruption_and_later_edit_are_protected", "status": "passed"},
+    {"id": "test_v3_migration.MigrationTests.test_open_plan_reuses_exact_content_and_requires_current_execution_authority", "status": "passed"},
+    {"id": "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats", "status": "passed"},
+    {"id": "test_v3_migration.MigrationTests.test_unknown_method_is_diagnosed_without_writes", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_alias_change_preserves_authority_but_latest_failed_evidence_blocks_close", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_execution_baselines_share_verified_inventory_and_preserve_scope", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_execution_inventory_excludes_forbidden_inputs_without_losing_allowed_code", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards", "status": "passed"},
+    {"id": "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work", "status": "passed"}
+  ]
+}

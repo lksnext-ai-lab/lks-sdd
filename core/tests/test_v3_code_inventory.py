@@ -173,8 +173,17 @@ class CodeInventoryTests(unittest.TestCase):
                     self.assertIs(error, caught.exception)
 
     def test_link_and_nested_repository_guards_remain_active(self):
-        from v2_contract import is_link
-        with patch("v2_contract.is_link", side_effect=lambda p: p.name == "app.py" or is_link(p)):
+        import stat
+        from types import SimpleNamespace
+        original_lstat = Path.lstat
+        from v2_contract import file_attributes
+        def linked_info(path, *args, **kwargs):
+            if path.name == "app.py": return SimpleNamespace(st_mode=stat.S_IFLNK, st_file_attributes=0x400)
+            return original_lstat(path, *args, **kwargs)
+        # Inject the observed filesystem condition, rather than the former
+        # implementation's helper call. Link rejection remains before reading.
+        with patch.object(Path, "lstat", new=linked_info), \
+             patch("v2_contract.file_attributes", side_effect=lambda p: 0x400 if p.name == "app.py" else file_attributes(p)):
             with self.assertRaisesRegex(ContractError, "Link/junction rejected"):
                 code_inventory(self.root)
         self.write("nested/app.py")

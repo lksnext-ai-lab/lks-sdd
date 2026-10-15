@@ -4,10 +4,27 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
+import stat
+from path_utils import file_attributes, filesystem_root
 from pathlib import Path
 import sys
 
 from dual_distribution import BEGIN, END, digest, json_bytes, safe_name, filesystem_root
+
+
+def _linked(path):
+    # Observe once for both predicates; this is never a cache across paths.
+    # On an observation error retain the former Path predicate behaviour.
+    attributes = file_attributes(filesystem_root(path))
+    if attributes is not None:
+        if not attributes & 0x400: return False
+        return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
+    try: info = path.lstat()
+    except OSError:
+        return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
+    return stat.S_ISLNK(info.st_mode) or (hasattr(path, "is_junction") and
+                                         getattr(info, "st_reparse_tag", 0) == 0xA0000003)
 
 
 def check(root: Path) -> dict:
@@ -44,19 +61,25 @@ def check(root: Path) -> dict:
             path = root / safe_name(relative)
             links = [p for p in [path, *path.parents] if p != root and root in p.parents]
             if not path.is_relative_to(root) or any(
-                p.is_symlink() or (hasattr(p, "is_junction") and p.is_junction()) for p in links
+                _linked(p) for p in links
             ):
                 raise ValueError(f"Unsafe managed path: {relative}")
             if not path.is_file():
                 errors.append(f"Missing: {relative}")
                 continue
-            data = path.read_bytes()
             if relative in {"AGENTS.md", ".github/copilot-instructions.md"}:
+                data = path.read_bytes()
                 text = data.decode("utf-8").replace("\r\n", "\n")
                 if text.count(BEGIN) != 1 or text.count(END) != 1:
                     raise ValueError(f"Invalid instruction block: {relative}")
                 data = (BEGIN + text.split(BEGIN)[1].split(END)[0] + END + "\n").encode("utf-8")
-            if digest(data) != expected:
+                actual = digest(data)
+            else:
+                observed = hashlib.sha256()
+                with path.open("rb") as stream:
+                    for block in iter(lambda: stream.read(64*1024), b""): observed.update(block)
+                actual = observed.hexdigest()
+            if actual != expected:
                 errors.append(f"Modified: {relative}")
         if digest(json_bytes(lock["runtime_files"])) != lock["runtime_digest"]:
             errors.append("Runtime inventory digest mismatch")

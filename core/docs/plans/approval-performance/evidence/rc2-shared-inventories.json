@@ -1,0 +1,1198 @@
+{
+  "format": "lks-sdd-approval-measurement/1",
+  "reference": {
+    "source_commit": "a657bf7b07461c8b03516f9adbb00bb7a6b9ed7c",
+    "version": "3.4.2",
+    "purpose": "test-only differential reference; never a consumer runtime",
+    "files": {
+      "v3_approval.py": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+      "v3_contract.py": "a814aac8b6134531e7f62872fd42955b6ad0dbad9d246b7a980f23c0a93127b6",
+      "v3_inventories.py": "d979a7389a0d979ee5f96d654b425f70b4bf288d82b42d532e4a055e8f3f8838",
+      "v3_migration.py": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+      "v3_scope.py": "97d3c7f918ded4b18d9c15bcc1c6b823635f61e477985ba29e8316971cdb309f",
+      "v3_workflow.py": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730"
+    }
+  },
+  "candidate_source_files": {
+    "v31_corrections.py": "1fe19699ad4baf138a1d29a78bafab4cdeeab8a08ac1e31d92278c8a6117bab0",
+    "v31_guidance.py": "f9fd890fef5e05b2f876c2cba1efe82ab23f8b5ec84ce9ca1517ab0d0e3a2c43",
+    "v31_review.py": "45b5918d838cfd3eda3799952a214cc9c7c9359933af5fc96692889e795771ee",
+    "v3_adoption.py": "3e1cb149fb8a489035b77e16e69661a47342c57c0bdde7695d63beb3394f09ec",
+    "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+    "v3_authoring.py": "9dc5e2c8f3621f6ac9092995a4434a784e2b3ad291f473a2b5078aa736856a01",
+    "v3_cli.py": "b7adb39c43d33faa4a2739834097ee020b562caf834a0942d106501a67cf9067",
+    "v3_context.py": "81c92d07b04ac5ee59ae448878c0f5b68cc4ac29ea4270b1c077178efa31e7c1",
+    "v3_contract.py": "55e23de09c129880cbc7497e2bd6dbf289c16352a556ee4b87792327cbd198e0",
+    "v3_current.py": "830d9c4e723cc6db233ea54cc8d2ba871168edd13b2ac22cb05f331f7249cc6f",
+    "v3_decision_presentation.py": "6462c951f542dd3ff1737e1ec17f13ecb25efd9ce244ba5a34487b71e51f49fa",
+    "v3_decision_profiles.py": "2087f5303f7062f758374df12517e89b89888d89b3b11e0a3c6b9ac2a67e51ba",
+    "v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e",
+    "v3_git.py": "b9735e6686bd0774d7e78c4d4410310f81d0f66380d8120ff4a52d993f1f080c",
+    "v3_guidance.py": "75d0e0ee3aaca03cded848c89c04cfd86691966f82a107ea3b0b3af570a625fc",
+    "v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+    "v3_lifecycle.py": "bbb7c95cb158983a229728ce6c78829a2eae6620fb66dca7d5497f1cf513d18d",
+    "v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+    "v3_packet.py": "09f9dc11677cee69fadec00dd49fb04d8ba4dabff60c933d2113b0e0bfe28369",
+    "v3_policy.py": "9858ae952c5de4a73f77964a9457080f6016ff6eba76d8f1f5f9d1833f8de0fb",
+    "v3_presentation_guard.py": "44a9dc4834968122ca0fa0e493cf7eb30e7c7d10f2fd0cbc0de7176abed669d6",
+    "v3_quality.py": "f0c577788e0a20f751181809bf852ee01475cb39871afd56c84e71719dfbe956",
+    "v3_schema.py": "fc8d753e1da5bafcf41e9b19ada09529149eb93fcea2ee913d58aa9d74281fe2",
+    "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+    "v3_storage.py": "3f060c100440f18d7d80db5d1f245b9a1c78194dada53433cc25f8302f28d404",
+    "v3_team.py": "fdd94d7c711d19986f112cdf7c9eb4b73aa124aa8f6e182befb6b82053ff0f3a",
+    "v3_usage.py": "17ba24e8c16a25bcdb870cf59baec4dc7c60de99c98f86c5e5cfd1578ec32d21",
+    "v3_verification.py": "aa6a58a14ea1650c389d2ce70f4bca66a96509ad6b7c9cd5c6a7a238f87bef9a",
+    "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5"
+  },
+  "environment": {
+    "python": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "repetitions": 4,
+  "method": {
+    "timer": "perf_counter; instrumentation enabled equally on both runtimes; cold subprocess per sample",
+    "order": "alternating",
+    "cooldown_seconds_between_workers": 10.0,
+    "isolation_audit": "Windows CIM inventory before and after every worker; concurrent test/benchmark/profile runners abort the measurement",
+    "memory": "working set before/after plus 10ms sampled working-set peak; cumulative process peak and its growth per operation; samples may miss shorter spikes; not an allocation profiler",
+    "identity_entries": "counted from executed full-scan/index-build length, not an estimated complexity ratio",
+    "fixture": "calculations: up to 24 shared global rules in a chain, 5/15/35 technologies, remaining canonical features, one file per element; workflow: up to 24 independent global rules and the additional elements packed in one multi-block canonical Markdown; all literal context retained",
+    "equivalence": "PYTHONHASHSEED=0, seeded generated UUIDs/fixed generation timestamp; same absolute fixture and trusted roots; all result fields hashed canonically",
+    "scope": "public library prepare and apply with real Git, guards, staging and recoverable journal; no assistant/host token measurement",
+    "billed_tokens": null
+  },
+  "comparisons": [
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "repetition": 0,
+      "equivalent": true
+    },
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "repetition": 1,
+      "equivalent": true
+    },
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "repetition": 2,
+      "equivalent": true
+    },
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "repetition": 3,
+      "equivalent": true
+    }
+  ],
+  "summaries": [
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "operation": "shared-inventory:descriptor-0",
+      "3.4.2-reference": {
+        "samples": 4,
+        "median_seconds": 0.04999230004614219,
+        "min_seconds": 0.03349360008724034,
+        "max_seconds": 0.07783610001206398,
+        "median_cpu_seconds": 0.046875,
+        "max_process_peak_bytes": 93028352,
+        "max_sampled_working_set_bytes": 90923008,
+        "max_process_peak_growth_bytes": 0
+      },
+      "candidate": {
+        "samples": 4,
+        "median_seconds": 0.0023473999463021755,
+        "min_seconds": 0.0017598000122234225,
+        "max_seconds": 0.0041628999169915915,
+        "median_cpu_seconds": 0.0,
+        "max_process_peak_bytes": 93794304,
+        "max_sampled_working_set_bytes": 93769728,
+        "max_process_peak_growth_bytes": 32768
+      },
+      "median_speedup": 21.296882163133013
+    },
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "operation": "shared-inventory:descriptor-1",
+      "3.4.2-reference": {
+        "samples": 4,
+        "median_seconds": 0.08918374998029321,
+        "min_seconds": 0.03879000002052635,
+        "max_seconds": 0.09861770004499704,
+        "median_cpu_seconds": 0.0859375,
+        "max_process_peak_bytes": 93028352,
+        "max_sampled_working_set_bytes": 90927104,
+        "max_process_peak_growth_bytes": 0
+      },
+      "candidate": {
+        "samples": 4,
+        "median_seconds": 0.0029094499768689275,
+        "min_seconds": 0.002360599930398166,
+        "max_seconds": 0.0037933000130578876,
+        "median_cpu_seconds": 0.0,
+        "max_process_peak_bytes": 93794304,
+        "max_sampled_working_set_bytes": 93769728,
+        "max_process_peak_growth_bytes": 0
+      },
+      "median_speedup": 30.6531305536555
+    },
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "operation": "shared-inventory:descriptor-2",
+      "3.4.2-reference": {
+        "samples": 4,
+        "median_seconds": 0.05550699995364994,
+        "min_seconds": 0.03940360003616661,
+        "max_seconds": 0.10500860004685819,
+        "median_cpu_seconds": 0.0546875,
+        "max_process_peak_bytes": 93028352,
+        "max_sampled_working_set_bytes": 90927104,
+        "max_process_peak_growth_bytes": 0
+      },
+      "candidate": {
+        "samples": 4,
+        "median_seconds": 0.002327699970919639,
+        "min_seconds": 0.001986999996006489,
+        "max_seconds": 0.004632800002582371,
+        "median_cpu_seconds": 0.0,
+        "max_process_peak_bytes": 93794304,
+        "max_sampled_working_set_bytes": 93769728,
+        "max_process_peak_growth_bytes": 0
+      },
+      "median_speedup": 23.84628631142697
+    },
+    {
+      "size": 1500,
+      "phase": "shared-inventories",
+      "operation": "shared-inventory:load",
+      "3.4.2-reference": {
+        "samples": 4,
+        "median_seconds": 26.983622049971018,
+        "min_seconds": 23.88849330006633,
+        "max_seconds": 28.126654600026086,
+        "median_cpu_seconds": 26.03125,
+        "max_process_peak_bytes": 93028352,
+        "max_sampled_working_set_bytes": 93020160,
+        "max_process_peak_growth_bytes": 49754112
+      },
+      "candidate": {
+        "samples": 4,
+        "median_seconds": 25.047319899953436,
+        "min_seconds": 23.411380500067025,
+        "max_seconds": 31.16902619996108,
+        "median_cpu_seconds": 24.3203125,
+        "max_process_peak_bytes": 93736960,
+        "max_sampled_working_set_bytes": 93720576,
+        "max_process_peak_growth_bytes": 49545216
+      },
+      "median_speedup": 1.077305761963825
+    }
+  ],
+  "samples": [
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 0,
+      "runtime": "3.4.2-reference",
+      "worker_seconds": 42.78398930002004,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 28.126654600026086,
+          "memory_before": {
+            "working_set_bytes": 40939520,
+            "process_peak_bytes": 43216896
+          },
+          "memory_after": {
+            "working_set_bytes": 90202112,
+            "process_peak_bytes": 92905472
+          },
+          "sampled_peak_working_set_bytes": 92897280,
+          "process_peak_growth_bytes": 49688576,
+          "cpu_seconds": 26.84375,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.07783610001206398,
+          "memory_before": {
+            "working_set_bytes": 90849280,
+            "process_peak_bytes": 92905472
+          },
+          "memory_after": {
+            "working_set_bytes": 90849280,
+            "process_peak_bytes": 92905472
+          },
+          "sampled_peak_working_set_bytes": 90877952,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.078125,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.08435839996673167,
+          "memory_before": {
+            "working_set_bytes": 90849280,
+            "process_peak_bytes": 92905472
+          },
+          "memory_after": {
+            "working_set_bytes": 90849280,
+            "process_peak_bytes": 92905472
+          },
+          "sampled_peak_working_set_bytes": 90873856,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.078125,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.10500860004685819,
+          "memory_before": {
+            "working_set_bytes": 90849280,
+            "process_peak_bytes": 92905472
+          },
+          "memory_after": {
+            "working_set_bytes": 90849280,
+            "process_peak_bytes": 92905472
+          },
+          "sampled_peak_working_set_bytes": 90873856,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.09375,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+        "v3_contract.py": "a814aac8b6134531e7f62872fd42955b6ad0dbad9d246b7a980f23c0a93127b6",
+        "v3_inventories.py": "d979a7389a0d979ee5f96d654b425f70b4bf288d82b42d532e4a055e8f3f8838",
+        "v3_migration.py": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+        "v3_scope.py": "97d3c7f918ded4b18d9c15bcc1c6b823635f61e477985ba29e8316971cdb309f",
+        "v3_workflow.py": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 0,
+      "runtime": "candidate",
+      "worker_seconds": 45.88017829996534,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 31.16902619996108,
+          "memory_before": {
+            "working_set_bytes": 41418752,
+            "process_peak_bytes": 44183552
+          },
+          "memory_after": {
+            "working_set_bytes": 93663232,
+            "process_peak_bytes": 93687808
+          },
+          "sampled_peak_working_set_bytes": 93671424,
+          "process_peak_growth_bytes": 49504256,
+          "cpu_seconds": 30.21875,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583,
+            "identity_index_builds": 1,
+            "identity_index_entries": 1582
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.0017598000122234225,
+          "memory_before": {
+            "working_set_bytes": 93691904,
+            "process_peak_bytes": 93691904
+          },
+          "memory_after": {
+            "working_set_bytes": 93696000,
+            "process_peak_bytes": 93724672
+          },
+          "sampled_peak_working_set_bytes": 93696000,
+          "process_peak_growth_bytes": 32768,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.002360599930398166,
+          "memory_before": {
+            "working_set_bytes": 93696000,
+            "process_peak_bytes": 93724672
+          },
+          "memory_after": {
+            "working_set_bytes": 93696000,
+            "process_peak_bytes": 93724672
+          },
+          "sampled_peak_working_set_bytes": 93696000,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.001986999996006489,
+          "memory_before": {
+            "working_set_bytes": 93696000,
+            "process_peak_bytes": 93724672
+          },
+          "memory_after": {
+            "working_set_bytes": 93696000,
+            "process_peak_bytes": 93724672
+          },
+          "sampled_peak_working_set_bytes": 93696000,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+        "v3_contract.py": "55e23de09c129880cbc7497e2bd6dbf289c16352a556ee4b87792327cbd198e0",
+        "v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+        "v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+        "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+        "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+        "v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 1,
+      "runtime": "candidate",
+      "worker_seconds": 42.41318519995548,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 26.55415419989731,
+          "memory_before": {
+            "working_set_bytes": 41414656,
+            "process_peak_bytes": 44187648
+          },
+          "memory_after": {
+            "working_set_bytes": 93560832,
+            "process_peak_bytes": 93585408
+          },
+          "sampled_peak_working_set_bytes": 93569024,
+          "process_peak_growth_bytes": 49397760,
+          "cpu_seconds": 25.5,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583,
+            "identity_index_builds": 1,
+            "identity_index_entries": 1582
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.0028522999491542578,
+          "memory_before": {
+            "working_set_bytes": 93573120,
+            "process_peak_bytes": 93585408
+          },
+          "memory_after": {
+            "working_set_bytes": 93577216,
+            "process_peak_bytes": 93605888
+          },
+          "sampled_peak_working_set_bytes": 93577216,
+          "process_peak_growth_bytes": 20480,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.0037933000130578876,
+          "memory_before": {
+            "working_set_bytes": 93577216,
+            "process_peak_bytes": 93605888
+          },
+          "memory_after": {
+            "working_set_bytes": 93577216,
+            "process_peak_bytes": 93605888
+          },
+          "sampled_peak_working_set_bytes": 93577216,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.0026407999685034156,
+          "memory_before": {
+            "working_set_bytes": 93577216,
+            "process_peak_bytes": 93605888
+          },
+          "memory_after": {
+            "working_set_bytes": 93577216,
+            "process_peak_bytes": 93605888
+          },
+          "sampled_peak_working_set_bytes": 93577216,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+        "v3_contract.py": "55e23de09c129880cbc7497e2bd6dbf289c16352a556ee4b87792327cbd198e0",
+        "v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+        "v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+        "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+        "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+        "v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 1,
+      "runtime": "3.4.2-reference",
+      "worker_seconds": 42.24246940005105,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 26.333510900032707,
+          "memory_before": {
+            "working_set_bytes": 40996864,
+            "process_peak_bytes": 43270144
+          },
+          "memory_after": {
+            "working_set_bytes": 90234880,
+            "process_peak_bytes": 92975104
+          },
+          "sampled_peak_working_set_bytes": 92966912,
+          "process_peak_growth_bytes": 49704960,
+          "cpu_seconds": 25.296875,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.050445200060494244,
+          "memory_before": {
+            "working_set_bytes": 90882048,
+            "process_peak_bytes": 92975104
+          },
+          "memory_after": {
+            "working_set_bytes": 90882048,
+            "process_peak_bytes": 92975104
+          },
+          "sampled_peak_working_set_bytes": 90910720,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.046875,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.09400909999385476,
+          "memory_before": {
+            "working_set_bytes": 90882048,
+            "process_peak_bytes": 92975104
+          },
+          "memory_after": {
+            "working_set_bytes": 90882048,
+            "process_peak_bytes": 92975104
+          },
+          "sampled_peak_working_set_bytes": 90906624,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.09375,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.03940360003616661,
+          "memory_before": {
+            "working_set_bytes": 90882048,
+            "process_peak_bytes": 92975104
+          },
+          "memory_after": {
+            "working_set_bytes": 90882048,
+            "process_peak_bytes": 92975104
+          },
+          "sampled_peak_working_set_bytes": 90906624,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.03125,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+        "v3_contract.py": "a814aac8b6134531e7f62872fd42955b6ad0dbad9d246b7a980f23c0a93127b6",
+        "v3_inventories.py": "d979a7389a0d979ee5f96d654b425f70b4bf288d82b42d532e4a055e8f3f8838",
+        "v3_migration.py": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+        "v3_scope.py": "97d3c7f918ded4b18d9c15bcc1c6b823635f61e477985ba29e8316971cdb309f",
+        "v3_workflow.py": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 2,
+      "runtime": "3.4.2-reference",
+      "worker_seconds": 42.69803069997579,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 27.63373319990933,
+          "memory_before": {
+            "working_set_bytes": 40992768,
+            "process_peak_bytes": 43274240
+          },
+          "memory_after": {
+            "working_set_bytes": 90251264,
+            "process_peak_bytes": 93028352
+          },
+          "sampled_peak_working_set_bytes": 93020160,
+          "process_peak_growth_bytes": 49754112,
+          "cpu_seconds": 26.765625,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.04953940003179014,
+          "memory_before": {
+            "working_set_bytes": 90898432,
+            "process_peak_bytes": 93028352
+          },
+          "memory_after": {
+            "working_set_bytes": 90898432,
+            "process_peak_bytes": 93028352
+          },
+          "sampled_peak_working_set_bytes": 90923008,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.046875,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.09861770004499704,
+          "memory_before": {
+            "working_set_bytes": 90898432,
+            "process_peak_bytes": 93028352
+          },
+          "memory_after": {
+            "working_set_bytes": 90898432,
+            "process_peak_bytes": 93028352
+          },
+          "sampled_peak_working_set_bytes": 90927104,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.09375,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.06910580000840127,
+          "memory_before": {
+            "working_set_bytes": 90898432,
+            "process_peak_bytes": 93028352
+          },
+          "memory_after": {
+            "working_set_bytes": 90898432,
+            "process_peak_bytes": 93028352
+          },
+          "sampled_peak_working_set_bytes": 90927104,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0625,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+        "v3_contract.py": "a814aac8b6134531e7f62872fd42955b6ad0dbad9d246b7a980f23c0a93127b6",
+        "v3_inventories.py": "d979a7389a0d979ee5f96d654b425f70b4bf288d82b42d532e4a055e8f3f8838",
+        "v3_migration.py": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+        "v3_scope.py": "97d3c7f918ded4b18d9c15bcc1c6b823635f61e477985ba29e8316971cdb309f",
+        "v3_workflow.py": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 2,
+      "runtime": "candidate",
+      "worker_seconds": 38.91984709992539,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 23.411380500067025,
+          "memory_before": {
+            "working_set_bytes": 41738240,
+            "process_peak_bytes": 44199936
+          },
+          "memory_after": {
+            "working_set_bytes": 91807744,
+            "process_peak_bytes": 93495296
+          },
+          "sampled_peak_working_set_bytes": 93466624,
+          "process_peak_growth_bytes": 49295360,
+          "cpu_seconds": 22.765625,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583,
+            "identity_index_builds": 1,
+            "identity_index_entries": 1582
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.0041628999169915915,
+          "memory_before": {
+            "working_set_bytes": 92573696,
+            "process_peak_bytes": 93495296
+          },
+          "memory_after": {
+            "working_set_bytes": 92577792,
+            "process_peak_bytes": 93495296
+          },
+          "sampled_peak_working_set_bytes": 92577792,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.0033576999558135867,
+          "memory_before": {
+            "working_set_bytes": 92577792,
+            "process_peak_bytes": 93495296
+          },
+          "memory_after": {
+            "working_set_bytes": 92577792,
+            "process_peak_bytes": 93495296
+          },
+          "sampled_peak_working_set_bytes": 92577792,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.004632800002582371,
+          "memory_before": {
+            "working_set_bytes": 92577792,
+            "process_peak_bytes": 93495296
+          },
+          "memory_after": {
+            "working_set_bytes": 92577792,
+            "process_peak_bytes": 93495296
+          },
+          "sampled_peak_working_set_bytes": 92577792,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+        "v3_contract.py": "55e23de09c129880cbc7497e2bd6dbf289c16352a556ee4b87792327cbd198e0",
+        "v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+        "v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+        "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+        "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+        "v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 3,
+      "runtime": "candidate",
+      "worker_seconds": 38.984744300018065,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 23.54048560000956,
+          "memory_before": {
+            "working_set_bytes": 41418752,
+            "process_peak_bytes": 44191744
+          },
+          "memory_after": {
+            "working_set_bytes": 93712384,
+            "process_peak_bytes": 93736960
+          },
+          "sampled_peak_working_set_bytes": 93720576,
+          "process_peak_growth_bytes": 49545216,
+          "cpu_seconds": 23.140625,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583,
+            "identity_index_builds": 1,
+            "identity_index_entries": 1582
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.0018424999434500933,
+          "memory_before": {
+            "working_set_bytes": 93765632,
+            "process_peak_bytes": 93765632
+          },
+          "memory_after": {
+            "working_set_bytes": 93769728,
+            "process_peak_bytes": 93794304
+          },
+          "sampled_peak_working_set_bytes": 93769728,
+          "process_peak_growth_bytes": 28672,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.0024611999979242682,
+          "memory_before": {
+            "working_set_bytes": 93769728,
+            "process_peak_bytes": 93794304
+          },
+          "memory_after": {
+            "working_set_bytes": 93769728,
+            "process_peak_bytes": 93794304
+          },
+          "sampled_peak_working_set_bytes": 93769728,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.002014599973335862,
+          "memory_before": {
+            "working_set_bytes": 93769728,
+            "process_peak_bytes": 93794304
+          },
+          "memory_after": {
+            "working_set_bytes": 93769728,
+            "process_peak_bytes": 93794304
+          },
+          "sampled_peak_working_set_bytes": 93769728,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.0,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+        "v3_contract.py": "55e23de09c129880cbc7497e2bd6dbf289c16352a556ee4b87792327cbd198e0",
+        "v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+        "v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+        "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+        "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+        "v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e"
+      }
+    },
+    {
+      "size": 1500,
+      "technologies": 35,
+      "phase": "shared-inventories",
+      "repetition": 3,
+      "runtime": "3.4.2-reference",
+      "worker_seconds": 39.14374329999555,
+      "isolation_audits": {
+        "before": {
+          "supported": true,
+          "conflicting_pids": []
+        },
+        "after": {
+          "supported": true,
+          "conflicting_pids": []
+        }
+      },
+      "rows": [
+        {
+          "operation": "shared-inventory:load",
+          "seconds": 23.88849330006633,
+          "memory_before": {
+            "working_set_bytes": 41017344,
+            "process_peak_bytes": 43302912
+          },
+          "memory_after": {
+            "working_set_bytes": 89976832,
+            "process_peak_bytes": 92676096
+          },
+          "sampled_peak_working_set_bytes": 92672000,
+          "process_peak_growth_bytes": 49373184,
+          "cpu_seconds": 23.5,
+          "counts": {
+            "shared_path_checks": 1583,
+            "physical_file_reads": 1583
+          },
+          "semantic_digest": "2a69ead57c9d234ca0638fc258f009abad6430c8a97d8977a94573d7c4f2c7f1"
+        },
+        {
+          "operation": "shared-inventory:descriptor-0",
+          "seconds": 0.03349360008724034,
+          "memory_before": {
+            "working_set_bytes": 90796032,
+            "process_peak_bytes": 92676096
+          },
+          "memory_after": {
+            "working_set_bytes": 90796032,
+            "process_peak_bytes": 92676096
+          },
+          "sampled_peak_working_set_bytes": 90820608,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.03125,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-1",
+          "seconds": 0.03879000002052635,
+          "memory_before": {
+            "working_set_bytes": 90796032,
+            "process_peak_bytes": 92676096
+          },
+          "memory_after": {
+            "working_set_bytes": 90796032,
+            "process_peak_bytes": 92676096
+          },
+          "sampled_peak_working_set_bytes": 90796032,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.03125,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        },
+        {
+          "operation": "shared-inventory:descriptor-2",
+          "seconds": 0.0419081998988986,
+          "memory_before": {
+            "working_set_bytes": 90796032,
+            "process_peak_bytes": 92676096
+          },
+          "memory_after": {
+            "working_set_bytes": 90796032,
+            "process_peak_bytes": 92676096
+          },
+          "sampled_peak_working_set_bytes": 90824704,
+          "process_peak_growth_bytes": 0,
+          "cpu_seconds": 0.046875,
+          "counts": {
+            "descriptor_reconstructions": 1,
+            "membership_traversals": 1,
+            "identity_lookups": 110,
+            "identity_linear_entries": 174020,
+            "closure_traversals": 2,
+            "element_digests": 25
+          },
+          "semantic_digest": "aff3044c6655abeec77a750ca83432c4a5b310a417f054c00d1841a523b54022"
+        }
+      ],
+      "elements": 1582,
+      "events": 80,
+      "inventory_files": 6000,
+      "unique_inventory_bytes": 498042,
+      "resolved_inventory_objects": 1,
+      "source_binding": {
+        "v3_approval.py": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+        "v3_contract.py": "a814aac8b6134531e7f62872fd42955b6ad0dbad9d246b7a980f23c0a93127b6",
+        "v3_inventories.py": "d979a7389a0d979ee5f96d654b425f70b4bf288d82b42d532e4a055e8f3f8838",
+        "v3_migration.py": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+        "v3_scope.py": "97d3c7f918ded4b18d9c15bcc1c6b823635f61e477985ba29e8316971cdb309f",
+        "v3_workflow.py": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730"
+      }
+    }
+  ]
+}

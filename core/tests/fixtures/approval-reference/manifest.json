@@ -1,0 +1,16 @@
+{
+  "source_commit": "a657bf7b07461c8b03516f9adbb00bb7a6b9ed7c",
+  "version": "3.4.2",
+  "purpose": "test-only differential reference; never a consumer runtime",
+  "files": {
+    "v3_approval.py": "967dd10b1125446d3908dca362e9a36efd537b81c13d058ff951ac838be4e0f7",
+    "v3_contract.py": "a814aac8b6134531e7f62872fd42955b6ad0dbad9d246b7a980f23c0a93127b6",
+    "v3_inventories.py": "d979a7389a0d979ee5f96d654b425f70b4bf288d82b42d532e4a055e8f3f8838",
+    "v3_migration.py": "16433d80f7b8ca1baeba99b24255d76ebd1f693dd9af43452020827fda3e599c",
+    "v3_scope.py": "97d3c7f918ded4b18d9c15bcc1c6b823635f61e477985ba29e8316971cdb309f",
+    "v3_workflow.py": "ab45e52074703dde8be8294607130833ce0fc83b4404e446fb203bf3a0f74730",
+    "v2_contract.py": "6e5d2ed59236068bda56cdfa45406312a41045bda676eef22190d67a5c5389d0",
+    "runtime_doctor.py": "3859c153e25f3caeca06ca1e0338d209c894d019075684d6411c76d0d66d4931",
+    "path_utils.py": "9af1fd681b4b1d7314d6c8fb873d9dc7d683d4f664b610d8166042d37cd77a5e"
+  }
+}

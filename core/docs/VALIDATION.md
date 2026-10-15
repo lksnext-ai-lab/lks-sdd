@@ -192,6 +192,30 @@ migración y consultas v2 están documentados en
 
 ## Retención operativa
 
+La corrección focal de aprobaciones se reproduce con:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_v3_approval_performance
+python -B -X utf8 tests/measure_approval_performance.py `
+  --sizes 100:5 500:15 1500:35 --repetitions 4 --cooldown 10 `
+  --output output/approval-performance/measurement.json
+python -B -X utf8 tests/measure_approval_performance.py `
+  --sizes 1500:35 --repetitions 4 --order alternating --cooldown 10 `
+  --phases shared-inventories --timeout 3600 `
+  --output output/approval-performance/shared-inventories.json
+```
+
+La iteración rc.3 añade comparación secuencial con rc.2 y CLI completo desde
+el ZIP preparado, sin instalarlo. Se reproduce con `tests/measure_approval_rc3.py`
+y `tests/check_approval_cli_hosts.py`, como indica la cobertura enlazada abajo.
+Los informes finales quedan fuera del runtime para preservar los bytes medidos;
+la memoria comprometida del job se distingue del working set. La aceptación
+conversacional de host continúa pendiente.
+
+Su [cobertura, presupuestos y límites](APPROVAL-PERFORMANCE.md) y la evidencia
+antes/después son específicos de esta corrección. No amplían el gate estable ni
+acreditan ahorro de tokens o aceptación de host.
+
 La corrección de crecimiento documental tiene una reproducción temporal y pruebas
 focales, sin añadir controles al gate de publicación:
 

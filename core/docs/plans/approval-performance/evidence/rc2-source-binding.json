@@ -1,0 +1,21 @@
+{
+  "base_commit": "a657bf7b07461c8b03516f9adbb00bb7a6b9ed7c",
+  "candidate_version": "3.4.3-rc.2",
+  "files": {
+    "v3_approval.py": "6272fc0d92bc37eca3e83d908ad50e5e34f2362228f28b7a5b28b9dfa81dfeac",
+    "v3_contract.py": "55e23de09c129880cbc7497e2bd6dbf289c16352a556ee4b87792327cbd198e0",
+    "v3_inventories.py": "602f157ccea02283ab95a833c35a9a9f1c24deb12691d9cb991f0f13d90cca9d",
+    "v3_migration.py": "cbad6836b51d8c0ba6798842b6ad21a2cda687cf877da38109f01932add77508",
+    "v3_scope.py": "4d5861af49e2cbb996889546000e106f5542b3ce3f8ee58c9fbc38f6b48b0cf2",
+    "v3_workflow.py": "64163e5ef57561a75b25faf72d434b9c09f4e4c70892c857338a1106d9c5e0f5",
+    "v3_evaluation.py": "42ab539adb40c9c9682d63e0a4e3a4147bea934525151501b94cbff1b922d75e"
+  },
+  "measurement_files": {
+    "tests/measure_approval_performance.py": "66a4a8a1a6d21730de9e1a1dc88b7a2d1d389285b4444ab28199550bc0eae069",
+    "tests/approval_performance_support.py": "28a9f1ad876ed93ac194985a9934a713313e22148ff1aea3aa878f590d5e1086",
+    "tests/approval_probe.py": "57c25bdb127b09c56a89b1fbad9b068328373333f1ccabee229a7dafb2f7f2fa",
+    "tests/combine_approval_measurements.py": "dfa9b826512c88637cbc949c667f9233bcc74c58ee0151484ad273a9675d5e1e",
+    "tests/fixtures/approval-reference/manifest.json": "50de63291162eae7cf4e3ec58a19f1aad42288a3e0e8c5eb33d90e8edfdfbc75",
+    "tests/fixtures/approval-reference/original.zip": "7159c013d8236210bc9a7773c853d4c38977bacbde40957f7f6d8eb4d781aefd"
+  }
+}

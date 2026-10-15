@@ -12,11 +12,12 @@ import os
 from pathlib import Path, PurePosixPath
 import posixpath
 import re
+import stat
 from urllib.parse import unquote, urlsplit
 import uuid
 
 from query_sources import is_link, lexical_root, SECRET_NAME
-from path_utils import filesystem_root, is_max_path_error, max_path_message
+from path_utils import filesystem_root, file_attributes, is_max_path_error, max_path_message
 
 VERSION = "2.0"
 METHOD = "2.1.0"
@@ -88,13 +89,22 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
         current /= part
         current = filesystem_root(current)
         try:
-            if os.path.lexists(current):
-                if is_link(current):
+            attributes = file_attributes(current)
+            if attributes is not None:
+                if attributes & 0x400: raise ContractError("Link/junction rejected: " + relative)
+                directory = bool(attributes & 0x10)
+            elif os.path.lexists(current):
+                # One fresh observation supplies both the link and directory
+                # tests. No path observation is reused for another route/read.
+                info = current.lstat()
+                if stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400):
                     raise ContractError("Link/junction rejected: " + relative)
-                if current.is_dir() and current != root and (current / ".git").exists():
-                    raise ContractError("Nested repository rejected: " + relative)
-            elif not missing:
-                raise ContractError("Missing source: " + relative)
+                directory = stat.S_ISDIR(info.st_mode)
+            else:
+                if not missing: raise ContractError("Missing source: " + relative)
+                continue
+            if directory and current != root and (current / ".git").exists():
+                raise ContractError("Nested repository rejected: " + relative)
         except OSError as exc:
             if is_max_path_error(exc):
                 raise ContractError(max_path_message(current)) from exc
@@ -104,12 +114,15 @@ def path_at(root: Path, relative: str, *, missing: bool = False, package_data: b
 
 def _read_regular(root: Path, relative: str, *, limit: int, package_data: bool = False) -> bytes:
     path = path_at(root, relative, missing=True, package_data=package_data)
-    if not path.is_file() or path.stat().st_size > limit:
+    if not path.is_file():
+        raise ContractError("Not a bounded regular source: " + relative)
+    observed = path.lstat()
+    if observed.st_size > limit:
         raise ContractError("Not a bounded regular source: " + relative)
     from source_inventory import read
     # Allocate the observed size plus one, preserving the limit and rejecting
     # growth/replacement rather than reserving 64 MiB for each tiny code file.
-    return read((path, path.lstat()), limit=limit)
+    return read((path, observed), limit=limit)
 
 
 def read_bytes(root: Path, relative: str, *, limit: int = 4 * 1024 * 1024, package_data: bool = False) -> bytes:
