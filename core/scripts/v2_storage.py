@@ -342,9 +342,12 @@ def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt
         # Preserve the legacy 128 MiB admission bound. Only maintenance has the
         # smaller journal budget; its dispatcher must not narrow business 2.0.
         tag = json.loads(_read_regular(root, PENDING, limit=128*1024*1024)).get("schema_version")
-        if tag == "lks-sdd-store-maintenance/1":
+        if tag in {"lks-sdd-store-maintenance/1", "lks-sdd-store-maintenance/2"}:
             if rollback or receipt: raise ContractError("Business rollback cannot alter physical storage")
-            from store_maintenance import recover as maintenance_recover
+            if tag.endswith('/2'):
+                from store_compaction import recover as maintenance_recover
+            else:
+                from store_maintenance import recover as maintenance_recover
             return maintenance_recover(root, authorized_hash)
     journal, source = _load_transaction(root, authorized_hash, receipt)
     expected = journal["preview"]

@@ -128,7 +128,8 @@ def _inventory(root):
     bodies = {}; protected = {}; references = []; nodes = 0
     for digest, size in sorted(all_objects.items()):
         total += size
-        if total > LIMIT: raise ContractError("Maintenance logical byte budget exceeded")
+        if total > LIMIT:
+            raise ContractError("Maintenance /1 logical byte budget exceeded; use store-preview with backup_dir for /2 after an explicit compatible runtime update")
         raw = codec.read_logical(root, codec.OBJECTS + digest, LIMIT)
         if len(raw) != size or sha(raw) != digest: raise ContractError("Object integrity mismatch")
         # Inspect structured objects once. Unknown formats remain byte-preserved.
@@ -176,7 +177,9 @@ def _backup_bytes(bodies):
 
 def _free(path, required):
     parent = path
-    while not parent.exists(): parent = parent.parent
+    while not parent.exists():
+        if parent.parent == parent: raise ContractError("Maintenance destination volume is unavailable")
+        parent = parent.parent
     if shutil.disk_usage(parent).free < required:
         raise ContractError("Insufficient space for verified compaction and recovery")
 

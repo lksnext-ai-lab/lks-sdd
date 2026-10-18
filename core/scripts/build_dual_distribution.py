@@ -48,6 +48,10 @@ def collect_development(root):
     version = json.loads(files[".codex-plugin/plugin.json"])["version"]
     if "lks-sdd-store-maintenance/1" in formats and "scripts/store_maintenance.py" not in files:
         raise ValueError("Declared maintenance recovery is missing from development package")
+    if "lks-sdd-store-maintenance/2" in formats:
+        required = {"scripts/" + name for name in ("store_compaction.py", "store_maintenance_batches.py", "store_json_inspector.py")}
+        if not required <= files.keys():
+            raise ValueError("Declared maintenance /2 recovery is missing from development package")
     files["package-integrity.json"] = _package_integrity_bytes(list(files.items()), version, "development-working-tree")
     return files
 

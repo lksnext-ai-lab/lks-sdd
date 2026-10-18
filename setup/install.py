@@ -106,6 +106,16 @@ def receipt_name(host):
 def check_storage_reader(root, raw):
     # This offline installer is standalone; it cannot import an installed reader
     # to judge a downgrade of that same reader. Match the core's conservative rule.
+    pending = safe(root, ".lks-sdd/transaction.json")
+    if pending.exists():
+        if pending.stat().st_size > 128*1024*1024:
+            raise ValueError("Pending journal exceeds legacy admission budget")
+        tag = json.loads(read(root, ".lks-sdd/transaction.json")).get("schema_version", "")
+        if isinstance(tag, str) and tag.startswith("lks-sdd-store-maintenance/"):
+            if raw != read(root, ".lks-sdd/distribution-lock.json"):
+                raise ValueError("Recover maintenance with its exact current pin before changing/removing the runtime")
+            if raw is None or tag not in json.loads(raw).get("storage_formats", []):
+                raise ValueError("Pinned runtime cannot recover the pending maintenance format")
     if raw is None: return
     lock = json.loads(raw)
     if not isinstance(lock, dict) or not isinstance(lock.get("storage_formats", []), list):

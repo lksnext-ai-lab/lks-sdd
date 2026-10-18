@@ -266,6 +266,11 @@ def copilot_plugin_files(core: dict[str, bytes], source: str, channel: str) -> d
 
 def artifacts(core: dict[str, bytes], source: str, channel: str) -> dict[str, bytes]:
     core = compact_distribution_core(core)
+    formats = json.loads(core["distribution/dual.json"]).get("storage_formats", [])
+    if "lks-sdd-store-maintenance/2" in formats:
+        required = {"scripts/" + name for name in ("store_compaction.py", "store_maintenance_batches.py", "store_json_inspector.py")}
+        if not required <= core.keys():
+            raise ValueError("Declared maintenance /2 recovery is missing from distribution")
     version = json.loads(core[".codex-plugin/plugin.json"])["version"]
     marketplace = core["distribution/marketplace.template.json"]
     plugin = {f"lks-sdd/{name}": data for name, data in core.items()}

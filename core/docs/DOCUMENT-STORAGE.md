@@ -350,19 +350,21 @@ corte local, permiso de tarea y aceptación son evidencias separadas.
 V4-22 mantiene todos los objetos válidos, aunque no se conozcan sus referencias.
 El preview fija objetos, paquetes, pin, protegidos, respaldo ZIP independiente,
 destino nuevo de restauración y reserva de espacio. El alcance acotado admite
-hasta 50.000 objetos y 64 MiB lógicos por operación; objetos de más de 8 MiB
+hasta 50.000 objetos. El flujo /1 conserva 64 MiB lógicos por operación; /2,
+incorporado en 4.0.1, aplica 64 MiB/4.096 objetos por lote. Objetos de más de 8 MiB
 permanecen sueltos. Archivos desconocidos dentro del almacén conocido bloquean;
 los demás directorios del proyecto quedan fuera de la retirada.
 
-Desde el CLI fijado compatible, `v3 store-preview` recibe un JSON con `backup` y
-`restore`, ambos fuera del consumidor, y guarda su resultado con `--output`.
+Desde el CLI fijado compatible, `v3 store-preview` recibe un JSON con `backup_dir`
+y `restore` para /2 (`backup` conserva /1), ambos fuera del consumidor, y guarda su
+resultado con `--output`, también fuera de respaldo/restauración/staging.
 `v3 store-compact --input <preview> --authorize <hash>` publica y comprueba los
 paquetes, el respaldo y la restauración byte a byte. Conserva los originales y
 el diario pendiente. Solo `v3 store-recover --authorize <hash>
 --authorize-removal <mismo-hash>` permite retirar sus duplicados físicos exactos.
 No se usa `--apply` ni la autorización de una tarea funcional para esa retirada.
 
-El diario `lks-sdd-store-maintenance/1` ocupa el mismo
+Los diarios `lks-sdd-store-maintenance/1` y `/2` ocupan el mismo
 `.lks-sdd/transaction.json` que el negocio. Un guard del sistema operativo
 serializa su recuperación y se libera al terminar el proceso; no es otro diario
 ni permite iniciar un segundo escritor. La recuperación de negocio distingue el
@@ -370,6 +372,10 @@ formato, conserva los diarios 2.0/2.1 y nunca concede autorización de retirada.
 Los paquetes y el recibo se publican sin reemplazar archivos existentes; se
 comprueban otra vez los originales y sus copias antes de retirarlos. La
 restauración usa un staging identificado en el preview, recuperable tras corte.
+En /2 el respaldo cubre todos los objetos lógicos, incluidos grandes y ya
+empaquetados. `store-recover --status` no escribe; antes de la primera retirada,
+`--finalize-without-removal` permite conservar originales y liberar el slot con
+recibo explícito, sin certificar un respaldo parcial. Véase [UPGRADE-4.0.1](UPGRADE-4.0.1.md).
 
 La validación conserva el inventario inicial, verifica cuerpos y referencias,
 restaura todos los originales y exporta un histórico representativo. No repite

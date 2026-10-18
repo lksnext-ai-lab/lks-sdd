@@ -90,7 +90,7 @@ def export_summary(result, output):
              "export_notice": "Lea el resultado exportado antes de presentarlo o decidir; exportar no acredita lectura ni aprobación"}
     for key in ("complete", "issues", "errors", "warnings", "cause", "causes", "conditions", "sufficiency", "budget_notice", "writes", "current_conformance", "next", "planning_coverage", "effect", "collaboration"):
         if key in result: shown[key] = copy.deepcopy(result[key])
-    if result.get("status") in {"applied", "previously-applied", "completed", "rolled-back"} and "receipt" in result:
+    if result.get("status") in {"applied", "previously-applied", "completed", "rolled-back", "compacted", "retained-originals", "rejected-stale-preview"} and result.get("receipt"):
         shown["receipt"] = result["receipt"]
     if isinstance(result.get("presentation"), dict):
         shown["presentation"] = {k: copy.deepcopy(result["presentation"][k]) for k in ("complete", "issues") if k in result["presentation"]}

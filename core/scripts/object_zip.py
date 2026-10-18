@@ -131,7 +131,7 @@ def _index(root, name, budget):
         return found, index_size
 
 
-def _locations(root):
+def _locations(root, *, checkpoint=None):
     from v2_contract import path_at
     key = str(Path(root).resolve()); active = _ACTIVE.get()
     scoped = active is not None and active["owner"] == _owner()
@@ -144,6 +144,8 @@ def _locations(root):
         with os.scandir(folder) as entries:
             count = 0
             for entry in entries:
+                if checkpoint is not None:
+                    checkpoint()
                 count += 1
                 if count > MAX_PACKS: raise ContractError("Object ZIP enumeration budget exceeded")
                 if not re.fullmatch(r"[0-9a-f]{64}\.zip", entry.name):

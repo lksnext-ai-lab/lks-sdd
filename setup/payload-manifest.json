@@ -3,11 +3,11 @@
   "files": {
     "INSTALLATION.md": "16d3c1b6503d3f74b6149785aa6a03989e21106aab1b79a5d8d8d88d9789d0a9",
     "install.ps1": "a1c130716a545e562e60af09e7d424c4a4c1c4c0a0d2dbaa40cad745a3038926",
-    "install.py": "a845db7f35d453a10db171f6e8dc8b260d0f029c432b9c2bcf8c1b26fe9212c5",
-    "payload/copilot.zip": "94244b1ee8fcd51f3f109d9caf47ed48f4ea6d3e8789f728b10b056c0eebe232"
+    "install.py": "f61ffb8a46ca66c6bd710fd6d80e5c64ff70ff23e27ef20e4ac3c45b3ab1c54a",
+    "payload/copilot.zip": "ed6795e65f903fd3ca7b5750f6f5fc87d6c49ee2fe9aa79709c70231b3a2d632"
   },
-  "runtime_digest": "d49ba92f95bca9f14d9fd9303f13d2f11e4961aea9e62d77f809539353bd3e7f",
+  "runtime_digest": "f8c6512679fd4e82d36abe523aedbdc72ffa9b0a84f35fc6e062501e55ac3d9e",
   "schema_version": "1.0",
-  "source": "d669781d4965c624aafc33a56bd92909144a7f9c",
-  "version": "4.0.0"
+  "source": "d9aa3c30f9ee649ee265316620163bd784b02bd7",
+  "version": "4.0.1"
 }

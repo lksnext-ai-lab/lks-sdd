@@ -1,5 +1,35 @@
 # Changelog
 
+## 4.0.1 — 2026-10-19 — mantenimiento recuperable por lotes
+
+Resultados del candidato validados por el responsable y cierre/publicación estable
+autorizados, incluida la distribución en Codex. Conserva schema 3.1 y método 3.1.0.
+
+- Añade el manifiesto y diario `lks-sdd-store-maintenance/2`: inventario completo,
+  referencias globales, lotes de hasta 64 MiB/4.096 objetos y respaldo/restauración
+  de todos los objetos, incluidos los grandes y los ya empaquetados.
+- `store-preview` con `backup_dir` selecciona /2; `backup` conserva /1. El preview
+  no escribe y su hash excluye el espacio libre observado. Se mantiene 64 MiB por
+  objeto, un millón de nodos por objeto y los límites ZIP vigentes.
+- Recuperación mediante el slot compartido, checkpoints por lote, temporales ligados
+  a la operación y recibo terminal. Preparar no retira originales; la retirada exige
+  otra autorización del mismo hash. Se puede terminar sin retirada antes de la primera.
+- Bloquea cambios de pin con mantenimiento pendiente y conserva recuperación /1 y
+  de negocio 2.0/2.1. Añade consulta de estado y conserva los efectos ante fallos de salida.
+- Reutiliza la gramática JSON estándar con inspección acotada; no añade dependencias,
+  servicios, skills ni cambios del método/esquema. Windows/H2 siguen pendientes.
+- Alinea el builder estable con el de desarrollo: el sitio web auxiliar `site/`
+  queda fuera de los paquetes del plugin y de los runtimes de consumidores.
+- En un único recorrido sintético de 800.539.116 bytes y 10.157 objetos, completa
+  interrupción, recuperación, respaldo y restauración independiente en 36 min 33 s,
+  con pico de working set de 259,39 MiB. El censo interno pasa de 10.941 a 880 archivos
+  (−91,96 % total; −99,08 % neto del alcance compactable). Copias externas contabilizadas
+  aparte; ZIP_STORED no reduce bytes ni se afirma ahorro global de tiempo o tokens.
+
+Véanse [actualización y recuperación](docs/UPGRADE-4.0.1.md) y
+[evidencia y límites](docs/evidence/store-maintenance-4.0.1.json). La validación técnica,
+la publicación, la instalación y la observación de host son estados separados.
+
 ## 4.0.0 — 2026-10-18 — operaciones, cierre y almacenamiento agrupado
 
 Desarrollo revisado y publicación autorizados por el responsable. Conserva las

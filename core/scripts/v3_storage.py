@@ -305,8 +305,10 @@ def recover(root, authorized_hash, *, rollback=False, receipt=None):
         from v2_contract import _read_regular
         from store_maintenance import FORMAT, recover as maintenance_recover
         journal_tag = json.loads(_read_regular(root, PENDING, limit=128*1024*1024)).get('schema_version')
-        if journal_tag == FORMAT:
+        if journal_tag in {FORMAT, "lks-sdd-store-maintenance/2"}:
             if rollback or receipt: raise ContractError("Use explicit maintenance recovery; business rollback cannot alter physical storage")
+            if journal_tag.endswith('/2'):
+                from store_compaction import recover as maintenance_recover
             return maintenance_recover(root, authorized_hash)
     from v2_storage import _load_transaction
     journal, _ = _load_transaction(Path(root), authorized_hash, receipt)

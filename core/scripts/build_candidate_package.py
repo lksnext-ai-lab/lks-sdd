@@ -648,7 +648,7 @@ def collect_source_files(root: Path, source_commit: str) -> list[tuple[str, byte
         relative = PurePosixPath(relative_text)
         if relative.is_absolute() or ".." in relative.parts:
             raise PackageError(f"Ruta Git insegura: {relative_text}")
-        if EXCLUDED_PARTS.intersection(relative.parts) or relative.parts[:2] in {
+        if EXCLUDED_PARTS.intersection(relative.parts) or relative.parts[:1] == ("site",) or relative.parts[:2] in {
             ("tests", "reports"),
             ("pilot", "runs"),
         }:

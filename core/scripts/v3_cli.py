@@ -287,6 +287,11 @@ def presentation_output(action, result):
     if action in {"work-continue", "work-record-results"}:
         return {k: v for k, v in result.items() if k != "packet"}
     if action == "decision-view": return compact(result)
+    if action == "store-preview" and isinstance(result.get("manifest"), dict):
+        from store_compaction import summary
+        return {"status": result["status"], "preview_hash": result["preview_hash"],
+                "summary": summary(result["manifest"]),
+                "next": "Use --output outside backup/restore/staging to retain the full manifest before authorization"}
     if action == "review":
         shown = {k: v for k, v in result.items() if k not in {"units", "presentation"}}
         shown["units"] = [{k: v for k, v in unit.items() if k not in {"description", "details"}}
@@ -312,6 +317,8 @@ def main(argv=None, command=None):
     parser.add_argument("--apply", action="store_true", help="Aplicar dentro del alcance expresamente autorizado")
     parser.add_argument("--authorize", help="Hash exacto del paquete para apply/recover/rollback")
     parser.add_argument("--authorize-removal", help="Autorización separada del hash exacto para retirar duplicados físicos")
+    parser.add_argument("--status", dest="store_status", action="store_true", help="Consultar mantenimiento sin escribir ni autorizar")
+    parser.add_argument("--finalize-without-removal", action="store_true", help="Cerrar mantenimiento conservando todos los originales; requiere su hash exacto")
     parser.add_argument("--receipt")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--view", choices=("compatible", "operational"), default="compatible",
@@ -361,17 +368,44 @@ def _main(args, action, argv):
                     data["usage_context"]={**context,"run_id":capture.run_id}
             except (ContractError,OSError,ValueError,TypeError,KeyError) as exc: capture_error=str(exc)
         from v3_storage import apply, recover
+        if (args.store_status or args.finalize_without_removal) and action != "store-recover":
+            raise ContractError("--status y --finalize-without-removal requieren store-recover")
         if action.startswith("store-"):
             from store_maintenance import preview as store_preview, apply as store_apply, recover as store_recover
+            from store_compaction import transport_guard, is_v2_input
             if args.apply: raise ContractError("Use la operación de almacenamiento explícita y sus hashes")
+            transport_guard(root, action, data, args.authorize, output)
             if action == "store-preview":
                 if args.authorize or args.authorize_removal: raise ContractError("El preview no autoriza retiradas")
-                result = store_preview(root, data['backup'], data['restore'])
+                if ("backup" in data) == ("backup_dir" in data):
+                    raise ContractError("Indique exactamente uno de backup o backup_dir")
+                if "backup_dir" in data:
+                    from store_compaction import preview as store_preview
+                    result = store_preview(root, data['backup_dir'], data['restore'])
+                else:
+                    result = store_preview(root, data['backup'], data['restore'])
+                if is_v2_input(result):
+                    transport_guard(root, "store-compact", result, result['preview_hash'], output)
             elif action == "store-compact":
                 if args.authorize_removal: raise ContractError("Verifique respaldo y restauración antes de autorizar retirada")
+                if is_v2_input(data):
+                    from store_compaction import apply as store_apply
                 result = store_apply(root, data, args.authorize)
             else:
-                result = store_recover(root, args.authorize, remove_authorized=args.authorize_removal)
+                from store_compaction import pending_v2
+                if pending_v2(root, args.authorize):
+                    from store_compaction import recover as store_recover, status as store_status
+                    if args.store_status:
+                        if args.authorize_removal or args.finalize_without_removal:
+                            raise ContractError("Consultar estado no autoriza ni finaliza mantenimiento")
+                        result = store_status(root, args.authorize)
+                    else:
+                        result = store_recover(root, args.authorize, remove_authorized=args.authorize_removal,
+                                               finalize_without_removal=args.finalize_without_removal)
+                else:
+                    if args.store_status or args.finalize_without_removal:
+                        raise ContractError("Estas opciones requieren mantenimiento /2")
+                    result = store_recover(root, args.authorize, remove_authorized=args.authorize_removal)
         elif action == "apply":
             if not args.authorize: raise ContractError("Falta autorizar el paquete exacto")
             result = apply(root, data, args.authorize, current=True)
@@ -454,7 +488,8 @@ def _main(args, action, argv):
         if action=="work-prepare":return 0 if result.get("status")=="ready" else 3 if result.get("status")=="partial" else 2
         if action in {"work-continue", "work-record-results"}:
             return 0 if result.get("status") in {"ready", "completed"} else 3 if result.get("status") == "partial" else 2
-        return 2 if result.get("status") in {"blocked", "unsupported", "reconciliation-required"} else 0
+        if action.startswith("store-") and result.get("status") == "paused": return 3
+        return 2 if result.get("status") in {"blocked", "unsupported", "reconciliation-required", "rejected-stale-preview"} else 0
     except (OperationInterrupted, ContractError, OSError, ValueError, KeyError, TypeError) as exc:
         failure = {"status": "blocked", "cause": str(exc), "next": "Resuelva esta causa concreta; se conserva el trabajo existente"}
         if isinstance(exc, OperationInterrupted):
@@ -484,6 +519,14 @@ def _main(args, action, argv):
             failure["usage"] = usage
         # Output/diagnostic failure cannot hide applied effects in either view.
         observed_result = locals().get("result", {})
+        if action in {"store-compact", "store-recover"} and args.authorize:
+            try:
+                from store_compaction import status as store_status
+                state = store_status(locals().get("root", args.project_root), args.authorize)
+                failure.update(status="partial" if state.get("pending") else "blocked", effects=state,
+                               next="Inspect pending/receipt; use store-recover with the same hash, never blindly repeat store-compact")
+            except (ContractError, OSError, ValueError, KeyError, TypeError):
+                pass
         if observed_result.get("format") == "lks-sdd-operation-result/1" and action in {"work-continue", "work-record-results"}:
             failure.update({key: observed_result[key] for key in
                 ("format", "version", "operation", "operation_id", "task", "actor", "effects", "writes", "recovery") if key in observed_result})
