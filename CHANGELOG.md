@@ -18,6 +18,8 @@ autorizados, incluida la distribución en Codex. Conserva schema 3.1 y método 3
   de negocio 2.0/2.1. Añade consulta de estado y conserva los efectos ante fallos de salida.
 - Reutiliza la gramática JSON estándar con inspección acotada; no añade dependencias,
   servicios, skills ni cambios del método/esquema. Windows/H2 siguen pendientes.
+- Alinea el builder estable con el de desarrollo: el sitio web auxiliar `site/`
+  queda fuera de los paquetes del plugin y de los runtimes de consumidores.
 - En un único recorrido sintético de 800.539.116 bytes y 10.157 objetos, completa
   interrupción, recuperación, respaldo y restauración independiente en 36 min 33 s,
   con pico de working set de 259,39 MiB. El censo interno pasa de 10.941 a 880 archivos

@@ -537,6 +537,11 @@ aprobación y documentación. Los scripts del motor y el instalador coinciden co
 candidato probado: se reutiliza su única campaña de volumen y se ejecuta el gate
 estable sobre el commit integrado exacto. No se repiten S8, H2 ni el corpus de 800 MB.
 
+En la revisión de los ZIP se detectó que el builder estable incluía `site/`, a
+diferencia del builder usado en desarrollo. Se alinea su exclusión del sitio web
+auxiliar, sin tocar el motor de mantenimiento. El primer preflight queda superado
+por otro sobre el commit corregido; no se reutilizan sus paquetes para publicar.
+
 Publicación, registro/instalación en Codex y observación en conversación nueva se
 verifican por separado y quedan en recibos externos de cierre. Se conserva la
 identidad `lks-sdd@lks-sdd-development` y recuperación de versiones anteriores;

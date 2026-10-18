@@ -98,7 +98,6 @@
     "normalized_engine_sha256": {
       "distribution/install.py": "f61ffb8a46ca66c6bd710fd6d80e5c64ff70ff23e27ef20e4ac3c45b3ab1c54a",
       "scripts/benchmark_experience.py": "3c468d9b42cfa3083e155f47b68b4505202d77e7a7947844e79bf653f7615b48",
-      "scripts/build_candidate_package.py": "9ddcd5c6ec2b40aea80063885440d45f42abb271d2472c72db5097580f32aa28",
       "scripts/build_dual_distribution.py": "7b0b968c588ca4a07594e26cc00a6c480f82820f95efed2ffd10cab7fb4baaec",
       "scripts/check_traceability.py": "2940311cf7a82f7810fbd1367ec93918503b749c8749d8a2d6c0952b79b4e401",
       "scripts/composition_contract.py": "0a05a26a36b1e35366c6424ca20ef0a4fbd699c3cb4efeb9fcb9d8f73dcb9085",
@@ -222,9 +221,17 @@
     "allowed_differences": [
       "version metadata and initializer version constants",
       "stable approval and portable evidence",
-      "release documentation"
+      "release documentation",
+      "stable builder root site/ exclusion aligned with development builder"
     ],
-    "stable_gate": "separate-required-on-final-commit"
+    "stable_gate": "separate-required-on-final-commit",
+    "packaging_only_changes": {
+      "scripts/build_candidate_package.py": {
+        "candidate_sha256": "9ddcd5c6ec2b40aea80063885440d45f42abb271d2472c72db5097580f32aa28",
+        "stable_sha256": "91de9a39cbd2186ac108b2e434553aed3b22270b384ada861ee28310d80ae5c9",
+        "scope": "exclude only root site/ website from stable artifacts, matching development collector; no maintenance change"
+      }
+    }
   },
   "limitations": {
     "Windows_H2": "pending-untouched",
