@@ -1,0 +1,551 @@
+{
+  "format": "lks-sdd-plan-revision/1",
+  "revision": "0.3",
+  "client_date": "2026-10-16",
+  "status": "documentary-update-requested-no-execution",
+  "user_request": "Actualiza el plan de la versión 4.0 incorporando estas cuatro tareas, sus dependencias y criterios de aceptación. Mantén las seis mejoras y los presupuestos acordados. No implementes todavía.",
+  "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "six_improvements": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+  ],
+  "new_task_mapping": {
+    "R1": "V4-02A",
+    "R2": "V4-17A",
+    "R3": "V4-02B",
+    "R4": "V4-07A"
+  },
+  "tasks": [
+    {
+      "id": "V4-01",
+      "deliverable": "Contrato mínimo, fronteras, invariantes y decisión de compatibilidad",
+      "depends_on": [],
+      "role": "Contrato/núcleo",
+      "improvement": "Todas",
+      "status": "verified",
+      "scope_note": "Prior documentary/reference closure only; no candidate acceptance"
+    },
+    {
+      "id": "V4-02",
+      "deliverable": "Referencia 3.4.3, viabilidad de medición, alcance y presupuesto congelados",
+      "depends_on": [
+        "V4-01"
+      ],
+      "role": "Medición/revisión/producto",
+      "improvement": "Todas",
+      "status": "verified",
+      "scope_note": "Prior documentary/reference closure only; no candidate acceptance"
+    },
+    {
+      "id": "V4-02A",
+      "deliverable": "Versión efectiva, caso migrado representativo y disposición del incidente en 3.4.3",
+      "depends_on": [
+        "V4-02"
+      ],
+      "role": "Medición/núcleo",
+      "improvement": "M6, transversal",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-02B",
+      "deliverable": "Máximos de latencia, límites de ensayo y política de coste residual congelados",
+      "depends_on": [
+        "V4-02A"
+      ],
+      "role": "Medición/producto",
+      "improvement": "M6, M1, M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-03",
+      "deliverable": "Presentación mínima con acceso íntegro compatible",
+      "depends_on": [
+        "V4-02B"
+      ],
+      "role": "CLI/presentación",
+      "improvement": "M1",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-04",
+      "deliverable": "Captura y conservación diagnóstica sin copiado por el agente",
+      "depends_on": [
+        "V4-03"
+      ],
+      "role": "Diagnóstico/almacenamiento",
+      "improvement": "M1",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-05",
+      "deliverable": "Consulta compuesta para preparar trabajo",
+      "depends_on": [
+        "V4-03"
+      ],
+      "role": "Núcleo/recorrido",
+      "improvement": "M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-05A",
+      "deliverable": "Primer recorrido completo, instrucciones, paquete provisional y utilidad observada",
+      "depends_on": [
+        "V4-04",
+        "V4-05"
+      ],
+      "role": "Experiencia/hosts/distribución",
+      "improvement": "M1, M2, M4",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-06",
+      "deliverable": "Inicio/reanudación y registro compuesto de resultados",
+      "depends_on": [
+        "V4-05A"
+      ],
+      "role": "Núcleo/transacciones",
+      "improvement": "M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-07",
+      "deliverable": "Continuidad reconstruible y paradas comprensibles",
+      "depends_on": [
+        "V4-06"
+      ],
+      "role": "Recorrido/experiencia",
+      "improvement": "M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-07A",
+      "deliverable": "Actividad observable, interrupción y recuperación seguras",
+      "depends_on": [
+        "V4-04",
+        "V4-07",
+        "V4-02B"
+      ],
+      "role": "CLI/transacciones/experiencia",
+      "improvement": "M1, M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-08",
+      "deliverable": "Autoría de alcance y ensayo acotado de legado",
+      "depends_on": [
+        "V4-05A"
+      ],
+      "role": "Contexto/autoría",
+      "improvement": "M3",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-09",
+      "deliverable": "Selector completo por aplicabilidad, comparación y diagnóstico",
+      "depends_on": [
+        "V4-08"
+      ],
+      "role": "Contexto/revisión",
+      "improvement": "M3",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-10",
+      "deliverable": "Aportación demostrada a tres recorridos existentes de mantenimiento",
+      "depends_on": [
+        "V4-06",
+        "V4-09"
+      ],
+      "role": "Contrato/correcciones",
+      "improvement": "M5",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-11",
+      "deliverable": "Seis skills e instrucciones por operación",
+      "depends_on": [
+        "V4-07A",
+        "V4-09",
+        "V4-10"
+      ],
+      "role": "Experiencia/hosts",
+      "improvement": "M4",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-12",
+      "deliverable": "Perfil de coste y oportunidades reproducidas",
+      "depends_on": [
+        "V4-06",
+        "V4-09",
+        "V4-07A",
+        "V4-02B"
+      ],
+      "role": "Rendimiento",
+      "improvement": "M6",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-13",
+      "deliverable": "Optimizaciones aceptadas o descarte motivado",
+      "depends_on": [
+        "V4-12"
+      ],
+      "role": "Núcleo/revisión",
+      "improvement": "M6",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-14",
+      "deliverable": "Compatibilidad y actualización recuperable",
+      "depends_on": [
+        "V4-04",
+        "V4-07A",
+        "V4-10",
+        "V4-11",
+        "V4-02A"
+      ],
+      "role": "Distribución/migración",
+      "improvement": "Transversal",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-15",
+      "deliverable": "Verificación integrada de garantías",
+      "depends_on": [
+        "V4-14"
+      ],
+      "role": "Revisión técnica",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-16",
+      "deliverable": "Paquetes de desarrollo y guía de actualización",
+      "depends_on": [
+        "V4-15"
+      ],
+      "role": "Distribución",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-17",
+      "deliverable": "Comparación completa y observación real por host",
+      "depends_on": [
+        "V4-02",
+        "V4-16"
+      ],
+      "role": "Medición/producto",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-17A",
+      "deliverable": "Regresión y latencia del recorrido de entrega migrado S8 sobre paquete final",
+      "depends_on": [
+        "V4-02A",
+        "V4-02B",
+        "V4-16"
+      ],
+      "role": "Medición/revisión",
+      "improvement": "M2, M6, transversal",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-18",
+      "deliverable": "Informe de aceptación, límites y preparación de release",
+      "depends_on": [
+        "V4-13",
+        "V4-16",
+        "V4-17",
+        "V4-17A"
+      ],
+      "role": "Producto/mantenimiento",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    }
+  ],
+  "acceptance_criteria": {
+    "AC-01": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-02": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-03": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-04": {
+      "owner": "V4-03",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-05": {
+      "owner": "V4-03",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-06": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-07": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-08": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-09": {
+      "owner": "V4-05",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-10": {
+      "owner": "V4-05",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-11": {
+      "owner": "V4-06",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-12": {
+      "owner": "V4-06",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-13": {
+      "owner": "V4-06",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-14": {
+      "owner": "V4-07",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-15": {
+      "owner": "V4-08",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-16": {
+      "owner": "V4-09",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-17": {
+      "owner": "V4-09",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-18": {
+      "owner": "V4-10",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-19": {
+      "owner": "V4-10",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-20": {
+      "owner": "V4-11",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-21": {
+      "owner": "V4-11",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-22": {
+      "owner": "V4-12",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-23": {
+      "owner": "V4-13",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-24": {
+      "owner": "V4-14",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-25": {
+      "owner": "V4-14",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-26": {
+      "owner": "V4-15",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-27": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-28": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-29": {
+      "owner": "V4-16",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-30": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-31": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-32": {
+      "owner": "V4-18",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-33": {
+      "owner": "V4-02",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-34": {
+      "owner": "V4-05A",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-35": {
+      "owner": "V4-10",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-36": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-37": {
+      "owner": "V4-02A",
+      "status": "not-run"
+    },
+    "AC-38": {
+      "owner": "V4-02A",
+      "status": "not-run"
+    },
+    "AC-39": {
+      "owner": "V4-02B",
+      "status": "not-run"
+    },
+    "AC-40": {
+      "owner": "V4-07A",
+      "status": "not-run"
+    },
+    "AC-41": {
+      "owner": "V4-07A",
+      "status": "not-run"
+    },
+    "AC-42": {
+      "owner": "V4-17A",
+      "status": "not-run"
+    },
+    "AC-43": {
+      "owner": "V4-17A",
+      "status": "not-run"
+    },
+    "AC-44": {
+      "owner": "V4-17A",
+      "status": "not-run"
+    }
+  },
+  "frozen_reference": {
+    "AC-33": "closed-technical-Codex-scope-only",
+    "protocol_revision": "1.0",
+    "unchanged_files": {
+      "MEASUREMENT-PROTOCOL.md": "f4cb279ed0f0805580ac307794d9a185b78905406816a5d285ffe54c5699578e",
+      "MEASUREMENT-PROTOCOL.json": "42a9278bd95069d8cbd01af735e3008178fde1ad40345b0fc3cd80eb9aacd619",
+      "SCENARIOS.json": "d74523828905ba7888821f142caf7a7827bab1b43260bae0a860d5e80670a90d",
+      "h1-reference.json": "fa51e22a04edd40af54c0a0738f2ed571860146a0c4c0034bc453bbf1710756f",
+      "v4-02-progress.json": "8c1d8be800e4988663f79a4813c431f08f599ea6a18a8db94eb27812b22e76b1",
+      "CONTRACT.md": "de1544e2a62731f9fc74d9f6d8080bbfa9201f4ca3b0098425b5d10ba8a9e2ae",
+      "RESULTS-H1.md": "b02eb8403bc6bf0f41654b3d043a11b48ecafc12ede7682f9cd6f926415ebf62"
+    }
+  },
+  "new_case": {
+    "id": "S8",
+    "primary_efficiency": false,
+    "status": "planned-not-run",
+    "owner": "V4-17A",
+    "initial_full_task_executions": 2,
+    "surface": "public CLI Windows/Codex environment; not a conversational pilot",
+    "exclusions": [
+      "remote publication",
+      "Docker deployment",
+      "real functional acceptance",
+      "human perception study"
+    ]
+  },
+  "budget": {
+    "full_task_attempts_cap": 48,
+    "human_hours_cap": 8,
+    "environment_hours_cap": 12,
+    "M6_variants_cap": 2,
+    "M6_hours_cap": 4,
+    "historical_known_charged": 7,
+    "H2_reserve": 2,
+    "final_both_hosts_reserve": 24,
+    "S8_final_reserve": 2,
+    "known_plus_minimum_reserve": 35,
+    "theoretical_upper_remaining": 13,
+    "actual_remaining": "unknown-not-certified",
+    "all_caps_shared": true
+  },
+  "pending_parameters_owner": "V4-02B",
+  "pending_parameters": {
+    "L_readiness": null,
+    "L_transition": null,
+    "L_delivery": null,
+    "C_attempt": null,
+    "M_peak": null,
+    "P_first": null,
+    "P_gap": null,
+    "P_rate": null,
+    "P_bytes": null,
+    "P_interrupt": null,
+    "P_overhead": null
+  },
+  "human_evaluation": "deferred-sustained-real-use-not-passed",
+  "copilot": "final-host-coverage-preserved",
+  "implementation_authorized": false,
+  "plugin_modified": false,
+  "previous_documents_archive": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.3-20261016\\plan-before-0.3.zip",
+  "documentary_validation": {
+    "status": "passed",
+    "checks": 23,
+    "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.3-20261016\\documentary-validation.json",
+    "sha256": "895e2d77e7063ccdcdc36275049eeffcd95c34a369a81ba1d1bf25400048421e",
+    "product_criteria_passed_by_this_check": false
+  },
+  "documents": {
+    "PLAN.md": "26a3ac6ec7ab12dcd72065a4055d2b96a152538733414cd3746366e6f1b19ba3",
+    "TASKS.md": "062c4a77244f18b61b2508e9c187c06b7cf99f8c30ffef1e5ae444de333f8cef",
+    "VALIDATION.md": "f70dd0049144838d88713d72a9ef90bd8555d10304bdb3b604335a0b16a170d8",
+    "ADDENDUM-PERFORMANCE.md": "ef10f60ee7bc627352439dd984a01692c33c87dba7236b79dfeb9fdde73aeb67",
+    "ANALISIS-REPORTE-RENDIMIENTO-20261016.md": "123607643fe3958bc0021c76976318eedc91e5cdd37eb950d0677cb420f9a76b"
+  },
+  "diff_review": {
+    "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.3-20261016\\plan-0.3.diff",
+    "sha256": "a661cb05d2b49be92962df47c3a4f6eb616c40e641a59cecbdf85824005784da"
+  }
+}

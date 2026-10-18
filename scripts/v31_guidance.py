@@ -45,6 +45,8 @@ def request_readiness(model, request_id, actor, action):
 
 
 def interventions(model, request_id, *, actor=None, offset=0, limit=20, object_offset=0, facts=None):
+    from v3_evaluation import count
+    count("intervention_evaluations")
     if offset < 0 or object_offset < 0 or not 1 <= limit <= 50: raise ContractError("Página de intervenciones inválida")
     request = model.get(request_id, "request")
     if not config(model, request): return {"request": request.source(), "enabled": False, "writes": []}
@@ -63,7 +65,7 @@ def interventions(model, request_id, *, actor=None, offset=0, limit=20, object_o
         elif event == "review-proposal" and "close-proposal" in actions:
             event = "close-proposal"; query["review"] = True
         row["presentation_query"] = {"event": event, "data": query}
-        row["instruction_refs"] = instruction_refs(profiles(event, query))
+        row["instruction_refs"] = instruction_refs(profiles(event, query), event=event)
         if event == "integrate": row["presentation_pending"] = ["Indicar la base de integración en trusted_root"]
         try:
             row["name"] = model.get(person, "member").meta["title"]

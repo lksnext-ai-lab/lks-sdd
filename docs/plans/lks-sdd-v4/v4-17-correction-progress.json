@@ -1,0 +1,236 @@
+{
+  "task": "V4-S8-APPROVAL-CLOSURE",
+  "status": "resolved-in-source-and-corrected-package-components",
+  "cause": "Reverse traversal of proposal.interfaces ownership pulled parent proposal and 35 technologies into task/plan approval descriptors",
+  "fix": "Filter only interface ownership backlinks in approval calculation; explicit incoming edges, typed dependencies, global units and full context preserved",
+  "changed": [
+    "docs/DOCUMENT-CONTEXT.md",
+    "package-integrity.json",
+    "scripts/v3_approval.py",
+    "tests/test_v4_context_scope.py"
+  ],
+  "approved_descriptor_units": 286,
+  "previous_failed_candidate_units": 322,
+  "legacy_decisions_rewritten": false,
+  "automatic_approval_renewal": false,
+  "scope_tests": {
+    "passed": true,
+    "duration_seconds": 1.29,
+    "counts": {
+      "total": 25,
+      "passed": 25,
+      "skipped": 0,
+      "failed": 0
+    },
+    "results": [
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_approval_descriptor_does_not_turn_incoming_tasks_into_authority",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_approval_descriptor_tracks_incoming_and_typed_contract_changes",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_authoring_ambiguous_plan_scope_is_rejected_in_either_order",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_authoring_explicit_scope_cannot_contradict_plan",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_authoring_inherits_unique_plan_without_mutating_input",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_authoring_same_scope_multiple_plans_is_order_independent",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_changed_attachment_or_missing_manifest_invalidates_exclusion",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_changed_prose_revoked_proof_and_changed_governance_restore_literal",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_comparison_is_explicit_and_never_claims_semantic_equivalence",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_empty_retired_or_ambiguous_root_never_claims_sufficiency",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_foreign_accredited_growth_stays_out_but_unknown_and_global_expand",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_incoming_proposal_is_a_dependency_not_an_independent_approval",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_independent_obligation_inventory_keeps_shared_incoming_and_typed_transitive",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_interface_membership_does_not_hide_explicit_or_typed_dependencies",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_legacy_feature_interface_inventory_is_not_an_incoming_obligation",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_legacy_plan_retains_authority_without_reapproving_interface_owner",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_legacy_plan_revocation_and_global_proposal_are_not_ignored",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_legacy_plan_stales_on_contract_and_technology_changes",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_mixed_global_prose_conflicts_and_distinct_negative_rules_are_retained",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_necessary_visual_and_transitive_text_assets_preserve_observation_boundary",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_preview_bounds_legacy_batch_without_silent_classification",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_preview_is_literal_readonly_and_grants_no_authority",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_preview_proposes_exact_governed_change_without_accrediting_it",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_preview_rejects_stale_or_incomplete_scope_declarations",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_context_scope.ContextScopeTests.test_retired_plan_does_not_override_current_task_scope",
+        "status": "passed"
+      }
+    ]
+  },
+  "workflow_tests": {
+    "passed": true,
+    "duration_seconds": 160.182,
+    "counts": {
+      "total": 2,
+      "passed": 2,
+      "skipped": 0,
+      "failed": 0
+    },
+    "results": [
+      {
+        "id": "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_operations.WorkOperationsTests.test_change_during_stage_preparation_stops_before_first_effect",
+        "status": "passed"
+      }
+    ]
+  },
+  "unique_focal_methods": 27,
+  "native_component_checks": {
+    "passed": true,
+    "rows": [
+      {
+        "action": "work-prepare",
+        "status": "ready",
+        "exit_code": 0,
+        "capture": "stored"
+      },
+      {
+        "action": "work-continue",
+        "status": "ready",
+        "exit_code": 0,
+        "capture": "stored"
+      }
+    ],
+    "elements": 338,
+    "technology_count": 35,
+    "canonical_and_decision_digests_unchanged": true,
+    "task_state": "backlog",
+    "code_not_created": true,
+    "runtime_digest": "296e104a253a9c75b5f54042270f550b91f49c394469ee82dfcff4e9b14a7103",
+    "full_journey_attempts": 0,
+    "S8_slots_used": 0,
+    "installation": false,
+    "publication": false,
+    "H2": false,
+    "Windows_incident_touched": false
+  },
+  "candidate_source": "working-tree:f5d853c6e5a20163ad6bdf9c798aa2cdead8682ceb535a3d7fd6c10f2c49f283",
+  "runtime_digest": "296e104a253a9c75b5f54042270f550b91f49c394469ee82dfcff4e9b14a7103",
+  "packages": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\correction\\candidate-packages",
+  "reproducible_builds": 2,
+  "archive_count": 5,
+  "static": [
+    {
+      "command": [
+        "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_plugin_contract.py",
+        "."
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_fixture_manifest.py",
+        "."
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0
+    }
+  ],
+  "budget": {
+    "global_known_plus_reserved": 48,
+    "cap": 48,
+    "new_full_journey_attempts": 0,
+    "S8_unstarted_slots_retained": 2,
+    "H2_untouched": 2,
+    "new_M6_variants": 0,
+    "extra_hours_authorized_or_inferred": false
+  },
+  "prior_final_attempts": "Preserved exactly; no candidate substitution or reinterpretation of failed/contaminated samples",
+  "prior_package_status": "Superseded for future acceptance; retained as immutable evidence of previous attempts",
+  "AC26": "performance and final integrated acceptance pending",
+  "AC40": "pending",
+  "AC42": "pending-valid-final-series",
+  "AC43": "pending-performance-not-accepted",
+  "H2": "pending",
+  "Windows": "set-aside-open",
+  "installed": false,
+  "published": false,
+  "billed_tokens": null,
+  "harness_incident": "Wrong ancestor path after build; corrected and resumed only the component stage, reusing checksummed archives; initial stderr retained"
+}

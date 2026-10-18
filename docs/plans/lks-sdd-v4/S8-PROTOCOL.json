@@ -1,0 +1,146 @@
+{
+  "format": "lks-sdd-s8-protocol/1",
+  "revision": "1.0",
+  "status": "frozen-before-4.0-candidate; V4-02B-preparatory-contract-verified",
+  "date": "2026-10-16",
+  "owner": "V4-02B",
+  "authorization": "User validated plan 0.4 and authorized V4-02A/V4-02B only; present results before product implementation.",
+  "product_decision": {
+    "question_scope": "S8 readiness and full technical journey acceptable waits",
+    "user_quote": "con ue haya una mejora de al menos el 20% es suficiente",
+    "interpretation": "At least 20% reduction of complete S8 technical journey against correctly used 3.4.3. Phase times remain visible; does not amend E1/E2/E3/E4 or human deferral.",
+    "supersedes": "Pending absolute product latency targets in plan 0.4 AC-39/AC-43; experimental cutoffs preserved.",
+    "extra_user_decision_required_for_this_threshold": false
+  },
+  "baseline": {
+    "version": "3.4.3",
+    "commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+    "fixture": "target",
+    "technology_count": 35,
+    "model_elements": 338,
+    "cold_processes": true,
+    "absolute_product_SLA": "not-required-by-later-user-decision",
+    "valid_latency_baseline_status": "One isolated public readiness sample on target 3.4.3 completed; full S8 reference remains future V4-06/V4-17A.",
+    "readiness_observed_seconds": 11.04160419999971,
+    "readiness_observed_job_peak_commit_bytes": 71696384
+  },
+  "primary_time": {
+    "metric": "T_machine_complete_S8",
+    "minimum_reduction": 0.2,
+    "formula": "1 - T_candidate / T_reference",
+    "aggregation": "Median of two paired relative reductions, final AB and BA; report both values and absolute seconds.",
+    "additional_conditions": [
+      "Both pairs must be valid and have positive reductions; a nonpositive pair is inconclusive for consistency, not silently discarded.",
+      "No introduced guarantee/functional defect; preserve all obligations, authority and fresh guards.",
+      "No valid candidate timeout, own error, or unfinished journey may pass.",
+      "Phase regression over 10% triggers the unchanged protocol investigation and disposition rule; no selecting only fast phases."
+    ],
+    "zero_reference": "If reference <=0 or unavailable, criterion remains not-measured; no invented percentage."
+  },
+  "phase_time": {
+    "L_readiness": "Measured and reported, no absolute product maximum following user decision.",
+    "L_transition": "Measured by authorized semantic effect set, no absolute product maximum.",
+    "L_delivery": "Measured complete journey; primary relative requirement >=20%, no absolute product maximum."
+  },
+  "experimental_limits": {
+    "component_queries_max": 4,
+    "component_seconds_max": 120,
+    "full_S8_attempt_seconds_max": 600,
+    "full_S8_early_attempts": 2,
+    "full_S8_final_attempts": 4,
+    "optional_counter_profile_seconds_max": 30,
+    "are_product_SLA": false,
+    "timeout_rule": "Stop owned tree; preserve cost/partial data; failed or incomplete, never acceptance latency."
+  },
+  "memory": {
+    "metric": "Windows Job Object peak committed bytes for owned CLI and its descendants; each semantic phase/run measured with same boundaries",
+    "hard_cap_bytes": 536870912,
+    "candidate_to_reference_max_ratio": 1.1,
+    "sampling_interval_seconds": 0.01,
+    "working_set_is_separate_diagnostic": true,
+    "condition": "Meet cap and relative ceiling per equivalent valid pair; missing metric stays pending.",
+    "rationale": "512 MiB bounds this 338-element synthetic CLI case; 10% relative ceiling makes relevant growth explicit. Technical guard chosen before candidate, not a claim about current peak."
+  },
+  "activity": {
+    "opt_in": true,
+    "first_signal_seconds_max": 1.0,
+    "gap_seconds_max": 2.0,
+    "events_per_second_max": 1.0,
+    "event_bytes_max": 1024,
+    "attempt_activity_bytes_max": 16384,
+    "brief_operation": "If complete before 1s, final result suffices; no artificial wait.",
+    "stdout_json": "Preserve final valid JSON; use compatible opt-in separate channel; no percentage or ETA invented."
+  },
+  "interrupt": {
+    "recognition_seconds_max": 2.0,
+    "safe_checkpoint_seconds_max": 5.0,
+    "scope": "Cooperative CPU phases declared and tested; IO/native calls and material writes may defer to next safe point, explicitly reported.",
+    "unmet_need_rule": "If actual phase cannot meet contract, keep criterion pending; do not assert instant abort.",
+    "business_cancel": false,
+    "recovery": "Existing journal and current guards; preserve partial effects, evidence and later work; no duplicate effect."
+  },
+  "activity_overhead": {
+    "time_seconds_max": "max(0.10, 0.05 * same-phase-time-with-signals-off)",
+    "cpu_seconds_max": "max(0.10, 0.05 * same-phase-CPU-with-signals-off)",
+    "max_activity_bytes": 16384,
+    "scope": "Focal opt-in on/off validation, not another complete journey; all delivered activity bytes remain in total cost."
+  },
+  "windows": {
+    "controlled_roots": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\s8",
+    "observed_case_max_path_characters": {
+      "min": 213,
+      "target": 216
+    },
+    "long_path_regression_status": "planned-not-run; V4-14/15/16",
+    "long_path_characters_min": 261,
+    "same_path_shape_per_pair": true,
+    "deep_TEMP_TMP_and_spaces_unicode": true,
+    "helpers_preserved": [
+      "path_utils",
+      "import_bootstrap"
+    ],
+    "no_global_OS_changes": true
+  },
+  "budget_caps": {
+    "complete_attempts": 48,
+    "human_hours": 8,
+    "environment_hours": 12,
+    "M6_variants": 2,
+    "M6_hours_within_global": 4
+  },
+  "thresholds_frozen_before_candidate": true,
+  "original_protocol_1_0_changed": false,
+  "implementation_authorized": false,
+  "pending_external_conditions": [
+    "Actual team consumer adoption/evidence to resolve its exact incident.",
+    "Future full S8 reference/candidate comparison and all product acceptance; not a prerequisite loop for this preparatory contract.",
+    "Actual remaining global capacity before future blocks; historical human/extra environment consumption unknown."
+  ],
+  "host_order": "Codex first; Copilot final; no human effort experiment.",
+  "diagnostic_completion": {
+    "cold_public_queries": 4,
+    "valid_terminal_samples": 3,
+    "invalid_timeout_samples": 1,
+    "invalid_reason": "New unowned Python process detected during 3.4.2 target; no isolated latency inference.",
+    "automatic_repetition_allowed": false
+  },
+  "environment_policy_addendum": {
+    "client_date": "2026-10-18",
+    "user_quote": "va a ser imposible tener un mayor control de cargas. Tendremos que tomar decisiones asumiendo esta variabilidad",
+    "policy": "shared-host-variability-accepted",
+    "report": "DECISION-SHARED-HOST-MEASUREMENT.md",
+    "stable_window_required": false,
+    "exclusive_runner_required": false,
+    "performance_thresholds_unchanged": true,
+    "guarantees_unchanged": true,
+    "historical_results_unchanged": true,
+    "strict_historical_control_retained_not_admission": true,
+    "future_campaign_adapter_update_required": true,
+    "new_S8_attempts": 0,
+    "budget_changed": false,
+    "Windows": "pending",
+    "H2": "pending",
+    "installed": false,
+    "published": false
+  }
+}

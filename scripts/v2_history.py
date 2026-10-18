@@ -12,6 +12,7 @@ import sys
 
 from content_store import prepare_object, read_object, object_path
 from v2_contract import ContractError, HISTORY, READER, VERSION, _read_regular, canonical, fingerprint, path_at, read_bytes, relative_parts, sha
+from object_zip import evaluated
 
 FORMAT = "lks-sdd-history-cas/1"
 
@@ -101,6 +102,7 @@ def link_dependencies(root, relative):
     return result
 
 
+@evaluated
 def history_changes(model):
     revision = model.snapshot()
     name = manifest_path(revision)
@@ -137,6 +139,7 @@ def historical(root, revision):
             "documents": documents, "writes": []}
 
 
+@evaluated
 def restore_changes(root, revision):
     """Build an exact isolated tree for inspection/export; never replace active docs."""
     manifest = read_manifest(root, revision)
@@ -167,6 +170,7 @@ def _publish_directory(stage, destination):
         raise OSError(number, os.strerror(number), str(destination))
 
 
+@evaluated
 def export_history(root, revision, destination):
     """Reconstruct byte-identical sources in a new directory outside the consumer."""
     root, destination = Path(root).resolve(), Path(destination).resolve()

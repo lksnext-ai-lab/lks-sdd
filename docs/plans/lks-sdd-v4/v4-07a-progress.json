@@ -1,0 +1,17 @@
+{
+  "task": "V4-07A",
+  "status": "implemented-technical-tests-passed-acceptance-pending",
+  "result": "RESULTS-V4-07A.md",
+  "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-07a",
+  "distinct_tests_passed": 81,
+  "AC-40": "partial; channel and compatibility verified, comparable overhead pending",
+  "AC-41": "verified-declared-local-surfaces; IO and material-write deferral explicit",
+  "task_closed": false,
+  "six_improvements_preserved": true,
+  "S8_new_attempts": 0,
+  "H2": "pending-not-run",
+  "windows_host_incident": "pending-not-touched",
+  "installed": false,
+  "published": false,
+  "billed_tokens": null
+}

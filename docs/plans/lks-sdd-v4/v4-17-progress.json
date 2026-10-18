@@ -1,0 +1,155 @@
+{
+  "tasks": {
+    "V4-17": "evidence-consolidated-comparison-and-host-acceptance-pending",
+    "V4-17A": "attempted-stopped-on-functional-failure-not-accepted"
+  },
+  "criteria": {
+    "AC-27": "partial-exact-basis-recorded-no-valid-final-pairs",
+    "AC-28": "verified-reporting-scope-no-whole-task-or-billed-savings-claim",
+    "AC-30": "pending-real-host-observation-H2-and-Copilot-not-run",
+    "AC-31": "objectives-disposed-not-accepted",
+    "AC-36": "deferred-sustained-real-use",
+    "AC-42": "failed-incomplete-final-S8-no-equivalent-pairs",
+    "AC-43": "not-accepted-no-valid-final-pairs-previous-regression-retained",
+    "AC-44": "focal-negative-evidence-reused-final-positive-coverage-incomplete"
+  },
+  "candidate": "26334075bc388308823bd63350a098b1a3a5ff722c14ce02bcead6d32d4b4c53",
+  "candidate_source": "working-tree:5f489951930534a51097c7d83e36c455aa91c7074d5edf2b68c96871ae291db2",
+  "source_unchanged": true,
+  "attempts": [
+    {
+      "tag": "1-A",
+      "completed": true,
+      "isolated": false,
+      "metrics": {
+        "seconds": 92.19496699998854,
+        "cpu_seconds": 2.625,
+        "job_cpu_seconds": 71.296875,
+        "job_processes": 258,
+        "job_active_processes_at_exit": 0,
+        "job_peak_commit_bytes": 117997568,
+        "observed_main_peak_working_set_bytes": 50708480,
+        "sampled_main_working_set_bytes": 50204672,
+        "exit_code": 0,
+        "job_assigned_before_process_start": true
+      },
+      "error": null,
+      "residual": {
+        "pending_journal": false,
+        "consumer": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\1-A\\consumer",
+        "capture": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\1-A\\observations\\capture",
+        "retained_for_evidence": true
+      }
+    },
+    {
+      "tag": "2-B",
+      "completed": false,
+      "isolated": true,
+      "metrics": {
+        "seconds": 11.489721300022211,
+        "cpu_seconds": 0.578125,
+        "job_cpu_seconds": 9.0,
+        "job_processes": 25,
+        "job_active_processes_at_exit": 0,
+        "job_peak_commit_bytes": 98721792,
+        "observed_main_peak_working_set_bytes": 35987456,
+        "sampled_main_working_set_bytes": 35848192,
+        "exit_code": 0,
+        "job_assigned_before_process_start": true
+      },
+      "error": "RuntimeError: work-prepare-start: public command failed; see raw outputs",
+      "residual": {
+        "pending_journal": false,
+        "consumer": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\2-B\\consumer",
+        "capture": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\2-B\\observations\\capture",
+        "retained_for_evidence": true
+      }
+    }
+  ],
+  "compatibility_finding": {
+    "id": "V4-S8-APPROVAL-CLOSURE",
+    "candidate": "26334075bc388308823bd63350a098b1a3a5ff722c14ce02bcead6d32d4b4c53",
+    "observation": "Same unchanged documents: 3.4.3 approves plan/execution with 286 units; candidate requires 322 and rejects old coverage",
+    "added_units": 36,
+    "added_kinds": {
+      "proposal": 1,
+      "technology": 35
+    },
+    "changed_existing_unit_digests": 0,
+    "pending_units_reported": 40,
+    "root_coverage_note": "Legacy decisions without approval_roots retain fallback; missing new closure units is the demonstrated mismatch, not proof that the optional field alone caused it",
+    "causal_scope": "Current closure expansion demonstrated by descriptor comparison; intended migration policy versus over-broad incoming closure remains to review",
+    "safety": "No authority granted, no consumer writes, no automatic approval renewal",
+    "required_disposition": [
+      "Review incoming closure and versioned decision coverage against G2/G3/G4; preserve obligations and fresh guards",
+      "Choose a compatible implementation or an explicit reviewed adoption/reapproval policy; never silently relabel an old decision",
+      "Only after resolution, determine a valid comparable fixture and funded final coverage; two remaining slots cannot by themselves restart a four-attempt series"
+    ]
+  },
+  "literal_sources_retained_in_rejected_candidate": true,
+  "original_canonical_bytes_unchanged": true,
+  "capture_integrity": "stored",
+  "activity": {
+    "scope": "Only completed rejected work-prepare invocation; no full-flow or on/off overhead acceptance",
+    "events": 7,
+    "bytes": 159,
+    "first_seconds": 0.37127260002307594,
+    "max_gap_seconds": 1.5174174000276253,
+    "overhead": "not-measured-in-this-block; previous inconclusive finding retained"
+  },
+  "valid_final_pairs": 0,
+  "comparison": {
+    "valid_complete_pairs": 0,
+    "time_reduction": null,
+    "memory_ratio": null,
+    "output_reduction": null,
+    "E1": null,
+    "E2": null,
+    "E3": null,
+    "reason": "A contaminated; B failed preparation. Partial candidate cost cannot be compared with a completed reference.",
+    "billed_tokens": null,
+    "observed_host_tokens": null,
+    "new_M6_variants": 0
+  },
+  "reused": "V4-06/07A/08-11/14-16 guards, actual archive flows, routing and plugin long-path evidence; exact runtime code unchanged since final package",
+  "budget": {
+    "known_plus_reserved": 48,
+    "cap": 48,
+    "existing_S8_slots_used": 2,
+    "existing_S8_slots_unstarted_retained": 2,
+    "H2_slots_untouched": 2,
+    "new_slots": 0,
+    "retries": 0,
+    "new_M6_variants": 0,
+    "hours_balance": "not certified; no extra hours inferred"
+  },
+  "H2": "pending",
+  "Windows": "set-aside-open",
+  "AC40": "pending-overhead-acceptance",
+  "installed": false,
+  "published": false,
+  "plugin_modified": false,
+  "billed_tokens": null,
+  "observed_host_tokens": null,
+  "static": [
+    {
+      "command": [
+        "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_plugin_contract.py",
+        "."
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0
+    }
+  ]
+}

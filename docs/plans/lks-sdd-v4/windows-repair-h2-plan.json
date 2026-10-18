@@ -1,0 +1,89 @@
+{
+  "format": "windows-repair-h2-plan/1",
+  "revision": "0.2",
+  "status": "stopped-at-W2-local-policy-unsupported",
+  "document": "WINDOWS-REPAIR-H2-PLAN.md",
+  "budget_evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\h2-min\\windows-repair-review-budget.json",
+  "additional_hours_requested": 3,
+  "new_environment_cap_hours_proposed": 15,
+  "execution_authorized": true,
+  "plugin_changes_allowed": false,
+  "system_updates_or_restarts_require_concrete_separate_scope": true,
+  "third_party_send_authorized": false,
+  "phases": [
+    {
+      "id": "W0",
+      "minutes": 10,
+      "depends_on": []
+    },
+    {
+      "id": "W1",
+      "minutes": 30,
+      "depends_on": [
+        "W0"
+      ]
+    },
+    {
+      "id": "W2",
+      "minutes": 30,
+      "depends_on": [
+        "W1"
+      ]
+    },
+    {
+      "id": "W3",
+      "minutes": 15,
+      "depends_on": [
+        "W2"
+      ]
+    },
+    {
+      "id": "L",
+      "minutes": 15,
+      "depends_on": [
+        "W3"
+      ]
+    },
+    {
+      "id": "A",
+      "minutes": 15,
+      "depends_on": [
+        "L"
+      ]
+    },
+    {
+      "id": "B",
+      "minutes": 15,
+      "depends_on": [
+        "A"
+      ]
+    },
+    {
+      "id": "R",
+      "minutes": 15,
+      "depends_on": [
+        "any-effect-or-failure"
+      ]
+    },
+    {
+      "id": "C",
+      "minutes": 10,
+      "depends_on": [
+        "R"
+      ]
+    },
+    {
+      "id": "RC",
+      "minutes": 20,
+      "depends_on": [
+        "protected-common-contingency"
+      ]
+    }
+  ],
+  "future_minutes": 175,
+  "feasibility": "conditional-local-repair-only-not-demonstrated",
+  "contingency_usage": "recovery-and-report-only",
+  "additional_hours_approved": 3,
+  "environment_cap_hours_approved": 15,
+  "results": "RESULTS-WINDOWS-REPAIR-H2-03.md"
+}

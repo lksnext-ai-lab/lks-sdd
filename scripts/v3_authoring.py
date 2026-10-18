@@ -96,16 +96,10 @@ def candidate(root, items, callback):
 def author(root, actor, items):
     model = load(root).require_valid()
     identity = operator(model, actor, "define")
-    items = copy.deepcopy(items)
-    plans = [obj for obj in items if obj["meta"]["kind"] == "plan"]
+    from v3_scope import authoring_scopes
+    items = authoring_scopes(model, items)
     for item in items:
         meta = item["meta"]
-        if meta["kind"] == "task" and "proposal_units" not in meta["data"]:
-            matching = [p for p in plans if meta["uid"] in p["meta"]["relations"].get("tasks", [])]
-            if matching and matching[0]["meta"]["data"].get("proposal_units"):
-                meta["data"]["proposal_units"] = matching[0]["meta"]["data"]["proposal_units"]
-            elif meta["data"].get("request") in model.elements:
-                meta["data"]["proposal_units"] = model.get(meta["data"]["request"]).relations.get("proposal", [])
         if meta["kind"] in EVENTS:
             raise ContractError("Decisiones y evidencia se registran mediante su operación específica")
         previous = model.elements.get(meta["uid"])
@@ -244,4 +238,11 @@ def governance(root, actor, items, statement, reason, *, requests=()):
     record = element("decision", "Cambio de gobierno aceptado", statement, purpose="governance", outcome="approved",
                      actor=identity, descriptor=desc, reason=reason, requests=list(requests), decided_at=now())
     record["meta"].update(nature="decision", state="approved")
+    if any(o["meta"]["kind"] == "project" and o["meta"]["data"].get("context_scopes") for o in items):
+        from v3_context import linked_assets
+        record["meta"]["data"]["scope_assets"] = {
+            row["path"]: sorted(({"path": a["path"], "sha256": a["sha256"]} for a in
+                linked_assets(model, [{"source": {"path": row["path"]}, "text": model.prose[row["path"]]}])), key=lambda a: a["path"])
+            for o in items if o["meta"]["kind"] == "project"
+            for row in o["meta"]["data"].get("context_scopes", {}).get("sources", [])}
     return prepare(root, items+[record], "governance")

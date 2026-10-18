@@ -13,11 +13,9 @@ alcance, use `lks-sdd-define` para documentar, validar y planificar primero.
 Las decisiones aplazadas deben quedar registradas; compruebe su impacto antes de
 separar trabajo independiente. Reutilice decisiones vigentes sin pedirlas otra vez.
 
-Lea el formato de `.lks-sdd/project.json` y respete el runtime fijado por el proyecto.
-No migre por cargar esta skill. Si falta el índice, inspeccione el Markdown antes de
-asumir un proyecto nuevo. Una garantía desconocida bloquea solo el trabajo afectado.
-Para continuar trabajo gobernado, aplique el destino y la comprobación de
-[las reglas comunes](../../docs/V3-COMMON.md); las consultas conservan solo lectura.
+Respete el runtime fijado. Si falta el índice `.lks-sdd/project.json`, inspeccione
+el Markdown antes de asumir un proyecto nuevo. Cargar esta skill no migra ni escribe.
+Una garantía desconocida bloquea solo la porción afectada.
 
 - Para formato **3.0 o 3.1**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
   [esta operación](references/v3.md).

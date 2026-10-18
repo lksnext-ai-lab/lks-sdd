@@ -8,14 +8,38 @@ class _Descriptors:
     """One immutable evaluation reuses its complete global dependency closure."""
     def __init__(self, model):
         self.model = model
-        from v3_scope import memberships
+        from v3_scope import memberships, incoming_index
         classified = memberships(model)
+        self.incoming = incoming_index(model, normative_only=True)
+        # A proposal's interface inventory describes ownership. Following that
+        # membership backwards would make an unchanged task/plan approval depend
+        # on its entire parent proposal again. The proposal is checked separately
+        # by proposal_ready/task_basis; explicit incoming obligations still apply.
+        self.incoming = {target: {key for key in keys if not self._interface_owner(key, target)}
+                         for target, keys in self.incoming.items()}
         roots = []
         for shared in model.elements.values():
             uncertain = shared.kind in {"rule", "constraint", "requirement", "acceptance", "interface", "technology", "applicability"} and not shared.data.get("request") and shared.uid not in classified
-            if (shared.data.get("global") or uncertain) and not shared.retired: roots.append(shared.uid)
+            owners = {model.get(u).data.get("request") for u in classified.get(shared.uid, set())} - {None}
+            conflict = shared.data.get("request") and owners and shared.data["request"] not in owners
+            if (shared.data.get("global") or uncertain or conflict) and not shared.retired: roots.append(shared.uid)
         self.globals = self.closure(roots, {})
         self.global_descriptor = {"units": self.globals, "digest": fingerprint(self.globals)}
+
+    def _interface_owner(self, key, target):
+        from v3_scope import INCOMING
+        owner, member = self.model.get(key), self.model.get(target)
+        if member.kind != "interface" or not (owner.kind == "proposal" or
+                owner.kind == "feature" and owner.data.get("legacy")):
+            return False
+        refers = lambda keys: any(self.model.get(k).uid == target for k in keys)
+        if not refers(owner.relations.get("interfaces", [])):
+            return False
+        # A second, explicitly normative relation must not be hidden by the
+        # simultaneous presence of an ownership link (including typed edges).
+        explicit = any(refers(owner.relations.get(rel, [])) for rel in INCOMING - {"interfaces"})
+        typed = refers(dep["uid"] for dep in owner.data.get("dependencies", []))
+        return not explicit and not typed
 
     def closure(self, identifiers, initial):
         units = dict(initial)
@@ -25,6 +49,8 @@ class _Descriptors:
             units[e.uid] = e.digest()
             for rel in ("depends_on", "interfaces", "requirements", "acceptance", "constraints", "uses", "tasks", "covers", "tests", "technology"):
                 for key in e.relations.get(rel, []): add(self.model.get(key))
+            for dependency in e.data.get("dependencies", []): add(self.model.get(dependency["uid"]))
+            for key in sorted(self.incoming.get(e.uid, ())): add(self.model.get(key))
         for key in identifiers: add(self.model.get(key))
         return units
 
@@ -63,6 +89,8 @@ def approved(model, identifiers, purpose="proposal"):
     expected = reader.descriptor(identifiers)["units"]
     from v3_migration import inherited_confirmations
     covered = inherited_confirmations(model, expected) if purpose in {"proposal", "technology"} else {}
+    requested_roots = {model.get(key).uid for key in identifiers}
+    root_coverage = set(covered)
     for decision in decisions(model, purpose):
         globals_match = None
         for key, digest in decision.data.get("descriptor", {}).get("units", {}).items():
@@ -75,8 +103,13 @@ def approved(model, identifiers, purpose="proposal"):
                     if globals_match is None: globals_match = all(recorded.get(k) == v for k, v in dependencies.items())
                     matches = globals_match
                 else: matches = all(recorded.get(k) == v for k, v in dependencies.items())
-                if matches: covered[key] = decision.uid
+                if matches:
+                    covered[key] = decision.uid
+                    # Dependency inclusion preserves obligations; it is not an
+                    # independent decision to approve another proposal or plan.
+                    if key in decision.data.get("approval_roots", recorded): root_coverage.add(key)
             except ContractError: continue
+    for key in requested_roots - root_coverage: covered.pop(key, None)
     valid = set(covered) == set(expected)
     if purpose == "proposal":
         from v31_review import closure_valid
@@ -98,6 +131,7 @@ def decision(model, actor, identifiers, purpose, statement, *, outcome="approved
     desc = descriptor(model, identifiers)
     result = element("authorization" if purpose == "execution" else "decision", "Decisión sobre " + purpose, statement,
                      purpose=purpose, actor=identity, descriptor=desc, outcome=outcome, reason=reason, decided_at=now())
+    result["meta"]["data"]["approval_roots"] = [model.get(key).uid for key in identifiers]
     result["meta"].update(state="approved" if outcome == "approved" else "proposed", nature="decision")
     result["meta"]["relations"] = {"sources": list(desc["units"])}
     if purpose in {"plan", "execution"}:

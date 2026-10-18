@@ -1,0 +1,1693 @@
+{
+  "format": "lks-sdd-plan-revision/1",
+  "revision": "0.5",
+  "client_date": "2026-10-18",
+  "status": "four-valid-runs-complete-time-rejected-memory-transport-functional-gains-observed",
+  "user_request": "Apartar incidencia Windows, H2 pendiente, reasignar saldo y ejecutar V4-06 manteniendo garantias.",
+  "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "six_improvements": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+  ],
+  "new_task_mapping": {
+    "R1": "V4-02A",
+    "R2": "V4-17A",
+    "R3": "V4-02B",
+    "R4": "V4-07A"
+  },
+  "tasks": [
+    {
+      "id": "V4-01",
+      "deliverable": "Contrato mínimo, fronteras, invariantes y decisión de compatibilidad",
+      "depends_on": [],
+      "role": "Contrato/núcleo",
+      "improvement": "Todas",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-02",
+      "deliverable": "Referencia 3.4.3, viabilidad de medición, alcance y presupuesto congelados",
+      "depends_on": [
+        "V4-01"
+      ],
+      "role": "Medición/revisión/producto",
+      "improvement": "Todas",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-02A",
+      "deliverable": "Versión efectiva, caso migrado representativo y disposición del incidente en 3.4.3",
+      "depends_on": [
+        "V4-02"
+      ],
+      "role": "Medición/núcleo",
+      "improvement": "M6, transversal",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-02B",
+      "deliverable": "Máximos de latencia, límites de ensayo y política de coste residual congelados",
+      "depends_on": [
+        "V4-02A"
+      ],
+      "role": "Medición/producto",
+      "improvement": "M6, M1, M2",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-03",
+      "deliverable": "Presentación mínima con acceso íntegro compatible",
+      "depends_on": [
+        "V4-02"
+      ],
+      "role": "CLI/presentación",
+      "improvement": "M1",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-04",
+      "deliverable": "Captura y conservación diagnóstica sin copiado por el agente",
+      "depends_on": [
+        "V4-03"
+      ],
+      "role": "Diagnóstico/almacenamiento",
+      "improvement": "M1",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-05",
+      "deliverable": "Consulta compuesta para preparar trabajo",
+      "depends_on": [
+        "V4-03"
+      ],
+      "role": "Núcleo/recorrido",
+      "improvement": "M2",
+      "status": "verified-prior-scope",
+      "scope_note": "Preparatory or local technical scope only; see its latest results/review, no host acceptance inferred"
+    },
+    {
+      "id": "V4-05A",
+      "deliverable": "Primer recorrido completo, instrucciones, paquete provisional y utilidad observada",
+      "depends_on": [
+        "V4-04",
+        "V4-05"
+      ],
+      "role": "Experiencia/hosts/distribución",
+      "improvement": "M1, M2, M4",
+      "status": "technical-portion-verified-H2-pending",
+      "scope_note": "H2 / AC-34 not-run; may not be claimed as host accepted"
+    },
+    {
+      "id": "V4-06",
+      "deliverable": "Inicio/reanudación y registro compuesto de resultados; pareja S8 temprana",
+      "depends_on": [
+        "V4-05A",
+        "V4-02B"
+      ],
+      "role": "Núcleo/transacciones",
+      "improvement": "M2",
+      "status": "implemented-guarantees-verified-performance-not-accepted",
+      "scope_note": "See RESULTS-V4-06-07.md; no host or performance acceptance inferred",
+      "dependency_scope": {
+        "V4-05A": "verified-technical-portion-only; H2 explicitly deferred"
+      }
+    },
+    {
+      "id": "V4-07",
+      "deliverable": "Continuidad reconstruible y paradas comprensibles",
+      "depends_on": [
+        "V4-06"
+      ],
+      "role": "Recorrido/experiencia",
+      "improvement": "M2",
+      "status": "verified-technical-scope",
+      "scope_note": "See RESULTS-V4-06-07.md; no host or performance acceptance inferred"
+    },
+    {
+      "id": "V4-07A",
+      "deliverable": "Actividad observable, interrupción y recuperación seguras",
+      "depends_on": [
+        "V4-04",
+        "V4-07",
+        "V4-02B"
+      ],
+      "role": "CLI/transacciones/experiencia",
+      "improvement": "M1, M2",
+      "status": "planned-continuation-requested-budget-not-funded",
+      "scope_note": "Later user requests continued development; dependencies and coverage preserved. No extra environment hours or install/publication authority inferred."
+    },
+    {
+      "id": "V4-08",
+      "deliverable": "Autoría de alcance y ensayo acotado de legado",
+      "depends_on": [
+        "V4-05A"
+      ],
+      "role": "Contexto/autoría",
+      "improvement": "M3",
+      "status": "verified-local-technical-scope",
+      "scope_note": "RESULTS-V4-08-09.md; no performance, host or human acceptance inferred",
+      "dependency_scope": {
+        "V4-05A": "verified-technical-portion-only; H2 explicitly deferred"
+      }
+    },
+    {
+      "id": "V4-09",
+      "deliverable": "Selector completo por aplicabilidad, comparación y diagnóstico",
+      "depends_on": [
+        "V4-08"
+      ],
+      "role": "Contexto/revisión",
+      "improvement": "M3",
+      "status": "verified-local-technical-scope",
+      "scope_note": "RESULTS-V4-08-09.md; no performance, host or human acceptance inferred"
+    },
+    {
+      "id": "V4-10",
+      "deliverable": "Aportación demostrada a tres recorridos existentes de mantenimiento",
+      "depends_on": [
+        "V4-06",
+        "V4-09"
+      ],
+      "role": "Contrato/correcciones",
+      "improvement": "M5",
+      "status": "verified-local-technical-scope",
+      "scope_note": "RESULTS-V4-10.md; performance, human and host acceptance not inferred"
+    },
+    {
+      "id": "V4-11",
+      "deliverable": "Seis skills e instrucciones por operación",
+      "depends_on": [
+        "V4-07A",
+        "V4-09",
+        "V4-10"
+      ],
+      "role": "Experiencia/hosts",
+      "improvement": "M4",
+      "status": "implemented-technical-checks-passed-dependency-acceptance-pending",
+      "scope_note": "RESULTS-V4-11.md; AC-40 dependent acceptance and AC-30 host observation remain pending"
+    },
+    {
+      "id": "V4-12",
+      "deliverable": "Perfil de coste y oportunidades reproducidas",
+      "depends_on": [
+        "V4-06",
+        "V4-09",
+        "V4-07A",
+        "V4-02B"
+      ],
+      "role": "Rendimiento",
+      "improvement": "M6",
+      "status": "verified-local-diagnostic-scope-dependency-acceptance-pending",
+      "scope_note": "RESULTS-V4-12-13.md; four diagnostic queries, foreign concurrency; no new variant or performance acceptance; AC-40/43 remain pending"
+    },
+    {
+      "id": "V4-13",
+      "deliverable": "Optimizaciones aceptadas o descarte motivado",
+      "depends_on": [
+        "V4-12"
+      ],
+      "role": "Núcleo/revisión",
+      "improvement": "M6",
+      "status": "evaluated-no-change",
+      "scope_note": "RESULTS-V4-12-13.md; four diagnostic queries, foreign concurrency; no new variant or performance acceptance; AC-40/43 remain pending"
+    },
+    {
+      "id": "V4-14",
+      "deliverable": "Compatibilidad y actualización recuperable",
+      "depends_on": [
+        "V4-04",
+        "V4-07A",
+        "V4-10",
+        "V4-11",
+        "V4-02A"
+      ],
+      "role": "Distribución/migración",
+      "improvement": "Transversal",
+      "status": "verified-local-technical-scope",
+      "scope_note": "RESULTS-V4-14-16.md; no host acceptance; AC-26/40 and S8 performance remain open; final S8 migratory continuity not verified: see RESULTS-V4-17.md"
+    },
+    {
+      "id": "V4-15",
+      "deliverable": "Verificación integrada de garantías",
+      "depends_on": [
+        "V4-14"
+      ],
+      "role": "Revisión técnica",
+      "improvement": "Todas",
+      "status": "technical-checks-passed-known-performance-acceptance-pending",
+      "scope_note": "RESULTS-V4-14-16.md; no host acceptance; AC-26/40 and S8 performance remain open"
+    },
+    {
+      "id": "V4-16",
+      "deliverable": "Paquetes de desarrollo y guía de actualización",
+      "depends_on": [
+        "V4-15"
+      ],
+      "role": "Distribución",
+      "improvement": "Todas",
+      "status": "verified-development-packages",
+      "scope_note": "Corrected development archives reproducible; changed approval logic checked via focused regressions and native components; prior flows reused only in unchanged scope"
+    },
+    {
+      "id": "V4-17",
+      "deliverable": "Comparación completa y observación real por host",
+      "depends_on": [
+        "V4-02",
+        "V4-16"
+      ],
+      "role": "Medición/producto",
+      "improvement": "Todas",
+      "status": "current-synthetic-journeys-verified-time-criterion-failed",
+      "scope_note": "RESULTS-V4-17-SHARED-COMPARISON.md; memory and transport gains observed; time failed; no host acceptance"
+    },
+    {
+      "id": "V4-17A",
+      "deliverable": "Regresión y latencia del recorrido de entrega migrado S8 sobre paquete final",
+      "depends_on": [
+        "V4-02A",
+        "V4-02B",
+        "V4-16"
+      ],
+      "role": "Medición/revisión",
+      "improvement": "M2, M6, transversal",
+      "status": "current-synthetic-journeys-verified-time-criterion-failed",
+      "scope_note": "RESULTS-V4-17-SHARED-COMPARISON.md; memory and transport gains observed; time failed; no host acceptance"
+    },
+    {
+      "id": "V4-18",
+      "deliverable": "Informe de aceptación, límites y preparación de release",
+      "depends_on": [
+        "V4-13",
+        "V4-16",
+        "V4-17",
+        "V4-17A"
+      ],
+      "role": "Producto/mantenimiento",
+      "improvement": "Todas",
+      "status": "planned-continuation-requested-budget-not-funded",
+      "scope_note": "Later user requests continued development; dependencies and coverage preserved. No extra environment hours or install/publication authority inferred."
+    }
+  ],
+  "acceptance_criteria": {
+    "AC-01": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-02": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-03": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-04": {
+      "owner": "V4-03",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-05": {
+      "owner": "V4-03",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-06": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-07": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-08": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-09": {
+      "owner": "V4-05",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-10": {
+      "owner": "V4-05",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-11": {
+      "owner": "V4-06",
+      "status": "verified-technical-scope",
+      "evidence": "RESULTS-V4-06.md; v4-06-progress.json; consolidated-focal-result.json"
+    },
+    "AC-12": {
+      "owner": "V4-06",
+      "status": "verified-technical-scope",
+      "evidence": "RESULTS-V4-06.md; v4-06-progress.json; consolidated-focal-result.json"
+    },
+    "AC-13": {
+      "owner": "V4-06",
+      "status": "verified-technical-scope",
+      "evidence": "RESULTS-V4-06.md; v4-06-progress.json; consolidated-focal-result.json"
+    },
+    "AC-14": {
+      "owner": "V4-07",
+      "status": "verified-technical-scope-with-reused-core-evidence",
+      "evidence": "RESULTS-V4-06-07.md; v4-07-progress.json"
+    },
+    "AC-15": {
+      "owner": "V4-08",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-08-09.md; v4-08-09-progress.json"
+    },
+    "AC-16": {
+      "owner": "V4-09",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-08-09.md; v4-08-09-progress.json"
+    },
+    "AC-17": {
+      "owner": "V4-09",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-08-09.md; v4-08-09-progress.json"
+    },
+    "AC-18": {
+      "owner": "V4-10",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-10.md; v4-10-progress.json"
+    },
+    "AC-19": {
+      "owner": "V4-10",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-10.md; v4-10-progress.json"
+    },
+    "AC-20": {
+      "owner": "V4-11",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-11.md; v4-11-progress.json"
+    },
+    "AC-21": {
+      "owner": "V4-11",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-11.md; v4-11-progress.json"
+    },
+    "AC-22": {
+      "owner": "V4-12",
+      "status": "verified-local-diagnostic-scope",
+      "evidence": "RESULTS-V4-12-13.md"
+    },
+    "AC-23": {
+      "owner": "V4-13",
+      "status": "verified-disposition-no-optimization-incorporated",
+      "evidence": "RESULTS-V4-12-13.md"
+    },
+    "AC-24": {
+      "owner": "V4-14",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-14-16.md"
+    },
+    "AC-25": {
+      "owner": "V4-14",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-14-16.md"
+    },
+    "AC-26": {
+      "owner": "V4-15",
+      "status": "not-accepted-time-memory-and-transport-findings-open",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    },
+    "AC-27": {
+      "owner": "V4-17",
+      "status": "verified-two-complete-technical-pairs-on-exact-measured-candidate",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    },
+    "AC-28": {
+      "owner": "V4-17",
+      "status": "verified-reporting-boundaries-failures-and-later-source-change-retained",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    },
+    "AC-29": {
+      "owner": "V4-16",
+      "status": "verified-local-development-package-scope",
+      "evidence": "RESULTS-V4-14-16.md"
+    },
+    "AC-30": {
+      "owner": "V4-17",
+      "status": "pending-real-host-observation-H2-and-Copilot-not-run",
+      "evidence": "RESULTS-V4-17.md"
+    },
+    "AC-31": {
+      "owner": "V4-17",
+      "status": "objectives-evaluated-performance-not-accepted",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    },
+    "AC-32": {
+      "owner": "V4-18",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-33": {
+      "owner": "V4-02",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-34": {
+      "owner": "V4-05A",
+      "status": "pending-H2-not-run"
+    },
+    "AC-35": {
+      "owner": "V4-10",
+      "status": "verified-local-technical-scope",
+      "evidence": "RESULTS-V4-10.md; v4-10-progress.json"
+    },
+    "AC-36": {
+      "owner": "V4-17",
+      "status": "deferred-sustained-real-use",
+      "evidence": "RESULTS-V4-17.md"
+    },
+    "AC-37": {
+      "owner": "V4-02A",
+      "status": "verified-preparatory-scope-see-RESULTS-V4-02AB",
+      "criterion": "Plugin instalado, runtime fijado y código ejecutado identificados por versión/digest; diagnóstico 3.4.2→3.4.3 acotado y con disposición explícita, sin atribuir a 4.0 esa mejora.",
+      "evidence": "Procedencia, resultados/errores, costes, límites y correspondencia. Resuelto en caso representado, persiste o inconcluso; no prueba el consumidor exacto."
+    },
+    "AC-38": {
+      "owner": "V4-02A",
+      "status": "verified-preparatory-scope-see-RESULTS-V4-02AB",
+      "criterion": "Fixture S8 válido y representativo, con tecnologías, decisiones heredadas/posteriores, globales, prosa incierta y dependencias; diferencias explícitas. Diagnóstico inconcluso no dispensa validar el fixture.",
+      "evidence": "Máximo dos tamaños y cuatro consultas acotadas; fuentes/hashes e inventario independiente, raíces Windows. Fixture inválido no permite verificar la tarea."
+    },
+    "AC-39": {
+      "owner": "V4-02B",
+      "status": "verified-preparatory-scope-see-RESULTS-V4-02AB",
+      "criterion": "Umbral temporal S8 ≥20 % frente a 3.4.3 por decisión posterior; memoria, actividad/interrupción y cortes numéricos, motivados y comprobables antes de candidata.",
+      "evidence": "S8-PROTOCOL completo, mapa A/B, decisión, cortes y reglas de fallo. Consulta/transiciones visibles sin SLA absoluto adicional; referencia pública de preparación observada; aceptación final pendiente.",
+      "effective_time_contract": "S8-PROTOCOL.json supersedes pending absolute product latency; experimental cutoffs unchanged"
+    },
+    "AC-40": {
+      "owner": "V4-07A",
+      "status": "inconclusive-overhead-bounds-met-but-preregistered-stability-failed",
+      "criterion": "Señales optativas cumplen límites de actividad/volumen/sobrecoste; stdout JSON y modo compatible preservados, sin porcentaje ficticio, escritura canónica por consulta ni saturación.",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    },
+    "AC-41": {
+      "owner": "V4-07A",
+      "status": "not-run",
+      "criterion": "Interrupción cooperativa conserva contrato, informa efectos técnicos/parciales y usa journal/puntos seguros existentes; reintento no duplica ni pierde cambios posteriores. No ejecuta cancelación de negocio ni afirma éxito.",
+      "evidence": "Pruebas por fase y superficie declarada, límites de E/S explícitos, snapshots, recuperación/rollback y temporales largos. No prometer aborto instantáneo ni cero artefactos."
+    },
+    "AC-42": {
+      "owner": "V4-17A",
+      "status": "passed-four-complete-equivalent-journeys-on-measured-candidate-only",
+      "criterion": "Dos parejas finales S8 AB/BA ejecutan preparación/inicio, implementación/prueba real, verificación, cierre e integración con obligaciones/efectos/resultados equivalentes y coste completo.",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    },
+    "AC-43": {
+      "owner": "V4-17A",
+      "status": "failed-median-time-memory-ratio-and-pair-consistency",
+      "criterion": "Dos parejas finales S8 válidas cumplen reducción mediana temporal ≥20 % y consistencia de S8-PROTOCOL, con resultado correcto y límites de memoria/actividad. Timeout o fallo propio no acredita mejora.",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md",
+      "effective_time_contract": "S8-PROTOCOL.json supersedes pending absolute product latency; experimental cutoffs unchanged"
+    },
+    "AC-44": {
+      "owner": "V4-17A",
+      "status": "verified-measured-positive-flow-and-reused-negative-guards-allocation-fix-focal-only",
+      "criterion": "S8 conserva rechazos ante originales modificados/ausentes, revocación, cambios de política/base, evidencia inválida e interrupción; frescura entre consulta, preparación y aplicación.",
+      "evidence": "RESULTS-V4-17-PERFORMANCE.md"
+    }
+  },
+  "frozen_reference": {
+    "AC-33": "closed-technical-Codex-scope-only",
+    "protocol_revision": "1.0",
+    "unchanged_files": {
+      "ANALISIS-REPORTE-RENDIMIENTO-20261016.md": "123607643fe3958bc0021c76976318eedc91e5cdd37eb950d0677cb420f9a76b",
+      "BASELINE.md": "640131549cfc6bed208858b3ad4306ed44b8c7547b96525971ca627816a2eaa4",
+      "CONTRACT.md": "de1544e2a62731f9fc74d9f6d8080bbfa9201f4ca3b0098425b5d10ba8a9e2ae",
+      "DECISION-TECHNICAL-SCOPE.md": "136d955cba0c859831768c8170423b3620ec6a872805fd245e26689cdfecc7dd",
+      "HUMAN-EFFORT.md": "7a0efd258d45281991141a69046c0387467ea24f35617b71ca03d98b29e18941",
+      "MEASUREMENT-PROTOCOL.json": "42a9278bd95069d8cbd01af735e3008178fde1ad40345b0fc3cd80eb9aacd619",
+      "MEASUREMENT-PROTOCOL.md": "f4cb279ed0f0805580ac307794d9a185b78905406816a5d285ffe54c5699578e",
+      "RESULTS-H1.md": "b02eb8403bc6bf0f41654b3d043a11b48ecafc12ede7682f9cd6f926415ebf62",
+      "REVIEW-S1-S2.md": "e084cb88dcf6de09351af6cda3d5af0363b62d72fca0e46359cf673f54a507b3",
+      "REVISION-0.3.json": "0c8ad5e0d9e178f2b82002cbf1168c889b825694e46098dc303d095c9be51af2",
+      "SCENARIOS.json": "d74523828905ba7888821f142caf7a7827bab1b43260bae0a860d5e80670a90d",
+      "TIMED-REFERENCE.md": "e3a5538fc3ecf551e7620939c96e115680fbfa28cb77dc09a8a2219fc2cab4f9",
+      "h1-reference.json": "fa51e22a04edd40af54c0a0738f2ed571860146a0c4c0034bc453bbf1710756f",
+      "tools/capture_codex_turn.py": "8f6f876579c8233b152b74ff83d69eb68dda6ebde9531873779c959ed2356b80",
+      "tools/measure_baseline.py": "ac0809abb73e2b7c546a42eaac496663ea43c9afddd2c3f589b2af43fd8c118d",
+      "v4-02-progress.json": "8c1d8be800e4988663f79a4813c431f08f599ea6a18a8db94eb27812b22e76b1"
+    }
+  },
+  "new_case": {
+    "id": "S8",
+    "primary_efficiency": false,
+    "status": "early-valid-pair-completed-regression-final-not-run",
+    "owner": "V4-17A",
+    "initial_full_task_executions": 6,
+    "surface": "public CLI Windows/Codex environment; not a conversational pilot",
+    "exclusions": [
+      "remote publication",
+      "Docker deployment",
+      "real functional acceptance",
+      "human perception study"
+    ],
+    "early_full_task_executions": 2,
+    "final_full_task_executions": 4,
+    "final_order": [
+      "AB",
+      "BA"
+    ],
+    "early_owner": "V4-06",
+    "early_attempts_actually_charged": 4,
+    "own_harness_failed_attempts": 2,
+    "remaining_contingency_slots": 0
+  },
+  "human_evaluation": "deferred-sustained-real-use-not-passed",
+  "copilot": "final-host-coverage-preserved",
+  "implementation_authorized": true,
+  "plugin_modified": true,
+  "study_cutoffs": {
+    "V4-02A_component_seconds_max": 120,
+    "V4-02A_component_invocations_max": 4,
+    "V4-02A_fixture_sizes_max": 2,
+    "V4-02A_optional_profile_seconds_max": 30,
+    "S8_full_attempt_seconds_max": 600,
+    "are_product_SLA": false
+  },
+  "windows_regression": {
+    "status": "development-long-path-regression-passed-final-V4-14-scope-pending",
+    "owner": "V4-14",
+    "consolidation": "V4-15",
+    "package_owner": "V4-16",
+    "reuse_in": "V4-17A",
+    "design_tasks": [
+      "V4-04",
+      "V4-07A"
+    ],
+    "existing_test": "tests/test_windows_long_paths.py",
+    "criteria": [
+      "AC-06",
+      "AC-07",
+      "AC-08",
+      "AC-12",
+      "AC-24",
+      "AC-25",
+      "AC-26",
+      "AC-29",
+      "AC-41",
+      "AC-44"
+    ],
+    "short_and_over_260_paths": true,
+    "deep_TEMP_TMP": true,
+    "spaces_unicode": true,
+    "real_Windows_required": true,
+    "gate_or_global_OS_changes": false,
+    "new_full_task_campaign": false,
+    "development_evidence": "RESULTS-V4-06.md; frozen-technical.json, real Windows 1/1, not skipped"
+  },
+  "decision": "REVISION-0.5.md",
+  "environment_cap_approved_hours": 15,
+  "V4_06_block_minutes": 145,
+  "basis_revision": {
+    "path": "REVISION-0.4.json",
+    "sha256": "a90b28ac453481257b7ac89cdea766fe547b0e4479d3c8f1f88e52f6a0c8bee9",
+    "scope": "Historical 0.4 obligations and evidence; no stale status or budget copied as current"
+  },
+  "h2": {
+    "status": "pending-not-run",
+    "criterion": "AC-34",
+    "reserved_attempt_slots": 2,
+    "funded_time_in_current_block_seconds": 0,
+    "cannot_be_inferred_from": "synthetic technical tests or S8"
+  },
+  "windows_host_incident": {
+    "status": "set-aside-open",
+    "evidence": "RESULTS-WINDOWS-REPAIR-H2-03.md",
+    "retired_profiles_reusable": false,
+    "private_residual_retention": "unchanged; no new recovery or diagnosis authorized in this block"
+  },
+  "budget_current": {
+    "global_environment_cap_hours": 15,
+    "block_start_utc": "2026-10-16T22:33:41.408Z",
+    "closed_turns_at_start": 47,
+    "charged_seconds_at_start": 45027.511956,
+    "remaining_seconds_at_start": 8972.488044,
+    "V4_06_block_max_seconds": 8972.488044,
+    "protected_closure_seconds": 600,
+    "historical_idle_discount_seconds": 10903.592044,
+    "conservation_gap_seconds_already_included": 42.341,
+    "full_task_attempt_cap": 48,
+    "early_S8_attempts_already_reserved": 2,
+    "human_scope": "deferred sustained real use; historical attention not measured",
+    "later_release_feasibility": "not demonstrated; no funded completion claim",
+    "allocation_minutes": {
+      "preparation": 10,
+      "implementation": 50,
+      "validation_and_corrections": 40,
+      "S8_preparation_and_pair": 25,
+      "report": 10,
+      "protected_recovery_and_closure": 10
+    },
+    "S8_admission_remaining_seconds_min": 1860,
+    "ordinary_V4_06_allocation_seconds": 8700,
+    "initial_unassigned_margin_reallocated_seconds": 272.488044,
+    "absolute_cutoff_utc": "2026-10-17T01:03:13.896044Z",
+    "reconciled_at_continuation": {
+      "format": "lks-sdd-environment-budget/1",
+      "as_of_utc": "2026-10-17T11:25:58.351692+00:00",
+      "global_cap_seconds": 54000,
+      "closed_turn_count": 48,
+      "raw_closed_seconds": 63408.246,
+      "historical_discount_seconds_applied_once": 10903.592044,
+      "historical_conservation_seconds_applied_once": 42.341,
+      "charged_closed_seconds": 52546.994955999995,
+      "current_turn_id": "01a14991-7129-7592-a097-9eba50365742",
+      "current_turn_start_utc": "2026-10-17T11:13:51.150Z",
+      "current_turn_elapsed_seconds": 727.201692,
+      "charged_as_of_seconds": 53274.196648,
+      "remaining_as_of_seconds": 725.803352000005,
+      "remaining_at_current_turn_start_seconds": 1453.005044000005,
+      "effective_current_turn_cutoff_utc": "2026-10-17T11:38:04.155044+00:00",
+      "prior_turn_id": "01a146d9-7c94-7c20-8acc-80af85a8a061",
+      "prior_turn_charge_seconds": 7519.483,
+      "idle_between_closed_and_current_turn_charged": false,
+      "additional_budget_authorized": false,
+      "source": "C:\\Users\\j.ormazabal\\.codex\\sessions\\2026\\10\\15\\rollout-2026-10-15T18-24-14-01a14060-e29a-75b0-8ddc-ec990f8a2c9c.jsonl",
+      "basis": "Deduplicated task_complete duration_ms plus only current open turn; no double charge and no human-time inference"
+    },
+    "absolute_cutoff_utc_is_historical": true,
+    "V4_14_16_run_accounting": {
+      "previous_known_plus_reserved": 45,
+      "conservatively_charged": 3,
+      "known_plus_reserved": 48,
+      "cap": 48,
+      "final_S8_reserved": 4,
+      "H2_reserved": 2,
+      "unallocated_full_journey_slots": 0,
+      "evidence": "v4-14-16-progress.json"
+    },
+    "V4_17_run_accounting": {
+      "known_plus_reserved": 48,
+      "cap": 48,
+      "existing_S8_slots_used": 2,
+      "existing_S8_slots_unstarted_retained": 2,
+      "H2_slots_untouched": 2,
+      "new_slots": 0,
+      "retries": 0,
+      "new_M6_variants": 0,
+      "hours_balance": "not certified; no extra hours inferred"
+    },
+    "S8_approval_correction": {
+      "global_known_plus_reserved": 48,
+      "cap": 48,
+      "new_full_journey_attempts": 0,
+      "S8_unstarted_slots_retained": 2,
+      "H2_untouched": 2,
+      "new_M6_variants": 0,
+      "extra_hours_authorized_or_inferred": false
+    },
+    "performance_resolution": {
+      "previous_known_plus_reserved": 48,
+      "previous_S8_slots_remaining": 2,
+      "new_S8_net_slots_authorized": 2,
+      "current_known_plus_reserved_and_cap": 50,
+      "current_S8_allocated": 4,
+      "current_S8_used": 4,
+      "H2_untouched": 2,
+      "extra_hours_inferred": false,
+      "global_hours_balance": "not-certified",
+      "current_S8_remaining": 0,
+      "extra_complete_runs_started": 0
+    }
+  },
+  "technical_thresholds": {
+    "status": "frozen-see-S8-PROTOCOL.json",
+    "amended_by_current_revision": false,
+    "full_attempt_cutoff_seconds": 600,
+    "component_cutoff_seconds": 120,
+    "minimum_final_time_reduction": 0.2,
+    "memory_peak_cap_bytes": 536870912,
+    "candidate_reference_memory_ratio_max": 1.1,
+    "early_pair": "descriptive only; final AB/BA still required"
+  },
+  "revision_0_5_validation": {
+    "status": "technical-guarantees-verified-performance-not-accepted",
+    "six_improvements_preserved": true,
+    "acceptance_criteria_count": 44,
+    "task_count": 23,
+    "dependency_graph_acyclic": true,
+    "evidence": "v4-06-progress.json"
+  },
+  "open_performance_finding": {
+    "id": "PERF-V4-06-01",
+    "status": "open-measured-regression",
+    "tasks": [
+      "V4-06",
+      "V4-12",
+      "V4-13"
+    ],
+    "new_seventh_improvement": false
+  },
+  "latest_user_steering": {
+    "continue_development_requested": true,
+    "extra_budget_authorized": false,
+    "operational_next": "Resolve final acceptance coverage within existing reservations; no renewed S8 run authorized or inferred by this correction; Windows/H2 pending; no install/publication",
+    "no_repeat_H2_or_windows_repair": true
+  },
+  "authorized_tasks_at_revision_approval": [
+    "V4-06"
+  ],
+  "additional_budget_proposal": {
+    "status": "requested-not-authorized",
+    "extra_seconds_max": 7200,
+    "proposed_global_hours": 17,
+    "scope": "PERF-V4-06-01 single corrective variant with validation and protected closure; not complete 4.0",
+    "allocation_minutes": {
+      "diagnosis": 20,
+      "correction": 20,
+      "validation": 65,
+      "diff_and_report": 5,
+      "recovery_and_closure": 10
+    },
+    "H2_windows_host_work": false,
+    "install_or_publish": false
+  },
+  "latest_execution_result": "RESULTS-V4-17-PERFORMANCE.md",
+  "open_S8_final_finding": {
+    "id": "V4-S8-APPROVAL-CLOSURE",
+    "candidate": "26334075bc388308823bd63350a098b1a3a5ff722c14ce02bcead6d32d4b4c53",
+    "observation": "Same unchanged documents: 3.4.3 approves plan/execution with 286 units; candidate requires 322 and rejects old coverage",
+    "added_units": 36,
+    "added_kinds": {
+      "proposal": 1,
+      "technology": 35
+    },
+    "changed_existing_unit_digests": 0,
+    "pending_units_reported": 40,
+    "root_coverage_note": "Legacy decisions without approval_roots retain fallback; missing new closure units is the demonstrated mismatch, not proof that the optional field alone caused it",
+    "causal_scope": "Current closure expansion demonstrated by descriptor comparison; intended migration policy versus over-broad incoming closure remains to review",
+    "safety": "No authority granted, no consumer writes, no automatic approval renewal",
+    "required_disposition": [
+      "Review incoming closure and versioned decision coverage against G2/G3/G4; preserve obligations and fresh guards",
+      "Choose a compatible implementation or an explicit reviewed adoption/reapproval policy; never silently relabel an old decision",
+      "Only after resolution, determine a valid comparable fixture and funded final coverage; two remaining slots cannot by themselves restart a four-attempt series"
+    ],
+    "resolution": {
+      "status": "resolved-source-and-package-components",
+      "evidence": "RESULTS-V4-17-CORRECTION.md",
+      "corrected_candidate": "296e104a253a9c75b5f54042270f550b91f49c394469ee82dfcff4e9b14a7103",
+      "original_decisions_unchanged": true,
+      "final_S8_acceptance": "pending"
+    }
+  },
+  "latest_candidate": {
+    "source": "working-tree:11964e0b710b0f0ea678dbb388eddc83f510109cba175c6f5ce22a6ffaa9535d",
+    "runtime_digest": "cd148d56a17c81e00b25b1f79ff33bdbee1bfc8095024d1a115053538dfd993d",
+    "output": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\candidate-packages",
+    "channel": "development-unreleased",
+    "base_version": "3.4.3"
+  },
+  "performance_resolution": {
+    "format": "lks-sdd-v4-performance-resolution/1",
+    "client_date": "2026-10-18",
+    "status": "four-valid-runs-complete-performance-rejected-allocation-fix-focal-only",
+    "candidate": "cd148d56a17c81e00b25b1f79ff33bdbee1bfc8095024d1a115053538dfd993d",
+    "candidate_source": "working-tree:11964e0b710b0f0ea678dbb388eddc83f510109cba175c6f5ce22a6ffaa9535d",
+    "packages": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\candidate-packages",
+    "unique_tests_passed": 41,
+    "admission": {
+      "initial_block_retained": "admission.json",
+      "additional_block_retained": "additional-admission.json",
+      "resolved_with_explicit_user_authority": true,
+      "current_window": "continuation-window.json",
+      "all_four_complete_and_isolated": true,
+      "prior_manifest_preserved": true
+    },
+    "S8_authorized": 4,
+    "S8_attempts_started": 4,
+    "S8_valid_pairs": 2,
+    "time_reduction": -0.2955888696474811,
+    "memory_ratio": [
+      1.256021904134752,
+      1.2570883220544855
+    ],
+    "activity_overhead": "numeric-bounds-met-but-unstable-not-accepted",
+    "budget": {
+      "previous_known_plus_reserved": 48,
+      "previous_S8_slots_remaining": 2,
+      "new_S8_net_slots_authorized": 2,
+      "current_known_plus_reserved_and_cap": 50,
+      "current_S8_allocated": 4,
+      "current_S8_used": 4,
+      "H2_untouched": 2,
+      "extra_hours_inferred": false,
+      "global_hours_balance": "not-certified",
+      "current_S8_remaining": 0,
+      "extra_complete_runs_started": 0
+    },
+    "Windows": "pending-no-action",
+    "H2": "pending",
+    "installation": false,
+    "publication": false,
+    "commit": false,
+    "push": false,
+    "billed_tokens": null,
+    "observed_host_tokens": null,
+    "evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance",
+    "comparison": {
+      "valid_complete_pairs": 2,
+      "pairs": [
+        {
+          "reference": "1-A",
+          "candidate": "2-B",
+          "valid": true,
+          "time_reduction": 0.19736181864542024,
+          "memory_ratio": 1.256021904134752,
+          "output_reduction": -0.8641068078504943,
+          "flow_reduction": -0.3975088481691291,
+          "public_invocation_reduction": 0.25,
+          "phases": {
+            "preparation": {
+              "reference_seconds": 25.59891639999114,
+              "candidate_seconds": 7.53621429996565,
+              "relative_change": -0.7056041676839002,
+              "investigation_required": false
+            },
+            "start": {
+              "reference_seconds": 29.269047099980526,
+              "candidate_seconds": 25.72180370002752,
+              "relative_change": -0.12119435893611186,
+              "investigation_required": false
+            },
+            "results": {
+              "reference_seconds": 75.63581380009418,
+              "candidate_seconds": 65.39556029997766,
+              "relative_change": -0.1353889511545623,
+              "investigation_required": false
+            },
+            "validate": {
+              "reference_seconds": 3.9998440999770537,
+              "candidate_seconds": 4.320863300003111,
+              "relative_change": 0.08025792805972087,
+              "investigation_required": false
+            },
+            "integration-presentation": {
+              "reference_seconds": 5.697413399990182,
+              "candidate_seconds": 18.945097299991176,
+              "relative_change": 2.3252102261043266,
+              "investigation_required": true
+            },
+            "integration": {
+              "reference_seconds": 24.98158439999679,
+              "candidate_seconds": 13.628909999970347,
+              "relative_change": -0.45444172868506705,
+              "investigation_required": false
+            },
+            "conservation": {
+              "reference_seconds": 28.371920600009616,
+              "candidate_seconds": 19.435924699995667,
+              "relative_change": -0.31495914661522495,
+              "investigation_required": false
+            }
+          }
+        },
+        {
+          "reference": "4-A",
+          "candidate": "3-B",
+          "valid": true,
+          "time_reduction": -0.7885395579403824,
+          "memory_ratio": 1.2570883220544855,
+          "output_reduction": -0.8644929987147398,
+          "flow_reduction": -0.397794636139424,
+          "public_invocation_reduction": 0.25,
+          "phases": {
+            "preparation": {
+              "reference_seconds": 6.89194940001471,
+              "candidate_seconds": 8.722853199986275,
+              "relative_change": 0.26565833463136834,
+              "investigation_required": true
+            },
+            "start": {
+              "reference_seconds": 10.166102499992121,
+              "candidate_seconds": 31.028357699979097,
+              "relative_change": 2.0521389785321507,
+              "investigation_required": true
+            },
+            "results": {
+              "reference_seconds": 38.22862280003028,
+              "candidate_seconds": 69.45982790004928,
+              "relative_change": 0.8169586768371435,
+              "investigation_required": true
+            },
+            "validate": {
+              "reference_seconds": 1.7318001000094227,
+              "candidate_seconds": 4.434621200023685,
+              "relative_change": 1.5607003949240768,
+              "investigation_required": true
+            },
+            "integration-presentation": {
+              "reference_seconds": 3.0699068999965675,
+              "candidate_seconds": 19.459431600000244,
+              "relative_change": 5.338769296235662,
+              "investigation_required": true
+            },
+            "integration": {
+              "reference_seconds": 14.18503569997847,
+              "candidate_seconds": 15.938634099962655,
+              "relative_change": 0.12362312207552972,
+              "investigation_required": true
+            },
+            "conservation": {
+              "reference_seconds": 20.05639500002144,
+              "candidate_seconds": 21.186115199991036,
+              "relative_change": 0.05632718142858617,
+              "investigation_required": false
+            }
+          }
+        }
+      ],
+      "median_time_reduction": -0.2955888696474811,
+      "time_threshold_passed": false,
+      "memory_threshold_passed": false,
+      "functional_and_residual_checks_passed": true,
+      "activity_cadence_passed": true,
+      "activity": [
+        {
+          "attempt": "2-B",
+          "label": "work-prepare-start",
+          "events": 5,
+          "bytes": 113,
+          "first_seconds": 0.25693689996842295,
+          "max_gap_seconds": 1.5108639000100084,
+          "tail_seconds": 1.2481964000035077,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "work-continue",
+          "events": 17,
+          "bytes": 380,
+          "first_seconds": 0.19914380001137033,
+          "max_gap_seconds": 1.5249184999847785,
+          "tail_seconds": 1.3752500000409782,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "work-prepare-results",
+          "events": 16,
+          "bytes": 366,
+          "first_seconds": 0.2285437000100501,
+          "max_gap_seconds": 1.5160474000149406,
+          "tail_seconds": 0.6220412999973632,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "work-record-results",
+          "events": 28,
+          "bytes": 622,
+          "first_seconds": 0.20854570000665262,
+          "max_gap_seconds": 1.5306592000415549,
+          "tail_seconds": 0.8379707999993116,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "validate",
+          "events": 3,
+          "bytes": 67,
+          "first_seconds": 0.21294250001665205,
+          "max_gap_seconds": 1.5097425999701954,
+          "tail_seconds": 1.0953916999860667,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "integrate-presentation",
+          "events": 13,
+          "bytes": 297,
+          "first_seconds": 0.20734710001852363,
+          "max_gap_seconds": 1.5158969999756664,
+          "tail_seconds": 0.6523839000146836,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "integrate",
+          "events": 9,
+          "bytes": 205,
+          "first_seconds": 0.3046721999999136,
+          "max_gap_seconds": 1.5157540999935009,
+          "tail_seconds": 1.2583227999857627,
+          "passed": true
+        },
+        {
+          "attempt": "2-B",
+          "label": "usage-record",
+          "events": 13,
+          "bytes": 297,
+          "first_seconds": 0.22498100000666454,
+          "max_gap_seconds": 1.5232559000141919,
+          "tail_seconds": 1.075271099980455,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "work-prepare-start",
+          "events": 6,
+          "bytes": 136,
+          "first_seconds": 0.25648549996549264,
+          "max_gap_seconds": 1.5150852000224404,
+          "tail_seconds": 0.9233879999956116,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "work-continue",
+          "events": 21,
+          "bytes": 473,
+          "first_seconds": 0.28815639996901155,
+          "max_gap_seconds": 1.5177233000285923,
+          "tail_seconds": 0.5596684000338428,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "work-prepare-results",
+          "events": 17,
+          "bytes": 389,
+          "first_seconds": 0.32664400001522154,
+          "max_gap_seconds": 1.5297848000191152,
+          "tail_seconds": 0.4909345000050962,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "work-record-results",
+          "events": 30,
+          "bytes": 666,
+          "first_seconds": 0.18106729997089133,
+          "max_gap_seconds": 1.5218679999816231,
+          "tail_seconds": 0.5277911000302993,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "validate",
+          "events": 3,
+          "bytes": 67,
+          "first_seconds": 0.19542579998960719,
+          "max_gap_seconds": 1.5171660000341944,
+          "tail_seconds": 1.2104814000194892,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "integrate-presentation",
+          "events": 13,
+          "bytes": 297,
+          "first_seconds": 0.19378329999744892,
+          "max_gap_seconds": 1.5158575000241399,
+          "tail_seconds": 1.1621399000287056,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "integrate",
+          "events": 11,
+          "bytes": 251,
+          "first_seconds": 0.22872439998900518,
+          "max_gap_seconds": 1.5160005000070669,
+          "tail_seconds": 0.6180051999981515,
+          "passed": true
+        },
+        {
+          "attempt": "3-B",
+          "label": "usage-record",
+          "events": 14,
+          "bytes": 320,
+          "first_seconds": 0.24963689997093752,
+          "max_gap_seconds": 1.5123795000254177,
+          "tail_seconds": 1.3737470000050962,
+          "passed": true
+        }
+      ],
+      "activity_overhead_passed": false,
+      "activity_overhead": {
+        "passed": false,
+        "isolated": true,
+        "stable_window": false,
+        "rows": [
+          {
+            "enabled": false,
+            "seconds": 5.4260403999942355,
+            "cpu_seconds": 5.34375,
+            "bytes": 0,
+            "count": 45800
+          },
+          {
+            "enabled": true,
+            "seconds": 6.543982600036543,
+            "cpu_seconds": 6.453125,
+            "bytes": 113,
+            "count": 45800
+          },
+          {
+            "enabled": true,
+            "seconds": 7.615952499967534,
+            "cpu_seconds": 7.484375,
+            "bytes": 136,
+            "count": 45800
+          },
+          {
+            "enabled": false,
+            "seconds": 7.089345999993384,
+            "cpu_seconds": 7.015625,
+            "bytes": 0,
+            "count": 45800
+          },
+          {
+            "enabled": false,
+            "seconds": 6.54397220001556,
+            "cpu_seconds": 6.453125,
+            "bytes": 0,
+            "count": 45800
+          },
+          {
+            "enabled": true,
+            "seconds": 6.858232399972621,
+            "cpu_seconds": 6.75,
+            "bytes": 113,
+            "count": 45800
+          }
+        ],
+        "deltas": {
+          "seconds": 0.31426019995706156,
+          "cpu_seconds": 0.296875
+        },
+        "limits": {
+          "seconds": 0.327198610000778,
+          "cpu_seconds": 0.32265625000000003
+        },
+        "relative_spread": {
+          "off": {
+            "seconds": 0.25417369590830374,
+            "cpu_seconds": 0.25907990314769974
+          },
+          "on": {
+            "seconds": 0.15630410832028244,
+            "cpu_seconds": 0.1527777777777778
+          }
+        },
+        "foreign": [],
+        "audit_errors": [],
+        "isolation_after": {},
+        "setup_seconds": 0.6417728000087664
+      },
+      "activity_overhead_evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\activity-resolution-result.json",
+      "S8_numeric_thresholds_passed": false,
+      "phase_regressions_require_disposition": [
+        {
+          "pair": "1-A/2-B",
+          "phase": "integration-presentation",
+          "reference_seconds": 5.697413399990182,
+          "candidate_seconds": 18.945097299991176,
+          "relative_change": 2.3252102261043266,
+          "investigation_required": true
+        },
+        {
+          "pair": "4-A/3-B",
+          "phase": "preparation",
+          "reference_seconds": 6.89194940001471,
+          "candidate_seconds": 8.722853199986275,
+          "relative_change": 0.26565833463136834,
+          "investigation_required": true
+        },
+        {
+          "pair": "4-A/3-B",
+          "phase": "start",
+          "reference_seconds": 10.166102499992121,
+          "candidate_seconds": 31.028357699979097,
+          "relative_change": 2.0521389785321507,
+          "investigation_required": true
+        },
+        {
+          "pair": "4-A/3-B",
+          "phase": "results",
+          "reference_seconds": 38.22862280003028,
+          "candidate_seconds": 69.45982790004928,
+          "relative_change": 0.8169586768371435,
+          "investigation_required": true
+        },
+        {
+          "pair": "4-A/3-B",
+          "phase": "validate",
+          "reference_seconds": 1.7318001000094227,
+          "candidate_seconds": 4.434621200023685,
+          "relative_change": 1.5607003949240768,
+          "investigation_required": true
+        },
+        {
+          "pair": "4-A/3-B",
+          "phase": "integration-presentation",
+          "reference_seconds": 3.0699068999965675,
+          "candidate_seconds": 19.459431600000244,
+          "relative_change": 5.338769296235662,
+          "investigation_required": true
+        },
+        {
+          "pair": "4-A/3-B",
+          "phase": "integration",
+          "reference_seconds": 14.18503569997847,
+          "candidate_seconds": 15.938634099962655,
+          "relative_change": 0.12362312207552972,
+          "investigation_required": true
+        }
+      ],
+      "candidate": "cd148d56a17c81e00b25b1f79ff33bdbee1bfc8095024d1a115053538dfd993d",
+      "candidate_source": "working-tree:11964e0b710b0f0ea678dbb388eddc83f510109cba175c6f5ce22a6ffaa9535d",
+      "source_unchanged": true,
+      "scope": "Complete synthetic technical journey only; phase investigation must be disposed before acceptance",
+      "billed_tokens": null,
+      "observed_host_tokens": null,
+      "whole_host_task_savings": null,
+      "H2": "pending",
+      "Windows": "pending-no-action",
+      "installation": false,
+      "publication": false,
+      "budget": {
+        "order": [
+          "A",
+          "B",
+          "B",
+          "A"
+        ],
+        "stop_reason": null,
+        "authorized_slots": 4,
+        "used_slots": 4,
+        "unused_current_S8_slots": 0,
+        "H2_reserved_slots_untouched": 2,
+        "global_known_plus_reserved": 50,
+        "newly_authorized_net_slots": 2,
+        "retries": 0
+      }
+    },
+    "source_correction_after_measurement": {
+      "source": "working-tree:77087026c10d517a26c6f99a965a64381ea5119d33b16acc6e6627215b3f765f",
+      "changed": [
+        "package-integrity.json",
+        "scripts/diagnostic_capture.py",
+        "tests/test_diagnostic_capture.py"
+      ],
+      "tests": {
+        "passed": true,
+        "duration_seconds": 3.822,
+        "counts": {
+          "total": 8,
+          "passed": 8,
+          "skipped": 0,
+          "failed": 0
+        },
+        "results": [
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_corruption_is_rejected_without_repair",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_exact_stdout_input_and_full_api_are_recoverable",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_file_and_byte_budgets_and_busy_window_preserve_existing_capture",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_identical_publication_replay_and_collision",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_long_unicode_capture_paths_and_retry_names_are_bounded",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_pending_interruption_recovers_without_reexecuting_operation",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_read_allocation_is_bounded_and_growth_shrink_and_budget_still_reject",
+            "status": "passed"
+          },
+          {
+            "id": "test_diagnostic_capture.CaptureTests.test_shadow_pending_corruption_is_rejected_without_repair",
+            "status": "passed"
+          }
+        ]
+      },
+      "allocation_component": {
+        "scope": "Five-byte file through actual old/new read_file in new native processes; no whole-journey savings claim",
+        "rows": [
+          {
+            "arm": "measured-candidate",
+            "source": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\2-B\\consumer\\.lks-sdd\\runtime\\3.4.3-cd148d56a17c\\scripts\\diagnostic_capture.py",
+            "source_sha256": "6ef1a7fe0455f91056d3a91b5d4fd22ebebe3e04a14403db451fec1521807ace",
+            "result": {
+              "bytes": 5,
+              "correct": true
+            },
+            "metrics": {
+              "seconds": 0.4101302000344731,
+              "cpu_seconds": 0.359375,
+              "job_cpu_seconds": 0.359375,
+              "job_processes": 1,
+              "job_active_processes_at_exit": 0,
+              "job_peak_commit_bytes": 89526272,
+              "observed_main_peak_working_set_bytes": 97603584,
+              "sampled_main_working_set_bytes": 48566272,
+              "exit_code": 0,
+              "job_assigned_before_process_start": true
+            }
+          },
+          {
+            "arm": "bounded-read-correction",
+            "source": "C:\\AI-Workspace\\worktrees\\codex\\10f7\\LKS SDD\\scripts\\diagnostic_capture.py",
+            "source_sha256": "5d7c81871d9706ce84282b906b1c8c7b5cae2a9f0da2c5ba03b0fa7f603c3f58",
+            "result": {
+              "bytes": 5,
+              "correct": true
+            },
+            "metrics": {
+              "seconds": 0.36934109998401254,
+              "cpu_seconds": 0.34375,
+              "job_cpu_seconds": 0.34375,
+              "job_processes": 1,
+              "job_active_processes_at_exit": 0,
+              "job_peak_commit_bytes": 22380544,
+              "observed_main_peak_working_set_bytes": 31318016,
+              "sampled_main_working_set_bytes": 31297536,
+              "exit_code": 0,
+              "job_assigned_before_process_start": true
+            }
+          }
+        ],
+        "full_S8_attempts": 0,
+        "extra_S8_slots": 0,
+        "fixture_unchanged": true,
+        "component_peak_reduction_bytes": 67145728
+      },
+      "packaged": false,
+      "full_S8_revalidated": false,
+      "scope": "Observed-size bounded read only; full memory/time acceptance stays open"
+    },
+    "full_S8_technical_seconds": 644.1086105000577
+  },
+  "latest_source_correction": {
+    "source": "working-tree:77087026c10d517a26c6f99a965a64381ea5119d33b16acc6e6627215b3f765f",
+    "changed": [
+      "package-integrity.json",
+      "scripts/diagnostic_capture.py",
+      "tests/test_diagnostic_capture.py"
+    ],
+    "tests": {
+      "passed": true,
+      "duration_seconds": 3.822,
+      "counts": {
+        "total": 8,
+        "passed": 8,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_corruption_is_rejected_without_repair",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_exact_stdout_input_and_full_api_are_recoverable",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_file_and_byte_budgets_and_busy_window_preserve_existing_capture",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_identical_publication_replay_and_collision",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_long_unicode_capture_paths_and_retry_names_are_bounded",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_pending_interruption_recovers_without_reexecuting_operation",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_read_allocation_is_bounded_and_growth_shrink_and_budget_still_reject",
+          "status": "passed"
+        },
+        {
+          "id": "test_diagnostic_capture.CaptureTests.test_shadow_pending_corruption_is_rejected_without_repair",
+          "status": "passed"
+        }
+      ]
+    },
+    "allocation_component": {
+      "scope": "Five-byte file through actual old/new read_file in new native processes; no whole-journey savings claim",
+      "rows": [
+        {
+          "arm": "measured-candidate",
+          "source": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\2-B\\consumer\\.lks-sdd\\runtime\\3.4.3-cd148d56a17c\\scripts\\diagnostic_capture.py",
+          "source_sha256": "6ef1a7fe0455f91056d3a91b5d4fd22ebebe3e04a14403db451fec1521807ace",
+          "result": {
+            "bytes": 5,
+            "correct": true
+          },
+          "metrics": {
+            "seconds": 0.4101302000344731,
+            "cpu_seconds": 0.359375,
+            "job_cpu_seconds": 0.359375,
+            "job_processes": 1,
+            "job_active_processes_at_exit": 0,
+            "job_peak_commit_bytes": 89526272,
+            "observed_main_peak_working_set_bytes": 97603584,
+            "sampled_main_working_set_bytes": 48566272,
+            "exit_code": 0,
+            "job_assigned_before_process_start": true
+          }
+        },
+        {
+          "arm": "bounded-read-correction",
+          "source": "C:\\AI-Workspace\\worktrees\\codex\\10f7\\LKS SDD\\scripts\\diagnostic_capture.py",
+          "source_sha256": "5d7c81871d9706ce84282b906b1c8c7b5cae2a9f0da2c5ba03b0fa7f603c3f58",
+          "result": {
+            "bytes": 5,
+            "correct": true
+          },
+          "metrics": {
+            "seconds": 0.36934109998401254,
+            "cpu_seconds": 0.34375,
+            "job_cpu_seconds": 0.34375,
+            "job_processes": 1,
+            "job_active_processes_at_exit": 0,
+            "job_peak_commit_bytes": 22380544,
+            "observed_main_peak_working_set_bytes": 31318016,
+            "sampled_main_working_set_bytes": 31297536,
+            "exit_code": 0,
+            "job_assigned_before_process_start": true
+          }
+        }
+      ],
+      "full_S8_attempts": 0,
+      "extra_S8_slots": 0,
+      "fixture_unchanged": true,
+      "component_peak_reduction_bytes": 67145728
+    },
+    "packaged": false,
+    "full_S8_revalidated": false,
+    "scope": "Observed-size bounded read only; full memory/time acceptance stays open"
+  },
+  "efficiency_correction": {
+    "report": "RESULTS-V4-17-EFFICIENCY.md",
+    "evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\efficiency-correction\\completion.json",
+    "S8_attempts": 0,
+    "measurement_stable": false,
+    "six_improvements_unchanged": true,
+    "budget_unchanged": true
+  },
+  "stability_revision": {
+    "report": "RESULTS-V4-17-STABILITY.md",
+    "evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\efficiency-correction\\stability-resolution\\completion.json",
+    "status": "measurement-harness-corrected-local-environment-still-unstable",
+    "client_date": "2026-10-18",
+    "series": [
+      {
+        "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\efficiency-correction\\stability-resolution",
+        "verdict": {
+          "control_ready": false,
+          "reasons": [
+            "seconds-unstable",
+            "cpu_seconds-unstable"
+          ],
+          "recomputed": {
+            "seconds": {
+              "delta": 0.09669210005085915,
+              "limit": 0.11689597499789671,
+              "spread": {
+                "off": 0.11834072986916928,
+                "on": 0.07420029543347127
+              }
+            },
+            "cpu_seconds": {
+              "delta": 0.046875,
+              "limit": 0.1,
+              "spread": {
+                "off": 0.10317460317460317,
+                "on": 0.046511627906976744
+              }
+            }
+          },
+          "authority_granted": false,
+          "runs_started": 0
+        },
+        "component_seconds": 20.462953899987042,
+        "variant_samples": 6,
+        "warmup_samples": 4,
+        "reason": null,
+        "processes_resumed": true,
+        "job_peak_commit_bytes": 28741632
+      },
+      {
+        "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\efficiency-correction\\stability-resolution\\steady-control",
+        "verdict": {
+          "control_ready": false,
+          "reasons": [
+            "incomplete-or-invalid-control"
+          ],
+          "recomputed": {},
+          "authority_granted": false,
+          "runs_started": 0
+        },
+        "component_seconds": 31.9041242999956,
+        "variant_samples": 0,
+        "warmup_samples": 5,
+        "reason": "warmup-never-stabilized-within-30s",
+        "processes_resumed": true,
+        "job_peak_commit_bytes": 28672000
+      },
+      {
+        "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-17\\performance\\efficiency-correction\\stability-resolution\\policy-control",
+        "verdict": {
+          "control_ready": false,
+          "reasons": [
+            "incomplete-or-invalid-control"
+          ],
+          "recomputed": {},
+          "authority_granted": false,
+          "runs_started": 0
+        },
+        "component_seconds": 36.85228519997327,
+        "variant_samples": 0,
+        "warmup_samples": 8,
+        "reason": "warmup-never-stabilized-within-30s",
+        "processes_resumed": true,
+        "job_peak_commit_bytes": 28794880
+      }
+    ],
+    "local_component_seconds_total": 89.21936339995591,
+    "last_warmup_range_seconds": [
+      3.459908200020436,
+      7.268364500021562
+    ],
+    "focal_methods_unique": 11,
+    "tests": {
+      "control": 7,
+      "topology": 2,
+      "native_owned_policy_and_validation": 2
+    },
+    "S8_attempts": 0,
+    "Windows": "pending",
+    "H2": "pending",
+    "installed": false,
+    "published": false,
+    "new_full_journey_slots": 0,
+    "remaining_S8_slots": 0,
+    "known_reserved_slots": 50,
+    "slot_cap": 50,
+    "protected_H2_slots": 2,
+    "pending": "User selecting exclusive local session or dedicated machine; no further measurements until external state changes",
+    "billed_tokens": null,
+    "host_tokens": null
+  },
+  "measurement_environment_decision": {
+    "client_date": "2026-10-18",
+    "user_quote": "va a ser imposible tener un mayor control de cargas. Tendremos que tomar decisiones asumiendo esta variabilidad",
+    "policy": "shared-host-variability-accepted",
+    "report": "DECISION-SHARED-HOST-MEASUREMENT.md",
+    "stable_window_required": false,
+    "exclusive_runner_required": false,
+    "performance_thresholds_unchanged": true,
+    "guarantees_unchanged": true,
+    "historical_results_unchanged": true,
+    "strict_historical_control_retained_not_admission": true,
+    "future_campaign_adapter_update_required": true,
+    "new_S8_attempts": 0,
+    "budget_changed": false,
+    "Windows": "pending",
+    "H2": "pending",
+    "installed": false,
+    "published": false
+  },
+  "latest_report": "RESULTS-V4-17-SHARED-COMPARISON.md",
+  "shared_host_comparison": {
+    "status": "four-valid-runs-complete-time-rejected-memory-transport-functional-gains-observed",
+    "candidate": "a76207a25976bfac2c45be78d7f49bfae2800a9e34fcfd819debd9295e5899af",
+    "candidate_source": "working-tree:6cff8652abd37bb359ed60d860d48f8fd8a0101116b7c0a573a94a351a7ed767",
+    "report": "RESULTS-V4-17-SHARED-COMPARISON.md",
+    "started_utc": "2026-10-18T13:51:17.139475+00:00",
+    "finished_utc": "2026-10-18T14:13:51.957395+00:00",
+    "campaign_wall_seconds": 1354.81792,
+    "measured_job_seconds": 1316.428270399978,
+    "series_order": "ABBA",
+    "attempts_used": 4,
+    "retries": 0,
+    "all_samples_retained": true,
+    "median_time_increase": 0.33480895271167943,
+    "paired_CPU_increases": [
+      0.3423049391553328,
+      0.3356824206374862
+    ],
+    "median_CPU_increase": 0.3389936798964095,
+    "median_output_reduction": 0.2672462817098091,
+    "median_flow_reduction": 0.4488998390951629,
+    "public_calls": [
+      12,
+      9
+    ],
+    "memory_passed": true,
+    "cadence_passed": true,
+    "function_and_integrity_passed": true,
+    "time_target_passed": false,
+    "activity_overhead": "not-demonstrated",
+    "phase_regressions": "See comparison.json; descriptive, causal attribution not measured",
+    "budget": {
+      "previous_known_reserved_and_cap": 50,
+      "additional_user_authorized_slots": 4,
+      "known_reserved_and_cap": 54,
+      "current_used": 4,
+      "current_remaining": 0,
+      "H2_protected_slots": 2,
+      "additional_time_reserved_minutes": 45,
+      "campaign_within_reserved_time": true
+    },
+    "billed_tokens": null,
+    "observed_host_tokens": null,
+    "H2": "pending",
+    "Windows": "pending",
+    "installed": false,
+    "published": false,
+    "committed": false,
+    "pushed": false
+  }
+}

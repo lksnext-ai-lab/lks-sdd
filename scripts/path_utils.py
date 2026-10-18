@@ -46,7 +46,7 @@ def publish_new_file(path: Path, data: bytes, *, prefix=".lks-new-") -> None:
             os.unlink(temporary)
 
 
-def filesystem_root(path: Path) -> Path:
+def filesystem_root(path: Path, *, force_extended: bool = False) -> Path:
     """Return a filesystem-safe absolute root without changing logical paths."""
     expanded = Path(path).expanduser()
     absolute = os.path.abspath(os.fspath(expanded))
@@ -57,7 +57,7 @@ def filesystem_root(path: Path) -> Path:
         logical = "\\\\" + logical[8:]
     elif logical.startswith("\\\\?\\"):
         logical = logical[4:]
-    if len(logical) < 248:
+    if len(logical) < 248 and not force_extended:
         return Path(logical)
     if absolute.startswith("\\\\?\\"):
         return Path(absolute)
@@ -123,3 +123,70 @@ def max_path_message(path: Path) -> str:
         "Use a current Windows/Python runtime with long-path support or move "
         f"the project/runtime to a shorter directory: {path}"
     )
+
+
+def short_existing_path(path: Path) -> Path:
+    """Existing Windows 8.3 spelling for legacy external tools; no cached trust."""
+    path = filesystem_root(path, force_extended=True)
+    if os.name != "nt": return path
+    get_short = ctypes.windll.kernel32.GetShortPathNameW
+    get_short.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32]
+    get_short.restype = ctypes.c_uint32
+    size = 260
+    while size <= 32768:
+        buffer = ctypes.create_unicode_buffer(size)
+        required = get_short(os.fspath(path), buffer, size)
+        if not required: raise OSError("Windows cannot supply an existing short path for Git")
+        if required < size:
+            value = buffer.value
+            if value.startswith("\\\\?\\UNC\\"): value = "\\\\" + value[8:]
+            elif value.startswith("\\\\?\\"): value = value[4:]
+            alias = Path(value)
+            if len(value) >= 248 or not same_filesystem_path(path, alias):
+                raise OSError("Windows short path is unavailable or does not identify the same Git directory")
+            return alias
+        size = required + 1
+    raise OSError("Windows short path exceeds the supported path bound")
+
+
+def owned_by_current_user(paths) -> bool:
+    """Conservative Windows Git trust check, independent of functional authority."""
+    if os.name != "nt": return False
+    kernel = ctypes.windll.kernel32; security = ctypes.windll.advapi32
+    handle = ctypes.c_void_p
+    current = kernel.GetCurrentProcess; current.restype = handle
+    open_token = security.OpenProcessToken
+    open_token.argtypes = [handle, ctypes.c_uint32, ctypes.POINTER(handle)]
+    open_token.restype = ctypes.c_int
+    information = security.GetTokenInformation
+    information.argtypes = [handle, ctypes.c_uint32, handle, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint32)]
+    information.restype = ctypes.c_int
+    descriptor = security.GetNamedSecurityInfoW
+    descriptor.argtypes = [ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_uint32,
+        ctypes.POINTER(handle), handle, handle, handle, ctypes.POINTER(handle)]
+    descriptor.restype = ctypes.c_uint32
+    equal = security.EqualSid; equal.argtypes = [handle, handle]; equal.restype = ctypes.c_int
+    free = kernel.LocalFree; free.argtypes = [handle]; free.restype = handle
+    close = kernel.CloseHandle; close.argtypes = [handle]; close.restype = ctypes.c_int
+    class User(ctypes.Structure):
+        _fields_ = [("sid", handle), ("attributes", ctypes.c_uint32)]
+    token = handle()
+    if not open_token(current(), 8, ctypes.byref(token)): return False
+    try:
+        size = ctypes.c_uint32()
+        information(token, 1, None, 0, ctypes.byref(size))
+        if not 0 < size.value <= 65536: return False
+        buffer = ctypes.create_string_buffer(size.value)
+        if not information(token, 1, buffer, size, ctypes.byref(size)): return False
+        user = ctypes.cast(buffer, ctypes.POINTER(User)).contents.sid
+        for path in paths:
+            owner = handle(); allocated = handle()
+            result = descriptor(str(filesystem_root(path, force_extended=True)), 1, 1,
+                                ctypes.byref(owner), None, None, None, ctypes.byref(allocated))
+            try:
+                if result or not owner or not equal(user, owner): return False
+            finally:
+                if allocated: free(allocated)
+        return True
+    finally:
+        close(token)

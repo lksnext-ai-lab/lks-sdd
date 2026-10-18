@@ -1,0 +1,655 @@
+{
+  "format": "lks-sdd-plan-revision/1",
+  "revision": "0.4",
+  "client_date": "2026-10-16",
+  "status": "critical-documentary-review-no-execution",
+  "user_request": "Revisar críticamente el plan 0.3, mejorar encaje y presupuestos sin implementar; prevenir regresión de temporales largos de Windows.",
+  "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "six_improvements": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+  ],
+  "new_task_mapping": {
+    "R1": "V4-02A",
+    "R2": "V4-17A",
+    "R3": "V4-02B",
+    "R4": "V4-07A"
+  },
+  "tasks": [
+    {
+      "id": "V4-01",
+      "deliverable": "Contrato mínimo, fronteras, invariantes y decisión de compatibilidad",
+      "depends_on": [],
+      "role": "Contrato/núcleo",
+      "improvement": "Todas",
+      "status": "verified",
+      "scope_note": "Prior documentary/reference closure only; no candidate acceptance"
+    },
+    {
+      "id": "V4-02",
+      "deliverable": "Referencia 3.4.3, viabilidad de medición, alcance y presupuesto congelados",
+      "depends_on": [
+        "V4-01"
+      ],
+      "role": "Medición/revisión/producto",
+      "improvement": "Todas",
+      "status": "verified",
+      "scope_note": "Prior documentary/reference closure only; no candidate acceptance"
+    },
+    {
+      "id": "V4-02A",
+      "deliverable": "Versión efectiva, caso migrado representativo y disposición del incidente en 3.4.3",
+      "depends_on": [
+        "V4-02"
+      ],
+      "role": "Medición/núcleo",
+      "improvement": "M6, transversal",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-02B",
+      "deliverable": "Máximos de latencia, límites de ensayo y política de coste residual congelados",
+      "depends_on": [
+        "V4-02A"
+      ],
+      "role": "Medición/producto",
+      "improvement": "M6, M1, M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-03",
+      "deliverable": "Presentación mínima con acceso íntegro compatible",
+      "depends_on": [
+        "V4-02"
+      ],
+      "role": "CLI/presentación",
+      "improvement": "M1",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-04",
+      "deliverable": "Captura y conservación diagnóstica sin copiado por el agente",
+      "depends_on": [
+        "V4-03"
+      ],
+      "role": "Diagnóstico/almacenamiento",
+      "improvement": "M1",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-05",
+      "deliverable": "Consulta compuesta para preparar trabajo",
+      "depends_on": [
+        "V4-03"
+      ],
+      "role": "Núcleo/recorrido",
+      "improvement": "M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-05A",
+      "deliverable": "Primer recorrido completo, instrucciones, paquete provisional y utilidad observada",
+      "depends_on": [
+        "V4-04",
+        "V4-05"
+      ],
+      "role": "Experiencia/hosts/distribución",
+      "improvement": "M1, M2, M4",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-06",
+      "deliverable": "Inicio/reanudación y registro compuesto de resultados; pareja S8 temprana",
+      "depends_on": [
+        "V4-05A",
+        "V4-02B"
+      ],
+      "role": "Núcleo/transacciones",
+      "improvement": "M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-07",
+      "deliverable": "Continuidad reconstruible y paradas comprensibles",
+      "depends_on": [
+        "V4-06"
+      ],
+      "role": "Recorrido/experiencia",
+      "improvement": "M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-07A",
+      "deliverable": "Actividad observable, interrupción y recuperación seguras",
+      "depends_on": [
+        "V4-04",
+        "V4-07",
+        "V4-02B"
+      ],
+      "role": "CLI/transacciones/experiencia",
+      "improvement": "M1, M2",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-08",
+      "deliverable": "Autoría de alcance y ensayo acotado de legado",
+      "depends_on": [
+        "V4-05A"
+      ],
+      "role": "Contexto/autoría",
+      "improvement": "M3",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-09",
+      "deliverable": "Selector completo por aplicabilidad, comparación y diagnóstico",
+      "depends_on": [
+        "V4-08"
+      ],
+      "role": "Contexto/revisión",
+      "improvement": "M3",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-10",
+      "deliverable": "Aportación demostrada a tres recorridos existentes de mantenimiento",
+      "depends_on": [
+        "V4-06",
+        "V4-09"
+      ],
+      "role": "Contrato/correcciones",
+      "improvement": "M5",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-11",
+      "deliverable": "Seis skills e instrucciones por operación",
+      "depends_on": [
+        "V4-07A",
+        "V4-09",
+        "V4-10"
+      ],
+      "role": "Experiencia/hosts",
+      "improvement": "M4",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-12",
+      "deliverable": "Perfil de coste y oportunidades reproducidas",
+      "depends_on": [
+        "V4-06",
+        "V4-09",
+        "V4-07A",
+        "V4-02B"
+      ],
+      "role": "Rendimiento",
+      "improvement": "M6",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-13",
+      "deliverable": "Optimizaciones aceptadas o descarte motivado",
+      "depends_on": [
+        "V4-12"
+      ],
+      "role": "Núcleo/revisión",
+      "improvement": "M6",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-14",
+      "deliverable": "Compatibilidad y actualización recuperable",
+      "depends_on": [
+        "V4-04",
+        "V4-07A",
+        "V4-10",
+        "V4-11",
+        "V4-02A"
+      ],
+      "role": "Distribución/migración",
+      "improvement": "Transversal",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-15",
+      "deliverable": "Verificación integrada de garantías",
+      "depends_on": [
+        "V4-14"
+      ],
+      "role": "Revisión técnica",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-16",
+      "deliverable": "Paquetes de desarrollo y guía de actualización",
+      "depends_on": [
+        "V4-15"
+      ],
+      "role": "Distribución",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-17",
+      "deliverable": "Comparación completa y observación real por host",
+      "depends_on": [
+        "V4-02",
+        "V4-16"
+      ],
+      "role": "Medición/producto",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-17A",
+      "deliverable": "Regresión y latencia del recorrido de entrega migrado S8 sobre paquete final",
+      "depends_on": [
+        "V4-02A",
+        "V4-02B",
+        "V4-16"
+      ],
+      "role": "Medición/revisión",
+      "improvement": "M2, M6, transversal",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    },
+    {
+      "id": "V4-18",
+      "deliverable": "Informe de aceptación, límites y preparación de release",
+      "depends_on": [
+        "V4-13",
+        "V4-16",
+        "V4-17",
+        "V4-17A"
+      ],
+      "role": "Producto/mantenimiento",
+      "improvement": "Todas",
+      "status": "planned",
+      "scope_note": "No execution authorized by this revision"
+    }
+  ],
+  "acceptance_criteria": {
+    "AC-01": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-02": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-03": {
+      "owner": "V4-01",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-04": {
+      "owner": "V4-03",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-05": {
+      "owner": "V4-03",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-06": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-07": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-08": {
+      "owner": "V4-04",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-09": {
+      "owner": "V4-05",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-10": {
+      "owner": "V4-05",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-11": {
+      "owner": "V4-06",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-12": {
+      "owner": "V4-06",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-13": {
+      "owner": "V4-06",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-14": {
+      "owner": "V4-07",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-15": {
+      "owner": "V4-08",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-16": {
+      "owner": "V4-09",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-17": {
+      "owner": "V4-09",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-18": {
+      "owner": "V4-10",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-19": {
+      "owner": "V4-10",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-20": {
+      "owner": "V4-11",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-21": {
+      "owner": "V4-11",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-22": {
+      "owner": "V4-12",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-23": {
+      "owner": "V4-13",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-24": {
+      "owner": "V4-14",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-25": {
+      "owner": "V4-14",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-26": {
+      "owner": "V4-15",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-27": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-28": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-29": {
+      "owner": "V4-16",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-30": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-31": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-32": {
+      "owner": "V4-18",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-33": {
+      "owner": "V4-02",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-34": {
+      "owner": "V4-05A",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-35": {
+      "owner": "V4-10",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-36": {
+      "owner": "V4-17",
+      "status": "see-existing-evidence-and-human-scope-decision"
+    },
+    "AC-37": {
+      "owner": "V4-02A",
+      "status": "not-run",
+      "criterion": "Plugin instalado, runtime fijado y código ejecutado identificados por versión/digest; diagnóstico 3.4.2→3.4.3 acotado y con disposición explícita, sin atribuir a 4.0 esa mejora.",
+      "evidence": "Procedencia, resultados/errores, costes, límites y correspondencia. Resuelto en caso representado, persiste o inconcluso; no prueba el consumidor exacto."
+    },
+    "AC-38": {
+      "owner": "V4-02A",
+      "status": "not-run",
+      "criterion": "Fixture S8 válido y representativo, con tecnologías, decisiones heredadas/posteriores, globales, prosa incierta y dependencias; diferencias explícitas. Diagnóstico inconcluso no dispensa validar el fixture.",
+      "evidence": "Máximo dos tamaños y cuatro consultas acotadas; fuentes/hashes e inventario independiente, raíces Windows. Fixture inválido no permite verificar la tarea."
+    },
+    "AC-39": {
+      "owner": "V4-02B",
+      "status": "not-run",
+      "criterion": "Máximos de latencia por hitos equivalentes, memoria, actividad/interrupción y límites de ensayo numéricos, motivados y comprobables antes de medir S8 candidato o diseñar su actividad/optimización.",
+      "evidence": "Registro completo del complemento, entorno, decisión, correspondencia A/B y reglas de fallo. Sin campos críticos vacíos; no bloquea M1 independiente ni altera H2."
+    },
+    "AC-40": {
+      "owner": "V4-07A",
+      "status": "not-run",
+      "criterion": "Señales optativas cumplen límites de actividad/volumen/sobrecoste; stdout JSON y modo compatible preservados, sin porcentaje ficticio, escritura canónica por consulta ni saturación.",
+      "evidence": "Canales activados/desactivados, sin TTY/canal cerrado, bytes y coste integral. Heartbeat distinto de avance de cálculo."
+    },
+    "AC-41": {
+      "owner": "V4-07A",
+      "status": "not-run",
+      "criterion": "Interrupción cooperativa conserva contrato, informa efectos técnicos/parciales y usa journal/puntos seguros existentes; reintento no duplica ni pierde cambios posteriores. No ejecuta cancelación de negocio ni afirma éxito.",
+      "evidence": "Pruebas por fase y superficie declarada, límites de E/S explícitos, snapshots, recuperación/rollback y temporales largos. No prometer aborto instantáneo ni cero artefactos."
+    },
+    "AC-42": {
+      "owner": "V4-17A",
+      "status": "not-run",
+      "criterion": "Dos parejas finales S8 AB/BA ejecutan preparación/inicio, implementación/prueba real, verificación, cierre e integración con obligaciones/efectos/resultados equivalentes y coste completo.",
+      "evidence": "Cuatro intentos públicos del paquete exacto; mapa de hitos A/B, cálculos internos y recuperación. Pareja temprana separada. No acredita publicación, percepción, estabilidad universal ni E4."
+    },
+    "AC-43": {
+      "owner": "V4-17A",
+      "status": "not-run",
+      "criterion": "Cada muestra válida candidata S8 cumple máximos de preparación, transición, recorrido y memoria, con resultado correcto. Exceso válido es fallo; ahorro relativo, timeout o descarte M6 no lo resuelven.",
+      "evidence": "Tiempos sin perfilador, resultado terminal, recursos y disposición. Solo invalida una causa externa preregistrada; no repetir fallo claro hasta éxito ni reinterpretarlo como ruido."
+    },
+    "AC-44": {
+      "owner": "V4-17A",
+      "status": "not-run",
+      "criterion": "S8 conserva rechazos ante originales modificados/ausentes, revocación, cambios de política/base, evidencia inválida e interrupción; frescura entre consulta, preparación y aplicación.",
+      "evidence": "Cobertura focal V4-06/07A/14/15 vinculada al candidato exacto y reutilización justificada, incluida Windows en fronteras afectadas; sin ready falso ni autoridad cacheada."
+    }
+  },
+  "frozen_reference": {
+    "AC-33": "closed-technical-Codex-scope-only",
+    "protocol_revision": "1.0",
+    "unchanged_files": {
+      "ANALISIS-REPORTE-RENDIMIENTO-20261016.md": "123607643fe3958bc0021c76976318eedc91e5cdd37eb950d0677cb420f9a76b",
+      "BASELINE.md": "640131549cfc6bed208858b3ad4306ed44b8c7547b96525971ca627816a2eaa4",
+      "CONTRACT.md": "de1544e2a62731f9fc74d9f6d8080bbfa9201f4ca3b0098425b5d10ba8a9e2ae",
+      "DECISION-TECHNICAL-SCOPE.md": "136d955cba0c859831768c8170423b3620ec6a872805fd245e26689cdfecc7dd",
+      "HUMAN-EFFORT.md": "7a0efd258d45281991141a69046c0387467ea24f35617b71ca03d98b29e18941",
+      "MEASUREMENT-PROTOCOL.json": "42a9278bd95069d8cbd01af735e3008178fde1ad40345b0fc3cd80eb9aacd619",
+      "MEASUREMENT-PROTOCOL.md": "f4cb279ed0f0805580ac307794d9a185b78905406816a5d285ffe54c5699578e",
+      "RESULTS-H1.md": "b02eb8403bc6bf0f41654b3d043a11b48ecafc12ede7682f9cd6f926415ebf62",
+      "REVIEW-S1-S2.md": "e084cb88dcf6de09351af6cda3d5af0363b62d72fca0e46359cf673f54a507b3",
+      "REVISION-0.3.json": "0c8ad5e0d9e178f2b82002cbf1168c889b825694e46098dc303d095c9be51af2",
+      "SCENARIOS.json": "d74523828905ba7888821f142caf7a7827bab1b43260bae0a860d5e80670a90d",
+      "TIMED-REFERENCE.md": "e3a5538fc3ecf551e7620939c96e115680fbfa28cb77dc09a8a2219fc2cab4f9",
+      "h1-reference.json": "fa51e22a04edd40af54c0a0738f2ed571860146a0c4c0034bc453bbf1710756f",
+      "tools/capture_codex_turn.py": "8f6f876579c8233b152b74ff83d69eb68dda6ebde9531873779c959ed2356b80",
+      "tools/measure_baseline.py": "ac0809abb73e2b7c546a42eaac496663ea43c9afddd2c3f589b2af43fd8c118d",
+      "v4-02-progress.json": "8c1d8be800e4988663f79a4813c431f08f599ea6a18a8db94eb27812b22e76b1"
+    }
+  },
+  "new_case": {
+    "id": "S8",
+    "primary_efficiency": false,
+    "status": "planned-not-run",
+    "owner": "V4-17A",
+    "initial_full_task_executions": 6,
+    "surface": "public CLI Windows/Codex environment; not a conversational pilot",
+    "exclusions": [
+      "remote publication",
+      "Docker deployment",
+      "real functional acceptance",
+      "human perception study"
+    ],
+    "early_full_task_executions": 2,
+    "final_full_task_executions": 4,
+    "final_order": [
+      "AB",
+      "BA"
+    ],
+    "early_owner": "V4-06"
+  },
+  "budget": {
+    "full_task_attempts_cap": 48,
+    "human_hours_cap": 8,
+    "environment_hours_cap": 12,
+    "M6_variants_cap": 2,
+    "M6_hours_cap": 4,
+    "historical_known_charged": 7,
+    "H2_reserve": 2,
+    "final_both_hosts_reserve": 24,
+    "S8_early_reserve": 2,
+    "S8_final_reserve": 4,
+    "protected_contingency": 4,
+    "known_plus_reserved": 43,
+    "theoretical_upper_unallocated": 5,
+    "actual_remaining": null,
+    "actual_remaining_status": "unknown-not-certified",
+    "all_caps_shared": true,
+    "M6_extra_series_attempts": 12,
+    "hypothetical_total_with_extra_M6_series": 55,
+    "M6_extra_series_in_base_commitment": false,
+    "new_task_initial_environment_stop_caps_minutes": {
+      "V4-02A": 45,
+      "V4-02B": 15,
+      "V4-07A": 60,
+      "S8_early_and_V4-17A_combined": 120
+    },
+    "new_task_stop_caps_total_minutes": 240,
+    "windows_compatibility_stop_cap_minutes": 30,
+    "caps_are_completion_estimates": false,
+    "observed_closed_turn_wall_seconds": 16016.14,
+    "observed_closed_turn_wall_hours": 4.448927777777778,
+    "observation_coverage_end_utc": "2026-10-16T08:31:48.998Z",
+    "observed_hours_are_environment_balance": false,
+    "human_historical_hours": null,
+    "human_remeasurement_requested": false,
+    "open_review_and_unlogged_work_excluded_from_observation": true,
+    "nominal_hours_after_known_proxy_and_reservations_not_balance": 3.0510722222222224,
+    "feasibility": "base-attempt-reservation-arithmetically-fits; integral-hours-not-accredited",
+    "observation_path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.4-20261016\\budget-observation.json",
+    "admission_rule": "Observed or accredited consumed capacity plus mandatory remaining blocks, current block and recovery must fit each global cap; unknown is not zero; no double-counted reservations."
+  },
+  "pending_parameters_owner": "V4-02B",
+  "pending_parameters": {
+    "L_readiness": null,
+    "L_transition": null,
+    "L_delivery": null,
+    "C_attempt": null,
+    "M_peak": null,
+    "P_first": null,
+    "P_gap": null,
+    "P_rate": null,
+    "P_bytes": null,
+    "P_interrupt": null,
+    "P_overhead": null
+  },
+  "human_evaluation": "deferred-sustained-real-use-not-passed",
+  "copilot": "final-host-coverage-preserved",
+  "implementation_authorized": false,
+  "plugin_modified": false,
+  "previous_documents_archive": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.4-20261016\\plan-before-0.4.zip",
+  "documentary_validation": {
+    "status": "passed",
+    "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.4-20261016\\documentary-validation.json",
+    "product_criteria_passed_by_this_check": false,
+    "checks": 31,
+    "sha256": "0b993b35a77f3643d86ee60840f76fd41aaa092c69812ee8578b97d050b4bd3e"
+  },
+  "documents": {
+    "PLAN.md": "30994bf95910eaddab38a552391756c9d38437ebef07447ad28b387150486211",
+    "TASKS.md": "ba8ef9fafee6fd1678aec7dd76ae8be518c3fd6068e61a0afbf93fe7d10ba058",
+    "VALIDATION.md": "0f5ee1ccceead806efe80618dc3ea3689014347fc80a96bb207836ee3231207d",
+    "ADDENDUM-PERFORMANCE.md": "f93569b752a816f329017e099f3136dd41f5d7f640f3f201bd8304b9a8310921",
+    "REVIEW-0.3.md": "b7955c3a50f7dac82afa94db16aa9d0cda0325ac93bd202154046a3d5efe68d3",
+    "ANALISIS-REPORTE-RENDIMIENTO-20261016.md": "123607643fe3958bc0021c76976318eedc91e5cdd37eb950d0677cb420f9a76b"
+  },
+  "diff_review": {
+    "status": "reviewed",
+    "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\plan-0.4-20261016\\plan-0.4.diff",
+    "scope": "Five updated/new planning Markdown documents; registry checked separately to avoid recursive hashes.",
+    "sha256": "96465cd2d35d3ede9fd299cd076a2e16b73dc5a169f2cf45d92005c126fb2893",
+    "reviewed_at_utc": "2026-10-16T09:01:02.948528+00:00",
+    "notes": "Reviewed revised dependencies, reservations, preserved criteria, failure rules, Windows scope and final wording; documentation only."
+  },
+  "study_cutoffs": {
+    "V4-02A_component_seconds_max": 120,
+    "V4-02A_component_invocations_max": 4,
+    "V4-02A_fixture_sizes_max": 2,
+    "V4-02A_optional_profile_seconds_max": 30,
+    "S8_full_attempt_seconds_max": 600,
+    "are_product_SLA": false
+  },
+  "pending_parameters_scope": "Freeze before measuring candidate S8 or designing its activity/optimization; independent M1/H2 not gated.",
+  "windows_regression": {
+    "status": "planned-not-run-for-4.0",
+    "owner": "V4-14",
+    "consolidation": "V4-15",
+    "package_owner": "V4-16",
+    "reuse_in": "V4-17A",
+    "design_tasks": [
+      "V4-04",
+      "V4-07A"
+    ],
+    "existing_test": "tests/test_windows_long_paths.py",
+    "criteria": [
+      "AC-06",
+      "AC-07",
+      "AC-08",
+      "AC-12",
+      "AC-24",
+      "AC-25",
+      "AC-26",
+      "AC-29",
+      "AC-41",
+      "AC-44"
+    ],
+    "short_and_over_260_paths": true,
+    "deep_TEMP_TMP": true,
+    "spaces_unicode": true,
+    "real_Windows_required": true,
+    "gate_or_global_OS_changes": false,
+    "new_full_task_campaign": false
+  },
+  "previous_documents_archive_sha256": "c131a337bb5faed63ef2d613a7e708efdcb23332b5e3e0c0fc590137ec7ccf59"
+}

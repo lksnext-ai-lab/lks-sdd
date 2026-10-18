@@ -1,0 +1,86 @@
+{
+  "format": "lks-sdd-v4-preparation-progress/1",
+  "plan_revision": "0.4",
+  "updated_at_utc": "2026-10-16T10:08:47.430181+00:00",
+  "authorization": {
+    "plan_0_4_validated": true,
+    "V4-02A": true,
+    "V4-02B": true,
+    "plugin_implementation": false,
+    "user_threshold_minimum_reduction": 0.2
+  },
+  "tasks": {
+    "V4-02A": {
+      "status": "verified",
+      "scope": "Bounded preparatory investigation only; original incident resolution remains inconclusive.",
+      "completed": [
+        "Version/source identities",
+        "Two valid representative fixtures and independent inventory",
+        "Four public cold readiness queries, three valid terminal samples",
+        "Small semantic/counter differential and adverse small-time observation"
+      ],
+      "pending": [
+        "Exact team consumer evidence; not hidden by synthetic success"
+      ],
+      "incident_disposition": "inconclusive-exact-case; current target sample terminal in 11.04s; old target timeout confounded by external concurrency"
+    },
+    "V4-02B": {
+      "status": "verified",
+      "scope": "Preparatory acceptance contract only, not 4.0 acceptance.",
+      "completed": [
+        "Later user decision >=20% recorded",
+        "Numeric S8 protocol and semantic mapping frozen",
+        "Timing/memory/isolation exercised on current target; explicit cuts and failure disposition"
+      ],
+      "pending": [
+        "Future complete S8 comparison and actual capacity before its blocks"
+      ]
+    }
+  },
+  "criteria": {
+    "AC-37": {
+      "status": "passed",
+      "note": "Identity and bounded diagnostic disposition delivered; incident resolution itself inconclusive."
+    },
+    "AC-38": {
+      "status": "passed",
+      "note": "Two valid representative fixtures, 26 checks; not exact consumer replica."
+    },
+    "AC-39": {
+      "status": "passed",
+      "note": "Preparatory relative-20% contract frozen after later user decision; public instruments exercised, future product measurements not passed."
+    }
+  },
+  "public_latency_queries_started": 4,
+  "public_latency_samples_accepted": 3,
+  "complete_functional_attempts_started": 0,
+  "optional_instrumented_seconds": 5.861357599962503,
+  "optional_instrumented_cap_seconds": 30,
+  "foreign_pytest": {
+    "pid": 40628,
+    "not_terminated": true,
+    "latency_blocker": true,
+    "status": "Initial process ended; a different transient unowned Python appeared during final 3.4.2 query."
+  },
+  "S8_protocol": "S8-PROTOCOL.json",
+  "results": "RESULTS-V4-02AB.md",
+  "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\s8",
+  "unchanged_historical_revision": "REVISION-0.4.json",
+  "plugin_modified": false,
+  "canonical_specs_modified": false,
+  "original_measurement_protocol_modified": false,
+  "human_effort": "deferred-real-use-no-stopwatch",
+  "copilot": "pending-final",
+  "global_resource_balance": "unknown-not-certified",
+  "invalid_timeout_samples": 1,
+  "diagnostic_quota_exhausted": true,
+  "plugin_implementation_authorized": false,
+  "evidence_delivery": {
+    "resource_ledger": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\s8\\resource-ledger.json",
+    "resource_ledger_sha256": "9748495a4ca51a4486a4bb712124ff688b7c1ee8d4f6082a15b5090932d7df75",
+    "validation": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\s8\\delivery-validation.json",
+    "validation_sha256": "a79bee001990ce1e17292436f2a91635e32de88e8b6f727647a51648f01daa69",
+    "checks": 32,
+    "diff_review": "reviewed"
+  }
+}

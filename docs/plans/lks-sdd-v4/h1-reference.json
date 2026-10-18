@@ -1,0 +1,240 @@
+{
+  "status": "reference-components-measured-AC33-pending",
+  "created_utc": "2026-10-15T21:09:32.980654+00:00",
+  "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "source_archive": {
+    "path": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\source-3.4.3-bf4d059.zip",
+    "bytes": 18716441,
+    "sha256": "916245aad40a225c78632203ad1e1e0037f626633241483a5c689ddf076d550b"
+  },
+  "existing_packages": [
+    {
+      "path": "C:\\AI-Workspace\\extensions\\_management\\tmp\\lks-sdd-release-3.4.3-bf4d059\\preflight\\candidate\\lks-sdd-plugin-v3.4.3.zip",
+      "bytes": 18658020,
+      "sha256": "d528d56a4ba0cdd68e851ca77ba6cf28e567bc2bc8b553d01524b833b5ca5a34",
+      "role": "existing 3.4.3 package, not rebuilt or installed"
+    },
+    {
+      "path": "C:\\AI-Workspace\\extensions\\_management\\tmp\\lks-sdd-release-3.4.3-bf4d059\\preflight\\candidate\\lks-sdd-marketplace-v3.4.3.zip",
+      "bytes": 18669050,
+      "sha256": "256c0929f955c922f1c5df58e2621a1d75d70125a37480ff8960f4206b6796d8",
+      "role": "existing 3.4.3 package, not rebuilt or installed"
+    },
+    {
+      "path": "C:\\AI-Workspace\\extensions\\_management\\tmp\\lks-sdd-release-3.4.3-bf4d059\\preflight\\candidate\\lks-sdd-copilot-v3.4.3.zip",
+      "bytes": 18735596,
+      "sha256": "cdd598fb0d28a58888426526bdd51bd995944586aa8b49b45a0911a10e2d2e8d",
+      "role": "existing 3.4.3 package, not rebuilt or installed"
+    },
+    {
+      "path": "C:\\AI-Workspace\\extensions\\_management\\tmp\\lks-sdd-release-3.4.3-bf4d059\\preflight\\candidate\\lks-sdd-copilot-plugin-v3.4.3.zip",
+      "bytes": 37302068,
+      "sha256": "646ea3dd00046edb81da2cf6058b8dc3fddd581d55d0c7b946c70d3481101dac",
+      "role": "existing 3.4.3 package, not rebuilt or installed"
+    }
+  ],
+  "observer_sha256": "ac0809abb73e2b7c546a42eaac496663ea43c9afddd2c3f589b2af43fd8c118d",
+  "scenarios_sha256": "d74523828905ba7888821f142caf7a7827bab1b43260bae0a860d5e80670a90d",
+  "python": "3.14.0",
+  "cli_samples": 3,
+  "aggregates": {
+    "small-context": {
+      "stdout_bytes": 20136,
+      "stdout_characters": 20109,
+      "diagnostic_increment_bytes": 7046,
+      "cli_wall_seconds": 6.362134800001513
+    },
+    "large-context": {
+      "stdout_bytes": 62961,
+      "stdout_characters": 62929,
+      "diagnostic_increment_bytes": 28512,
+      "cli_wall_seconds": 11.701350200004526
+    }
+  },
+  "diagnostic_increment_percent": {
+    "small-context": 34.99,
+    "large-context": 45.29
+  },
+  "presentation": {
+    "compact_stdout_bytes": 12350,
+    "details_stdout_bytes": 44659,
+    "export_plus_compact_stdout_bytes": 12869,
+    "export_file_bytes": 30445,
+    "export_stdout_has_destination": false
+  },
+  "synthetic_authorized_correction": {
+    "cli_calls": 9,
+    "stdout_bytes": 100086,
+    "input_bytes": 3019,
+    "cli_wall_seconds_sum": 184.57191989998682,
+    "task_final_state": "closed",
+    "real_assertion_passed": true,
+    "functional_human_acceptance": "not-run",
+    "exclusions": [
+      "fixture setup",
+      "extra presentation and export probes",
+      "sample repetitions",
+      "diagnostic conservation measured separately",
+      "human and model time"
+    ]
+  },
+  "fixture_setup_seconds": 114.42487279999477,
+  "observer_window_approx_seconds": 535.3364200592041,
+  "query_mutations": false,
+  "import_assurance": "unverified-import",
+  "diagnostic_conservation": {
+    "same_literal_contract": true,
+    "seconds": {
+      "conservation_apply": 1.1357457999984035,
+      "conservation_prepare": 0.6288705999904778,
+      "control_query": 0.3833052999980282,
+      "control_total_two_queries": 0.757381000003079,
+      "envelope_collection": 0.004704999999376014,
+      "export_prepare": 0.14693940000142902,
+      "export_publish": 0.19342300000425894,
+      "observed_query": 0.4117296000040369,
+      "observed_total_two_queries": 0.814255499994033,
+      "report": 0.11132299999007955
+    },
+    "new_objects": {
+      "bytes": 10152,
+      "count": 10
+    },
+    "cold_cases": {
+      "early-block": {
+        "status": "valid",
+        "bundle_status": "ready-for-investigation",
+        "reproduction_status": "not-run"
+      },
+      "late-context": {
+        "status": "valid",
+        "bundle_status": "ready-for-investigation",
+        "reproduction_status": "reproduced"
+      },
+      "repetition": {
+        "status": "valid",
+        "bundle_status": "ready-for-investigation",
+        "reproduction_status": "reproduced"
+      }
+    },
+    "scope": "existing API fixture; not the same public CLI/pinned-runtime environment; do not infer pure CLI overhead by subtracting times"
+  },
+  "host_metric_availability": {
+    "codex_token_count_present": true,
+    "codex_isolated_functional_task_tokens": null,
+    "copilot_observed": false,
+    "invoice_cost": null,
+    "human_active_time": null
+  },
+  "attempts": [
+    {
+      "directory": "cli",
+      "status": "failed-observer-or-fixture",
+      "cause": "Unqualified action in observer; top-level interventions is invalid, use v3 dispatcher",
+      "cause_origin": "observer summary of tool traceback; not a new runtime finding",
+      "cli_inputs": 5,
+      "cli_stdout_bytes": 70563,
+      "cli_stderr_bytes": 826
+    },
+    {
+      "directory": "cli-02",
+      "status": "failed-observer-or-fixture",
+      "cause": "Internal fixture had current canonical data but no pinned runtime; readiness correctly blocked",
+      "cause_origin": "observer summary of tool traceback; not a new runtime finding",
+      "cli_inputs": 6,
+      "cli_stdout_bytes": 93026,
+      "cli_stderr_bytes": 0
+    },
+    {
+      "directory": "cli-03",
+      "status": "failed-observer-or-fixture",
+      "cause": "Observer introduced prose without required schema frontmatter; canonical loader correctly rejected it",
+      "cause_origin": "observer summary of tool traceback; not a new runtime finding",
+      "cli_inputs": 9,
+      "cli_stdout_bytes": 152628,
+      "cli_stderr_bytes": 0
+    },
+    {
+      "directory": "cli-04",
+      "status": "completed",
+      "cause": null,
+      "cause_origin": "observer summary of tool traceback; not a new runtime finding",
+      "cli_inputs": 18,
+      "cli_stdout_bytes": 407248,
+      "cli_stderr_bytes": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "relative_path": "provenance.json",
+      "sha256": "1c8d8e5064ede8ef190cb58b038e4257572d351a1f956b5c446dd50d5973bad0",
+      "bytes": 2613
+    },
+    {
+      "relative_path": "cli-04/measurement.json",
+      "sha256": "251f2bd5b1e621c4c767eebaf2762218e8268297fbe5bb2614830a2584634acf",
+      "bytes": 20046
+    },
+    {
+      "relative_path": "cli-04/synthetic-runtime-lock.json",
+      "sha256": "a4f017483ca109275e26cd7db8e7d5ab636668c87a2fdc2f4a84997e54b1175d",
+      "bytes": 81194
+    },
+    {
+      "relative_path": "cli-04/context-small.json",
+      "sha256": "2040ddd03cbbe05914142d51f820e4e425f05ae12c8dcd1ff71e57a01ae18ca0",
+      "bytes": 37904
+    },
+    {
+      "relative_path": "cli-04/context-large-unclassified.json",
+      "sha256": "ba33669f9b8e698528465a6dfb6ff6aad7725d6cfe63810498d38e760002835a",
+      "bytes": 65434
+    },
+    {
+      "relative_path": "cli-04/actual-test.stdout.txt",
+      "sha256": "6eec78a0070cd8b619983613493ed911d6b71fcde2e0349bb6f910ca5f42f08d",
+      "bytes": 33
+    },
+    {
+      "relative_path": "cli-04/import-probe-result.json",
+      "sha256": "bbfd68b2737d103cbfbe0f3e4f71ac27597abda58f33da14d65c4bdff8b9d3cc",
+      "bytes": 427
+    },
+    {
+      "relative_path": "instruction-routes.json",
+      "sha256": "36623212821a62522ce8ed8953eb277f99fcd684a653bb225557f110fa06c07a",
+      "bytes": 55243
+    },
+    {
+      "relative_path": "usage-conservation/measurement.json",
+      "sha256": "384aa5ebb69b81ca6aa0f6e25ec4a85519af15d566537597bee94e7a893282ac",
+      "bytes": 7556
+    },
+    {
+      "relative_path": "attempts.json",
+      "sha256": "7bde249d9afed0cd8597576b3722b779325809be4f3ce5808b9b0122c03a904a",
+      "bytes": 1348
+    },
+    {
+      "relative_path": "host-metrics-start.json",
+      "sha256": "eb6fc9d44d4dd5de4b8077cbdbf7c59ccdd86bb3202056e99905d10a46b746ff",
+      "bytes": 1245
+    },
+    {
+      "relative_path": "host-metrics-window.json",
+      "sha256": "58a687a5b4e4456bfbcf8b5457d52248cf29ae5085da0b64f10c955c6d5b013c",
+      "bytes": 1747
+    }
+  ],
+  "limitations": [
+    "Three single-version samples are descriptive, not comparative performance proof",
+    "Synthetic approvals are fixture mechanics, not real human approval or comprehension",
+    "Raw CLI captured to files; full stdout was not delivered to the model",
+    "Setup and extra presentation/export probes are not part of a minimal S1 flow",
+    "No S1-S7 final host campaign and no 4.0 acceptance criteria executed"
+  ],
+  "observed_dependencies": {
+    "jsonschema": "4.26.0",
+    "PyYAML": "6.0.3"
+  }
+}

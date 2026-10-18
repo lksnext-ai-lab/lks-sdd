@@ -89,6 +89,7 @@ def logical(value):
 
 
 def fragments(result):
+    if result.get("format")=="lks-sdd-operation-result/1":result=result.get("contract",{})
     rows, budget = [], BATCH_BYTES // 2
     for source in result.get("sources", []) + result.get("attachments", []):
         text = source.get("text")
@@ -143,6 +144,9 @@ def observe(action, data, result, *, context=None, elapsed=None, stage=None, roo
                "prepared_bytes": {"value": len(raw), "unit": "bytes", "method": "canonical JSON UTF-8", "coverage": "shared API result", "status": "measured"},
                "elapsed": {"value": elapsed, "unit": "seconds", "method": "monotonic same process", "coverage": "shared API call", "status": "measured" if elapsed is not None else "absent"},
                "billed_tokens": {"value": None, "unit": "tokens", "method": "host unavailable", "coverage": "absent", "status": "absent"}}}
+    if result.get("format")=="lks-sdd-operation-result/1":
+        literal=result.get("contract",{})
+        row["result"].update({k:copy.deepcopy(literal[k]) for k in ("roots","widened","scope_provenance","sufficiency","selection_digest","snapshot") if k in literal})
     preview = result.get("preview", {})
     if preview.get("preview_hash"): row["preview_hash"] = preview["preview_hash"]
     if stage == "applied":
@@ -166,9 +170,9 @@ def observe(action, data, result, *, context=None, elapsed=None, stage=None, roo
     return row
 
 
-def imported(row):
+def imported(row, *, external=False):
     row = copy.deepcopy(row)
-    if TRUSTED.get(row["observation_id"]) == fingerprint(row): return row
+    if not external and TRUSTED.get(row["observation_id"]) == fingerprint(row): return row
     if row["origin"].get("assurance") == "unverified-import" and row["origin"].get("kind") == "agent-declared": return row
     claimed = {k:row["origin"][k] for k in ("kind","mechanism","assurance")}
     row["origin"] = {"kind": "agent-declared", "mechanism": "imported-envelope", "assurance": "unverified-import", "claimed":claimed}
@@ -188,11 +192,11 @@ def session(context, data):
     finally: SESSION.reset(token)
 
 
-def early(payload, action, data=None):
+def early(payload, action, data=None, *, context=None):
     """Dispatcher/runtime failures have the same exportable transient boundary."""
     result = dict(payload)
     failure = {"status":"blocked", "cause":str(payload.get("cause") or payload.get("error") or payload.get("errors") or "Early runtime failure")}
-    row = observe(action, data or {}, failure, stage="failed")
+    row = observe(action, data or {}, failure, stage="failed", context=context)
     from usage_report import report
     value = report([row])
     result["usage"] = {"observations":[row], "summary":value["summary"], "prompt":value["prompt"]}
@@ -270,7 +274,7 @@ def validate_receipt(model, e, *, objects=None):
     model.hashes[name] = batch_digest
 
 
-def additions(root, observations, actor=None):
+def additions(root, observations, actor=None, *, materials=None):
     """Idempotent append via the existing journal and immutable object store."""
     from content_store import prepare_object, read_object
     check_batch(observations)
@@ -291,12 +295,18 @@ def additions(root, observations, actor=None):
             if "text" in f:
                 f["text_ref"] = prepare_object(root,f.pop("text").encode("utf-8"),changes)
             elif "text_ref" in f or "data_ref" in f:
-                read_object(root,f.get("text_ref",f.get("data_ref")))
+                ref=f.get("text_ref",f.get("data_ref"))
+                if materials is not None and f["sha256"] in materials:
+                    raw=materials[f["sha256"]]; check_fragment(f,raw)
+                    if prepare_object(root,raw,changes)!=ref: raise ContractError("Captured fragment reference mismatch")
+                else: read_object(root,ref)
             elif f.get("gap"):
                 try:
                     key = f["source"].split(":",1)[0]
                     e = model.elements.get(key)
-                    if e:
+                    if materials is not None and f["sha256"] in materials:
+                        raw=materials[f["sha256"]]; check_fragment(f,raw)
+                    elif e:
                         if e.digest() != f["revision"]: e = model.at(key,f["revision"])
                         raw = e.body.encode("utf-8")
                     elif f["source"].startswith("prose:") and model.hashes.get(f["source"][6:]) == f["revision"]:

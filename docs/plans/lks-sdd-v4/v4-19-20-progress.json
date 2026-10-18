@@ -1,0 +1,1872 @@
+{
+  "format": "lks-sdd-v4-stage-result/1",
+  "client_date": "2026-10-18",
+  "plan_revision": "0.7",
+  "plan_index_sha256": "5d4b283cc0b874d9eceaba980358789a5d6acd5eb46eb2b72998ddc11f8ae957",
+  "status": "technical-development-closed-with-explicit-acceptance-reservations",
+  "user_authorized_tasks": [
+    "V4-19",
+    "V4-20",
+    "V4-21",
+    "V4-14-expanded",
+    "V4-22",
+    "V4-15",
+    "V4-16",
+    "V4-18"
+  ],
+  "next_tasks_started": true,
+  "tasks": {
+    "V4-19": "reviewed-corrected-targeted-verified",
+    "V4-20": "reviewed-historical-native-journey-preserved-final-exact-source-journey-pending",
+    "V4-21": "critically-reviewed-corrected-components-verified-final-runtime-integration-pending",
+    "V4-22": "passed-local-physical-compaction",
+    "V4-14-expanded": "passed-local-synthetic-cutover-recovery-and-incompatible-rollback-guards",
+    "V4-15": "completed-technical-scope-reservations-preserved",
+    "V4-16": "completed-exact-development-packages",
+    "V4-18": "completed-evidence-and-release-decision-preparation"
+  },
+  "criteria": {
+    "AC-45": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": "RESULTS-V4-19-20.md"
+    },
+    "AC-46": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": "RESULTS-V4-19-20.md"
+    },
+    "AC-47": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": "RESULTS-V4-19-20.md"
+    },
+    "AC-48": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": "RESULTS-V4-19-20.md"
+    },
+    "AC-49": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": "RESULTS-V4-19-20.md"
+    },
+    "AC-50": {
+      "status": "passed-component-and-final-integration",
+      "evidence": [
+        "../v4-21/review-final-validation.json",
+        "F8-result.json"
+      ],
+      "note": null,
+      "prior_status": "passed-focused-component-scope-final-integration-pending"
+    },
+    "AC-51": {
+      "status": "passed-component-and-final-integration",
+      "evidence": [
+        "../v4-21/review-final-validation.json",
+        "F8-result.json"
+      ],
+      "note": null,
+      "prior_status": "passed-focused-component-scope-final-integration-pending"
+    },
+    "AC-52": {
+      "status": "historical-component-thresholds-met-final-comparative-cost-not-remeasured",
+      "evidence": [
+        "../v4-21/review-final-component-series.json",
+        "reuse-map.json",
+        "F8-resources.json",
+        "review-audit.json"
+      ],
+      "note": "Historical component CPU/memory ratios met their thresholds on the measured source. Codec, content-store, paths, contract/model and replay bytes remain identical, but shared storage modules changed. No final comparative CPU or memory-ratio acceptance is inferred. Final F8 meets the absolute memory bound and file/byte bounds.",
+      "prior_status": "passed-focused-component-scope-final-integration-pending",
+      "current_source_comparative_cost_acceptance": "not-demonstrated-no-extra-campaign-authorized"
+    },
+    "AC-24": {
+      "status": "passed-local-synthetic-expanded-matrix",
+      "scope": "3.4.3 / schema 3.1 -> development candidate; no host acceptance or other origins inferred",
+      "evidence": "RESULTS-V4-19-20.md#v4-14-ampliada--compatibilidad-y-recuperación"
+    },
+    "AC-25": {
+      "status": "passed-local-synthetic-expanded-matrix",
+      "scope": "3.4.3 / schema 3.1 -> development candidate; no host acceptance or other origins inferred",
+      "evidence": "RESULTS-V4-19-20.md#v4-14-ampliada--compatibilidad-y-recuperación"
+    },
+    "AC-53": "passed on the frozen retained corpus: -54.120879% active physical files; all objects restored and resolved",
+    "AC-54": "passed local component failures, exclusive owner and legacy business recovery; no functional authority",
+    "AC-55": "passed exact preview, backup/restore, protected content, space and separate withdrawal authorization; no GC",
+    "AC-26": {
+      "status": "technical-guarantees-verified-reservations-preserved",
+      "evidence": [
+        "technical-result.json",
+        "F8-result.json",
+        "reuse-map.json"
+      ],
+      "note": "No observed G1-G10 loss in tested technical scope. Full product acceptance remains reserved for unresolved/unobserved criteria, especially AC-40 and real-host acceptance.",
+      "prior_status": "not-fully-accepted-known-performance-findings"
+    },
+    "AC-29": {
+      "status": "passed-exact-development-package-scope",
+      "evidence": [
+        "prepared.json",
+        "native-copilot-validation.json",
+        "technical-result.json",
+        "F8-result.json"
+      ],
+      "note": "Five reproducible ZIPs, complete extraction and common core; stable release gate/approval/clean integrated commit remain not-run or pending.",
+      "prior_status": "verified-local-development-package-scope"
+    },
+    "AC-32": {
+      "status": "passed-reporting-only",
+      "evidence": [
+        "RESULTS-V4-19-20.md",
+        "acceptance-matrix.json"
+      ],
+      "note": "Technical completion, efficiency, host use, version approval, integration, gate, publication, installation and activation are separate.",
+      "prior_status": "not-assessed"
+    },
+    "AC-44": {
+      "status": "passed-local-functional-and-adverse-scope",
+      "evidence": [
+        "technical-result.json",
+        "F8-result.json",
+        "reuse-map.json"
+      ],
+      "note": "Affected negatives rerun on exact extracted core; unchanged recovery/corruption cases reused by hash. Windows sandbox/H2 remains pending.",
+      "prior_status": "focal-negative-evidence-reused-final-positive-coverage-incomplete"
+    },
+    "AC-56": {
+      "status": "passed-exact-development-package-scope",
+      "evidence": [
+        "prepared.json",
+        "native-copilot-validation.json",
+        "technical-result.json",
+        "F8-result.json"
+      ],
+      "note": "Five reproducible ZIPs, complete extraction and common core; stable release gate/approval/clean integrated commit remain not-run or pending.",
+      "prior_status": "not-assessed"
+    }
+  },
+  "source": {
+    "base_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+    "candidate_runtime_digest": "c5f82b0e44b13b9bb6f40925788b7b3bb05b177758dd99f98c20713ce5688473",
+    "candidate_git_module_sha256": "ecf376bd80b2dfcaa80d65ccadc37c704ce4352ed3a96f585c3d579c23f31e07",
+    "source_line_ending_policy": "canonical LF",
+    "final_distribution_package": true,
+    "canonical_specs_unchanged": true,
+    "review_git_module_sha256": "a6fcd43f61758db95bd768ea8e61798e85c67ccd5f346c525e3bd3b676613c18",
+    "candidate_runtime_is_historical_journey_evidence": true,
+    "current_production_matches_frozen_runtime": false,
+    "final_exact_package_rebuild_required": false,
+    "final_development_source": "working-tree:c8fc93f4697517349286a85d91a51a520485e56b2928e3ba155957d9cabcca29",
+    "final_development_runtime_digest": "079668df15a4a41e655b1ccc9eda7d27613e1c762f2bec04cdaab1e89fcf9745",
+    "stable_release_package": false,
+    "current_production_matches_final_development_package": true,
+    "final_package_source_unchanged": true
+  },
+  "tests": {
+    "unique_focal_passed": 44,
+    "inventory": {
+      "passed": 22,
+      "seconds": 27.81,
+      "evidence": "tool session 65889, final unittest OK"
+    },
+    "guards_and_compatibility": {
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 148.87660560000222,
+      "names": [
+        "test_v4_admin_closure",
+        "test_git_observation_scope",
+        "test_windows_git_paths.WindowsGitPathTests.test_long_inventory_prefix_ignores_and_identity_match_short",
+        "test_windows_git_paths.WindowsGitPathTests.test_external_gitfile_metadata_is_the_same_checkout",
+        "test_windows_git_paths.WindowsGitPathTests.test_short_invocation_keeps_original_arguments_and_limits",
+        "test_v3_workflow.WorkflowTests.test_scope_and_branch_guards",
+        "test_v3_workflow.WorkflowTests.test_stale_preview_preserves_new_work",
+        "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start"
+      ]
+    },
+    "extra_cache_test": "inventory-reuse-test.log",
+    "launcher_probe": "launcher-probe.json",
+    "static_plugin_contract": "valid",
+    "changed_python_AST_valid": 6,
+    "full_gate_rerun": false,
+    "review_fresh_unique_passed": 41,
+    "review_seconds": 58.28512509999564,
+    "review_evidence": "review-tests.log and review-tests.json",
+    "reused_unchanged_workflow_tests": 3,
+    "final_refinements": [
+      {
+        "tests": 1,
+        "selection": "BoundedGitCaptureTests.test_timeout_releases_pipes_retained_by_a_descendant",
+        "seconds": 0.51,
+        "status": "passed",
+        "evidence": "tool output: final descendant-start assertion"
+      },
+      {
+        "tests": 2,
+        "selection": "JourneyReservationTests",
+        "seconds": 0.098,
+        "status": "passed",
+        "evidence": "tool output: final admission validity and runner hash"
+      }
+    ],
+    "static_fixtures_valid": 13
+  },
+  "journey": {
+    "actual_starts": 1,
+    "full_reruns": 0,
+    "prelaunch_failure_without_worker": 1,
+    "prelaunch_failure_evidence": "authorization.json",
+    "result": {
+      "status": "passed",
+      "original": "cancelled",
+      "successor": "closed",
+      "actions": [
+        "cancel-cli",
+        "authorize-successor",
+        "start",
+        "implement",
+        "record-proof",
+        "verify",
+        "close"
+      ],
+      "unchanged_prior_decisions": 1,
+      "proposal_preserved": true,
+      "eligible_code_paths": 1180,
+      "real_test": {
+        "greeting": "Hola",
+        "parameters": 0,
+        "passed": true
+      },
+      "loaded_git_module": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-19-20\\consumer\\.lks-sdd\\runtime\\3.4.3-c5f82b0e44b1\\scripts\\v3_git.py",
+      "pending_journal": false,
+      "native_cancel_cli_exit_code": 0,
+      "integration": "not-run",
+      "functional_acceptance": "not-run",
+      "active_installation": false,
+      "runtime_digest": "c5f82b0e44b13b9bb6f40925788b7b3bb05b177758dd99f98c20713ce5688473"
+    },
+    "resources": {
+      "seconds": 479.62339650001377,
+      "cpu_seconds": 108.71875,
+      "job_cpu_seconds": 369.75,
+      "job_processes": 204,
+      "job_active_processes_at_exit": 0,
+      "job_peak_commit_bytes": 171376640,
+      "observed_main_peak_working_set_bytes": 148238336,
+      "sampled_main_working_set_bytes": 142831616,
+      "exit_code": 0,
+      "job_assigned_before_process_start": true,
+      "job_affinity_mask": null,
+      "owned_job_performance_mode": false,
+      "owned_job_priority": null,
+      "worker_power_throttling": null
+    },
+    "conservation": {
+      "status": "passed",
+      "prior_facts_unchanged": 9,
+      "prior_objects_byte_identical": 10157,
+      "final_native_validate_exit_code": 0,
+      "final_runtime_doctor": "valid",
+      "final_git_paths": 20904,
+      "pending_journal": false,
+      "postcheck_seconds": 10.935491000011098
+    }
+  },
+  "budget": {
+    "new_authorized_seconds": 36000,
+    "historical_known_reserved_slots": 54,
+    "new_authorized_full_slots": 3,
+    "current_total_slot_cap": 57,
+    "new_actual_full_starts": 2,
+    "new_full_slots_remaining": 0,
+    "H2_historical_slots_protected": 2,
+    "measured_from_utc": "2026-10-18T15:18:33.198312+00:00",
+    "recorded_end_utc": "2026-10-18T19:16:22.124628+00:00",
+    "measured_elapsed_seconds": 14268.926316,
+    "initial_review_allowance_seconds": 300,
+    "allowance_is_observed_time": false,
+    "conservatively_charged_seconds": 14568.926316,
+    "remaining_new_seconds_conservative": 21431.073684000003,
+    "protected_recovery_seconds": 5400,
+    "stage_A_max_seconds": 7200,
+    "stage_A_within_cap": true,
+    "remaining_excludes_reopening_old_ABBA_time": true,
+    "new_full_slots_charged": 3,
+    "new_failed_prelaunch_slots_charged": 1,
+    "final_full_journey_slot_disposition": "charged for exact-artifact functional F8; no automatic retry",
+    "V4-21_prototype_cap_seconds": 2700,
+    "V4-21_completion_cap_seconds": 10800,
+    "stage_A_closed_charged_seconds": 3285.720896,
+    "stage_C_started_utc": "2026-10-18T17:08:54+00:00",
+    "stage_C_cap_seconds": 5400,
+    "stage_C_used_seconds": 3919.897652,
+    "stage_C_remaining_seconds": 1480.102348,
+    "stage_C_closed_utc": "2026-10-18T18:14:13.897652+00:00",
+    "stage_C_within_cap": true,
+    "final_block_started_utc": "2026-10-18T18:16:13+00:00",
+    "final_block_used_seconds": 3609.124628,
+    "final_block_cap_seconds": 4500,
+    "final_block_within_cap": true,
+    "final_block_closed_utc": "2026-10-18T19:16:22.124628+00:00",
+    "review_included_without_clock_reset": true
+  },
+  "evidence_directory": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-19-20",
+  "report": "RESULTS-V4-19-20.md",
+  "real_consumer_modified": false,
+  "Windows": "pending-out-of-scope",
+  "H2": "pending-out-of-scope",
+  "Copilot_host": "pending",
+  "human_effort": "deferred-real-use",
+  "installed": false,
+  "published": false,
+  "committed": false,
+  "pushed": false,
+  "billed_tokens": null,
+  "observed_host_tokens": null,
+  "residual": {
+    "owned_case_descendants_active": 0,
+    "synthetic_consumer": "closed-compacted-retained-for-final-gate",
+    "native_pending_journal": false,
+    "host_profiles_changed": false
+  },
+  "consistency_check": {
+    "passed": true,
+    "tests_and_slots_consistent": true,
+    "production_module_matches_frozen_runtime": false,
+    "canonical_specs_and_plugin_version_unchanged": true,
+    "no_new_task_started": false,
+    "historical_frozen_binding_preserved": true,
+    "source_divergence_and_final_rebuild_declared": true,
+    "no_unauthorized_task_started": true,
+    "V4-21_component_source_matches_measurements": false,
+    "V4-14_delta_outside_F7_replay": "Pin guards, standalone diagnostic, build dependency checks. Frozen F7 source retained; whole-package exact final validation pending.",
+    "V4-22_final_package_exact_gate_pending": true
+  },
+  "review": {
+    "at_utc": "2026-10-18T16:06:48.215435+00:00",
+    "fixed": [
+      "timeout cleanup leaked readers on inherited pipes and had an unbounded wait",
+      "long Windows prefix transformation repaired a truncated ls-files record",
+      "prelaunch reservation could be reused and was omitted from slot charges"
+    ],
+    "before_fix_reproductions": {
+      "inherited_pipe": "failed as expected; 1.539 seconds; tool output",
+      "truncated_prefix": "failed as expected; 0.253 seconds; tool output"
+    },
+    "component_evidence": "review-component.json",
+    "native_journey_rerun": false,
+    "native_evidence_scope": "prior frozen runtime retained; no new full-case time or memory claim",
+    "POSIX_execution_on_this_host": "not-run",
+    "budget_accounting": {
+      "recorded_utc": "2026-10-18T16:06:48.215435+00:00",
+      "rule": "Plan 0.7: un fallo consume plaza; no automatic retry",
+      "charged_new_full_journey_slots": 2,
+      "actual_full_journey_starts": 1,
+      "failed_prelaunch_slots_charged": 1,
+      "remaining_new_full_journey_slots": 0,
+      "new_full_journeys_in_review": 0,
+      "policy_deviation": "Prior stage reused a reservation after a prelaunch failure; corrected conservatively, not retroactively erased",
+      "final_journey": "needs explicit slot disposition; no automatic budget expansion"
+    },
+    "report_sha256": "e9e887d1899fa428b1c64993acceefbb60d069bb8d3f2ec9a970fc1bc8e86bba",
+    "final_receipt_utc": "2026-10-18T16:08:18.919208+00:00",
+    "postcheck": "passed: source, report, plan, counts, slots, HEAD and preserved restrictions",
+    "changed_files": [
+      "scripts/v3_git.py",
+      "tests/test_v3_code_inventory.py",
+      "tests/test_v4_admin_closure.py",
+      "tests/run_v4_administrative_case.py"
+    ],
+    "historical_report_sha256_at_review_end": "4636e3d676c58fa8bf2dd893e4c152647a65f559055f03c2bfad57f076444079"
+  },
+  "subsequent_user_authorization": {
+    "at_utc": "2026-10-18T16:11:40.884743+00:00",
+    "V4-21": "authorized",
+    "additional_final_slots": 1,
+    "additional_hours": 0,
+    "new_authorized_full_slots_total": 3,
+    "total_known_reserved_slot_cap": 57,
+    "charged_new_full_slots": 2,
+    "reserved_final_slots_remaining": 1,
+    "evidence": "v4-21/authorization.json",
+    "V4-22": {
+      "execution": "explicit user authorization",
+      "withdrawal_preview_hash": "5ca24965975669b58d57bf410b6b3b6390d2b6c3b1e1680628b1edf71cf9db25",
+      "withdrawal": "explicit asynchronous user answer; receipt withdrawal-authorization.json"
+    }
+  },
+  "next_tasks_started_after_V4-21": true,
+  "V4-21": {
+    "authorization": "v4-21/authorization.json",
+    "prototype": "v4-21/prototype.json",
+    "status": "critically-reviewed-corrected-components-passed-final-integration-pending",
+    "tests": {
+      "container_packet_pin_windows": 22,
+      "prototype_and_native_idempotency": 5,
+      "legacy_store": 2,
+      "earlier_review_authority_guards": 3,
+      "earlier_review_critical_document_cases": 4
+    },
+    "unique_tests_applicable_passed": 36,
+    "input_reference": "v4-21/frozen-B.json/zip",
+    "component_series": "v4-21/review-final-component-series.json",
+    "source_audit": {
+      "changed_files": [
+        "docs/plans/lks-sdd-v4/PLAN.md",
+        "docs/plans/lks-sdd-v4/RESULTS-V4-19-20.md",
+        "docs/plans/lks-sdd-v4/REVISION-0.7.md",
+        "docs/plans/lks-sdd-v4/TASKS.md",
+        "docs/plans/lks-sdd-v4/VALIDATION.md",
+        "docs/plans/lks-sdd-v4/v4-19-20-progress.json",
+        "scripts/object_zip.py",
+        "tests/run_object_zip_component.py",
+        "tests/test_object_zip.py",
+        "distribution/dual.json",
+        "docs/DOCUMENT-STORAGE.md",
+        "scripts/content_store.py",
+        "scripts/document_state.py",
+        "scripts/v2_contract.py",
+        "scripts/v2_history.py",
+        "scripts/v2_storage.py",
+        "scripts/v3_contract.py",
+        "scripts/v3_current.py",
+        "scripts/v3_storage.py",
+        "tests/test_document_storage.py"
+      ],
+      "changed_python_ast_valid": 12,
+      "canonical_and_plugin_identity_unchanged": true,
+      "diff_check": "passed",
+      "component_source_matches_measurements": false,
+      "frozen_origins_unchanged": true,
+      "only_authorized_files_changed": true,
+      "plan_JSON_unchanged": true,
+      "HEAD_unchanged": true,
+      "review_changed_files": [
+        "scripts/object_zip.py",
+        "scripts/v2_storage.py",
+        "tests/test_object_zip.py",
+        "docs/DOCUMENT-STORAGE.md",
+        "docs/plans/lks-sdd-v4/RESULTS-V4-19-20.md",
+        "docs/plans/lks-sdd-v4/v4-19-20-progress.json"
+      ]
+    },
+    "summary": {
+      "initial_files": 102,
+      "reference_new_files": 407,
+      "candidate_new_files": 25,
+      "reduction_percent": 93.85749385749385,
+      "new_zip_files": 7,
+      "new_loose_object_publications": 0,
+      "unchanged_new_nonobject_files": 18,
+      "reference_new_bytes": 1473154,
+      "candidate_new_bytes": 1552664,
+      "new_bytes_ratio": 1.0539726328679826,
+      "complete_changed_bytes_ratio": 1.047984743374261,
+      "all_logical_objects_checked": 458,
+      "initial_files_removed": 0
+    },
+    "performance": {
+      "series": "review-final-component-series.json",
+      "order": "A-loose/B-ZIP/B-ZIP/A-loose",
+      "runs": 4,
+      "CPU_medians_seconds": {
+        "loose": 12.9453125,
+        "zip": 12.5546875
+      },
+      "CPU_ratio": 0.9698249849124925,
+      "max_job_commit_bytes": {
+        "loose": 33890304,
+        "zip": 35753984
+      },
+      "peak_ratio": 1.0549915397631133,
+      "wall_medians_seconds": {
+        "loose": 21.039361849980196,
+        "zip": 17.307874949998222
+      },
+      "wall_ratio": 0.8226425817194885,
+      "shared_host_variability": "descriptive only; all four results retained; no S8 latency claim",
+      "checks": {
+        "persistent_files": true,
+        "persistent_bytes": true,
+        "zero_new_loose_fragments": true,
+        "cpu": true,
+        "memory": true,
+        "reference_reproduced": true,
+        "owned_descendants_stopped": true
+      },
+      "owned_descendants_active_at_exit": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "scope": "Frozen unpinned storage component; includes body/index integrity and publication. Full pinned-runtime cost and lifecycle are not measured by F7; V4-14-expanded/F8 remain pending."
+    },
+    "budget": {
+      "recorded_utc": "2026-10-18T17:07:38.889063+00:00",
+      "global_authorized_seconds": 36000,
+      "global_conservatively_charged_seconds": 6845.690751,
+      "global_remaining_seconds": 29154.309248999998,
+      "stage_elapsed_seconds": 3480.889063,
+      "prototype_elapsed_seconds": 801.726384,
+      "completion_after_prototype_seconds": 2679.162679,
+      "protected_recovery_seconds": 5400,
+      "new_slot_cap": 3,
+      "charged_new_slots": 2,
+      "remaining_final_slots": 1,
+      "total_known_reserved_slot_cap": 57,
+      "stage_full_journeys": 0,
+      "critical_review_elapsed_seconds": 1145.889063
+    },
+    "report": "RESULTS-V4-19-20.md#revisión-crítica-de-v4-21--resultado-vigente",
+    "full_journeys_started": 0,
+    "pending": [
+      "V4-22 historical compaction and restoration",
+      "V4-15/16 exact final package and reserved final journey",
+      "Windows/H2 unchanged"
+    ],
+    "final_receipt": {
+      "status": "passed",
+      "at_utc": "2026-10-18T16:42:34.121357+00:00",
+      "measured_source_unchanged": true,
+      "no_additional_full_journey": true,
+      "final_slot_reserved": 1,
+      "native_Windows_H2_work": false,
+      "installed": false,
+      "published": false
+    },
+    "recoverable_component_source": {
+      "name": "review-final-component-source.zip",
+      "sha256": "b034eba2add5b11b7339e8c99ce65d0aed3c888912af113e9812541ccaf426f1",
+      "files": 159
+    },
+    "current_source_explicit_tests_passed": 29,
+    "original_revision_tests_evidence": "v4-21/validation.json: 48 before critical review; not represented as rerun",
+    "review": {
+      "status": "passed-focused-final-runtime-integration-pending",
+      "started_utc": "2026-10-18T16:48:33+00:00",
+      "completed_utc": "2026-10-18T17:07:38.889063+00:00",
+      "fixed": [
+        "concurrent contradictory packed representation could invalidate recovery before commit",
+        "reader capability and pinned modules could change between publisher creation and publication",
+        "ZipInfo normalized a NUL suffix in a central-directory name",
+        "case and Windows 8.3 aliases bypassed the reserved container namespace",
+        "a published pack could change after its full hash and before index validation"
+      ],
+      "additional_robustness": "short footer reads become ContractError",
+      "initial_focal_tests_passed": 35,
+      "final_source_focal_tests_passed": 29,
+      "distinct_review_tests": 36,
+      "unrepeated_upper_layer_tests": 7,
+      "reuse_reason": "Final change extends the existing publication file-identity observation; 22 container tests, five prototypes/native staging-idempotence tests and two journals rerun. Authority and document tests from the initial review remain applicable; no further domain change.",
+      "prelaunch_failure": {
+        "attempt": 1,
+        "status": "failed-before-child-creation",
+        "error": "TypeError: environment can only contain strings",
+        "reason": "orchestrator passed None instead of an invocation string",
+        "sample_obtained": false,
+        "job_closed_by_finally": true,
+        "full_journey_slots_charged": 0,
+        "followup": "repair launcher parameter; retain failure; execute the four fixed source-bound components once"
+      },
+      "measured_component_runs_this_review": 8,
+      "intermediate_series": "review-component-series.json",
+      "current_series": "review-final-component-series.json",
+      "why_two_series": "Intermediate source passed all numeric caps. A further reproduced publication identity race required a final correction and source-bound revalidation. No sample was removed or rerun to obtain a pass.",
+      "performance_scope": "Frozen unpinned storage component; includes body/index integrity and publication. Full pinned-runtime cost and lifecycle are not measured by F7; V4-14-expanded/F8 remain pending.",
+      "current_validation": "review-final-validation.json",
+      "source_archive": {
+        "name": "review-final-component-source.zip",
+        "sha256": "b034eba2add5b11b7339e8c99ce65d0aed3c888912af113e9812541ccaf426f1",
+        "files": 159
+      },
+      "review_changed_files": [
+        "scripts/object_zip.py",
+        "scripts/v2_storage.py",
+        "tests/test_object_zip.py",
+        "docs/DOCUMENT-STORAGE.md",
+        "docs/plans/lks-sdd-v4/RESULTS-V4-19-20.md",
+        "docs/plans/lks-sdd-v4/v4-19-20-progress.json"
+      ],
+      "full_journeys_started": 0,
+      "final_full_slots_consumed": 0,
+      "original_frozen_inputs_unchanged": true,
+      "HEAD_unchanged": true,
+      "Windows": "pending",
+      "H2": "pending",
+      "installed": false,
+      "published": false,
+      "billed_tokens": null,
+      "observed_host_tokens": null
+    }
+  },
+  "updated_utc": "2026-10-18T19:16:22.124628+00:00",
+  "next_tasks_started_after_V4-14-expanded": true,
+  "V4-14-expanded": {
+    "status": "passed-local-compatibility-expanded",
+    "completed_utc": "2026-10-18T17:47:58.945988+00:00",
+    "task": "V4-14-expanded",
+    "source_versions": [
+      "published-v3.4.3",
+      "working-tree-development-unreleased"
+    ],
+    "project_schema": "3.1",
+    "method": "3.1.0",
+    "distinct_focal_tests": 8,
+    "final_boundary_tests": 7,
+    "native_consolidated_test": 1,
+    "native_cutovers": 1,
+    "native_cutover_interrupted_and_recovered": true,
+    "final_cli_projections": 2,
+    "native_source_archive": {
+      "file": "native-tested-core.zip",
+      "sha256": "36e404e0f7560e360eae1a4b4c495f0206132cd67a9cbbd247b819dacf367a09",
+      "verified_exact": true
+    },
+    "final_cli_source_archive": {
+      "file": "final-tested-core.zip",
+      "sha256": "555764478daa48e1409c251392c1d49569a0e899ffea2f15ada3a5415a88644b",
+      "verified_exact": true
+    },
+    "native_reuse": "Final doctor preflight kept standalone; same capability rule tested negatively without importing engine, and positively on old/loose and new/grouped full pinned projections. Native core transaction and installer bytes remain unchanged. Only diagnostic and unused test imports differ.",
+    "preserved_failures": [
+      "validation.json: first legacy fixture incorrectly contained ZIP; rejected before cutover",
+      "compatibility-validation.json: dependency object_zip.py absent from development projection; no cutover applied",
+      "direct diagnostic probe: import of transaction engine was unnecessary; removed"
+    ],
+    "guarantees": {
+      "explicit_preview_read_only": true,
+      "old_reader_baseline_cli": true,
+      "fresh_changed_pin_rejected": true,
+      "interrupted_cutover_resumed": true,
+      "earlier_decisions_uids_and_task_state_preserved": true,
+      "code_unchanged": true,
+      "later_work_preserved": true,
+      "pre_zip_rollback_byte_exact_for_prior_files": true,
+      "post_zip_pin_only_rollback_rejected_without_writes": true,
+      "grouped_21_journal_recovered": true,
+      "old_full_backup_restored_and_old_cli_valid": true,
+      "unknown_maintenance_owner_preserved": true
+    },
+    "performance": "F7 not repeated. Object ZIP codec/common logical readers and component runner unchanged; historical measurements retain their frozen source. No whole-plugin latency or billed-token claim.",
+    "static": {
+      "plugin_contract": "passed; tool 085232",
+      "fixture_manifest": "passed 13; tool 193b79"
+    },
+    "budget": {
+      "global_recorded_utc": "2026-10-18T17:47:58.945988+00:00",
+      "global_cap_seconds": 36000,
+      "global_charged_seconds": 9265.747676,
+      "global_remaining_seconds": 26734.252324,
+      "protected_recovery_seconds": 5400,
+      "shared_C_cap_seconds": 5400,
+      "shared_C_used_seconds": 2344.945988,
+      "shared_C_remaining_for_V4_22_seconds": 3055.054012,
+      "original_internal_target_seconds": 1800,
+      "internal_target_exceeded": true,
+      "full_slots_consumed": 0,
+      "final_full_slots_reserved": 1
+    },
+    "residual": {
+      "owned_job_descendants_active": 0,
+      "cli_temporaries_recovered": true,
+      "real_consumers_modified": false,
+      "Windows": "pending",
+      "H2": "pending",
+      "installed": false,
+      "published": false,
+      "committed": false,
+      "pushed": false
+    },
+    "billed_tokens": null,
+    "observed_host_tokens": null,
+    "source_audit": {
+      "reviewed_production_diff": true,
+      "changed_files": [
+        "distribution/dual.json",
+        "distribution/install.py",
+        "docs/DOCUMENT-STORAGE.md",
+        "docs/V4-CANDIDATE.md",
+        "docs/plans/lks-sdd-v4/PLAN.md",
+        "docs/plans/lks-sdd-v4/RESULTS-V4-19-20.md",
+        "docs/plans/lks-sdd-v4/REVISION-0.7.md",
+        "docs/plans/lks-sdd-v4/TASKS.md",
+        "docs/plans/lks-sdd-v4/VALIDATION.md",
+        "scripts/build_dual_distribution.py",
+        "scripts/runtime_doctor.py",
+        "scripts/v2_storage.py",
+        "tests/test_v4_compatibility.py"
+      ],
+      "AST_valid": true,
+      "diff_check": "passed",
+      "only_authorized_files_changed": true,
+      "frozen_F7_codec_and_readers_unchanged": true,
+      "approved_plan_JSON_and_canonical_identity_unchanged": true,
+      "HEAD_unchanged": true,
+      "docs_updated_after_tested_core_archival": "Documentation-only differences; final gate/package remain V4-16"
+    }
+  },
+  "current_evidence_directory": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-final-151618",
+  "V4-22": {
+    "status": "passed-local-physical-compaction",
+    "task": "V4-22",
+    "completed_utc": "2026-10-18T18:13:15.666178+00:00",
+    "acceptance": [
+      "AC-53",
+      "AC-54",
+      "AC-55"
+    ],
+    "large_case": {
+      "status": "passed",
+      "completed_utc": "2026-10-18T18:12:00.090547+00:00",
+      "seconds": 218.47574580000946,
+      "preview_hash": "5ca24965975669b58d57bf410b6b3b6390d2b6c3b1e1680628b1edf71cf9db25",
+      "consumer": "\\\\?\\C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-19-20\\consumer",
+      "internal_files_before": 20384,
+      "internal_files_after": 9352,
+      "active_file_reduction": 0.5412087912087913,
+      "internal_bytes_before": 60019043,
+      "internal_bytes_after": 64561918,
+      "originals_removed": 11038,
+      "logical_objects_verified_after_removal": 11038,
+      "unchanged_protected_files": 10526,
+      "persistent_additions": [
+        ".lks-sdd/maintenance/5ca24965975669b58d57bf410b6b3b6390d2b6c3b1e1680628b1edf71cf9db25.json",
+        ".lks-sdd/objects/packs/0f5208f44719497b321cb8dbca04cc6e4f1f4553c68f549a51b7b94f2e88b3b1.zip",
+        ".lks-sdd/objects/packs/9aba30fbf7893f1063c014abc2886ac014f2ebe46f295794e81da1431674c920.zip",
+        ".lks-sdd/objects/packs/a4e9f16678e461c2b7d7700c18ca53dd1d9dea03536799f6c18710a05672ad57.zip",
+        ".lks-sdd/objects/packs/c8a4408d87573ba0f4f054003994c0999810618a5613ddbf63f57d708986825a.zip",
+        ".lks-sdd/objects/packs/fa42606afc89533a9efe4d56156e4766778b9a55bf4de732cddffe4507796ea9.zip"
+      ],
+      "packs": 5,
+      "backup_files": 1,
+      "backup_bytes": 32452648,
+      "restoration_test_files": 11038,
+      "restoration_test_bytes": 30200874,
+      "git_before": {
+        "physical_git_files": 18,
+        "physical_git_bytes": 26300,
+        "git_enumerated_paths": 21570,
+        "git_output_bytes": 1390805
+      },
+      "git_after": {
+        "physical_git_files": 18,
+        "physical_git_bytes": 26300,
+        "git_enumerated_paths": 10532,
+        "git_output_bytes": 408488
+      },
+      "git_history_reclaimed": false,
+      "native_validate_exit_code": 0,
+      "runtime_doctor": "valid",
+      "pending_journal": false,
+      "business_authority_changed": false,
+      "full_journeys": 0,
+      "final_full_slot_consumed": false,
+      "Windows": "pending",
+      "H2": "pending",
+      "installed": false,
+      "published": false
+    },
+    "checks": {
+      "status": "passed",
+      "distinct_maintenance_cases": 12,
+      "maintenance_case_ids": [
+        "test_store_maintenance.MaintenanceTests.test_business_journals_20_and_21_recover_after_compaction",
+        "test_store_maintenance.MaintenanceTests.test_changed_original_backup_and_pack_are_never_repaired_or_removed",
+        "test_store_maintenance.MaintenanceTests.test_failure_boundaries_resume_without_second_owner",
+        "test_store_maintenance.MaintenanceTests.test_later_unknown_content_is_preserved_and_never_collected",
+        "test_store_maintenance.MaintenanceTests.test_legacy_pending_larger_than_maintenance_limit_still_recovers",
+        "test_store_maintenance.MaintenanceTests.test_pack_mutation_between_full_hash_and_object_read_blocks_removal",
+        "test_store_maintenance.MaintenanceTests.test_preview_readonly_exact_auth_and_two_phase_removal",
+        "test_store_maintenance.MaintenanceTests.test_reference_resolution_and_large_protected_objects",
+        "test_store_maintenance.MaintenanceTests.test_restore_conflict_preserves_foreign_content",
+        "test_store_maintenance.MaintenanceTests.test_separate_process_cannot_recover_the_same_pending_slot",
+        "test_store_maintenance.MaintenanceTests.test_shared_business_recovery_dispatch_does_not_authorize_removal",
+        "test_store_maintenance.MaintenanceTests.test_stale_preview_unknown_files_space_and_reader_block"
+      ],
+      "reader_and_compatibility_cases": 34,
+      "reader_case_ids": [
+        "test_object_zip.ObjectZipContainerTests.test_accumulated_index_budget_is_enforced",
+        "test_object_zip.ObjectZipContainerTests.test_batch_splitting_and_large_object_fallback",
+        "test_object_zip.ObjectZipContainerTests.test_body_and_local_header_corruption_are_rejected",
+        "test_object_zip.ObjectZipContainerTests.test_business_apply_cannot_change_zip_containers",
+        "test_object_zip.ObjectZipContainerTests.test_central_name_with_hidden_suffix_is_rejected",
+        "test_object_zip.ObjectZipContainerTests.test_child_thread_does_not_share_locator_ownership",
+        "test_object_zip.ObjectZipContainerTests.test_concurrent_packed_copy_cannot_invalidate_recovery_before_commit",
+        "test_object_zip.ObjectZipContainerTests.test_declared_pinned_reader_must_match_its_inventory",
+        "test_object_zip.ObjectZipContainerTests.test_duplicate_members_and_conflicting_locations_are_rejected",
+        "test_object_zip.ObjectZipContainerTests.test_grouped_content_in_referenced_packet_and_native_staging",
+        "test_object_zip.ObjectZipContainerTests.test_index_and_entry_quotas_reject_before_directory_allocation",
+        "test_object_zip.ObjectZipContainerTests.test_index_reused_only_in_scope_and_subject_bytes_stay_fresh",
+        "test_object_zip.ObjectZipContainerTests.test_long_windows_object_and_journal_paths",
+        "test_object_zip.ObjectZipContainerTests.test_old_pin_keeps_loose_publication_and_forged_capability_blocks",
+        "test_object_zip.ObjectZipContainerTests.test_pack_changed_after_full_hash_cannot_commit",
+        "test_object_zip.ObjectZipContainerTests.test_publication_race_verifies_winner_and_preserves_corruption",
+        "test_object_zip.ObjectZipContainerTests.test_reader_capability_is_fresh_at_publication",
+        "test_object_zip.ObjectZipContainerTests.test_reader_change_during_publication_aborts_before_journal",
+        "test_object_zip.ObjectZipContainerTests.test_short_footer_read_is_a_contract_error",
+        "test_object_zip.ObjectZipContainerTests.test_unsafe_names_modes_and_compression_are_rejected",
+        "test_object_zip.ObjectZipContainerTests.test_valid_loose_copy_does_not_hide_corrupt_packed_copy",
+        "test_object_zip.ObjectZipContainerTests.test_windows_short_alias_does_not_bypass_container_guard",
+        "test_object_zip.ObjectZipPrototypeTests.test_grouped_growth_and_deterministic_pack_bytes",
+        "test_object_zip.ObjectZipPrototypeTests.test_journal_21_recovers_with_packed_payloads_and_preserves_later_work",
+        "test_object_zip.ObjectZipPrototypeTests.test_mixed_logical_reads_no_loose_fragments_and_idempotence",
+        "test_object_zip.ObjectZipPrototypeTests.test_packed_subject_tamper_invalidates_prepared_apply",
+        "test_object_zip.ObjectZipPrototypeTests.test_v3_staging_and_native_partial_plan_with_packed_sources",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_both_business_journals_reject_incompatible_rollback_without_writes",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_business_apply_rejects_old_reader_over_grouped_data",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_development_package_rejects_a_declared_but_missing_zip_reader",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_installer_apply_and_recovery_recheck_store_before_writes",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_old_reader_cutover_before_zip_keeps_compatible_loose_backups",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_pending_maintenance_is_preserved_and_blocks_business_mutation",
+        "test_v4_compatibility.StorageReaderCompatibilityTests.test_runtime_diagnosis_does_not_import_project_transaction_engine"
+      ],
+      "distinct_total": 46,
+      "execution_policy": "Reuse successful unaffected cases; repeat only branches affected by corrections. No repeat of native cutover or full S8.",
+      "harness_corrections": [
+        "Large fixture uses documentary state.json, not snapshot.json; continued existing frozen preview without another compaction",
+        "ZIP business writer already groups all new bodies; seed one unreferenced loose original in the 2.1 compaction fixture"
+      ],
+      "implementation_corrections": [
+        "Preserve legacy business pending journal admission up to 128 MiB",
+        "Normalize Windows short/extended path aliases for one recovery mutex"
+      ],
+      "final_gate": "not-run; reserved for V4-16",
+      "installed": false,
+      "published": false
+    },
+    "historical_export": {
+      "status": "passed",
+      "identity": "e9cd07d437b7fd67cb31bf61f17f02bf90385b734bb95905efba4ea60a249cdd",
+      "files": 39,
+      "bytes": 260590,
+      "seconds": 0.5945492999744602,
+      "outside_consumer": true,
+      "consumer_writes": [],
+      "all_exported_bytes_match_historical_references": true,
+      "post_withdrawal_packed_reads_match_same_export": true,
+      "second_materialization_performed": false
+    },
+    "source_audit": {
+      "native_core_zip": "tested-core.zip",
+      "source_delta": {
+        "scripts/store_maintenance.py": {
+          "native_snapshot": "3208f9654dfcfe901d40fd6c162ce7de475fdc122832e6175fcc9740d02140c4",
+          "current": "478a5e64ab290f4a07de01919925d00a845b933e363abe6dd10a2bbe52c85787"
+        },
+        "scripts/v2_storage.py": {
+          "native_snapshot": "fdc01d8db8debe49acfb5e9b5c5c48573af919488441808d4a584a1bdf7b0bb0",
+          "current": "64f8c6fd1346b66ac24b69d87aa87f51538a818951ce4371ce174cf1c868b750"
+        },
+        "scripts/v3_storage.py": {
+          "native_snapshot": "e56c67d9352b12d5f5c5959e693aaaf5289cf0af073ec38227640e7652cd8d3f",
+          "current": "6cfe3510dcba4ec9cb205be43958a1365d19bfa729c953f6e7cbad0343520099"
+        },
+        "tests/test_store_maintenance.py": {
+          "native_snapshot": "2d488bfe7e968b62ec741a61179465abd91d137b517e36fbf47abe84937bd63e",
+          "current": "a03706a73c2710f7b843410b245007ce701eab02871325fdb19c61f4619f7acd"
+        },
+        "docs/DOCUMENT-STORAGE.md": {
+          "native_snapshot": "3bf4b72e9bc6daaafb2a659ec0a6f23810ae8160cccafe8f97b9fc2125b50659",
+          "current": "2b6591fa786fdbc24c44e16f19147dfa91f1c48a49a8bc1846eee01fb65a656a"
+        }
+      },
+      "native_replay_repeated": false,
+      "code_delta_explanation": {
+        "scripts/store_maintenance.py": "Normalize aliases of one OS mutex; physical body/pack/removal algorithm unchanged; actual two-process alias and interruption regression passed",
+        "scripts/v2_storage.py": "Preserve legacy 128 MiB pending journal limit; maintenance remains 16 MiB; >16 MiB recovery passed",
+        "scripts/v3_storage.py": "Same legacy dispatch budget correction"
+      },
+      "final_exact_package_gate": "pending V4-16",
+      "large_native_results_apply_to_frozen_runtime": true,
+      "maintenance_function_ast_delta": [
+        "_exclusive"
+      ],
+      "physical_compaction_backup_restore_removal_algorithm_ast_identical": true
+    },
+    "static": {
+      "status": "passed",
+      "contract_check": "passed current 3.4.3 development contract; no release claim",
+      "fixture_manifest_count": 13,
+      "AST_files": 6,
+      "diff_check": "passed",
+      "approved_plan_index_unchanged": true,
+      "canonical_specs_unchanged": true,
+      "plugin_identities_unchanged": true,
+      "head_unchanged": true,
+      "source_hashes": {
+        "scripts/store_maintenance.py": "478a5e64ab290f4a07de01919925d00a845b933e363abe6dd10a2bbe52c85787",
+        "scripts/v2_storage.py": "64f8c6fd1346b66ac24b69d87aa87f51538a818951ce4371ce174cf1c868b750",
+        "scripts/v3_storage.py": "6cfe3510dcba4ec9cb205be43958a1365d19bfa729c953f6e7cbad0343520099",
+        "scripts/v3_cli.py": "5fdaa0cef644e1fabca35fa9e54329200a0207c236e0602e20432960da914faf",
+        "scripts/build_dual_distribution.py": "ad2dad40dac0ac0c3bbde5f702fc237b580917c7e9f750854034c779edd9238c",
+        "tests/test_store_maintenance.py": "a03706a73c2710f7b843410b245007ce701eab02871325fdb19c61f4619f7acd"
+      }
+    },
+    "resources": {
+      "owned_descendants_active": 0,
+      "large_preparation": {
+        "seconds": 320.54952219995903,
+        "cpu_seconds": 23.40625,
+        "job_cpu_seconds": 233.265625,
+        "job_processes": 2,
+        "job_active_processes_at_exit": 0,
+        "job_peak_commit_bytes": 206172160,
+        "observed_main_peak_working_set_bytes": 70602752,
+        "sampled_main_working_set_bytes": 70217728,
+        "exit_code": 0,
+        "job_assigned_before_process_start": true,
+        "job_affinity_mask": null,
+        "owned_job_performance_mode": false,
+        "owned_job_priority": null,
+        "worker_power_throttling": null
+      },
+      "large_completion": {
+        "seconds": 218.94015720003517,
+        "cpu_seconds": 50.984375,
+        "job_cpu_seconds": 207.125,
+        "job_processes": 7,
+        "job_active_processes_at_exit": 0,
+        "job_peak_commit_bytes": 132456448,
+        "observed_main_peak_working_set_bytes": 82669568,
+        "sampled_main_working_set_bytes": 82669568,
+        "exit_code": 0,
+        "job_assigned_before_process_start": true,
+        "job_affinity_mask": null,
+        "owned_job_performance_mode": false,
+        "owned_job_priority": null,
+        "worker_power_throttling": null
+      },
+      "failed_verifier_preparation": {
+        "source": "observed performance_command exception returned by the first bounded preparation",
+        "status": "failed-history-verifier-before-compaction",
+        "seconds": 100.43031820002943,
+        "cpu_seconds": 89.984375,
+        "job_cpu_seconds": 91.296875,
+        "job_processes": 4,
+        "job_active_processes_at_exit": 0,
+        "job_peak_commit_bytes": 166633472,
+        "observed_main_peak_working_set_bytes": 172449792,
+        "exit_code": 1,
+        "job_assigned_before_process_start": true,
+        "full_journeys": 0,
+        "logical_or_physical_originals_removed": 0
+      }
+    },
+    "budget": {
+      "completed_utc": "2026-10-18T18:14:13.897652+00:00",
+      "global_remaining_seconds_including_recovery": 25159.30066,
+      "protected_recovery_seconds": 5400,
+      "stage_C_used_seconds": 3919.897652,
+      "stage_C_remaining_seconds": 1480.102348,
+      "new_full_journey_slots_consumed": 0,
+      "reserved_final_slot_intact": true,
+      "additional_hours": 0,
+      "caps_unchanged": true
+    },
+    "separate_withdrawal_authorized": true,
+    "current_final_package_gate": "pending V4-16",
+    "Windows": "pending",
+    "H2": "pending",
+    "installed": false,
+    "published": false,
+    "committed": false,
+    "pushed": false,
+    "billed_tokens": null,
+    "observed_host_tokens": null
+  },
+  "next_tasks_started_after_V4-22": true,
+  "next_authorization_boundary": "Separate release/version and project commit/integration decision; Windows/H2 remain deferred",
+  "final_15_16_18": {
+    "status": "technical-development-closed-with-explicit-acceptance-reservations",
+    "completed_utc": "2026-10-18T18:42:54.906943+00:00",
+    "tasks": {
+      "V4-15": "completed-technical-scope-reservations-preserved",
+      "V4-16": "completed-exact-development-packages",
+      "V4-18": "completed-evidence-and-release-decision-preparation"
+    },
+    "source": "working-tree:c8fc93f4697517349286a85d91a51a520485e56b2928e3ba155957d9cabcca29",
+    "runtime_digest": "079668df15a4a41e655b1ccc9eda7d27613e1c762f2bec04cdaab1e89fcf9745",
+    "source_version": "3.4.3",
+    "channel": "development-unreleased",
+    "packages": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-final-151618\\packages",
+    "artifact_count": 5,
+    "reproducible_builds": 2,
+    "all_entries_extracted_and_verified": true,
+    "technical_checks": {
+      "status": "passed",
+      "seconds": 309.97191429999657,
+      "checks": [
+        {
+          "id": "static-integrity",
+          "status": "passed",
+          "duration_seconds": 4.384,
+          "timeout_seconds": 360,
+          "detail": "",
+          "command": "fixture manifest + plugin contract"
+        },
+        {
+          "id": "release-core",
+          "status": "passed",
+          "duration_seconds": 309.801,
+          "timeout_seconds": 600,
+          "detail": "",
+          "command": [
+            "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+            "-B",
+            "-X",
+            "utf8",
+            "tests/run_unit_tests.py",
+            "--test",
+            "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration",
+            "--test",
+            "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept",
+            "--test",
+            "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
+            "--test",
+            "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization",
+            "--test",
+            "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis",
+            "--test",
+            "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec",
+            "--test",
+            "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
+            "--test",
+            "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start",
+            "--test",
+            "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
+            "--test",
+            "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
+            "--test",
+            "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats",
+            "--test",
+            "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
+            "--test",
+            "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
+            "--test",
+            "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct"
+          ]
+        },
+        {
+          "id": "windows-long-path-regression",
+          "status": "passed",
+          "duration_seconds": 103.849,
+          "timeout_seconds": 600,
+          "detail": "",
+          "command": [
+            "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+            "-B",
+            "-X",
+            "utf8",
+            "tests/run_unit_tests.py",
+            "--module",
+            "test_windows_long_paths"
+          ],
+          "test_result": {
+            "passed": true,
+            "duration_seconds": 103.538,
+            "counts": {
+              "total": 1,
+              "passed": 1,
+              "skipped": 0,
+              "failed": 0
+            },
+            "results": [
+              {
+                "id": "test_windows_long_paths.WindowsLongPathTests.test_long_plugin_and_migration_paths_match_short_paths",
+                "status": "passed"
+              }
+            ]
+          }
+        },
+        {
+          "id": "affected-adverse-guarantees",
+          "status": "passed",
+          "duration_seconds": 309.966,
+          "timeout_seconds": 600,
+          "detail": "",
+          "command": [
+            "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+            "-B",
+            "-X",
+            "utf8",
+            "tests/run_unit_tests.py",
+            "--test",
+            "test_diagnostic_capture.CaptureTests.test_corruption_is_rejected_without_repair",
+            "--test",
+            "test_work_operation_guards.WorkOperationGuardTests.test_required_quality_without_applicable_terminal_result_stops_verify",
+            "--test",
+            "test_work_operations.WorkOperationsTests.test_change_during_stage_preparation_stops_before_first_effect",
+            "--test",
+            "test_work_operations.WorkOperationsTests.test_revoked_permission_is_not_reused_from_preview"
+          ],
+          "test_result": {
+            "passed": true,
+            "duration_seconds": 309.633,
+            "counts": {
+              "total": 4,
+              "passed": 4,
+              "skipped": 0,
+              "failed": 0
+            },
+            "results": [
+              {
+                "id": "test_diagnostic_capture.CaptureTests.test_corruption_is_rejected_without_repair",
+                "status": "passed"
+              },
+              {
+                "id": "test_work_operation_guards.WorkOperationGuardTests.test_required_quality_without_applicable_terminal_result_stops_verify",
+                "status": "passed"
+              },
+              {
+                "id": "test_work_operations.WorkOperationsTests.test_change_during_stage_preparation_stops_before_first_effect",
+                "status": "passed"
+              },
+              {
+                "id": "test_work_operations.WorkOperationsTests.test_revoked_permission_is_not_reused_from_preview",
+                "status": "passed"
+              }
+            ]
+          }
+        }
+      ],
+      "exact_runtime_digest": "079668df15a4a41e655b1ccc9eda7d27613e1c762f2bec04cdaab1e89fcf9745",
+      "scope": "development technical controls equivalent to the stable gate; no stable approval or release attestation",
+      "stable_release_gate": "not-run",
+      "Windows_sandbox_incident": "pending",
+      "H2": "pending"
+    },
+    "F8": {
+      "status": "passed",
+      "completed_utc": "2026-10-18T18:39:52.434072+00:00",
+      "source": "working-tree:c8fc93f4697517349286a85d91a51a520485e56b2928e3ba155957d9cabcca29",
+      "runtime_digest": "079668df15a4a41e655b1ccc9eda7d27613e1c762f2bec04cdaab1e89fcf9745",
+      "public_invocations": 9,
+      "checks": {
+        "all-generator-literals-retained": true,
+        "all-initial-canonical-bytes-preserved": true,
+        "canonical-valid": true,
+        "capture-integrity": true,
+        "closed-without-integration-or-acceptance": true,
+        "diagnostic-conserved": true,
+        "distinct-result-facts": true,
+        "integrate-applied": true,
+        "integrate-capture-stored": true,
+        "integrate-presentation-capture-stored": true,
+        "native-integration-without-acceptance": true,
+        "only-scope-awaits-writer-verification": true,
+        "ready": true,
+        "real-functional-test": true,
+        "results-basis-available": true,
+        "runtime-pinned-bytes-preserved": true,
+        "runtime-valid": true,
+        "start-applied": true,
+        "started-before-code": true,
+        "unclassified-prose-retained": true,
+        "usage-record-applied": true,
+        "validate-capture-stored": true,
+        "work-continue-capture-stored": true,
+        "work-prepare-results-capture-stored": true,
+        "work-prepare-start-capture-stored": true,
+        "work-record-results-capture-stored": true
+      },
+      "new_internal_files": 25,
+      "new_internal_bytes": 1559892,
+      "new_files_bound": 81,
+      "baseline_new_files": 407,
+      "baseline_new_bytes": 1473154,
+      "new_file_reduction": 0.9385749385749386,
+      "new_byte_ratio": 1.0588791124349526,
+      "initial_loose_objects_preserved": 69,
+      "initial_entries_preserved": 102,
+      "initial_immutable_files_byte_identical": 100,
+      "mutable_index_prior_entries_preserved": {
+        ".lks-sdd/project.json:elements": 338,
+        ".lks-sdd/transactions.json:transactions": 6
+      },
+      "trusted_base_unchanged": true,
+      "pending_journal": false,
+      "owned_descendants_active": 0,
+      "runtime_doctor_from_codex_archive": "valid",
+      "full_journeys": 1,
+      "comparative_performance_claim": false,
+      "global_token_savings": "not-measured",
+      "Windows": "pending",
+      "H2": "pending",
+      "installed": false,
+      "published": false,
+      "public_case_not_repeated": true,
+      "postcheck_correction": "F8-postcheck-correction.json"
+    },
+    "criteria_count": 56,
+    "guarantees_count": 10,
+    "six_improvements_preserved": true,
+    "acceptance_matrix": "acceptance-matrix.json",
+    "guarantee_map": "guarantee-map.json",
+    "full_product_acceptance": false,
+    "budget": {
+      "global_remaining_seconds_including_recovery": 23438.291369,
+      "protected_recovery_seconds": 5400,
+      "final_block_used_seconds": 1601.906943,
+      "final_block_cap_seconds": 4500,
+      "additional_hours": 0,
+      "final_full_slots_remaining": 0,
+      "H2_reserved_slots_untouched": 2
+    },
+    "residual": {
+      "owned_case_descendants_active": 0,
+      "pending_journal": false,
+      "temporary_cleanup": "passed",
+      "temporary_recovered": true,
+      "evidence_archive": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-final-151618\\F8-final-evidence.zip",
+      "evidence_archive_scope": "all case data/runtime files; excludes Git metadata and bytecode caches"
+    },
+    "Windows": "pending",
+    "H2": "pending",
+    "human_effort": "deferred-sustained-real-use",
+    "Copilot_host": "not-run",
+    "release_version_approval": "pending",
+    "project_commit_integration": "not-authorized",
+    "stable_release_gate": "not-run",
+    "installed": false,
+    "published": false,
+    "committed": false,
+    "pushed": false,
+    "billed_tokens": null,
+    "observed_host_tokens": null,
+    "improvements": {
+      "M1": {
+        "status": "implemented-technical-scope-overhead-inconclusive",
+        "evidence": [
+          "F8-result.json",
+          "../v4-22/checks-summary.json"
+        ],
+        "pending": "AC-40 optional activity overhead; billed tokens unmeasured"
+      },
+      "M2": {
+        "status": "implemented-and-final-functional-flow-verified",
+        "evidence": [
+          "F8-result.json",
+          "guarantee-map.json"
+        ],
+        "pending": "Real-host continuation/acceptance remains AC-30"
+      },
+      "M3": {
+        "status": "implemented-technical-context-and-literals-verified",
+        "evidence": [
+          "F8-result.json",
+          "docs/plans/lks-sdd-v4/RESULTS-V4-08-09.md"
+        ],
+        "pending": "No new human comprehension claim"
+      },
+      "M4": {
+        "status": "implemented-six-skills-and-rule-map-verified",
+        "evidence": [
+          "prepared.json",
+          "docs/plans/lks-sdd-v4/RULE-MAP-V4-11.md"
+        ],
+        "pending": "Real host selection/continuation remains AC-30"
+      },
+      "M5": {
+        "status": "implemented-covered-maintenance-technical-scope",
+        "evidence": [
+          "docs/plans/lks-sdd-v4/RESULTS-V4-10.md",
+          "technical-result.json"
+        ],
+        "pending": "Perceived human effort deferred to sustained use"
+      },
+      "M6": {
+        "status": "bounded-component-efficiency-verified-global-time-goal-not-met",
+        "evidence": [
+          "reuse-map.json",
+          "F8-result.json",
+          "../v4-17/performance/shared-comparison/comparison.json"
+        ],
+        "pending": "AC-43 not met and tradeoff accepted; no new global performance claim"
+      }
+    },
+    "critical_review": {
+      "status": "reviewed-corrections-applied-no-functional-regression-found-in-reviewed-evidence",
+      "completed_utc": "2026-10-18T19:15:46.437248+00:00",
+      "evidence": "review-findings.json",
+      "audit": "review-audit.json",
+      "AC52_final_comparative_cost": "not-remeasured-historical-component-evidence-only",
+      "verified_utc": "2026-10-18T19:16:22.124628+00:00"
+    },
+    "review_budget": {
+      "additional_hours": 0,
+      "additional_full_slots": 0,
+      "accounting": "same original clock plus 300s allowance, including elapsed time between turns; no reset",
+      "remaining_seconds_including_recovery": 21431.073684000003,
+      "protected_recovery_seconds": 5400,
+      "final_block_including_review_used_seconds": 3609.124628,
+      "final_block_cap_seconds": 4500,
+      "remaining_full_slots": 0,
+      "H2_reserved_slots_untouched": 2
+    }
+  },
+  "acceptance_matrix": {
+    "AC-01": {
+      "status": "documented-approved-plan-contract-and-capabilities",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/CONTRACT.md",
+        "docs/plans/lks-sdd-v4/REVISION-0.7.json"
+      ],
+      "note": "Original functional contract remains; storage capabilities declared explicitly. No new human approval inferred.",
+      "prior_status": "not-assessed"
+    },
+    "AC-02": {
+      "status": "documented-approved-plan-contract-and-capabilities",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/CONTRACT.md",
+        "docs/plans/lks-sdd-v4/REVISION-0.7.json"
+      ],
+      "note": "Original functional contract remains; storage capabilities declared explicitly. No new human approval inferred.",
+      "prior_status": "not-assessed"
+    },
+    "AC-03": {
+      "status": "passed-final-static-six-skills",
+      "evidence": [
+        "prepared.json",
+        "technical-result.json"
+      ],
+      "note": null,
+      "prior_status": "not-assessed"
+    },
+    "AC-04": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-03-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-05": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-03-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-06": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-04-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-07": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-04-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-08": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-04-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-09": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-05-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-10": {
+      "status": "passed",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-05-progress.json"
+      ],
+      "historical_detail": "passed"
+    },
+    "AC-11": {
+      "status": "verified-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-06-progress.json"
+      ],
+      "historical_detail": "verified-technical-scope"
+    },
+    "AC-12": {
+      "status": "verified-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-06-progress.json"
+      ],
+      "historical_detail": "verified-technical-scope"
+    },
+    "AC-13": {
+      "status": "verified-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-06-progress.json"
+      ],
+      "historical_detail": "verified-technical-scope"
+    },
+    "AC-14": {
+      "status": "verified-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-07-progress.json"
+      ],
+      "historical_detail": "verified-technical-scope"
+    },
+    "AC-15": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-08-09-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-16": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-08-09-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-17": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-08-09-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-18": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-10-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-19": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-10-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-20": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-11-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-21": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-11-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-22": {
+      "status": "verified-local-diagnostic-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-12-13-progress.json"
+      ],
+      "historical_detail": "verified-local-diagnostic-scope"
+    },
+    "AC-23": {
+      "status": "verified-disposition-no-optimization-incorporated",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-12-13-progress.json"
+      ],
+      "historical_detail": "verified-disposition-no-optimization-incorporated"
+    },
+    "AC-24": {
+      "status": "passed-local-synthetic-expanded-matrix",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-expanded-matrix",
+        "scope": "3.4.3 / schema 3.1 -> development candidate; no host acceptance or other origins inferred",
+        "evidence": "RESULTS-V4-19-20.md#v4-14-ampliada--compatibilidad-y-recuperación"
+      }
+    },
+    "AC-25": {
+      "status": "passed-local-synthetic-expanded-matrix",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-expanded-matrix",
+        "scope": "3.4.3 / schema 3.1 -> development candidate; no host acceptance or other origins inferred",
+        "evidence": "RESULTS-V4-19-20.md#v4-14-ampliada--compatibilidad-y-recuperación"
+      }
+    },
+    "AC-26": {
+      "status": "technical-guarantees-verified-reservations-preserved",
+      "evidence": [
+        "technical-result.json",
+        "F8-result.json",
+        "reuse-map.json"
+      ],
+      "note": "No observed G1-G10 loss in tested technical scope. Full product acceptance remains reserved for unresolved/unobserved criteria, especially AC-40 and real-host acceptance.",
+      "prior_status": "not-fully-accepted-known-performance-findings"
+    },
+    "AC-27": {
+      "status": "historical-comparison-valid-source-bound-current-runtime-not-remeasured",
+      "evidence": [
+        "../v4-17/performance/shared-comparison/comparison.json",
+        "F8-result.json"
+      ],
+      "note": "Two historical ABBA pairs remain valid for runtime a76207a25976. F8 is one functional case on the current runtime; no new four-run performance campaign.",
+      "prior_status": "partial-exact-basis-recorded-no-valid-final-pairs"
+    },
+    "AC-28": {
+      "status": "passed-reporting-scope-no-billed-token-claim",
+      "evidence": [
+        "F8-result.json",
+        "acceptance-matrix.json"
+      ],
+      "note": "Files, bytes, invocations, historical time and tokens are separate. billed_tokens and whole_host_task_savings remain null.",
+      "prior_status": "verified-reporting-scope-no-whole-task-or-billed-savings-claim"
+    },
+    "AC-29": {
+      "status": "passed-exact-development-package-scope",
+      "evidence": [
+        "prepared.json",
+        "native-copilot-validation.json",
+        "technical-result.json",
+        "F8-result.json"
+      ],
+      "note": "Five reproducible ZIPs, complete extraction and common core; stable release gate/approval/clean integrated commit remain not-run or pending.",
+      "prior_status": "verified-local-development-package-scope"
+    },
+    "AC-30": {
+      "status": "pending-real-host-H2-Copilot",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/RESULTS-H2-OPERATIONAL-CLOSURE.md"
+      ],
+      "note": "Deferred by explicit user instruction. No host login, installation, Windows sandbox repair or H2 case was performed.",
+      "prior_status": "pending-real-host-observation-H2-and-Copilot-not-run"
+    },
+    "AC-31": {
+      "status": "objectives-evaluated-with-unmet-and-unmeasured-visible",
+      "evidence": [
+        "acceptance-matrix.json",
+        "../v4-17/performance/shared-comparison/comparison.json"
+      ],
+      "note": "Observed tradeoff accepted by user; not all efficiency goals achieved.",
+      "prior_status": "objectives-disposed-not-accepted"
+    },
+    "AC-32": {
+      "status": "passed-reporting-only",
+      "evidence": [
+        "RESULTS-V4-19-20.md",
+        "acceptance-matrix.json"
+      ],
+      "note": "Technical completion, efficiency, host use, version approval, integration, gate, publication, installation and activation are separate.",
+      "prior_status": "not-assessed"
+    },
+    "AC-33": {
+      "status": "passed-reference-and-measurement-scope",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/v4-02-progress.json"
+      ],
+      "note": null,
+      "prior_status": "not-assessed"
+    },
+    "AC-34": {
+      "status": "pending-real-host-H2-Copilot",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/RESULTS-H2-OPERATIONAL-CLOSURE.md"
+      ],
+      "note": "Deferred by explicit user instruction. No host login, installation, Windows sandbox repair or H2 case was performed.",
+      "prior_status": "pending-H2-not-run"
+    },
+    "AC-35": {
+      "status": "verified-local-technical-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-10-progress.json"
+      ],
+      "historical_detail": "verified-local-technical-scope"
+    },
+    "AC-36": {
+      "status": "deferred-sustained-real-use",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/DECISION-TECHNICAL-SCOPE.md"
+      ],
+      "note": "No human timing, perceived effort or inferred attention metric was collected.",
+      "prior_status": "deferred-sustained-real-use"
+    },
+    "AC-37": {
+      "status": "passed-preparatory-scope-not-performance-acceptance",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/v4-02ab-progress.json"
+      ],
+      "note": null,
+      "prior_status": "not-assessed"
+    },
+    "AC-38": {
+      "status": "passed-preparatory-scope-not-performance-acceptance",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/v4-02ab-progress.json"
+      ],
+      "note": null,
+      "prior_status": "not-assessed"
+    },
+    "AC-39": {
+      "status": "passed-preparatory-scope-not-performance-acceptance",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/v4-02ab-progress.json"
+      ],
+      "note": null,
+      "prior_status": "not-assessed"
+    },
+    "AC-40": {
+      "status": "inconclusive-overhead-reservation",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/REVISION-0.7.json",
+        "../v4-17/performance/shared-comparison/comparison.json"
+      ],
+      "note": "Channel, bounded cadence and compatibility verified; comparable overhead acceptance not demonstrated. Optional activity remains optional.",
+      "prior_status": "partial; channel and compatibility verified, comparable overhead pending"
+    },
+    "AC-41": {
+      "status": "passed-declared-local-interruption-surfaces",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/v4-07a-progress.json",
+        "../v4-22/checks-summary.json"
+      ],
+      "note": "I/O/material writes can defer handling; no instant-abort or real-host claim.",
+      "prior_status": "verified-declared-local-surfaces; IO and material-write deferral explicit"
+    },
+    "AC-42": {
+      "status": "historical-comparison-valid-source-bound-current-runtime-not-remeasured",
+      "evidence": [
+        "../v4-17/performance/shared-comparison/comparison.json",
+        "F8-result.json"
+      ],
+      "note": "Two historical ABBA pairs remain valid for runtime a76207a25976. F8 is one functional case on the current runtime; no new four-run performance campaign.",
+      "prior_status": "failed-incomplete-final-S8-no-equivalent-pairs"
+    },
+    "AC-43": {
+      "status": "not-met-user-accepted-product-tradeoff",
+      "evidence": [
+        "docs/plans/lks-sdd-v4/REVISION-0.7.json",
+        "../v4-17/performance/shared-comparison/comparison.json"
+      ],
+      "note": "Historical median time reduction -0.3348089527: about 33.48% slower, not the required >=20% improvement. Criterion is preserved as not met.",
+      "prior_status": "not-accepted-no-valid-final-pairs-previous-regression-retained"
+    },
+    "AC-44": {
+      "status": "passed-local-functional-and-adverse-scope",
+      "evidence": [
+        "technical-result.json",
+        "F8-result.json",
+        "reuse-map.json"
+      ],
+      "note": "Affected negatives rerun on exact extracted core; unchanged recovery/corruption cases reused by hash. Windows sandbox/H2 remains pending.",
+      "prior_status": "focal-negative-evidence-reused-final-positive-coverage-incomplete"
+    },
+    "AC-45": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-scope",
+        "evidence": "RESULTS-V4-19-20.md"
+      }
+    },
+    "AC-46": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-scope",
+        "evidence": "RESULTS-V4-19-20.md"
+      }
+    },
+    "AC-47": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-scope",
+        "evidence": "RESULTS-V4-19-20.md"
+      }
+    },
+    "AC-48": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-scope",
+        "evidence": "RESULTS-V4-19-20.md"
+      }
+    },
+    "AC-49": {
+      "status": "passed-local-synthetic-scope",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json"
+      ],
+      "historical_detail": {
+        "status": "passed-local-synthetic-scope",
+        "evidence": "RESULTS-V4-19-20.md"
+      }
+    },
+    "AC-50": {
+      "status": "passed-component-and-final-integration",
+      "evidence": [
+        "../v4-21/review-final-validation.json",
+        "F8-result.json"
+      ],
+      "note": null,
+      "prior_status": "passed-focused-component-scope-final-integration-pending"
+    },
+    "AC-51": {
+      "status": "passed-component-and-final-integration",
+      "evidence": [
+        "../v4-21/review-final-validation.json",
+        "F8-result.json"
+      ],
+      "note": null,
+      "prior_status": "passed-focused-component-scope-final-integration-pending"
+    },
+    "AC-52": {
+      "status": "historical-component-thresholds-met-final-comparative-cost-not-remeasured",
+      "evidence": [
+        "../v4-21/review-final-component-series.json",
+        "reuse-map.json",
+        "F8-resources.json",
+        "review-audit.json"
+      ],
+      "note": "Historical component CPU/memory ratios met their thresholds on the measured source. Codec, content-store, paths, contract/model and replay bytes remain identical, but shared storage modules changed. No final comparative CPU or memory-ratio acceptance is inferred. Final F8 meets the absolute memory bound and file/byte bounds.",
+      "prior_status": "passed-focused-component-scope-final-integration-pending",
+      "current_source_comparative_cost_acceptance": "not-demonstrated-no-extra-campaign-authorized"
+    },
+    "AC-53": {
+      "status": "passed on the frozen retained corpus: -54.120879% active physical files; all objects restored and resolved",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json",
+        "../v4-22/result.json"
+      ],
+      "historical_detail": "passed on the frozen retained corpus: -54.120879% active physical files; all objects restored and resolved"
+    },
+    "AC-54": {
+      "status": "passed local component failures, exclusive owner and legacy business recovery; no functional authority",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json",
+        "../v4-22/result.json"
+      ],
+      "historical_detail": "passed local component failures, exclusive owner and legacy business recovery; no functional authority"
+    },
+    "AC-55": {
+      "status": "passed exact preview, backup/restore, protected content, space and separate withdrawal authorization; no GC",
+      "evidence": [
+        "docs\\plans\\lks-sdd-v4\\v4-19-20-progress.json",
+        "../v4-22/result.json"
+      ],
+      "historical_detail": "passed exact preview, backup/restore, protected content, space and separate withdrawal authorization; no GC"
+    },
+    "AC-56": {
+      "status": "passed-exact-development-package-scope",
+      "evidence": [
+        "prepared.json",
+        "native-copilot-validation.json",
+        "technical-result.json",
+        "F8-result.json"
+      ],
+      "note": "Five reproducible ZIPs, complete extraction and common core; stable release gate/approval/clean integrated commit remain not-run or pending.",
+      "prior_status": "not-assessed"
+    }
+  },
+  "full_product_acceptance": false,
+  "critical_review_15_16_18": {
+    "status": "reviewed-corrections-applied-no-functional-regression-found-in-reviewed-evidence",
+    "started_utc": "2026-10-18T19:09:46+00:00",
+    "completed_utc": "2026-10-18T19:15:46.437248+00:00",
+    "tasks": [
+      "V4-15",
+      "V4-16",
+      "V4-18"
+    ],
+    "audit": "review-audit.json",
+    "findings": [
+      {
+        "id": "R1",
+        "issue": "Stale V4-17A zero-valid-pairs/reserved-slots status",
+        "correction": "Current historical source-bound ABBA, unmet time goal, accepted tradeoff and exhausted extra slots recorded in TASKS.md",
+        "status": "corrected"
+      },
+      {
+        "id": "R2",
+        "issue": "Recovery wording could imply full Git repository backup",
+        "correction": "905 archived data/runtime files independently verified; Git metadata and bytecode caches explicitly excluded; no full Git restoration claim",
+        "status": "corrected"
+      },
+      {
+        "id": "R3",
+        "issue": "AC-52 reuse did not identify changed shared dependencies explicitly",
+        "correction": "Historical component thresholds retained on measured source; final comparative CPU/memory not demonstrated. Final file/byte and absolute-memory bounds verified independently",
+        "previous_AC52": {
+          "status": "passed-measured-component-with-source-bound-reuse",
+          "evidence": [
+            "../v4-21/review-final-component-series.json",
+            "reuse-map.json",
+            "F8-resources.json"
+          ],
+          "note": "Reader/writer and replay runner bytes unchanged; no new global CPU/time/host savings claim. F8 also meets the absolute memory bound.",
+          "prior_status": "passed-focused-component-scope-final-integration-pending"
+        },
+        "status": "corrected-with-measurement-reservation-preserved"
+      }
+    ],
+    "audit_expectation_correction": {
+      "initial_error": "Trusted bytes differ from retained original",
+      "cause": "Audit compared all historical runtimes in retained original with the deliberately bounded 106-file trusted fixture",
+      "correction": "Compare exact frozen initial data plus copied AGENTS.md/.github inputs; all expected hashes match",
+      "product_change": false,
+      "business_operations_repeated": 0
+    },
+    "runtime_and_packages_unchanged": true,
+    "source": "working-tree:c8fc93f4697517349286a85d91a51a520485e56b2928e3ba155957d9cabcca29",
+    "runtime_digest": "079668df15a4a41e655b1ccc9eda7d27613e1c762f2bec04cdaab1e89fcf9745",
+    "six_improvements_preserved": true,
+    "new_full_journeys": 0,
+    "runtime_tests_repeated": 0,
+    "builds_repeated": 0,
+    "budget": {
+      "additional_hours": 0,
+      "additional_full_slots": 0,
+      "accounting": "same original clock plus 300s allowance, including elapsed time between turns; no reset",
+      "remaining_seconds_including_recovery": 21431.073684000003,
+      "protected_recovery_seconds": 5400,
+      "final_block_including_review_used_seconds": 3609.124628,
+      "final_block_cap_seconds": 4500,
+      "remaining_full_slots": 0,
+      "H2_reserved_slots_untouched": 2
+    },
+    "full_product_acceptance": false,
+    "stable_release_gate": "not-run",
+    "Windows": "pending-untouched",
+    "H2": "pending-untouched",
+    "Copilot_host": "pending",
+    "installed": false,
+    "published": false,
+    "committed": false,
+    "pushed": false,
+    "verified_utc": "2026-10-18T19:16:22.124628+00:00"
+  },
+  "release_authorization": {
+    "date": "2026-10-18T19:38:09.238278+00:00",
+    "version": "4.0.0",
+    "status": "approved-by-project-owner-with-recorded-reservations",
+    "scope": [
+      "close-development",
+      "necessary-source-commits-and-integration",
+      "stable-release-publication",
+      "Codex-distribution"
+    ],
+    "Windows": "pending",
+    "H2": "pending",
+    "real_use": "owner-will-test-with-v4",
+    "evidence": "quality/release-approval-v4.0.0.json",
+    "technical_observations_not_reclassified": true
+  },
+  "development_status": "closed-owner-accepted-with-known-reservations"
+}

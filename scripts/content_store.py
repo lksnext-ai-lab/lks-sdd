@@ -38,12 +38,13 @@ def read_object(root, ref: dict) -> bytes:
 
 def prepare_object(root, raw: bytes, changes: dict) -> dict:
     """Prepare missing immutable objects without writing during a preview."""
+    from object_zip import contains
     ref = reference(raw)
     name = object_path(ref)
     if name in changes:
         if changes[name] != raw:
             raise ContractError("Conflicting content object")
-    elif path_at(root, name, missing=True).exists():
+    elif contains(root, name):
         read_object(root, ref)
     else:
         changes[name] = raw
@@ -60,7 +61,8 @@ def publish_object(root, name: str, raw: bytes) -> None:
     if name != object_path(ref):
         raise ContractError("Content objects are immutable")
     path = path_at(root, name, missing=True)
-    if path.exists():
+    from object_zip import contains
+    if contains(root, name):
         read_object(root, ref)
         return
     path.parent.mkdir(parents=True, exist_ok=True)

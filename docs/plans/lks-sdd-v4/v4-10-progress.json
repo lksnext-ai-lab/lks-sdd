@@ -1,0 +1,167 @@
+{
+  "task": "V4-10",
+  "status": "verified-local-technical-scope",
+  "criteria": {
+    "AC-18": "verified-local-technical-scope",
+    "AC-19": "verified-local-technical-scope",
+    "AC-35": "verified-local-technical-scope"
+  },
+  "implementation": "Shared correction instructions; reuse V4-05/06 and existing correction/governance operations; no runtime changes justified",
+  "unique_candidate_cases_passed": 5,
+  "reference_cases_passed": 4,
+  "accepted_case_executions": 9,
+  "test_harness_failed_executions_preserved": 2,
+  "reuse": "Two original candidate and reference methods unchanged by AST; rerun only adjusted new-request case plus added expiry case; existing rejection case run on candidate",
+  "comparison": [
+    {
+      "case": "test_agreement_change_needs_proposal_before_plan_and_critical_unknown_blocks",
+      "source": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\source",
+      "actions": [
+        "author-proposal",
+        "close-proposal",
+        "author-task",
+        "authorize-plan",
+        "author-critical-unknown"
+      ],
+      "facts": {
+        "atomic_proposal_and_task_rejected": true,
+        "old_authority_stale": true,
+        "proposal_before_plan": true,
+        "small_permission_change_requires_decision": true,
+        "critical_unknown_blocks": true
+      },
+      "billed_tokens": null
+    },
+    {
+      "case": "test_covered_defect_reuses_agreements_and_checks_real_result",
+      "source": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\source",
+      "actions": [
+        "start",
+        "implement",
+        "evidence",
+        "verify",
+        "close",
+        "reopen",
+        "revoke"
+      ],
+      "facts": {
+        "definitions_reused": true,
+        "authorization_reused_before_revocation": true,
+        "initial_test": "failed",
+        "corrected_test": "passed",
+        "closed_then_reopened": true,
+        "revoked_permission_blocks": true
+      },
+      "billed_tokens": null
+    },
+    {
+      "case": "test_expired_member_permission_blocks_covered_task",
+      "source": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\source",
+      "actions": [],
+      "facts": {
+        "expired_operator_permission_blocks": true,
+        "task_not_started": true
+      },
+      "billed_tokens": null
+    },
+    {
+      "case": "test_new_capability_requires_separate_coverage_and_rejection_is_preserved",
+      "source": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\source",
+      "actions": [
+        "reject-result",
+        "define-correction",
+        "author-new-request-proposal",
+        "close-new-proposal",
+        "author-new-plan"
+      ],
+      "facts": {
+        "separate_request": true,
+        "proposal_before_executable_tasks": true,
+        "old_permission_not_reused": true,
+        "original_rejection_retained": true,
+        "missing_evidence_not_fabricated": true
+      },
+      "billed_tokens": null
+    }
+  ],
+  "final_runs": [
+    {
+      "arm": "reference",
+      "returncode": 0,
+      "seconds": 70.1280777999782,
+      "result": {
+        "passed": true,
+        "duration_seconds": 69.678,
+        "counts": {
+          "total": 2,
+          "passed": 2,
+          "skipped": 0,
+          "failed": 0
+        },
+        "results": [
+          {
+            "id": "test_v4_maintenance.MaintenanceTests.test_expired_member_permission_blocks_covered_task",
+            "status": "passed"
+          },
+          {
+            "id": "test_v4_maintenance.MaintenanceTests.test_new_capability_requires_separate_coverage_and_rejection_is_preserved",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "arm": "candidate",
+      "returncode": 0,
+      "seconds": 158.7336855000467,
+      "result": {
+        "passed": true,
+        "duration_seconds": 158.397,
+        "counts": {
+          "total": 3,
+          "passed": 3,
+          "skipped": 0,
+          "failed": 0
+        },
+        "results": [
+          {
+            "id": "test_v31_review.IntegralTests.test_rejection_records_correction_and_blocks_old_acceptance",
+            "status": "passed"
+          },
+          {
+            "id": "test_v4_maintenance.MaintenanceTests.test_expired_member_permission_blocks_covered_task",
+            "status": "passed"
+          },
+          {
+            "id": "test_v4_maintenance.MaintenanceTests.test_new_capability_requires_separate_coverage_and_rejection_is_preserved",
+            "status": "passed"
+          }
+        ]
+      }
+    }
+  ],
+  "runtime_unchanged_from_v4_08_09": true,
+  "prior_technical_gate_reused": true,
+  "source_binding": {
+    "scripts/v31_corrections.py": "1fe19699ad4baf138a1d29a78bafab4cdeeab8a08ac1e31d92278c8a6117bab0",
+    "scripts/v31_review.py": "45b5918d838cfd3eda3799952a214cc9c7c9359933af5fc96692889e795771ee",
+    "scripts/v31_guidance.py": "97790e13ea6984b564c2483e3b8c21c9c10790c3ea5a1ff2015b049996c3c845",
+    "scripts/v3_authoring.py": "22a86f6b41c6dfad3bfbe248214b79fac355dfbc0d20208f274d8424c1e0cbfc",
+    "scripts/v3_approval.py": "7841f0fb8d42f15d812ed15fb076821ce817f588f367772190eabd32b1f137c9",
+    "scripts/v3_workflow.py": "1d605f6ca717736d044bd13e1d1a79de6e1594c9e49acc57e4f82e0059f890e4",
+    "scripts/v4_work_prepare.py": "93f7331aee18ebf53078fbdf8cfa3b9540c802cc0ba0bf2f5c42c51ddf999295",
+    "scripts/v4_work_operations.py": "330616696505b7b0ef2b640d6d1e6f1af598c65d7f3b34f88f495f9d15189593"
+  },
+  "test_sha256": "b8e770638c3cf2858b3b1d6df1732d7be2893a5c63551ceaed5370e051620ede",
+  "guide_sha256": "31bdcf25844e879c9e648ae7b125790bc703a2a46e1cdc00a11fc464a9fcf22a",
+  "whole_task_benchmark_attempts": 0,
+  "billed_tokens": null,
+  "human_effort": null,
+  "incremental_M5_time_or_token_savings": "not-established; M2 contribution referenced without double counting",
+  "Windows": "set-aside-open",
+  "H2": "pending",
+  "installed": false,
+  "published": false,
+  "six_improvements_preserved": true,
+  "budgets": "Existing limits unchanged; no new global allowance or certified global balance inferred"
+}

@@ -29,9 +29,9 @@ def items(values):
 
 
 @reviewed()
-def _execute(action, root, data):
+def _execute(action, root, data, *, apply_work=False):
     from v3_current import READ_ONLY, SPECIAL, require_current
-    if action not in READ_ONLY | SPECIAL: require_current(root, data)
+    if action not in READ_ONLY | SPECIAL | {"work-continue", "work-record-results"}: require_current(root, data)
     from v3_authoring import initialize, author, approve, approve_and_authorize, governance
     from v3_guidance import status, readiness, trace
     from v3_workflow import transition, exception, propose_exception
@@ -43,16 +43,33 @@ def _execute(action, root, data):
     from v3_adoption import inspect, record as adopt
     from v3_lifecycle import review, revoke, checkpoint, reconcile_migrated
     actor = data.get("actor")
+    if action in {"work-continue", "work-record-results"}:
+        from v4_work_operations import run
+        return run(root, action, data, apply=apply_work)
+    if action == "work-prepare":
+        from v4_work_prepare import prepare
+        return prepare(root,data)
     if action == "usage-record":
+        if data.get("capture_dir"):
+            from diagnostic_capture import record as capture_record
+            return capture_record(root,data)
         from v3_usage import record
         return record(root, data)
     if action == "usage-report":
+        if data.get("capture_dir"):
+            from diagnostic_capture import imported_window
+            from usage_report import report
+            value,rows,_=imported_window(data["capture_dir"],root,entry_ids=data.get("capture_entries"))
+            return report(rows,selector={"run_id":value["header"]["run_id"]},offset=data.get("offset",0),limit=data.get("limit",100),finding_id=data.get("finding_id"))
         from usage_report import query
         return query(root, data)
     if action == "usage-export":
         from usage_bundle import preview, export
         if data.get("destination"):
             return export(data["packet"], data["destination"], data["export_hash"], consumer=root)
+        if data.get("capture_dir"):
+            from diagnostic_capture import export_data
+            return preview(export_data(root,data))
         from v3_usage import catalog
         from content_store import read_object
         rows = catalog(load(root).require_valid(), run_id=data.get("run_id"), request=data.get("request"), task=data.get("task"))
@@ -159,6 +176,10 @@ def _execute(action, root, data):
     if action == "old-branch": return old_branch(root, data["old_root"])
     if action == "catalog":
         model = load(root).require_valid()
+        if data.get("kind") == "scope":
+            from v3_scope import scope_preview
+            return scope_preview(model, data["roots"], data.get("proposals", []),
+                                 offset=data.get("offset", 0), limit=data.get("limit", 20))
         if data.get("kind") == "prose":
             from v3_scope import prose_catalog
             return prose_catalog(model, data.get("offset", 0), data.get("limit", 20))
@@ -185,18 +206,18 @@ def _execute(action, root, data):
 ACTIONS = ("decision-view configure-collaboration review-proposal close-proposal review-task review-comment resolve-comment review-exception interventions reject-result define-correction resolve-defect prepare-delivery "
            "init validate status trace context readiness review revoke checkpoint migration-reconcile author approve authorize-plan governance start resume implement verify close pause cancel reopen "
            "exception propose-exception assign handoff analysis analysis-run analysis-findings evidence integrate accept adopt-inspect adopt migration-diagnose migration-preview "
-           "migration-continuation old-branch catalog history state-history reindex apply recover rollback usage-record usage-report usage-export").split()
+           "migration-continuation old-branch catalog history state-history reindex apply recover rollback usage-record usage-report usage-export work-prepare work-continue work-record-results store-preview store-compact store-recover").split()
 
 
 @reviewed()
-def _execute_persist(action, root, data):
+def _execute_persist(action, root, data, *, apply_work=False):
     from v3_packet import persist
     from v3_current import READ_ONLY
     if action in READ_ONLY:
         from v3_contract import query_evaluation
         with query_evaluation():
-            return persist(_execute(action, root, data))
-    return persist(_execute(action, root, data))
+            return persist(_execute(action, root, data, apply_work=apply_work))
+    return persist(_execute(action, root, data, apply_work=apply_work))
 
 
 @wraps(_execute_persist)
@@ -231,7 +252,15 @@ def _observed_execute(action, root, data, **kwargs):
             exc.usage = {"status":"incomplete","cause":str(diagnostic_error),"quality":"unchanged","observations":[]}
         raise
     try:
-        row = observe(action, data, result, context=context, elapsed=time.monotonic()-start, root=root)
+        row_context=context
+        if action=="work-prepare" and result.get("basis") and isinstance(context,dict):
+            row_context={**context,"tasks":result["portion"]["requested"]}
+        row_stage = None
+        if action in {"work-continue", "work-record-results"}:
+            row_stage = ("applied" if kwargs.get("apply_work") and result.get("effects") else
+                         "prepared" if result.get("status") == "ready" else
+                         "failed" if result.get("status") in {"blocked", "partial"} else "query")
+        row = observe(action, data, result, context=row_context, elapsed=time.monotonic()-start, root=root, stage=row_stage)
         result["usage"] = {"observations": [row], "continuation": "Conserve the envelope at the next authorized useful milestone; reuse run_id"}
         if usage_session.get("deferred"):
             result["usage"].update(conservation="deferred-until-project-valid", pending_observations=context["observations"])
@@ -255,6 +284,8 @@ def _observed_execute(action, root, data, **kwargs):
 def presentation_output(action, result):
     """One literal presentation body; library/export results keep all detail."""
     from v3_decision_presentation import compact
+    if action in {"work-continue", "work-record-results"}:
+        return {k: v for k, v in result.items() if k != "packet"}
     if action == "decision-view": return compact(result)
     if action == "review":
         shown = {k: v for k, v in result.items() if k not in {"units", "presentation"}}
@@ -266,7 +297,7 @@ def presentation_output(action, result):
 
 
 def display_summary(value):
-    if not value: return value
+    if not isinstance(value, dict): return value
     shown = {key: entry for key, entry in value.items() if key != "mapping"}
     if "mapping" in value: shown["mapped_identities"] = len(value["mapping"])
     return shown
@@ -277,32 +308,80 @@ def main(argv=None, command=None):
     if not command: parser.add_argument("action", choices=ACTIONS)
     parser.add_argument("project_root", type=Path)
     parser.add_argument("--input", type=Path, help="Datos de la operación; nunca código ejecutable")
-    parser.add_argument("--output", type=Path, help="Guardar paquete exacto completo y mostrar solo resumen")
+    parser.add_argument("--output", type=Path, help="Guardar resultado o paquete completo y mostrar su referencia")
     parser.add_argument("--apply", action="store_true", help="Aplicar dentro del alcance expresamente autorizado")
     parser.add_argument("--authorize", help="Hash exacto del paquete para apply/recover/rollback")
+    parser.add_argument("--authorize-removal", help="Autorización separada del hash exacto para retirar duplicados físicos")
     parser.add_argument("--receipt")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--view", choices=("compatible", "operational"), default="compatible",
+                        help="compatible conserva el comportamiento anterior; operational evita duplicación diagnóstica")
+    parser.add_argument("--capture-dir",type=Path,help="Captura diagnóstica explícita en una ventana externa al consumidor")
+    parser.add_argument("--activity", action="store_true", help="Actividad optativa por stderr; no acredita avance ni porcentaje")
     transport = parser.add_mutually_exclusive_group()
     transport.add_argument("--details", action="store_true", help="Incluir fuentes, secciones y diagnóstico completo")
     transport.add_argument("--compact", action="store_true", help="Un solo cuerpo de presentación, también con --json")
     args = parser.parse_args(argv); action = command or args.action
+    from v4_activity import session
+    with session(action, activity=args.activity):
+        return _main(args, action, argv)
+
+
+def _main(args, action, argv):
+    from v4_activity import checkpoint, phase, OperationInterrupted
+    capture=None; capture_error=None; input_raw=None; captured_output=None
     try:
+        phase("prepare")
         root = args.project_root.resolve()
         data = {}
+        if action=="work-prepare" and args.apply:raise ContractError("work-prepare is read-only; apply requires an existing transition preview")
+        if args.capture_dir:
+            try:
+                from diagnostic_capture import Capture
+                capture=Capture(args.capture_dir,root)
+            except (ContractError,OSError,ValueError,TypeError,KeyError) as exc: capture_error=str(exc)
+        from v3_cli_presentation import export_path, export_summary, write_export, json_text, completed_work_view
+        operational_output=args.view=="operational" and not args.details
+        output = export_path(args.output, root, args.input) if args.output else None
+        if args.capture_dir and args.output: export_path(args.output,args.capture_dir,args.input)
         if args.input:
             if args.input.stat().st_size > 64*1024*1024: raise ContractError("Entrada excesiva")
             from v3_packet import read as read_packet
-            data = read_packet(args.input)
+            if args.capture_dir:
+                from v3_contract import read_bytes
+                source=args.input.resolve()
+                input_raw=read_bytes(source.parent,source.name,limit=64*1024*1024,package_data=True)
+            data = read_packet(args.input,raw=input_raw)
+        if args.capture_dir and not capture_error:
+            try:
+                from diagnostic_capture import Capture
+                context=data.get("usage_context",{})
+                capture=Capture(args.capture_dir,root,context.get("run_id") if isinstance(context,dict) else None)
+                if not action.startswith("usage-") and action not in {"apply","recover","rollback"} and isinstance(context,dict):
+                    data["usage_context"]={**context,"run_id":capture.run_id}
+            except (ContractError,OSError,ValueError,TypeError,KeyError) as exc: capture_error=str(exc)
         from v3_storage import apply, recover
-        if action == "apply":
+        if action.startswith("store-"):
+            from store_maintenance import preview as store_preview, apply as store_apply, recover as store_recover
+            if args.apply: raise ContractError("Use la operación de almacenamiento explícita y sus hashes")
+            if action == "store-preview":
+                if args.authorize or args.authorize_removal: raise ContractError("El preview no autoriza retiradas")
+                result = store_preview(root, data['backup'], data['restore'])
+            elif action == "store-compact":
+                if args.authorize_removal: raise ContractError("Verifique respaldo y restauración antes de autorizar retirada")
+                result = store_apply(root, data, args.authorize)
+            else:
+                result = store_recover(root, args.authorize, remove_authorized=args.authorize_removal)
+        elif action == "apply":
             if not args.authorize: raise ContractError("Falta autorizar el paquete exacto")
             result = apply(root, data, args.authorize, current=True)
         elif action in {"recover", "rollback"}:
             if not args.authorize: raise ContractError("Falta identificar la operación a recuperar")
             result = recover(root, args.authorize, rollback=action == "rollback", receipt=args.receipt)
         else:
-            result = execute(action, root, data)
-            if args.apply and result.get("status") != "already-recorded":
+            composed = action in {"work-continue", "work-record-results"}
+            result = execute(action, root, data, **({"apply_work": args.apply} if composed else {}))
+            if args.apply and not composed and result.get("status") != "already-recorded":
                 if "preview" not in result: raise ContractError("Esta operación es de solo lectura o ya está registrada")
                 prepared_usage = result.get("usage", {})
                 prepared_rows = prepared_usage.get("observations", [])
@@ -314,48 +393,73 @@ def main(argv=None, command=None):
                         {**result, "preview": {"preview_hash": applied["preview_hash"]}},
                         context=data.get("usage_context",{}), invocation_id=prepared_rows[0]["invocation_id"] if prepared_rows else None,
                         stage="applied",root=root)]}
+        # Prepare application observations before an explicit export so the file
+        # also contains the diagnostic rows referenced by the printed view.
+        phase("output")
+        if action in {"apply", "recover", "rollback"} and "usage" not in result:
+            from v3_usage import observe
+            result["usage"] = {"observations": [observe(action, {"preview_hash": args.authorize}, result,
+                context={"run_id":capture.run_id} if capture else None,
+                stage="applied" if result.get("status") in {"applied", "previously-applied", "completed", "rolled-back"} else None)]}
         if args.output:
             # Operational artifacts are explicitly selected output files, never hidden canonical state.
             if "preview" in result:
                 from v3_packet import save
-                output = args.output.resolve()
-                if output == root or root in output.parents or output in root.parents: raise ContractError("Packet output must be outside the consumer")
                 if not (hasattr(result, "base") and output == result.base/"packet.json"):
                     result = save(result, output)
             else:
-                args.output.parent.mkdir(parents=True, exist_ok=True)
-                args.output.write_bytes(canonical(result) + b"\n")
-            shown = {"output": str(args.output.resolve()), "status": result.get("status", "preview"),
-                     "summary": display_summary(result.get("summary")), "preview_hash": result.get("preview", {}).get("preview_hash")}
+                write_export(result, output)
+            captured_output=output
+            shown = {**export_summary(result, output), "summary": display_summary(result.get("summary"))}
         elif "preview" in result:
             shown = {"status": "preview", "summary": display_summary(result["summary"]), "preview_hash": result["preview"]["preview_hash"],
                      "next": "Use --output para guardar el paquete completo, o --apply si esta operación ya está autorizada"}
             if hasattr(result, "base"): shown["packet"] = str(result.base/"packet.json")
         else: shown = {**result, "summary": display_summary(result["summary"])} if "summary" in result else result
-        if not args.details and (args.compact or (not args.json and not args.output)) and "preview" not in result:
+        if not args.output and not args.details and (args.view == "operational" or args.compact or not args.json) and "preview" not in result:
             shown = presentation_output(action, result)
+            if operational_output:shown=completed_work_view(action,shown)
         if not action.startswith("usage-"):
             from v3_usage import observe
-            if action in {"apply", "recover", "rollback"} and "usage" not in result:
-                result["usage"] = {"observations": [observe(action, {"preview_hash": args.authorize}, result, stage="applied" if result.get("status") in {"applied", "previously-applied", "completed", "rolled-back"} else None)]}
             if result.get("usage"):
                 from v3_contract import sha
                 body = {k:v for k,v in shown.items() if k != "usage"}
-                raw_body = (json.dumps(body,ensure_ascii=False,indent=2)+"\n").encode("utf-8")
+                raw_body = json_text(body,operational=operational_output).encode("utf-8")
                 transport = {"mode": "output-file" if args.output else "details" if args.details else "compact" if args.compact else "default",
                     "requested_display":"details" if args.details else "compact" if args.compact else "default",
                     "prepared_bytes": len(raw_body), "prepared_sha256": sha(raw_body),
                     "coverage":"prepared display body excluding diagnostic envelope; output file includes full API payload", "host_received": "unobserved"}
+                if args.view == "operational":
+                    transport["view"] = "operational"
+                    if not args.output and not args.details:
+                        transport.update(mode="operational", requested_display="operational")
                 if args.output:
-                    raw_file = args.output.read_bytes()
+                    from path_utils import filesystem_root
+                    raw_file = filesystem_root(args.output).read_bytes()
                     transport["prepared_file"] = {"bytes":len(raw_file),"sha256":sha(raw_file),"coverage":"exact output descriptor; referenced packet objects remain in its inventory"}
                 result["usage"]["transport"] = transport
                 for row in result["usage"].get("observations",[]): row["output"] = transport
                 shown = {**shown, "usage": result["usage"]}
-        print(json.dumps(shown, ensure_ascii=False, indent=2))
+        if args.view == "operational" and (args.output or not args.details) and "usage" in shown:
+            from v3_cli_presentation import usage_view
+            shown = {**shown, "usage": usage_view(shown["usage"], exported=args.output.resolve() if args.output else None)}
+        if args.capture_dir:
+            from diagnostic_capture import emit
+            phase("capture")
+            emit(shown,result,capture,capture_error,argv=list(argv if argv is not None else sys.argv[1:]),input_raw=input_raw,input_data=data,output_file=captured_output,compact_output=operational_output)
+        else:
+            checkpoint()
+            sys.stdout.write(json_text(shown,operational=operational_output))
+        if result.get("interruption"): return 3 if result.get("effects") or result.get("recovery") else 130
+        if action=="work-prepare":return 0 if result.get("status")=="ready" else 3 if result.get("status")=="partial" else 2
+        if action in {"work-continue", "work-record-results"}:
+            return 0 if result.get("status") in {"ready", "completed"} else 3 if result.get("status") == "partial" else 2
         return 2 if result.get("status") in {"blocked", "unsupported", "reconciliation-required"} else 0
-    except (ContractError, OSError, ValueError, KeyError, TypeError) as exc:
+    except (OperationInterrupted, ContractError, OSError, ValueError, KeyError, TypeError) as exc:
         failure = {"status": "blocked", "cause": str(exc), "next": "Resuelva esta causa concreta; se conserva el trabajo existente"}
+        if isinstance(exc, OperationInterrupted):
+            failure.update(status="interrupted", interruption=exc.interruption,
+                           next="Inspect preserved receipts and technical artifacts; retry only the exact authorized intent")
         if not action.startswith("usage-"):
             from v3_usage import observe
             from usage_report import report
@@ -369,7 +473,8 @@ def main(argv=None, command=None):
                 try:
                     usage = {"observations":observed_result.get("usage",{}).get("observations",[]) +
                         [observe(action, {k:v for k,v in actual_data.items() if k != "usage_context"}, failure,
-                                 context=actual_data.get("usage_context") if isinstance(actual_data.get("usage_context"),dict) else {}, stage="failed",root=locals().get("root"))]}
+                                 context={**(actual_data.get("usage_context") if isinstance(actual_data.get("usage_context"),dict) else {}),
+                                          **({"run_id":capture.run_id} if capture else {})}, stage="failed",root=locals().get("root"))]}
                 except (ContractError, OSError, ValueError, KeyError, TypeError) as diagnostic_error:
                     usage = {"status":"incomplete","cause":str(diagnostic_error),"quality":"unchanged","observations":[]}
             try:
@@ -377,8 +482,37 @@ def main(argv=None, command=None):
                 usage.update(summary=value["summary"], prompt=value["prompt"])
             except (ContractError, ValueError, KeyError, TypeError): usage["status"] = "incomplete"
             failure["usage"] = usage
-        print(json.dumps(failure, ensure_ascii=False))
-        return 2
+        # Output/diagnostic failure cannot hide applied effects in either view.
+        observed_result = locals().get("result", {})
+        if observed_result.get("format") == "lks-sdd-operation-result/1" and action in {"work-continue", "work-record-results"}:
+            failure.update({key: observed_result[key] for key in
+                ("format", "version", "operation", "operation_id", "task", "actor", "effects", "writes", "recovery") if key in observed_result})
+            failure["operation_status"] = observed_result["status"]
+            if observed_result.get("effects") or observed_result.get("recovery"):
+                failure["status"] = "partial"
+                failure["next"] = "Preserve these stage receipts; retry the exact intent after resolving the transport failure"
+        elif observed_result.get("status") in {"applied", "previously-applied", "completed", "rolled-back"}:
+            failure["effects"] = {key: observed_result[key] for key in
+                ("status", "receipt", "preview_hash", "writes", "current_conformance") if key in observed_result}
+        capture_result=dict(failure)
+        if args.view == "operational" and "usage" in failure and not args.details:
+            from v3_cli_presentation import usage_view
+            failure["usage"] = usage_view(failure["usage"])
+        if args.capture_dir and capture is None and capture_error is None:
+            try:
+                from diagnostic_capture import Capture
+                capture=Capture(args.capture_dir,locals().get("root",args.project_root))
+            except (ContractError,OSError,ValueError,TypeError,KeyError) as capture_exc: capture_error=str(capture_exc)
+        if isinstance(exc, OperationInterrupted):
+            if args.capture_dir:
+                failure["diagnostic_capture"] = {"status":"inspection-required", "directory":str(args.capture_dir),
+                    "next":"An external entry or immutable objects may exist; inspect before retrying capture"}
+            print(json.dumps(failure,ensure_ascii=False))
+        elif args.capture_dir:
+            from diagnostic_capture import emit
+            emit(failure,capture_result,capture,capture_error,argv=list(argv if argv is not None else sys.argv[1:]),input_raw=input_raw,input_data=locals().get("data"),compact_output=args.view=="operational" and not args.details)
+        else: print(json.dumps(failure,ensure_ascii=False))
+        return 3 if failure["status"] == "partial" else 130 if isinstance(exc, OperationInterrupted) else 2
 
 
 if __name__ == "__main__": sys.exit(main())

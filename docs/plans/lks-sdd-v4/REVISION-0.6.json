@@ -1,0 +1,272 @@
+{
+  "format": "lks-sdd-plan-amendment/1",
+  "revision": "0.6",
+  "client_date": "2026-10-18",
+  "status": "proposed-planning-only",
+  "plan": "REVISION-0.6.md",
+  "basis_revision": {
+    "path": "REVISION-0.5.json",
+    "sha256": "cd06e31f5a081be58a7ee35614d48768435e4d168d4d3f51972d7dad93f2ed68",
+    "merge": "Add tasks/criteria and extend dependencies; preserve historical evidence and status within its original candidate scope."
+  },
+  "six_improvements": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+  ],
+  "incident_mapping": {
+    "inventory-blocker": "V4-19",
+    "administrative-continuity": "V4-20",
+    "physical-growth": "V4-21",
+    "storage-migration-lifecycle": "V4-22"
+  },
+  "tasks_add": [
+    {
+      "id": "V4-19",
+      "deliverable": "Inventario sin falso exceso: clasificación y límites independientes",
+      "depends_on": [
+        "V4-02A",
+        "V4-02B"
+      ],
+      "priority": "P0",
+      "improvement": "M6; transversal",
+      "acceptance": [
+        "AC-45",
+        "AC-46",
+        "AC-47"
+      ],
+      "status": "proposed-not-authorized"
+    },
+    {
+      "id": "V4-20",
+      "deliverable": "Continuidad y cierre administrativo nativos con almacenamiento anterior",
+      "depends_on": [
+        "V4-19"
+      ],
+      "priority": "P0",
+      "improvement": "M2; transversal",
+      "acceptance": [
+        "AC-48",
+        "AC-49"
+      ],
+      "status": "proposed-not-authorized"
+    },
+    {
+      "id": "V4-21",
+      "deliverable": "Almacén de objetos empaquetados y lectura dual; reducción de crecimiento",
+      "depends_on": [
+        "V4-19",
+        "V4-04"
+      ],
+      "priority": "P1",
+      "improvement": "M1, M2, M6; transversal",
+      "acceptance": [
+        "AC-50",
+        "AC-51",
+        "AC-52"
+      ],
+      "status": "proposed-not-authorized"
+    },
+    {
+      "id": "V4-22",
+      "deliverable": "Compactación recuperable, compatibilidad y conservación",
+      "depends_on": [
+        "V4-21"
+      ],
+      "priority": "P1",
+      "improvement": "Transversal",
+      "acceptance": [
+        "AC-53",
+        "AC-54",
+        "AC-55",
+        "AC-56"
+      ],
+      "status": "proposed-not-authorized"
+    }
+  ],
+  "dependencies_add": {
+    "V4-14": [
+      "V4-22"
+    ],
+    "V4-18": [
+      "V4-20",
+      "V4-22"
+    ]
+  },
+  "scope_revalidation": {
+    "V4-14": "pending-new-storage-compatibility",
+    "V4-15": "pending-affected-guarantees-on-new-candidate",
+    "V4-16": "pending-exact-package-on-new-candidate"
+  },
+  "acceptance_criteria_add": {
+    "AC-45": {
+      "owner": "V4-19",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "El censo 20.027/18.847/1.180 no dispara el límite de código por rutas internas. Casos con 20.000 elegibles aceptan y 20.001 rechazan; inventarios completos e iguales a los previos en casos antes válidos."
+    },
+    "AC-46": {
+      "owner": "V4-19",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Cotas brutas/de bytes/memoria/tiempo independientes y controladas durante enumeración; sin lectura de secretos, escapes, symlinks/junctions inseguros ni confusión de prefijos. Exceso/error no produce aplicación ni inventario parcial válido."
+    },
+    "AC-47": {
+      "owner": "V4-19",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Todos los consumidores compartidos usan la misma clasificación; cambio de código, base, política o sujetos entre preparación y aplicación sigue rechazado con evidencia focal."
+    },
+    "AC-48": {
+      "owner": "V4-20",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Itinerario sintético con historia acumulada y runtime corregido completa cancelación, sucesora y cierre nativos usando almacenamiento anterior, sin bypass ni journal pendiente. Se conserva trazabilidad del original y de la sucesora."
+    },
+    "AC-49": {
+      "owner": "V4-20",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Autorización/evidencia obsoletas no se reutilizan; fallo o interrupción conserva/restaura el estado válido sin pérdida ni transición parcial. Runbook distingue corrección técnica y resolución aún no ejecutada en el consumidor real."
+    },
+    "AC-50": {
+      "owner": "V4-21",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Lectura dual devuelve los mismos bytes/hashes; registros Markdown canónicos conservados; objetos antiguos y nuevos, historia, packets y recuperación se resuelven por lector común. Capacidades físicas versionadas y contradicciones rechazadas."
+    },
+    "AC-51": {
+      "owner": "V4-21",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Mismo recorrido/datos B: **al menos 80 % menos archivos internos nuevos**, de 407 a **81 como máximo**, contando paquetes, catálogo, índices, manifiestos y recibos. Runtime y aplicación se muestran aparte, sin retirar entradas iniciales ni desplazar el coste a otra carpeta. Bytes nuevos persistidos no superan en más del 10 % la misma referencia completa."
+    },
+    "AC-52": {
+      "owner": "V4-21",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Consultas: cero escrituras. Repetición idempotente: sin nuevas copias físicas del mismo objeto. CPU mediana del componente comparable ≤1,10× referencia; pico ≤512 MiB y ≤1,10× referencia. Todos los costes de catálogo, integridad y conservación están incluidos; tiempo observado también se informa."
+    },
+    "AC-53": {
+      "owner": "V4-22",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Compactación sintética de histórico representativo: **al menos 50 % menos archivos internos totales**, con runtime y Markdown canónico conservados; todas las referencias/bytes originales recuperables. Se informa también reducción específica del almacén, bytes y espacio de Git. No se declara ahorro físico mientras sigan las copias sueltas activas."
+    },
+    "AC-54": {
+      "owner": "V4-22",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Cada frontera de interrupción/corrupción de paquete, índice o catálogo deja estado anterior válido o recuperación determinista. El diario permite recuperar sin el catálogo afectado; formatos anteriores siguen admitidos. Restauración desde respaldo independiente verificada; concurrencia y diario pendiente no permiten pérdida, doble aplicación ni limpieza prematura."
+    },
+    "AC-55": {
+      "owner": "V4-22",
+      "related_owners": [],
+      "status": "proposed-not-run",
+      "criterion": "Preview separa contenido referenciado, desconocido y elegible; retirada requiere autorización independiente y recuperación. Cero eliminación automática al consultar; comprobación previa de espacio. Bytes y archivos de backups, exportaciones y temporales se informan, no se esconden como ahorro global."
+    },
+    "AC-56": {
+      "owner": "V4-22",
+      "related_owners": [
+        "V4-14",
+        "V4-15",
+        "V4-16"
+      ],
+      "status": "proposed-not-run",
+      "criterion": "Runtime/distribución declaran los formatos nuevos; actualización y exportación portables verificadas. Antes de convertir se comprueba el lector compatible. Tras nuevas escrituras, volver al runtime antiguo exige restauración o exportación inversa compatible; no solo cambiar el pin. Paquete exacto y controles afectados pasan, sin atribuir capacidades nuevas a 3.4.3 ni ejecutar instalación/publicación."
+    }
+  },
+  "expected_merged_counts": {
+    "tasks": 27,
+    "acceptance_criteria": 56
+  },
+  "storage_proposal": {
+    "backend": "in-repository-immutable-packs",
+    "object_reference": "lks-sdd-object/1",
+    "new_physical_formats": [
+      "lks-sdd-object-pack/1",
+      "lks-sdd-object-catalog/1"
+    ],
+    "canonical_markdown_preserved": true,
+    "dual_read": true,
+    "pack_target_bytes": 8388608,
+    "pack_max_bytes": 16777216,
+    "pack_index_max_bytes": 1048576,
+    "pack_index_max_entries": 8192,
+    "catalog_max_bytes": 16777216,
+    "large_objects_remain_loose": true,
+    "object_max_bytes_unchanged": 67108864,
+    "external_service_in_scope": false,
+    "automatic_gc": false,
+    "journal_recovery_independent_of_catalog": true,
+    "journal_extension_requires_version_and_capability": true
+  },
+  "inventory_limits_proposed": {
+    "eligible_paths_max": 20000,
+    "raw_paths_max": 200000,
+    "git_output_max_bytes": 16777216,
+    "git_timeout_seconds": 60,
+    "enforce_while_reading": true,
+    "partial_inventory_is_valid": false
+  },
+  "measurement_proposed": {
+    "new_internal_files_reference": 407,
+    "new_internal_files_max": 81,
+    "growth_reduction_min": 0.8,
+    "historical_internal_file_reduction_min": 0.5,
+    "new_persisted_bytes_ratio_max": 1.1,
+    "component_CPU_median_ratio_max": 1.1,
+    "peak_memory_max_bytes": 536870912,
+    "peak_memory_ratio_max": 1.1,
+    "component_warmups_per_representation": 1,
+    "component_samples_per_representation": 3,
+    "billed_tokens": null,
+    "host_tokens": null,
+    "exclude_runtime_from_per_implementation_growth": true,
+    "include_non_git_files": true,
+    "all_retained_backups_counted_separately": true
+  },
+  "budget": {
+    "authorized_historical_environment_hours": 15,
+    "known_reserved_full_journeys": 54,
+    "existing_slot_cap": 54,
+    "protected_H2_slots": 2,
+    "certified_positive_balance_for_new_scope": null,
+    "additional_budget_authorized": false,
+    "proposed_full_journeys": 2,
+    "proposed_total_slot_cap": 56,
+    "full_journey_cutoff_seconds": 600,
+    "automatic_full_retries": 0,
+    "technical_hours_estimate": [
+      8.5,
+      17
+    ],
+    "contingency_fraction_proposed": 0.2,
+    "additional_hours_estimate_with_reserve": [
+      10.2,
+      20.4
+    ],
+    "estimate_is_commitment": false,
+    "previous_ABBA_time_reservation_reopened": false,
+    "estimate_unit": "additional-environment-hours-including-technical-waits"
+  },
+  "dispositions": {
+    "AC-43": "not-met-user-accepted-observed-product-tradeoff; historical criterion retained",
+    "AC-40": "inconclusive",
+    "H2": "pending-deferred",
+    "Windows_host_incident": "pending-out-of-scope",
+    "Copilot": "prior-disposition-preserved",
+    "human_evaluation": "deferred-sustained-real-use"
+  },
+  "implementation_authorized_for_new_tasks": false,
+  "plugin_modified_in_this_revision": false,
+  "new_cases_executed": 0,
+  "consumer_migration_executed": false,
+  "installed": false,
+  "published": false,
+  "committed": false,
+  "pushed": false
+}

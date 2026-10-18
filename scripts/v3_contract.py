@@ -35,7 +35,8 @@ def query_evaluation():
         return
     token = _QUERY_MODELS.set({})
     try:
-        yield
+        from object_zip import evaluation
+        with evaluation(): yield
     finally:
         _QUERY_MODELS.reset(token)
 STATES = set("draft proposed confirmed approved active effective superseded retired cancelled unknown conflict backlog ready in-progress in-review done done-with-reservations blocked paused completed revoked open resolved reconciliation-required observed transition".split())
@@ -175,6 +176,8 @@ class Element:
 
 
 def parse(raw, path):
+    from v4_activity import checkpoint
+    checkpoint()
     text = raw.decode("utf-8")
     version_match = re.search(r'^schema_version: [\"\']?(3\.[01])[\"\']?\r?$', text, re.M)
     if not version_match:
@@ -185,6 +188,7 @@ def parse(raw, path):
     result = []
     from v3_schema import validate
     for match in matches:
+        checkpoint()
         meta = json.loads(match[1])
         validate("element", meta, version_match[1])
         uid(meta["uid"])
@@ -205,15 +209,17 @@ def parse(raw, path):
 
 
 def document_paths(root):
-    base = path_at(root, DOCS, missing=True)
+    from path_utils import filesystem_root
+    io_root = filesystem_root(root,force_extended=True)
+    base = filesystem_root(path_at(root, DOCS, missing=True),force_extended=True)
     result = []
     if not base.exists(): return result
     excluded = {HISTORY, DOCS + "/evidence", DOCS + "/00-control/migrations"}
     for directory, folders, files in os.walk(base, followlinks=False):
         parent = Path(directory)
-        folders[:] = sorted(n for n in folders if (parent / n).relative_to(root).as_posix() not in excluded)
-        for name in folders + files: path_at(root, (parent / name).relative_to(root).as_posix())
-        result.extend((parent / n).relative_to(root).as_posix() for n in files if n.endswith(".md"))
+        folders[:] = sorted(n for n in folders if (parent / n).relative_to(io_root).as_posix() not in excluded)
+        for name in folders + files: path_at(root, (parent / name).relative_to(io_root).as_posix())
+        result.extend((parent / n).relative_to(io_root).as_posix() for n in files if n.endswith(".md"))
         if len(result) > 10000: raise ContractError("Inventario demasiado amplio; delimite el ámbito")
     return sorted(result)
 
@@ -497,6 +503,13 @@ class Model:
 
 
 def load(root):
+    from object_zip import evaluation
+    with evaluation(): return _load_snapshot(root)
+
+
+def _load_snapshot(root):
+    from v4_activity import checkpoint
+    checkpoint()
     root = Path(root).resolve()
     cache = _QUERY_MODELS.get()
     if cache is not None and root in cache:
@@ -508,6 +521,8 @@ def load(root):
 
 
 def _load(root):
+    from v3_evaluation import count
+    count("model_loads")
     model = Model(root)
     from v2_storage import VALIDATING, PENDING
     if (root/PENDING).exists() and not VALIDATING.get():

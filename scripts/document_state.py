@@ -5,6 +5,7 @@ from pathlib import Path
 
 from content_store import prepare_object, object_path, read_object
 from v2_contract import ContractError, canonical, fingerprint, read_bytes, relative_parts, sha
+from object_zip import evaluated
 
 FORMAT = "lks-sdd-state/1"
 PREFIX = "docs/lks-sdd/00-control/history/states/"
@@ -21,6 +22,7 @@ def name(identity):
     return PREFIX + identity + "/state.json"
 
 
+@evaluated
 def prepare(root, sources, changes):
     if len(sources) > MAX_FILES: raise ContractError("State file budget exceeded")
     entries = {}
@@ -47,6 +49,7 @@ def prepare(root, sources, changes):
     return identity
 
 
+@evaluated
 def manifest(root, identity):
     try:
         return _manifest(root, identity)
@@ -103,6 +106,7 @@ def dependencies(root, path):
     return result
 
 
+@evaluated
 def export(root, identity, destination):
     import tempfile
     import shutil

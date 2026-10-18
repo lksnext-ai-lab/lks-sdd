@@ -126,6 +126,11 @@ def _read_regular(root: Path, relative: str, *, limit: int, package_data: bool =
 
 
 def read_bytes(root: Path, relative: str, *, limit: int = 4 * 1024 * 1024, package_data: bool = False) -> bytes:
+    from v4_activity import checkpoint
+    checkpoint()
+    if relative.startswith(".lks-sdd/objects/sha256/"):
+        from object_zip import read_logical
+        return read_logical(root, relative, limit)
     from document_state import LINK as STATE_LINK, linked
     if STATE_LINK.fullmatch(relative):
         data = linked(root, relative, limit)
@@ -609,7 +614,8 @@ def read_contract(root: Path, *, project_schema=None, require_technology=True,
 
 def load(root: Path) -> Model:
     """Current v2 writers always require the current v2 project/declaration contract."""
-    return read_contract(root)
+    from object_zip import evaluation
+    with evaluation(): return read_contract(root)
 
 
 def execution_context(model: Model, tasks: list[str]) -> dict:

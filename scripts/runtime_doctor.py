@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import hashlib
+import os
 import stat
 from path_utils import file_attributes, filesystem_root
 from pathlib import Path
@@ -16,7 +17,7 @@ from dual_distribution import BEGIN, END, digest, json_bytes, safe_name, filesys
 def _linked(path):
     # Observe once for both predicates; this is never a cache across paths.
     # On an observation error retain the former Path predicate behaviour.
-    attributes = file_attributes(filesystem_root(path))
+    attributes = file_attributes(path)
     if attributes is not None:
         if not attributes & 0x400: return False
         return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
@@ -28,7 +29,9 @@ def _linked(path):
 
 
 def check(root: Path) -> dict:
-    root = filesystem_root(root)
+    # Normalize once. Every descendant then has the Windows extended spelling;
+    # _linked need not normalize thousands of already absolute paths again.
+    root = filesystem_root(root, force_extended=True)
     lock_path = root / ".lks-sdd/distribution-lock.json"
     if not lock_path.exists():
         return {"status": "unmanaged", "errors": [], "runtime": None}
@@ -37,6 +40,21 @@ def check(root: Path) -> dict:
         lock = json.loads(lock_path.read_text(encoding="utf-8"))
         if lock.get("schema_version") != "1.0" or lock.get("project_schema") not in {"1.5", "2.0", "3.0", "3.1"}:
             raise ValueError("Unsupported distribution contract")
+        # Keep this diagnostic independent of the transaction engine it checks.
+        # This metadata-only rule matches the core and offline installer.
+        formats = lock.get("storage_formats", [])
+        if not isinstance(formats, list): raise ValueError("Invalid runtime storage capabilities")
+        if "lks-sdd-object-zip/1" not in formats:
+            folder = root / ".lks-sdd/objects/packs"
+            cursor = folder
+            while cursor != root:
+                if _linked(cursor): raise ValueError("Unsafe object ZIP directory")
+                cursor = cursor.parent
+            if folder.exists():
+                if not folder.is_dir(): raise ValueError("Invalid object ZIP directory")
+                with os.scandir(folder) as entries:
+                    if next(entries, None) is not None:
+                        raise ValueError("Incompatible ZIP reader: restore a verified compatible store before changing the pin")
         entrypoints = lock.get("entrypoints", "project")
         if entrypoints not in {"project", "plugin"}:
             raise ValueError("Unsupported entrypoints mode")
@@ -59,11 +77,16 @@ def check(root: Path) -> dict:
         checks.update(lock["managed_files"])
         for relative, expected in checks.items():
             path = root / safe_name(relative)
-            links = [p for p in [path, *path.parents] if p != root and root in p.parents]
-            if not path.is_relative_to(root) or any(
-                _linked(p) for p in links
-            ):
+            if not path.is_relative_to(root):
                 raise ValueError(f"Unsafe managed path: {relative}")
+            # Walk the same ancestors once, without rebuilding every ancestor's
+            # own parents to test containment. Every route still observes each
+            # link freshly; no trust result survives another file or check.
+            cursor = path
+            while cursor != root:
+                if _linked(cursor):
+                    raise ValueError(f"Unsafe managed path: {relative}")
+                cursor = cursor.parent
             if not path.is_file():
                 errors.append(f"Missing: {relative}")
                 continue

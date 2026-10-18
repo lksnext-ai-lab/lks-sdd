@@ -1,5 +1,28 @@
 # Changelog
 
+## 4.0.0 — 2026-10-18 — operaciones, cierre y almacenamiento agrupado
+
+Desarrollo revisado y publicación autorizados por el responsable. Conserva las
+seis skills, schema 3.1 y método 3.1.0; instalar no actualiza consumidores.
+
+- Añade presentación operativa explícita y diagnóstico íntegro externo, preparación
+  compuesta, continuación y registro de resultados con permisos y guardas frescas.
+- Conserva obligaciones literales y contexto por alcance; carga instrucciones por
+  operación y mantiene mantenimiento proporcional y reutilización acotada.
+- Corrige el bloqueo del cierre administrativo por contar archivos internos como
+  código, conservando límites independientes, integridad y restricciones de lectura.
+- Agrupa objetos nuevos y permite compactar objetos existentes de v3 con preview,
+  respaldo, restauración comprobada y autorización separada de retirada.
+- En el corpus sintético, compactar redujo archivos internos activos un 54,12 %;
+  F8 generó 25 archivos nuevos frente a 407 (−93,86 %). Los bytes aumentaron un
+  7,57 % y un 5,89 %, respectivamente; no se afirma ahorro de disco.
+- Mantiene visibles el objetivo temporal no alcanzado, AC-40 inconcluso, medición
+  comparativa AC-52 histórica y Windows/H2/observación real pendientes. No acredita
+  ahorro global de tiempo, tokens facturados ni esfuerzo humano.
+
+Véase [actualización, recuperación y límites](docs/UPGRADE-4.0.0.md). El gate y los
+paquetes de la release se verifican sobre el commit integrado exacto.
+
 ## 3.4.3 — 2026-10-15 — rendimiento de identidades y aprobaciones
 
 Promoción de rc.3 autorizada expresamente: integración, commit, push, publicación

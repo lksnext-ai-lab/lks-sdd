@@ -966,9 +966,12 @@ def validate(root: Path) -> list[str]:
     )}
     shared_v2_policies = {(root / name).resolve() for name in
                           ("docs/V2-WORKFLOWS.md", "docs/V2-SPEC-PLAN-TASK.md", "docs/V3-COMMON.md", "docs/V3-OPERATIONS.md", "docs/V3-MIGRATION.md", "docs/USAGE-FEEDBACK.md")}
-    # Finite shared decision resources, with explicit transitive link validation.
+    # Finite shared decision/operation resources, with transitive link validation.
     from v3_decision_profiles import PROFILES
-    decision_resources = ["docs/USER-DECISIONS.md", "docs/V31-REVIEW.md"] + [
+    decision_resources = ["docs/USER-DECISIONS.md", "docs/V31-REVIEW.md",
+                          "docs/WORK-PREPARE.md", "docs/WORK-OPERATIONS.md", "docs/WORK-ACTIVITY.md",
+                          "docs/DOCUMENT-CONTEXT.md", "docs/CLI-PRESENTATION.md",
+                          "docs/DIAGNOSTIC-CAPTURE.md"] + [
         "docs/decision-guides/" + name + ".md" for name in sorted({p[0] for p in PROFILES.values()} - {None})]
     shared_v2_policies.update((root / name).resolve() for name in decision_resources)
     for name in decision_resources:

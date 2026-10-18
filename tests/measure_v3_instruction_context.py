@@ -6,7 +6,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from v3_decision_profiles import PROFILES, profiles, instruction_refs
+from v3_decision_profiles import PROFILES, OPERATION_GUIDES, profiles, instruction_refs
 from v3_contract import sha
 
 SCENARIOS = [
@@ -22,6 +22,9 @@ SCENARIOS = [
     ("aclaración", "define", "clarify", {}),
     ("corrección comprobada", "verify", "resolve-defect", {}),
     ("continuación tras compactación", "implement", "start", {}),
+    ("preparación compuesta", "assess-readiness", "work-prepare", {}),
+    ("continuación compuesta", "implement", "work-continue", {}),
+    ("resultados compuestos", "verify", "work-record-results", {}),
 ]
 
 
@@ -35,11 +38,12 @@ def count(root, paths):
 
 def measure(baseline=None):
     guides = ["docs/decision-guides/" + group + ".md" for group in sorted({p[0] for p in PROFILES.values()} - {None})]
+    guides += sorted({path for values in OPERATION_GUIDES.values() for path in values})
     rows = []
     for name, skill, event, data in SCENARIOS:
         entry = ["skills/lks-sdd-" + skill + "/SKILL.md", "skills/lks-sdd-" + skill + "/references/v3.md"]
         selection = profiles(event, data)
-        references = [r["path"] for r in instruction_refs(selection)]
+        references = [r["path"] for r in instruction_refs(selection, event=event)]
         if event in {"status", "start"}: references = ["docs/V3-COMMON.md"]
         chosen = count(ROOT, entry + references)
         full = count(ROOT, entry + ["docs/V3-COMMON.md", "docs/USER-DECISIONS.md"] + guides)

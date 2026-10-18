@@ -1,6 +1,9 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-La versión `3.4.3` de LKS-SDD organiza el desarrollo con agentes alrededor de
+Desarrollo 4.0: [capacidades, actualización y límites de la candidata](docs/V4-CANDIDATE.md).
+Los paquetes `development-unreleased` se identifican por su digest; no son la release publicada.
+
+La versión `4.0.0` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -101,7 +104,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 3.4.3, schema y método son versiones distintas. Los proyectos nuevos usan
+Plugin 4.0.0, schema y método son versiones distintas. Los proyectos nuevos usan
 schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
 Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
 recuperación; continuar trabajo con esta versión exige el corte explícito descrito
@@ -142,7 +145,13 @@ La corrección de tareas históricas de 3.4.2 se documenta en
 publicación estable están autorizados; publicar exige superar el gate y verificar
 los paquetes del commit final. La versión 3.4.3 promueve el runtime de rc.3 con
 [índices y reutilización por evaluación](docs/APPROVAL-PERFORMANCE.md).
-El catálogo Copilot declara `copilot-v3.4.3`; su árbol se comprueba contra el ZIP
+La versión 4.0.0 añade operaciones compuestas, presentación acotada con diagnóstico
+íntegro, contexto por alcance y almacenamiento agrupado. Corrige el bloqueo del cierre
+por contar archivos internos como código. La compactación explícita permite reducir
+objetos ya creados por v3, con respaldo, restauración y autorización separada de retirada.
+La [actualización a 4.0](docs/UPGRADE-4.0.0.md) distingue sus resultados y reservas:
+no promete ahorro global de tiempo, espacio ni tokens facturados.
+El catálogo Copilot declara `copilot-v4.0.0`; su árbol se comprueba contra el ZIP
 nativo acreditado. La [promoción y sus límites](docs/plans/approval-performance/IMPLEMENTATION.md)
 distinguen validación técnica, publicación, instalación y activación de host.
 Las ilustraciones en `output/infografias/` son bocetos

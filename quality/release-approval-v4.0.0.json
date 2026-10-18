@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "release_version": "4.0.0",
+  "scope": "stable-release",
+  "basis": ["project-owner-version-approval", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-18",
+    "authority_role": "project-owner",
+    "rationale": "El responsable valida el desarrollo revisado, autoriza cerrarlo y publicar la release 4.0, incluida su distribución en Codex. Se conserva la evidencia de resultados no alcanzados o no observados; la valoración real se realizará con la v4.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La autorización comprende los commits, integración y referencias necesarios para publicar 4.0.0; el gate estable y los paquetes del SHA integrado deben superar sus controles.",
+    "Windows nativo y H2 permanecen pendientes, sin nuevas cargas, accesos o reparaciones.",
+    "AC-43 conserva el objetivo temporal no alcanzado; AC-40 sigue inconcluso. AC-52 comparativo está ligado al componente histórico, sin nueva medición del runtime final.",
+    "Las reducciones de archivos sintéticas no prueban ahorro global de tiempo, espacio, tokens facturados o esfuerzo humano.",
+    "Publicar o instalar el plugin no actualiza runtimes fijados de consumidores, no compacta datos automáticamente y no acredita activación en una conversación nueva ni aceptación real de hosts."
+  ]
+}

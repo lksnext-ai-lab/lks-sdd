@@ -286,41 +286,61 @@ def preview(root, actor_name, process, controls, statement, *, target, runtime_c
 
 def inherited_confirmations(model, expected):
     """Reuse only the exact canonical decisions supported by recoverable v2 bytes."""
+    from v3_evaluation import memo
+    # One immutable evaluation may ask for the same historical support many
+    # times. Return a copy: the approval reader adds current decisions to it.
+    return dict(memo(model, ("inherited-confirmations", fingerprint(expected)),
+                     lambda: _inherited_confirmations(model, expected),
+                     lambda value: (len(value), 0)))
+
+
+def _inherited_confirmations(model, expected):
     covered, originals = {}, {}
     from v3_approval import descriptor
     from v3_evaluation import memo
     for receipt in model.by_kind("migration"):
         mapping = receipt.data.get("content_confirmations", {})
+        # A single table avoids evicting the bounded reader cache once a
+        # migrated project contains more than MAX_ENTRIES confirmed units.
+        # Reserve its unit budget up front; it can never exceed this mapping.
+        support = memo(model, ("inherited-unit-support", receipt.uid), dict,
+                       lambda value: (len(mapping), 0))
         for key, digest in expected.items():
             proof = mapping.get(key)
             if not proof or proof.get("target_digest") != digest: continue
             try:
-                path = proof["original"]
-                if isinstance(path, (dict, list)):
-                    import copy
-                    path = copy.deepcopy(path)  # Preserve the original invalid-key error.
-                if path not in originals:
-                    def original():
-                        raw = read_bytes(model.root, path)
-                        digest = sha(raw)
-                        model.hashes[path] = digest
-                        # Every physical route is checked, even for equal hashes.
-                        if digest != proof["original_sha256"]: raise ContractError("Original de migración modificado")
-                        return digest, {e.id: e for e in v2.parse_document(raw.decode("utf-8"), path)[0]}, len(raw)
-                    digest, values, _ = memo(model, ("migration-original", path, proof["original_sha256"]), original,
-                                            lambda value: (len(value[1]), value[2]))
-                    if digest != proof["original_sha256"]: continue
-                    originals[path] = values
-                source_id = proof["source_id"]
-                if isinstance(source_id, (dict, list)):
-                    import copy
-                    source_id = copy.deepcopy(source_id)
-                old = originals[path][source_id]
-                if old.meta["nature"] != "decision" or old.meta["state"] not in {"confirmed", "approved", "active", "effective"}: continue
-                if fingerprint(old.normative()) != proof["source_normative"]: continue
-                dependencies = descriptor(model, [key])["units"]
-                if any(mapping.get(k, {}).get("target_digest") != value for k, value in dependencies.items()): continue
-                covered[key] = receipt.uid
+                def supported():
+                    path = proof["original"]
+                    if isinstance(path, (dict, list)):
+                        import copy
+                        path = copy.deepcopy(path)  # Preserve the original invalid-key error.
+                    if path not in originals:
+                        def original():
+                            raw = read_bytes(model.root, path)
+                            digest = sha(raw)
+                            model.hashes[path] = digest
+                            if digest != proof["original_sha256"]: raise ContractError("Original de migración modificado")
+                            return digest, {e.id: e for e in v2.parse_document(raw.decode("utf-8"), path)[0]}, len(raw)
+                        observed, values, _ = memo(model, ("migration-original", path, proof["original_sha256"]), original,
+                                                 lambda value: (len(value[1]), value[2]))
+                        if observed != proof["original_sha256"]: return False
+                        originals[path] = values
+                    source_id = proof["source_id"]
+                    if isinstance(source_id, (dict, list)):
+                        import copy
+                        source_id = copy.deepcopy(source_id)
+                    old = originals[path][source_id]
+                    if old.meta["nature"] != "decision" or old.meta["state"] not in {"confirmed", "approved", "active", "effective"}: return False
+                    if fingerprint(old.normative()) != proof["source_normative"]: return False
+                    dependencies = descriptor(model, [key])["units"]
+                    return not any(mapping.get(k, {}).get("target_digest") != value for k, value in dependencies.items())
+                # Global dependencies recur in different technology descriptors.
+                # Their support is a property of this unit and immutable model,
+                # not of the larger descriptor asking about it.
+                identity = (key, digest)
+                if identity not in support: support[identity] = supported()
+                if support[identity]:
+                    covered[key] = receipt.uid
             except (ContractError, KeyError, ValueError, UnicodeError): continue
     return covered
 
