@@ -9,6 +9,7 @@ from v2_contract import ContractError, canonical, read_bytes, sha
 from v2_storage import (apply as journal_apply, ensure_idle, preview, protected_inventory,
                         recover as journal_recover, exists_hash)
 from v3_contract import DOCS, HISTORY, INDEX, BLOCK, load, location, render, fingerprint
+from object_zip import evaluated
 
 
 def staged_write(root, name, data):
@@ -22,9 +23,12 @@ def staged_write(root, name, data):
         path.write_bytes(data)
 
 
+@evaluated
 def stage(root, changes, sources, *, history_catalog=False, guards=None):
     with tempfile.TemporaryDirectory(prefix="lks-v3-stage-") as temp:
         target = Path(temp)
+        from object_zip import stage_writer
+        write, finish_objects = stage_writer(target, staged_write)
         needed_history = set()
         from v2_contract import LINK, ASSET, resolve_link
         from urllib.parse import urlsplit
@@ -40,14 +44,14 @@ def stage(root, changes, sources, *, history_catalog=False, guards=None):
             from document_state import LINK as STATE_LINK, dependencies
             if STATE_LINK.fullmatch(name):
                 for dependency in dependencies(root, name):
-                    if dependency not in changes: staged_write(target, dependency, read_bytes(root, dependency, limit=64*1024*1024))
+                    if dependency not in changes: write(dependency, read_bytes(root, dependency, limit=64*1024*1024))
                 continue
             if name.startswith((HISTORY + "/", DOCS + "/00-control/migrations/")) and name not in needed_history:
                 # Approved historical units are explicit sources; unlike migration's complete catalog.
                 if history_catalog: continue
             if name.startswith((DOCS + "/", ".lks-sdd/objects/")) or name == INDEX:
-                staged_write(target, name, read_bytes(root, name, limit=64 * 1024 * 1024))
-        for name, data in changes.items(): staged_write(target, name, data)
+                write(name, read_bytes(root, name, limit=64 * 1024 * 1024))
+        for name, data in changes.items(): write(name, data)
         if guards and guards.get("target_runtime"):
             lock_path = ".lks-sdd/distribution-lock.json"
             lock_raw = changes.get(lock_path)
@@ -55,13 +59,15 @@ def stage(root, changes, sources, *, history_catalog=False, guards=None):
             lock = json.loads(lock_raw)
             names = [lock_path, *(lock["runtime"] + "/" + p for p in lock["runtime_files"]), *lock["managed_files"]]
             for name in names:
-                if name not in changes: staged_write(target, name, read_bytes(root, name, limit=64*1024*1024, package_data=True))
+                if name not in changes: write(name, read_bytes(root, name, limit=64*1024*1024, package_data=True))
+        finish_objects()
         model = load(target).require_valid()
         staged_write(target, INDEX, canonical(model.index()))
         if guards: validate_runtime(target, guards)
         return model.index()
 
 
+@evaluated
 def prepare(root, items, operation, *, changes=None, sources=None, guards=None, packet_directory=None, method=None, state_sources=None):
     root = Path(root).resolve()
     ensure_idle(root)
@@ -293,6 +299,15 @@ def apply(root, packet, authorized_hash, *, interrupt_after=None, current=False)
 
 
 def recover(root, authorized_hash, *, rollback=False, receipt=None):
+    from v2_storage import PENDING
+    pending = Path(root)/PENDING
+    if pending.exists():
+        from v2_contract import _read_regular
+        from store_maintenance import FORMAT, recover as maintenance_recover
+        journal_tag = json.loads(_read_regular(root, PENDING, limit=128*1024*1024)).get('schema_version')
+        if journal_tag == FORMAT:
+            if rollback or receipt: raise ContractError("Use explicit maintenance recovery; business rollback cannot alter physical storage")
+            return maintenance_recover(root, authorized_hash)
     from v2_storage import _load_transaction
     journal, _ = _load_transaction(Path(root), authorized_hash, receipt)
     operation = journal["preview"]["operation"]

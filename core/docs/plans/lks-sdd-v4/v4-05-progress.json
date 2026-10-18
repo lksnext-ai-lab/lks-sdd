@@ -1,0 +1,622 @@
+{
+  "format": "lks-sdd-v4-implementation-progress/1",
+  "plan_revision": "0.4",
+  "task": "V4-05",
+  "status": "verified",
+  "authorization": "Correct Git Windows long paths and repeat V4-05 only",
+  "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "criteria": {
+    "AC-09": "passed",
+    "AC-10": "passed"
+  },
+  "criteria_scope": "Focal differential and physical-boundary tests; not release or host acceptance",
+  "unique_cases_latest_passed": 88,
+  "latest_failed_cases": [],
+  "historical_failed_tests_retained": 27,
+  "campaigns": {
+    "regressions.log": {
+      "passed": true,
+      "duration_seconds": 140.496,
+      "counts": {
+        "total": 36,
+        "passed": 36,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "implementation-tests.log": {
+      "passed": false,
+      "duration_seconds": 1011.617,
+      "counts": {
+        "total": 22,
+        "passed": 20,
+        "skipped": 0,
+        "failed": 2
+      }
+    },
+    "corrections-tests.log": {
+      "passed": true,
+      "duration_seconds": 277.12,
+      "counts": {
+        "total": 4,
+        "passed": 4,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "final-package-tests.log": {
+      "passed": true,
+      "duration_seconds": 151.203,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 0
+      }
+    }
+  },
+  "initial_smoke": {
+    "passed": 3,
+    "duration_seconds": 159.206,
+    "scope": "Intermediate positive differential, counters and partial portions"
+  },
+  "final_candidate_scope": "Full 28-case preparation and 43 regressions on candidate 1; final narrow guards rechecked by 17 Git cases and 2 public/package cases",
+  "results": "RESULTS-V4-05-GIT-WINDOWS.md",
+  "verification_index": "git-verification.json",
+  "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05",
+  "next_task": "V4-05A",
+  "next_task_started": false,
+  "human_effort": "deferred-real-use",
+  "copilot_host_observation": "pending-final",
+  "whole_task_saving": "not-measured",
+  "billed_tokens": null,
+  "complete_functional_attempts_started": 0,
+  "M6_variants_started": 0,
+  "global_resource_balance": "unknown-not-certified",
+  "global_caps": {
+    "full_study_attempts": 48,
+    "human_hours": 8,
+    "environment_hours": 12,
+    "M6_variants": 2,
+    "M6_shared_hours": 4
+  },
+  "environment_start_utc": "2026-10-16T14:14:13+00:00",
+  "current_block_cap_seconds": 2700,
+  "updated_at_utc": "2026-10-16T14:58:32.169723+00:00",
+  "environment_elapsed_seconds": 2659.169723,
+  "canonical_specs_modified": false,
+  "frozen_protocols_modified": false,
+  "version_changed": false,
+  "installed": false,
+  "published": false,
+  "committed": false,
+  "initial_delivery": {
+    "format": "lks-sdd-v4-implementation-progress/1",
+    "plan_revision": "0.4",
+    "task": "V4-05",
+    "status": "verified",
+    "authorization": "Local source V4-05 only",
+    "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+    "criteria": {
+      "AC-09": "passed",
+      "AC-10": "passed"
+    },
+    "criteria_scope": "Focal differential and physical-boundary tests; not release or host acceptance",
+    "unique_cases_latest_passed": 59,
+    "latest_failed_cases": [],
+    "historical_failed_tests_retained": 2,
+    "campaigns": {
+      "regressions.log": {
+        "passed": true,
+        "duration_seconds": 140.496,
+        "counts": {
+          "total": 36,
+          "passed": 36,
+          "skipped": 0,
+          "failed": 0
+        }
+      },
+      "implementation-tests.log": {
+        "passed": false,
+        "duration_seconds": 1011.617,
+        "counts": {
+          "total": 22,
+          "passed": 20,
+          "skipped": 0,
+          "failed": 2
+        }
+      },
+      "corrections-tests.log": {
+        "passed": true,
+        "duration_seconds": 277.12,
+        "counts": {
+          "total": 4,
+          "passed": 4,
+          "skipped": 0,
+          "failed": 0
+        }
+      },
+      "final-package-tests.log": {
+        "passed": true,
+        "duration_seconds": 151.203,
+        "counts": {
+          "total": 1,
+          "passed": 1,
+          "skipped": 0,
+          "failed": 0
+        }
+      }
+    },
+    "initial_smoke": {
+      "passed": 3,
+      "duration_seconds": 159.206,
+      "scope": "Intermediate positive differential, counters and partial portions"
+    },
+    "final_candidate_scope": "Localized metadata/sufficiency/Git-timeout changes rechecked focally; complete 22-case battery and 36 regressions belong to preceding candidate",
+    "results": "RESULTS-V4-05.md",
+    "verification_index": "verification-final.json",
+    "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05",
+    "next_task": "V4-05A",
+    "next_task_started": false,
+    "human_effort": "deferred-real-use",
+    "copilot_host_observation": "pending-final",
+    "whole_task_saving": "not-measured",
+    "billed_tokens": null,
+    "complete_functional_attempts_started": 0,
+    "M6_variants_started": 0,
+    "global_resource_balance": "unknown-not-certified",
+    "global_caps": {
+      "full_study_attempts": 48,
+      "human_hours": 8,
+      "environment_hours": 12,
+      "M6_variants": 2,
+      "M6_shared_hours": 4
+    },
+    "environment_start_utc": "2026-10-16T12:50:16+00:00",
+    "current_block_cap_seconds": 2700,
+    "updated_at_utc": "2026-10-16T13:34:40.088884+00:00",
+    "environment_elapsed_seconds": 2664.088884,
+    "canonical_specs_modified": false,
+    "frozen_protocols_modified": false,
+    "version_changed": false,
+    "installed": false,
+    "published": false,
+    "committed": false
+  },
+  "review_start_utc": "2026-10-16T13:53:31+00:00",
+  "review_unique_cases_passed": 12,
+  "review_test_results": {
+    "passed": false,
+    "duration_seconds": 435.068,
+    "counts": {
+      "total": 13,
+      "passed": 12,
+      "skipped": 0,
+      "failed": 1
+    },
+    "results": [
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_basis_includes_history_read_during_evaluation",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_binary_attachment_is_not_assumed_observed_and_capture_keeps_it",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_expiring_authority_during_preparation_is_detected",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_missing_authorization_and_task_review_match_core_causes",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_optional_index_large_index_missing_root_and_git_timeout",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_partial_selection_retains_blocked_task_and_independent_authorized_task",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_public_pinned_cli_and_two_distribution_adapters",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_public_prepare_under_long_windows_consumer_path",
+        "status": "failed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_ready_is_read_only_and_matches_individual_queries",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_runtime_declaration_changed_at_initial_and_final_boundary",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_runtime_declaration_changed_during_final_validation",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_shared_model_counters_include_internal_work",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_prepare.WorkPrepareTests.test_transaction_started_during_query_blocks_ready",
+        "status": "passed"
+      }
+    ]
+  },
+  "review_pre_correction_failed_results": 5,
+  "confirmed_defect_reproductions": 4,
+  "review_fixture_failure_retained": 1,
+  "pending_correction": null,
+  "review_windows_status": "passed",
+  "completed_test_executions": 206,
+  "review_completed_test_executions": 18,
+  "combined_unique_cases_latest_applicable": 88,
+  "combined_latest_failed": [],
+  "review_campaigns": "review-campaigns.json",
+  "resource_ledger": "git-resource-ledger.json",
+  "review_global_balance": "unknown-not-certified",
+  "review_whole_task_saving": "not-measured",
+  "review_complete_task_attempts": 0,
+  "review_M6_variants": 0,
+  "previous_review": {
+    "format": "lks-sdd-v4-implementation-progress/1",
+    "plan_revision": "0.4",
+    "task": "V4-05",
+    "status": "in-progress",
+    "authorization": "Local source V4-05 only",
+    "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+    "criteria": {
+      "AC-09": "inconclusive",
+      "AC-10": "inconclusive"
+    },
+    "criteria_scope": "Focal differential and physical-boundary tests; not release or host acceptance",
+    "unique_cases_latest_passed": 63,
+    "latest_failed_cases": [],
+    "historical_failed_tests_retained": 8,
+    "campaigns": {
+      "regressions.log": {
+        "passed": true,
+        "duration_seconds": 140.496,
+        "counts": {
+          "total": 36,
+          "passed": 36,
+          "skipped": 0,
+          "failed": 0
+        }
+      },
+      "implementation-tests.log": {
+        "passed": false,
+        "duration_seconds": 1011.617,
+        "counts": {
+          "total": 22,
+          "passed": 20,
+          "skipped": 0,
+          "failed": 2
+        }
+      },
+      "corrections-tests.log": {
+        "passed": true,
+        "duration_seconds": 277.12,
+        "counts": {
+          "total": 4,
+          "passed": 4,
+          "skipped": 0,
+          "failed": 0
+        }
+      },
+      "final-package-tests.log": {
+        "passed": true,
+        "duration_seconds": 151.203,
+        "counts": {
+          "total": 1,
+          "passed": 1,
+          "skipped": 0,
+          "failed": 0
+        }
+      }
+    },
+    "initial_smoke": {
+      "passed": 3,
+      "duration_seconds": 159.206,
+      "scope": "Intermediate positive differential, counters and partial portions"
+    },
+    "final_candidate_scope": "Review focal cases rerun; earlier 36 regressions and remaining preparation cases retained with unchanged core source evidence",
+    "results": "REVIEW-V4-05.md",
+    "verification_index": "review-verification.json",
+    "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05",
+    "next_task": "V4-05A",
+    "next_task_started": false,
+    "human_effort": "deferred-real-use",
+    "copilot_host_observation": "pending-final",
+    "whole_task_saving": "not-measured",
+    "billed_tokens": null,
+    "complete_functional_attempts_started": 0,
+    "M6_variants_started": 0,
+    "global_resource_balance": "unknown-not-certified",
+    "global_caps": {
+      "full_study_attempts": 48,
+      "human_hours": 8,
+      "environment_hours": 12,
+      "M6_variants": 2,
+      "M6_shared_hours": 4
+    },
+    "environment_start_utc": "2026-10-16T13:53:31+00:00",
+    "current_block_cap_seconds": 1200,
+    "updated_at_utc": "2026-10-16T14:13:28.176292+00:00",
+    "environment_elapsed_seconds": 1197.176292,
+    "canonical_specs_modified": false,
+    "frozen_protocols_modified": false,
+    "version_changed": false,
+    "installed": false,
+    "published": false,
+    "committed": false,
+    "initial_delivery": {
+      "format": "lks-sdd-v4-implementation-progress/1",
+      "plan_revision": "0.4",
+      "task": "V4-05",
+      "status": "verified",
+      "authorization": "Local source V4-05 only",
+      "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+      "criteria": {
+        "AC-09": "passed",
+        "AC-10": "passed"
+      },
+      "criteria_scope": "Focal differential and physical-boundary tests; not release or host acceptance",
+      "unique_cases_latest_passed": 59,
+      "latest_failed_cases": [],
+      "historical_failed_tests_retained": 2,
+      "campaigns": {
+        "regressions.log": {
+          "passed": true,
+          "duration_seconds": 140.496,
+          "counts": {
+            "total": 36,
+            "passed": 36,
+            "skipped": 0,
+            "failed": 0
+          }
+        },
+        "implementation-tests.log": {
+          "passed": false,
+          "duration_seconds": 1011.617,
+          "counts": {
+            "total": 22,
+            "passed": 20,
+            "skipped": 0,
+            "failed": 2
+          }
+        },
+        "corrections-tests.log": {
+          "passed": true,
+          "duration_seconds": 277.12,
+          "counts": {
+            "total": 4,
+            "passed": 4,
+            "skipped": 0,
+            "failed": 0
+          }
+        },
+        "final-package-tests.log": {
+          "passed": true,
+          "duration_seconds": 151.203,
+          "counts": {
+            "total": 1,
+            "passed": 1,
+            "skipped": 0,
+            "failed": 0
+          }
+        }
+      },
+      "initial_smoke": {
+        "passed": 3,
+        "duration_seconds": 159.206,
+        "scope": "Intermediate positive differential, counters and partial portions"
+      },
+      "final_candidate_scope": "Localized metadata/sufficiency/Git-timeout changes rechecked focally; complete 22-case battery and 36 regressions belong to preceding candidate",
+      "results": "RESULTS-V4-05.md",
+      "verification_index": "verification-final.json",
+      "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05",
+      "next_task": "V4-05A",
+      "next_task_started": false,
+      "human_effort": "deferred-real-use",
+      "copilot_host_observation": "pending-final",
+      "whole_task_saving": "not-measured",
+      "billed_tokens": null,
+      "complete_functional_attempts_started": 0,
+      "M6_variants_started": 0,
+      "global_resource_balance": "unknown-not-certified",
+      "global_caps": {
+        "full_study_attempts": 48,
+        "human_hours": 8,
+        "environment_hours": 12,
+        "M6_variants": 2,
+        "M6_shared_hours": 4
+      },
+      "environment_start_utc": "2026-10-16T12:50:16+00:00",
+      "current_block_cap_seconds": 2700,
+      "updated_at_utc": "2026-10-16T13:34:40.088884+00:00",
+      "environment_elapsed_seconds": 2664.088884,
+      "canonical_specs_modified": false,
+      "frozen_protocols_modified": false,
+      "version_changed": false,
+      "installed": false,
+      "published": false,
+      "committed": false
+    },
+    "review_start_utc": "2026-10-16T13:53:31+00:00",
+    "review_unique_cases_passed": 12,
+    "review_test_results": {
+      "passed": false,
+      "duration_seconds": 435.068,
+      "counts": {
+        "total": 13,
+        "passed": 12,
+        "skipped": 0,
+        "failed": 1
+      },
+      "results": [
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_basis_includes_history_read_during_evaluation",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_binary_attachment_is_not_assumed_observed_and_capture_keeps_it",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_expiring_authority_during_preparation_is_detected",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_missing_authorization_and_task_review_match_core_causes",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_optional_index_large_index_missing_root_and_git_timeout",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_partial_selection_retains_blocked_task_and_independent_authorized_task",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_public_pinned_cli_and_two_distribution_adapters",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_public_prepare_under_long_windows_consumer_path",
+          "status": "failed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_ready_is_read_only_and_matches_individual_queries",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_runtime_declaration_changed_at_initial_and_final_boundary",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_runtime_declaration_changed_during_final_validation",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_shared_model_counters_include_internal_work",
+          "status": "passed"
+        },
+        {
+          "id": "test_work_prepare.WorkPrepareTests.test_transaction_started_during_query_blocks_ready",
+          "status": "passed"
+        }
+      ]
+    },
+    "review_pre_correction_failed_results": 5,
+    "confirmed_defect_reproductions": 4,
+    "review_fixture_failure_retained": 1,
+    "pending_correction": "Git cannot observe a Windows consumer/runtime beyond MAX_PATH; do not start V4-05A",
+    "review_windows_status": "failed",
+    "completed_test_executions": 84,
+    "review_completed_test_executions": 18,
+    "combined_unique_cases_latest_applicable": 64,
+    "combined_latest_failed": [
+      "test_work_prepare.WorkPrepareTests.test_public_prepare_under_long_windows_consumer_path"
+    ],
+    "review_campaigns": "review-campaigns.json",
+    "resource_ledger": "review-resource-ledger.json",
+    "review_global_balance": "unknown-not-certified",
+    "review_whole_task_saving": "not-measured",
+    "review_complete_task_attempts": 0,
+    "review_M6_variants": 0
+  },
+  "windows_supported_scope": "Existing 8.3 aliases and current-user ownership; explicit rejection of non-equivalent configuration/environment",
+  "git_correction_campaigns": {
+    "git-unit-tests-1.log": {
+      "passed": false,
+      "duration_seconds": 41.053,
+      "counts": {
+        "total": 19,
+        "passed": 0,
+        "skipped": 0,
+        "failed": 19
+      }
+    },
+    "git-unit-tests-2.log": {
+      "passed": true,
+      "duration_seconds": 46.404,
+      "counts": {
+        "total": 10,
+        "passed": 10,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "git-unit-tests-3.log": {
+      "passed": true,
+      "duration_seconds": 58.054,
+      "counts": {
+        "total": 12,
+        "passed": 12,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "git-all-wp-tests.log": {
+      "passed": true,
+      "duration_seconds": 1111.394,
+      "counts": {
+        "total": 28,
+        "passed": 28,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "git-regressions.log": {
+      "passed": true,
+      "duration_seconds": 391.959,
+      "counts": {
+        "total": 43,
+        "passed": 43,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "git-unit-final-tests.log": {
+      "passed": true,
+      "duration_seconds": 73.221,
+      "counts": {
+        "total": 17,
+        "passed": 17,
+        "skipped": 0,
+        "failed": 0
+      }
+    },
+    "git-final-public-tests.log": {
+      "passed": true,
+      "duration_seconds": 228.87,
+      "counts": {
+        "total": 2,
+        "passed": 2,
+        "skipped": 0,
+        "failed": 0
+      }
+    }
+  },
+  "git_correction_method_runs": {
+    "git-unit-tests-1.log": 10,
+    "git-unit-tests-2.log": 10,
+    "git-unit-tests-3.log": 12,
+    "git-all-wp-tests.log": 28,
+    "git-regressions.log": 43,
+    "git-unit-final-tests.log": 17,
+    "git-final-public-tests.log": 2
+  },
+  "git_correction_result_records": 131,
+  "git_correction_new_study_attempts": 0,
+  "git_correction_M6_variants": 0,
+  "failed_result_records_include_cleanup_errors": true
+}

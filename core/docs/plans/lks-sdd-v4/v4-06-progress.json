@@ -1,0 +1,365 @@
+{
+  "format": "lks-sdd-task-progress/1",
+  "task": "V4-06",
+  "updated_utc": "2026-10-17T11:25:58.351692+00:00",
+  "status": "implemented-guarantees-verified-performance-not-accepted",
+  "plugin_modified": true,
+  "release_complete": false,
+  "installed": false,
+  "published": false,
+  "source_manifest_version": "3.4.3",
+  "candidate_runtime": "3.4.3-2a484d66440c",
+  "reference_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "criteria": {
+    "AC-11": "verified-technical-scope",
+    "AC-12": "verified-technical-scope",
+    "AC-13": "verified-technical-scope",
+    "AC-34": "pending-H2-not-run",
+    "AC-42": "not-run-final-AB-BA",
+    "AC-43": "not-accepted-early-regression-final-pending",
+    "AC-44": "focal-V4-06-verified-integrated-pending"
+  },
+  "tests": {
+    "focal_unique_methods": 29,
+    "focal_subcases": 17,
+    "preparation_methods": 28,
+    "release_smokes": 14,
+    "real_windows_long_path_methods": 1,
+    "static_integrity": "passed",
+    "release_gate_approved": false
+  },
+  "S8": {
+    "valid_pair": "revision-2",
+    "invalid_own_harness_attempts_preserved": 2,
+    "valid_early_attempts": 2,
+    "early_attempts_charged": 6,
+    "reserved_contingencies_used": 2,
+    "reserved_contingencies_remaining": 0,
+    "conservative_known_full_attempts": 15,
+    "remaining_reserved_attempts": 30,
+    "known_plus_reserved": 45,
+    "global_attempt_cap": 48,
+    "final_acceptance": "pending-not-passed",
+    "metrics": {
+      "arms": [
+        {
+          "arm": "A",
+          "valid": true,
+          "time": 133.2307482000033,
+          "cpu": 109.34375,
+          "memory_bytes": 117624832,
+          "processes": 258,
+          "calls": 12,
+          "out": 886919,
+          "in": 298653,
+          "checks": 19,
+          "checks_all": true,
+          "steps": [
+            {
+              "label": "runtime-doctor",
+              "seconds": 1.091035399993416,
+              "stdout_bytes": 170,
+              "input_file_bytes": 0
+            },
+            {
+              "label": "context",
+              "seconds": 2.495224899990717,
+              "stdout_bytes": 541051,
+              "input_file_bytes": 70
+            },
+            {
+              "label": "readiness",
+              "seconds": 11.073060800001258,
+              "stdout_bytes": 6682,
+              "input_file_bytes": 111
+            },
+            {
+              "label": "start",
+              "seconds": 14.472426099993754,
+              "stdout_bytes": 9387,
+              "input_file_bytes": 135
+            },
+            {
+              "label": "implement",
+              "seconds": 17.4278684000019,
+              "stdout_bytes": 15070,
+              "input_file_bytes": 146
+            },
+            {
+              "label": "evidence",
+              "seconds": 8.17939189999015,
+              "stdout_bytes": 9661,
+              "input_file_bytes": 302
+            },
+            {
+              "label": "verify",
+              "seconds": 13.067518900003051,
+              "stdout_bytes": 14619,
+              "input_file_bytes": 134
+            },
+            {
+              "label": "close",
+              "seconds": 12.790707299980568,
+              "stdout_bytes": 8983,
+              "input_file_bytes": 128
+            },
+            {
+              "label": "validate",
+              "seconds": 1.8106962000019848,
+              "stdout_bytes": 3879,
+              "input_file_bytes": 0
+            },
+            {
+              "label": "integrate-presentation",
+              "seconds": 3.7662962999893352,
+              "stdout_bytes": 231609,
+              "input_file_bytes": 359
+            },
+            {
+              "label": "integrate",
+              "seconds": 15.22131999998237,
+              "stdout_bytes": 10030,
+              "input_file_bytes": 565
+            },
+            {
+              "label": "usage-record",
+              "seconds": 26.961674600024708,
+              "stdout_bytes": 35778,
+              "input_file_bytes": 296703
+            }
+          ]
+        },
+        {
+          "arm": "B",
+          "valid": true,
+          "time": 251.62214579997817,
+          "cpu": 219.015625,
+          "memory_bytes": 153124864,
+          "processes": 423,
+          "calls": 9,
+          "out": 1645970,
+          "in": 3450,
+          "checks": 26,
+          "checks_all": true,
+          "steps": [
+            {
+              "label": "runtime-doctor",
+              "seconds": 1.5199884000176098,
+              "stdout_bytes": 160,
+              "input_file_bytes": 0
+            },
+            {
+              "label": "work-prepare-start",
+              "seconds": 20.848466900002677,
+              "stdout_bytes": 389853,
+              "input_file_bytes": 217
+            },
+            {
+              "label": "work-continue",
+              "seconds": 38.30092670000158,
+              "stdout_bytes": 381687,
+              "input_file_bytes": 658
+            },
+            {
+              "label": "work-prepare-results",
+              "seconds": 29.835288000002038,
+              "stdout_bytes": 390167,
+              "input_file_bytes": 221
+            },
+            {
+              "label": "work-record-results",
+              "seconds": 78.60249889999977,
+              "stdout_bytes": 383943,
+              "input_file_bytes": 1242
+            },
+            {
+              "label": "validate",
+              "seconds": 4.181075300002703,
+              "stdout_bytes": 3976,
+              "input_file_bytes": 0
+            },
+            {
+              "label": "integrate-presentation",
+              "seconds": 23.285441999993054,
+              "stdout_bytes": 54602,
+              "input_file_bytes": 359
+            },
+            {
+              "label": "integrate",
+              "seconds": 19.305615099990973,
+              "stdout_bytes": 8072,
+              "input_file_bytes": 565
+            },
+            {
+              "label": "usage-record",
+              "seconds": 27.860247800010256,
+              "stdout_bytes": 33510,
+              "input_file_bytes": 188
+            }
+          ]
+        }
+      ],
+      "changes_percent": {
+        "time": 88.86191753742021,
+        "cpu": 100.30008573878253,
+        "memory_bytes": 30.180729184803432,
+        "processes": 63.95348837209303,
+        "calls": -25.0,
+        "out": 85.58289990404985,
+        "in": -98.84481321131882
+      },
+      "flow_change_percent": 39.124405772066154
+    },
+    "corrective_attempts_charged": 2
+  },
+  "budget": {
+    "format": "lks-sdd-environment-budget/1",
+    "as_of_utc": "2026-10-17T11:25:58.351692+00:00",
+    "global_cap_seconds": 54000,
+    "closed_turn_count": 48,
+    "raw_closed_seconds": 63408.246,
+    "historical_discount_seconds_applied_once": 10903.592044,
+    "historical_conservation_seconds_applied_once": 42.341,
+    "charged_closed_seconds": 52546.994955999995,
+    "current_turn_id": "01a14991-7129-7592-a097-9eba50365742",
+    "current_turn_start_utc": "2026-10-17T11:13:51.150Z",
+    "current_turn_elapsed_seconds": 727.201692,
+    "charged_as_of_seconds": 53274.196648,
+    "remaining_as_of_seconds": 725.803352000005,
+    "remaining_at_current_turn_start_seconds": 1453.005044000005,
+    "effective_current_turn_cutoff_utc": "2026-10-17T11:38:04.155044+00:00",
+    "prior_turn_id": "01a146d9-7c94-7c20-8acc-80af85a8a061",
+    "prior_turn_charge_seconds": 7519.483,
+    "idle_between_closed_and_current_turn_charged": false,
+    "additional_budget_authorized": false,
+    "source": "C:\\Users\\j.ormazabal\\.codex\\sessions\\2026\\10\\15\\rollout-2026-10-15T18-24-14-01a14060-e29a-75b0-8ddc-ec990f8a2c9c.jsonl",
+    "basis": "Deduplicated task_complete duration_ms plus only current open turn; no double charge and no human-time inference"
+  },
+  "open_finding": "PERF-V4-06-01",
+  "H2": "pending-not-run",
+  "windows_host_incident": "set-aside-open",
+  "human_evaluation": "deferred-sustained-real-use",
+  "copilot": "real-host-check-pending-at-end",
+  "latest_steering": "Continue development as agilely as possible; no new hours, installation, publication, commit or push authorization inferred",
+  "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-06",
+  "evidence": {
+    "consolidated-focal-result.json": "94a3e2985d80416cfc783a5c41479a9329f070150982c6bc0e885e14e557349b",
+    "frozen-focal-result.json": "67927a4ae579ac96b9dee9392d1acb5a52dc516ea43d15016ab8d791f29da518",
+    "corrected-output-result.json": "0a75f8d555d04a75b1a8e3bfff53adf1c6bfeeba5dc9271413b6a475c046e39a",
+    "frozen-work-prepare.log": "2842435e6959f46cfd01b58b04ce2c82c5d5d212b15eb9725103e7ed1103f50f",
+    "frozen-technical.json": "34e3ead3fafb940f1b490a00054606865cc2a545ab52b2aa765a1ec42bc6b6a5",
+    "s8-derived.json": "0a3d76a9d8f65ca755b2ad9e49ecbd296fe0a8b5dfcdf7d32a111d1f0ee8789c",
+    "closure-audit.json": "e1e6d31882ed12995c4eab95e7ae96bf003aaefe25cba305bb85e04723129e59",
+    "performance-finding.json": "e078ad83c6f71dc99650145138431f8e89236037184ed055886413975ed49d95",
+    "final-budget.json": "9954f304f46d8c6bfa4ed85ef002c5f26cb6cdb5c888d29baa467ed0035a5a17",
+    "s8-study/results.json": "c78cd5ca181b0f928c27561405c91c1809569dbe092c24ca0968bfee1f5110ad",
+    "s8-study/revision-2/results.json": "52c12557006f0ecc4f04302652036ecbaf6b023f4c2641e49a78eb62786b8b5a",
+    "readonly-profile.json": "24e6a98f9032e5739fdbaf1e3262cd4ec6332672dcb043e0afd220eae8d58c32",
+    "final-doc-validation.json": "c969cbe33c0fbe981287635622eedd34bcbae52b9c24288a45cd5ac443bc4d5b"
+  },
+  "diagnostic_profile": {
+    "path": "readonly-profile.json",
+    "whole_task_attempt": false,
+    "component_cutoff_seconds": 30,
+    "scope": "Single read-only require_current on the already integrated B consumer (347 elements); no S8 retry, plugin change or host loading",
+    "profile_seconds": 1.7549705999999987,
+    "bounded_process_seconds": 15.958410899998853,
+    "runtime_check_cumulative_seconds": 0.8265687,
+    "model_load_cumulative_seconds": 0.7967536000000001,
+    "consumer_non_git_files_checked": 2348,
+    "consumer_unchanged": true,
+    "interpretation": "Runtime checking and model loading are material inside this call, but this isolated profile does not attribute the 118 s journey regression or predict any optimization benefit. Git, capture and output costs remain to be attributed."
+  },
+  "additional_budget_proposal": {
+    "status": "executed-under-latest-user-continuation-with-7200s-block-cutoff",
+    "extra_seconds_max": 7200,
+    "proposed_global_hours": 17,
+    "scope": "PERF-V4-06-01 single corrective variant with validation and protected closure; not complete 4.0",
+    "allocation_minutes": {
+      "diagnosis": 20,
+      "correction": 20,
+      "validation": 65,
+      "diff_and_report": 5,
+      "recovery_and_closure": 10
+    },
+    "H2_windows_host_work": false,
+    "install_or_publish": false
+  },
+  "final_document_validation": {
+    "as_of_utc": "2026-10-17T11:25:58.351692+00:00",
+    "diff_check": "passed",
+    "literal_criteria": 44,
+    "tasks": 23,
+    "improvements": 6,
+    "criteria_39_43_machine_text_match": true,
+    "evidence_references_match": true,
+    "additional_hours_not_applied": true,
+    "production_unchanged_since_measured": true,
+    "case_reruns_in_continuation": 0,
+    "readonly_diagnostic_components": 1
+  },
+  "latest_correction": {
+    "as_of_utc": "2026-10-17T13:50:15.707236+00:00",
+    "V4-06": "implemented-guarantees-verified-performance-not-accepted",
+    "V4-07": "verified-technical-scope",
+    "AC-14": "verified-technical-scope-with-reused-core-evidence",
+    "core_unique_tests_passed": 90,
+    "continuity_new_tests_passed": 7,
+    "v407_full_preparation_repeat": "timeout-not-passed; unchanged preparation AST and prior 28-case evidence explicitly reused",
+    "v407_technical_checks": {
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 593.7846313999908
+    },
+    "protected_files_unchanged": 143,
+    "writer_sources_unchanged_since_core_tests": true,
+    "corrective_pair": [
+      {
+        "arm": "B",
+        "valid_window": false,
+        "completed": true,
+        "all_functional_checks_passed": true,
+        "job_children_at_exit": 0,
+        "pending_transaction": false
+      },
+      {
+        "arm": "A",
+        "valid_window": false,
+        "completed": true,
+        "all_functional_checks_passed": true,
+        "job_children_at_exit": 0,
+        "pending_transaction": false
+      }
+    ],
+    "performance": "unaccepted: both windows invalid due to concurrent Python from other projects; no favourable rerun",
+    "campaign_slots": {
+      "known": 15,
+      "reserved": 30,
+      "total": 45,
+      "maximum": 48,
+      "remaining_contingencies": 0,
+      "final_S8_slots": 4,
+      "H2_slots": 2
+    },
+    "Windows_incident": "set-aside-pending",
+    "H2": "not-run",
+    "Copilot_real_host": "pending-at-end",
+    "installed": false,
+    "published": false,
+    "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-06\\correction",
+    "evidence": {
+      "verification-result.json": "5728c5ee1897c083f4aa53a7e5ac110cbda3834f54587715f19d7ddbe0f06810",
+      "frozen-focal-result.json": "a71da073c43d8b44ec6198c32191ece94f6969d1556dd315ee02c905f496155c",
+      "verification-source-freeze.json": "e7a2ba63ca025b9e6ee899485b0e8f5772e1bfec494b9bf3180eb3fafe19b7d8",
+      "continuity-final.json": "e890b33f366434b6680321c6d969f74992e9c9d75364648a51e3689a94284be5",
+      "continuity-verification.json": "70daa7c73ff09bc0507325611fdce2720250ff34b7fa99d2fedb132001a82f91",
+      "concurrency-admission.json": "4f84ae0c169c81dc34493f2fb8a687d9708cc3255c0b50c40de6930181417494",
+      "paired-final/predeclared.json": "4d465da902ff8e0d8fb2df6015e7d31c708625d18cfb187fbe258a74c578245c",
+      "paired-final/results.json": "5b6f41978c48877919731dd95960233e46ff7958261e88bcd7eb4a8454e9ce4d",
+      "focus-cost.json": "f275df068cf31ad97759d7c8dfdeb8dbebf0f2b3a6f02d846c704cd658c28bfe",
+      "capture-profile/profile.json": "581381a6767c2ed7ad0a13ce69d001a60983c8373a0f0e78db1a2b42352c668a",
+      "aborted-1.json": "c130b83e5737d3c16ae06d546d5fe6e69d0225e0ad4adc73219db2971fba6af1",
+      "aborted-2.json": "a6f328073d9199a442707673f1de982156608f6cde9677a14480a90b754af2f0"
+    }
+  }
+}

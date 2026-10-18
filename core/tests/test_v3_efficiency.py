@@ -28,6 +28,103 @@ def configuration(owner="$owner", reviewer=None):
                          "reviewers": [{"member": reviewer, "required": True, "domains": ["functional", "technical"]}] if reviewer else []}}
 
 
+class FreshPathObservationTests(unittest.TestCase):
+    def test_runtime_observes_each_ancestor_and_rereads_modified_missing_and_extra_files(self):
+        from runtime_doctor import check
+        import runtime_doctor
+        from path_utils import filesystem_root
+        from dual_distribution import digest, json_bytes
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); runtime = root / '.lks-sdd/runtime/test'
+            files = {'.codex-plugin/plugin.json': b'{"version":"1"}',
+                     'distribution/dual.json': b'{}', 'nested/deep/source.txt': b'original'}
+            for name, raw in files.items():
+                path = runtime / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(raw)
+            hashes = {p: digest(raw) for p, raw in files.items()}
+            lock = {'schema_version':'1.0', 'project_schema':'1.5', 'runtime':'.lks-sdd/runtime/test',
+                    'runtime_files':hashes, 'managed_files':{}, 'runtime_digest':digest(json_bytes(hashes)),
+                    'version':'1', 'channel':'synthetic'}
+            (root / '.lks-sdd/distribution-lock.json').write_bytes(json_bytes(lock))
+            with patch.object(runtime_doctor, '_linked', wraps=runtime_doctor._linked) as links:
+                self.assertEqual('valid', check(root)['status'])
+                observed = [args[0][0] for args in links.call_args_list]
+                for name in files:
+                    cursor = filesystem_root(runtime / name, force_extended=True)
+                    while cursor != filesystem_root(root, force_extended=True):
+                        self.assertIn(cursor, observed); cursor = cursor.parent
+            source = runtime / 'nested/deep/source.txt'
+            source.write_bytes(b'changed')
+            self.assertIn('Modified: .lks-sdd/runtime/test/nested/deep/source.txt', check(root)['errors'])
+            source.unlink()
+            self.assertIn('Missing: .lks-sdd/runtime/test/nested/deep/source.txt', check(root)['errors'])
+            source.write_bytes(b'original'); (runtime/'unexpected.txt').write_bytes(b'extra')
+            self.assertIn('Unexpected runtime file: unexpected.txt', check(root)['errors'])
+            (runtime/'unexpected.txt').unlink()
+            with patch.object(runtime_doctor, '_linked', side_effect=lambda p: p == filesystem_root(runtime/'nested', force_extended=True)):
+                self.assertEqual('blocked', check(root)['status'])
+            self.assertEqual('valid', check(root)['status'])
+
+    def test_bundle_native_reparse_and_portable_fallback_are_fresh_and_fail_closed(self):
+        from usage_bundle import no_links
+        import path_utils
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'source.txt'; path.write_text('x')
+            self.assertEqual(path, no_links(path))
+            with patch.object(path_utils, 'file_attributes', return_value=None):
+                self.assertEqual(path, no_links(path))
+                self.assertEqual(path/'absent', no_links(path/'absent'))
+                with patch.object(Path, 'lstat', side_effect=PermissionError('denied')):
+                    with self.assertRaises(PermissionError): no_links(path)
+            with patch.object(path_utils, 'file_attributes', side_effect=lambda p: 0x400 if p == path_utils.filesystem_root(path.parent, force_extended=True) else 0):
+                with self.assertRaisesRegex(ContractError, 'reparse'): no_links(path)
+            self.assertEqual(path, no_links(path))
+
+    @unittest.skipUnless(sys.platform == 'win32', 'Windows junction regression')
+    def test_native_junction_is_rejected_by_both_readers(self):
+        from runtime_doctor import _linked
+        from usage_bundle import no_links
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); target = root/'target'; target.mkdir(); (target/'x').write_text('x')
+            link = root/'link'
+            result = subprocess.run(['cmd', '/c', 'mklink', '/J', str(link), str(target)], capture_output=True)
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertTrue(_linked(link))
+            with self.assertRaises(ContractError): no_links(link/'x')
+
+
+@unittest.skipUnless(sys.platform=='win32','Windows owned-job affinity')
+class MeasurementAffinityTests(unittest.TestCase):
+    def test_owned_job_and_child_share_declared_cpu_without_changing_controller(self):
+        import performance_command as accounting
+        before=accounting.available_affinity();mask=accounting.measurement_affinity(accounting.cpu_topology(),before)
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);scripts=root/'scripts';scripts.mkdir();helper=scripts/'lks_sdd.py'
+            query="import ctypes,json; k=ctypes.WinDLL('kernel32'); k.GetCurrentProcess.restype=ctypes.c_void_p; k.GetPriorityClass.argtypes=[ctypes.c_void_p]; k.GetProcessAffinityMask.argtypes=[ctypes.c_void_p,ctypes.c_void_p,ctypes.c_void_p]; a=ctypes.c_size_t(); s=ctypes.c_size_t(); assert k.GetProcessAffinityMask(k.GetCurrentProcess(),ctypes.byref(a),ctypes.byref(s)); print(json.dumps({'affinity':a.value,'priority':k.GetPriorityClass(k.GetCurrentProcess())}))"
+            helper.write_text("import subprocess,sys,json\nq="+repr(query)+"\n"+
+                "result=json.loads(subprocess.check_output([sys.executable,'-B','-c',q])); print(json.dumps(result))\n",encoding='utf8')
+            import os
+            for mode in (False,True):
+                with patch.dict(os.environ,{'PYTHONPATH':str(ROOT/'scripts')}):
+                    value,metrics=accounting.run([sys.executable,'-B',str(helper)],root,'focal-affinity',timeout=15,affinity_mask=mask,performance_mode=mode)
+                self.assertEqual(mask,value['affinity']);self.assertEqual(mask,metrics['job_affinity_mask'])
+                self.assertTrue(metrics['job_assigned_before_process_start']);self.assertEqual(2,metrics['job_processes'])
+                self.assertEqual(mode,metrics['owned_job_performance_mode'])
+                if mode:
+                    self.assertEqual(0x8000,value['priority'])
+                    self.assertEqual({'control':1,'state':0},metrics['worker_power_throttling'])
+        self.assertEqual(before,accounting.available_affinity())
+
+    def test_invalid_affinity_is_rejected_before_starting_any_process(self):
+        import performance_command as accounting
+        for mask in (0,-1,True,3,1 << (accounting.available_affinity().bit_length()+1)):
+            with patch.object(accounting.subprocess,'Popen') as spawn,self.assertRaises(ValueError):
+                accounting.run([],ROOT,'invalid-affinity',affinity_mask=mask)
+            spawn.assert_not_called()
+        with patch.object(accounting.subprocess,'Popen') as spawn,self.assertRaises(ValueError):
+            accounting.run([],ROOT,'invalid-policy',performance_mode='true')
+        spawn.assert_not_called()
+
+
 class EfficiencyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

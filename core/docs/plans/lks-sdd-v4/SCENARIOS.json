@@ -1,0 +1,76 @@
+{
+  "format": "lks-sdd-v4-evaluation-cases/1",
+  "revision": "0.2-h1",
+  "status": "defined-not-accepted-by-execution",
+  "reference_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "identity_policy": "Synthetic UUIDs generated per fixture; never real company identities",
+  "comparison_policy": "Same initial bytes, decisions and available tools per pair; normalize only declared UUIDs, timestamps and temporary paths",
+  "cases": [
+    {
+      "id": "S1",
+      "primary_efficiency": true,
+      "objective": "Correct an already-covered greeting defect under a current assignment",
+      "initial_code": "def greeting(): return 'Adios'\n",
+      "expected_code_behavior": "greeting() returns the string Hola, preserving its no-argument public interface",
+      "authorized_scope": ["app.py"],
+      "expected_obligations": ["Current proposal, plan and assignment", "Only agreed code scope changes", "Actual assertion against the exact resulting subject", "Evidence precedes verification and closure", "Functional acceptance remains separate"],
+      "variants": ["Open authorized task", "Closed task", "Revoked or expired authority", "Rejected result"],
+      "reference_components": ["tests/test_v31_review.py", "tests/test_v3_workflow.py"],
+      "h1_measurement": "Synthetic public CLI component journey; no human active-time or full host-token baseline"
+    },
+    {
+      "id": "S2",
+      "primary_efficiency": true,
+      "objective": "Define and deliver a new normalize_identifier function in a synthetic Python module",
+      "initial_code": "",
+      "functional_decisions": ["String input and string output", "Trim ASCII space at both ends", "Preserve internal space and letter case", "Reject non-string input with TypeError", "No persistence or external services"],
+      "expected_obligations": ["Validate concrete proposal before executable task", "Approve plan and authorize exact scope", "Test empty, spaced, Unicode and non-string input", "Retain separate result acceptance"],
+      "reference_components": ["tests/test_v31_review.py"],
+      "h1_measurement": "Definition frozen; end-to-end execution not run"
+    },
+    {
+      "id": "S3",
+      "primary_efficiency": false,
+      "objective": "Extend a shared greeting interface with an optional name and update its consumer",
+      "functional_decisions": ["Omitted name retains Hola", "Provided non-empty name returns Hola followed by one space and the supplied name", "Do not log supplied names", "Do not persist data"],
+      "expected_obligations": ["Shared interface and incoming consumer included", "Global no-logging rule included", "Explicit agreement change and affected plan", "Default behavior, named behavior and consumer tests"],
+      "reference_components": ["tests/test_v3_documentary_flow.py", "tests/test_v31_review.py"],
+      "h1_measurement": "Definition frozen; end-to-end execution not run"
+    },
+    {
+      "id": "S4",
+      "primary_efficiency": true,
+      "objective": "Perform S1 amid accredited unrelated contracts and unknown prose",
+      "dataset_sizes": [100, 500, 1500],
+      "expected_obligations": ["Use reviewed membership, not similarity or folder, to exclude unrelated material", "Unknown prose stays included", "A new global rule widens context", "Changed or revoked classification loses exclusion", "Count initial classification and subsequent maintenance"],
+      "component_probe": "280 repetitions of a conservative unknown-prose sentence in valid schema 3.1 Markdown; not the full classified-corpus scenario",
+      "reference_components": ["tests/test_v3_documentary_flow.py", "tests/measure_v3_efficiency.py"],
+      "h1_measurement": "Unknown-prose component captured; large classified dataset and amortization not run"
+    },
+    {
+      "id": "S5",
+      "primary_efficiency": false,
+      "objective": "Hand off a task to a second operator under a policy requiring independent review",
+      "expected_obligations": ["Recipient really receives its assignment", "No inherited actor", "Required reviewer differs from executor", "Independent work and shared contracts stay distinguishable", "No external message is sent by the fixture"],
+      "reference_components": ["tests/test_v31_review.py"],
+      "h1_measurement": "Definition frozen; team and human-host execution not run"
+    },
+    {
+      "id": "S6",
+      "primary_efficiency": false,
+      "objective": "Resume after loss of conversation context with one unchanged decision and one changed source",
+      "expected_obligations": ["Recover literal applicable contract", "Establish current operator", "Reuse only still-current decision", "Detect changed source and reevaluate affected work", "No query-only checkpoint or new authority"],
+      "reference_components": ["tests/test_v3_workflow.py", "tests/test_v31_review.py"],
+      "h1_measurement": "Definition frozen; fresh-conversation human-host execution not run"
+    },
+    {
+      "id": "S7",
+      "primary_efficiency": false,
+      "objective": "Observe correct rejection and recovery under adversarial inputs",
+      "variants": ["Empty or retired root", "Ambiguous alias", "Revoked authority", "Stale preview", "Old or failed evidence", "Concurrent source or branch change", "Corrupt canonical diagnostic object", "Interrupted transaction", "Global rule at the end of long prose", "Required visual attachment"],
+      "expected_obligations": ["No false ready", "No silent loss of obligations", "No canonical write on query", "Partial effects and later work preserved", "Rejection is not cheap task completion"],
+      "reference_components": ["tests/test_v3_workflow.py", "tests/test_usage_workflow.py", "tests/test_v3_documentary_flow.py"],
+      "h1_measurement": "Invalid-root component captured; remainder of adversarial campaign not run"
+    }
+  ]
+}

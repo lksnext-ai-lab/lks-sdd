@@ -12,7 +12,7 @@ from v3_policy import policy_for
 LINK = re.compile(r'!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))\)')
 EDGE = {"requirements", "acceptance", "constraints", "interfaces", "uses", "depends_on", "covers", "tests", "technology", "proposal"}
 _CACHE = OrderedDict()
-SELECTOR_VERSION = "lks-sdd-v3/3"
+SELECTOR_VERSION = "lks-sdd-v4/1"
 TEXT_SUFFIXES = (".md", ".txt", ".json", ".yaml", ".yml", ".csv", ".log", ".py", ".html", ".htm", ".js", ".ts", ".css", ".sql", ".xml")
 
 
@@ -41,9 +41,11 @@ def linked_assets(model, sources, *, included_paths=()):
 
 
 def select(model, roots, operation="implement", *, conservative=False):
+    from v3_evaluation import count
+    count("context_selections")
     if not roots: raise ContractError("Seleccione una petición o tarea; una raíz vacía no acredita suficiencia")
     selected, reasons, widened = {}, {}, []
-    from v3_scope import work_scope, prose_scopes
+    from v3_scope import work_scope, prose_scopes, incoming_index
     allowed_units, requested, classified = work_scope(model, roots)
     conflicts = set()
     for e in model.elements.values():
@@ -55,6 +57,7 @@ def select(model, roots, operation="implement", *, conservative=False):
                     and not e.data.get("global") and e.uid not in conflicts)
     def add(e, reason):
         if e.uid in selected: return
+        if e.retired: raise ContractError("Dependencia aplicable retirada: " + e.id)
         selected[e.uid] = e; reasons[e.uid] = reason
         for relation in EDGE:
             for key in e.relations.get(relation, []):
@@ -84,14 +87,12 @@ def select(model, roots, operation="implement", *, conservative=False):
             add(e, "regla global o alcance incierto" if not scope else "contrato de la petición")
     # Incoming contributions and contracts can constrain a slice even when it omitted
     # the outgoing link. Iterate to closure, retaining distinct scope-specific rules.
-    changed = True
-    while changed:
-        count = len(selected)
-        for e in model.elements.values():
-            if e.retired or e.kind in EVENTS | {"legacy", "member", "project", "policy"}: continue
-            incoming = {k for rel in ("implements", "modifies", "contributes_to", "interfaces", "depends_on") for k in e.relations.get(rel, [])}
-            if incoming & set(selected): add(e, "contrato/contribución entrante")
-        changed = len(selected) != count
+    incoming = incoming_index(model)
+    visited = set()
+    while set(selected) - visited:
+        for key in sorted(set(selected) - visited):
+            visited.add(key)
+            for source in sorted(incoming.get(key, ())): add(model.get(source), "contrato/contribución entrante")
     if conservative:
         for e in model.elements.values():
             if not e.retired and e.kind not in EVENTS | {"legacy", "member", "policy"}:
@@ -120,10 +121,19 @@ def select(model, roots, operation="implement", *, conservative=False):
         sources.append({"key": "prose:" + path, "source": {"path": path, "sha256": model.hashes[path]},
                         "reason": "prosa con alcance acreditado" if declaration else "prosa fuera de bloques; ámbito no acreditado", "text": prose})
     provenance = [model.project.source(), proof.source()] if proof else []
+    declared_paths = {r["path"] for r in model.project.data.get("context_scopes", {}).get("sources", [])}
+    diagnostics = [{"path": path, "code": "unclassified" if path not in declared_paths else "unaccredited-or-stale",
+                    "action": "include-literal"} for path in model.prose if path not in declarations]
+    excluded_units = [{"uid": e.uid, "source": e.source(), "request": e.data.get("request"),
+                       "units": sorted(classified.get(e.uid, ())), "reason": "outside-declared-applicability"}
+                      for e in model.elements.values() if e.uid not in selected and not e.retired
+                      and e.kind not in EVENTS | {"legacy", "member", "project", "policy"}]
+    exclusion_assets = [a for row in excluded for a in proof.data.get("scope_assets", {}).get(row["path"], [])] if proof else []
     assets = linked_assets(model, sources)
     characters = sum(len(s["text"]) + len(json.dumps(s.get("meta", {}), ensure_ascii=False)) for s in sources)
     characters += sum(len(a.get("text", "")) for a in assets)
     return {"operation": operation, "roots": roots, "sources": sources, "attachments": assets, "widened": widened, "excluded_prose": excluded,
+            "excluded_units": excluded_units, "scope_diagnostics": diagnostics, "scope_exclusion_assets": exclusion_assets,
             "scope_provenance": provenance,
             "snapshot": model.snapshot(), "selection_digest": fingerprint({s["key"]: s["source"] for s in sources}),
             "measurement": {"method": "characters-divided-by-4-estimate", "characters": characters,
@@ -143,13 +153,23 @@ def context(root, roots, operation="implement", *, comparison=False, reference=F
     cached = _CACHE.get(key)
     if cached:
         try:
-            valid = all(sha(read_bytes(model.root, a["path"])) == a["sha256"] for a in cached["attachments"])
+            dependencies = cached["attachments"] + cached.get("scope_exclusion_assets", []) + cached.get("comparison_assets", [])
+            valid = all(sha(read_bytes(model.root, a["path"])) == a["sha256"] for a in dependencies)
         except ContractError: valid = False
         if valid:
             result = copy.deepcopy(cached); result["runtime_cache"] = "hit; literal text reloaded for host"
             _CACHE.move_to_end(key)
             return result
     result = select(model, roots, operation, conservative=reference)
+    if comparison:
+        full = result if reference else select(model, roots, operation, conservative=True)
+        chosen, complete = ({s["key"]: s for s in packet["sources"]} for packet in (result, full))
+        result["comparison"] = {
+            "reference_only": sorted(set(complete) - set(chosen)), "selected_only": sorted(set(chosen) - set(complete)),
+            "shared_literal_equal": all(chosen[k]["text"] == complete[k]["text"] and chosen[k].get("meta") == complete[k].get("meta") for k in set(chosen) & set(complete)),
+            "semantic_equivalence": "not-established", "reference_characters": full["measurement"]["characters"],
+            "selected_characters": result["measurement"]["characters"]}
+        result["comparison_assets"] = [{"path": a["path"], "sha256": a["sha256"]} for a in full["attachments"]]
     result["selector_mode"] = "conservative-reference" if reference else "comparison-only" if comparison else "applicable-literal"
     result["activation"] = "Literal applicability closure; unclassified obligations retained; full reference available explicitly"
     result["runtime_cache"] = "miss"

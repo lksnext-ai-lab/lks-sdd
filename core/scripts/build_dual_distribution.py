@@ -40,7 +40,14 @@ def collect_development(root):
             except UnicodeError:
                 pass
         files[name] = content
+    formats = json.loads(files.get("distribution/dual.json", b"{}")).get("storage_formats", [])
+    if "lks-sdd-object-zip/1" in formats:
+        required = {"scripts/" + name for name in ("object_zip.py", "v2_contract.py", "content_store.py", "v2_storage.py")}
+        if not required <= files.keys():
+            raise ValueError("Declared ZIP reader is missing from development package: " + str(sorted(required - files.keys())))
     version = json.loads(files[".codex-plugin/plugin.json"])["version"]
+    if "lks-sdd-store-maintenance/1" in formats and "scripts/store_maintenance.py" not in files:
+        raise ValueError("Declared maintenance recovery is missing from development package")
     files["package-integrity.json"] = _package_integrity_bytes(list(files.items()), version, "development-working-tree")
     return files
 

@@ -732,7 +732,7 @@ def decision_view(root, event, data=None, *, model=None):
     data = normalize(data); issues = []; selected = profiles(event, data)
     if "outcome" in data and event not in {"review-proposal", "review-task", "evidence"}:
         raise ContractError("Esta operación no admite outcome; seleccione la acción que realmente corresponda a la decisión")
-    refs = instruction_refs(selected)
+    refs = instruction_refs(selected, event=event)
     root = Path(root).resolve(); roots = []; packet = {"sources": [], "attachments": []}
     if model is not None and model.root != root:
         raise ContractError("El modelo de evaluación pertenece a otro proyecto")
@@ -750,7 +750,6 @@ def decision_view(root, event, data=None, *, model=None):
     if event == "governance" and model:
         # A proposed scope change must show the affected prose even if its old
         # declaration excluded it. Metadata alone cannot justify a new exclusion.
-        old = {r["path"]: r for r in model.project.data.get("context_scopes", {}).get("sources", [])}
         extra = []
         for item in data.get("items", []):
             meta = item.get("meta", item)
@@ -764,7 +763,6 @@ def decision_view(root, event, data=None, *, model=None):
                 path = row.get("path")
                 if not isinstance(path, str):
                     issues.append("Fuente de prosa inválida"); continue
-                if row == old.get(path): continue
                 prose = model.prose.get(path)
                 if prose is None or sha(prose.encode("utf-8")) != row.get("sha256"):
                     issues.append("La declaración no identifica la prosa vigente: " + str(path)); continue

@@ -1,0 +1,229 @@
+{
+  "task": "V4-11",
+  "status": "implemented-technical-checks-passed-dependency-acceptance-pending",
+  "criteria": {
+    "AC-20": "verified-local-technical-scope",
+    "AC-21": "verified-local-technical-scope"
+  },
+  "dependency": {
+    "V4-07A": "technical channel/recovery evidence reused; AC-40 overhead acceptance remains pending"
+  },
+  "tests": {
+    "routing": {
+      "passed": true,
+      "duration_seconds": 124.064,
+      "counts": {
+        "total": 8,
+        "passed": 8,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_both_packages_execute_the_same_decision_view",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_changed_event_and_operation_resource_reloads_exact_bytes",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_conditional_composition_and_deduplication",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_every_public_action_has_a_route",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_negative_outcome_cannot_disguise_positive_actions",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_six_skills_keep_discovery_and_resolvable_local_references",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_unknown_purpose_and_missing_runtime_do_not_succeed",
+          "status": "passed"
+        },
+        {
+          "id": "test_v3_instruction_routing.RoutingTests.test_work_operation_routes_keep_authority_and_load_only_their_resources",
+          "status": "passed"
+        }
+      ]
+    },
+    "receipt": {
+      "passed": true,
+      "duration_seconds": 21.256,
+      "counts": {
+        "total": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "test_v3_decision_presentation.PresentationTests.test_receipt_required_and_linked_change_invalidates_it",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "unique_focal_cases": 9,
+  "skill_validations": 6,
+  "static": [
+    {
+      "name": "contract",
+      "returncode": 0
+    },
+    {
+      "name": "fixtures",
+      "returncode": 0
+    },
+    {
+      "name": "static-routes",
+      "returncode": 0
+    },
+    {
+      "name": "diff",
+      "returncode": 0
+    }
+  ],
+  "paired_static_routes": [
+    {
+      "scenario": "consulta",
+      "before_characters": 10721,
+      "after_characters": 9438,
+      "reduction_percent": 11.97,
+      "selected_files": 3
+    },
+    {
+      "scenario": "especificación",
+      "before_characters": 19646,
+      "after_characters": 18415,
+      "reduction_percent": 6.27,
+      "selected_files": 5
+    },
+    {
+      "scenario": "plan y encargos",
+      "before_characters": 19252,
+      "after_characters": 18021,
+      "reduction_percent": 6.39,
+      "selected_files": 6
+    },
+    {
+      "scenario": "relevo e inicio",
+      "before_characters": 18519,
+      "after_characters": 17457,
+      "reduction_percent": 5.73,
+      "selected_files": 5
+    },
+    {
+      "scenario": "integración y aceptación",
+      "before_characters": 18186,
+      "after_characters": 17080,
+      "reduction_percent": 6.08,
+      "selected_files": 5
+    },
+    {
+      "scenario": "rechazo",
+      "before_characters": 20091,
+      "after_characters": 18985,
+      "reduction_percent": 5.5,
+      "selected_files": 5
+    },
+    {
+      "scenario": "excepción",
+      "before_characters": 18860,
+      "after_characters": 17798,
+      "reduction_percent": 5.63,
+      "selected_files": 5
+    },
+    {
+      "scenario": "migración",
+      "before_characters": 17235,
+      "after_characters": 16026,
+      "reduction_percent": 7.01,
+      "selected_files": 5
+    },
+    {
+      "scenario": "dirección visual",
+      "before_characters": 18418,
+      "after_characters": 17187,
+      "reduction_percent": 6.68,
+      "selected_files": 5
+    },
+    {
+      "scenario": "aclaración",
+      "before_characters": 18418,
+      "after_characters": 17187,
+      "reduction_percent": 6.68,
+      "selected_files": 5
+    },
+    {
+      "scenario": "corrección comprobada",
+      "before_characters": 21959,
+      "after_characters": 20853,
+      "reduction_percent": 5.04,
+      "selected_files": 6
+    },
+    {
+      "scenario": "continuación tras compactación",
+      "before_characters": 12827,
+      "after_characters": 11765,
+      "reduction_percent": 8.28,
+      "selected_files": 3
+    }
+  ],
+  "new_operation_routes": 3,
+  "billed_tokens": null,
+  "observed_host_tokens": null,
+  "measurement_scope": "Selected static instruction files only; conditional expansions, actual reads/searches/errors and whole-task use remain unmeasured",
+  "rule_map": "RULE-MAP-V4-11.md",
+  "source_binding": {
+    "docs/V3-COMMON.md": "572d8eb3dd9720c9a5de204a63946c91b57ef51aa397aa2ee707f8eadd048aef",
+    "docs/WORK-PREPARE.md": "e3a57c3c73833811de416f6bc1067bccfbee6d39bb9c921f2d43cecfcb74a377",
+    "scripts/v31_guidance.py": "4541e6abb433d2c83ac6ab14b949d73b27c5d06178eeace7f3c1c85452d620b6",
+    "scripts/v3_decision_presentation.py": "18257ca3b33fecfa2480bd51e8ea315d327262dd324f3059add32f33f9442af6",
+    "scripts/v3_decision_profiles.py": "ca538dcf116f7fcb96dee985d0cb267a7319a7048c72009896bddbd305692ecc",
+    "scripts/validate_plugin_contract.py": "9c7a4b86d84e7183139dd638680f2693a22262867a7f65f50f534fe70bd54146",
+    "skills/lks-sdd-adopt-existing/SKILL.md": "14675734b1d724ac04fd78f70ff3e98bb6c738010fad20c20c818536c0d733fc",
+    "skills/lks-sdd-adopt-existing/references/v3.md": "9baa8fddb4ed273ff286d2b4bd97334bab3f27551e2eefbf6844267a6b80da7f",
+    "skills/lks-sdd-assess-readiness/SKILL.md": "0c3fd99cc8bb605526b13352368a05fe61f269222bd7d0e3c53be60051fca102",
+    "skills/lks-sdd-assess-readiness/references/v3.md": "a4cd31eadf4d720f84b47d3a0c4b1d7956579eff6656dc42044e517e752ead95",
+    "skills/lks-sdd-define/SKILL.md": "5c4dbde852c2d714b84368868cce62cb94310d56e705e4d80b1d45d929244e6d",
+    "skills/lks-sdd-define/references/v3.md": "ddf972b77061fbef338c7b0a61818ba6b10919085daaee34f787524359f551ca",
+    "skills/lks-sdd-help/SKILL.md": "c21eaaa8e0ad22f6d66d0e92c3f387c5601ef788702ef1db46ab7a46a7b771d1",
+    "skills/lks-sdd-help/references/v3.md": "b55687d38ff6db164acdf5b1fb2d1a8e5e3c7b00f732533b5738948585b0ffd3",
+    "skills/lks-sdd-implement/SKILL.md": "2f580dc7a4c96c894254ae2e141db0f169ec450aeef86007c124bbeba81d8aa2",
+    "skills/lks-sdd-implement/references/v3.md": "377add17d51c5ed7259cb7183c03eafead30a34f023b7294575ade60413c60f3",
+    "skills/lks-sdd-verify/SKILL.md": "569f9c94ad6dc434c1c9c82f83ba8ffea4fe1cedc1d577dae832d49999aefb97",
+    "skills/lks-sdd-verify/references/v3.md": "5649fb6f1e996d06da5b3efe45e9aad836ea30ec78df3efe2f576df1bbe234a4",
+    "tests/measure_v3_instruction_context.py": "dc14eeb35cf49160a0b55e245bbe35e0279489eea9b6dff5ee0b9f33ccefb50e",
+    "tests/test_v3_instruction_routing.py": "aa6945088a9cf67108fba708d40538e17a251819062860ae1391856163a7e45c"
+  },
+  "final_document_edit": "V3-COMMON command-name formatting clarified after package test; semantics reviewed, hashes/static checks refreshed; no broad rerun",
+  "preserved": {
+    "skills": 6,
+    "implicit_invocation": true,
+    "names_and_descriptions": true,
+    "schemas_and_canonical_sources": true,
+    "business_writers_and_freshness_guards": true,
+    "legacy_routes": true,
+    "six_improvements": true,
+    "task_count": 23,
+    "criteria_count": 44
+  },
+  "reused_evidence": "Previous whole gate and native work-operation/authority/recovery tests; only profiles, instruction references and finite static resource list changed in runtime scripts",
+  "known_initial_failure": "Static validator omitted three newly linked shared guides; exact resources added, transitive checks retained; initial output preserved",
+  "whole_task_benchmark_attempts": 0,
+  "new_M6_variants": 0,
+  "budgets": "No cap, reservation or global time balance redefined",
+  "H2": "pending",
+  "Windows": "set-aside-open",
+  "host_acceptance_AC30": "pending",
+  "AC40": "pending",
+  "installed": false,
+  "published": false
+}

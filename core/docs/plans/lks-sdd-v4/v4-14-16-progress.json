@@ -1,0 +1,278 @@
+{
+  "tasks": {
+    "V4-14": "verified-local-technical-scope",
+    "V4-15": "technical-checks-passed-known-performance-acceptance-pending",
+    "V4-16": "verified-development-packages"
+  },
+  "criteria": {
+    "AC-24": "verified-local-technical-scope",
+    "AC-25": "verified-local-technical-scope",
+    "AC-26": "not-fully-accepted-known-performance-findings",
+    "AC-29": "verified-local-development-package-scope"
+  },
+  "source": "working-tree:5f489951930534a51097c7d83e36c455aa91c7074d5edf2b68c96871ae291db2",
+  "runtime_digest": "26334075bc388308823bd63350a098b1a3a5ff722c14ce02bcead6d32d4b4c53",
+  "source_version": "3.4.3",
+  "channel": "development-unreleased",
+  "compatibility_tests": [
+    {
+      "id": "test_v4_compatibility.CompatibilityTests.test_explicit_upgrade_preserves_open_work_history_and_exact_rollback",
+      "status": "passed"
+    },
+    {
+      "id": "test_v4_compatibility.CompatibilityTests.test_interrupted_cutover_recovers_and_rejects_rollback_over_later_work",
+      "status": "passed"
+    },
+    {
+      "id": "test_v4_compatibility.CompatibilityTests.test_missing_bundle_and_changed_pin_never_grant_cutover",
+      "status": "passed"
+    }
+  ],
+  "extra_discovered_tests": 11,
+  "test_discovery_correction": "Imported fixture class replaced by module alias; discovery now selects only three CompatibilityTests. Two expectation errors corrected and only the affected two cases rerun.",
+  "compatibility_initial": {
+    "passed": false,
+    "duration_seconds": 1035.993,
+    "counts": {
+      "total": 14,
+      "passed": 12,
+      "skipped": 0,
+      "failed": 2
+    },
+    "results": [
+      {
+        "id": "test_v31_review.IntegralTests.test_disabled_task_review_and_read_only_pagination",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_event_disguise_and_stale_preview_are_rejected",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_grouped_result_respects_acceptance_before_integration",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_guidance_matches_queries_and_shows_review_reservations",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_independent_review_is_not_removed_for_same_person",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_individual_three_decisions_and_no_role_duplicates",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_integral_close_cannot_bypass_objection_or_generic_approval",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_new_format_adoption_is_recoverable_and_does_not_approve_history",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_rejection_records_correction_and_blocks_old_acceptance",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_task_owner_cannot_skip_review_and_stale_definition_requires_review",
+        "status": "passed"
+      },
+      {
+        "id": "test_v31_review.IntegralTests.test_two_people_distinct_authority_and_partial_handoff",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_compatibility.CompatibilityTests.test_explicit_upgrade_preserves_open_work_history_and_exact_rollback",
+        "status": "failed"
+      },
+      {
+        "id": "test_v4_compatibility.CompatibilityTests.test_interrupted_cutover_recovers_and_rejects_rollback_over_later_work",
+        "status": "failed"
+      },
+      {
+        "id": "test_v4_compatibility.CompatibilityTests.test_missing_bundle_and_changed_pin_never_grant_cutover",
+        "status": "passed"
+      }
+    ]
+  },
+  "compatibility_correction": {
+    "passed": true,
+    "duration_seconds": 379.035,
+    "counts": {
+      "total": 2,
+      "passed": 2,
+      "skipped": 0,
+      "failed": 0
+    },
+    "results": [
+      {
+        "id": "test_v4_compatibility.CompatibilityTests.test_explicit_upgrade_preserves_open_work_history_and_exact_rollback",
+        "status": "passed"
+      },
+      {
+        "id": "test_v4_compatibility.CompatibilityTests.test_interrupted_cutover_recovers_and_rejects_rollback_over_later_work",
+        "status": "passed"
+      }
+    ]
+  },
+  "guarantee_tests": {
+    "passed": true,
+    "duration_seconds": 312.666,
+    "counts": {
+      "total": 4,
+      "passed": 4,
+      "skipped": 0,
+      "failed": 0
+    },
+    "results": [
+      {
+        "id": "test_diagnostic_capture.CaptureTests.test_corruption_is_rejected_without_repair",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_operation_guards.WorkOperationGuardTests.test_required_quality_without_applicable_terminal_result_stops_verify",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_operations.WorkOperationsTests.test_change_during_stage_preparation_stops_before_first_effect",
+        "status": "passed"
+      },
+      {
+        "id": "test_work_operations.WorkOperationsTests.test_revoked_permission_is_not_reused_from_preview",
+        "status": "passed"
+      }
+    ]
+  },
+  "archive_public_operations": [
+    {
+      "host": "codex",
+      "action": "work-prepare",
+      "status": "ready",
+      "exit_code": 0,
+      "seconds_observed_not_performance_acceptance": 8.502271200006362,
+      "activity_bytes": 134,
+      "capture": "stored",
+      "pinned_core_from_verified_archive": true
+    },
+    {
+      "host": "codex",
+      "action": "work-continue",
+      "status": "completed",
+      "exit_code": 0,
+      "seconds_observed_not_performance_acceptance": 10.048706999979913,
+      "activity_bytes": 149,
+      "capture": "stored",
+      "pinned_core_from_verified_archive": true
+    },
+    {
+      "host": "codex",
+      "action": "work-record-results",
+      "status": "completed",
+      "exit_code": 0,
+      "seconds_observed_not_performance_acceptance": 23.742971100029536,
+      "activity_bytes": 342,
+      "capture": "stored",
+      "pinned_core_from_verified_archive": true
+    },
+    {
+      "host": "copilot",
+      "action": "work-prepare",
+      "status": "ready",
+      "exit_code": 0,
+      "seconds_observed_not_performance_acceptance": 7.4823114000028,
+      "activity_bytes": 111,
+      "capture": "stored",
+      "pinned_core_from_verified_archive": true
+    },
+    {
+      "host": "copilot",
+      "action": "work-continue",
+      "status": "completed",
+      "exit_code": 0,
+      "seconds_observed_not_performance_acceptance": 14.42030200001318,
+      "activity_bytes": 214,
+      "capture": "stored",
+      "pinned_core_from_verified_archive": true
+    },
+    {
+      "host": "copilot",
+      "action": "work-record-results",
+      "status": "completed",
+      "exit_code": 0,
+      "seconds_observed_not_performance_acceptance": 32.81181029998697,
+      "activity_bytes": 472,
+      "capture": "stored",
+      "pinned_core_from_verified_archive": true
+    }
+  ],
+  "technical_archive_flows": 2,
+  "reproducible_builds_final": 2,
+  "archive_count": 5,
+  "packages": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-14-16\\final-corrected",
+  "production_delta_from_V4_12": [
+    "README.md",
+    "distribution/dual.json",
+    "docs/V4-CANDIDATE.md",
+    "docs/VALIDATION.md",
+    "package-integrity.json",
+    "tests/test_v4_compatibility.py"
+  ],
+  "runtime_code_and_skills_unchanged": true,
+  "guarantee_map": "guarantee-map.json",
+  "static": [
+    {
+      "command": [
+        "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_plugin_contract.py",
+        "."
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\j.ormazabal\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "scripts/validate_fixture_manifest.py",
+        "."
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0
+    }
+  ],
+  "preserved_harness_failures": [
+    "packages.stderr: external launcher rejected by pinned-runtime guard",
+    "resume-public.stderr: harness expected five executions, actual contract is four executions plus evidence; no flow repeated",
+    "resume-public-r2.stderr: final source binding noticed the test import fix; successful flows retained and final packages rebound"
+  ],
+  "whole_task_benchmark_attempts": 0,
+  "conservative_full_journey_charged_slots": 3,
+  "new_M6_variants": 0,
+  "budget": "Known+reserved 45 + 3 conservatively charged package journeys = 48/48. Final S8 four and H2 two slots remain reserved; no extra full-journey attempt funded. No certified global time balance inferred.",
+  "AC40": "pending",
+  "AC43": "pending-regression-not-cleared",
+  "H2": "pending",
+  "Windows": "set-aside-open",
+  "host_acceptance": "not-run",
+  "billed_tokens": null,
+  "observed_host_tokens": null,
+  "installed": false,
+  "published": false,
+  "committed": false,
+  "pushed": false,
+  "next": "V4-17/V4-17A; H2/Windows remain deferred"
+}

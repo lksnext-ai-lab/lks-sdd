@@ -1,0 +1,62 @@
+{
+  "format": "lks-sdd-v4-implementation-progress/1",
+  "plan_revision": "0.4",
+  "task": "V4-03",
+  "status": "verified",
+  "authorization": "Local source implementation and focal verification of V4-03 only",
+  "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+  "criteria": {
+    "AC-04": "passed",
+    "AC-05": "passed"
+  },
+  "criteria_scope": "V4-03 focal technical coverage; not global release or host acceptance",
+  "unique_tests_passed": 40,
+  "completed_test_executions": 98,
+  "historical_unsuccessful_test_results_retained": 3,
+  "aborted_test_campaigns": 1,
+  "option_combinations": 24,
+  "verification_index": "review-verification.json",
+  "component_stdout_bytes": {
+    "compatible": 17288,
+    "operational": 14858,
+    "reduction_fraction": 0.1405599259602036
+  },
+  "results": "REVIEW-V4-03.md",
+  "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-03",
+  "previous_preparatory_state": "v4-02ab-progress.json",
+  "next_task": "V4-04",
+  "next_task_started": false,
+  "human_effort": "deferred-real-use",
+  "copilot_host_observation": "pending-final",
+  "whole_task_saving": "not-measured",
+  "billed_tokens": null,
+  "complete_functional_attempts_started": 0,
+  "global_resource_balance": "unknown-not-certified",
+  "canonical_specs_modified": false,
+  "frozen_protocols_modified": false,
+  "version_changed": false,
+  "installed": false,
+  "published": false,
+  "committed": false,
+  "updated_at_utc": "2026-10-16T11:07:12.099461+00:00",
+  "environment_elapsed_seconds": 931.099461,
+  "current_block_cap_seconds": 1200,
+  "resource_ledger": "review-resource-ledger.json",
+  "initial_delivery": {
+    "results": "RESULTS-V4-03.md",
+    "verification_index": "verification-final.json",
+    "unique_tests": 37,
+    "component_stdout_bytes": {
+      "compatible": 17288,
+      "operational": 13815,
+      "reduction_fraction": 0.20089079130032395
+    },
+    "resource_ledger": "resource-ledger.json",
+    "environment_observed_seconds": 1913.275111
+  },
+  "review_completed_test_executions": 46,
+  "review_failed_test_results": 0,
+  "environment_scope": "critical-review checkpoint; cumulative global capacity not certified",
+  "review_corrections": 4,
+  "review_authorized": true
+}

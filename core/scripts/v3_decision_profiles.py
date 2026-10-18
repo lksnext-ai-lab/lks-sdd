@@ -46,9 +46,18 @@ GROUPS = {
 ACTIONS = {action: profile for profile, actions in GROUPS.items() for action in actions.split()}
 ACTIONS["approve"] = "specification"
 ACTIONS.update({action: "information" for action in ("usage-record", "usage-report", "usage-export")})
+ACTIONS["work-prepare"]="information"
+ACTIONS.update({"work-continue": "information", "work-record-results": "verification"})
+OPERATION_GUIDES = {
+    "work-prepare": ("docs/WORK-PREPARE.md",),
+    "work-continue": ("docs/WORK-OPERATIONS.md",),
+    "work-record-results": ("docs/WORK-OPERATIONS.md",),
+}
 HISTORICAL = set("tracking-project tracking-authorize tracking-result tracking-reconcile tracking-milestone retention-compact retention-restore visual-request visual-accept visual-cancel visual-observe authorize-delivery".split())
 INFORMATION = set("validate status trace context readiness interventions checkpoint implement catalog history state-history reindex author decision-view adopt-inspect migration-diagnose migration-continuation old-branch evidence analysis analysis-run analysis-findings verify close prepare-delivery".split())
 INFORMATION.update({"usage-record", "usage-report", "usage-export"})
+INFORMATION.add("work-prepare")
+INFORMATION.update({"work-continue", "work-record-results"})
 
 
 def profiles(event, data):
@@ -68,10 +77,13 @@ def profiles(event, data):
     return list(dict.fromkeys(result))
 
 
-def instruction_refs(selected, runtime=None):
+def instruction_refs(selected, runtime=None, *, event=None):
     runtime = Path(runtime or Path(__file__).resolve().parents[1]).resolve()
     names = ["docs/V3-COMMON.md", "docs/USER-DECISIONS.md"]
     names += ["docs/decision-guides/" + PROFILES[p][0] + ".md" for p in selected if PROFILES[p][0]]
+    if event is not None:
+        if event not in ACTIONS and event not in HISTORICAL: raise ContractError("Evento desconocido para sus instrucciones")
+        names += OPERATION_GUIDES.get(event, ())
     result = []
     for name in dict.fromkeys(names):
         path = runtime / name

@@ -21,3 +21,39 @@ funcional por resolver el defecto. Lea [verificación](verification.md) para pre
 las pruebas nuevas y volver a integrar/aceptar cuando corresponda. Las decisiones
 positivas se vinculan al contenido presentado; comentarios y rechazos siguen
 disponibles aunque no sea posible una aprobación global.
+
+## Elegir el recorrido proporcional
+
+Para un incumplimiento dentro del acuerdo vigente, conserve petición, propuesta,
+plan, tareas y decisiones que sigan cubriendo el cambio. Compruebe las condiciones
+actuales con `work-prepare`; su respuesta ya contiene estado, intervenciones y
+contrato literal. Reutilice esa respuesta mientras no cambie su base. No repita
+`status`, `interventions`, `readiness` y `context` para obtener los mismos datos.
+Un cambio de fuente, evidencia, operador o base exige preparar de nuevo.
+
+Con tarea vigente, permiso actual y alcance cubierto, use `work-continue` para
+iniciar/reanudar y `work-record-results` para conservar resultados de las pruebas
+afectadas y las etapas técnicas siguientes. Los acuerdos vigentes se reutilizan;
+las operaciones vuelven a comprobarlos. La guía de
+[operaciones compuestas](../WORK-OPERATIONS.md) contiene sus entradas y límites.
+Con un runtime anterior use los comandos individuales disponibles: no actualice
+ni instale implícitamente para resolver una corrección.
+
+Una tarea cerrada requiere `reopen`; un permiso revocado o una identidad vencida
+requiere restablecer autoridad por su operación competente. Un resultado rechazado
+conserva `reject-result`, clasificación con `define-correction`, pruebas posteriores
+al fallo y `resolve-defect`. Después se repiten integración y aceptación cuando
+correspondan. La reapertura o la resolución por sí solas no restauran aceptación.
+
+Si cambia el comportamiento acordado, los permisos, los datos o una interfaz,
+presente primero la propuesta revisada y registre su validación; prepare después
+las tareas afectadas y su autorización. Use `author` para cada contenido y las
+decisiones existentes de propuesta y plan. En recorrido integral, la propuesta
+pasa por `close-proposal` y el plan por `authorize-plan`. No cree propuesta nueva
+y tareas ejecutables juntas antes de esa validación, ni reinicie el proyecto.
+
+Una capacidad nueva sigue ese recorrido en una petición propia y con cobertura
+explícita. Clasificar como `new-request` no amplía el permiso de las tareas previas;
+las nuevas tareas necesitan su acuerdo, plan y autorización. Conserve la petición
+original y sus reservas. Una incertidumbre crítica impide continuar hasta decidirla.
+El número de líneas cambiadas no determina ninguna de estas clasificaciones.

@@ -103,6 +103,22 @@ def receipt_name(host):
     return ".lks-sdd/installation.json" if host == "copilot" else ".lks-sdd-installation.json"
 
 
+def check_storage_reader(root, raw):
+    # This offline installer is standalone; it cannot import an installed reader
+    # to judge a downgrade of that same reader. Match the core's conservative rule.
+    if raw is None: return
+    lock = json.loads(raw)
+    if not isinstance(lock, dict) or not isinstance(lock.get("storage_formats", []), list):
+        raise ValueError("Invalid target storage capabilities")
+    if "lks-sdd-object-zip/1" in lock.get("storage_formats", []): return
+    folder = safe(root, ".lks-sdd/objects/packs")
+    if folder.exists():
+        if not folder.is_dir(): raise ValueError("Invalid object ZIP directory")
+        with os.scandir(folder) as entries:
+            if next(entries, None) is not None:
+                raise ValueError("Incompatible ZIP reader: restore a verified compatible store before changing the pin")
+
+
 def plan(bundle, destination, host, remove=False, *, contract_transition=None, payload_limit=1024*1024*1024):
     destination = filesystem_root(destination)
     if host == "copilot" and not destination.is_dir():
@@ -138,6 +154,7 @@ def plan(bundle, destination, host, remove=False, *, contract_transition=None, p
         for request in requests:
             if not (request.parent / "result.json").exists() and not (request.parent / "cancelled.json").exists():
                 raise ValueError("Close or reconcile pending visual handoffs before changing/removing the runtime")
+    if host == "copilot": check_storage_reader(destination, payload.get(".lks-sdd/distribution-lock.json"))
     desired, ownership = {}, {}
     for name in sorted(set(old["files"]) | set(payload)):
         allowed = (name.startswith("plugins/lks-sdd/") or name == ".agents/plugins/marketplace.json") if host == "codex" else (
@@ -214,6 +231,10 @@ def apply(plan_value, authorization):
     root = Path(plan_value["destination"])
     if not plan_value["changes"]:
         return
+    pin = ".lks-sdd/distribution-lock.json"
+    target = next((bytes.fromhex(c["content"]) if c["content"] is not None else None
+                   for c in plan_value["changes"] if c["path"] == pin), read(root, pin))
+    check_storage_reader(root, target)
     root.mkdir(parents=True, exist_ok=True)
     lock = safe(root, LOCK)
     lock.mkdir()  # exclusive local writer; never steal a live lock
@@ -225,6 +246,7 @@ def apply(plan_value, authorization):
                 raise ValueError(f"Concurrent change: {change['path']}")
             backups.append({**change, "original": current.hex() if current is not None else None})
         atomic_write(safe(root, JOURNAL), encoded({"schema_version": "1.0", "changes": backups}))
+        check_storage_reader(root, target)
         for change in backups:
             current = read(root, change["path"])
             if (sha(current) if current is not None else None) != change["before"]:
@@ -252,6 +274,10 @@ def recover(root):
         original = bytes.fromhex(change["original"]) if change["original"] is not None else None
         if (sha(original) if original is not None else None) != change["before"]:
             raise ValueError("Corrupt recovery backup")
+    pin = ".lks-sdd/distribution-lock.json"
+    target = next((bytes.fromhex(c["original"]) if c["original"] is not None else None
+                   for c in journal["changes"] if c["path"] == pin), read(root, pin))
+    check_storage_reader(root, target)
     for change in reversed(journal["changes"]):
         atomic_write(safe(root, change["path"]), bytes.fromhex(change["original"]) if change["original"] is not None else None)
     path.unlink()

@@ -57,7 +57,41 @@ COMMANDS = {
 }
 
 
+def runtime_failure(payload, command, forwarded):
+    from v3_usage import early
+    capture=None;capture_error=None;input_raw=None;options={}
+    if command=="v3":
+        from diagnostic_capture import early_options, early_consumer, Capture
+        options=early_options(forwarded)
+        if options.get("--capture-dir"):
+            try:
+                capture=Capture(options["--capture-dir"],early_consumer(forwarded))
+                if options.get("--input"):
+                    from v3_contract import read_bytes
+                    source=Path(options["--input"]).resolve()
+                    input_raw=read_bytes(source.parent,source.name,limit=64*1024*1024,package_data=True)
+            except (OSError,ValueError,KeyError,TypeError) as exc:capture_error=str(exc)
+    result = early(payload, command, {"arguments": forwarded},context={"run_id":capture.run_id} if capture else None)
+    original=dict(result)
+    if command == "v3":
+        from v3_cli_presentation import operational_requested, usage_view
+        if operational_requested(forwarded): result["usage"] = usage_view(result["usage"])
+    if options.get("--capture-dir"):
+        from diagnostic_capture import emit
+        emit(result,original,capture,capture_error,argv=forwarded,input_raw=input_raw)
+    else: print(json.dumps(result, ensure_ascii=False))
+
+
 def main() -> int:
+    if len(sys.argv) > 2 and sys.argv[1] == "v3" and "--activity" in sys.argv[2:]:
+        from v4_activity import session
+        # Observe runtime admission too; cooperative signal ownership starts in
+        # the shared V4 CLI, after this read-only bootstrap has admitted it.
+        with session("bootstrap", activity=True): return _main()
+    return _main()
+
+
+def _main() -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="strict")
@@ -121,22 +155,19 @@ def main() -> int:
                 continue
             runtime = check_runtime(candidate)
             if runtime["status"] == "blocked":
-                from v3_usage import early
-                print(json.dumps(early(runtime, command, {"arguments":forwarded}), ensure_ascii=False))
+                runtime_failure(runtime, command, forwarded)
                 return 2
             pinned = (candidate / runtime["runtime"]).resolve()
             if not same_filesystem_path(pinned, PLUGIN_ROOT):
                 from v3_current import FORMATS
                 lock = json.loads((candidate / ".lks-sdd/distribution-lock.json").read_bytes())
                 if lock["project_schema"] in {"2.0", "3.0", "3.1"} and not set(FORMATS) <= set(lock.get("storage_formats", [])):
-                    from v3_usage import early
-                    print(json.dumps(early({"status": "blocked", "error": "needs-runtime-update: prepare the explicit current-method cutover; the older pinned CLI is for read-only access/recovery",
+                    runtime_failure({"status": "blocked", "error": "needs-runtime-update: prepare the explicit current-method cutover; the older pinned CLI is for read-only access/recovery",
                                       "next": f"python {PLUGIN_ROOT / 'scripts/lks_sdd.py'} v3 migration-diagnose {candidate} --json",
-                                      "read_only_cli": str(pinned / "scripts/lks_sdd.py"), "writes": []}, command, {"arguments":forwarded}), ensure_ascii=False))
+                                      "read_only_cli": str(pinned / "scripts/lks_sdd.py"), "writes": []}, command, forwarded)
                     return 2
-                from v3_usage import early
-                print(json.dumps(early({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
-                                  "cli": str(pinned / "scripts/lks_sdd.py")}, command, {"arguments":forwarded}), ensure_ascii=False))
+                runtime_failure({"status": "blocked", "error": "Use the exact project-pinned CLI and workflows",
+                                  "cli": str(pinned / "scripts/lks_sdd.py")}, command, forwarded)
                 return 2
             break
     if command not in {"v3", "usage-export", "usage-inspect"} and forwarded:

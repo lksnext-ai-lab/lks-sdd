@@ -87,6 +87,8 @@ def dependency_subjects(model, task):
 
 def evaluate(action, current, facts, policy, exceptions=(), flags=None):
     """Pure: no Git, scanner, file I/O, persistence or user interaction."""
+    from v3_evaluation import count
+    count("transition_evaluations")
     if action not in TRANSITIONS: raise ContractError("Transición desconocida")
     allowed, target, predicates = TRANSITIONS[action]
     causes = []
@@ -133,6 +135,8 @@ from v3_evaluation import evaluated
 
 @evaluated
 def facts_for(model, task, actor):
+    from v3_evaluation import count
+    count("task_fact_evaluations")
     plan = plan_for(model, task)
     request = model.get(task.data["request"], "request")
     quality = checks(model, task)
@@ -181,6 +185,8 @@ def valid_exceptions(model, task, action):
 
 @evaluated
 def request_facts(model, request, *, tasks=None, proposal_units=None):
+    from v3_evaluation import count
+    count("request_fact_evaluations")
     tasks = tasks if tasks is not None else [t for t in model.by_kind("task") if t.data.get("request") == request.uid and not t.retired]
     try: proposal = approved(model, proposal_ready(model, request, proposal_units))["valid"]
     except ContractError: proposal = False

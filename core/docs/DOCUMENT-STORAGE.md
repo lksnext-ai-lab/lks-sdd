@@ -1,5 +1,46 @@
 # Almacenamiento y funcionamiento v3.1
 
+## Desarrollo 4.0: objetos agrupados
+
+V4-21 añade la capacidad física `lks-sdd-object-zip/1`. Las referencias
+`lks-sdd-object/1` y sus rutas lógicas `.lks-sdd/objects/sha256/<SHA256>` conservan
+identidad, longitud y bytes. El lector común resuelve objetos sueltos y miembros
+de `.lks-sdd/objects/packs/<SHA256>.zip`, incluidos guards, staging, historia,
+inventarios y recuperación. Los Markdown canónicos no cambian de soporte.
+
+El escritor agrupa directamente por transacción antes de publicar el diario
+2.1; el lector sigue admitiendo diarios 2.0. Los ZIP son inmutables y usan
+[`ZIP_STORED`](https://docs.python.org/3.11/library/zipfile.html#zipfile.ZIP_STORED),
+nombres hash planos, orden y metadata técnica reproducibles. Objetivo: 8 MiB;
+máximo 16 MiB, 8.192 entradas y 1 MiB de índice por paquete; índices acumulados
+por evaluación hasta 16 MiB. Objetos mayores de 8 MiB o lotes unitarios conservan
+el soporte suelto y el límite de 64 MiB. No se crea un catálogo persistente.
+
+Cada cuerpo solicitado se comprueba por longitud/hash y las copias contradictorias
+se rechazan. Al publicar se revisan también las copias sueltas o agrupadas que
+hayan aparecido durante la escritura, antes de crear el diario. El localizador
+solo conserva índices en memoria durante su evaluación;
+aplicación y recuperación renuevan la observación física. Consultar no repara,
+materializa ni elimina contenido. Staging agrupa también sus copias efímeras.
+
+Distribución y runtime declaran la capacidad; se comprueba el lector fijado antes
+y después de publicar cada ZIP. Un cambio incompatible detiene la operación antes
+del diario; puede quedar contenido inmutable sin referencia, que no se borra ni
+repara automáticamente. El CLI actual exige actualizar un pin anterior; la biblioteca de
+compatibilidad mantiene escritura suelta sobre un almacén antiguo, y bloquea si
+ese pin incompatible ya contiene ZIP. Una transacción de negocio no puede alterar
+contenedores, tampoco mediante mayúsculas o alias cortos de Windows.
+
+V4-14 ampliada comprueba la actualización interrumpida, su recuperación y la vuelta
+al lector anterior antes de crear ZIP. Después, núcleo, diagnóstico e instalador
+actual rechazan cambiar solo el pin: se necesita restaurar un respaldo completo
+compatible o materializar y retirar paquetes con verificación. La primera vía está
+probada en una copia sintética. V4-22 añade compactación explícita y restauración
+independiente de objetos; no implementa un cambio automático al lector antiguo.
+Los diarios 2.0/2.1 conservan su formato y la escritura de un corte hacia un
+lector sin ZIP mantiene copias sueltas. Este desarrollo no acredita instalación,
+publicación ni aceptación de host. [Evidencia](plans/lks-sdd-v4/RESULTS-V4-19-20.md#v4-14-ampliada--compatibilidad-y-recuperación).
+
 ## Problema y decisión implementada
 
 En v2, `history_changes()` copiaba todas las fuentes de `model.hashes` en cada
@@ -289,7 +330,7 @@ medición de volumen del núcleo previa a la integración, separada del ensayo
 integrado final y de las regresiones posteriores de entradas inválidas y migración.
 Estas pruebas de desarrollo no acreditan el gate de una release nueva.
 
-## Publicación, consumidores y compactación futura
+## Publicación, consumidores y compactación explícita en desarrollo 4.0
 
 La implementación y sus mediciones se completaron en `codex/document-storage-growth`
 antes de crear commits. El 2026-10-08 se autorizó por separado crear el commit e
@@ -306,10 +347,33 @@ autorizar sus bytes exactos, aplicar, validar doctor y continuidad, y observar e
 uso real. No se actualizan consumidores en este desarrollo. Instalación personal,
 corte local, permiso de tarea y aceptación son evidencias separadas.
 
-La compactación de historia existente será otra operación explícita y recuperable:
-inventariar todas las referencias, recursos y diarios; crear objetos sin reemplazar
-originales; reconstruir cada estado y comparar byte a byte; verificar todos los
-enlaces/identidades/evidencias; probar restauración desde respaldo independiente.
-Solo otra autorización permite retirar copias después de esa aceptación.
-La recolección de objetos exige probar ausencia de referencias, incluidas migraciones,
-diarios y estados. No se ejecuta limpieza como efecto lateral de este cambio.
+V4-22 mantiene todos los objetos válidos, aunque no se conozcan sus referencias.
+El preview fija objetos, paquetes, pin, protegidos, respaldo ZIP independiente,
+destino nuevo de restauración y reserva de espacio. El alcance acotado admite
+hasta 50.000 objetos y 64 MiB lógicos por operación; objetos de más de 8 MiB
+permanecen sueltos. Archivos desconocidos dentro del almacén conocido bloquean;
+los demás directorios del proyecto quedan fuera de la retirada.
+
+Desde el CLI fijado compatible, `v3 store-preview` recibe un JSON con `backup` y
+`restore`, ambos fuera del consumidor, y guarda su resultado con `--output`.
+`v3 store-compact --input <preview> --authorize <hash>` publica y comprueba los
+paquetes, el respaldo y la restauración byte a byte. Conserva los originales y
+el diario pendiente. Solo `v3 store-recover --authorize <hash>
+--authorize-removal <mismo-hash>` permite retirar sus duplicados físicos exactos.
+No se usa `--apply` ni la autorización de una tarea funcional para esa retirada.
+
+El diario `lks-sdd-store-maintenance/1` ocupa el mismo
+`.lks-sdd/transaction.json` que el negocio. Un guard del sistema operativo
+serializa su recuperación y se libera al terminar el proceso; no es otro diario
+ni permite iniciar un segundo escritor. La recuperación de negocio distingue el
+formato, conserva los diarios 2.0/2.1 y nunca concede autorización de retirada.
+Los paquetes y el recibo se publican sin reemplazar archivos existentes; se
+comprueban otra vez los originales y sus copias antes de retirarlos. La
+restauración usa un staging identificado en el preview, recuperable tras corte.
+
+La validación conserva el inventario inicial, verifica cuerpos y referencias,
+restaura todos los originales y exporta un histórico representativo. No repite
+la materialización de cada estado. No hay GC, borrado por edad, compactación
+automática ni retirada de runtimes. Se informan por separado archivos activos,
+bytes, respaldo, restauración de prueba y Git. La validación sintética no acredita
+instalación, publicación ni aceptación de host.

@@ -1,12 +1,30 @@
 # Aplicabilidad y continuidad documental
 
-El contexto y las decisiones usan el mismo cierre literal de petición/propuesta/tarea,
-reglas globales, contratos compartidos y dependencias transitivas y entrantes. No hace
+El contexto conserva el cierre literal de petición/propuesta/tarea, reglas globales,
+contratos compartidos y dependencias transitivas y entrantes. No hace
 falta PLAN para acreditar pertenencia por las relaciones de una propuesta. Una
 discrepancia entre relaciones y petición declarada conserva el contenido y se diagnostica.
 Las decisiones sobre el alcance requieren aclararla; las consultas y la continuidad
 informan del pendiente y conservan los hechos necesarios.
 La referencia completa se obtiene con `context` y `reference: true`.
+`comparison: true` añade diferencias de pertenencia y caracteres frente a esa
+referencia, y comprueba identidad literal en las fuentes comunes. No acredita por
+sí sola equivalencia semántica. `excluded_units`, `excluded_prose` y
+`scope_diagnostics` explican exclusiones e incertidumbres.
+
+En autoría, `proposal_units` se hereda de los planes concordantes o de la petición.
+Planes con porciones distintas requieren declarar la porción explícita compatible;
+el orden de los elementos nunca decide el alcance. Los contratos entrantes y las
+dependencias tipadas forman parte de la vigencia de una aprobación. Las tareas o
+planes posteriores no conceden autoridad ni obligan por sí solos a reaprobar la propuesta.
+
+En el cálculo de vigencia, el inventario `interfaces` de una propuesta (o feature
+heredada) expresa pertenencia: no se recorre al revés para incluir de nuevo toda la
+propuesta y sus tecnologías en la autorización de cada plan/tarea. La propuesta se
+comprueba por separado sobre su contenido exacto. Se conservan los contratos de
+interfaz, las reglas globales y las dependencias explícitas entrantes o tipadas,
+incluso cuando coinciden con un enlace de pertenencia. El contexto literal no se
+recorta por esta distinción y ningún cambio renueva una decisión anterior.
 
 Los Markdown sin bloques o con prosa fuera de ellos conservan su texto íntegro cuando
 no existe alcance acreditado. Esa prosa puede contener condiciones globales aunque
@@ -18,6 +36,11 @@ logs, código y HTML fuente son texto; los recursos visuales necesitan observaci
 
 1. Consultar `catalog` con `kind: prose`, offset y limit para localizar fuentes y
    hashes del texto. La página no contiene sus cuerpos ni escribe decisiones.
+   Para trabajar en una porción, `kind: scope` con `roots` devuelve pertenencias y
+   una página literal (20 fuentes por defecto, máximo 100). Un lote opcional
+   `proposals` con las mismas filas del formato siguiente produce `proposed_project`,
+   listo para la revisión de gobierno existente. No modifica archivos ni acredita
+   la clasificación. Se conserva la revisión actual y se incrementa la propuesta.
 2. Leer el contenido literal de las fuentes necesarias y sus adjuntos. Usar inspección
    acotada o exportación de la vista cuando el corpus sea grande. Preparar propuestas
    de alcance con fundamento; preguntar únicamente las dudas concretas que persistan.
@@ -48,6 +71,10 @@ No se calcula sobre un resumen. Una fuente mixta con reglas globales usa `global
 y permanece incluida. Se pueden declarar varias unidades para un contrato compartido.
 Fuentes sin declaración, texto cambiado o declaraciones sin decisión vigente permanecen
 incluidos. No se crea una excepción implícita ni se reaproban funcionalidades históricas.
+Las nuevas decisiones conservan también las huellas de los adjuntos de cada fuente.
+Cambiar un adjunto directo o transitivo invalida la exclusión aunque la prosa no
+cambie. Una declaración antigua con adjuntos sin ese manifiesto se trata de forma
+conservadora hasta su revisión; la prosa sin adjuntos mantiene su compatibilidad.
 La declaración conserva la referencia a la decisión competente; el índice sigue derivado.
 Su acreditación exige una revisión `governance` de presentación `/2`, con fuente,
 ámbito y motivo visibles. Una decisión 3.2 u otro cambio de configuración no activa

@@ -31,7 +31,16 @@ def name(value):
 
 def no_links(path):
     path = Path(os.path.abspath(path))
-    for p in [path, *path.parents]:
+    from path_utils import file_attributes, filesystem_root
+    native = filesystem_root(path, force_extended=True)
+    for p in [native, *native.parents]:
+        # Fresh native attributes include reparse points without following their
+        # targets. Unavailable observations retain the portable lstat/error path.
+        attributes = file_attributes(p)
+        if attributes is not None:
+            if attributes & 0x400:
+                raise ContractError("Bundle symlinks/junctions/reparse points are forbidden")
+            continue
         try: info = p.lstat()
         except FileNotFoundError: continue
         if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
@@ -56,15 +65,16 @@ def assess(rows, findings, material, *, dependencies=()):
             missing.append("Exact error absent: " + r["observation_id"])
     for f in findings:
         involved = [r for r in rows if r["observation_id"] in f["occurrences"]]
-        if f["rule"] in {"UF-01", "UF-02", "UF-05"} and any(r["operation"] == "context" for r in involved):
+        if f["rule"] in {"UF-01", "UF-02", "UF-05"} and any(r["operation"] in {"context","work-prepare"} for r in involved):
             if "reproduction/fixture.json" not in material: missing.append("Context graph, roots and selection revisions required: reproduction/fixture.json")
             else:
                 try:
                     graph = check_fixture(json.loads(material["reproduction/fixture.json"]))
                     for r in involved:
-                        if r["operation"] != "context": continue
+                        if r["operation"] not in {"context","work-prepare"}: continue
                         observed = {part["source"]:part["sha256"] for part in r["fragments"]}
-                        matches = [case for case in graph["cases"] if case["roots"] == r["input"].get("roots")
+                        roots=r["input"].get("roots") or r.get("result",{}).get("roots")
+                        matches = [case for case in graph["cases"] if case["roots"] == roots
                                    and all(case["expected_sources"].get(k) == v for k,v in observed.items())]
                         if not matches: missing.append("Reproduction graph does not recover this observed selection: " + r["observation_id"])
                 except (ContractError, ValueError, KeyError, TypeError) as exc: missing.append("Invalid context reproduction material: " + str(exc))
@@ -106,16 +116,37 @@ def assess(rows, findings, material, *, dependencies=()):
     return sorted(set(missing))
 
 
-def fixture(root, roots):
+def selection_sources(result):
+    """Literal selection identity includes observed binary obligations."""
+    selected={s["key"]:sha(s["text"].encode("utf-8")) for s in result["sources"]}
+    for asset in result.get("attachments",[]):
+        if asset["path"] in selected:raise ContractError("Ambiguous selected source identity")
+        selected[asset["path"]]=asset["sha256"]
+    return selected
+
+
+def fixture(root, roots, *, byte_budget=LIMIT):
     """Explicit snapshot for a focal case; preserves bytes, not a code backup."""
     from v3_contract import load, read_bytes
     from v3_context import select
     model = load(root).require_valid()
-    files = {p: base64.b64encode(read_bytes(root, p, limit=LIMIT)).decode("ascii") for p in model.hashes
-             if p.startswith(("docs/lks-sdd/", ".lks-sdd/objects/")) or p == ".lks-sdd/project.json"}
+    files={};total=0
+    for p in model.hashes:
+        if not (p.startswith(("docs/lks-sdd/", ".lks-sdd/objects/")) or p == ".lks-sdd/project.json"):continue
+        if len(files)>=MAX_FILES:raise ContractError("Reproduction path budget exceeded")
+        raw=read_bytes(root,p,limit=max(0,min(LIMIT,byte_budget)-total));total+=len(raw)
+        if sha(raw)!=model.hashes[p]:raise ContractError("Documentary fixture source changed while reading")
+        files[p]=base64.b64encode(raw).decode("ascii")
     selected = select(model, roots)
+    for asset in selected.get("attachments", []):
+        p=asset["path"]
+        if p in files:continue
+        if len(files)>=MAX_FILES:raise ContractError("Reproduction path budget exceeded")
+        raw=read_bytes(root,p,limit=max(0,min(LIMIT,byte_budget)-total));total+=len(raw)
+        if sha(raw)!=asset["sha256"] or len(raw)!=asset["bytes"]:raise ContractError("Documentary attachment changed while reading")
+        files[p]=base64.b64encode(raw).decode("ascii")
     value = {"format": "lks-sdd-context-reproduction/1", "cases": [{"files": files, "roots": roots,
-              "expected_sources": {s["key"]: sha(s["text"].encode("utf-8")) for s in selected["sources"]}}]}
+              "expected_sources": selection_sources(selected)}]}
     check_fixture(value)
     return value
 
@@ -147,14 +178,16 @@ def reproduce(files):
     from v3_context import select
     value = check_fixture(json.loads(files["reproduction/fixture.json"]))
     outcomes = []
+    from path_utils import filesystem_root
     for case in value["cases"]:
-        with tempfile.TemporaryDirectory(prefix="lks-usage-reproduction-") as temp:
-            root = Path(temp)
+        with tempfile.TemporaryDirectory(prefix="lks-usage-reproduction-",dir=filesystem_root(tempfile.gettempdir(),force_extended=True)) as temp:
+            root = filesystem_root(temp)
+            io_root = filesystem_root(temp,force_extended=True)
             for p,b in case["files"].items():
                 raw = base64.b64decode(b, validate=True)
-                path = root/name(p); path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(raw)
+                path = io_root/name(p); path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(raw)
             result = select(load(root).require_valid(), case["roots"])
-            actual = {s["key"]:sha(s["text"].encode("utf-8")) for s in result["sources"]}
+            actual = selection_sources(result)
             outcomes.append({"passed":actual == case["expected_sources"], "expected":case["expected_sources"], "actual":actual})
     return {"status":"reproduced" if all(o["passed"] for o in outcomes) else "not-reproduced",
             "scope":"literal context selections in isolated documentary fixtures; no code/causality/host acceptance claim",
@@ -337,9 +370,18 @@ def main(argv=None):
     parser.add_argument("--destination", type=Path)
     parser.add_argument("--authorize")
     parser.add_argument("--reproduce", action="store_true", help="Run only the trusted context selector against documentary fixtures")
+    parser.add_argument("--recover-capture",action="store_true",help="Publicar entradas diagnósticas pendientes; no reejecuta operaciones")
     args = parser.parse_args(argv)
     try:
-        if args.action == "usage-inspect": result = inspect(args.path, run_reproduction=args.reproduce)
+        if args.recover_capture and args.action!="usage-inspect": raise ContractError("Capture recovery requires usage-inspect")
+        if args.action == "usage-inspect":
+            from path_utils import filesystem_root
+            if (filesystem_root(args.path)/"run.json").exists():
+                from diagnostic_capture import inspect as capture_inspect, recover as capture_recover
+                if args.reproduce: raise ContractError("Capture inspection does not execute reproduction; export a bounded portable case first")
+                result=capture_recover(args.path) if args.recover_capture else capture_inspect(args.path)
+            elif args.recover_capture: raise ContractError("Not a supported diagnostic capture window")
+            else: result = inspect(args.path, run_reproduction=args.reproduce)
         else:
             if not args.input or args.input.stat().st_size > 90*1024*1024: raise ContractError("Missing/excessive export input")
             value = json.loads(args.input.read_bytes())

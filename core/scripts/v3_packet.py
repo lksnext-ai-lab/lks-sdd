@@ -114,9 +114,11 @@ def finish(packet, spool):
     return value
 
 
-def read(path):
+def read(path, *, raw=None):
     path = Path(path).resolve()
-    value = json.loads(read_bytes(path.parent, path.name, limit=MAX_DESCRIPTOR, package_data=True))
+    if raw is None: raw = read_bytes(path.parent, path.name, limit=MAX_DESCRIPTOR, package_data=True)
+    if not isinstance(raw, bytes) or len(raw)>MAX_DESCRIPTOR: raise ContractError("Packet/input byte budget exceeded")
+    value = json.loads(raw)
     if not isinstance(value, dict): raise ContractError("Packet/input object required")
     return Packet(value, path.parent) if value.get("format") == FORMAT else value
 

@@ -10,6 +10,7 @@ from contextvars import ContextVar
 
 from v2_contract import ContractError, DOCS, HISTORICAL_SOURCE, _read_regular, canonical, document_paths, fingerprint, path_at, read_bytes, sha
 from path_utils import filesystem_root, publish_new_file
+from object_zip import evaluated, invalidate, Publisher, PACKS, FORMAT as ZIP_FORMAT
 
 PENDING = ".lks-sdd/transaction.json"
 TRANSACTION_STORE = ".lks-sdd/transactions.json"
@@ -20,6 +21,9 @@ VALIDATING = ContextVar("lks_v2_validating_transaction", default=False)
 def exists_hash(root: Path, relative: str):
     root = filesystem_root(root)
     path = path_at(root, relative, missing=True, package_data=True)
+    if relative.startswith(".lks-sdd/objects/sha256/"):
+        from object_zip import contains
+        return sha(read_bytes(root, relative, limit=64*1024*1024)) if contains(root, relative) else None
     from document_state import LINK as STATE_LINK
     if STATE_LINK.fullmatch(relative): return sha(read_bytes(root, relative, limit=64*1024*1024, package_data=True))
     if HISTORICAL_SOURCE.fullmatch(relative):
@@ -50,7 +54,9 @@ def protected_inventory(root, extra=()):
                 result.add(relative)
                 continue
             path_at(root, relative, missing=True, package_data=True)
-            if path_at(root, relative, missing=True, package_data=True).exists():
+            from object_zip import contains, OBJECTS
+            if (contains(root, relative) if relative.startswith(OBJECTS)
+                    else path_at(root, relative, missing=True, package_data=True).exists()):
                 result.add(relative)
     return sorted(result)
 
@@ -68,6 +74,36 @@ def assert_sources(root, sources):
         if current != expected: raise ContractError("Source changed since preview: " + relative)
 
 
+def _pack_path(root, relative):
+    key = relative.casefold()
+    if key == PACKS.rstrip("/") or key.startswith(PACKS): return True
+    # Windows 8.3 aliases can also name an existing reserved directory. Only
+    # inspect possible aliases; normal business paths need no extra I/O.
+    parts = relative.split("/")
+    if os.name == "nt" and len(parts) >= 3 and any("~" in p for p in parts[:3]):
+        from path_utils import same_filesystem_path
+        return same_filesystem_path(path_at(root, "/".join(parts[:3]), missing=True, package_data=True),
+                                    path_at(root, PACKS.rstrip("/"), missing=True))
+    return False
+
+
+def assert_reader_compatible(root, lock):
+    """A pin-only rollback cannot make grouped objects readable by an old reader."""
+    if lock is None: return False  # no target pinned reader; retain loose backups
+    if isinstance(lock, bytes): lock = json.loads(lock)
+    if not isinstance(lock, dict) or not isinstance(lock.get("storage_formats", []), list):
+        raise ContractError("Invalid target storage capabilities")
+    if ZIP_FORMAT in lock.get("storage_formats", []): return True
+    folder = path_at(root, PACKS.rstrip("/"), missing=True)
+    if folder.exists():
+        if not folder.is_dir(): raise ContractError("Invalid object ZIP directory")
+        with os.scandir(folder) as entries:
+            if next(entries, None) is not None:
+                raise ContractError("Incompatible ZIP reader: restore a verified compatible store before changing the pin")
+    return False
+
+
+@evaluated
 def preview(root: Path, changes: dict[str, bytes | None], *, sources: dict[str, str], operation: str) -> dict:
     root = filesystem_root(root)
     paths = sorted(changes)
@@ -168,6 +204,7 @@ def _load_transaction(root: Path, authorized_hash: str, receipt: str | None) -> 
     return _expand_journal(root, json.loads(read_bytes(root, receipt, limit=128 * 1024 * 1024))), receipt
 
 
+@evaluated
 def stage_contract(root, changes, sources):
     """Validate prospective Markdown in an isolated temporary tree, not the consumer."""
     root = filesystem_root(root)
@@ -196,6 +233,8 @@ def stage_contract(root, changes, sources):
                 checked[relative] = sha(read_bytes(root, relative, limit=16 * 1024 * 1024))
     with tempfile.TemporaryDirectory(prefix="lks-v2-stage-") as directory:
         stage_root = Path(directory)
+        from object_zip import stage_writer
+        write, finish_objects = stage_writer(stage_root, write_one)
         from v2_history import link_dependencies
         for relative in list(checked):
             if HISTORICAL_SOURCE.fullmatch(relative):
@@ -203,36 +242,43 @@ def stage_contract(root, changes, sources):
         for relative in checked:
             if relative in changes or relative.startswith(".lks-sdd/runtime/"):
                 continue
-            write_one(stage_root, relative, read_bytes(root, relative, limit=64 * 1024 * 1024))
+            write(relative, read_bytes(root, relative, limit=64 * 1024 * 1024))
         for relative, raw in changes.items():
             if (relative.startswith((DOCS + "/", ".lks-sdd/objects/")) or relative == ".lks-sdd/project.json") and raw is not None:
-                write_one(stage_root, relative, raw)
+                write(relative, raw)
+        finish_objects()
         load(stage_root).require_valid()
     return checked
 
 
+@evaluated
 def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authorized_hash: str,
           *, validator=None, interrupt_after: int | None = None) -> dict:
     root = filesystem_root(root)
     ensure_idle(root)
+    invalidate(root)
+    if any(_pack_path(root, p) for p in changes):
+        raise ContractError("Business transactions cannot alter object ZIP containers")
     fresh = preview(root, changes, sources=expected["sources"], operation=expected["operation"])
     if fresh["preview_hash"] != authorized_hash or expected["preview_hash"] != authorized_hash:
         raise ContractError("Missing or stale exact preview authorization")
     assert_sources(root, expected["sources"])
-    from content_store import OBJECTS, prepare_object, publish_object
-    def publish(raw):
-        from content_store import reference, object_path
-        ref = reference(raw)
-        publish_object(root, object_path(ref), raw)
-        return ref
-    before = {p: publish(read_bytes(root, p, limit=64 * 1024 * 1024, package_data=True))
-              if expected["before"][p] is not None else None for p in changes}
-    after = {p: publish(data) if data is not None else None for p, data in changes.items()}
+    pin = ".lks-sdd/distribution-lock.json"
+    target_zip = assert_reader_compatible(root, changes[pin]) if pin in changes else None
+    from content_store import OBJECTS, publish_object
     for p, data in changes.items():
         if p.startswith(OBJECTS) and (data is None or p != OBJECTS + sha(data)):
             raise ContractError("Content objects are immutable")
+    publisher = Publisher(root)
+    if target_zip is False: publisher.enabled = False
+    publish = publisher.add
+    before = {p: publish(read_bytes(root, p, limit=64 * 1024 * 1024, package_data=True))
+              if expected["before"][p] is not None else None for p in changes}
+    after = {p: publish(data) if data is not None else None for p, data in changes.items()}
     journal = {"schema_version": "2.1", "preview_ref": publish(canonical(expected)),
                "state": "applying", "before": before, "after": after}
+    publisher.flush()
+    if pin in changes: assert_reader_compatible(root, changes[pin])
     # Unreferenced immutable objects may survive a failure before the journal.
     # They have no authority; recovery never deletes shared content objects.
     journal_path = path_at(root, PENDING, missing=True)
@@ -247,9 +293,11 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
     try:
         # Another transaction may have finished during object preparation. Owning
         # the journal now does not authorize restoring bytes written by that actor.
+        invalidate(root)
         if protected_inventory(root, expected["sources"]) != expected["document_inventory"]:
             raise ContractError("Document inventory changed before journal ownership")
         assert_sources(root, expected["sources"])
+        if pin in changes: assert_reader_compatible(root, changes[pin])
         for number, (relative, data) in enumerate(changes.items(), start=1):
             actual = exists_hash(root, relative)
             if actual != expected["before"][relative] and not (relative.startswith(OBJECTS) and actual == expected["after"][relative]):
@@ -286,8 +334,18 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
             "writes": sorted(changes)}
 
 
+@evaluated
 def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt: str | None = None) -> dict:
     root = filesystem_root(root)
+    invalidate(root)
+    if path_at(root, PENDING, missing=True).exists():
+        # Preserve the legacy 128 MiB admission bound. Only maintenance has the
+        # smaller journal budget; its dispatcher must not narrow business 2.0.
+        tag = json.loads(_read_regular(root, PENDING, limit=128*1024*1024)).get("schema_version")
+        if tag == "lks-sdd-store-maintenance/1":
+            if rollback or receipt: raise ContractError("Business rollback cannot alter physical storage")
+            from store_maintenance import recover as maintenance_recover
+            return maintenance_recover(root, authorized_hash)
     journal, source = _load_transaction(root, authorized_hash, receipt)
     expected = journal["preview"]
     if expected["preview_hash"] != authorized_hash or fingerprint({k: expected[k] for k in
@@ -298,6 +356,8 @@ def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt
         if set(journal[side]) != set(expected[side]):
             raise ContractError("Transaction payload inventory mismatch")
         for relative, encoded in journal[side].items():
+            if _pack_path(root, relative):
+                raise ContractError("Business recovery cannot alter object ZIP containers")
             value = _payload(root, journal, encoded)
             if (sha(value) if value is not None else None) != expected[side][relative]:
                 raise ContractError("Transaction payload integrity mismatch")
@@ -319,6 +379,8 @@ def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt
     if receipt and journal["state"] == "rolled-back":
         raise ContractError("Transaction already rolled back; a new explicit preview is required")
     side = "before" if rollback else "after"
+    pin = ".lks-sdd/distribution-lock.json"
+    if pin in journal[side]: assert_reader_compatible(root, _payload(root, journal, journal[side][pin]))
     for relative, encoded in journal[side].items():
         if relative.startswith(OBJECTS) and encoded is None:
             continue

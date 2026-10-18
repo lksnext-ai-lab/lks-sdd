@@ -71,7 +71,9 @@ class DocumentStorageTests(unittest.TestCase):
         self.assertEqual(load(root).elements["FTR-002"].meta["uid"], entry["meta"]["uid"])
         self.assertEqual(load(root).elements["FTR-002"].meta["state"], "retired")
         image_copies = [p for p in root.rglob("*") if p.is_file() and p.read_bytes() == read_bytes(root, asset)]
-        self.assertEqual(len(image_copies), 2)  # active resource + one shared object, including journals
+        self.assertEqual(len(image_copies), 1)  # active resource; shared CAS bytes are now packed
+        ref = read_manifest(root, states[0][0])["sources"][asset]["object"]
+        self.assertEqual(read_bytes(root, asset), read_object(root, ref))
         revision, expected = states[0]
         virtual = HISTORY + "/" + revision[:16] + "/tree/" + feature
         self.assertEqual(read_bytes(root, virtual), expected[feature])
@@ -238,15 +240,15 @@ class DocumentStorageTests(unittest.TestCase):
         changes = {target: after}
         plan = preview(root, changes, sources={}, operation="publication-race")
         object_name = OBJECTS + sha(after)
-        from content_store import publish_object
-        def raced_publish(root, name, raw):
-            if raw == after:
+        from path_utils import publish_new_file
+        def raced_publish(path, raw, **options):
+            if options.get("prefix") == ".lks-pack-":
                 write_one(root, object_name, b"foreign damaged object")
-            return publish_object(root, name, raw)
-        with patch("content_store.publish_object", raced_publish):
+            return publish_new_file(path, raw, **options)
+        with patch("path_utils.publish_new_file", raced_publish):
             with self.assertRaises(ContractError): apply(root, changes, plan, plan["preview_hash"])
         self.assertEqual(read_bytes(root, target), before)
-        self.assertEqual(read_bytes(root, object_name), b"foreign damaged object")
+        self.assertEqual((root / object_name).read_bytes(), b"foreign damaged object")
         self.assertFalse((root / PENDING).exists())
 
     def test_object_publication_verifies_the_winner_of_an_atomic_creation_race(self):
@@ -265,7 +267,7 @@ class DocumentStorageTests(unittest.TestCase):
         self.assertEqual(list((root / OBJECTS).glob(".lks-object-*")), [])
         write_one(root, name, b"damaged winner")
         with self.assertRaises(ContractError): publish_object(root, name, raw)
-        self.assertEqual(read_bytes(root, name), b"damaged winner")
+        self.assertEqual((root / name).read_bytes(), b"damaged winner")
 
     def test_tampered_objects_manifests_and_source_races_fail(self):
         model = load(self.root)
@@ -421,18 +423,16 @@ class DocumentStorageTests(unittest.TestCase):
         self.assertEqual(read_bytes(root, code), b"later human work")
 
     def test_failure_before_journal_leaves_only_unreferenced_immutable_objects(self):
-        from content_store import publish_object
+        from path_utils import publish_new_file
         model = load(self.root)
         original = {p: read_bytes(self.root, p) for p in model.hashes}
         revision, changes = history_changes(model)
         plan = preview(self.root, changes, sources=model.hashes, operation="synthetic-pre-journal")
-        count = 0
-        def interrupted_write(root, name, raw):
-            nonlocal count
-            count += 1
-            if count == 2: raise InterruptedError("Synthetic failure during object preparation")
-            publish_object(root, name, raw)
-        with patch("content_store.publish_object", interrupted_write):
+        def interrupted_write(path, raw, **options):
+            publish_new_file(path, raw, **options)
+            if options.get("prefix") == ".lks-pack-":
+                raise InterruptedError("Synthetic failure after immutable publication, before journal")
+        with patch("path_utils.publish_new_file", interrupted_write):
             with self.assertRaises(InterruptedError): apply(self.root, changes, plan, plan["preview_hash"])
         self.assertFalse((self.root/PENDING).exists())
         self.assertEqual(original, {p: read_bytes(self.root, p) for p in model.hashes})

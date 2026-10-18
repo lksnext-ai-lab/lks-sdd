@@ -1,0 +1,121 @@
+{
+  "format": "lks-sdd-h2-isolation-plan/1",
+  "revision": "0.2",
+  "status": "inconclusive-Windows-P2-timeout-recovered-zero-cases",
+  "document": "H2-ISOLATION-PLAN.md",
+  "no_plugin_source_changes": true,
+  "execution_authorized": true,
+  "local_budget_reallocation_pending": false,
+  "steps": [
+    {
+      "id": "P0",
+      "minutes": 3,
+      "depends_on": []
+    },
+    {
+      "id": "P1",
+      "minutes": 4,
+      "depends_on": [
+        "P0"
+      ]
+    },
+    {
+      "id": "P2",
+      "minutes": 3,
+      "depends_on": [
+        "P1"
+      ]
+    },
+    {
+      "id": "A",
+      "minutes": 10,
+      "depends_on": [
+        "P2"
+      ]
+    },
+    {
+      "id": "B",
+      "minutes": 10,
+      "depends_on": [
+        "A"
+      ]
+    },
+    {
+      "id": "R",
+      "minutes": 6,
+      "depends_on": [
+        "any-effect-or-failure"
+      ]
+    },
+    {
+      "id": "C",
+      "minutes": 2,
+      "depends_on": [
+        "R"
+      ]
+    }
+  ],
+  "budget_evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\isolation-review-budget.json",
+  "state_evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\isolation-plan-observation.json",
+  "H2_cases_started": false,
+  "native_residual_policy": "retain shared prior resources; restore proven own new deltas; no pristine OS claim",
+  "instructions_policy": "inventory is distinct from active discovery and body reads; verify all three boundaries",
+  "protocol_revision": "1.0-frozen",
+  "critical_review": "REVIEW-H2-ISOLATION-0.1.md",
+  "prior_revision": "H2-ISOLATION-PLAN-0.1.md",
+  "arithmetic_feasible": true,
+  "technical_completion_verified": false,
+  "required_global_admission_seconds": 2460,
+  "review_cap_seconds": 240,
+  "protected_common_contingency_seconds": 180,
+  "latest_H2_execution": {
+    "document": "RESULTS-H2-02.md",
+    "status": "inconclusive-Windows-P2-timeout-recovered-zero-cases",
+    "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\h2-02",
+    "execution_authorized": true,
+    "reallocation_validated": true,
+    "cases_started": false,
+    "new_complete_attempts": 0,
+    "instructions_preflight_verified": true,
+    "actual_case_instruction_loading_observed": false,
+    "native_isolation_verified": false,
+    "profiles_recovered": true,
+    "full_native_OS_reversion_verified": false
+  },
+  "minimal_probe_critical_review": {
+    "status": "reviewed; operational recovery proposed; full native recovery open",
+    "document": "REVIEW-H2-MINIMAL-RECOVERY.md",
+    "minimal_test_actual_closed_seconds": 358.5,
+    "cap_overrun_acknowledged": true,
+    "auth_path_type": "empty directory; no credential file observed",
+    "empty_placeholder_removal_blocked": true,
+    "removal_retried_this_review": false,
+    "H2_admitted_within_remaining_budget": false,
+    "next_action_proposed": "R1-R3 operational recovery with retained residual, no client start; prepare support handoff; defer H2 under unchanged cap",
+    "recovery_actions_executed_this_review": false,
+    "plugin_modified": false
+  },
+  "minimal_probe_operational_closure": {
+    "status": "operationally-closed-profiles-retired-residual-retained",
+    "document": "RESULTS-H2-OPERATIONAL-CLOSURE.md",
+    "incident": "native Windows refresh remains open",
+    "full_OS_recovery_verified": false,
+    "physical_removal_blocked": true,
+    "support_handoff_prepared": true,
+    "support_handoff_sent": false,
+    "H2_cases_started": false
+  },
+  "proposed_Windows_repair_and_H2": {
+    "document": "WINDOWS-REPAIR-H2-PLAN.md",
+    "state": "windows-repair-h2-plan.json",
+    "status": "stopped-at-W2-local-policy-unsupported",
+    "additional_environment_hours": 3,
+    "new_environment_cap_proposed_hours": 15,
+    "revision": "0.2",
+    "future_minutes": 175,
+    "execution_authorized": true,
+    "results": "RESULTS-WINDOWS-REPAIR-H2-03.md",
+    "global_cap_approved_hours": 15,
+    "H2": "not-run"
+  }
+}

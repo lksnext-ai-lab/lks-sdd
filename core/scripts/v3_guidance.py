@@ -10,7 +10,9 @@ LABELS = {"backlog": "Pendiente de empezar", "in-progress": "En implementación"
 NEXT = {"backlog": "start", "in-progress": "implement", "implemented": "verify", "verified": "close", "paused": "resume"}
 
 
-def status(root, *, request_id=None, task_id=None, offset=0, limit=10, task_offset=0, task_limit=10):
+def status(root, *, request_id=None, task_id=None, offset=0, limit=10, task_offset=0, task_limit=10, include_journey=True, task_ids=None):
+    from v3_evaluation import count
+    count("status_evaluations")
     model = load(root).require_valid()
     if limit < 1 or limit > 50 or offset < 0: raise ContractError("Página fuera de límites")
     if task_offset < 0 or not 1 <= task_limit <= 50: raise ContractError("Página de tareas fuera de límites")
@@ -18,7 +20,7 @@ def status(root, *, request_id=None, task_id=None, offset=0, limit=10, task_offs
     rows, issues = [], []
     for request in requests[offset:offset+limit]:
         policy = policy_for(model, request)
-        tasks = [t for t in model.by_kind("task") if t.data.get("request") == request.uid and not t.retired and (not task_id or t.uid == model.get(task_id, "task").uid)]
+        tasks = [t for t in model.by_kind("task") if t.data.get("request") == request.uid and not t.retired and (not task_id or t.uid == model.get(task_id, "task").uid) and (task_ids is None or t.uid in task_ids)]
         try: proposal = approved(model, proposal_ready(model, request))["valid"]
         except ContractError as exc: proposal = False; issues.append({"source": request.source(), "cause": str(exc)})
         task_rows = []
@@ -49,7 +51,7 @@ def status(root, *, request_id=None, task_id=None, offset=0, limit=10, task_offs
                      "Siguiente paso: " + next_step + ". Revise sus condiciones y el resultado concreto que se espera" if next_step else
                      "El recorrido configurado está completo; puede consultar el resultado y sus reservas",
                      "recommendation_basis": "Propuesta vigente y evidencia de las tareas de esta petición"})
-        if policy.data.get("collaboration"):
+        if include_journey and policy.data.get("collaboration"):
             from v31_guidance import interventions
             rows[-1]["journey"] = interventions(model, request.uid, facts=journey_facts)
     return {"project": {"title": model.project.meta["title"], "source": model.project.source()},
@@ -105,7 +107,9 @@ def trace(root, identifier, *, offset=0, limit=20):
             "observation": "Hechos del repositorio; una actuación no observada permanece desconocida", "writes": []}
 
 
-def readiness(root, task_id, actor, action="start"):
+def readiness(root, task_id, actor, action="start", *, include_journey=True):
+    from v3_evaluation import count
+    count("readiness_evaluations")
     model = load(root).require_valid(); task = model.get(task_id, "task")
     try:
         from v3_policy import operator
@@ -118,7 +122,7 @@ def readiness(root, task_id, actor, action="start"):
                           valid_exceptions(model, task, action), model.get(task.data["request"]).data.get("flags", {}))
         from v31_guidance import interventions
         return {**result, "task": task.source(), "quality": quality, "owner": task.data["owner"],
-                "journey": interventions(model, task.data["request"], actor=actor),
+                **({"journey": interventions(model, task.data["request"], actor=actor)} if include_journey else {}),
                 "next": "Puede continuar esta transición; se comprobará su base antes de escribir" if result["status"] == "allowed" else
                 "Resuelva las causas indicadas con el responsable; el trabajo independiente puede continuar"}
     except ContractError as exc:

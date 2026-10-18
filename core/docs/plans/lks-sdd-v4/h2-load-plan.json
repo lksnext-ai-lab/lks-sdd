@@ -1,0 +1,297 @@
+{
+  "format": "lks-sdd-h2-load-plan/1",
+  "revision": "0.3",
+  "plan_revision": "0.4",
+  "status": "inconclusive-Windows-P2-timeout-recovered-zero-cases",
+  "document": "H2-LOAD-PLAN.md",
+  "authorization": "Existing user-authorized H2 continuation within remaining original 45 minutes; stopped before cases; no plugin source edits or later task",
+  "host": {
+    "surface": "Codex interactive CLI using desktop-bundled executable",
+    "client": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.1013.3656.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
+    "client_version_observed": "0.163.0-alpha.10.2",
+    "npm_client_excluded": "0.125.0 lacks plugin add/list/remove",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "xhigh",
+    "separate_CODEX_HOME_per_child_process": true,
+    "no_shared_daemon": true,
+    "permission_isolation_proven": false,
+    "graphical_desktop_interface_observed": false,
+    "live_install_verified": true,
+    "surface_user_validated": true,
+    "live_install_currently_active": false,
+    "instruction_exclusivity_proven": false
+  },
+  "support_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan",
+  "profile_relative_roots_proposed": [
+    "r/a",
+    "r/b"
+  ],
+  "plugin_identity": "lks-sdd@lks-sdd-development",
+  "A": {
+    "package": "C:\\AI-Workspace\\extensions\\_management\\tmp\\lks-sdd-release-3.4.3-bf4d059\\preflight\\candidate\\lks-sdd-plugin-v3.4.3.zip",
+    "sha256": "d528d56a4ba0cdd68e851ca77ba6cf28e567bc2bc8b553d01524b833b5ca5a34"
+  },
+  "B": {
+    "package": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\review\\candidate-corrected\\lks-sdd-plugin-v3.4.3.zip",
+    "sha256": "fc3305217a438e9a58e04250dbdbe48dddd115769980326f3be023f1ecbe8096",
+    "runtime_digest": "28c7a5ffc6f25f1277f5b0125e2ee6d20238bb97360c3c0e483f2c4ec05e8f7b",
+    "source_identity": "working-tree:6f45fa8293e075d48ce27d62d35fe7e1398c0f41937f6fe1863b26953e2e0148",
+    "channel": "development-unreleased",
+    "source_version": "3.4.3"
+  },
+  "manager": {
+    "launcher": "C:\\AI-Workspace\\extensions\\bin\\extensions.ps1",
+    "normal_help": "Manager file set changed; use -Recovery",
+    "verified_recovery_help": true,
+    "recovery_plan_help": true,
+    "repair_applied": false,
+    "isolated_plan_generated": true,
+    "apply_allowed_now": false,
+    "precondition": "verified recovery path, isolated child environment, registered immutable package and content-bound plan; no default profile redirection",
+    "stage1_plans_prepared_unapplied": 2,
+    "stage2_plan_generated": true,
+    "execution_authorized_for_this_completed_block": true,
+    "registration_applied": {
+      "A": true,
+      "B": true
+    },
+    "plugin_installation": {
+      "A": "verified-then-rolled-back",
+      "B": "verified-then-rolled-back"
+    },
+    "recovery": "plugin/catalog/authentication verified; native Windows provisioning retained, not fully reverted"
+  },
+  "tasks": [
+    {
+      "id": "H2-P0",
+      "depends_on": [],
+      "state": "admitted-within-original-45-minute-cap"
+    },
+    {
+      "id": "H2-P1",
+      "depends_on": [
+        "H2-P0"
+      ],
+      "state": "A/B-correct-relative-marketplaces-applied-then-recovered"
+    },
+    {
+      "id": "H2-P2",
+      "depends_on": [
+        "H2-P1"
+      ],
+      "state": "A/B-installed-content-verified-then-rolled-back"
+    },
+    {
+      "id": "H2-P3",
+      "depends_on": [
+        "H2-P2"
+      ],
+      "state": "inconclusive-native-isolation-and-instruction-exclusivity-unproven"
+    },
+    {
+      "id": "H2-A",
+      "depends_on": [
+        "H2-P3"
+      ],
+      "state": "not-run"
+    },
+    {
+      "id": "H2-B",
+      "depends_on": [
+        "H2-A"
+      ],
+      "state": "not-run"
+    },
+    {
+      "id": "H2-R",
+      "depends_on": [
+        "any-load-or-failure"
+      ],
+      "state": "plugin-catalog-authentication-verified; native-Windows-state-retained"
+    },
+    {
+      "id": "H2-C",
+      "depends_on": [
+        "H2-A",
+        "H2-B",
+        "H2-R"
+      ],
+      "state": "inconclusive-no-case-metrics"
+    }
+  ],
+  "comparison": {
+    "protocol": "MEASUREMENT-PROTOCOL.json",
+    "protocol_revision": "1.0-frozen",
+    "scenario": "S1",
+    "order": "AB",
+    "fresh_sessions": 2,
+    "required_B_out_reduction": 0.1,
+    "required_B_out_saved_bytes": 8192,
+    "required_N_admin_saved": 1,
+    "maximum_B_flow_growth": 0,
+    "new_redundant_confirmations": 0,
+    "guarantees_required": "E0; same obligations and actual result, no known loss or open material defect",
+    "tokens": "actual comparable closed W1 turns only; absence reported, no estimate",
+    "human_effort": "deferred-real-sustained-use"
+  },
+  "budget": {
+    "global_caps": {
+      "attempts": 48,
+      "environment_hours": 12,
+      "human_hours": 8,
+      "M6_variants": 2,
+      "M6_hours": 4
+    },
+    "known_and_reserved_attempts": 45,
+    "H2_attempts_already_reserved": 2,
+    "additional_attempts_reserved": 0,
+    "historical_balance_certified": false,
+    "proposed_H2_total_minutes": 45,
+    "proposed_split_minutes": {
+      "W0": 10,
+      "A": 10,
+      "B": 10,
+      "recovery_protected": 10,
+      "analysis": 5
+    },
+    "proposed_H2_allocation_authorized": true,
+    "planning_local_cap_minutes": 15,
+    "full_release_hours_feasibility": "not certified; six improvements and coverage retained; use updated observed ledger before admitting later work",
+    "currently_admitted_future_minutes": 0,
+    "budget_admission": "Original 45-minute cumulative cap unchanged; no later block admitted; see actual snapshot ledger",
+    "actual_remaining_hours": null,
+    "resource_ledger": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\continuation\\resource-ledger.json",
+    "reserved_future_H2_minutes": 0,
+    "time_reconciliation": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\time-reconciliation.json",
+    "closed_calendar_proxy_hours": 13.439925,
+    "verified_deep_idle_seconds_excluded_once": 10903.592044,
+    "closed_environment_allocation_proxy_hours": 10.411149432222224,
+    "reconciliation_reserved_minutes": 10,
+    "observed_remaining_minutes_after_reconciliation_reserve": 85.33103406666656,
+    "observed_remaining_minutes_after_H2_reserve": 40.33103406666657,
+    "superseded_time_record_preserved": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\resource-reallocation-ledger.json",
+    "current_total_known_remaining_at_snapshot_minutes": 52.29032308333335,
+    "current_block_elapsed_minutes_at_recording": 24.26587765,
+    "remaining_original_H2_reservation_minutes_at_recording": 7.468155683333332,
+    "current_cumulative_H2_minutes_at_recording": 37.53184431666667,
+    "known_environment_hours_at_snapshot": 11.128494615277777,
+    "snapshot_utc": "2026-10-16T22:28:41.955659+02:00"
+  },
+  "required_user_decisions": [],
+  "installed": false,
+  "H2_started": false,
+  "new_complete_attempts": 0,
+  "V4_06_started": false,
+  "concrete_document": "H2-CONCRETE-LOAD.md",
+  "concrete_operations": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\concrete-load-operations.json",
+  "resolved_user_decisions": [
+    "Codex interactive CLI validated",
+    "H2 prioritized and reallocation within unchanged caps authorized"
+  ],
+  "prepared_operations": [
+    {
+      "CODEX_HOME": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\a\\h",
+      "EXTENSION_MAINTENANCE_CODEX": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.1013.3656.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
+      "applied": false,
+      "arm": "A",
+      "canonical_future_target": "C:\\AI-Workspace\\extensions\\lks-sdd\\packages\\3.4.3\\e12b37f54685bd74",
+      "catalog": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\a\\m",
+      "maximum_staged_path": 175,
+      "package_tree_hash": "e12b37f54685bd7499fee78da2a29e96f74e0b470ab771da9b7dae5789a75944",
+      "registration_request": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\a\\register-request.json",
+      "stage1_fingerprint": "db0c5069039368dc1dd588c81d2d98bae572f8087ff221b8c0d87eaac076b34b",
+      "stage1_plan": "C:\\AI-Workspace\\extensions\\_management\\operations\\41ab623cdc094b81b880be4632da5474\\plan.json",
+      "stage2_plan_generated": false,
+      "stage2_request": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\a\\load-stage2-request.json"
+    },
+    {
+      "CODEX_HOME": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\b\\h",
+      "EXTENSION_MAINTENANCE_CODEX": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.1013.3656.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
+      "applied": false,
+      "arm": "B",
+      "canonical_future_target": "C:\\AI-Workspace\\extensions\\lks-sdd\\packages\\3.4.3\\ed237c8c25b29ece",
+      "catalog": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\b\\m",
+      "maximum_staged_path": 175,
+      "package_tree_hash": "ed237c8c25b29eceb9ff30cf207a6abb898635b160a97b48fe7ca69260308a07",
+      "registration_request": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\b\\register-request.json",
+      "stage1_fingerprint": "da61d80d728a25d68d1a5c2a572da5a71659b8b5de2c399c3d496a4e697dd34d",
+      "stage1_plan": "C:\\AI-Workspace\\extensions\\_management\\operations\\198400ac39fd47629782f58748e0371a\\plan.json",
+      "stage2_plan_generated": false,
+      "stage2_request": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\r\\b\\load-stage2-request.json"
+    }
+  ],
+  "time_reconciliation_document": "TIME-RECONCILIATION.md",
+  "execution_results": "RESULTS-H2-02.md",
+  "execution_evidence": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\h2-02",
+  "H2_execution_block_started": true,
+  "H2_cases_started": false,
+  "continuation": "Present results; resolve native isolation and instruction exclusivity; new admission must fit existing global balance before any cases",
+  "recovery_scopes": {
+    "isolated_plugin_catalog_authentication": true,
+    "personal_config_fingerprint_matches": true,
+    "complete_native_Windows_reversion": false
+  },
+  "load_cause_resolved": true,
+  "proposed_isolation_continuation": {
+    "document": "H2-ISOLATION-PLAN.md",
+    "machine_state": "h2-isolation-plan.json",
+    "status": "executed-inconclusive-P2-timeout",
+    "local_budget_reallocation_pending": false,
+    "revision": "0.2",
+    "critical_review": "REVIEW-H2-ISOLATION-0.1.md",
+    "arithmetic_feasible": true,
+    "technical_completion_verified": false,
+    "execution_authorized": true,
+    "results": "RESULTS-H2-02.md"
+  },
+  "latest_H2_execution": {
+    "document": "RESULTS-H2-02.md",
+    "status": "inconclusive-Windows-P2-timeout-recovered-zero-cases",
+    "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-05a\\h2-plan\\h2-02",
+    "execution_authorized": true,
+    "reallocation_validated": true,
+    "cases_started": false,
+    "new_complete_attempts": 0,
+    "instructions_preflight_verified": true,
+    "actual_case_instruction_loading_observed": false,
+    "native_isolation_verified": false,
+    "profiles_recovered": true,
+    "full_native_OS_reversion_verified": false
+  },
+  "minimal_probe_critical_review": {
+    "status": "reviewed; operational recovery proposed; full native recovery open",
+    "document": "REVIEW-H2-MINIMAL-RECOVERY.md",
+    "minimal_test_actual_closed_seconds": 358.5,
+    "cap_overrun_acknowledged": true,
+    "auth_path_type": "empty directory; no credential file observed",
+    "empty_placeholder_removal_blocked": true,
+    "removal_retried_this_review": false,
+    "H2_admitted_within_remaining_budget": false,
+    "next_action_proposed": "R1-R3 operational recovery with retained residual, no client start; prepare support handoff; defer H2 under unchanged cap",
+    "recovery_actions_executed_this_review": false,
+    "plugin_modified": false
+  },
+  "minimal_probe_operational_closure": {
+    "status": "operationally-closed-profiles-retired-residual-retained",
+    "document": "RESULTS-H2-OPERATIONAL-CLOSURE.md",
+    "incident": "native Windows refresh remains open",
+    "full_OS_recovery_verified": false,
+    "physical_removal_blocked": true,
+    "support_handoff_prepared": true,
+    "support_handoff_sent": false,
+    "H2_cases_started": false
+  },
+  "proposed_Windows_repair_and_H2": {
+    "document": "WINDOWS-REPAIR-H2-PLAN.md",
+    "state": "windows-repair-h2-plan.json",
+    "status": "stopped-at-W2-local-policy-unsupported",
+    "additional_environment_hours": 3,
+    "new_environment_cap_proposed_hours": 15,
+    "revision": "0.2",
+    "future_minutes": 175,
+    "execution_authorized": true,
+    "results": "RESULTS-WINDOWS-REPAIR-H2-03.md",
+    "global_cap_approved_hours": 15,
+    "H2": "not-run"
+  }
+}

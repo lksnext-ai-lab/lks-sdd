@@ -1,0 +1,47 @@
+{
+  "tasks": {
+    "V4-08": "verified-local-technical-scope",
+    "V4-09": "verified-local-technical-scope"
+  },
+  "criteria": {
+    "AC-15": "verified-local-technical-scope",
+    "AC-16": "verified-local-technical-scope",
+    "AC-17": "verified-local-technical-scope"
+  },
+  "unique_tests_passed": 39,
+  "new_scope_tests": 20,
+  "existing_documentary_tests": 4,
+  "technical_core_tests": 14,
+  "windows_long_path_tests": 1,
+  "final_workflow_repeats": 2,
+  "source_binding": {
+    "scripts/v3_approval.py": "7841f0fb8d42f15d812ed15fb076821ce817f588f367772190eabd32b1f137c9",
+    "scripts/v3_scope.py": "faf0c4f3bd7d098dbf23487923367aa23f3fb9bf8cbeef1db8dd075793a8e4ae",
+    "scripts/v3_authoring.py": "22a86f6b41c6dfad3bfbe248214b79fac355dfbc0d20208f274d8424c1e0cbfc",
+    "scripts/v3_context.py": "6a6f7a87ae6fd8b12679acdbcc69771006eefb0eb9583d3980151f58cf57f40c",
+    "scripts/v3_cli.py": "354fc2da17cc1001c7084adf40fa4eea542f3a9bfe8f9d68abd03b52322686ec",
+    "scripts/v3_decision_presentation.py": "d9fecd4f112225abfa1b776980143e8e3858c1c45b02c4589acd2ce70d9da3f3",
+    "scripts/v4_work_prepare.py": "93f7331aee18ebf53078fbdf8cfa3b9540c802cc0ba0bf2f5c42c51ddf999295"
+  },
+  "test_sha256": "59442c33c4b868a1e8dadf469b57a3b3a703d95ac80f1779cd7799f2d8919199",
+  "reused_evidence": "Technical gate and documentary checks preceded only approval-root restriction and retired-plan filter; affected workflow cases rerun; union/retired cases tested in final20. Repeated cases not counted twice.",
+  "preserved_failure": "scope.stderr reproduces incoming-proposal authority defect before its correction",
+  "scope_suite_seconds": 2.393,
+  "final_workflow_seconds": 103.96113549999427,
+  "initial_parallel_gate_seconds": 515.1,
+  "legacy_trial": {
+    "sources": 4,
+    "declared_fields_per_source": 5,
+    "automatic_classifications": 0,
+    "amortization": "not-demonstrated; no bulk classification authorized",
+    "human_time": null
+  },
+  "whole_task_attempts": 0,
+  "billed_tokens": null,
+  "performance_acceptance": "pending",
+  "H2": "pending",
+  "windows_host_incident": "set-aside-open",
+  "installed": false,
+  "published": false,
+  "limits": "Six improvements, 23 tasks, 44 criteria, benchmark caps and outstanding host coverage preserved; no new global time cap or completion budget inferred."
+}

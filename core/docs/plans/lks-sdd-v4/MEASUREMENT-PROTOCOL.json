@@ -1,0 +1,269 @@
+{
+  "format": "lks-sdd-v4-study-protocol/1",
+  "revision": "1.0",
+  "client_date": "2026-10-16",
+  "status": "frozen-before-candidate",
+  "authority": "User requested concretizing technical windows/thresholds and closing V4-02; engineering values selected by agent, not retrospective user sign-off",
+  "scope": "Codex technical reference feasibility only; no implementation or candidate result",
+  "reference": {
+    "plugin_version": "3.4.3",
+    "source_commit": "bf4d059c98826039097d606121ab6406d762fcc7",
+    "manifest": "h1-reference.json",
+    "manifest_sha256": "fa51e22a04edd40af54c0a0738f2ed571860146a0c4c0034bc453bbf1710756f",
+    "scenarios": "SCENARIOS.json",
+    "scenarios_sha256": "d74523828905ba7888821f142caf7a7827bab1b43260bae0a860d5e80670a90d",
+    "historical_mixed_token_windows_eligible_as_savings_denominator": false
+  },
+  "hosts": {
+    "initial": "Codex",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "client_version": "capture actual value per future sample",
+    "copilot": "deferred-final-checks-separate-configuration-and-results",
+    "instructions_and_pinned_runtime_must_match_candidate": true
+  },
+  "roles": {
+    "preparation_capture_comparison": "current maintenance agent",
+    "functional_decisions_and_future_authorization": "current user in session; no organizational identity inferred"
+  },
+  "windows": {
+    "W0": {
+      "name": "study preparation",
+      "costs": "record separately, never discard setup/failure costs",
+      "candidate_required_classification_or_configuration": "included in W1"
+    },
+    "W1": {
+      "name": "whole task in host",
+      "start": "first message of a fresh case chat, including bootstrap and instruction reads",
+      "end": "closed turn presenting technical result, actual checks and pending integration/acceptance",
+      "include": [
+        "all intermediate turns",
+        "applicable skill/contract reads",
+        "necessary functional decisions",
+        "tool attempts",
+        "errors and recovery",
+        "required configured diagnostic conservation"
+      ],
+      "preloaded_applicable_instructions_outside_window_allowed": false
+    },
+    "W2": {
+      "name": "technical journey within W1",
+      "start": "first operation required for case",
+      "end": "required final state/evidence and configured diagnostic conservation"
+    },
+    "W3": {
+      "name": "post-case study analysis",
+      "include": [
+        "extract numeric counters after turn completion",
+        "critical assessment",
+        "maintenance report"
+      ],
+      "cannot_receive_work_required_in_W1": true
+    }
+  },
+  "comparison_controls": {
+    "initial_case": "equivalent code, contract, controls, logical roles and tools; restore frozen snapshot",
+    "fresh_chat_per_arm": true,
+    "solution_transfer_allowed": false,
+    "diagnostic_profile": "enabled-both-arms-primary",
+    "raw_capture": "stdout/stderr/exit/duration saved before parse; API fallback retains distinct boundary",
+    "normalization": "declared UUID/date/path mapping in semantic copies only; originals and measured bytes unchanged",
+    "known_reference_renderer_failure": "preserve as real failure; no unreported repair or substitution",
+    "cache": "same observable policy; record cached categories and filesystem warm state; no forced cache clearing",
+    "parallel_benchmarks_allowed": false
+  },
+  "metrics": {
+    "B_out": {
+      "unit": "byte UTF-8",
+      "resolution": 1,
+      "source": "complete original CLI stdout/stderr plus actual attachment/file deliveries",
+      "unread_stored_files": "storage/time only until read"
+    },
+    "B_in": {
+      "unit": "byte",
+      "resolution": 1,
+      "source": "all input data including diagnostic observations/receipts/attachments/recovery"
+    },
+    "B_flow": {
+      "unit": "byte",
+      "formula": "B_out+B_in"
+    },
+    "N_admin": {
+      "unit": "public plugin invocation",
+      "resolution": 1,
+      "include": "preparation/presentation/records/queries/diagnostics/mutations/failures/retries; three commands in one host tool count three",
+      "exclude": "product edits/tests, reported separately",
+      "internal_guards": "reported and preserved, not removed to lower count"
+    },
+    "host_tokens": {
+      "unit": "reported token",
+      "resolution": 1,
+      "source": "deduplicated response records matched to final completed turn counters",
+      "formula": "input+output; cached and reasoning fields are subsets",
+      "eligibility": "all W1 turns, comparable model/configuration, no unseparable study contamination",
+      "invoice_cost": null
+    },
+    "T_machine": {
+      "unit": "second",
+      "source": "monotonic full sequential technical journey, including CLI startup, tests, necessary IO and diagnostics",
+      "exclude": [
+        "model inference",
+        "human decision waiting"
+      ],
+      "claim": "technical journey time, not full human development time"
+    },
+    "human_effort_perception": {
+      "status": "deferred-real-sustained-use",
+      "delta_admin": null,
+      "questionnaires_required_now": false
+    }
+  },
+  "thresholds": {
+    "E0": {
+      "known_guarantee_losses_max": 0,
+      "introduced_material_defects_open_max": 0
+    },
+    "H2": {
+      "scenario": "S1",
+      "pairs": 1,
+      "minimum_B_out_reduction": 0.1,
+      "minimum_B_out_saved_bytes": 8192,
+      "minimum_N_admin_saved": 1,
+      "maximum_B_flow_growth": 0,
+      "new_redundant_confirmations_max": 0,
+      "all_conditions_required": true
+    },
+    "E1": {
+      "metric": "B_out",
+      "minimum_median_reduction": 0.3,
+      "cases": [
+        "S1",
+        "S2",
+        "S4"
+      ]
+    },
+    "E2": {
+      "metric": "N_admin",
+      "minimum_median_reduction": 0.2,
+      "cases": [
+        "S1",
+        "S2"
+      ],
+      "new_redundant_confirmations_max": 0
+    },
+    "E3": {
+      "metric": "host_tokens_W1",
+      "minimum_median_reduction": 0.15,
+      "cases": [
+        "S1",
+        "S2",
+        "S4"
+      ],
+      "missing_or_incomparable": "not-measured or inconclusive; no total-token-savings claim"
+    },
+    "E4_M6": {
+      "baseline": "exact candidate before optimization",
+      "metric": "T_machine",
+      "delta_util_seconds": 5.0,
+      "pairs": 6,
+      "order": [
+        "AB",
+        "BA",
+        "AB",
+        "BA",
+        "AB",
+        "BA"
+      ],
+      "processes": "new per run",
+      "differences": "d_i=T_Ai-T_Bi",
+      "noise": "MAD=median(abs(d_i-median(d_i)))",
+      "median_saved_seconds_must_exceed_MAD_multiplier": 2.0,
+      "positive_pairs_min": 5,
+      "median_AB_and_BA_must_be_positive": true,
+      "extension_max_pairs": 6,
+      "positive_pairs_min_if_12": 10,
+      "extension_only_if_capacity_and_noise_not_clear_failure": true,
+      "otherwise": "discard or inconclusive, no performance-based incorporation"
+    },
+    "E5_AC36": {
+      "status": "deferred-not-passed",
+      "blocks_current_technical_closure": false
+    },
+    "regression": {
+      "investigate_if_growth_greater_than": 0.1,
+      "reproduced": "correct or withdraw",
+      "smaller_reproducible_regressions": "report and assess; no permitted regression allowance"
+    }
+  },
+  "aggregation": {
+    "pair_reduction": "1-B/A",
+    "zero_reference": "absolute delta only",
+    "per_case": "median paired reductions",
+    "primary_aggregate": "median of per-case medians, equal case weight, never pool hosts",
+    "absolute_deltas_and_range_required": true,
+    "statistical_generalization": false
+  },
+  "sampling": {
+    "H2_order": "AB S1 Codex",
+    "final_Codex_order": {
+      "S1": "AB",
+      "S2": "BA",
+      "S4": "AB",
+      "S3": "BA",
+      "S5": "AB",
+      "S6": "BA"
+    },
+    "Copilot_order": "reverse Codex",
+    "host_extension_eligible_cases": [
+      "S1",
+      "S2",
+      "S4"
+    ],
+    "extension_if_aggregate_within_percentage_points": 5,
+    "host_extension_max_pairs_per_case_total": 3,
+    "host_extensions_max_rounds": 1,
+    "repeat_until_success_allowed": false,
+    "invalid_only": [
+      "wrong fixture/configuration/version",
+      "irrecoverable capture",
+      "cross-case contamination",
+      "identified external interruption"
+    ],
+    "not_excludable": [
+      "correct guard rejection",
+      "slowness timeout",
+      "candidate defect",
+      "reference report defect",
+      "unfavorable result"
+    ]
+  },
+  "budget": {
+    "global_run_attempts_max": 48,
+    "global_human_hours_max": 8,
+    "global_environment_hours_max": 12,
+    "M6_variants_max": 2,
+    "M6_study_hours_max_within_global": 4,
+    "known_conservative_charged_slots": 7,
+    "future_H2_run_slots": 2,
+    "future_final_coverage_run_slots": 24,
+    "theoretical_residual_upper_bound_before_other_consumption": 15,
+    "one_six_pair_full_task_M6_slots": 12,
+    "theoretical_residual_after_one_M6_upper_bound": 3,
+    "exact_remaining_run_slots": null,
+    "exact_remaining_hours": null,
+    "rule": "reconcile and reserve complete block before future execution; no reset, expansion or sacrifice of mandatory coverage; no new human session reserved"
+  },
+  "candidate_loading": {
+    "route": "external reproducible Codex marketplace/project runtime; docs/DISTRIBUTION.md; recheck actual client surface then",
+    "registration_installation_activation": "separate future authorization; none performed",
+    "M4_host_proof": "candidate instructions and candidate pinned runtime loaded, no duplicate project/plugin skills"
+  },
+  "claim_limits": [
+    "No savings demonstrated before candidate comparison",
+    "Historical mixed windows not eligible savings baseline",
+    "No human-effort or tedium improvement claim",
+    "No invoice savings claim without invoice",
+    "Copilot not observed",
+    "No plugin implementation or installation authorization"
+  ]
+}

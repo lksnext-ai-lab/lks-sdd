@@ -38,6 +38,61 @@ python -B -X utf8 scripts\validate_plugin_contract.py .
 
 ## Desarrollo del recorrido integral
 
+La corrección focal de coste/transporte verifica `CaptureTests`,
+`ReceiptTransportTests`, `MeasurementAffinityTests` y `test_performance_control`,
+sin repetir sus fixtures integrales ni S8. El control previo recalcula dispersión
+y sobrecoste desde muestras brutas, rechaza cambios de fuente/método/input,
+ventanas caducadas e aislamiento incompleto. Es un control estricto histórico, no una
+autorización ni un lanzador. La decisión posterior de aceptar variabilidad retira
+su exigencia de estabilidad como admisión; fuente, identidad, trabajo equivalente
+y garantías siguen siendo obligatorios. No se modifica el driver histórico
+ni se amplía la puerta estable. Véase el [resultado y sus límites](plans/lks-sdd-v4/RESULTS-V4-17-EFFICIENCY.md).
+La revisión posterior observa clases y disponibilidad de CPU mediante CPU Sets;
+evita seleccionar una CPU por su posición numérica. La política optativa del job
+de medida puede fijar Above Normal y HighQoS del worker antes del arranque, sin
+cambiar ajustes globales ni el núcleo del plugin. El ensayo histórico de 30.000 elementos
+exigía calentamiento con trabajo idéntico y tres muestras CPU/pared estables ≤5 %.
+En ese ensayo no se comparaban variantes si fallaba el calentamiento. Los cambios
+no lograron estabilidad. La política vigente acepta medir con ruido declarado,
+sin buscar una ventana favorable ni relajar umbrales o garantías;
+[decisión y límites](plans/lks-sdd-v4/DECISION-SHARED-HOST-MEASUREMENT.md).
+
+La corrección final de rendimiento mantiene las lecturas y fronteras frescas:
+`runtime_doctor` recorre cada cadena de ancestros sin reconstruir sus subcadenas;
+`usage_bundle.no_links` usa atributos nativos nuevos y conserva el fallback y los
+rechazos de reparse points. `FreshPathObservationTests` comprueba modificaciones,
+ausencias, inventario inesperado, ancestros, junction real y errores de observación.
+La serie final S8 y el sobrecoste optativo tienen evidencia separada; estas
+optimizaciones no cachean confianza ni amplían la puerta estable.
+
+V4-14 añade `test_v4_compatibility`: corte explícito desde un consumidor sintético
+3.4.3, conservación del trabajo abierto, rollback, recuperación de journal y
+rechazo ante cambios posteriores. V4-15 consolida evidencia vigente y V4-16
+comprueba paquetes de desarrollo reproducibles desde extracciones limpias.
+El cierre ampliado 4.0 vincula los controles técnicos a la huella extraída exacta,
+incluidos los objetos ZIP, su mantenimiento y la integración funcional F8 sobre
+la entrada B congelada. Reutiliza negativos no afectados por hash y conserva los
+límites de las mediciones históricas. Los controles técnicos del gate se ejecutan
+como comprobaciones de desarrollo; la aprobación estable y el checkout limpio
+siguen pendientes hasta la autorización separada de versión e integración.
+La [guía de candidata](V4-CANDIDATE.md) distingue estos resultados de instalación,
+aceptación de host y publicación; no amplía la puerta estable.
+
+V4-11 adapta las seis skills y añade rutas de las operaciones compuestas a
+`test_v3_instruction_routing`: recursos por evento, recarga de huellas, metadatos,
+enlaces y ejecución desde ambos adaptadores. Su [resultado](plans/lks-sdd-v4/RESULTS-V4-11.md)
+reutiliza los controles no afectados y conserva pendientes de host y sobrecoste.
+
+V4-10 añade `test_v4_maintenance`: comparación focal con 3.4.3 de corrección cubierta,
+cambio de acuerdo, nueva capacidad y permiso vencido. Reutiliza los guards vigentes;
+su [resultado](plans/lks-sdd-v4/RESULTS-V4-10.md) no acredita ahorro integral ni amplía
+la puerta de publicación.
+
+V4-07A añade `test_work_activity`: canal optativo separado, señales/JSON,
+interrupción cooperativa, efectos durables, reintento y recuperación. Su aceptación
+y límites constan en [los resultados](plans/lks-sdd-v4/RESULTS-V4-07A.md);
+no amplía la puerta estable ni acredita ahorro de tarea completa o H2.
+
 Las pruebas focales de `tests/test_v31_review.py` comprueban decisiones agrupadas,
 revisión conjunta, encargos, correcciones, excepciones y orientación de solo lectura.
 `tests/test_v3_distribution.py` comprueba adopción 3.0 → 3.1 con runtime fijado y
@@ -50,6 +105,18 @@ Para cambios de presentación y selección de instrucciones se añaden las regre
 focales `test_v3_decision_presentation` y `test_v3_instruction_routing`. Comprueban
 prosa literal, borradores, decisiones antiguas, caducidad del contenido mostrado,
 composición, recogida de evidencia por petición y ejecución desde ambos paquetes.
+V4-03 añade `test_v4_cli_presentation`: modo operativo explícito, matriz de 24
+combinaciones de opciones, exportación íntegra, recibos, bloqueos, efectos tras
+error de salida, recuperación y exportación Windows larga con Unicode/espacios.
+La interfaz y sus límites están en [CLI-PRESENTATION.md](CLI-PRESENTATION.md).
+V4-05A integra el recorrido provisional descrito en [WORK-PREPARE.md](WORK-PREPARE.md).
+La regresión pública de `test_diagnostic_capture` conserva el resumen en lista y el
+contenido del reporte sin escrituras de consulta. `test_v3_instruction_routing`
+comprueba los mismos bytes de estas instrucciones en ambos adaptadores. El recorrido
+S1 desde el paquete de desarrollo comprueba prueba real, evidencia, verificación,
+cierre y conservación; no sustituye la pareja H2 en chats nuevos del host.
+Estas pruebas de desarrollo no amplían la puerta estable ni acreditan ahorro de
+tarea completa o aceptación humana de un host.
 Los recorridos de revisión, equipo, calidad, integración y distribución se mantienen.
 La corrección de antecedentes migrados añade `test_v3_historical_presentation`:
 procedencia recuperable, responsables literales, pendientes, consultas directas,
@@ -108,7 +175,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v3.4.1.json `
+  --release-approval quality\release-approval-v4.0.0.json `
   --output $releaseGate
 ```
 
@@ -185,6 +252,19 @@ python -B -X utf8 tests\run_unit_tests.py `
 
 ## Diagnóstico opcional
 
+La captura explícita V4-04 se verifica de forma focal, junto a los adaptadores que
+conservan diagnóstico y a los helpers Windows existentes:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_diagnostic_capture
+python -B -X utf8 tests/run_unit_tests.py --module test_usage_observation --module test_usage_bundle
+python -B -X utf8 tests/run_unit_tests.py --module test_v3_instruction_routing --test test_both_packages_execute_the_same_decision_view
+python -B -X utf8 tests/run_unit_tests.py --module test_windows_long_paths
+```
+
+El contrato y los límites están en [DIAGNOSTIC-CAPTURE.md](DIAGNOSTIC-CAPTURE.md).
+Estas pruebas no acreditan el ahorro integral ni la aceptación de un host real.
+
 Para investigar un defecto concreto, ejecute únicamente el test o el validador que lo
 observa. No use suites globales como paso rutinario de publicación. Los contratos de
 migración y consultas v2 están documentados en
@@ -251,3 +331,58 @@ consulta y recuperación; continuar trabajo exige el corte v3.1 documentado en
 La operación histórica es reversible mediante `retention-restore --id AUTH-001` (o el
 identificador operativo correspondiente), también con preview y autorización
 exacta. EVID y los documentos normativos no son candidatos.
+
+## Consulta compuesta V4-05
+
+La preparación informativa se comprueba frente a las consultas individuales y
+con negativos de autoridad, contrato incompleto, runtime y cambios concurrentes:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_work_prepare
+python -B -X utf8 tests/run_unit_tests.py --module test_v3_approval_performance --module test_v3_instruction_routing --module test_usage_observation --module test_usage_bundle
+```
+
+[WORK-PREPARE.md](WORK-PREPARE.md) delimita la operación. Las pruebas de paquete
+son sintéticas; no acreditan instalación, uso conversacional ni ahorro integral.
+
+
+La corrección Git/Windows de V4-05 añade:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_windows_git_paths
+```
+
+Comprueba inventario, exclusiones, prefijos anidados, referencia `.git`, rama/base,
+alias, propiedad y límites de configuración antes de repetir el recorrido público
+con runtime/consumidor largo de `test_work_prepare`. No amplía el gate de release ni
+acredita todos los volúmenes o configuraciones de Windows.
+
+## Operaciones compuestas V4-06
+
+La continuación y el registro de resultados conservan las transacciones del núcleo,
+las comprobaciones vigentes de cada etapa y sus recibos separados:
+
+```powershell
+python -B -X utf8 tests/run_unit_tests.py --module test_work_operations --module test_work_operation_guards --module test_work_operation_recovery
+```
+
+Incluyen pruebas realmente ejecutadas sobre `app.py`, revisión independiente,
+recepción ajena, falta de revisión, permisos revocados, calidad obligatoria,
+evidencia fallida/antigua, cambios de sujeto/alcance/base, intención distinta,
+fallo de entrega, interrupción material en cada etapa, recuperación y reversión
+explícitas, reintentos sin duplicados y conservación de trabajo posterior.
+[WORK-OPERATIONS.md](WORK-OPERATIONS.md) explica el contrato y los límites.
+No amplían el gate estable de cuatro comprobaciones y catorce smoke tests.
+La pareja S8 temprana es descriptiva; H2, ahorro de tokens y aceptación final
+permanecen separados de estas comprobaciones técnicas.
+
+## Regresiones de reutilización y continuidad de 4.0
+
+`test_migration_evaluation_reuse` y `test_git_observation_scope` comprueban alcance
+inmutable, presupuesto, cambios de fuentes, aislamiento y lecturas físicas tras
+la preparación. `test_work_continuity` contiene siete casos propios de consulta
+sin escrituras, identidad explícita, base cambiada, bloqueo, proceso nuevo y pausa.
+Se reutiliza la cobertura del núcleo que no cambia; los intentos cancelados,
+timeouts y ventanas de medición concurrentes conservan su estado y evidencia.
+Estas regresiones no amplían la puerta estable ni acreditan H2, Copilot real,
+percepción humana, ahorro facturado o aceptación completa de 4.0.

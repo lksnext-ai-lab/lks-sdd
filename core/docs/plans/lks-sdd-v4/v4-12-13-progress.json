@@ -1,0 +1,57 @@
+{
+  "tasks": {
+    "V4-12": "verified-local-diagnostic-scope-dependency-acceptance-pending",
+    "V4-13": "evaluated-no-change"
+  },
+  "criteria": {
+    "AC-22": "verified-local-diagnostic-scope",
+    "AC-23": "verified-disposition-no-optimization-incorporated"
+  },
+  "evidence_root": "C:\\AI-Workspace\\management\\operations\\lks-sdd-v4-h1-20261015\\v4-12-13",
+  "runtime_digest": "42d8cd73a568083592b62bdaa852906e0478cd5ef36f095bc7f060216b1f6ff1",
+  "source_manifest": "predeclared.json",
+  "queries": 4,
+  "semantic_pairs_equal": 2,
+  "consumer_unchanged_queries": 4,
+  "query_result": "action-required: authority/plan/process/review not accredited under current provenance rules; no bypass",
+  "coverage_limit": "Two sizes (33/338 model elements); current rejected prepare queries, not successful current full S8. Existing full-flow/diagnostic profiles reused as historical context only.",
+  "isolation": "All four observations contaminated by pre-existing foreign Python; first two also new foreign identities. No processes terminated. No rerun.",
+  "whole_task_attempts": 0,
+  "new_M6_variants": 0,
+  "budgets": {
+    "known_plus_reserved": 45,
+    "cap": 48,
+    "minimum_series_attempts": 12,
+    "after_series": 57,
+    "admitted": false
+  },
+  "AC40": "pending",
+  "AC43": "pending-regression-not-cleared",
+  "H2": "pending",
+  "Windows": "set-aside-open",
+  "billed_tokens": null,
+  "observed_host_tokens": null,
+  "installed": false,
+  "published": false,
+  "core_source_unchanged": true,
+  "canonical_sources_and_schemas_unchanged": true,
+  "static_checks": [
+    {
+      "command": "python -B -X utf8 scripts/validate_plugin_contract.py .",
+      "exit_code": 0,
+      "result": "VALID, six skills"
+    },
+    {
+      "command": "python -B -X utf8 scripts/validate_fixture_manifest.py .",
+      "exit_code": 0,
+      "result": "VALID, fixtures=13"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "reused_guarantees": "V4-11 gate/focal receipts/routing and earlier authority, freshness, recovery; no production code changes in this block",
+  "next": "V4-14; no implication of host, overhead or final S8 acceptance",
+  "core_source_unchanged_after_documentation": true
+}
