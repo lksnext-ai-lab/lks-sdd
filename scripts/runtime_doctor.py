@@ -44,6 +44,17 @@ def check(root: Path) -> dict:
         # This metadata-only rule matches the core and offline installer.
         formats = lock.get("storage_formats", [])
         if not isinstance(formats, list): raise ValueError("Invalid runtime storage capabilities")
+        pending = root / ".lks-sdd/transaction.json"
+        if pending.exists():
+            if _linked(pending) or pending.stat().st_size > 128*1024*1024:
+                raise ValueError("Invalid or excessive pending journal")
+            tag = json.loads(pending.read_bytes()).get("schema_version", "")
+            if isinstance(tag, str) and tag.startswith("lks-sdd-store-maintenance/") and tag not in formats:
+                raise ValueError("Pinned runtime cannot recover the pending maintenance format")
+        if "lks-sdd-store-maintenance/2" in formats:
+            required = {"scripts/" + name for name in ("store_compaction.py", "store_maintenance_batches.py", "store_json_inspector.py")}
+            if not required <= set(lock.get("runtime_files", {})):
+                raise ValueError("Incomplete pinned maintenance /2 recovery inventory")
         if "lks-sdd-object-zip/1" not in formats:
             folder = root / ".lks-sdd/objects/packs"
             cursor = folder

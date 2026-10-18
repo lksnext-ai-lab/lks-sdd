@@ -26,6 +26,30 @@ class Memory(ctypes.Structure):
     _fields_ = [('size',W.DWORD),('faults',W.DWORD)] + [(n,ctypes.c_size_t) for n in ('peak_ws','ws','peak_page_pool','page_pool','peak_nonpage_pool','nonpage_pool','pagefile','peak_pagefile')]
 
 
+def constrain_owned_worker():
+    """V401-01's worker-only 512 MiB commit guard, without runtime imports."""
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateJobObjectW.argtypes = [ctypes.c_void_p, W.LPCWSTR]
+    kernel.CreateJobObjectW.restype = W.HANDLE
+    kernel.SetInformationJobObject.argtypes = [W.HANDLE, ctypes.c_int, ctypes.c_void_p, W.DWORD]
+    kernel.AssignProcessToJobObject.argtypes = [W.HANDLE, W.HANDLE]
+    kernel.GetCurrentProcess.restype = W.HANDLE
+    kernel.CloseHandle.argtypes = [W.HANDLE]
+    handle = kernel.CreateJobObjectW(None, None)
+    if not handle:
+        raise ctypes.WinError(ctypes.get_last_error())
+    limits = ExtendedLimits()
+    limits.basic.flags = 0x100  # JOB_OBJECT_LIMIT_PROCESS_MEMORY; this worker only
+    limits.process_limit = 512 * 1024 * 1024
+    if not kernel.SetInformationJobObject(handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
+        kernel.CloseHandle(handle)
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not kernel.AssignProcessToJobObject(handle, kernel.GetCurrentProcess()):
+        kernel.CloseHandle(handle)
+        raise ctypes.WinError(ctypes.get_last_error())
+    return kernel, handle
+
+
 class PowerThrottling(ctypes.Structure):
     _fields_=[('version',W.ULONG),('control',W.ULONG),('state',W.ULONG)]
 

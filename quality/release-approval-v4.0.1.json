@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "release_version": "4.0.1",
+  "scope": "stable-release",
+  "basis": ["project-owner-version-approval", "technical-release-gates"],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-19",
+    "authority_role": "project-owner",
+    "rationale": "El responsable valida V401-03/04/05/06 y autoriza cerrar y publicar la release estable 4.0.1 y, tras verificarla, distribuirla en Codex. La evidencia sintética del parche y sus límites se conservan sin atribuir aceptación de host o de consumidores reales.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La autorización comprende los commits, integración, referencias y aprobación de promoción necesarios para publicar 4.0.1; el gate estable y los paquetes del SHA integrado deben superar sus controles.",
+    "La distribución en Codex incluye registro, instalación y verificación con recuperación de la versión anterior. Activación en conversación nueva sigue pendiente de observación.",
+    "Windows nativo y H2 siguen pendientes, sin nuevas cargas, accesos o reparaciones.",
+    "La reducción física se acredita en el corpus sintético de 10.157 objetos y 800.539.116 bytes, no en un consumidor real. Las copias externas se contabilizan aparte y ZIP_STORED no reduce bytes.",
+    "No se acredita ahorro global de tiempo, tokens facturados o esfuerzo humano, ni un SLA o cota de memoria universal.",
+    "Publicar o instalar el plugin no actualiza runtimes fijados de consumidores, no compacta datos automáticamente y no acredita aceptación de Codex/Copilot."
+  ]
+}

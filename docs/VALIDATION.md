@@ -28,6 +28,15 @@ no forman parte de la publicación ni se mantienen como batería paralela.
 La observación de uso de v3 se prepara una sola vez con
 [su protocolo](V3-HOST-ACCEPTANCE.md); no se presenta como superada por este gate.
 
+4.0.1 añade regresiones focales de mantenimiento por lotes (`test_store_compaction`,
+`test_store_compaction_recovery`, `test_store_maintenance_batches`) y conserva las
+pruebas de lector ZIP y mantenimiento /1 afectadas. El inspector JSON reutiliza
+los ensayos congelados de V401-01 por igualdad de algoritmo; no se repiten grandes
+casos cuando solo cambia su ubicación. La única campaña autorizada de 800 MB usa
+`measure_store_compaction_v401.py`, candidato congelado, métricas del proceso,
+interrupción/recuperación y restauración independiente. Es evidencia específica
+del parche, no una nueva batería ni un requisito para cada publicación.
+
 ## Pull request
 
 La comprobación automática de una PR es solo el contrato del plugin:
@@ -175,7 +184,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v4.0.0.json `
+  --release-approval quality\release-approval-v4.0.1.json `
   --output $releaseGate
 ```
 
