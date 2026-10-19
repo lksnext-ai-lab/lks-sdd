@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "release_version": "4.0.2",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-version-approval",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-19",
+    "authority_role": "project-owner",
+    "rationale": "El responsable solicita corregir y publicar con urgencia la incidencia actualizada de autoría y cierre administrativo. Se autoriza el parche 4.0.2, su integración, referencias, publicación y distribución en Codex, condicionado al gate técnico del commit final.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La autorización comprende commits, integración, referencias y promoción necesarios para publicar 4.0.2; exige gate y paquetes válidos del SHA integrado.",
+    "El parche mantiene los límites de 4 MiB por documento canónico y 64 MiB por objeto. No cambia contratos, formatos ni autoridad.",
+    "La distribución en Codex conserva recuperación; la activación en conversación nueva requiere observación separada.",
+    "Windows nativo y H2 siguen pendientes sin nuevas cargas, accesos o reparaciones.",
+    "No se afirma un SLA ni ahorro global de tiempo, tokens facturados o esfuerzo humano.",
+    "Instalar el plugin no actualiza runtimes fijados ni modifica o compacta automáticamente proyectos consumidores."
+  ]
+}

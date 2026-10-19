@@ -1,9 +1,9 @@
 # LKS-SDD para Codex y GitHub Copilot
 
-Versión 4.0.1: [mantenimiento por lotes, actualización y recuperación](docs/UPGRADE-4.0.1.md).
-La evidencia del parche y sus límites están en [el resultado técnico](docs/evidence/store-maintenance-4.0.1.json).
+Versión 4.0.2: [corrección de autoría con objetos grandes y actualización](docs/UPGRADE-4.0.2.md).
+El mantenimiento por lotes y sus límites están documentados en [el resultado de 4.0.1](docs/evidence/store-maintenance-4.0.1.json).
 
-La versión `4.0.1` de LKS-SDD organiza el desarrollo con agentes alrededor de
+La versión `4.0.2` de LKS-SDD organiza el desarrollo con agentes alrededor de
 especificaciones comprensibles, decisiones explícitas y resultados verificables.
 La documentación del proyecto sigue siendo la fuente de verdad; el código aporta
 evidencia de lo implementado, no decide por sí solo qué comportamiento es correcto.
@@ -104,7 +104,7 @@ fuentes y evidencias se comparten mediante Git, no mediante el chat de una perso
 Los conflictos requieren reconciliación semántica; no hay garantía de escritores
 simultáneos sobre el mismo alcance.
 
-Plugin 4.0.1, schema y método son versiones distintas. Los proyectos nuevos usan
+Plugin 4.0.2, schema y método son versiones distintas. Los proyectos nuevos usan
 schema 3.1 / método 3.1.0, con configuración confirmada y runtime local fijado.
 Los consumidores v2, v3.0 o v3.1 con un runtime anterior conservan consultas y
 recuperación; continuar trabajo con esta versión exige el corte explícito descrito
@@ -154,7 +154,7 @@ no promete ahorro global de tiempo, espacio ni tokens facturados.
 4.0.1 prepara el mantenimiento de almacenes grandes mediante `backup_dir`, con
 respaldo completo por lotes y recuperación. El límite de 64 MiB pasa a aplicarse
 por lote en /2; `backup` mantiene el contrato /1. Véase [UPGRADE-4.0.1](docs/UPGRADE-4.0.1.md).
-El catálogo Copilot declara `copilot-v4.0.1`; su árbol se comprueba contra el ZIP
+El catálogo Copilot declara `copilot-v4.0.2`; su árbol se comprueba contra el ZIP
 nativo acreditado. La [promoción y sus límites](docs/plans/approval-performance/IMPLEMENTATION.md)
 distinguen validación técnica, publicación, instalación y activación de host.
 Las ilustraciones en `output/infografias/` son bocetos

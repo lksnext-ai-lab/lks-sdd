@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.0.2 — 2026-10-19 — autoría con objetos históricos grandes
+
+- Corrige el límite implícito de 4 MiB en la copia de validación de `author` que
+  impedía editar peticiones o retirar TASK/PLAN con objetos históricos válidos.
+  Usa el límite existente de 64 MiB y comprueba las huellas antes de validar.
+- Agrupa los objetos del temporal y reutiliza el índice ZIP dentro de la misma
+  evaluación; conserva los límites del contrato activo y los controles frescos.
+- Mantiene cuerpos, identidades, aprobaciones, historia y recuperación; no cambia
+  formatos ni confunde cancelación, retiro editorial, integración y aceptación.
+- Añade regresión pública antes y después de compactar, objetos mayores de 4 MiB,
+  corrupción y cambios durante la copia. Windows/H2 siguen pendientes.
+
+Véase [actualización y alcance](docs/UPGRADE-4.0.2.md). Instalar el plugin no actualiza
+los runtimes fijados de los consumidores ni ejecuta cambios en sus proyectos.
+
 ## 4.0.1 — 2026-10-19 — mantenimiento recuperable por lotes
 
 Resultados del candidato validados por el responsable y cierre/publicación estable

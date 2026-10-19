@@ -37,6 +37,12 @@ casos cuando solo cambia su ubicación. La única campaña autorizada de 800 MB 
 interrupción/recuperación y restauración independiente. Es evidencia específica
 del parche, no una nueva batería ni un requisito para cada publicación.
 
+4.0.2 añade `test_v402_authoring`: autoría pública y retiro editorial de TASK/PLAN
+con objetos mayores de 4 MiB, antes y después de compactar, conservación de cuerpos,
+identidades y decisiones, agrupación temporal y rechazo de corrupción o cambios
+de fuente. Reutiliza las pruebas de recuperación de negocio y de almacén no
+afectadas; no repite la campaña de 800 MB ni amplía la puerta estable.
+
 ## Pull request
 
 La comprobación automática de una PR es solo el contrato del plugin:
@@ -184,7 +190,7 @@ $releaseGate = Join-Path $env:TEMP 'lks-sdd-release-gate.json'
 python -B -X utf8 scripts\run_release_gate.py `
   --channel stable `
   --date $releaseDate `
-  --release-approval quality\release-approval-v4.0.1.json `
+  --release-approval quality\release-approval-v4.0.2.json `
   --output $releaseGate
 ```
 
