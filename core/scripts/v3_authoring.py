@@ -11,7 +11,9 @@ from v3_approval import decision, descriptor, proposal_ready, approved, plan_cov
 from v3_git import observe, branch_check
 from v3_storage import prepare, staged_write
 from v2_storage import write_one
-from v2_contract import read_bytes, canonical
+from v2_contract import read_bytes, canonical, sha
+from content_store import LIMIT as SOURCE_LIMIT
+from object_zip import evaluated, stage_writer
 
 
 @reviewed('init')
@@ -66,6 +68,7 @@ def initialize(root, name, actor_name, process, controls, statement, *, target, 
     return packet
 
 
+@evaluated
 def candidate(root, items, callback):
     """Read a prospective set without mutating the project or executing its content."""
     model = load(root).require_valid()
@@ -75,7 +78,13 @@ def candidate(root, items, callback):
     for request in model.by_kind("request"): policy_for(model, request)
     with tempfile.TemporaryDirectory(prefix="lks-v3-author-") as temp:
         stage = Path(temp)
-        for path in model.hashes: staged_write(stage, path, read_bytes(model.root, path))
+        write, finish_objects = stage_writer(stage, staged_write)
+        for path, digest in model.hashes.items():
+            raw = read_bytes(model.root, path, limit=SOURCE_LIMIT)
+            if sha(raw) != digest:
+                raise ContractError("Authoring source changed during staging: " + path)
+            write(path, raw)
+        finish_objects()
         for item in items:
             old = model.elements.get(item["meta"]["uid"])
             if old:
