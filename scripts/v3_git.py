@@ -8,6 +8,7 @@ from contextvars import ContextVar
 
 from v3_contract import ContractError, DOCS, fingerprint, now, path_at, read_bytes, sha
 from v2_contract import contract_input_allowed
+from capacity import require, limit
 
 _OBSERVATION = ContextVar("lks_git_observation", default=None)
 _REUSABLE = {("rev-parse", "--show-toplevel"), ("symbolic-ref", "--short", "HEAD"),
@@ -50,12 +51,12 @@ def _pipe_reader():
 def _bounded_ls_files(command, **options):
     """Bound both pipes while reading; never return a partial Git observation."""
     read_ready = _pipe_reader()
-    deadline = time.monotonic() + GIT_INVENTORY_TIMEOUT
+    deadline = time.monotonic() + limit("git_seconds", GIT_INVENTORY_TIMEOUT)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                bufsize=0, **options)
     buffers = [bytearray(), bytearray()]
     streams = {0: process.stdout, 1: process.stderr}
-    limits = [GIT_STDOUT_LIMIT, GIT_STDERR_LIMIT]
+    limits = [limit("git_stdout_bytes", GIT_STDOUT_LIMIT), GIT_STDERR_LIMIT]
     records = 0
     try:
         while streams:
@@ -71,11 +72,12 @@ def _bounded_ls_files(command, **options):
                     continue
                 buffers[index].extend(chunk)
                 if len(buffers[index]) > limits[index]:
-                    raise ContractError("Salida Git excesiva" if index == 0 else "Error Git excesivo")
+                    if index != 0: raise ContractError("Error Git excesivo")
+                    limits[0] = require("git_stdout_bytes", len(buffers[0]), GIT_STDOUT_LIMIT, "Salida Git excesiva")
                 if index == 0:
                     records += chunk.count(b"\0")
                     if records > RAW_PATH_LIMIT:
-                        raise ContractError("Enumeración Git demasiado amplia")
+                        require("git_paths", records, RAW_PATH_LIMIT, "Enumeración Git demasiado amplia")
             if not progressed:
                 time.sleep(min(0.01, max(0, deadline - time.monotonic())))
         process.wait(timeout=max(0, deadline - time.monotonic()))
@@ -201,12 +203,17 @@ def git(root, *args, optional=False):
         if args and args[0] == "ls-files":
             result = _bounded_ls_files(command, **options)
         else:
-            result = subprocess.run(command, capture_output=True, timeout=60, **options)
+            result = subprocess.run(command, capture_output=True,
+                                    timeout=limit("git_seconds", GIT_INVENTORY_TIMEOUT), **options)
     except subprocess.TimeoutExpired as exc:
+        from capacity import ACTIVE
+        if ACTIVE.get() is not None:
+            require("git_seconds", limit("git_seconds", GIT_INVENTORY_TIMEOUT) + 1,
+                    GIT_INVENTORY_TIMEOUT, "Git excede el tiempo ordinario de observación")
         raise ContractError("Git no completó la observación dentro de 60 s") from exc
     if result.returncode and not optional:
         raise ContractError("Git no pudo completar la observación: " + result.stderr.decode("utf-8", errors="replace")[:800])
-    if len(result.stdout) > 16 * 1024 * 1024: raise ContractError("Salida Git excesiva; delimite el ámbito")
+    require("git_stdout_bytes", len(result.stdout), 16 * 1024 * 1024, "Salida Git excesiva; delimite el ámbito")
     if result.returncode: return None
     if args and args[0] == "ls-files" and "-z" in args and result.stdout and not result.stdout.endswith(b"\0"):
         raise ContractError("Inventario Git incompleto")
@@ -253,8 +260,9 @@ def observe(root, *, refs=(), remote=None, refresh=False):
 
 def subject(root, scope):
     root = Path(root).resolve()
-    if not scope or len(scope) > 20000 or len(scope) != len(set(scope)) or any(not isinstance(x, str) or not x.strip("/") for x in scope):
+    if not scope or len(scope) != len(set(scope)) or any(not isinstance(x, str) or not x.strip("/") for x in scope):
         raise ContractError("Declare las rutas de código/artefacto cubiertas")
+    require("subject_entries", len(scope), 20000, "Declare las rutas de código/artefacto cubiertas")
     files = {}
     for relative in scope:
         path = path_at(root, relative, missing=True)
@@ -269,8 +277,8 @@ def subject(root, scope):
                 for name in names:
                     rel = (Path(directory) / name).relative_to(root).as_posix()
                     files[rel] = sha(read_bytes(root, rel, limit=64 * 1024 * 1024))
-                    if len(files) > 20000: raise ContractError("Sujeto demasiado amplio")
-        if len(files) > 20000: raise ContractError("Sujeto demasiado amplio")
+                    require("subject_entries", len(files), 20000, "Sujeto demasiado amplio")
+        require("subject_entries", len(files), 20000, "Sujeto demasiado amplio")
     return {"scope": sorted(scope), "files": dict(sorted(files.items())), "digest": fingerprint(files)}
 
 
@@ -288,9 +296,9 @@ def code_inventory(root):
     """Permitted tracked/non-ignored inputs; unrelated work is retained as baseline."""
     raw = git(root, "ls-files", "-z", "--cached", "--others", "--exclude-standard")
     if len(raw) > GIT_STDOUT_LIMIT:
-        raise ContractError("Salida Git excesiva")
+        require("git_stdout_bytes", len(raw), GIT_STDOUT_LIMIT, "Salida Git excesiva")
     if raw.count(b"\0") > RAW_PATH_LIMIT:
-        raise ContractError("Enumeración Git demasiado amplia")
+        require("git_paths", raw.count(b"\0"), RAW_PATH_LIMIT, "Enumeración Git demasiado amplia")
     if raw and not raw.endswith(b"\0"):
         raise ContractError("Inventario Git incompleto")
     paths = sorted(set(p.decode("utf-8") for p in raw.split(b"\0") if p))
@@ -300,12 +308,12 @@ def code_inventory(root):
         if path in {DOCS, ".lks-sdd"} or path.startswith((DOCS + "/", ".lks-sdd/")): continue
         eligible.append(path)
         if len(eligible) > CODE_PATH_LIMIT:
-            raise ContractError("Inventario de código demasiado amplio")
+            require("code_files", len(eligible), CODE_PATH_LIMIT, "Inventario de código demasiado amplio")
     files = {}
     for path in eligible:
         files.update(subject(root, [path])["files"])
         if len(files) > CODE_PATH_LIMIT:
-            raise ContractError("Inventario de código demasiado amplio")
+            require("code_files", len(files), CODE_PATH_LIMIT, "Inventario de código demasiado amplio")
     return files
 
 

@@ -1,0 +1,47 @@
+{
+  "version": "4.0.3",
+  "scope": "operation-scoped capacity consent and coherent recovery",
+  "focal_tests": {
+    "unique_passed": 65,
+    "skipped": 0,
+    "basis": "validated 4.0.3-rc.1 implementation; identical functional runtime hashes; release-only version and documentation changes"
+  },
+  "reported_case": {
+    "test": "synthetic public close-proposal; historical CAS present from decision-view",
+    "object_bytes": 36522291,
+    "status": "passed",
+    "real_consumer": "not-run"
+  },
+  "functional_runtime_sha256": {
+    "scripts/content_store.py": "4f010c62b9db0e9cfb0e24dc5700be9fe0400b2a9c8c00cbefd0763623bd2af2",
+    "scripts/document_state.py": "319cdf4fa9615c7bcf6b32c22d9d86cc26ea321d3c318ce551ec9f152a33733b",
+    "scripts/object_zip.py": "f67c8c21dfb098d5945f134ec86398b167dc723342d9d08bdf0c740fb0ccf08a",
+    "scripts/source_inventory.py": "8ee75049c605cf11958c576255fde9a4ad7ac554cd033d7f60ae1ed525d7a04e",
+    "scripts/store_compaction.py": "42a566f5d5f0b941798cb5f9098b56431f742401a86119e96ba95811b0bcd8bb",
+    "scripts/store_maintenance_batches.py": "6785c48ec59fa89a009cde43e5a5c71f054be385fe91f5ec90cf26a30a9726b9",
+    "scripts/v2_contract.py": "ef66c37e7dda45089488b6ca7bf0c86bac6afc552700f22db7eaf8ee73230789",
+    "scripts/v2_storage.py": "1add6296631007d473edd303aec58fc8ed235342a92ddef71e004b0b12d14c0f",
+    "scripts/v3_cli.py": "a06a10b5d966500637f52b4a0ee040f90bf27c7e333d6bc44cea7c4dd67cdc0c",
+    "scripts/v3_contract.py": "394f4f5f26e0d2cedcb7b0ef165b2892ee8befd3834f9e64c0162f90b9a9d453",
+    "scripts/v3_git.py": "d3ec77aa629e881c489ea7a7c32a03a3c8933c88f19acae194e4914736e16c3f",
+    "scripts/v3_inventories.py": "f3523f0f0566e11deb07d2ba19e007864e74dbe918ece4428cf444240b163b6b",
+    "scripts/v3_packet.py": "58b4fbcb422d272ae3c84699033d1d77a527c2f791adbffc2107f78253ed0549",
+    "scripts/v3_storage.py": "7a1be8288394de785ba243ec68680525508776e3bd47ee2f1b9832013fbec15f",
+    "scripts/v3_usage.py": "1f1dfc5c088c3108957ef0e222344a1f3e77ac600fed1b26b4cc58b0aa3c0be3",
+    "scripts/v4_work_operations.py": "d3246dd95080f05eb5604f4acda948bb91b93ba5227d5cb0d71f83eb9f81344c",
+    "scripts/capacity.py": "1a1e1fe2150c43507a02141f908f42faa92a5d54787f615e9126ac65430e49e0"
+  },
+  "coverage": [
+    "ordinary source and historical CAS limits",
+    "explicit consent scope, tampering and staleness",
+    "fresh-process recovery, rollback and late quota journal",
+    "composed operation prior-stage receipts",
+    "maintenance /2 consent, separate removal authority and legacy boundaries",
+    "ZIP integrity, source conflicts and Windows long paths"
+  ],
+  "stable_gate": "must pass on the final integrated commit before publication",
+  "Windows_incident": "pending",
+  "H2": "pending",
+  "real_consumer": "not-run",
+  "fresh_conversation": "not-observed"
+}

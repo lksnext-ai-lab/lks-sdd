@@ -24,21 +24,22 @@ def name(identity):
 
 @evaluated
 def prepare(root, sources, changes):
-    if len(sources) > MAX_FILES: raise ContractError("State file budget exceeded")
+    from capacity import require
+    require("state_files", len(sources), MAX_FILES, "State file budget exceeded")
     entries = {}
     for path, digest in sorted(sources.items()):
         raw = read_bytes(root, path, limit=64*1024*1024, package_data=True)
         if sha(raw) != digest: raise ContractError("State source changed: " + path)
         entries[path] = prepare_object(root, raw, changes)
     identity = fingerprint(entries)
-    if len(canonical(entries)) > MAX_MANIFEST: raise ContractError("State manifest budget exceeded")
+    require("state_manifest_bytes", len(canonical(entries)), MAX_MANIFEST, "State manifest budget exceeded")
     grouped = {}
     for path, ref in entries.items(): grouped.setdefault(bucket(path), {})[path] = ref
     parts, part_bytes = {}, 0
     for key, files in sorted(grouped.items()):
         raw = canonical({"format": "lks-sdd-state-part/1", "files": files})
         part_bytes += len(raw)
-        if part_bytes > MAX_MANIFEST: raise ContractError("State parts byte budget exceeded")
+        require("state_manifest_bytes", part_bytes, MAX_MANIFEST, "State parts byte budget exceeded")
         parts[key] = prepare_object(root, raw, changes)
     value = canonical({"format": FORMAT, "identity": identity, "parts": parts})
     target = name(identity)
@@ -58,7 +59,11 @@ def manifest(root, identity):
 
 
 def _manifest(root, identity):
-    value = json.loads(read_bytes(root, name(identity), limit=MAX_MANIFEST))
+    from capacity import require
+    from v2_contract import path_at
+    path = path_at(root, name(identity))
+    maximum = require("state_manifest_bytes", path.stat().st_size, MAX_MANIFEST, "State manifest budget exceeded")
+    value = json.loads(read_bytes(root, name(identity), limit=maximum))
     if not isinstance(value, dict) or set(value) not in ({"format", "identity", "files"}, {"format", "identity", "parts"}):
         raise ContractError("Invalid documentary state manifest")
     entries = value.get("files")
@@ -69,7 +74,7 @@ def _manifest(root, identity):
         for key, ref in refs.items():
             if key not in {f"{i:02x}" for i in range(64)}: raise ContractError("Invalid state part key")
             object_path(ref)
-        if sum(ref["bytes"] for ref in refs.values()) > MAX_MANIFEST: raise ContractError("State parts byte budget exceeded")
+        require("state_manifest_bytes", sum(ref["bytes"] for ref in refs.values()), MAX_MANIFEST, "State parts byte budget exceeded")
         entries = {}
         for key, ref in refs.items():
             part = json.loads(read_object(root, ref))
@@ -78,9 +83,10 @@ def _manifest(root, identity):
             for path, content in part["files"].items():
                 if path in entries or bucket(path) != key: raise ContractError("State part collision")
                 entries[path] = content
-                if len(entries) > MAX_FILES: raise ContractError("State file budget exceeded")
-    if value.get("format") != FORMAT or value.get("identity") != identity or not isinstance(entries, dict) or len(entries) > MAX_FILES:
+                require("state_files", len(entries), MAX_FILES, "State file budget exceeded")
+    if value.get("format") != FORMAT or value.get("identity") != identity or not isinstance(entries, dict):
         raise ContractError("Invalid documentary state")
+    require("state_files", len(entries), MAX_FILES, "State file budget exceeded")
     for path, ref in entries.items():
         relative_parts(path, package_data=True); object_path(ref)
     if fingerprint(entries) != identity: raise ContractError("Documentary state altered")
@@ -88,13 +94,16 @@ def _manifest(root, identity):
 
 
 def linked(root, path, limit):
+    from capacity import require
     match = LINK.fullmatch(path)
     if not match: raise ContractError("Invalid historical state link")
     identity, source = match.groups()
     value = manifest(root, identity)
     if source not in value["files"]: raise ContractError("Unresolved historical state link")
     ref = value["files"][source]
-    if ref["bytes"] > limit: raise ContractError("Historical state source exceeds budget")
+    if ref["bytes"] > limit:
+        if limit != 4 * 1024 * 1024: raise ContractError("Historical state source exceeds budget")
+        require("source_bytes", ref["bytes"], limit, "Historical state source exceeds budget")
     return read_object(root, ref)
 
 

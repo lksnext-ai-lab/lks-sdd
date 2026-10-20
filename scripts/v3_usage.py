@@ -11,6 +11,7 @@ import uuid
 from functools import lru_cache
 
 from v3_contract import ContractError, canonical, element, fingerprint, load, sha
+from capacity import require
 
 FORMAT = "lks-sdd-usage/1"
 BATCH_BYTES = 1024 * 1024
@@ -58,10 +59,11 @@ def check_fragment(f, raw=None):
 
 
 def check_batch(observations):
-    if not isinstance(observations, list) or len(observations) > BATCH_COUNT:
+    if not isinstance(observations, list):
         raise ContractError("Usage batch exceeds 1000 observations; paginate")
-    if len(canonical({"format":FORMAT,"observations":observations})) > BATCH_BYTES:
-        raise ContractError("Usage batch exceeds 1 MiB; reduce the case or paginate")
+    require("usage_batch_count", len(observations), BATCH_COUNT, "Usage batch exceeds 1000 observations; paginate")
+    require("usage_batch_bytes", len(canonical({"format":FORMAT,"observations":observations})),
+            BATCH_BYTES, "Usage batch exceeds 1 MiB; reduce the case or paginate")
     seen = {}
     for row in observations:
         validate(row, "usage-observation")
@@ -212,11 +214,11 @@ def catalog(model, *, run_id=None, request=None, task=None):
                   and (not task or task in e.data.get("tasks", []))}
     selected = [e for e in receipts if (not run_id or e.data.get("run_id") == run_id)
                 and (not (request or task) or e.data["run_id"] in bound_runs)]
-    if sum(e.data["count"] for e in selected) > WINDOW_COUNT:
-        raise ContractError("Usage window exceeds 20000 observations; select a run")
+    require("usage_window_count", sum(e.data["count"] for e in selected), WINDOW_COUNT,
+            "Usage window exceeds 20000 observations; select a run")
     for e in selected:
         declared_bytes += e.data["observations_ref"]["bytes"]
-        if declared_bytes > 64 * 1024 * 1024: raise ContractError("Usage window exceeds 64 MiB; select a run")
+        require("usage_window_bytes", declared_bytes, 64 * 1024 * 1024, "Usage window exceeds 64 MiB; select a run")
         value = json.loads(read_object(model.root, e.data["observations_ref"]))
         for row in value["observations"]:
             key = row["observation_id"]
@@ -228,15 +230,17 @@ def catalog(model, *, run_id=None, request=None, task=None):
 def validate_receipt(model, e, *, objects=None):
     from content_store import object_path, read_object
     data = e.meta["data"]
-    if type(data.get("count")) is not int or not 0 <= data["count"] <= BATCH_COUNT: raise ContractError("Invalid usage count")
+    if type(data.get("count")) is not int or data["count"] < 0: raise ContractError("Invalid usage count")
+    require("usage_batch_count", data["count"], BATCH_COUNT, "Invalid usage count")
     budget = getattr(model,"_usage_run_budget",{})
     model._usage_run_budget = budget
     ref = data.get("observations_ref")
     name = object_path(ref)
     batch_digest = ref["sha256"]
-    if ref["bytes"] > BATCH_BYTES: raise ContractError("Usage object exceeds 1 MiB")
+    require("usage_batch_bytes", ref["bytes"], BATCH_BYTES, "Usage object exceeds 1 MiB")
     count, size = budget.get(data.get("run_id"),(0,0))
-    if count + data["count"] > WINDOW_COUNT or size + ref["bytes"] > 64*1024*1024: raise ContractError("Usage run exceeds aggregate budget")
+    require("usage_window_count", count + data["count"], WINDOW_COUNT, "Usage run exceeds aggregate budget")
+    require("usage_window_bytes", size + ref["bytes"], 64*1024*1024, "Usage run exceeds aggregate budget")
     budget[data.get("run_id")] = (count + data["count"],size + ref["bytes"])
     raw = objects[name] if objects is not None and name in objects else read_object(model.root, ref)
     if sha(raw) != ref["sha256"] or len(raw) != ref["bytes"]: raise ContractError("Usage object integrity mismatch")
@@ -256,7 +260,9 @@ def validate_receipt(model, e, *, objects=None):
             run_refs = getattr(model,"_usage_run_refs",{})
             model._usage_run_refs = run_refs
             refs = run_refs.setdefault(data["run_id"],{})
-            if path not in refs and sum(refs.values()) + ref["bytes"] > 64*1024*1024: raise ContractError("Usage source material exceeds aggregate budget")
+            if path not in refs:
+                require("usage_material_bytes", sum(refs.values()) + ref["bytes"], 64*1024*1024,
+                        "Usage source material exceeds aggregate budget")
             refs[path] = ref["bytes"]
             if path not in cache:
                 raw_fragment = objects[path] if objects is not None and path in objects else read_object(model.root,ref)

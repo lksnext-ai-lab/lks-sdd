@@ -34,6 +34,10 @@
     "3.1.0"
   ],
   "additional_files": [
+    "scripts/capacity.py",
+    "docs/CAPACITY-CONSENT.md",
+    "tests/test_capacity.py",
+    "tests/test_v403_public.py",
     "scripts/store_compaction.py",
     "scripts/store_maintenance_batches.py",
     "scripts/store_json_inspector.py",

@@ -10,6 +10,7 @@ from v2_storage import (apply as journal_apply, ensure_idle, preview, protected_
                         recover as journal_recover, exists_hash)
 from v3_contract import DOCS, HISTORY, INDEX, BLOCK, load, location, render, fingerprint
 from object_zip import evaluated
+from capacity import applying, recovering, consent
 
 
 def staged_write(root, name, data):
@@ -92,6 +93,11 @@ def prepare(root, items, operation, *, changes=None, sources=None, guards=None, 
         changes[path] = raw
     sources = dict(sources or {})
     guards = dict(guards or {})
+    resource_consent = consent()
+    if resource_consent:
+        from capacity import compatible
+        if not guards.get("target_runtime"): compatible(root)
+        guards["capacity"] = resource_consent
     from v3_presentation_guard import stamp
     presented_sources = stamp(root, items, sources, guards) or set()
     guards = externalize(root, "execution", guards, changes)
@@ -236,8 +242,12 @@ def validate_runtime(root, guards):
         from runtime_doctor import check
         result = check(Path(root))
         if result["status"] != "valid": raise ContractError("Runtime de destino incompleto: " + str(result["errors"]))
+        if guards.get("capacity"):
+            from capacity import compatible
+            compatible(root)
 
 
+@applying
 def apply(root, packet, authorized_hash, *, interrupt_after=None, current=False):
     if not isinstance(packet, dict) or not packet.get("preview", {}).get("operation", "").startswith("v3:"):
         raise ContractError("Vista previa v3 requerida")
@@ -298,6 +308,7 @@ def apply(root, packet, authorized_hash, *, interrupt_after=None, current=False)
                          validator=validate_result, interrupt_after=interrupt_after)
 
 
+@recovering
 def recover(root, authorized_hash, *, rollback=False, receipt=None):
     from v2_storage import PENDING
     pending = Path(root)/PENDING

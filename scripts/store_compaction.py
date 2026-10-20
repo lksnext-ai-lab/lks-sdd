@@ -20,6 +20,7 @@ from path_utils import is_within_filesystem_path
 from source_inventory import linked, signature
 from v2_contract import ContractError, canonical, fingerprint, path_at, sha, _read_regular
 from v2_storage import PENDING, ensure_idle
+from capacity import maintenance_recorded, maintenance_applying, maintenance_recovering
 
 FORMAT = planner.FORMAT
 TERMINAL = {"compacted", "retained-originals", "rejected-stale-preview"}
@@ -123,7 +124,7 @@ def validate(root, manifest, authorized):
     """Validate structure independently of a matching caller-supplied hash."""
     required = {"format", "operation", "consumer", "pin_sha256", "destinations", "objects", "existing_packs",
                 "batches", "limits", "space_policy", "structured_references_checked", "removal_authorization"}
-    if (not isinstance(manifest, dict) or set(manifest) != required or not _hash(authorized)
+    if (not isinstance(manifest, dict) or set(manifest) not in (required, required | {"capacity"}) or not _hash(authorized)
             or len(canonical(manifest)) > planner.MANIFEST_LIMIT or fingerprint(manifest) != authorized
             or manifest["format"] != FORMAT or manifest["operation"] != "physical-compaction"
             or not _hash(manifest["pin_sha256"]) or manifest["consumer"] != str(planner._absolute(root))
@@ -215,8 +216,9 @@ def _journal_valid(root, journal, key):
 def _load(root, key, *, receipt=False):
     if not _hash(key):
         raise ContractError("Exact maintenance hash required")
-    return _journal_valid(root, json.loads(_read_regular(root, _receipt(key) if receipt else PENDING,
-                                                        limit=planner.JOURNAL_LIMIT)), key)
+    journal = json.loads(_read_regular(root, _receipt(key) if receipt else PENDING, limit=planner.JOURNAL_LIMIT))
+    with maintenance_recorded(root, journal.get("manifest", {}), key):
+        return _journal_valid(root, journal, key)
 
 
 def _owned(root, journal):
@@ -724,6 +726,7 @@ def _resume(root, journal, deadline, **options):
 
 
 @legacy._writer
+@maintenance_applying
 @codec.evaluated
 def apply(root, plan, authorized):
     deadline = time.monotonic() + planner.WORK_SECONDS
@@ -753,6 +756,7 @@ def apply(root, plan, authorized):
 
 
 @legacy._writer
+@maintenance_recovering
 @codec.evaluated
 def recover(root, authorized, *, remove_authorized=None, finalize_without_removal=False):
     deadline = time.monotonic() + planner.WORK_SECONDS

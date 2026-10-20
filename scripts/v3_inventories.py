@@ -14,8 +14,10 @@ def subject(root, value, *, model=None, cache=None, objects=None):
     if not isinstance(value, dict) or set(value) not in ({"scope", "files", "digest"}, {"scope", "files_ref", "digest"}):
         raise ContractError("Invalid technical subject representation")
     scope = value["scope"]
-    if not isinstance(scope, list) or len(scope) > SUBJECT_LIMIT or scope != sorted(set(scope)):
+    if not isinstance(scope, list) or scope != sorted(set(scope)):
         raise ContractError("Invalid subject scope")
+    from capacity import require
+    require("subject_entries", len(scope), SUBJECT_LIMIT, "Invalid subject scope")
     for path in scope: relative_parts(path)
     files = inventory(root, value, "files", cache=cache, objects=objects)
     # Keep one observable map per physical inventory, rather than wrapping a copy
@@ -26,7 +28,8 @@ def subject(root, value, *, model=None, cache=None, objects=None):
         from content_store import object_path
         ref = value["files_ref"]
         cache[(object_path(ref), ref["bytes"])] = files
-    if len(files) > SUBJECT_LIMIT or fingerprint(files) != value["digest"]:
+    require("subject_entries", len(files), SUBJECT_LIMIT, "Subject inventory/digest mismatch")
+    if fingerprint(files) != value["digest"]:
         raise ContractError("Subject inventory/digest mismatch")
     if model is not None:
         validate_references(model, value, ("files",), cache, objects=objects)

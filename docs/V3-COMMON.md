@@ -12,6 +12,15 @@ Las consultas no migran; las guías v2/1.5 sirven para lectura y recuperación y
 CLI actual bloquea sus escrituras ordinarias. Un origen no soportado se reconcilia.
 No inicialice sobre documentación existente por faltar o contradecirse el índice.
 
+Ante `capacity-approval-required`, lea [capacidad puntual](CAPACITY-CONSENT.md),
+muestre al usuario el recurso alcanzado y las ampliaciones propuestas y solicite
+su OK explícito. Solo tras recibirlo use `--capacity-approval` con la solicitud
+exacta y su respuesta en un archivo externo. No invente consentimiento ni
+desactive guards. El permiso cubre recursos de esa operación y su recuperación,
+no autoridad funcional ni operaciones futuras. Ante `partial` recupere el hash
+indicado; no repita la escritura original. Un límite de formato requiere una
+solución compatible, nunca una excepción silenciosa.
+
 Use `python -B <plugin-root>/scripts/lks_sdd.py v3 ACCION <proyecto> --input <datos.json>`.
 Prepare entradas desde documentos y decisiones observados; `--apply` materializa
 lo autorizado y `--output` conserva el paquete revisable. Consulte solo los

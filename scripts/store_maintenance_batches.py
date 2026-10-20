@@ -356,6 +356,10 @@ def _prepare(root, backup_dir, restore, *, deadline, guard, state_sink=None):
                 "space_policy": space,
                 "structured_references_checked": state["structured_references_checked"],
                 "removal_authorization": "separate-exact-preview-hash-required"}
+    from capacity import consent, compatible
+    if resource_consent := consent():
+        compatible(root)
+        manifest["capacity"] = resource_consent
     raw = canonical(manifest)
     if len(raw) > MANIFEST_LIMIT:
         raise ContractError("Complete maintenance manifest exceeds byte budget")

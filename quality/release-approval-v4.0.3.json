@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "release_version": "4.0.3",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-version-approval",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-20",
+    "authority_role": "project-owner",
+    "rationale": "El responsable valida los resultados y solicita completar la puerta estable, publicar 4.0.3 y actualizar Codex cuando todo esté correcto. Se autorizan commits, integración, referencias, promoción y actualización personal necesarios, condicionados a la evidencia técnica del SHA final.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "La autorización de capacidad es puntual, finita y explícita; no concede autoridad funcional ni configura excepciones globales.",
+    "Se mantienen integridad, rutas, permisos, aprobación funcional y fronteras compatibles de representación y mantenimiento.",
+    "Los 65 ensayos focales se reutilizan para el mismo código funcional; la puerta estable completa debe acreditar el commit integrado.",
+    "Windows nativo y H2 siguen pendientes; la regresión ordinaria de rutas largas de la puerta estable es independiente.",
+    "Instalar el plugin no actualiza runtimes fijados, no migra ni compacta consumidores; la observación de una conversación nueva permanece separada.",
+    "No se afirma ahorro global de tiempo, tokens facturados ni esfuerzo humano."
+  ]
+}

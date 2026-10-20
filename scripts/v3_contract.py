@@ -220,7 +220,8 @@ def document_paths(root):
         folders[:] = sorted(n for n in folders if (parent / n).relative_to(io_root).as_posix() not in excluded)
         for name in folders + files: path_at(root, (parent / name).relative_to(io_root).as_posix())
         result.extend((parent / n).relative_to(io_root).as_posix() for n in files if n.endswith(".md"))
-        if len(result) > 10000: raise ContractError("Inventario demasiado amplio; delimite el ámbito")
+        from capacity import require
+        require("document_files", len(result), 10000, "Inventario demasiado amplio; delimite el ámbito")
     return sorted(result)
 
 
@@ -535,7 +536,8 @@ def _load(root):
         try:
             raw = read_bytes(root, path)
             total += len(raw)
-            if total > 32*1024*1024: raise ContractError("Contrato activo excesivo; archive historia mediante revisión explícita")
+            from capacity import require
+            require("document_bytes", total, 32*1024*1024, "Contrato activo excede el presupuesto ordinario")
             model.hashes[path] = sha(raw)
             values, prose = parse(raw, path)
             if prose: model.prose[path] = prose
@@ -544,7 +546,10 @@ def _load(root):
                 elements[e.uid] = e
                 from v3_inventories import resolve
                 resolve(model, e, inventory_cache)
-        except (ValueError, UnicodeError, KeyError) as exc: model.errors.append(str(exc))
+        except (ValueError, UnicodeError, KeyError) as exc:
+            from capacity import CapacityRequired
+            if isinstance(exc, CapacityRequired): raise
+            model.errors.append(str(exc))
     model.elements = elements
     try:
         project = model.project

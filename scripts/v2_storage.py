@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import tempfile
 from contextvars import ContextVar
-
+from capacity import recovering, CapacityRequired
 from v2_contract import ContractError, DOCS, HISTORICAL_SOURCE, _read_regular, canonical, document_paths, fingerprint, path_at, read_bytes, sha
 from path_utils import filesystem_root, publish_new_file
 from object_zip import evaluated, invalidate, Publisher, PACKS, FORMAT as ZIP_FORMAT
@@ -16,6 +16,14 @@ PENDING = ".lks-sdd/transaction.json"
 TRANSACTION_STORE = ".lks-sdd/transactions.json"
 LEGACY_TRANSACTION_PREFIX = ".lks-sdd/transactions/"
 VALIDATING = ContextVar("lks_v2_validating_transaction", default=False)
+JOURNAL_BYTES = 128 * 1024 * 1024
+
+
+def _journal_bytes(value):
+    raw = canonical(value)
+    if len(raw) > JOURNAL_BYTES:
+        raise ContractError("Transaction metadata exceeds compatible recovery format; no changes authorized")
+    return raw
 
 
 def exists_hash(root: Path, relative: str):
@@ -166,13 +174,18 @@ def _save_transaction(root: Path, transaction_hash: str, journal: dict) -> None:
     if journal.get("schema_version") == "2.1":
         journal = {k: v for k, v in journal.items() if k != "preview"}
     store["transactions"][transaction_hash] = journal
-    write_one(root, TRANSACTION_STORE, canonical(store))
+    write_one(root, TRANSACTION_STORE, _journal_bytes(store))
 
 
 def _expand_journal(root, journal):
     if journal.get("schema_version") == "2.1":
         from content_store import read_object
-        journal = dict(journal, preview=json.loads(read_object(root, journal["preview_ref"])))
+        from capacity import recorded, _preview
+        approval = journal.get("capacity")
+        with recorded(root, approval):
+            journal = dict(journal, preview=json.loads(read_object(root, journal["preview_ref"])))
+        if approval is not None and _preview(journal["preview"], journal["preview_hash"]) != approval:
+            raise ContractError("Capacity recovery header differs from authorized preview")
     elif journal.get("schema_version") != "2.0":
         raise ContractError("Unsupported transaction journal format")
     return journal
@@ -276,7 +289,14 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
               if expected["before"][p] is not None else None for p in changes}
     after = {p: publish(data) if data is not None else None for p, data in changes.items()}
     journal = {"schema_version": "2.1", "preview_ref": publish(canonical(expected)),
-               "state": "applying", "before": before, "after": after}
+               "preview_hash": authorized_hash, "state": "applying", "before": before, "after": after}
+    from capacity import _preview
+    if resource_consent := _preview(expected, authorized_hash):
+        journal["capacity"] = resource_consent
+    pending_raw = _journal_bytes(journal)
+    terminal_store = _read_transaction_store(root)
+    terminal_store["transactions"][authorized_hash] = {**journal, "state": "rolled-back"}
+    _journal_bytes(terminal_store)
     publisher.flush()
     if pin in changes: assert_reader_compatible(root, changes[pin])
     # Unreferenced immutable objects may survive a failure before the journal.
@@ -286,7 +306,7 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
     # Exclusive creation protects this local workspace only, not other clones.
     try:
         path_at(root, PENDING, missing=True)
-        publish_new_file(journal_path, canonical(journal), prefix=".lks-transaction-")
+        publish_new_file(journal_path, pending_raw, prefix=".lks-transaction-")
     except FileExistsError as exc:
         raise ContractError("Another local transaction owns the workspace") from exc
     modified = False
@@ -316,7 +336,7 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
                 validator()
             finally:
                 VALIDATING.reset(token)
-    except InterruptedError:
+    except (InterruptedError, CapacityRequired):
         raise
     except Exception:
         if modified:
@@ -335,6 +355,7 @@ def apply(root: Path, changes: dict[str, bytes | None], expected: dict, authoriz
 
 
 @evaluated
+@recovering
 def recover(root: Path, authorized_hash: str, *, rollback: bool = False, receipt: str | None = None) -> dict:
     root = filesystem_root(root)
     invalidate(root)
