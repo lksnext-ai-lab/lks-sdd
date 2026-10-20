@@ -45,6 +45,11 @@ afectadas; no repite la campaña de 800 MB ni amplía la puerta estable.
 
 ## Pull request
 
+4.0.3 añade `test_capacity` y `test_v403_public`: autorización por operación,
+alteración/alcance/caducidad, recuperación y rollback con los mismos presupuestos,
+y cierre público con inventario histórico grande presente desde la presentación.
+Son regresiones focales; no amplían la puerta estable ni repiten la campaña de volumen.
+
 La comprobación automática de una PR es solo el contrato del plugin:
 
 ```powershell

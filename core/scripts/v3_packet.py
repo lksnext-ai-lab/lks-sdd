@@ -6,6 +6,7 @@ from pathlib import Path
 from content_store import LIMIT, reference, object_path
 from v2_contract import ContractError, canonical, path_at, read_bytes, sha
 from path_utils import publish_new_file
+from capacity import require
 
 FORMAT = "lks-sdd-packet/1"
 MAX_FILES = 100000
@@ -37,12 +38,12 @@ class Spool(MutableMapping):
     def __setitem__(self, name, raw):
         from v2_contract import relative_parts
         relative_parts(name, package_data=True)
-        if name not in self.refs and len(self.refs) >= MAX_FILES: raise ContractError("Packet file budget exceeded")
+        require("packet_files", len(self.refs) + (name not in self.refs), MAX_FILES, "Packet file budget exceeded")
         if raw is None: self.refs[name] = None; return
         ref = reference(raw)
         digest = ref["sha256"]
         if digest not in self.unique:
-            if self.total_bytes + len(raw) > MAX_BYTES: raise ContractError("Packet byte budget exceeded")
+            require("packet_bytes", self.total_bytes + len(raw), MAX_BYTES, "Packet byte budget exceeded")
             target = path_at(self.base, "objects/" + digest, missing=True, package_data=True)
             target.parent.mkdir(parents=True, exist_ok=True)
             publish_new_file(target, raw, prefix=".packet-")
@@ -65,14 +66,15 @@ class Payload(Mapping):
         if not isinstance(folder, str) or "/" in folder or folder in {"", ".", ".."}:
             raise ContractError("Invalid packet object directory")
         self.base, self.folder, self.refs = packet.base, folder, packet["payload"]
-        if not isinstance(self.refs, dict) or len(self.refs) > MAX_FILES: raise ContractError("Packet file budget exceeded")
+        if not isinstance(self.refs, dict): raise ContractError("Packet file budget exceeded")
+        require("packet_files", len(self.refs), MAX_FILES, "Packet file budget exceeded")
         unique = {}
         for ref in self.refs.values():
             if ref is not None:
                 object_path(ref)
                 if ref["sha256"] in unique and unique[ref["sha256"]] != ref["bytes"]: raise ContractError("Conflicting packet size")
                 unique[ref["sha256"]] = ref["bytes"]
-        if sum(unique.values()) > MAX_BYTES: raise ContractError("Packet byte budget exceeded")
+        require("packet_bytes", sum(unique.values()), MAX_BYTES, "Packet byte budget exceeded")
     def __len__(self): return len(self.refs)
     def __iter__(self): return iter(self.refs)
     def __getitem__(self, name):
@@ -85,8 +87,9 @@ class InlinePayload(Mapping):
     def __init__(self, packet):
         from v2_contract import relative_parts
         self.values = packet["payload"]
-        if not isinstance(self.values, dict) or len(self.values) > MAX_FILES:
+        if not isinstance(self.values, dict):
             raise ContractError("Packet file budget exceeded")
+        require("packet_files", len(self.values), MAX_FILES, "Packet file budget exceeded")
         total = 0
         for name, raw in self.values.items():
             relative_parts(name, package_data=True)
@@ -94,7 +97,7 @@ class InlinePayload(Mapping):
                 if not isinstance(raw, str) or len(raw) > 4*((LIMIT+2)//3):
                     raise ContractError("Packet object budget exceeded")
                 total += (len(raw)//4)*3 - (len(raw)-len(raw.rstrip("=")))
-                if total > MAX_BYTES: raise ContractError("Inline packet byte budget exceeded")
+                require("packet_bytes", total, MAX_BYTES, "Inline packet byte budget exceeded")
     def __len__(self): return len(self.values)
     def __iter__(self): return iter(self.values)
     def __getitem__(self, name):
@@ -149,7 +152,7 @@ def save(packet, destination):
         if ref["sha256"] not in sizes:
             sizes[ref["sha256"]] = ref["bytes"]
             total += ref["bytes"]
-            if total > MAX_BYTES: raise ContractError("Packet byte budget exceeded")
+            require("packet_bytes", total, MAX_BYTES, "Packet byte budget exceeded")
             write_one(destination.parent, folder + "/" + ref["sha256"], raw)
     value = {**packet, "format": FORMAT, "object_directory": folder, "payload": refs}
     raw = canonical(value)

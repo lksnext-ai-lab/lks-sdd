@@ -74,8 +74,10 @@ def publish_object(root, name: str, raw: bytes) -> None:
 
 
 def validate_inventory(root, value: dict) -> dict:
-    if not isinstance(value, dict) or len(value) > 50000:
+    if not isinstance(value, dict):
         raise ContractError("Invalid or excessive technical inventory")
+    from capacity import require
+    require("inventory_entries", len(value), 50000, "Invalid or excessive technical inventory")
     for name, digest in value.items():
         relative_parts(name, package_data=True)
         if digest is not None and (not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)):

@@ -118,7 +118,10 @@ def _read_regular(root: Path, relative: str, *, limit: int, package_data: bool =
         raise ContractError("Not a bounded regular source: " + relative)
     observed = path.lstat()
     if observed.st_size > limit:
-        raise ContractError("Not a bounded regular source: " + relative)
+        if limit != 4 * 1024 * 1024:
+            raise ContractError("Not a bounded regular source: " + relative)
+        from capacity import require
+        limit = require("source_bytes", observed.st_size, limit, "Not a bounded regular source: " + relative)
     from source_inventory import read
     # Allocate the observed size plus one, preserving the limit and rejecting
     # growth/replacement rather than reserving 64 MiB for each tiny code file.
@@ -130,8 +133,16 @@ def read_bytes(root: Path, relative: str, *, limit: int = 4 * 1024 * 1024, packa
     checkpoint()
     if relative.startswith(".lks-sdd/objects/sha256/"):
         from object_zip import read_logical
+        # The generic documentary default is not the CAS representation limit.
+        if limit == 4 * 1024 * 1024:
+            from content_store import LIMIT
+            limit = LIMIT
         return read_logical(root, relative, limit)
-    from document_state import LINK as STATE_LINK, linked
+    from document_state import LINK as STATE_LINK, linked, PREFIX as STATE_PREFIX, MAX_MANIFEST
+    if limit in (4 * 1024 * 1024, MAX_MANIFEST) and re.fullmatch(re.escape(STATE_PREFIX) + r"[0-9a-f]{64}/state\.json", relative):
+        physical = path_at(root, relative)
+        from capacity import require
+        limit = require("state_manifest_bytes", physical.stat().st_size, MAX_MANIFEST, "State manifest budget exceeded")
     if STATE_LINK.fullmatch(relative):
         data = linked(root, relative, limit)
         physical = path_at(root, relative, missing=True, package_data=package_data)

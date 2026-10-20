@@ -55,8 +55,11 @@ def documents(root, *, excluded=(), limit=100000, byte_limit=None):
                 elif stat.S_ISREG(info.st_mode):
                     total += info.st_size
                     files[relative] = (path, info)
-                    if len(files) > limit or (byte_limit is not None and total > byte_limit):
-                        raise ContractError("Document source inventory exceeds resource budget")
+                    from capacity import require
+                    require("document_files" if limit == 10000 else "source_files", len(files), limit,
+                            "Document source inventory exceeds resource budget")
+                    if byte_limit is not None:
+                        require("source_scan_bytes", total, byte_limit, "Document source inventory exceeds resource budget")
                 else: raise ContractError("Non-regular documentary source: " + relative)
         if signature(directory.lstat())[:3] != signature(observed_directory)[:3]:
             raise ContractError("Document directory changed during enumeration")

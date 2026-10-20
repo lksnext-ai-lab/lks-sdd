@@ -1,5 +1,23 @@
 # Changelog
 
+## 4.0.3 — 2026-10-20 — capacidad puntual y continuidad
+
+Corrección con autorización puntual de recursos y recuperación coherente.
+Conserva las seis skills, esquema y método.
+
+- Corrige la relectura de objetos CAS válidos en el guard de presentación, incluidos
+  objetos históricos mayores de 4 MiB; conserva verificación lógica e integridad.
+- Añade `capacity-approval-required` y `--capacity-approval`: respuesta explícita
+  del usuario, cotas finitas por operación y vínculo a proyecto, entrada y generación.
+- Conserva el consentimiento en las guardas del preview y lo reutiliza para aplicar,
+  completar o revertir la misma transacción, sin conceder autoridad funcional.
+- Conecta presupuestos compatibles de lectura, documentación, inventarios, estados,
+  índices ZIP, paquetes y diagnóstico. Mantiene límites de representación y formatos
+  de mantenimiento; no ofrece ampliaciones incompatibles ni elimina controles.
+- Mantiene Windows/H2 pendientes. No actualiza ni compacta consumidores automáticamente.
+
+Véanse [operación y fronteras](docs/CAPACITY-CONSENT.md).
+
 ## 4.0.2 — 2026-10-19 — autoría con objetos históricos grandes
 
 - Corrige el límite implícito de 4 MiB en la copia de validación de `author` que

@@ -7,6 +7,7 @@ import sys
 from functools import wraps
 
 from v3_contract import ContractError, INDEX, element, load, canonical
+from capacity import CapacityRequired
 
 
 def is_v3(root):
@@ -320,6 +321,8 @@ def main(argv=None, command=None):
     parser.add_argument("--status", dest="store_status", action="store_true", help="Consultar mantenimiento sin escribir ni autorizar")
     parser.add_argument("--finalize-without-removal", action="store_true", help="Cerrar mantenimiento conservando todos los originales; requiere su hash exacto")
     parser.add_argument("--receipt")
+    parser.add_argument("--capacity-approval", type=Path,
+                        help="Consentimiento externo del usuario para esta operación; no concede autoridad funcional")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--view", choices=("compatible", "operational"), default="compatible",
                         help="compatible conserva el comportamiento anterior; operational evita duplicación diagnóstica")
@@ -330,8 +333,11 @@ def main(argv=None, command=None):
     transport.add_argument("--compact", action="store_true", help="Un solo cuerpo de presentación, también con --json")
     args = parser.parse_args(argv); action = command or args.action
     from v4_activity import session
+    from capacity import session as capacity_session
     with session(action, activity=args.activity):
-        return _main(args, action, argv)
+        with capacity_session(args.project_root, action, approval_path=args.capacity_approval,
+                              authorization=args.authorize):
+            return _main(args, action, argv)
 
 
 def _main(args, action, argv):
@@ -359,6 +365,8 @@ def _main(args, action, argv):
                 source=args.input.resolve()
                 input_raw=read_bytes(source.parent,source.name,limit=64*1024*1024,package_data=True)
             data = read_packet(args.input,raw=input_raw)
+        from capacity import bind
+        bind(data)
         if args.capture_dir and not capture_error:
             try:
                 from diagnostic_capture import Capture
@@ -405,6 +413,8 @@ def _main(args, action, argv):
                 else:
                     if args.store_status or args.finalize_without_removal:
                         raise ContractError("Estas opciones requieren mantenimiento /2")
+                    from capacity import legacy_maintenance
+                    legacy_maintenance()
                     result = store_recover(root, args.authorize, remove_authorized=args.authorize_removal)
         elif action == "apply":
             if not args.authorize: raise ContractError("Falta autorizar el paquete exacto")
@@ -490,8 +500,36 @@ def _main(args, action, argv):
             return 0 if result.get("status") in {"ready", "completed"} else 3 if result.get("status") == "partial" else 2
         if action.startswith("store-") and result.get("status") == "paused": return 3
         return 2 if result.get("status") in {"blocked", "unsupported", "reconciliation-required", "rejected-stale-preview"} else 0
-    except (OperationInterrupted, ContractError, OSError, ValueError, KeyError, TypeError) as exc:
+    except (OperationInterrupted, CapacityRequired, ContractError, OSError, ValueError, KeyError, TypeError) as exc:
+        result = getattr(exc, "operation_result", locals().get("result", {}))
         failure = {"status": "blocked", "cause": str(exc), "next": "Resuelva esta causa concreta; se conserva el trabajo existente"}
+        if isinstance(exc, CapacityRequired):
+            from capacity import reissue
+            actual_root = locals().get("root", args.project_root)
+            actual_data = locals().get("data", {})
+            failure.update(status="capacity-approval-required", capacity_request=reissue(exc.request, action, actual_data, args.authorize),
+                           next="Presente límites y consumo al usuario; solo tras su OK explícito repita "
+                                "la misma operación con --capacity-approval <consentimiento-externo.json>. "
+                                "No cambie controles de integridad ni autorizaciones funcionales.")
+            from v2_storage import PENDING
+            if (actual_root / PENDING).exists():
+                failure.update(status="partial", effects={"pending": PENDING},
+                               next="Inspeccione el diario pendiente y recupere la misma operación; no repita la escritura original.")
+                try:
+                    from v2_contract import read_bytes as read_pending
+                    journal = json.loads(read_pending(actual_root, PENDING, limit=128*1024*1024))
+                    key = journal.get("preview_hash") or args.authorize
+                    if not key and "preview_ref" in journal:
+                        from content_store import read_object
+                        journal["preview"] = json.loads(read_object(actual_root, journal["preview_ref"]))
+                    key = key or journal["preview"]["preview_hash"]
+                    recovery_action = "store-recover" if action.startswith("store-") else "recover"
+                    failure.update(status="partial", capacity_request=reissue(exc.request, recovery_action, {}, key),
+                                   effects={"pending": PENDING, "preview_hash": key},
+                                   next="La operación está pendiente: tras el OK de capacidad use " + recovery_action + " con --authorize "
+                                        + key + " y --capacity-approval. No repita la operación original.")
+                except (CapacityRequired, ContractError, OSError, ValueError, KeyError, TypeError) as inspection_error:
+                    failure["recovery_inspection"] = str(inspection_error)
         if isinstance(exc, OperationInterrupted):
             failure.update(status="interrupted", interruption=exc.interruption,
                            next="Inspect preserved receipts and technical artifacts; retry only the exact authorized intent")
@@ -510,12 +548,12 @@ def _main(args, action, argv):
                         [observe(action, {k:v for k,v in actual_data.items() if k != "usage_context"}, failure,
                                  context={**(actual_data.get("usage_context") if isinstance(actual_data.get("usage_context"),dict) else {}),
                                           **({"run_id":capture.run_id} if capture else {})}, stage="failed",root=locals().get("root"))]}
-                except (ContractError, OSError, ValueError, KeyError, TypeError) as diagnostic_error:
+                except (CapacityRequired, ContractError, OSError, ValueError, KeyError, TypeError) as diagnostic_error:
                     usage = {"status":"incomplete","cause":str(diagnostic_error),"quality":"unchanged","observations":[]}
             try:
                 value = report(usage["observations"])
                 usage.update(summary=value["summary"], prompt=value["prompt"])
-            except (ContractError, ValueError, KeyError, TypeError): usage["status"] = "incomplete"
+            except (CapacityRequired, ContractError, ValueError, KeyError, TypeError): usage["status"] = "incomplete"
             failure["usage"] = usage
         # Output/diagnostic failure cannot hide applied effects in either view.
         observed_result = locals().get("result", {})
@@ -523,9 +561,10 @@ def _main(args, action, argv):
             try:
                 from store_compaction import status as store_status
                 state = store_status(locals().get("root", args.project_root), args.authorize)
-                failure.update(status="partial" if state.get("pending") else "blocked", effects=state,
-                               next="Inspect pending/receipt; use store-recover with the same hash, never blindly repeat store-compact")
-            except (ContractError, OSError, ValueError, KeyError, TypeError):
+                if not isinstance(exc, CapacityRequired):
+                    failure.update(status="partial" if state.get("pending") else "blocked", effects=state,
+                                   next="Inspect pending/receipt; use store-recover with the same hash, never blindly repeat store-compact")
+            except (CapacityRequired, ContractError, OSError, ValueError, KeyError, TypeError):
                 pass
         if observed_result.get("format") == "lks-sdd-operation-result/1" and action in {"work-continue", "work-record-results"}:
             failure.update({key: observed_result[key] for key in
@@ -533,7 +572,9 @@ def _main(args, action, argv):
             failure["operation_status"] = observed_result["status"]
             if observed_result.get("effects") or observed_result.get("recovery"):
                 failure["status"] = "partial"
-                failure["next"] = "Preserve these stage receipts; retry the exact intent after resolving the transport failure"
+                failure["next"] = ("Conserve los recibos de etapa y solicite el OK de capacidad; recupere el diario pendiente antes de continuar"
+                                   if isinstance(exc, CapacityRequired) else
+                                   "Preserve these stage receipts; retry the exact intent after resolving the transport failure")
         elif observed_result.get("status") in {"applied", "previously-applied", "completed", "rolled-back"}:
             failure["effects"] = {key: observed_result[key] for key in
                 ("status", "receipt", "preview_hash", "writes", "current_conformance") if key in observed_result}

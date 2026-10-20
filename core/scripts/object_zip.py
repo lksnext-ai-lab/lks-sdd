@@ -95,9 +95,13 @@ def _index(root, name, budget):
         if len(footer) != 22: raise ContractError("Truncated object ZIP footer")
         magic, disk, central_disk, count_disk, count, index_size, offset, comment = struct.unpack("<4s4H2LH", footer)
         if (magic != b"PK\x05\x06" or disk or central_disk or count_disk != count or comment
-                or not 1 <= count <= MAX_ENTRIES or index_size > min(MAX_INDEX, budget)
+                or not 1 <= count <= MAX_ENTRIES or index_size > MAX_INDEX
                 or offset + index_size != size - 22):
             raise ContractError("Invalid or excessive object ZIP index")
+        if index_size > budget:
+            from capacity import require, limit
+            require("zip_index_bytes", limit("zip_index_bytes", MAX_INDEX_TOTAL) - budget + index_size,
+                    MAX_INDEX_TOTAL, "Invalid or excessive object ZIP index")
         try:
             with zipfile.ZipFile(stream) as archive:
                 entries = archive.infolist()
@@ -136,7 +140,8 @@ def _locations(root, *, checkpoint=None):
     key = str(Path(root).resolve()); active = _ACTIVE.get()
     scoped = active is not None and active["owner"] == _owner()
     if scoped and key in active["roots"]: return active["roots"][key][0]
-    available = MAX_INDEX_TOTAL - (active["bytes"] if scoped else 0)
+    from capacity import limit
+    available = limit("zip_index_bytes", MAX_INDEX_TOTAL) - (active["bytes"] if scoped else 0)
     folder = path_at(root, PACKS.rstrip("/"), missing=True, package_data=True)
     locations = {}; total = 0
     if folder.exists():
@@ -147,7 +152,9 @@ def _locations(root, *, checkpoint=None):
                 if checkpoint is not None:
                     checkpoint()
                 count += 1
-                if count > MAX_PACKS: raise ContractError("Object ZIP enumeration budget exceeded")
+                if count > MAX_PACKS:
+                    from capacity import require
+                    require("zip_index_bytes", count * 110, MAX_INDEX_TOTAL, "Object ZIP enumeration budget exceeded")
                 if not re.fullmatch(r"[0-9a-f]{64}\.zip", entry.name):
                     raise ContractError("Unrecognized file in object ZIP directory")
                 index, used = _index(root, PACKS + entry.name, available - total)

@@ -9,6 +9,7 @@ import copy
 import json
 
 from v3_contract import ContractError, DOCS, HISTORY, INDEX, canonical, fingerprint, load, read_bytes, sha
+from capacity import CapacityRequired
 
 REQUEST = "lks-sdd-operation-request/1"
 RESULT = "lks-sdd-operation-result/1"
@@ -310,7 +311,7 @@ def run(root, operation, data, *, apply=False):
                          next="Technical goal recorded; integration, publication and functional acceptance remain separate")
         value["conditions"].append({"rule": "fresh-stage-guards", "satisfied": True,
             "scope": "Each applied or next prepared stage; completed receipts alone do not reauthorize future work"})
-    except (OperationInterrupted, ContractError, OSError, ValueError, KeyError, TypeError) as exc:
+    except (OperationInterrupted, CapacityRequired, ContractError, OSError, ValueError, KeyError, TypeError) as exc:
         if isinstance(exc, OperationInterrupted): value["interruption"] = exc.interruption
         # Re-read durable receipts: an interruption may follow a successful write
         # but precede delivery of its result. Never infer completion from task state.
@@ -318,9 +319,12 @@ def run(root, operation, data, *, apply=False):
             rows, pending = _receipts(root, chosen, steps)
             value["effects"] = [_effect(rows[i]) for i in sorted(rows)]
             if pending: value["recovery"] = pending
-        except (ContractError, OSError, ValueError, KeyError, TypeError) as recovery_error:
+        except (CapacityRequired, ContractError, OSError, ValueError, KeyError, TypeError) as recovery_error:
             value["recovery"] = {"status": "inspection-required", "cause": str(recovery_error)}
         value.update(status="partial" if value["effects"] or value.get("recovery") else "blocked", cause=str(exc))
         value["conditions"].append({"rule": "next-stage", "satisfied": False, "cause": str(exc)})
         value["next"] = "Preserve receipts and later work; resolve this condition before preparing or recovering the remaining stages"
+        if isinstance(exc, CapacityRequired):
+            exc.operation_result = value
+            raise
     return value
