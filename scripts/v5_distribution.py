@@ -101,6 +101,7 @@ def artifacts(core, source, channel):
     codex[".agents/plugins/marketplace.json"] = core["distribution/marketplace.template.json"]
     # Both hosts carry identical full workflows; Copilot changes only routing.
     copilot = {"lks-sdd/core/" + name: raw for name, raw in core.items()}
+    copilot["lks-sdd/.gitattributes"] = b"* -text\n"
     for suffix in SKILLS:
         name = "lks-sdd/skills/lks-sdd-" + suffix + "/SKILL.md"
         full = core["skills/lks-sdd-" + suffix + "/SKILL.md"].decode()

@@ -13,6 +13,7 @@
 
 - Tres tipos documentales: capacidades funcionales, tareas y un plan evolutivo por tarea.
 - Núcleo autónomo y seis skills para Codex/Copilot; sin motor anterior en la distribución.
+- La distribución Git nativa de Copilot conserva bytes y huellas incluso con conversión CRLF de Windows.
 - Autoridad ligada al alcance, pruebas proporcionadas y reutilización con huella de entradas.
 - Resultados locales y nativos externos, concurrencia optimista, recuperación y cierre acotado.
 - Conversión directa 1.5/2.0/3.0/3.1, reanudación hacia v5 y retirada del runtime anterior del consumidor.

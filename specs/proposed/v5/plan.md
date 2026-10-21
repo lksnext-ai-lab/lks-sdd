@@ -176,3 +176,8 @@ los cambios editoriales de release generan una nueva huella de distribución.
 La publicación se acredita con el workflow y la release remotos, no con este texto.
 Instalación, aceptación conversacional y migración de consumidores activos siguen
 fuera de este paso.
+
+La preparación de publicación detecta y corrige la conversión CRLF del checkout Git
+nativo Copilot: `.gitattributes` conserva los bytes y el validador exige esa regla.
+La prueba de distribución incluye una clonación real con `core.autocrlf=true`;
+el preflight estable se vuelve a ejecutar sobre el commit corregido.

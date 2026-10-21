@@ -301,6 +301,29 @@ class ScenarioTests(unittest.TestCase):
         self.assertEqual(validate(a["lks-sdd-copilot-plugin-v5.0.0.zip"])["status"], "valid")
         _validate_bundle(a["lks-sdd-plugin-v5.0.0.zip"], "plugin")
         _validate_bundle(a["lks-sdd-marketplace-v5.0.0.zip"], "marketplace")
+        # A native Git distribution must retain the ZIP's exact integrity bytes
+        # even when the consuming Windows checkout enables CRLF conversion.
+        from validate_copilot_package import unpack
+        native = {n[len("lks-sdd/"):]: raw for n, raw in
+                  unpack(a["lks-sdd-copilot-plugin-v5.0.0.zip"]).items()}
+        with tempfile.TemporaryDirectory(prefix="lks-v5-native-") as native_temporary:
+            native_root = Path(native_temporary).resolve()
+            repository, clone = native_root / "source", native_root / "clone"
+            for name, raw in native.items(): put(repository, name, raw)
+            def git(*args, cwd=repository):
+                return subprocess.run(["git", *args], cwd=cwd, check=True,
+                                      capture_output=True, timeout=30).stdout
+            git("init")
+            git("-c", "core.autocrlf=false", "add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                "-c", "commit.gpgsign=false", "commit", "-m", "Native fixture")
+            git("clone", "--local", "--config", "core.autocrlf=true",
+                str(repository), str(clone))
+            cloned = {name: (clone / name).read_bytes() for name in native}
+            self.assertEqual({n: core.digest(b) for n, b in cloned.items()},
+                             {n: core.digest(b) for n, b in native.items()})
+            self.assertEqual(validate(distribution.zip_bytes(
+                {"lks-sdd/" + name: raw for name, raw in cloned.items()}))["status"], "valid")
 
     def test_runtime_integrity_detects_foreign_edit(self):
         files = distribution.consumer_files(distribution.core_files(ROOT))

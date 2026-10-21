@@ -34,7 +34,9 @@ def validate(data):
     manifest = json.loads(files["plugin.json"])
     if manifest.get("version", "").startswith("5."):
         from v5_distribution import validate_payload
-        allowed = {"plugin.json", "native-integrity.json"} | {f"skills/lks-sdd-{s}/SKILL.md" for s in SKILLS}
+        allowed = {"plugin.json", "native-integrity.json", ".gitattributes"} | {f"skills/lks-sdd-{s}/SKILL.md" for s in SKILLS}
+        if files.get(".gitattributes") != b"* -text\n":
+            raise ValueError("Native Git checkout must preserve exact payload bytes")
         if manifest.get("name") != "lks-sdd" or any(name not in allowed and not name.startswith("core/") for name in files):
             raise ValueError("Unrequested native components or wrong identity")
         native = json.loads(files["native-integrity.json"])
