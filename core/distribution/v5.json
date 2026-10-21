@@ -1,0 +1,27 @@
+{
+  "format": "lks-sdd/5-distribution",
+  "files": [
+    ".codex-plugin/plugin.json",
+    "LICENSE.md",
+    "README.md",
+    "distribution/dual.json",
+    "distribution/marketplace.template.json",
+    "distribution/v5.json",
+    "docs/INSTALLATION.md",
+    "docs/V5.md",
+    "docs/VALIDATION.md",
+    "scripts/lks_sdd.py",
+    "scripts/v5_cli.py",
+    "scripts/v5_core.py",
+    "scripts/v5_distribution.py",
+    "scripts/v5_legacy.py",
+    "scripts/v5_migration.py",
+    "scripts/v5_results.py",
+    "skills/lks-sdd-adopt-existing/SKILL.md",
+    "skills/lks-sdd-assess-readiness/SKILL.md",
+    "skills/lks-sdd-define/SKILL.md",
+    "skills/lks-sdd-help/SKILL.md",
+    "skills/lks-sdd-implement/SKILL.md",
+    "skills/lks-sdd-verify/SKILL.md"
+  ]
+}

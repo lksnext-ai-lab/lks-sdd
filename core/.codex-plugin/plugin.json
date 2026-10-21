@@ -1,0 +1,39 @@
+{
+  "name": "lks-sdd",
+  "version": "5.0.0",
+  "description": "Especificaciones por capacidad funcional, definición de tarea y un único plan vivo; migración definitiva con informe de conversión.",
+  "author": {
+    "name": "LKS"
+  },
+  "keywords": [
+    "sdd",
+    "specification-driven-development",
+    "spec-anchored",
+    "codex",
+    "task-tracking",
+    "microsoft-entra",
+    "oidc",
+    "web-development",
+    "governance"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LKS-SDD para Codex",
+    "shortDescription": "Desarrollo Spec-anchored con Codex",
+    "longDescription": "LKS-SDD 5 para Codex y GitHub Copilot. Seis skills, especificaciones consolidadas por capacidad y dos documentos por tarea. Reutiliza decisiones vigentes y comprobaciones ligadas a sus entradas. Integra continuidad, colaboración, resultados y limpieza en el plan. Migración explícita directa desde 1.5, 2.0, 3.0 y 3.1, sin runtime antiguo operativo. Verificación, publicación, despliegue y aceptación se registran por separado.",
+    "developerName": "LKS",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Explícame el proyecto y su estado sin modificar archivos.",
+      "Define este cambio y su plan proporcionado.",
+      "Implementa la tarea autorizada y reutiliza las comprobaciones vigentes.",
+      "Migra explícitamente el proyecto a v5 con vista previa e informe de conversión.",
+      "Verifica y consolida la capacidad funcional modificada."
+    ]
+  }
+}

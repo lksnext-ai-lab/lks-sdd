@@ -1,0 +1,7 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "description": "Capability specifications and one evolving plan per task",
+  "name": "lks-sdd",
+  "skills": "./skills/",
+  "version": "5.0.0"
+}

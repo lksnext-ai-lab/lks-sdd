@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "hosts": [
+    "codex",
+    "copilot"
+  ],
+  "project_schema": "5.0",
+  "method_version": "5.0.0",
+  "storage_formats": [
+    "lks-sdd/5",
+    "lks-sdd/5-transaction",
+    "lks-sdd/5-migration-forward"
+  ],
+  "readable_project_schemas": [
+    "1.5",
+    "2.0",
+    "3.0",
+    "3.1",
+    "5.0"
+  ],
+  "migration_origins": [
+    "1.5",
+    "2.0",
+    "3.0",
+    "3.1"
+  ],
+  "collaboration": "optimistic-git",
+  "additional_files": [
+    ".codex-plugin/plugin.json",
+    "LICENSE.md",
+    "README.md",
+    "distribution/dual.json",
+    "distribution/marketplace.template.json",
+    "distribution/v5.json",
+    "docs/INSTALLATION.md",
+    "docs/V5.md",
+    "docs/VALIDATION.md",
+    "scripts/lks_sdd.py",
+    "scripts/v5_cli.py",
+    "scripts/v5_core.py",
+    "scripts/v5_distribution.py",
+    "scripts/v5_legacy.py",
+    "scripts/v5_migration.py",
+    "scripts/v5_results.py",
+    "skills/lks-sdd-adopt-existing/SKILL.md",
+    "skills/lks-sdd-assess-readiness/SKILL.md",
+    "skills/lks-sdd-define/SKILL.md",
+    "skills/lks-sdd-help/SKILL.md",
+    "skills/lks-sdd-implement/SKILL.md",
+    "skills/lks-sdd-verify/SKILL.md"
+  ]
+}
