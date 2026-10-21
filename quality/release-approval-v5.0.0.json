@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "release_version": "5.0.0",
+  "scope": "stable-release",
+  "basis": [
+    "project-owner-version-approval",
+    "technical-release-gates"
+  ],
+  "evidence_handling": "aggregated-no-identities",
+  "decision": {
+    "status": "approved",
+    "decided_on": "2026-10-21",
+    "authority_role": "project-owner",
+    "rationale": "El responsable autoriza explícitamente el commit, el push y la publicación de la release v5.0.0, incluida su integración y referencias de distribución. La publicación queda condicionada a la validación técnica del commit final.",
+    "blocking_findings": []
+  },
+  "limitations": [
+    "No autoriza instalación ni actualización de plugins activos o consumidores.",
+    "La aceptación conversacional Codex/Copilot y el piloto humano permanecen not-run.",
+    "La migración integral se ha validado sobre una copia controlada; no acredita la regresión funcional ni el despliegue de la aplicación consumidora.",
+    "No se afirma ahorro de tokens facturados ni esfuerzo total a partir del volumen documental."
+  ]
+}

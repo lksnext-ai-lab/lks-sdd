@@ -7,11 +7,11 @@
     {
       "name": "lks-sdd",
       "description": "Desarrollo Spec-anchored con seis skills, ayuda desde cero y runtime compartido por proyecto.",
-      "version": "4.0.3",
+      "version": "5.0.0",
       "source": {
         "source": "github",
         "repo": "lksnext-ai-lab/lks-sdd",
-        "ref": "copilot-v4.0.3"
+        "ref": "copilot-v5.0.0"
       }
     }
   ]

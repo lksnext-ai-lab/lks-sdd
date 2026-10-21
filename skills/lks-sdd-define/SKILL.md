@@ -1,26 +1,25 @@
 ---
 name: lks-sdd-define
-description: "Use with Codex. Specify new functionality or changes lacking validated LKS-SDD coverage; obtain functional and technical validation, then prepare covered plans and tasks."
+description: "Use with Codex. Define requested behavior, capability boundaries, acceptance criteria and one evolving task plan before implementation."
 ---
 
-# Definir, validar y planificar
+# Definir y planificar
 
-Una petición como «añade esta funcionalidad» o «implementa estos cambios» requiere
-este recorrido si falta cobertura vigente. Registre primero lo que se propone y
-las decisiones pendientes, presente el contenido concreto para su validación y
-después prepare el plan detallado. Una conversación sirve como fuente de decisiones;
-su contenido debe quedar registrado antes de implementar. Si ya hay cobertura y
-autorización aplicables, reutilícelas y continúe con `lks-sdd-implement`.
+Lee las [reglas y comandos v5](../../docs/V5.md). Resuelve `<plugin-root>` desde
+la ubicación de esta skill; nunca supongas que coincide con el proyecto consumidor.
+Si existe `.lks-sdd/distribution-lock.json`, usa su runtime exacto. El CLI comprueba
+la integridad en cada operación; no repitas doctor aparte. Antes de editar documentos
+directamente, ejecuta `python <runtime>/scripts/lks_sdd.py doctor --root <proyecto>`.
+Un fallo de integridad se reconcilia; no se evita usando otro runtime.
+Sin runtime fijado usa el plugin instalado. La consulta no instala nada.
+Para un formato antiguo, solo adopción/migración convierte; no hagas escritura dual.
 
-Respete el runtime fijado. Si falta el índice `.lks-sdd/project.json`, inspeccione
-el Markdown antes de asumir un proyecto nuevo. Cargar esta skill no migra ni escribe.
-Una garantía desconocida bloquea solo la porción afectada.
+Contrasta la petición con las capacidades aplicables. Registra hechos, propuestas, decisiones y pendientes por separado. Define comportamiento y criterios observables en tarea.md y el enfoque técnico, comprobaciones proporcionales, dependencias, responsable y siguiente paso en plan.md. Reutiliza una capacidad existente cuando cubra el mismo comportamiento; reglas transversales se escriben una vez. Para tareas complejas registra subtareas con un par de documentos cada una, manteniendo sus relaciones. No selecciones una pila preferente ni implementes una decisión crítica pendiente. La autorización ya expresada en este chat puede registrarse con su alcance exacto; no solicites una ratificación por crear el plan.
 
-- Para formato **3.0 o 3.1**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
-  [esta operación](references/v3.md).
-- Para **2.0 o 1.5**, lea solo [procedimiento conservado](references/v2-and-legacy.md).
-- Para un proyecto sin SDD, confirme configuración y use v3 si se solicita iniciar
-  o adoptar; una consulta no inicializa nada.
-
-Cargue únicamente la ruta aplicable. Al confirmar un hito, explique qué se ha hecho,
-dónde queda el proceso, qué falta y la próxima acción. Si ya está autorizada, continúe.
+Markdown es canónico; el índice es derivado. Carga tarea + plan + capacidades
+aplicables, no todo el histórico. Actualiza el plan existente durante la ejecución.
+Respeta las instrucciones del proyecto y la autoridad ya expresada por la persona.
+No inventes decisiones, autenticación, pruebas, aceptación o métricas de tokens.
+En Copilot aplica el mismo núcleo; las pruebas de otro host no acreditan aceptación
+conversacional de este. Si el usuario pide imágenes, usa las herramientas disponibles
+con su autorización; no introduzcas APIs de pago implícitas.

@@ -61,10 +61,18 @@ def zip_bytes(files: dict[str, bytes]) -> bytes:
 
 def compact_distribution_core(core: dict[str, bytes]) -> dict[str, bytes]:
     """Return an isolated copy of the active source tree for distribution."""
+    if json.loads(core.get("distribution/dual.json", b"{}")).get("project_schema") == "5.0":
+        names = json.loads(core["distribution/v5.json"])["files"]
+        if "package-integrity.json" in core:
+            names = [*names, "package-integrity.json"]
+        return {name: core[name] for name in names}
     return dict(core)
 
 def project_files(core: dict[str, bytes], source: str, channel: str, *, plugin_entrypoints: bool = False, project_schema: str | None = None) -> dict[str, bytes]:
     core = compact_distribution_core(core)
+    if json.loads(core["distribution/dual.json"])["project_schema"] == "5.0":
+        from v5_distribution import consumer_files
+        return consumer_files(core)
     version = json.loads(core[".codex-plugin/plugin.json"])["version"]
     distribution = json.loads(core["distribution/dual.json"])
     project_schema = project_schema or distribution["project_schema"]
@@ -265,6 +273,10 @@ def copilot_plugin_files(core: dict[str, bytes], source: str, channel: str) -> d
 
 
 def artifacts(core: dict[str, bytes], source: str, channel: str) -> dict[str, bytes]:
+    if json.loads(core["distribution/dual.json"])["project_schema"] == "5.0":
+        from v5_distribution import artifacts as v5_artifacts
+        required = json.loads(core["distribution/v5.json"])["files"]
+        return v5_artifacts({name: core[name] for name in required}, source, channel)
     core = compact_distribution_core(core)
     formats = json.loads(core["distribution/dual.json"]).get("storage_formats", [])
     if "lks-sdd-store-maintenance/2" in formats:

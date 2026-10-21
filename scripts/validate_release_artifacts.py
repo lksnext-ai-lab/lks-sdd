@@ -101,6 +101,15 @@ def _safe_member(name: str) -> PurePosixPath:
 
 def _validate_bundle(data: bytes, label: str) -> None:
     try:
+        packed = validate_copilot_package.unpack(data)
+        roots = [name[:-len(".codex-plugin/plugin.json")] for name in packed if name.endswith(".codex-plugin/plugin.json")]
+        if len(roots) == 1 and json.loads(packed[roots[0] + ".codex-plugin/plugin.json"]).get("version", "").startswith("5."):
+            from v5_distribution import validate_payload
+            outside = {name for name in packed if not name.startswith(roots[0])}
+            if outside not in (set(), {".agents/plugins/marketplace.json"}):
+                raise ReleasePackageValidationError("Unexpected files outside the curated plugin")
+            validate_payload({name[len(roots[0]):]: raw for name, raw in packed.items() if name.startswith(roots[0])})
+            return
         with tempfile.TemporaryDirectory(prefix="lks-sdd-release-package-") as temporary:
             root = Path(temporary)
             with zipfile.ZipFile(io.BytesIO(data)) as archive:

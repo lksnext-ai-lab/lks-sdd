@@ -16,20 +16,29 @@ from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 CORE_TESTS = (
-    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_initializer_creates_a_mandatory_local_unknown_declaration",
-    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_generic_binding_remains_a_supported_v2_concept",
-    "test_v2_technology_declaration.V2TechnologyDeclarationTests.test_migration_archives_legacy_profile_concepts_into_local_declaration",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_plan_rule_change_stales_authorization",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_independent_task_in_same_plan_preserves_slice_basis",
-    "test_v2_spec_plan_task.SpecPlanTaskTests.test_strict_guard_requires_approved_auth_and_exec",
-    "test_v3_workflow.WorkflowTests.test_full_lifecycle_and_stale_code",
-    "test_v3_workflow.WorkflowTests.test_approval_change_invalidates_start",
-    "test_v3_governance_quality.GovernanceQualityTests.test_preview_cannot_apply_after_code_change",
-    "test_v3_migration.MigrationTests.test_conversion_preserves_identity_originals_and_code",
-    "test_v3_migration.MigrationTests.test_published_native_initializers_preserve_their_formats",
-    "test_v3_governance_quality.GovernanceQualityTests.test_governance_keeps_prior_policy_and_cannot_self_grant",
-    "test_v3_governance_quality.GovernanceQualityTests.test_quality_cannot_close_on_missing_stale_or_wrong_analysis",
-    "test_v3_integration.IntegrationTests.test_joint_result_integration_and_acceptance_are_distinct",
+    'test_v5_improvements.ImprovementTests.test_conversion_report_measures_scope_and_is_written_only_after_success',
+    'test_v5_improvements.ImprovementTests.test_authority_reference_update_reuses_technical_result',
+    'test_v5_improvements.ImprovementTests.test_subdivision_preserves_parent_authority_and_result',
+    'test_v5_improvements.ImprovementTests.test_concurrent_editor_between_transaction_writes_is_preserved',
+    'test_v5_improvements.ImprovementTests.test_parent_cannot_close_with_uncovered_criteria',
+    'test_v5_improvements.ImprovementTests.test_close_and_delivery_require_same_deployment_checks',
+    'test_v5_improvements.ImprovementTests.test_old_ci_remains_old_after_import_and_reimport',
+    'test_v5_improvements.ImprovementTests.test_migrated_task_keeps_executable_criteria_and_policy',
+    'test_v5_improvements.ImprovementTests.test_method_history_does_not_grow_total_converted_documents',
+    'test_v5_core.VerticalTests.test_complete_flow_has_two_task_documents_and_separate_delivery_facts',
+    'test_v5_core.VerticalTests.test_reuses_passed_result_and_document_only_change',
+    'test_v5_core.VerticalTests.test_scope_change_does_not_reuse_acceptance',
+    'test_v5_core.VerticalTests.test_two_tasks_reconcile_shared_unit_without_lost_changes',
+    'test_v5_core.VerticalTests.test_interrupted_close_recovers_without_repeating_test',
+    'test_v5_core.VerticalTests.test_recovery_rejects_new_test_inputs',
+    'test_v5_core.VerticalTests.test_cleanup_only_owned_unchanged_temporaries',
+    'test_v5_scenarios.ScenarioTests.test_complex_task_waits_for_children',
+    'test_v5_scenarios.ScenarioTests.test_native_external_results_require_inputs_and_provenance',
+    'test_v5_scenarios.ScenarioTests.test_full_conversion_removes_legacy_runtime_and_preserves_policy',
+    'test_v5_scenarios.ScenarioTests.test_conversion_interruption_resumes_and_removes_all_staging',
+    'test_v5_scenarios.ScenarioTests.test_changed_source_new_source_and_modified_preview_block_cutover',
+    'test_v5_scenarios.ScenarioTests.test_published_v2_native_fixture_direct_reader',
+    'test_v5_scenarios.ScenarioTests.test_both_host_bundles_reproducible_and_no_legacy_imports',
 )
 
 
@@ -156,11 +165,13 @@ def _release_core() -> dict[str, Any]:
         "-X",
         "utf8",
         "tests/run_unit_tests.py",
+        "--module", "test_v5_core",
+        "--module", "test_v5_scenarios",
+        "--module", "test_v5_improvements",
     ]
     for selector in CORE_TESTS:
         command.extend(["--test", selector])
-    # The same 14 selected behaviors now include durable v3 migration/workflow
-    # writes: observed 235s on Windows. Keep the gate bounded with runner margin.
+    # Fourteen current v5 behaviors; historical test modules are not imported.
     result = _run("release-core", command, timeout_seconds=600)
     if result["status"] == "passed":
         try:
@@ -208,7 +219,9 @@ def _technical_checks(channel: str) -> list[dict[str, Any]]:
                         "utf8",
                         "tests/run_unit_tests.py",
                         "--module",
-                        "test_windows_long_paths",
+                        "test_v5_scenarios",
+                        "--test",
+                        "test_v5_scenarios.ScenarioTests.test_windows_long_paths_execute_full_migration",
                     ],
                     timeout_seconds=600,
                 ),

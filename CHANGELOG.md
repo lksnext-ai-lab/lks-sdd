@@ -1,5 +1,24 @@
 # Changelog
 
+
+## 5.0.0 — 2026-10-21 — especificaciones y trabajo simplificados
+
+- Revisión v5: migración definitiva sin rollback ni backups, criterios/políticas operativos y retirada de control redundante.
+- Conserva autoridad al subdividir, reutiliza tests tras cambios administrativos y usa antigüedad real de resultados CI.
+- Impide cierre con criterios de hijos sin cubrir y aplica controles de entrega también desde close.
+- Refuerza precondiciones de escritura, añade entrada JSON por stdin y verifica volumen documental total.
+- Genera un único informe de conversión con archivos, bytes, cambios y pendientes, sin backups ni expedientes por archivo.
+- Elimina backlog artificial al migrar, conserva alcance de controles y separa antecedentes del contexto transversal.
+- Reutiliza controles delegados y hechos de entrega; evita reautorizaciones por responsable, doctor duplicado y acumulación de logs.
+
+- Tres tipos documentales: capacidades funcionales, tareas y un plan evolutivo por tarea.
+- Núcleo autónomo y seis skills para Codex/Copilot; sin motor anterior en la distribución.
+- Autoridad ligada al alcance, pruebas proporcionadas y reutilización con huella de entradas.
+- Resultados locales y nativos externos, concurrencia optimista, recuperación y cierre acotado.
+- Conversión directa 1.5/2.0/3.0/3.1, reanudación hacia v5 y retirada del runtime anterior del consumidor.
+- Gate técnico actualizado a v5, conservando aprobación, fuente limpia y rutas largas Windows.
+- Instalación, migración de consumidores y aceptación conversacional de host son pasos explícitos y separados.
+
 ## 4.0.3 — 2026-10-20 — capacidad puntual y continuidad
 
 Corrección con autorización puntual de recursos y recuperación coherente.

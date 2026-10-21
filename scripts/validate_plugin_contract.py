@@ -360,6 +360,10 @@ def validate_copilot_catalog(root: Path, plugin_version: str) -> list[str]:
 
 
 def validate(root: Path) -> list[str]:
+    manifest_path = root / ".codex-plugin/plugin.json"
+    if manifest_path.is_file() and json.loads(manifest_path.read_bytes()).get("version", "").startswith("5."):
+        from validate_v5 import validate as validate_current
+        return validate_current(root, CANONICAL_HASHES)
     errors: list[str] = []
     for relative in sorted(REQUIRED_ROOT_FILES):
         if not (root / relative).is_file():

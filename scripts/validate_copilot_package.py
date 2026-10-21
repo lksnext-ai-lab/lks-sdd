@@ -32,6 +32,25 @@ def validate(data):
         raise ValueError("Expected one lks-sdd plugin root")
     files = {name[len("lks-sdd/"):]: value for name, value in packed.items()}
     manifest = json.loads(files["plugin.json"])
+    if manifest.get("version", "").startswith("5."):
+        from v5_distribution import validate_payload
+        allowed = {"plugin.json", "native-integrity.json"} | {f"skills/lks-sdd-{s}/SKILL.md" for s in SKILLS}
+        if manifest.get("name") != "lks-sdd" or any(name not in allowed and not name.startswith("core/") for name in files):
+            raise ValueError("Unrequested native components or wrong identity")
+        native = json.loads(files["native-integrity.json"])
+        if set(native["files"]) != set(files) - {"native-integrity.json"}:
+            raise ValueError("Native inventory mismatch")
+        if any(digest(files[name]) != expected for name, expected in native["files"].items()):
+            raise ValueError("Native integrity mismatch")
+        if manifest.get("$schema") != "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json":
+            raise ValueError("Unexpected native manifest schema")
+        expected = {f"skills/lks-sdd-{suffix}/SKILL.md" for suffix in SKILLS}
+        if {p for p in files if p.startswith("skills/")} != expected:
+            raise ValueError("Native entrypoint inventory mismatch")
+        result = validate_payload({name[5:]: raw for name, raw in files.items() if name.startswith("core/")})
+        if result["version"] != manifest["version"]:
+            raise ValueError("Native/core version mismatch")
+        return {**result, "channel": native["channel"]}
     if manifest.get("$schema") != "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json" or manifest.get("name") != "lks-sdd":
         raise ValueError("Unexpected native plugin manifest")
     expected_skills = {f"skills/lks-sdd-{suffix}/SKILL.md" for suffix in SKILLS}

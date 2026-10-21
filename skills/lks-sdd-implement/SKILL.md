@@ -1,27 +1,27 @@
 ---
 name: lks-sdd-implement
-description: "Use with Codex. Implement or resume authorized LKS-SDD tasks, preserve complete scope and context, coordinate handoffs, and correct applicable Sonar and dependency findings."
+description: "Use with Codex. Implement or resume authorized tasks, handle dependent subtasks and keep progress and proportional verification in their existing plan."
 ---
 
-# Implementar y corregir
+# Implementar y continuar
 
-Antes de anunciar implementación o editar código de aplicación, compruebe qué
-especificación validada, plan aprobado y tareas autorizadas cubren la petición
-concreta. Explique brevemente esa cobertura con referencias. Si falta o cambia el
-alcance, use `lks-sdd-define` para documentar, validar y planificar primero.
-«Implementa estos cambios» no permite asumir documentos o aprobaciones inexistentes.
-Las decisiones aplazadas deben quedar registradas; compruebe su impacto antes de
-separar trabajo independiente. Reutilice decisiones vigentes sin pedirlas otra vez.
+Lee las [reglas y comandos v5](../../docs/V5.md). Resuelve `<plugin-root>` desde
+la ubicación de esta skill; nunca supongas que coincide con el proyecto consumidor.
+Si existe `.lks-sdd/distribution-lock.json`, usa su runtime exacto. El CLI comprueba
+la integridad en cada operación; no repitas doctor aparte. Antes de editar documentos
+directamente, ejecuta `python <runtime>/scripts/lks_sdd.py doctor --root <proyecto>`.
+Un fallo de integridad se reconcilia; no se evita usando otro runtime.
+Sin runtime fijado usa el plugin instalado. La consulta no instala nada.
+Para un formato antiguo, solo adopción/migración convierte; no hagas escritura dual.
 
-Respete el runtime fijado. Si falta el índice `.lks-sdd/project.json`, inspeccione
-el Markdown antes de asumir un proyecto nuevo. Cargar esta skill no migra ni escribe.
-Una garantía desconocida bloquea solo la porción afectada.
+Identifica la tarea y el plan que cubren la petición. Registra autoridad humana ya disponible para implement/consolidate/deliver solo en su alcance real; registrar una identidad no la autentica. Si falta definición, complétala antes de cambiar código; una decisión crítica no resuelta bloquea su porción. Ejecuta el trabajo autorizado hasta completarlo. Actualiza el único plan con decisiones, progreso, bloqueos, resultados y siguiente acción. Usa check para comandos locales declarados; reutiliza resultados únicamente si siguen coincidiendo todas las entradas pertinentes, configuración, herramienta, política y entorno. Importa resultados nativos con origen, ejecución y huella de entradas. Una caída de CI/VPN/credenciales bloquea esa comprobación, no el trabajo independiente. No generes wrappers ni artefactos de control por transición. Al cambiar chat recupera context y status. Ante conflicto conserva cambios ajenos, concilia el contenido y actualiza la base explícitamente. Nunca repitas automáticamente una acción externa tras una interrupción.
 
-- Para formato **3.0 o 3.1**, lea [reglas comunes v3](../../docs/V3-COMMON.md) y
-  [esta operación](references/v3.md).
-- Para **2.0 o 1.5**, lea solo [procedimiento conservado](references/v2-and-legacy.md).
-- Para un proyecto sin SDD, confirme configuración y use v3 si se solicita iniciar
-  o adoptar; una consulta no inicializa nada.
+Markdown es canónico; el índice es derivado. Carga tarea + plan + capacidades
+aplicables, no todo el histórico. Actualiza el plan existente durante la ejecución.
+Respeta las instrucciones del proyecto y la autoridad ya expresada por la persona.
+No inventes decisiones, autenticación, pruebas, aceptación o métricas de tokens.
+En Copilot aplica el mismo núcleo; las pruebas de otro host no acreditan aceptación
+conversacional de este. Si el usuario pide imágenes, usa las herramientas disponibles
+con su autorización; no introduzcas APIs de pago implícitas.
 
-Cargue únicamente la ruta aplicable. Al confirmar un hito, explique qué se ha hecho,
-dónde queda el proceso, qué falta y la próxima acción. Si ya está autorizada, continúe.
+Una subdivisión dentro del alcance conserva la autoridad del padre; no reautorices por cambiar enlaces administrativos. Mantén criterion_links para delegar criterios con cobertura verificable. No repitas pruebas por cambiar referencias de autoridad. Respeta los controles aplicables del proyecto y los bloqueos explícitos. Los indicadores administrativos antiguos no obligan a reconstruir controles retirados.
